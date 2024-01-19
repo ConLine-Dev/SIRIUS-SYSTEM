@@ -16,6 +16,11 @@
     height: 100% !important;
 }
 
-.container-fluid{
-    /* position: absolute; */
+
+.defaultBodyTicket{
+    min-height: 150px;
+}
+
+.select2-container{
+    z-index: 9999999;
 }

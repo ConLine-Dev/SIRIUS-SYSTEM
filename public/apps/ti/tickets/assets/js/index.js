@@ -1,6 +1,42 @@
-
+var choicesInstance;
 
     document.addEventListener("DOMContentLoaded", async () => {
+     const ButtonAddTicket = document.getElementById('ButtonAddTicket')
+     ButtonAddTicket.addEventListener('click', function(e){
+        e.preventDefault();
+
+
+        // Obtenha as opções selecionadas
+        const opcoesSelecionadas = choicesInstance.getValue();
+
+        // Mapeie para obter apenas os IDs
+        const idsSelecionados = opcoesSelecionadas.map(function(opcao) {
+            return {
+                id:opcao.id,
+                name:opcao.value,
+                dataHead: opcao.customProperties && opcao.customProperties.dataHead
+            };
+        });
+
+        const settingsTicket = {
+            type:'#new-tasks-draggable',
+            timeInit:document.getElementsByName("timeInit")[0].value,
+            responsible:{
+                id:document.getElementsByName("responsible")[0],
+                name:document.getElementsByName("responsible")[0].value},
+            timeEnd:document.getElementsByName("timeEnd")[0].value,
+            title:document.getElementsByName("title")[0].value,
+            atribuido:idsSelecionados,
+            description: document.getElementsByName("description")[0].value,
+        }
+
+        console.log(settingsTicket)
+
+        createTicket(settingsTicket)
+
+     })
+
+
      await main()
     })
 
@@ -8,47 +44,35 @@
     async function main(){
         dragula([document.querySelector('#new-tasks-draggable'), document.querySelector('#todo-tasks-draggable'), document.querySelector('#inprogress-tasks-draggable'), document.querySelector('#inreview-tasks-draggable'), document.querySelector('#completed-tasks-draggable')]);
 
-    // /* multi select with remove button */
-    // const multipleCancelButton = new Choices(
-    //     '#choices-multiple-remove-button1',
-    //     {
-    //         allowHTML: true,
-    //         removeItemButton: true,
-    //     }
-    // );
-    // const multipleCancelButton1 = new Choices(
-    //     '#choices-multiple-remove-button2',
-    //     {
-    //         allowHTML: true,
-    //         removeItemButton: true,
-    //     }
-    // );
+
+        await listResponsibles()
 
     /* TargetDate Picker */
-    flatpickr("#targetDate", {
+    flatpickr(".targetDate", {
         enableTime: true,
         dateFormat: "Y-m-d H:i",
     });
 
-     /* filepond */
-     FilePond.registerPlugin(
-        FilePondPluginImagePreview,
-        FilePondPluginImageExifOrientation,
-        FilePondPluginFileValidateSize,
-        FilePondPluginFileEncode,
-        FilePondPluginImageEdit,
-        FilePondPluginFileValidateType,
-        FilePondPluginImageCrop,
-        FilePondPluginImageResize,
-        FilePondPluginImageTransform
-    );
+    //  /* filepond */
+    //  FilePond.registerPlugin(
+    //     FilePondPluginImagePreview,
+    //     FilePondPluginImageExifOrientation,
+    //     FilePondPluginFileValidateSize,
+    //     FilePondPluginFileEncode,
+    //     FilePondPluginImageEdit,
+    //     FilePondPluginFileValidateType,
+    //     FilePondPluginImageCrop,
+    //     FilePondPluginImageResize,
+    //     FilePondPluginImageTransform
+    // );
 
-    /* multiple upload */
-    const MultipleElement = document.querySelector('.multiple-filepond');
-    FilePond.create(MultipleElement,);
+    // /* multiple upload */
+    // const MultipleElement = document.querySelector('.multiple-filepond');
+    // FilePond.create(MultipleElement,);
 
 
         await listAllUsersTI()
+        await listAllUsersTIToChoise()
 
     }
 
@@ -72,7 +96,15 @@
     }
 
 
-    async function createTicket(init,title, description){
+    async function createTicket(settingsTicket){
+
+        let users = '';
+        settingsTicket.atribuido.forEach(element => {
+            users += `<span class="avatar avatar-sm avatar-rounded">
+                <img src="https://cdn.conlinebr.com.br/colaboradores/${element.dataHead}" alt="img">
+            </span>`;
+     });    
+
     const card = `<div class="card custom-card">
         <div class="card-body p-0">
             <div class="p-3 kanban-board-head">
@@ -80,7 +112,7 @@
                     class="d-flex text-muted justify-content-between mb-1 fs-12 fw-semibold">
                     <div>
                     <i class="ri-time-line me-1 align-middle d-inline-block"></i>
-                    ${init}
+                    ${settingsTicket.timeInit}
                     </div>
                     <div>faltam 2 dias</div>
                 </div>
@@ -99,22 +131,18 @@
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item"
                                     href="javascript:void(0);"><i
-                                        class="ri-eye-line me-1 align-middle d-inline-block"></i>View</a>
+                                        class="ri-eye-line me-1 align-middle d-inline-block"></i>visualizar</a>
                             </li>
                             <li><a class="dropdown-item"
                                     href="javascript:void(0);"><i
-                                        class="ri-delete-bin-line me-1 align-middle d-inline-block"></i>Delete</a>
-                            </li>
-                            <li><a class="dropdown-item"
-                                    href="javascript:void(0);"><i
-                                        class="ri-edit-line me-1 align-middle d-inline-block"></i>Edit</a>
+                                        class="ri-delete-bin-line me-1 align-middle d-inline-block"></i>Remover</a>
                             </li>
                         </ul>
                     </div>
                 </div>
                 <div class="kanban-content mt-2">
-                    <h6 class="fw-semibold mb-1 fs-15">${title}</h6>
-                    <div class="kanban-task-description">${description}.</div>
+                    <h6 class="fw-semibold mb-1 fs-15">${settingsTicket.title}</h6>
+                    <div class="kanban-task-description">${settingsTicket.description}.</div>
                 </div>
             </div>
             <div class="p-3 border-top border-block-start-dashed">
@@ -129,28 +157,87 @@
                         <span class="fw-semibold fs-12">02</span>
                     </a>
                     </div>
-                    <div class="avatar-list-stacked"><span
-                            class="avatar avatar-sm avatar-rounded"><img
-                                src="../../assets/images/faces/11.jpg"
-                                alt="img"></span><span
-                            class="avatar avatar-sm avatar-rounded"><img
-                                src="../../assets/images/faces/12.jpg"
-                                alt="img"></span><span
-                            class="avatar avatar-sm avatar-rounded"><img
-                                src="../../assets/images/faces/7.jpg"
-                                alt="img"></span><span
-                            class="avatar avatar-sm avatar-rounded"><img
-                                src="../../assets/images/faces/8.jpg"
-                                alt="img"></span></div>
+                    <div class="avatar-list-stacked">
+                        ${users}
+
+                    </div>
                 </div>
             </div>
         </div>
                   </div>`
 
 
-    document.querySelector('#new-tasks-draggable').innerHTML += card
+    document.querySelector(settingsTicket.type).innerHTML += card
     }
 
-    createTicket('Início - 18/01/2024 ás 17:30', 'titulo', 'descrição')
+
+     /* SUPORTE AO SELECT2 PARA FORMATAR AS IMAGENS NO SELECT */
+    function selectFormatImg(client) {
+        if (!client.id) { return client.text; }
+        const element = client.element;
+        const headID = element.getAttribute('data-headcargoid');
+
+        var $client = $(
+            '<span><img src="https://cdn.conlinebr.com.br/colaboradores/'+headID+'" /> '
+            + client.text + '</span>'
+        );
+        return $client;
+    };
+
+    async function listResponsibles(){
+        
+        const listAllUsers = await makeRequest('/api/users/listAllUsers')
+
+
+        document.querySelector('select[name="responsible"]').innerHTML = ''
+        listAllUsers.forEach(element => {
+      
+            document.querySelector('select[name="responsible"]').innerHTML += `<option data-headcargoID="${element.id_headcargo}" id="${element.userID}">${element.username} ${element.familyName}</option>`
+        });
+
+        
+        
+        
+        $('select[name="responsible"]').select2({
+            dropdownParent: $('#add-task'),
+            templateResult: selectFormatImg,
+            templateSelection: selectFormatImg,
+            placeholder: "Selecione o colaborador",
+            escapeMarkup: function (m) { return m; }
+        });
+    }
+
+    async function listAllUsersTIToChoise(){
+        const listusers = await makeRequest('/api/users/ListUserByDep/7')
+
+
+        // Formate o array para ser usado com o Choices.js
+        var listaDeOpcoes = listusers.map(function(element) {
+            return {
+                customProperties:{dataHead:element.id_headcargo},
+                value: `${element.username} ${element.familyName}`,
+                label: `${element.username} ${element.familyName}`,
+                id: element.userID
+            };
+        });
+    
+
+        choicesInstance = new Choices('select[name="atribuido"]', {
+            choices: listaDeOpcoes,
+            // allowHTML: true,
+            // allowSearch: true,
+            // removeItemButton: true,
+        });
+    }
+
+
+
+    const settingsTicket = {
+        type:'#new-tasks-draggable',
+        init:'Início - 18/01/2024 ás 17:30',
+        title:'titulo',
+        description: 'descrição'
+    }
+    createTicket(settingsTicket)
 
 

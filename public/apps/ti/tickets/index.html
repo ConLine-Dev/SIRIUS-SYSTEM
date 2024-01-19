@@ -37,6 +37,8 @@
     <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
     <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
 
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="./assets/css/index.css">
     <meta http-equiv="imagetoolbar" content="no">
 </head>
@@ -555,7 +557,7 @@
                                             aria-label="scrollable content"
                                             style="height: auto; overflow: hidden scroll;">
                                             <div class="simplebar-content" style="padding: 0px;">
-                                                <div id="new-tasks-draggable" data-view-btn="new-tasks">
+                                                <div class="defaultBodyTicket" id="new-tasks-draggable" data-view-btn="new-tasks">
                                                     <!-- <div class="card custom-card">
                                                         <div class="card-body p-0">
                                                             <div class="p-3 kanban-board-head">
@@ -673,7 +675,7 @@
                                             aria-label="scrollable content"
                                             style="height: auto; overflow: hidden scroll;">
                                             <div class="simplebar-content" style="padding: 0px;">
-                                                <div id="todo-tasks-draggable" data-view-btn="todo-tasks">
+                                                <div class="defaultBodyTicket" id="todo-tasks-draggable" data-view-btn="todo-tasks">
                                                 
                                                
                                                 </div>
@@ -710,7 +712,7 @@
                                         <div class="simplebar-content-wrapper" tabindex="0" role="region"
                                             aria-label="scrollable content" style="height: auto; overflow: hidden;">
                                             <div class="simplebar-content" style="padding: 0px;">
-                                                <div id="inprogress-tasks-draggable" data-view-btn="inprogress-tasks">
+                                                <div class="defaultBodyTicket" id="inprogress-tasks-draggable" data-view-btn="inprogress-tasks">
                                                  
                                                  
                                                 </div>
@@ -748,7 +750,7 @@
                                         <div class="simplebar-content-wrapper" tabindex="0" role="region"
                                             aria-label="scrollable content" style="height: auto; overflow: hidden;">
                                             <div class="simplebar-content" style="padding: 0px;">
-                                                <div id="inreview-tasks-draggable" data-view-btn="inreview-tasks">
+                                                <div class="defaultBodyTicket" id="inreview-tasks-draggable" data-view-btn="inreview-tasks">
                                                 
 
                                                 </div>
@@ -785,7 +787,7 @@
                                             aria-label="scrollable content"
                                             style="height: auto; overflow: hidden scroll;">
                                             <div class="simplebar-content" style="padding: 0px;">
-                                                <div id="completed-tasks-draggable" data-view-btn="completed-tasks">
+                                                <div class="defaultBodyTicket" id="completed-tasks-draggable" data-view-btn="completed-tasks">
                                                  
                                            
                                                  
@@ -842,27 +844,30 @@
                             </div>
                             <div class="modal-body px-4">
                                 <div class="row gy-2">
-                                    <div class="col-xl-6">
+                                    <div class="col-xl-12">
                                         <label for="task-name" class="form-label">Título</label>
-                                        <input type="text" class="form-control" id="task-name" placeholder="Título"></div>
-                                    <div class="col-xl-6">
-                                        <label for="task-id" class="form-label">Responsável</label>
-                                        <input type="text" class="form-control" id="task-id" placeholder="Responsável">
+                                        <input type="text" class="form-control" name="title" placeholder="Título"></div>
+                                    <div class="col-xl-12">
+                                        <label class="form-label">Responsável</label>
+                                        <select class="form-control" name="responsible"></select>
+                                        <!-- <input type="text" class="form-control" name="responsible" placeholder="Responsável"> -->
                                     </div>
                                     <div class="col-xl-12">
-                                        <label for="text-area" class="form-label">Descrição</label><textarea class="form-control" id="text-area" rows="2"
-                                            placeholder="Escreva uma descrição"></textarea></div>
+                                        <label for="text-area" class="form-label">Descrição</label>
+                                        <textarea class="form-control" name="description" rows="2" placeholder="Escreva uma descrição"></textarea></div>
                                 
                                     <div class="col-xl-12">
                                         <label class="form-label">Atribuído a</label>
-                                        <input type="text" class="form-control" id="task-id" placeholder="Atribuído a">
+                                        <!-- <input type="text" class="form-control" name="atribuido" placeholder="Atribuído a"> -->
+                                        <select class="form-control choices__input" multiple name="atribuido"  id="">
+                                        </select>
                                     </div>
                                     <div class="col-xl-6">
                                         <label class="form-label">Previsão de Inicio</label>
                                         <div class="form-group">
                                             <div class="input-group">
                                                 <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                                                <input type="text" class="form-control flatpickr-input" id="targetDate"
+                                                <input type="text" class="form-control flatpickr-input targetDate " name="timeInit" id="targetDate"
                                                     placeholder="Choose date and time" readonly="readonly">
                                             </div>
                                         </div>
@@ -872,12 +877,12 @@
                                         <div class="form-group">
                                             <div class="input-group">
                                                 <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                                                <input type="text" class="form-control flatpickr-input" id="targetDate"
+                                                <input type="text" class="form-control flatpickr-input targetDate" name="timeEnd"  id="targetDate"
                                                     placeholder="Choose date and time" readonly="readonly">
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-xl-12">
+                                    <div class="col-xl-12" style="display: none;">
                                         <label for="text-area" class="form-label">Arquivos/Imagem</label>
                                 
                                         <input type="file" class="multiple-filepond" name="filepond" multiple data-allow-reorder="true"
@@ -889,7 +894,7 @@
                             </div>
                             <div class="modal-footer">
                                
-                                    <button type="button" class="btn btn-primary">Adiconar</button></div>
+                                    <button type="button" id="ButtonAddTicket" class="btn btn-primary">Adicionar</button></div>
                         </div>
                     </div>
                 </div>
@@ -962,6 +967,7 @@
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
     <div id="responsive-overlay"></div>
     <!-- Scroll To Top -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
     <!-- Popper JS -->
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
@@ -1065,6 +1071,9 @@
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
     <script src="../../assets/libs/dragula/dragula.min.js"></script>
+
+
+   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <!-- Internal Task  JS -->
     <noscript>

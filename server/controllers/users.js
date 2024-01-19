@@ -8,6 +8,7 @@ const Users = {
                                             dpt.name AS 'department',
                                             usr.id AS 'userID',
                                             user.name AS 'username',
+                                            user.id_headcargo AS 'id_headcargo',
                                             user.image AS 'image',
                                             user.family_name AS 'familyName'
                                         FROM
@@ -21,7 +22,23 @@ const Users = {
                                             user.name ASC`);
     
         return result;
-        },
+    },
+    getAllUsers: async function(){
+ 
+        let result = await executeQuery(`SELECT
+                            users.id AS 'userID',
+                            colab.id_headcargo AS 'id_headcargo',
+                            colab.name AS 'username',
+                            colab.image AS 'image',
+                            colab.family_name AS 'familyName'
+                        FROM
+                            users
+                        join collaborators colab ON colab.id = users.collaborator_id
+                        ORDER BY
+                            colab.name ASC`);
+    
+        return result;
+    },
 }
 
 

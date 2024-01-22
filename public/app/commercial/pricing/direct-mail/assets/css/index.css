@@ -1,0 +1,41 @@
+.page {
+    display: block;
+    /* flex-direction: column;
+    justify-content: center; */
+    height: 100%;
+    min-height: auto;
+}
+
+.main-mail-container{
+    height: 100%;
+}
+.total-mails{
+    height: 100%;
+}
+.total-mails .mail-messages {
+    max-height: calc(100vh - 7.65rem);
+}
+
+.mails-information{
+    height: fit-content;
+}
+
+.mail-info-footer{
+    /* position: absolute; */
+    bottom: 0;
+    background-color: var(--bs-body-bg);
+    width: 100%;
+}
+
+.mail-info-body {
+    max-height: calc(100vh - 84px);
+}
+
+.mail-messages-container li:hover{
+    background-color: rgb(var(--light-rgb));
+}
+
+
+.ql-container {
+    height: calc(100% - 83px);
+}

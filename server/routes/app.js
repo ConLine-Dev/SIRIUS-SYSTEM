@@ -18,7 +18,10 @@ router.get('/:path(*)', async (req, res, next) => {
     const fileName = isDirectory ? 'index' : segments.pop();
     const folderPath = path.join(...segments);
 
-    let pagePath = path.join(__dirname, '../', 'public/apps', folderPath, `${fileName}.html`);
+    let pagePath = path.join(__dirname, '../../', 'public/app', folderPath, `${fileName}.html`);
+
+
+    console.log(pagePath, fs.existsSync(pagePath))
 
     if (fs.existsSync(pagePath)) {
 

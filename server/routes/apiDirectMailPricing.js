@@ -28,6 +28,28 @@ router.get('/getContactsByGroup/:id', async (req, res, next) => {
     }
 });
 
+router.get('/getAllModel', async (req, res, next) => {
+    try {
+        const result = await direct_mail_pricing.getAllModel();
+
+        res.status(200).json(result)
+    } catch (error) {
+
+        res.status(404).json('Erro')   
+    }
+});
+
+router.get('/getModelById/:id', async (req, res, next) => {
+    try {
+        const result = await direct_mail_pricing.getModelById(req.params.id);
+
+        res.status(200).json(result)
+    } catch (error) {
+
+        res.status(404).json('Erro')   
+    }
+});
+
 
 
 

@@ -13,6 +13,18 @@ const direct_mail_pricing = {
     
         return result;
     },
+    getAllModel: async function(){
+ 
+        let result = await executeQuery('SELECT * FROM direct_mail_pricing_models');
+    
+        return result;
+    },
+    getModelById: async function(id){
+ 
+        let result = await executeQuery(`SELECT * FROM direct_mail_pricing_models WHERE id = ${id}`);
+    
+        return result;
+    },
 }
 
 

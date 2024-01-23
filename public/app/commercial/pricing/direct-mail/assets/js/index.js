@@ -77,20 +77,20 @@ async function loadGroupSend(){
     });
 
     listaDeOpcoes.push({value:0, label:'Selecione', selected: true, disabled: true})
-    // console.log(listaDeOpcoes)
+    // Ordena a array usando a função de comparação
+    listaDeOpcoes.sort(compareChoices);
     
     groupSend = new Choices('select[name="groupSend"]', {
         choices: listaDeOpcoes,
         // allowHTML: true,
         allowSearch: true,
+        shouldSort: false,
         // removeItemButton: true,
         noChoicesText: 'Não há opções disponíveis',
         
     });
 
-groupSend.passedElement.element.addEventListener(
-  'addItem',
-  async function(event) {
+groupSend.passedElement.element.addEventListener('addItem',async function(event) {
     // do something creative here...
     // console.log(event.detail.id);
     // console.log(event.detail.value);
@@ -99,33 +99,56 @@ groupSend.passedElement.element.addEventListener(
     // console.log(event.detail.groupValue);
     await GenerateToEmail(event.detail.value)
 
+  },false,);
 
+}
 
-  },
-  false,
-);
+// Função de comparação para ordenar a array
+function compareChoices(a, b) {
+    if (a.value === 0) {
+        return -1; // Move o item com value 0 para o início
+    } else if (b.value === 0) {
+        return 1; // Move o item com value 0 para o início
+    } else {
+        return a.label.localeCompare(b.label); // Ordena os outros itens por label
+    }
 }
 
 async function loadModelsEmails(){
+    const getAllModel = await makeRequest('/api/direct_mail_pricing/getAllModel')
+
+
+    // Formate o array para ser usado com o Choices.js
+    var listaDeOpcoes = getAllModel.map(function(element) {
+        return {
+            value: `${element.id}`,
+            label: `${element.name}`,
+        };
+    });
+
+    listaDeOpcoes.push({value:0, label:'Selecione', selected: true, disabled: false})
+
+    // Ordena a array usando a função de comparação
+    listaDeOpcoes.sort(compareChoices);
     
     modelEmail = new Choices('select[name="modelEmail"]', {
-        choices: [
-            {value:0, label:'Selecione', selected: true, disabled: true},
-            {value:'teste', label:'teste'},
-            {value:'teste', label:'teste'},
-            {value:'teste', label:'teste'},
-            {value:'teste', label:'teste'},
-            {value:'teste', label:'teste'},
-            {value:'teste', label:'teste'}
-        ],
-        // allowHTML: true,
+        choices: listaDeOpcoes,
         allowSearch: true,
-        // removeItemButton: true,
+        shouldSort: false,
         noChoicesText: 'Não há opções disponíveis'
     });
+
+    modelEmail.passedElement.element.addEventListener('addItem',async function(event) {
+        // do something creative here...
+        // console.log(event.detail.id);
+        // console.log(event.detail.value);
+        // console.log(event.detail.label);
+        // console.log(event.detail.customProperties);
+        // console.log(event.detail.groupValue);
+        await GenerateToModel(event.detail.value)
+    
+      },false,);
 }
-
-
 
 async function createMask(){
     /* prefix */
@@ -135,4 +158,17 @@ async function createMask(){
         blocks: [8, 2],
         uppercase: true
     });
+}
+
+async function GenerateToModel(id = 0){
+    const getModelById = await makeRequest(`/api/direct_mail_pricing/getModelById/${id}`)
+
+    if(getModelById.length > 0){
+        console.log(getModelById)
+        document.querySelectorAll('input[name="subject"]')[0].value = getModelById[0].title;
+        document.querySelectorAll('#mail-compose-editor .ql-editor')[0].innerHTML = getModelById[0].body;
+
+        
+        
+    }
 }

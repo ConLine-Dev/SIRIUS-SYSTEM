@@ -39,3 +39,7 @@
 .ql-container {
     height: calc(100% - 83px);
 }
+
+.ql-editor table{
+font-size: 13px;
+}

@@ -39,8 +39,12 @@
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="../../../assets/libs/quill/quill.snow.css">
-    <link rel="stylesheet" href="../../../assets/libs/quill/quill.bubble.css">
+    <!-- <link rel="stylesheet" href="../../../assets/libs/quill/quill.snow.css">
+    <link rel="stylesheet" href="../../../assets/libs/quill/quill.bubble.css"> -->
+    <link rel="stylesheet" href="https://cdn.quilljs.com/2.0.0-dev.2/quill.snow.css">
+    <link rel="stylesheet" href="https://cdn.quilljs.com/2.0.0-dev.2/quill.bubble.css">
+    
+    
 
     <link rel="stylesheet" href="./assets/css/index.css">
     <meta http-equiv="imagetoolbar" content="no">
@@ -655,7 +659,7 @@
                         <div class="row">
                             <div class="col-xl-3 mb-2">
                                 <label for="mailBcc" class="form-label text-dark fw-semibold">Ref Proposta</label>
-                                <input type="text" class="form-control" name="RefProposta" id="mailBcc" placeholder="PF000000/24"> 
+                                <input type="text" class="form-control" name="RefProposta" placeholder="PF000000/24"> 
                             </div>
                             <div class="col-xl-6 mb-2">
                                 <label for="mailBcc" class="form-label text-dark fw-semibold">Modelo</label>
@@ -682,8 +686,10 @@
                           
                             </div>
                             <div class="col-xl-12 mb-2">
-                                <label for="mailCC" class="form-label text-dark fw-semibold">Bcc</label>
-                                <input type="email" class="form-control" id="mailCC">
+                                <label for="mailCC" class="form-label text-dark fw-semibold">Cópia carbono</label>
+                                <!-- <input type="email" class="form-control" name="mailCC"> -->
+                                <input class="form-control choices__input" name="mailCC" id="choices-text-email-filter" type="text" placeholder="Cópia carbono" hidden="" tabindex="-1">
+                            
                             </div>
                              
                             <div class="col-xl-12 mb-2">
@@ -695,9 +701,9 @@
                                   
                                     <div id="mail-compose-editor" class="ql-container ql-snow">
                                         <div class="ql-editor ql-blank" data-gramm="false" contenteditable="true">
-                                            <p>
+                                            <!-- <p>
                                                 <br>
-                                            </p>
+                                            </p> -->
                                         </div>
                                         <div class="ql-clipboard" contenteditable="true" tabindex="-1"></div>
                                         <div class="ql-tooltip ql-hidden">
@@ -713,7 +719,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn btn-primary">Enviar</button>
+                        <button type="button" id="buttonSendEmail" class="btn btn-primary">Enviar</button>
                     </div>
                 </div>
             </div>
@@ -836,8 +842,8 @@
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
 
-
-    <script src="../../../assets/libs/quill/quill.min.js"></script>
+    
+    <script src="https://cdn.quilljs.com/2.0.0-dev.2/quill.js"></script>
 
     <script src="../../../assets/js/task-kanban-board.js"></script>
 

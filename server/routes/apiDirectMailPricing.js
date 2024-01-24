@@ -50,6 +50,31 @@ router.get('/getModelById/:id', async (req, res, next) => {
     }
 });
 
+router.get('/getProposal/:id', async (req, res, next) => {
+    try {
+        const refProposalDecoded = decodeURIComponent(req.params.id);
+        const result = await direct_mail_pricing.getProposal(refProposalDecoded);
+        const table = await direct_mail_pricing.getProposalDetails(refProposalDecoded);
+
+        res.status(200).json({result,table})
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+router.post('/sendMail', async (req, res, next) => {
+    const {body, EmailTO, subject, ccAddress} = req.body;
+    try {
+
+        const result = await direct_mail_pricing.sendMail(body, EmailTO, subject, ccAddress);
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+
+
 
 
 

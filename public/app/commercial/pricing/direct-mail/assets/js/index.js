@@ -1,4 +1,6 @@
 let choicesInstance, groupSend, modelEmail, bccSend;
+const StorageGoogleData = localStorage.getItem('StorageGoogle');
+const StorageGoogle = JSON.parse(StorageGoogleData);
 document.addEventListener("DOMContentLoaded", async () => {
     await GenerateEditorText();
     await GenerateToEmail();
@@ -192,7 +194,7 @@ async function GenerateToModel(id = 0){
         }
        
 
-        getModelById[0].body += `<p><br></p><p><p>Atenciosamente / Kind regards / Mit freundlichen Grüßen / Saludos cordiales <br> <p><img src="https://cdn.conlinebr.com.br/assinatura/LOGO" alt="signature"><img src="https://cdn.conlinebr.com.br/assinatura/182" alt="signature"></p><p><img src="https://cdn.conlinebr.com.br/assinatura/GRUPOS" alt="signature"></p><p><img src="https://cdn.conlinebr.com.br/assinatura/AVISOS" alt="signature"><p></p>`
+        getModelById[0].body += `<p><br></p><p><p>Atenciosamente / Kind regards / Mit freundlichen Grüßen / Saludos cordiales <br> <p><img src="https://cdn.conlinebr.com.br/assinatura/LOGO" alt="signature"><img src="https://cdn.conlinebr.com.br/assinatura/${StorageGoogle.system_id_headcargo}" alt="signature"></p><p><img src="https://cdn.conlinebr.com.br/assinatura/GRUPOS" alt="signature"></p><p><img src="https://cdn.conlinebr.com.br/assinatura/AVISOS" alt="signature"><p></p>`
        
         const emailBody = await substituirValoresNaString(getModelById[0].body, getProposal[0]);
         document.querySelectorAll('#mail-compose-editor .ql-editor')[0].innerHTML = emailBody;
@@ -295,7 +297,7 @@ async function substituirValoresNaString(str, parametros) {
                 }else{
                     valor = parametros[chave];
                 }
-            }else if(chave == 'Valor_Mercadoria'){
+            }else if(chave == 'Valor_Mercadoria' && parametros['Moeda_Mercadoria'] != null){
                 valor = parametros[chave].toLocaleString('pt-BR', { style: 'currency', currency: parametros['Moeda_Mercadoria'] });
                 console.log('valor formatado', valor)
             }else{

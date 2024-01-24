@@ -43,3 +43,11 @@
 .ql-editor table{
 font-size: 13px;
 }
+
+
+#btnSettings{
+    padding-left: 0px;
+    text-align: center;
+    align-self: center;
+    font-size: 21px;
+}

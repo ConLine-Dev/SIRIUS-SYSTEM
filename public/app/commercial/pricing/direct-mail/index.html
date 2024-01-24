@@ -1,5 +1,5 @@
 <html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
-    data-menu-styles="dark" loader="disable" data-vertical-style="overlay">
+    data-menu-styles="dark" loader="disable" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
 
 <head>
     <!-- Meta Data -->
@@ -531,16 +531,15 @@
                         </div>
                         <div class="p-3 border-bottom" style="padding-left: 0 !important;padding-right: 0 !important;">
                             <div class="row">
-                                <div class="col-10">
+                                <div class="col-10" style="padding-right: 0px;">
                                     <div class="input-group">
                                         <input type="text" class="form-control bg-light border-0" placeholder="Pesquisar Email" aria-describedby="button-addon2">
                                         <button class="btn btn-light" type="button" id="button-addon2"><i class="ri-search-line text-muted"></i></button>
                                     </div>
                                 </div>
-                                <div class="col-2">
-                                    <button style="width: 100%;" class="btn btn-light" type="button" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Configurações">
-                                        <i class="ri-settings-4-fill"></i>
-                                    </button>
+                                <div class="col-2" id="btnSettings">
+                                    <a  href="javascript:void(0);" class="header-link switcher-icon" data-bs-toggle="offcanvas" data-bs-target="#switcher-canvas"> <i class="bx bx-cog header-link-icon"></i> </a>
+
                                 </div>
                             </div>
                         </div>

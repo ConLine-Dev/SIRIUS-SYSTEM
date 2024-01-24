@@ -1,14 +1,27 @@
-function handleCredentialResponse(response) {
+const urlHome = '/app/searchApp'
+const urlLogin = '/app/login'
+
+
+
+async function handleCredentialResponse(response) {
    const data = jwt_decode(response.credential);
    if(data.email_verified) {
-      localStorage.setItem('StorageGoogle', JSON.stringify(data));
-      window.location.href = '/app/searchApp'
+
+      const system = await makeRequest('/api/users/ListUserByEmail', 'POST', {body:data.email})
+      
+      // Juntando os dois arrays
+      const mergedData = Object.assign({}, system[0], data);
+ 
+      // const mergedData = [...data, system];
+      // console.log(mergedData)
+      localStorage.setItem('StorageGoogle', JSON.stringify(mergedData));
+      window.location.href = urlHome
    }
 }
 window.onload = function () {
    // Inicia as configurações do login
    google.accounts.id.initialize({
-      client_id: "102535144641-anjbob4pgiro4ocq6v7ke68j5cghbdrd.apps.googleusercontent.com",
+      client_id: "974028688166-64d8evsi6brv0mt5775kbsntg21d1goo.apps.googleusercontent.com",
       callback: handleCredentialResponse
    });
 

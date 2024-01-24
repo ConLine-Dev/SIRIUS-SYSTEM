@@ -39,6 +39,27 @@ const Users = {
     
         return result;
     },
+    ListUserByEmail: async function(email){
+ 
+        let result = await executeQuery(`SELECT
+                                        users.id AS 'system_userID',
+                                        users.email AS 'system_email',
+                                        users.email_password AS 'email_password',
+                                        users.collaborator_id AS 'system_collaborator_id',
+                                        colab.id_headcargo AS 'system_id_headcargo',
+                                        colab.name AS 'system_username',
+                                        colab.image AS 'system_image',
+                                        colab.family_name AS 'system_familyName'
+                                    FROM
+                                        users
+                                    join collaborators colab ON colab.id = users.collaborator_id
+                                    WHERE users.email = '${email}'
+                                    ORDER BY
+                                        colab.name ASC
+                                        `);
+    
+        return result;
+    }
 }
 
 

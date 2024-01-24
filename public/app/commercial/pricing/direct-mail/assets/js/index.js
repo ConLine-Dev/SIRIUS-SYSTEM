@@ -218,9 +218,6 @@ async function createClicks(){
         const opcoesSelecionadas = choicesInstance.getValue();
         const opcoesSelecionadasCC = bccSend.getValue(true);
         
-
-    
-       console.log(opcoesSelecionadasCC)
         
         // Mapeie para obter apenas os IDs
         const idsSelecionados = opcoesSelecionadas.map(function(opcao) {

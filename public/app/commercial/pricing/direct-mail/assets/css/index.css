@@ -53,14 +53,28 @@ font-size: 13px;
 }
 
 .file-manager-container{
-    max-height: 500px;
+    /* max-height: 500px; */
     margin: auto;
+    /* max-height: 100%; */
+    overflow-y: auto;
     /* overflow-y: scroll; */
 }
 
 #bodyContacts{
-    max-height: 500px;
+    max-height: calc(100vh - 13rem);
     position: relative;
     overflow-y: auto;
+}
+
+.headerContacts{
+    padding: 5px;
+}
+
+#inputAddGroup{
+    display: none;
+}
+
+#inputAddContact{
+    display: none;
 }
 

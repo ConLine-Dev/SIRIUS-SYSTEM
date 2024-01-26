@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadModelsEmails();
     await createMask();
     await createClicks();
+    await getAllGroups();
     
 })
 
@@ -255,7 +256,216 @@ async function createClicks(){
     }).setValue(['ti@conlinebr.com.br']);
 
 
+
+    buttonAddGroup.addEventListener('click', function(e){
+        e.preventDefault();
+        buttonAddGroup.style.display = 'none';
+        inputAddGroup.style.display = 'flex';
+        document.querySelector('#inputAddGroup input').focus()
+    })
+
+    document.querySelector('#inputAddGroup button').addEventListener('click', async function(e){
+        e.preventDefault();
+        const value = document.querySelector('#inputAddGroup input').value
+        if(value != ''){
+            await newGroup(value)
+            document.querySelector('#inputAddGroup input').value = ''
+            buttonAddGroup.style.display = 'flex';
+            inputAddGroup.style.display = 'none';
+        }
+        
+    })
+
+    document.querySelector('#inputAddGroup input').addEventListener('keyup', async function(e){
+        e.preventDefault();
+
+        if(e.keyCode === 13 && this.value != ''){
+            await newGroup(this.value)
+            this.value = ''
+            buttonAddGroup.style.display = 'flex';
+            inputAddGroup.style.display = 'none';
+        }
+        
+    })
+
+
+
+    buttonAddContact.addEventListener('click', function(e){
+        e.preventDefault();
+        buttonAddContact.style.display = 'none';
+        inputAddContact.style.display = 'flex';
+        document.querySelectorAll('#inputAddContact input')[0].focus()
+    })
+
+    document.querySelector('#inputAddContact button').addEventListener('click', async function(e){
+        e.preventDefault();
+        const name = document.querySelectorAll('#inputAddContact input')[0].value;
+        const email = document.querySelectorAll('#inputAddContact input')[1].value;
+        const groupID = document.querySelectorAll('#bodyGroups li.files-type.active')[0].getAttribute('id');
+ 
+        if(name != '' && email != ''){
+            await newContact(name, email, groupID)
+            document.querySelectorAll('#inputAddContact input')[0].value = ''
+            document.querySelectorAll('#inputAddContact input')[1].value = ''
+            buttonAddContact.style.display = 'flex';
+            inputAddContact.style.display = 'none';
+        }
+        
+    })
+
+    document.querySelectorAll('#inputAddContact input').forEach(element => {
+        element.addEventListener('keyup', async function(e){
+            e.preventDefault();
+            const name = document.querySelectorAll('#inputAddContact input')[0].value
+            const email = document.querySelectorAll('#inputAddContact input')[1].value
+            const groupID = document.querySelectorAll('#bodyGroups li.files-type.active')[0].getAttribute('id');
+            if(e.keyCode === 13 && name != '' && email != ''){
+                await newContact(name, email, groupID)
+                document.querySelectorAll('#inputAddContact input')[0].value = ''
+                document.querySelectorAll('#inputAddContact input')[1].value = ''
+                buttonAddContact.style.display = 'flex';
+                inputAddContact.style.display = 'none';
+            }
+            
+        })
+    });
+
+
+
 }
+
+async function newGroup(value){
+    const registerGroup = await makeRequest('/api/direct_mail_pricing/registerGroup', 'POST', {body:value})
+
+    await getAllGroups();
+    // const newgroup = `<li class="files-type">
+    //                     <a href="javascript:void(0)">
+    //                         <div class="d-flex align-items-center">
+    //                             <div class="me-2"> 
+    //                                 <i class="ri-star-s-line fs-16"></i> 
+    //                             </div> 
+    //                             <span class="flex-fill text-nowrap"> ${value}
+    //                             </span> 
+    //                         </div>
+    //                     </a>
+    //                 </li>`;
+
+    // bodyGroups.insertAdjacentHTML('afterbegin', newgroup)
+
+
+            
+}
+
+async function newContact(name, email, groupID){
+    const registerContact = await makeRequest('/api/direct_mail_pricing/registerContact', 'POST', {name:name, email:email, groupID:groupID})
+
+    const newcontact = `<div class="col-4">
+    <div class="card custom-card">
+        <div class="card-body contact-action">
+            <div class="contact-overlay"></div>
+            <div class="d-flex align-items-top">
+                <div class="d-flex flex-fill flex-wrap gap-3">
+                    <!-- <div class="avatar avatar-rounded bg-primary"> PW </div> -->
+                    <div>
+                        <h6 class="mb-1 fw-semibold"> ${name} </h6>
+                        <p class="mb-1 text-muted contact-mail text-truncate">${email}</p>
+                        <!-- <p class="fw-semibold fs-11 mb-0 text-primary"> +1(555) 238 2342 </p> -->
+                    </div>
+                </div>
+            
+            </div>
+            <div class="d-flex align-items-center justify-content-center gap-2 contact-hover-buttons">
+                <button type="button" class="btn btn-sm btn-light contact-hover-btn"> <i class="ri-heart-3-fill text-danger"></i> Editar</button>
+                <button type="button" class="btn btn-sm btn-light contact-hover-btn"> <i class="ri-heart-3-fill text-danger"></i> Remover</button>
+            </div>
+        </div>
+    </div>
+</div>`;
+
+bodyContacts.insertAdjacentHTML('afterbegin', newcontact)
+}
+
+
+
+async function getContactByGroup(id){
+    const getContactByGroup = await makeRequest('/api/direct_mail_pricing/getContactByGroup/'+id)
+
+    let allContats = ''
+    getContactByGroup.forEach(element => {
+        allContats += `<div class="col-4">
+        <div class="card custom-card">
+            <div class="card-body contact-action">
+                <div class="contact-overlay"></div>
+                <div class="d-flex align-items-top">
+                    <div class="d-flex flex-fill flex-wrap gap-3">
+                        <!-- <div class="avatar avatar-rounded bg-primary"> PW </div> -->
+                        <div>
+                            <h6 class="mb-1 fw-semibold"> ${element.name} </h6>
+                            <p class="mb-1 text-muted contact-mail text-truncate">${element.email}</p>
+                            <!-- <p class="fw-semibold fs-11 mb-0 text-primary"> +1(555) 238 2342 </p> -->
+                        </div>
+                    </div>
+                
+                </div>
+                <div class="d-flex align-items-center justify-content-center gap-2 contact-hover-buttons">
+                    <button type="button" class="btn btn-sm btn-light contact-hover-btn"> <i class="ri-heart-3-fill text-danger"></i> Editar</button>
+                    <button type="button" class="btn btn-sm btn-light contact-hover-btn"> <i class="ri-heart-3-fill text-danger"></i> Remover</button>
+                </div>
+            </div>
+        </div>
+    </div>`;
+    });
+
+    bodyContacts.innerHTML = allContats 
+
+}
+
+async function getAllGroups(){
+    const getAllGroups = await makeRequest('/api/direct_mail_pricing/getAllGroups/')
+  
+    let allgroups = '';
+    let count = 0;
+    getAllGroups.forEach(element => {
+        
+        const classe = count == 0 ? 'active' : ''
+        allgroups += `<li class="files-type ${classe}" id="${element.id}">
+                                    <a href="javascript:void(0)" >
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-2"> 
+                                                <i class="ri-star-s-line fs-16"></i> 
+                                            </div> 
+                                            <span class="flex-fill text-nowrap"> ${element.name}
+                                            </span> 
+                                        </div>
+                                    </a>
+                                </li>`;
+        count++
+    });
+
+    bodyGroups.innerHTML = allgroups
+
+
+
+
+    document.querySelectorAll('#bodyGroups li').forEach(element => {
+        element.addEventListener('click', async function(e){
+            document.querySelectorAll('#bodyGroups li').forEach(element2 => {
+                element2.classList.remove('active')
+            });
+
+            element.classList.add('active')
+            const id = element.getAttribute('id')
+            await getContactByGroup(id);
+
+        })
+    });
+
+
+    document.querySelectorAll('#bodyGroups li.files-type.active')[0].click();
+
+}
+
+
 
 
 

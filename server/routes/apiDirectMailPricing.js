@@ -73,6 +73,49 @@ router.post('/sendMail', async (req, res, next) => {
     }
 });
 
+router.post('/registerGroup', async (req, res, next) => {
+    const {body} = req.body;
+    try {
+        const result = await direct_mail_pricing.registerGroup(body);
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+router.post('/registerContact', async (req, res, next) => {
+    const {name, email, groupID} = req.body;
+    try {
+        const result = await direct_mail_pricing.registerContact(name, email, groupID);
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+
+
+router.get('/getAllGroups', async (req, res, next) => {
+    try {
+        const result = await direct_mail_pricing.getAllGroups();
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+router.get('/getContactByGroup/:id', async (req, res, next) => {
+    try {
+        const result = await direct_mail_pricing.getContactByGroup(req.params.id);
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+
+
+
 
 
 

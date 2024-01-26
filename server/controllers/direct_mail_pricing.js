@@ -170,6 +170,24 @@ const direct_mail_pricing = {
 
 
     return str;
+    },
+    registerContact: async function(name, email, groupID){
+        const result = await executeQuery('INSERT INTO direct_mail_pricing_group_list (name, email, `group`) VALUES ("'+name+'", "'+email+'", '+groupID+')')
+        return result;
+    },
+    registerGroup: async function(value){
+        const result = await executeQuery(`INSERT INTO direct_mail_pricing_group (name) VALUES ('${value}')`)
+        return result;
+    },
+    getAllGroups: async function(){
+        
+        let result = await executeQuery('SELECT * FROM direct_mail_pricing_group ORDER BY id DESC');
+        return result;
+    },
+    getContactByGroup: async function(id){
+        
+        let result = await executeQuery('SELECT * FROM direct_mail_pricing_group_list WHERE `group` = '+id+' ORDER BY name ASC');
+        return result;
     }
     
 }

@@ -734,7 +734,7 @@
         </div>
         <div class="modal modal-lg fade" id="mail-settings" tabindex="-1" aria-labelledby="mail-ComposeLabel" aria-modal="true" role="dialog">
             <div class="modal-dialog modal-xl" style="--bs-modal-width: 90%;">
-                <div class="modal-content" style="height: calc(100% - 72px);">
+                <div class="modal-content" style="min-height: 100%;">
                     <div class="modal-header">
                         <h6 class="modal-title" id="mail-ComposeLabel">Configurações</h6>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -773,12 +773,30 @@
                                                       <div class="row">
                                                         <div class="col-3 file-manager-container">
                                                             <div class="file-manager-navigation" style="width: auto;height: auto;">
-                                                                <div class="p-3 border-bottom">
-                                                                    <div class="input-group">
-                                                                        <input type="text" class="form-control bg-light border-0" placeholder="Pesquisar grupo" aria-describedby="button-addon2">
-                                                                        <button class="btn btn-light" type="button" id="button-addon2"><i class="ri-search-line text-muted"></i></button>
+                                                               <div class="row">
+                                                                <div class="col-12">
+                                                                    <div class="p-3 border-bottom">
+                                                                        <div class="input-group">
+                                                                            <input type="text" class="form-control bg-light border-0" placeholder="Pesquisar grupo" aria-describedby="button-addon2">
+                                                                            <button class="btn btn-light" type="button" id="button-addon2"><i class="ri-search-line text-muted"></i></button>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
+                                                                <div class="col-12">
+                                                                    <div class="p-3">
+                                                                        <button style="width: 100%;" id="buttonAddGroup" class="btn btn-sm btn-primary align-items-center justify-content-center btn-wave waves-light waves-effect waves-light" > 
+                                                                            <i class="ri-add-circle-line align-middle me-1"></i>
+                                                                            Criar grupo 
+                                                                        </button>
+                                                                        <div class="input-group" id="inputAddGroup">
+                                                                            <input type="text" class="form-control bg-light border-0" placeholder="Pesquisar grupo" aria-describedby="button-addon2">
+                                                                            <button class="btn btn-light" type="button" id="button-addon2">
+                                                                                <i class="ri-add-circle-line text-muted"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                               </div>
                                                                 <div>
                                                                     <ul class="list-unstyled files-main-nav" id="files-main-nav" data-simplebar="init">
                                                                         <div class="simplebar-wrapper" style="margin: -16px;">
@@ -788,391 +806,8 @@
                                                                             <div class="simplebar-mask">
                                                                                 <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
                                                                                     <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
-                                                                                        <div class="simplebar-content" style="padding: 16px;">
-                                                                                            <li class="active files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> <span class="flex-fill text-nowrap"> Time de Dev </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                            <li class="files-type">
-                                                                                                <a href="javascript:void(0)">
-                                                                                                    <div class="d-flex align-items-center">
-                                                                                                        <div class="me-2"> 
-                                                                                                            <i class="ri-star-s-line fs-16"></i> 
-                                                                                                        </div> 
-                                                                                                        <span class="flex-fill text-nowrap"> Time de Marketing 
-                                                                                                        </span> 
-                                                                                                    </div>
-                                                                                                </a>
-                                                                                            </li>
-                                                                                          
+                                                                                        <div class="simplebar-content" id="bodyGroups" style="padding: 16px;padding-top: 0;">
+                                                                                           
                                                                                           
                                                                                         </div>
                                                                                     </div>
@@ -1191,38 +826,22 @@
                                                             </div>
                                                         </div>
                                                         <div class="col-9" style="background: var(--default-body-bg-color);">
-                                                            <div class="row p-1 " id="bodyContacts">
-                                                               
-                                                                
-                                                                <script>
-                                                                    for (let index = 0; index < 20; index++) {
+                                                            <div class="headerContacts">
+                                                                <button style="width: 100%;" id="buttonAddContact" class="btn btn-sm btn-primary align-items-center justify-content-center btn-wave waves-light waves-effect waves-light" > 
+                                                                    <i class="ri-add-circle-line align-middle me-1"></i>
+                                                                    Adicionar contato
+                                                                </button>
+                                                                <div class="input-group" id="inputAddContact" style="padding-left: 302px;padding-right: 302px;padding-top: 5px;">
+                                                                    <input type="text" class="form-control bg-light border-0" placeholder="Nome" aria-describedby="button-addon2">
+                                                                    <input type="text" style="border-left: 2px solid var(--custom-black) !important;" class="form-control bg-light border-0" placeholder="E-mail" aria-describedby="button-addon2">
+                                                                    <button class="btn btn-light" type="button" id="button-addon2">
+                                                                        <i class="ri-add-circle-line text-muted"></i>
+                                                                    </button>
+                                                                </div>
 
-                                                                        
-                                                                        bodyContacts.innerHTML += ` <div class="col-4">
-                                                                    <div class="card custom-card">
-                                                                        <div class="card-body contact-action">
-                                                                            <div class="contact-overlay"></div>
-                                                                            <div class="d-flex align-items-top">
-                                                                                <div class="d-flex flex-fill flex-wrap gap-3">
-                                                                                    <!-- <div class="avatar avatar-rounded bg-primary"> PW </div> -->
-                                                                                    <div>
-                                                                                        <h6 class="mb-1 fw-semibold"> Petryck William </h6>
-                                                                                        <p class="mb-1 text-muted contact-mail text-truncate">petryckwilliam@gmail.com</p>
-                                                                                        <!-- <p class="fw-semibold fs-11 mb-0 text-primary"> +1(555) 238 2342 </p> -->
-                                                                                    </div>
-                                                                                </div>
-                                                                            
-                                                                            </div>
-                                                                            <div class="d-flex align-items-center justify-content-center gap-2 contact-hover-buttons">
-                                                                                <button type="button" class="btn btn-sm btn-light contact-hover-btn"> <i class="ri-heart-3-fill text-danger"></i> Editar</button>
-                                                                                <button type="button" class="btn btn-sm btn-light contact-hover-btn"> <i class="ri-heart-3-fill text-danger"></i> Remover</button>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>`
-                                                                        
-                                                                    }
-                                                                </script>
+                                                            </div>
+                                                            <div class="row p-1 " id="bodyContacts">
+                                      
                                                              
                                                             </div>
                                                         </div>
@@ -1392,7 +1011,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer" style="padding-top: 9px;">
                         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Salvar</button>
                         <!-- <button type="button" class="btn btn-danger">Enviar</button> -->
                     </div>

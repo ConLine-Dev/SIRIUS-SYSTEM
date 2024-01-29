@@ -777,7 +777,7 @@
                                                                 <div class="col-12">
                                                                     <div class="p-3 border-bottom">
                                                                         <div class="input-group">
-                                                                            <input type="text" class="form-control bg-light border-0" placeholder="Pesquisar grupo" aria-describedby="button-addon2">
+                                                                            <input type="text" class="form-control bg-light border-0" placeholder="Pesquisar grupo" onkeyup="search(this)" aria-describedby="button-addon2">
                                                                             <button class="btn btn-light" type="button" id="button-addon2"><i class="ri-search-line text-muted"></i></button>
                                                                         </div>
                                                                     </div>
@@ -790,8 +790,11 @@
                                                                         </button>
                                                                         <div class="input-group" id="inputAddGroup">
                                                                             <input type="text" class="form-control bg-light border-0" placeholder="Pesquisar grupo" aria-describedby="button-addon2">
-                                                                            <button class="btn btn-light" type="button" id="button-addon2">
+                                                                            <button class="btn btn-success" type="button">
                                                                                 <i class="ri-add-circle-line text-muted"></i>
+                                                                            </button>
+                                                                            <button class="btn btn-danger" type="button">
+                                                                                <i class="ri-close-circle-line text-muted"></i>
                                                                             </button>
                                                                         </div>
                                                                     </div>
@@ -831,11 +834,14 @@
                                                                     <i class="ri-add-circle-line align-middle me-1"></i>
                                                                     Adicionar contato
                                                                 </button>
-                                                                <div class="input-group" id="inputAddContact" style="padding-left: 302px;padding-right: 302px;padding-top: 5px;">
+                                                                <div class="input-group" id="inputAddContact">
                                                                     <input type="text" class="form-control bg-light border-0" placeholder="Nome" aria-describedby="button-addon2">
-                                                                    <input type="text" style="border-left: 2px solid var(--custom-black) !important;" class="form-control bg-light border-0" placeholder="E-mail" aria-describedby="button-addon2">
-                                                                    <button class="btn btn-light" type="button" id="button-addon2">
+                                                                    <input type="email" style="border-left: 2px solid var(--custom-black) !important;" class="form-control bg-light border-0" placeholder="E-mail" aria-describedby="button-addon2">
+                                                                    <button class="btn btn-success" type="button" id="button-addon2">
                                                                         <i class="ri-add-circle-line text-muted"></i>
+                                                                    </button>
+                                                                    <button class="btn btn-danger" type="button" id="buttonCancelAddContact">
+                                                                        <i class="ri-close-circle-line text-muted"></i>
                                                                     </button>
                                                                 </div>
 

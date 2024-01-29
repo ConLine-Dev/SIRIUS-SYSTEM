@@ -76,5 +76,23 @@ font-size: 13px;
 
 #inputAddContact{
     display: none;
+    padding-top: 5px !important;
+    padding-left: 192px !important;
+    padding-right: 192px !important;
 }
+
+.removeGroup{
+    opacity: 0;
+}
+
+
+#bodyGroups li:hover .removeGroup{
+    opacity: 1 !important;
+
+}
+
+
+
+
+
 

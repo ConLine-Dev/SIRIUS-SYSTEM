@@ -188,6 +188,28 @@ const direct_mail_pricing = {
         
         let result = await executeQuery('SELECT * FROM direct_mail_pricing_group_list WHERE `group` = '+id+' ORDER BY name ASC');
         return result;
+    },
+    getContactByID: async function(id){
+        
+        let result = await executeQuery(`SELECT * FROM direct_mail_pricing_group_list WHERE id = ${id}`);
+        return result;
+    },
+    removeContact: async function(id){
+        const result = await executeQuery(`DELETE FROM direct_mail_pricing_group_list WHERE id = ${id}`);
+
+        return result;
+    },
+    editContact: async function(body){
+        const result = await executeQuery(`UPDATE direct_mail_pricing_group_list SET name = '${body.name}', email = '${body.email}' WHERE id = ${body.id}`)
+
+        return result;
+    },
+    removeGroup: async function(id){
+        const result = await executeQuery(`DELETE FROM direct_mail_pricing_group WHERE id = ${id}`);
+        
+        await executeQuery('DELETE FROM direct_mail_pricing_group_list WHERE `group` = '+id+'');
+
+        return result;
     }
     
 }

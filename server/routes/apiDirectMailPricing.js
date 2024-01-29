@@ -113,6 +113,47 @@ router.get('/getContactByGroup/:id', async (req, res, next) => {
     }
 });
 
+router.get('/removeContact/:id', async (req, res, next) => {
+    try {
+        const result = await direct_mail_pricing.removeContact(req.params.id);
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+router.get('/getContactByID/:id', async (req, res, next) => {
+    try {
+        const result = await direct_mail_pricing.getContactByID(req.params.id);
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+router.get('/removeGroup/:id', async (req, res, next) => {
+    try {
+        const result = await direct_mail_pricing.removeGroup(req.params.id);
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+
+router.post('/editContact', async (req, res, next) => {
+    const {body} = req.body
+    try {
+        const result = await direct_mail_pricing.editContact(body);
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+
+
+
 
 
 

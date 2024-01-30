@@ -73,6 +73,9 @@ font-size: 13px;
 #inputAddGroup{
     display: none;
 }
+#inputAddModelEmail{
+    display: none;
+}
 
 #inputAddContact{
     display: none;
@@ -88,7 +91,34 @@ font-size: 13px;
 
 #bodyGroups li:hover .removeGroup{
     opacity: 1 !important;
+}
+.bodyModelEmailEditing{
+    display: none;
+}
 
+.marksEmails div{
+    cursor: pointer;
+}
+.marksEmails div:hover{
+    background-color: rgb(var(--light-rgb));
+}
+
+
+
+#bodyGroups li:hover{
+    background-color: rgb(var(--light-rgb));
+}
+#ListModelsEmails li:hover{
+    background-color: rgb(var(--light-rgb));
+}
+
+.removeModel{
+    opacity: 0;
+}
+
+
+#ListModelsEmails li:hover .removeModel{
+    opacity: 1 !important;
 }
 
 

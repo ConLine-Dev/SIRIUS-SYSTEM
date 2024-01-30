@@ -141,6 +141,8 @@ router.get('/removeGroup/:id', async (req, res, next) => {
 });
 
 
+
+
 router.post('/editContact', async (req, res, next) => {
     const {body} = req.body
     try {
@@ -150,6 +152,40 @@ router.post('/editContact', async (req, res, next) => {
         res.status(404).json('Erro')   
     }
 });
+
+
+router.post('/registerModelEmail', async (req, res, next) => {
+    const {body} = req.body;
+    try {
+        const result = await direct_mail_pricing.registerModelEmail(body);
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+router.post('/editModelEmail', async (req, res, next) => {
+    const {body} = req.body
+    try {
+        const result = await direct_mail_pricing.editModelEmail(body);
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+
+router.get('/removeModelEmail/:id', async (req, res, next) => {
+    try {
+        const result = await direct_mail_pricing.removeModelEmail(req.params.id);
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+
+
 
 
 

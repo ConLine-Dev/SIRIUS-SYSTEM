@@ -210,7 +210,22 @@ const direct_mail_pricing = {
         await executeQuery('DELETE FROM direct_mail_pricing_group_list WHERE `group` = '+id+'');
 
         return result;
-    }
+    },
+    registerModelEmail: async function(value){
+        const result = await executeQuery(`INSERT INTO direct_mail_pricing_models (name) VALUES ('${value}')`)
+        return result;
+    },
+    editModelEmail: async function(body){
+        const result = await executeQuery(`UPDATE direct_mail_pricing_models SET name = '${body.name}', title = '${body.subject}', body = '${body.body}' WHERE id = ${body.id}`)
+
+        return result;
+    },
+    removeModelEmail: async function(id){
+        const result = await executeQuery(`DELETE FROM direct_mail_pricing_models WHERE id = ${id}`);
+  
+
+        return result;
+    },
     
 }
 

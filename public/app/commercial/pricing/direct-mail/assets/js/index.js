@@ -1,4 +1,4 @@
-let choicesInstance, groupSend, modelEmail, bccSend;
+let choicesInstance, groupSend, modelEmail, bccSend, quillEmailModel, selected = {model: false, title: false};
 const StorageGoogleData = localStorage.getItem('StorageGoogle');
 const StorageGoogle = JSON.parse(StorageGoogleData);
 document.addEventListener("DOMContentLoaded", async () => {
@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await createMask();
     await createClicks();
     await getAllGroups();
+    await ListModelsEditing();
     
 })
 
@@ -31,6 +32,15 @@ async function GenerateEditorText(){
 ];
 
     new Quill('#mail-compose-editor', {
+        modules: {
+            toolbar: toolbarOptions,
+            table: true,
+        },
+        theme: 'snow'
+    });
+
+
+    quillEmailModel = new Quill('#modelEmailEditor', {
         modules: {
             toolbar: toolbarOptions,
             table: true,
@@ -86,6 +96,10 @@ async function loadGroupSend(){
     listaDeOpcoes.push({value:0, label:'Selecione', selected: true, disabled: true})
     // Ordena a array usando a função de comparação
     listaDeOpcoes.sort(compareChoices);
+
+    if (groupSend) {
+        groupSend.destroy();
+    }
     
     groupSend = new Choices('select[name="groupSend"]', {
         choices: listaDeOpcoes,
@@ -126,6 +140,10 @@ async function loadModelsEmails(){
 
     // Ordena a array usando a função de comparação
     listaDeOpcoes.sort(compareChoices);
+
+    if (modelEmail) {
+        modelEmail.destroy();
+    }
     
     modelEmail = new Choices('select[name="modelEmail"]', {
         choices: listaDeOpcoes,
@@ -257,6 +275,62 @@ async function createClicks(){
 
 
 
+    // START MODELS EMAILS FUNCTIONS
+    buttonAddModelEmail.addEventListener('click', function(e){
+        e.preventDefault();
+        buttonAddModelEmail.style.display = 'none';
+        inputAddModelEmail.style.display = 'flex';
+        document.querySelector('#inputAddModelEmail input').focus()
+    })
+
+    document.querySelectorAll('#inputAddModelEmail button')[0].addEventListener('click', async function(e){
+        e.preventDefault();
+        const value = document.querySelector('#inputAddModelEmail input').value
+        if(value != ''){
+            await newModelEmail(value)
+            await loadModelsEmails();
+            document.querySelector('#inputAddModelEmail input').value = ''
+            buttonAddModelEmail.style.display = 'flex';
+            inputAddModelEmail.style.display = 'none';
+        }
+        
+    })
+    document.querySelectorAll('#inputAddModelEmail button')[1].addEventListener('click', async function(e){
+        e.preventDefault();
+        document.querySelector('#inputAddModelEmail input').value = ''
+        buttonAddModelEmail.style.display = 'flex';
+        inputAddModelEmail.style.display = 'none';
+        
+    })
+    document.querySelector('#inputAddModelEmail input').addEventListener('keyup', async function(e){
+        e.preventDefault();
+
+        if(e.keyCode === 13 && this.value != ''){
+            await newModelEmail(this.value)
+            await loadModelsEmails();
+            this.value = ''
+            buttonAddModelEmail.style.display = 'flex';
+            inputAddModelEmail.style.display = 'none';
+        }
+        
+    })
+
+
+
+    document.querySelector('input[name="subjectModel"]').addEventListener('click', function(){
+        selected.title = true;
+        selected.model = false;
+    })
+    
+    document.querySelector('#modelEmailEditor .ql-editor').addEventListener('click', function(event) {
+        selected.title = false;
+        selected.model = true;
+    });
+   
+    // END MODELS EMAILS FUNCTIONS
+
+
+    // START CONTACTS FUNCTIONS
     buttonAddGroup.addEventListener('click', function(e){
         e.preventDefault();
         buttonAddGroup.style.display = 'none';
@@ -378,15 +452,64 @@ async function createClicks(){
             
         })
     });
-
+    // END CONTACTS FUNCTIONS
 
 
 }
+
+
+
+function selectMark(value) {
+ 
+    
+    // Obtemos a posição do cursor dentro do editor
+    const cursorPosition = quillEmailModel.selection.savedRange.index;
+
+    // Verificamos se o cursor está dentro do input com o atributo name="subjectModel"
+    const inputSubjectModel = document.querySelector('input[name="subjectModel"]');
+
+    if (selected.title) {
+        // Se sim, adicionamos o valor no input
+        inputSubjectModel.value += value;
+        inputSubjectModel.focus();
+    } else if(selected.model) {
+        // Caso contrário, adicionamos o valor no editor
+        quillEmailModel.clipboard.dangerouslyPasteHTML(cursorPosition, value);
+
+        // Calculamos a nova posição do cursor (após a inserção)
+        const newPositionCursor = cursorPosition + value.length;
+
+        // Definimos a nova posição do cursor
+        quillEmailModel.setSelection(newPositionCursor);
+
+        // Mantemos o foco no editor
+        quillEmailModel.focus();
+    }
+}
+
+// Função para verificar se a posição do cursor está dentro de um input específico
+function isCursorInsideInput(cursorPosition, inputElement) {
+    const inputStart = inputElement.selectionStart || 0;
+    const inputEnd = inputElement.selectionEnd || 0;
+
+    console.log(inputStart, inputEnd, cursorPosition)
+
+    return cursorPosition >= inputStart && cursorPosition <= inputEnd;
+}
+
 
 async function newGroup(value){
     const registerGroup = await makeRequest('/api/direct_mail_pricing/registerGroup', 'POST', {body:value})
 
     await getAllGroups();
+    await loadGroupSend();
+      
+}
+
+async function newModelEmail(value){
+    const registerGroup = await makeRequest('/api/direct_mail_pricing/registerModelEmail', 'POST', {body:value})
+
+    await ListModelsEditing();
     // const newgroup = `<li class="files-type">
     //                     <a href="javascript:void(0)">
     //                         <div class="d-flex align-items-center">
@@ -409,6 +532,8 @@ async function newContact(name, email, groupID){
     const registerContact = await makeRequest('/api/direct_mail_pricing/registerContact', 'POST', {name:name, email:email, groupID:groupID})
 
     await getContactByGroup(groupID)
+
+
 
 
 //     const newcontact = `<div class="col-4">
@@ -581,7 +706,6 @@ async function saveContact(body){
 
 }
 
-
 function search(e){
     var termoPesquisa = e.value.toLowerCase(); // Obtém o valor do input em minúsculas
     // Itera sobre os itens da lista e mostra/oculta com base no termo de pesquisa
@@ -593,6 +717,155 @@ function search(e){
         if (textoItem.includes(termoPesquisa)) {
             item.style.display = 'block'; // Mostra o item
         } else {
+            item.style.display = 'none'; // Oculta o item
+        }
+    });
+}
+
+function searchModelEmail(e){
+    var termoPesquisa = e.value.toLowerCase(); // Obtém o valor do input em minúsculas
+    // Itera sobre os itens da lista e mostra/oculta com base no termo de pesquisa
+    var listaItems = document.querySelectorAll('#bodyGroups li');
+    listaItems.forEach(function(item) {
+        var textoItem = item.querySelector('.flex-fill').textContent.toLowerCase();
+
+        // Verifica se o texto do item contém o termo de pesquisa
+        if (textoItem.includes(termoPesquisa)) {
+            item.style.display = 'block'; // Mostra o item
+        } else {
+            item.style.display = 'none'; // Oculta o item
+        }
+    });
+}
+
+async function ListModelsEditing(){
+    const getAllModel = await makeRequest(`/api/direct_mail_pricing/getAllModel`)
+
+    ListModelsEmails.innerHTML = ''
+    let allModelsEmails = '';
+    let count = 0;
+    getAllModel.forEach(element => {
+        
+        // const classe = count == 0 ? 'active' : ''
+        allModelsEmails += `<li class="files-type " id="${element.id}" onclick="selectModelByID(${element.id}, this, '${element.name}')">
+                                    <a href="javascript:void(0)" >
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-2"> 
+                                                <i class="ri-star-s-line fs-16"></i> 
+                                            </div> 
+                                            <span class="flex-fill text-nowrap"> ${element.name}
+                                            </span> 
+                                            <div class="me-2 removeModel" id="${element.id}" style="z-index:9999999999" onclick="removeModel(this, event)"> 
+                                                <i class="ri-close-circle-line text-muted"></i>
+                                            </div> 
+                                            
+                                        </div>
+                                    </a>
+                                </li>`;
+        if(count == 0){
+            // selectModelByID(element.id)
+        }
+        count++
+    });
+
+    ListModelsEmails.innerHTML = allModelsEmails
+
+  
+}
+
+async function removeModel(e,event){
+    // Evita a propagação do evento para o pai
+    event.stopPropagation();
+
+    const id = e.getAttribute('id');
+
+    document.querySelectorAll('#ListModelsEmails li').forEach(async element => {
+       if(element.getAttribute('id') == id && element.classList.contains('active')){
+        document.querySelectorAll('.bodyModelEmailEditing').forEach(element => {
+            element.style.display = 'none'
+        });
+    
+        document.querySelectorAll('.projects-tracking-card').forEach(element => {
+            element.style.display = 'flex'
+        });
+
+        element.remove()
+        await makeRequest(`/api/direct_mail_pricing/removeModelEmail/${id}`)
+        await loadModelsEmails();
+       }else if(element.getAttribute('id') == id){
+        element.remove()
+        await makeRequest(`/api/direct_mail_pricing/removeModelEmail/${id}`)
+        await loadModelsEmails();
+       }
+
+       
+    });
+
+
+}
+
+async function selectModelByID(id, e, name){
+    const getModel = await makeRequest(`/api/direct_mail_pricing/getModelById/${id}`)
+
+    
+    document.querySelectorAll('.bodyModelEmailEditing').forEach(element => {
+        element.style.display = 'flex'
+    });
+
+    document.querySelectorAll('.projects-tracking-card').forEach(element => {
+        element.style.display = 'none'
+    });
+
+
+    document.querySelectorAll('#ListModelsEmails li').forEach(element => {
+        // element.style.display = 'none'
+        element.classList.remove('active')
+    });
+
+    e?.classList.add('active')
+
+    nameModel.value = name;;
+    document.querySelector('.btnSaveModelEmail').setAttribute('id', id)
+    document.querySelector('#detailsModelsEmails input[name="subjectModel"]').value = getModel[0].title
+    document.querySelectorAll('#detailsModelsEmails .ql-editor')[0].innerHTML = getModel[0].body;
+    
+}
+
+async function SaveModelEmail(e){
+    // e.preventDefault()
+
+    const id = e.getAttribute('id');
+    const subjectModel = document.querySelector('#detailsModelsEmails input[name="subjectModel"]').value;
+    const name = nameModel.value
+    const body = document.querySelectorAll('#detailsModelsEmails .ql-editor')[0].innerHTML;
+
+ 
+    const saveModel = await makeRequest(`/api/direct_mail_pricing/editModelEmail`, 'POST', {body:{id:id, subject:subjectModel, name:name, body:body}})
+
+
+    await ListModelsEditing()
+    await selectModelByID(id, null, name)
+    await loadModelsEmails();
+
+    const listItem = document.querySelector(`#ListModelsEmails li[id="${id}"]`);
+    if (listItem) {
+        // Adicione a classe 'active'
+        listItem.classList.add('active');
+    }
+
+}
+
+function inputSearchContacts(e){
+    var termoPesquisa = e.value.toLowerCase(); // Obtém o valor do input em minúsculas
+    // Itera sobre os itens da lista e mostra/oculta com base no termo de pesquisa
+    var listaItems = document.querySelectorAll('#bodyContacts div');
+    listaItems.forEach(function(item) {
+        var textoItem = item.querySelector('.flex-fill')?.textContent.toLowerCase();
+
+        // Verifica se o texto do item contém o termo de pesquisa
+        if (textoItem && textoItem.includes(termoPesquisa)) {
+            item.style.display = 'flex'; // Mostra o item
+        } else if(textoItem) {
             item.style.display = 'none'; // Oculta o item
         }
     });

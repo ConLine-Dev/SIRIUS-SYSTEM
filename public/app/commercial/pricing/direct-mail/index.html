@@ -767,7 +767,191 @@
                                             <div class="p-3" style="padding-top: 0 !important;padding-bottom: 0 !important;">
                                                 <div class="tab-content" id="myTabContent">
                                                     <div class="tab-pane show active fade p-0 border-0" id="activity-tab-pane" role="tabpanel" aria-labelledby="activity-tab" tabindex="0">
-                                                     
+                                                        <div class="row">
+                                                            <div class="col-3 file-manager-container">
+                                                                <div class="file-manager-navigation" style="width: auto;height: auto;">
+                                                                   <div class="row">
+                                                                    <div class="col-12">
+                                                                        <div class="p-3 border-bottom">
+                                                                            <div class="input-group">
+                                                                                <input type="text" class="form-control bg-light border-0" placeholder="pesquisar modelo" onkeyup="searchModelEmail(this)" aria-describedby="button-addon2">
+                                                                                <button class="btn btn-light" type="button" id="button-addon2"><i class="ri-search-line text-muted"></i></button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-12">
+                                                                        <div class="p-3">
+                                                                            <button style="width: 100%;" id="buttonAddModelEmail" class="btn btn-sm btn-primary align-items-center justify-content-center btn-wave waves-light waves-effect waves-light" > 
+                                                                                <i class="ri-add-circle-line align-middle me-1"></i>
+                                                                                Novo modelo 
+                                                                            </button>
+                                                                            <div class="input-group" id="inputAddModelEmail">
+                                                                                <input type="text" class="form-control bg-light border-0" placeholder="nome do modelo" >
+                                                                                <button class="btn btn-success" type="button">
+                                                                                    <i class="ri-add-circle-line text-muted"></i>
+                                                                                </button>
+                                                                                <button class="btn btn-danger" type="button">
+                                                                                    <i class="ri-close-circle-line text-muted"></i>
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                   </div>
+                                                                    <div>
+                                                                        <ul class="list-unstyled files-main-nav" id="files-main-nav" data-simplebar="init">
+                                                                            <div class="simplebar-wrapper" style="margin: -16px;">
+                                                                                <div class="simplebar-height-auto-observer-wrapper">
+                                                                                    <div class="simplebar-height-auto-observer"></div>
+                                                                                </div>
+                                                                                <div class="simplebar-mask">
+                                                                                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                                                                        <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
+                                                                                            <div class="simplebar-content" id="ListModelsEmails" style="padding: 16px;padding-top: 0;">
+                                                                                               
+                                                                                              
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="simplebar-placeholder" style="width: auto; height: 822px;"></div>
+                                                                            </div>
+                                                                            <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                                                                <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                                                                            </div>
+                                                                            <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                                                                                <div class="simplebar-scrollbar" style="height: 537px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+                                                                            </div>
+                                                                        </ul>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-7"  style="border-left: 4px solid rgb(var(--light-rgb));">
+                                                                <div class="card custom-card shadow-none projects-tracking-card overflow-hidden text-center">
+                                                                    <div class="card-body"> <img src="../../../assets/images/media/media-86.svg" alt="" class="mb-1">
+                                                                        <div> <span class="fs-15 fw-semibold d-block mt-4 mb-3">Selecione um modelo ao lado ← <br> ou se preferir crie um novo.</span>
+                                                                            <!-- <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light">Track Here</button> -->
+                                                                        </div> <span class="shape-1 text-primary"><i class="ti ti-circle fs-20 fw-bold"></i></span> <span class="shape-2 text-secondary"><i class="ti ti-triangle fs-20 fw-bold"></i></span> <span class="shape-3 text-warning"><i class="ti ti-square fs-20 fw-bold"></i></span>        <span class="shape-4 text-info"><i class="ti ti-square-rotated fs-20 fw-bold"></i></span> <span class="shape-5 text-success"><i class="ti ti-pentagon fs-20 fw-bold"></i></span> <span class="shape-6 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span>        <span class="shape-7 text-pink"><i class="ti ti-hexagon fs-20 fw-bold"></i></span> <span class="shape-8 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span> <span class="shape-9 text-primary"><i class="ti ti-circle fs-20 fw-bold"></i></span>        <span class="shape-10 text-secondary"><i class="ti ti-triangle fs-20 fw-bold"></i></span> <span class="shape-11 text-warning"><i class="ti ti-square fs-20 fw-bold"></i></span> <span class="shape-12 text-info"><i class="ti ti-square-rotated fs-20 fw-bold"></i></span>        <span class="shape-13 text-success"><i class="ti ti-pentagon fs-20 fw-bold"></i></span> <span class="shape-14 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span> <span class="shape-15 text-pink"><i class="ti ti-hexagon fs-20 fw-bold"></i></span>        <span class="shape-16 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span> </div>
+                                                                </div>
+
+
+
+                                                                <div class="row p-1 bodyModelEmailEditing" id="detailsModelsEmails">
+                                                                    <div class="row">
+                                                                        <div class="col-xl-12 mb-2" style="padding: 0px 282px;text-align: center;">
+                                                                            <label for="Subject" class="form-label">Nome</label>
+                                                                            <input type="text" id="nameModel" style="text-align: center;" class="form-control" placeholder="Assunto"> 
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-xl-12 mb-2">
+                                                                        <label for="Subject" class="form-label">Assunto</label>
+                                                                        <input type="text" name="subjectModel" class="form-control" placeholder="Assunto"> 
+                                                                    </div>
+                                                                    <div class="col-xl-12">
+                                                                        <label class="col-form-label">Corpo :</label>
+                                                                        <div class="mail-compose">
+                                                                          
+                                                                            <div id="modelEmailEditor" class="ql-container ql-snow">
+                                                                                <div class="ql-editor ql-blank" data-gramm="false" contenteditable="true">
+                                                                                    <!-- <p>
+                                                                                        <br>
+                                                                                    </p> -->
+                                                                                </div>
+                                                                                <div class="ql-clipboard" contenteditable="true" tabindex="-1"></div>
+                                                                                <div class="ql-tooltip ql-hidden">
+                                                                                    <a class="ql-preview" rel="noopener noreferrer" target="_blank" href="about:blank"></a>
+                                                                                    <input type="text" data-formula="e=mc^2" data-link="https://quilljs.com" data-video="Embed URL">
+                                                                                    <a class="ql-action"></a>
+                                                                                    <a class="ql-remove"></a>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                 
+                                                                </div>
+                                                                <div class="row bodyModelEmailEditing">
+                                                                    <div class="col-12" style="padding: 16px;">
+                                                                        <button style="width: 100%;" id="" onclick="SaveModelEmail(this)" type="button" class="btn btn-danger btnSaveModelEmail">Salvar</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-2" style="border-left: 4px solid rgb(var(--light-rgb));padding: 0;">
+                                                                <div class="d-flex p-3 align-items-center justify-content-between border-bottom">
+                                                                    <div>
+                                                                        <h6 class="fw-semibold mb-0">Marcações</h6> </div>
+                                                                </div>
+                                                                <div class="marksEmails">
+                                                                    <div onclick="selectMark('@nome')" class="d-flex align-items-center p-2 mb-1" style="font-size: 11px;"> 
+                                                                        <span class="me-2"> 
+                                                                            <span class="fw-semibold flex-fill">@nome</span> 
+                                                                            <span class="flex-fill">Nome do contato</span> 
+                                                                        </span> 
+                                                                    </div>
+                                                                    <div onclick="selectMark('@saudacao')" class="d-flex align-items-center p-2 mb-1" style="font-size: 11px;"> 
+                                                                        <span class="me-2"> 
+                                                                            <span class="fw-semibold flex-fill">@saudacao</span> 
+                                                                            <span class="flex-fill">Saudação automática</span> 
+                                                                        </span> 
+                                                                    </div>
+                                                                    <div onclick="selectMark('@Origem')" class="d-flex align-items-center p-2 mb-1" style="font-size: 11px;"> 
+                                                                        <span class="me-2"> 
+                                                                            <span class="fw-semibold flex-fill">@Origem</span> 
+                                                                            <span class="flex-fill">Origem</span> 
+                                                                        </span> 
+                                                                    </div>
+                                                                    <div onclick="selectMark('@Destino')" class="d-flex align-items-center p-2 mb-1" style="font-size: 11px;"> 
+                                                                        <span class="me-2"> 
+                                                                            <span class="fw-semibold flex-fill">@Destino</span> 
+                                                                            <span class="flex-fill">Destino</span> 
+                                                                        </span> 
+                                                                    </div>
+                                                                    <div onclick="selectMark('@Incoterm')" class="d-flex align-items-center p-2 mb-1" style="font-size: 11px;"> 
+                                                                        <span class="me-2"> 
+                                                                            <span class="fw-semibold flex-fill">@Incoterm</span> 
+                                                                            <span class="flex-fill">Incoterm</span> 
+                                                                        </span> 
+                                                                    </div>
+                                                                    <div onclick="selectMark('@Local_Coleta')" class="d-flex align-items-center p-2 mb-1" style="font-size: 11px;"> 
+                                                                        <span class="me-2"> 
+                                                                            <span class="fw-semibold flex-fill">@Local_Coleta</span> 
+                                                                            <span class="flex-fill">Local de coleta</span> 
+                                                                        </span> 
+                                                                    </div>
+                                                                    <div onclick="selectMark('@Mercadoria')" class="d-flex align-items-center p-2 mb-1" style="font-size: 11px;"> 
+                                                                        <span class="me-2"> 
+                                                                            <span class="fw-semibold flex-fill">@Mercadoria</span> 
+                                                                            <span class="flex-fill">Mercadoria</span> 
+                                                                        </span> 
+                                                                    </div>
+                                                                    <div onclick="selectMark('@Moeda_Mercadoria')" class="d-flex align-items-center p-2 mb-1" style="font-size: 11px;"> 
+                                                                        <span class="me-2"> 
+                                                                            <span class="fw-semibold flex-fill">@Moeda_Mercadoria</span> 
+                                                                            <span class="flex-fill">Moeda da Mercadoria</span> 
+                                                                        </span> 
+                                                                    </div>
+
+                                                                    <div onclick="selectMark('@Valor_Mercadoria')" class="d-flex align-items-center p-2 mb-1" style="font-size: 11px;"> 
+                                                                        <span class="me-2"> 
+                                                                            <span class="fw-semibold flex-fill">@Valor_Mercadoria</span> 
+                                                                            <span class="flex-fill">Valor da mercadoria</span> 
+                                                                        </span> 
+                                                                    </div>
+                                                                    
+                                                                    <div onclick="selectMark('@NCM_Descricao')" class="d-flex align-items-center p-2 mb-1" style="font-size: 11px;"> 
+                                                                        <span class="me-2"> 
+                                                                            <span class="fw-semibold flex-fill">@NCM_Descricao</span> 
+                                                                            <span class="flex-fill">Descrição NCM</span> 
+                                                                        </span> 
+                                                                    </div>
+
+                                                                    <div onclick="selectMark('@Numero_Proposta')" class="d-flex align-items-center p-2 mb-1" style="font-size: 11px;"> 
+                                                                        <span class="me-2"> 
+                                                                            <span class="fw-semibold flex-fill">@Numero_Proposta</span> 
+                                                                            <span class="flex-fill">Numero da proposta</span> 
+                                                                        </span> 
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                          </div>
                                                     </div>
                                                     <div class="tab-pane fade p-0 border-0" id="posts-tab-pane" role="tabpanel" aria-labelledby="posts-tab" tabindex="0">
                                                       <div class="row">
@@ -789,7 +973,7 @@
                                                                             Criar grupo 
                                                                         </button>
                                                                         <div class="input-group" id="inputAddGroup">
-                                                                            <input type="text" class="form-control bg-light border-0" placeholder="Pesquisar grupo" aria-describedby="button-addon2">
+                                                                            <input type="text" class="form-control bg-light border-0" placeholder="Nome do grupo" aria-describedby="button-addon2">
                                                                             <button class="btn btn-success" type="button">
                                                                                 <i class="ri-add-circle-line text-muted"></i>
                                                                             </button>
@@ -835,7 +1019,7 @@
                                                                     Adicionar contato
                                                                 </button>
                                                                 <div class="input-group" id="inputAddContact">
-                                                                    <input type="text" class="form-control bg-light border-0" placeholder="Nome" aria-describedby="button-addon2">
+                                                                    <input type="text" class="form-control bg-light border-0" placeholder="Nome">
                                                                     <input type="email" style="border-left: 2px solid var(--custom-black) !important;" class="form-control bg-light border-0" placeholder="E-mail" aria-describedby="button-addon2">
                                                                     <button class="btn btn-success" type="button" id="button-addon2">
                                                                         <i class="ri-add-circle-line text-muted"></i>
@@ -843,6 +1027,10 @@
                                                                     <button class="btn btn-danger" type="button" id="buttonCancelAddContact">
                                                                         <i class="ri-close-circle-line text-muted"></i>
                                                                     </button>
+                                                                </div>
+
+                                                                <div class="input-group" style="padding: 5px 300px;">
+                                                                    <input type="text" onkeyup="inputSearchContacts(this)" class="form-control bg-light border-0" placeholder="pesquisar contato..." >
                                                                 </div>
 
                                                             </div>
@@ -1018,7 +1206,7 @@
                         </div>
                     </div>
                     <div class="modal-footer" style="padding-top: 9px;">
-                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Salvar</button>
+                        <!-- <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Salvar</button> -->
                         <!-- <button type="button" class="btn btn-danger">Enviar</button> -->
                     </div>
                 </div>

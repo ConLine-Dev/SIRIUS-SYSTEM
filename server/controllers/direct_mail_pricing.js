@@ -1,5 +1,7 @@
 const { executeQuery } = require('../connect/mysql');
 const { executeQuerySQL } = require('../connect/sqlServer');
+const { helpers } = require('./helpers');
+const { Users } = require('./users');
 const nodemailer = require('nodemailer');
 
 
@@ -13,7 +15,7 @@ const direct_mail_pricing = {
     getContactsByGroup: async function(id){
  
         let result = await executeQuery('SELECT * FROM direct_mail_pricing_group_list WHERE `group` = '+id+'');
-    
+        console.log(result)
         return result;
     },
     getAllModel: async function(){
@@ -88,15 +90,22 @@ const direct_mail_pricing = {
                                             WHERE Pfr.Numero_Proposta = '${id}'`);
         return result;
     },
-    sendMail: async function(html, EmailTO, subject, bccAddress) {
+    sendMail: async function(html, EmailTO, subject, bccAddress, userID) {
         // Configurações para o serviço SMTP (exemplo usando Gmail)
+        const user = await Users.getUserById(userID)
+
+
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'petryck.leite@conlinebr.com.br',
-                pass: '99659819aA!@#$'
+                user: user[0].system_email,
+                pass: user[0].email_password
             }
         });
+
+        const date_now = await helpers.getDateNow();
+        const result = await executeQuery('INSERT INTO direct_mail_pricing_history (subject, body, send_date, userID) VALUES (?, ?, ?, ?)', [subject, html, date_now, userID])
+        const historyID = result.insertId
     
         // Loop através da lista de destinatários
         for (const recipient of EmailTO) {
@@ -119,23 +128,39 @@ const direct_mail_pricing = {
                 saudacao: getGreeting()
             }
             
+            const bccAddressNew = bccAddress.join(', ')
+
+      
+            const CustomHTML = await direct_mail_pricing.substituirValoresNaString(html, parametros);
             const mailOptions = {
-                from: 'petryck.leite@conlinebr.com.br',
+                from: user[0].system_email,
                 to: `${recipient.name} <${recipient.email}>`,
                 subject: subject,
-                html: await direct_mail_pricing.substituirValoresNaString(html, parametros),
-                cc: bccAddress
+                html: CustomHTML,    
+                cc: bccAddressNew
             };
     
             // Envia o e-mail para o destinatário atual
-            transporter.sendMail(mailOptions, (error, info) => {
+            transporter.sendMail(mailOptions, async (error, info) => {
                 if (error) {
+                    const { response } = error;
+             
+                    await executeQuery('INSERT INTO direct_mail_pricing_details (`body`,`accepted`, `rejected`, `response`, `from`, `to`,`cc`, `messageId`, `historyId`, `status`, `userID`) VALUES (?,?, ?, ?, ?, ?,?, ?, ?, ?, ?)', [null,null, null, response, user[0].system_email, recipient.email, bccAddressNew, null, historyID, 0, userID])
+           
                     console.error(`Erro ao enviar e-mail para ${recipient.email}:`, error);
                 } else {
+                    const { messageId, envelope, accepted, rejected, pending, response } = info;
+                    const acceptedString = accepted.join(', ');
+                    const rejectedString = rejected.join(', ');
+                   await executeQuery('INSERT INTO direct_mail_pricing_details (`body`,`accepted`, `rejected`, `response`, `from`, `to`,`cc`, `messageId`, `historyId`, `status`, `userID`) VALUES (?,?, ?, ?, ?, ?,?, ?, ?, ?, ?)', [CustomHTML,acceptedString, rejectedString, response, user[0].system_email, recipient.email,bccAddressNew, messageId, historyID, 1, userID])
                     console.log(`E-mail enviado com sucesso para ${recipient.email}. Detalhes:`, info);
                 }
             });
+
+           
         }
+
+        return result;
     },
     substituirValoresNaString: async function(str, parametros){
            // Itera sobre as chaves do objeto de parâmetros
@@ -226,10 +251,29 @@ const direct_mail_pricing = {
 
         return result;
     },
+    ListAllEmailsByDept: async function(userID){
+        const user = await Users.getUserById(userID)
+        console.log(user)
+        // const usersDepartment = await Users.getUsersByDep(id)
+    },
+    ListAllEmails: async function(){
+        const result = await executeQuery(`SELECT direct_mail_pricing_history.*, usr.collaborator_id, clt.id_headcargo, clt.name FROM siriusDBO.direct_mail_pricing_history
+        JOIN users as usr ON direct_mail_pricing_history.userID = usr.id
+        JOIN collaborators as clt ON usr.collaborator_id = clt.id ORDER BY id desc`);
+        return result;
+    },
+    getEmailById: async function(id){
+        const result = await executeQuery(`SELECT direct_mail_pricing_details.*, htr.subject, htr.send_date, usr.collaborator_id, clt.id_headcargo, clt.name FROM siriusDBO.direct_mail_pricing_details
+        JOIN direct_mail_pricing_history as htr ON htr.id = direct_mail_pricing_details.historyId 
+        JOIN users as usr ON htr.userID = usr.id
+        JOIN collaborators as clt ON usr.collaborator_id = clt.id WHERE historyId = ${id}`);
+
+        return result;
+    }
     
 }
 
-
+// direct_mail_pricing.ListAllEmails()
 
     module.exports = {
         direct_mail_pricing,

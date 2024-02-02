@@ -1,6 +1,7 @@
 let choicesInstance, groupSend, modelEmail, bccSend, quillEmailModel, selected = {model: false, title: false};
 const StorageGoogleData = localStorage.getItem('StorageGoogle');
 const StorageGoogle = JSON.parse(StorageGoogleData);
+console.log(StorageGoogle)
 document.addEventListener("DOMContentLoaded", async () => {
     await GenerateEditorText();
     await GenerateToEmail();
@@ -10,6 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await createClicks();
     await getAllGroups();
     await ListModelsEditing();
+    await ListAllEmails()
     
 })
 
@@ -198,15 +200,15 @@ async function GenerateToModel(id = 0){
         document.querySelectorAll('input[name="subject"]')[0].value = subject;
 
         if(getProposalDetails.length > 0 && getProposalDetails[0].Quantidade != null){
-            getModelById[0].body += `<table id="tableCotation" style="border-collapse: collapse;"><tbody><tr><td data-row="row-v49i" style="border: 1px solid #000; padding: 2px 5px;"><strong>VOLUME</strong></td><td data-row="row-v49i" style="border: 1px solid #000; padding: 2px 5px;"><strong>COMPRIMENTO</strong></td><td data-row="row-v49i" style="border: 1px solid #000; padding: 2px 5px;"><strong>LARGURA</strong></td><td data-row="row-v49i" style="border: 1px solid #000; padding: 2px 5px;"><strong>ALTURA</strong></td><td data-row="row-v49i" style="border: 1px solid #000; padding: 2px 5px;"><strong>CBM</strong></td><td data-row="row-v49i" style="border: 1px solid #000; padding: 2px 5px;"><strong>PESO BRUTO</strong></td></tr>`;
+            getModelById[0].body += `<table id="tableCotation" style="border-collapse: collapse !important;font-size: small !important;"><tbody><tr><td data-row="row-v49i" style="border: 1px solid #000 !important; padding: 2px 5px !important;"><strong>VOLUME</strong></td><td data-row="row-v49i" style="border: 1px solid #000 !important; padding: 2px 5px !important;"><strong>COMPRIMENTO</strong></td><td data-row="row-v49i" style="border: 1px solid #000 !important; padding: 2px 5px !important;"><strong>LARGURA</strong></td><td data-row="row-v49i" style="border: 1px solid #000 !important; padding: 2px 5px !important;"><strong>ALTURA</strong></td><td data-row="row-v49i" style="border: 1px solid #000 !important; padding: 2px 5px !important;"><strong>CBM</strong></td><td data-row="row-v49i" style="border: 1px solid #000 !important; padding: 2px 5px !important;"><strong>PESO BRUTO</strong></td></tr>`;
             getProposalDetails.forEach(element => {
                 getModelById[0].body += `<tr>
-                                            <td data-row="row-nqh7" style="border: 1px solid #000; padding: 2px 5px;">${element.Quantidade}x ${element.Embalagem}</td>
-                                            <td data-row="row-nqh7" style="border: 1px solid #000; padding: 2px 5px;">${element.Comprimento.toFixed(2)}cm</td>
-                                            <td data-row="row-nqh7" style="border: 1px solid #000; padding: 2px 5px;">${element.Largura.toFixed(2)}cm</td>
-                                            <td data-row="row-nqh7" style="border: 1px solid #000; padding: 2px 5px;">${element.Altura.toFixed(2)}cm</td>
-                                            <td data-row="row-nqh7" style="border: 1px solid #000; padding: 2px 5px;">${element.Metros_Cubicos.toFixed(2)}m³</td>
-                                            <td data-row="row-nqh7" style="border: 1px solid #000; padding: 2px 5px;">${element.Peso_Bruto.toFixed(2)}kb</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Quantidade}x ${element.Embalagem}</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Comprimento.toFixed(2)}cm</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Largura.toFixed(2)}cm</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Altura.toFixed(2)}cm</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Metros_Cubicos.toFixed(2)}m³</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Peso_Bruto.toFixed(2)}kb</td>
                                         </tr>`
             });
             getModelById[0].body += `</tbody></table>`
@@ -249,8 +251,12 @@ async function createClicks(){
         });
 
 
-        const teste = await makeRequest('/api/direct_mail_pricing/sendMail', 'POST', {body:bodyEmail, EmailTO:idsSelecionados, subject:document.querySelector('input[name="subject"]').value, ccAddress:opcoesSelecionadasCC})
-        // console.log(teste)
+        const result = await makeRequest('/api/direct_mail_pricing/sendMail', 'POST', {body:bodyEmail, EmailTO:idsSelecionados, subject:document.querySelector('input[name="subject"]').value, ccAddress:opcoesSelecionadasCC, system_userID:StorageGoogle.system_userID})
+
+
+        await ListAllEmails()
+        document.querySelectorAll('.listEmails li')[0].click()
+        // console.log(result)
     })
 
 
@@ -839,7 +845,6 @@ async function SaveModelEmail(e){
     const name = nameModel.value
     const body = document.querySelectorAll('#detailsModelsEmails .ql-editor')[0].innerHTML;
 
- 
     const saveModel = await makeRequest(`/api/direct_mail_pricing/editModelEmail`, 'POST', {body:{id:id, subject:subjectModel, name:name, body:body}})
 
 
@@ -871,6 +876,124 @@ function inputSearchContacts(e){
     });
 }
 
+
+async function ListAllEmailsByDept(){
+    const ListAllEmailsByDept = await makeRequest('/api/direct_mail_pricing/ListAllEmailsByDept')
+}
+
+async function ListAllEmails(id){
+    const ListAllEmails = await makeRequest('/api/direct_mail_pricing/ListAllEmails')
+    // console.log(ListAllEmails)
+    let listEmail = ''
+    ListAllEmails.forEach(element => {
+        // Cria um elemento temporário
+        const tempElement = document.createElement('div');
+
+        // Define o conteúdo HTML do elemento temporário
+        tempElement.innerHTML = element.body;
+
+        // Obtém o texto do elemento (sem interpretar as tags HTML)
+        const textoInline = tempElement.textContent || tempElement.innerText;
+
+        const classe = id && id == element.id ? 'active' : ''
+
+        listEmail += `<li class="${classe}" style="cursor:pointer;" onclick="selectEmail(this,${element.id})">
+        <div class="d-flex align-items-top">
+        
+            <div class="me-1 lh-1"> <span class="avatar avatar-md online me-2 avatar-rounded mail-msg-avatar"> 
+                <img src="https://cdn.conlinebr.com.br/colaboradores/${element.id_headcargo}" alt=""> 
+            </span> 
+        </div>
+            <div class="flex-fill">
+                <a href="javascript:void(0);">
+                    <p class="mb-1 fs-12"> ${element.name} <span class="float-end text-muted fw-normal fs-11">${element.send_date}</span> </p>
+                </a>
+                <p class=" mb-0"> 
+                    <span class="d-block mb-0 fw-semibold">${element.subject}</span> 
+                    <span class="fs-11 text-muted text-wrap">
+                    ${(textoInline).slice(0,100)}...
+                    </span>                                                            
+                </p>
+            </div>
+        </div>
+    </li>`;
+    });
+
+
+    
+
+
+    document.querySelector('.listEmails').innerHTML = listEmail;
+   
+}
+
+
+async function selectEmail(e,id){
+    const getEmailById = await makeRequest(`/api/direct_mail_pricing/getEmailById/${id}`)
+
+    
+    document.querySelectorAll('.listEmails li').forEach(element => {
+        element.classList.remove('active')
+    });
+    if(e){
+        e.classList.add('active')
+        document.querySelector('#defaultEmailsSelecte').style.display = 'none'
+        document.querySelector('#emaildetails').style.display = 'block'
+    }else{
+        document.querySelector('#defaultEmailsSelecte').style.display = 'block'
+        document.querySelector('#emaildetails').style.display = 'none'
+    }
+    
+    
+
+    document.querySelector('.subjectSelected').textContent = getEmailById[0].subject
+    let bodyAllemailsSend = '<div class="accordion accordion-primary" id="accordionPrimaryExample">'
+    let listTO = ''
+    getEmailById.forEach(element => {
+        listTO += element.to + ',';
+        bodyAllemailsSend += `<div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingPrimaryOne"> 
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePrimaryOne${element.id} " aria-expanded="true" aria-controls="collapsePrimaryOne"> 
+                                        ${element.to} 
+                                   
+                                        </button> 
+                                    </h2>
+                                    <div id="collapsePrimaryOne${element.id}" class="accordion-collapse collapse" aria-labelledby="headingPrimaryOne" data-bs-parent="#accordionPrimaryExample">
+                                        <div class="" style="padding: 0.75rem 1rem;"> 
+                                        ${element.body}
+                                        </div>
+                                    </div>
+                             </div>`;
+    });
+
+    bodyAllemailsSend += '</div>'
+
+    // Remova a vírgula extra no final, se houver
+    listTO = listTO.slice(0, -1);
+
+    
+    document.querySelector('#imgEmailSelected').setAttribute('src',`https://cdn.conlinebr.com.br/colaboradores/${getEmailById[0].id_headcargo}`);
+    document.querySelector('.emailsFromName').innerHTML = getEmailById[0].name;
+    document.querySelector('.dateEmailSelectd').innerHTML = getEmailById[0].send_date;
+    document.querySelector('.emailsTO').innerHTML = listTO;
+    document.querySelector('.bodyAllemailsSend').innerHTML = bodyAllemailsSend;
+}
+
+function searchMailList(e){
+    var termoPesquisa = e.value.toLowerCase(); // Obtém o valor do input em minúsculas
+    // Itera sobre os itens da lista e mostra/oculta com base no termo de pesquisa
+    var listaItems = document.querySelectorAll('.listEmails li');
+    listaItems.forEach(function(item) {
+        var textoItem = item.textContent.toLowerCase();
+
+        // Verifica se o texto do item contém o termo de pesquisa
+        if (textoItem.includes(termoPesquisa)) {
+            item.style.display = 'block'; // Mostra o item
+        } else {
+            item.style.display = 'none'; // Oculta o item
+        }
+    });
+}
 
 // SUPORTES ↓
 

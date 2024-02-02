@@ -1,5 +1,7 @@
+
 const mysql = require('mysql2/promise');
 require('dotenv/config');
+
 
 // Criando pool de conexões com o banco de dados
 const pool = mysql.createPool({
@@ -12,30 +14,44 @@ const pool = mysql.createPool({
   connectionLimit: 10, // número máximo de conexões permitidas
 });
 
-
-const executeQuery = async (query) => {
-  let connection;
-  let attempts = 0;
-  const maxAttempts = 5;
-
-  while (!connection && attempts < maxAttempts) {
-    try {
-      connection = await pool.getConnection();
-      const results = await connection.query(query);
-      connection.release();
-      return results[0];
-    } catch (error) {
-      // console.log(`Error connecting to database: ${error}. Retrying...`);
-      attempts += 1;
-      // await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log(error);
-      return error;
+  const executeQuery = async (query, params = []) => {
+    let connection;
+    let attempts = 0;
+    const maxAttempts = 5;
+  
+    while (!connection && attempts < maxAttempts) {
+      try {
+        connection = await pool.getConnection();
+        const results = await connection.query({
+          sql: query,
+          values: flatten(params),
+        });
+        connection.release();
+        return results[0];
+      } catch (error) {
+        console.log(error);
+        attempts += 1;
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
     }
-  }
+  
+    // throw new Error(`Failed to connect to database after ${attempts} attempts.`);
+  };
 
-  // throw new Error(`Failed to connect to database after ${attempts} attempts.`);
-};
+  
+  const flatten = (arr) => {
+    return arr.reduce((acc, val) => {
+      if (Array.isArray(val)) {
+        return acc.concat(flatten(val));
+      } else {
+        return acc.concat(val);
+      }
+    }, []);
+  };
 
+  
 module.exports = {
-  executeQuery: executeQuery,
+  executeQuery: executeQuery
 };
+
+  

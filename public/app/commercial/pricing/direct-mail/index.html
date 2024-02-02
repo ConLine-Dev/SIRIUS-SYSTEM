@@ -512,7 +512,7 @@
         <div class="main-content">
             <div class="container-fluid">
                 <div class="main-mail-container p-2 row">
-                    <div class="total-mails border col-4">
+                    <div class="total-mails border col-sm-4 col-md-4 col-lg-4 col-xl-4 col-xxl-3">
                         <div class="p-3 d-flex align-items-center border-bottom">
                       
                             <div class="flex-fill">
@@ -533,7 +533,7 @@
                             <div class="row">
                                 <div class="col-10" style="padding-right: 0px;">
                                     <div class="input-group">
-                                        <input type="text" class="form-control bg-light border-0" placeholder="Pesquisar Email" aria-describedby="button-addon2">
+                                        <input type="text" class="form-control bg-light border-0" placeholder="Pesquisar Email" onkeyup="searchMailList(this)" aria-describedby="button-addon2">
                                         <button class="btn btn-light" type="button" id="button-addon2"><i class="ri-search-line text-muted"></i></button>
                                     </div>
                                 </div>
@@ -552,9 +552,11 @@
                                     <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
                                         <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
                                             <div class="simplebar-content" style="padding: 0px;">
-                                                <ul class="list-unstyled mb-0 mail-messages-container">
+                                                <ul class="list-unstyled mb-0 mail-messages-container listEmails">
+
+                                                    
                                                    
-                                                    <li class="active">
+                                                    <!-- <li class="active">
                                                         <div class="d-flex align-items-top">
                                                         
                                                             <div class="me-1 lh-1"> <span class="avatar avatar-md online me-2 avatar-rounded mail-msg-avatar"> 
@@ -573,7 +575,7 @@
                                                                 </p>
                                                             </div>
                                                         </div>
-                                                    </li>
+                                                    </li> -->
                                                 
                                                 </ul>
                                             </div>
@@ -590,14 +592,23 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mails-information border col-8">
+                    <div id="defaultEmailsSelecte" class="mails-information border shadow-none projects-tracking-card overflow-hidden text-center col-sm-8 col-md-8 col-lg-8 col-xl-8 col-xxl-9">
+                        <div class="card-body"> <img src="../../../assets/images/media/email.png" alt="" class="mb-1">
+                            <div> <span class="fs-15 fw-semibold d-block mt-4 mb-3">Selecione um e-mail ao lado 
+                                <br>
+                                <h1>←</h1>
+                            </span>
+                                <!-- <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light">Track Here</button> -->
+                            </div> <span class="shape-1 text-primary"><i class="ti ti-circle fs-20 fw-bold"></i></span> <span class="shape-2 text-secondary"><i class="ti ti-triangle fs-20 fw-bold"></i></span> <span class="shape-3 text-warning"><i class="ti ti-square fs-20 fw-bold"></i></span>        <span class="shape-4 text-info"><i class="ti ti-square-rotated fs-20 fw-bold"></i></span> <span class="shape-5 text-success"><i class="ti ti-pentagon fs-20 fw-bold"></i></span> <span class="shape-6 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span>        <span class="shape-7 text-pink"><i class="ti ti-hexagon fs-20 fw-bold"></i></span> <span class="shape-8 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span> <span class="shape-9 text-primary"><i class="ti ti-circle fs-20 fw-bold"></i></span>        <span class="shape-10 text-secondary"><i class="ti ti-triangle fs-20 fw-bold"></i></span> <span class="shape-11 text-warning"><i class="ti ti-square fs-20 fw-bold"></i></span> <span class="shape-12 text-info"><i class="ti ti-square-rotated fs-20 fw-bold"></i></span>        <span class="shape-13 text-success"><i class="ti ti-pentagon fs-20 fw-bold"></i></span> <span class="shape-14 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span> <span class="shape-15 text-pink"><i class="ti ti-hexagon fs-20 fw-bold"></i></span>        <span class="shape-16 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span> </div>
+                    </div>
+                    <div style="display: none;" id="emaildetails" class="mails-information border col-sm-8 col-md-8 col-lg-8 col-xl-8 col-xxl-9">
                         <div class="mail-info-header d-flex flex-wrap gap-2 align-items-center">
                             <div class="me-1"> <span class="avatar avatar-md online me-2 avatar-rounded mail-msg-avatar"> 
-                                <img src="https://cdn.conlinebr.com.br/colaboradores/182" alt=""> </span> </div>
+                                <img id="imgEmailSelected" src="https://cdn.conlinebr.com.br/colaboradores/182" alt=""> </span> </div>
                             <div class="flex-fill">
-                                <h6 class="mb-0 fw-semibold">Petryck William</h6> 
-                                <span class="text-muted fs-12">
-                                    michaeljeremy2194@gmail.com, michaeljeremy2194@gmail.com, michaeljeremy2194@gmail.com</span>
+                                <h6 class="mb-0 fw-semibold emailsFromName">-</h6> 
+                                <span class="text-muted fs-12 emailsTO">
+                                    -</span>
                             </div>
                             <div class="">
                                 <button class="btn btn-icon btn-light" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Imprimir"> <i class="ri-star-line"></i> </button>
@@ -619,23 +630,14 @@
                                             <div class="simplebar-content" style="padding: 24px;">
                                                 <div class="d-sm-flex d-block align-items-center justify-content-between mb-4"> 
                                                     <div> 
-                                                        <p class="fs-20 fw-semibold mb-0">Assunto do email</p>
+                                                        <p class="fs-18 fw-semibold mb-0 subjectSelected" style="max-width: 85vh;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">-</p>
                                                     </div>
                                                 <div class="float-end"> 
-                                                    <span class="me-2 fs-12 text-muted">22-01-2024, 13:35</span> </div> </div>
-                                                
-                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero soluta ab ipsa, corrupti, tempore voluptatem perspiciatis vitae hic fugiat molestiae veniam labore ipsum exercitationem optio laborum sequi minus rem blanditiis?</p>
-                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero soluta ab ipsa, corrupti, tempore voluptatem perspiciatis vitae hic fugiat molestiae veniam labore ipsum exercitationem optio laborum sequi minus rem blanditiis?</p>
-                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero soluta ab ipsa, corrupti, tempore voluptatem perspiciatis vitae hic fugiat molestiae veniam labore ipsum exercitationem optio laborum sequi minus rem blanditiis?</p>
-                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero soluta ab ipsa, corrupti, tempore voluptatem perspiciatis vitae hic fugiat molestiae veniam labore ipsum exercitationem optio laborum sequi minus rem blanditiis?</p>
-                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero soluta ab ipsa, corrupti, tempore voluptatem perspiciatis vitae hic fugiat molestiae veniam labore ipsum exercitationem optio laborum sequi minus rem blanditiis?</p>
-                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero soluta ab ipsa, corrupti, tempore voluptatem perspiciatis vitae hic fugiat molestiae veniam labore ipsum exercitationem optio laborum sequi minus rem blanditiis?</p>
-                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero soluta ab ipsa, corrupti, tempore voluptatem perspiciatis vitae hic fugiat molestiae veniam labore ipsum exercitationem optio laborum sequi minus rem blanditiis?</p>
-                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero soluta ab ipsa, corrupti, tempore voluptatem perspiciatis vitae hic fugiat molestiae veniam labore ipsum exercitationem optio laborum sequi minus rem blanditiis?</p>
-                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero soluta ab ipsa, corrupti, tempore voluptatem perspiciatis vitae hic fugiat molestiae veniam labore ipsum exercitationem optio laborum sequi minus rem blanditiis?</p>
-                         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero soluta ab ipsa, corrupti, tempore voluptatem perspiciatis vitae hic fugiat molestiae veniam labore ipsum exercitationem optio laborum sequi minus rem blanditiis?</p>
-                          
-                           
+                                                    <span class="me-2 fs-12 text-muted dateEmailSelectd">22-01-2024, 13:35</span> </div> </div>
+                                                    
+                                                    <div class="bodyAllemailsSend"></div>
+
+                                                   
                                              
                                             </div>
                                         </div>
@@ -826,8 +828,8 @@
                                                                 </div>
                                                             </div>
                                                             <div class="col-7"  style="border-left: 4px solid rgb(var(--light-rgb));">
-                                                                <div class="card custom-card shadow-none projects-tracking-card overflow-hidden text-center">
-                                                                    <div class="card-body"> <img src="../../../assets/images/media/media-86.svg" alt="" class="mb-1">
+                                                                <div id="selecioneUmModelo" class="card custom-card shadow-none projects-tracking-card overflow-hidden text-center">
+                                                                    <div class="card-body"> <img src="../../../assets/images/media/modeloEmail.png" alt="" class="mb-1">
                                                                         <div> <span class="fs-15 fw-semibold d-block mt-4 mb-3">Selecione um modelo ao lado ← <br> ou se preferir crie um novo.</span>
                                                                             <!-- <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light">Track Here</button> -->
                                                                         </div> <span class="shape-1 text-primary"><i class="ti ti-circle fs-20 fw-bold"></i></span> <span class="shape-2 text-secondary"><i class="ti ti-triangle fs-20 fw-bold"></i></span> <span class="shape-3 text-warning"><i class="ti ti-square fs-20 fw-bold"></i></span>        <span class="shape-4 text-info"><i class="ti ti-square-rotated fs-20 fw-bold"></i></span> <span class="shape-5 text-success"><i class="ti ti-pentagon fs-20 fw-bold"></i></span> <span class="shape-6 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span>        <span class="shape-7 text-pink"><i class="ti ti-hexagon fs-20 fw-bold"></i></span> <span class="shape-8 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span> <span class="shape-9 text-primary"><i class="ti ti-circle fs-20 fw-bold"></i></span>        <span class="shape-10 text-secondary"><i class="ti ti-triangle fs-20 fw-bold"></i></span> <span class="shape-11 text-warning"><i class="ti ti-square fs-20 fw-bold"></i></span> <span class="shape-12 text-info"><i class="ti ti-square-rotated fs-20 fw-bold"></i></span>        <span class="shape-13 text-success"><i class="ti ti-pentagon fs-20 fw-bold"></i></span> <span class="shape-14 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span> <span class="shape-15 text-pink"><i class="ti ti-hexagon fs-20 fw-bold"></i></span>        <span class="shape-16 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span> </div>

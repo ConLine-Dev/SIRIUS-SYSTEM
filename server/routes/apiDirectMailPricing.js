@@ -63,10 +63,10 @@ router.get('/getProposal/:id', async (req, res, next) => {
 });
 
 router.post('/sendMail', async (req, res, next) => {
-    const {body, EmailTO, subject, ccAddress} = req.body;
+    const {body, EmailTO, subject, ccAddress, system_userID} = req.body;
     try {
 
-        const result = await direct_mail_pricing.sendMail(body, EmailTO, subject, ccAddress);
+        const result = await direct_mail_pricing.sendMail(body, EmailTO, subject, ccAddress, system_userID);
         res.status(200).json(result)
     } catch (error) {
         res.status(404).json('Erro')   
@@ -178,6 +178,25 @@ router.post('/editModelEmail', async (req, res, next) => {
 router.get('/removeModelEmail/:id', async (req, res, next) => {
     try {
         const result = await direct_mail_pricing.removeModelEmail(req.params.id);
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+router.get('/ListAllEmails', async (req, res, next) => {
+    try {
+        const result = await direct_mail_pricing.ListAllEmails();
+        console.log(result)
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+router.get('/getEmailById/:id', async (req, res, next) => {
+    try {
+        const result = await direct_mail_pricing.getEmailById(req.params.id);
         res.status(200).json(result)
     } catch (error) {
         res.status(404).json('Erro')   

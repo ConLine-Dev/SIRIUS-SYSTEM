@@ -17,7 +17,8 @@
 }
 
 .mails-information{
-    height: fit-content;
+    /* height: fit-content; */
+    height: auto;
 }
 
 .mail-info-footer{
@@ -120,6 +121,21 @@ font-size: 13px;
 #ListModelsEmails li:hover .removeModel{
     opacity: 1 !important;
 }
+
+
+#defaultEmailsSelecte img {
+    margin-top: 115px;
+    width: 28.5rem;
+    height: 28.5rem;
+}
+
+#selecioneUmModelo img {
+    margin-top: 90px;
+    width: 20rem;
+    height: 20rem;
+}
+
+
 
 
 

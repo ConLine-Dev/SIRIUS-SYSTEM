@@ -5,8 +5,8 @@ const socketIO = require('socket.io'); // Add this line
 
 
 // Import routes pages
-const listApp = require('./routes/app');
-const listApi = require('./routes/api');
+const listApp = require('./server/routes/app');
+const listApi = require('./server/routes/api');
 
 // Middlewares
 const app = express();

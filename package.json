@@ -2,7 +2,7 @@
   "name": "sirius-system",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./server/index.js",
   "engines": {
     "node": "18.x"
   },

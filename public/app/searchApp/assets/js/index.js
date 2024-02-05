@@ -11,7 +11,7 @@ window.onload = async function () {
 
    // console.log(window)
 const teste = await window.ipcRenderer.invoke('check-for-updates'); 
-console.log(teste)
+
 
 // console.log(window.ipcRenderer)
 // Exemplo de uso no lado do cliente

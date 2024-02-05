@@ -504,7 +504,6 @@ function setTheme(){
 
 
 setInterval(() => {
-    console.log('theme')
     setTheme()
     checkLoginExpiration()
 }, 1000);

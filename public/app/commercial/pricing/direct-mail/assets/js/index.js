@@ -200,17 +200,46 @@ async function GenerateToModel(id = 0){
         document.querySelectorAll('input[name="subject"]')[0].value = subject;
 
         if(getProposalDetails.length > 0 && getProposalDetails[0].Quantidade != null){
+            let quant = 0
+            let comp = 0
+            let larg = 0
+            let alt = 0
+            let met = 0
+            let peso = 0
             getModelById[0].body += `<table id="tableCotation" style="border-collapse: collapse !important;font-size: small !important;"><tbody><tr><td data-row="row-v49i" style="border: 1px solid #000 !important; padding: 2px 5px !important;"><strong>VOLUME</strong></td><td data-row="row-v49i" style="border: 1px solid #000 !important; padding: 2px 5px !important;"><strong>COMPRIMENTO</strong></td><td data-row="row-v49i" style="border: 1px solid #000 !important; padding: 2px 5px !important;"><strong>LARGURA</strong></td><td data-row="row-v49i" style="border: 1px solid #000 !important; padding: 2px 5px !important;"><strong>ALTURA</strong></td><td data-row="row-v49i" style="border: 1px solid #000 !important; padding: 2px 5px !important;"><strong>CBM</strong></td><td data-row="row-v49i" style="border: 1px solid #000 !important; padding: 2px 5px !important;"><strong>PESO BRUTO</strong></td></tr>`;
             getProposalDetails.forEach(element => {
+                quant += element.Quantidade ? element.Quantidade : 0
+                comp += element.Comprimento ? element.Comprimento : 0
+                larg += element.Largura ? element.Largura : 0
+                alt += element.Altura ? element.Altura : 0
+                met += element.Metros_Cubicos ? element.Metros_Cubicos : 0
+                peso += element.Peso_Bruto ? element.Peso_Bruto : 0
                 getModelById[0].body += `<tr>
                                             <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Quantidade}x ${element.Embalagem}</td>
-                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Comprimento.toFixed(2)}cm</td>
-                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Largura.toFixed(2)}cm</td>
-                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Altura.toFixed(2)}cm</td>
-                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Metros_Cubicos.toFixed(2)}m³</td>
-                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Peso_Bruto.toFixed(2)}kb</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Comprimento ? element.Comprimento.toFixed(2)+'cm' : '-'}</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Largura ? element.Largura.toFixed(2)+'cm' : '-'}</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Altura ? element.Altura.toFixed(2)+'cm' : '-'}</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Metros_Cubicos ? element.Metros_Cubicos.toFixed(2)+'m³' : '-'}</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Peso_Bruto ? element.Peso_Bruto.toFixed(2)+'kb' : '-'}</td>
                                         </tr>`
             });
+
+            getModelById[0].body += `<tr style="border: 0px solid #000;">
+                                            <td data-row="row-nqh7" style="border: 0px solid #000 !important; padding: 2px 5px !important;font-weight: bold;"></td>
+                                            <td data-row="row-nqh7" style="border: 0px solid #000 !important; padding: 2px 5px !important;font-weight: bold;"></td>
+                                            <td data-row="row-nqh7" style="border: 0px solid #000 !important; padding: 2px 5px !important;font-weight: bold;"></td>
+                                            <td data-row="row-nqh7" style="border: 0px solid #000 !important; padding: 2px 5px !important;font-weight: bold;"></td>
+                                            <td data-row="row-nqh7" style="border: 0px solid #000 !important; padding: 2px 5px !important;font-weight: bold;"></td>
+                                            <td data-row="row-nqh7" style="border: 0px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">TOTAL</td>
+                                        </tr>`
+            getModelById[0].body += `<tr>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${quant}x</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${comp != 0 ? comp.toFixed(2)+'cm' : '-'}</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${larg != 0 ? larg.toFixed(2)+'cm' : '-'}</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${alt != 0 ? alt.toFixed(2)+'cm' : '-'}</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${met != 0 ? met.toFixed(2)+'m³' : '-'}</td>
+                                            <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${peso != 0 ? peso.toFixed(2)+'kb' : '-'}</td>
+                                        </tr>`
             getModelById[0].body += `</tbody></table>`
         }
        
@@ -277,7 +306,7 @@ async function createClicks(){
         const expression = new RegExp(regex.source, 'i');
         return expression.test(value);
         },
-    }).setValue(['ti@conlinebr.com.br']);
+    }).setValue(['pricing.impo@conlinebr.com.br']);
 
 
 
@@ -1032,9 +1061,13 @@ async function substituirValoresNaString(str, parametros) {
                 }else{
                     valor = parametros[chave];
                 }
-            }else if(chave == 'Valor_Mercadoria' && parametros['Moeda_Mercadoria'] != null){
-                valor = parametros[chave].toLocaleString('pt-BR', { style: 'currency', currency: parametros['Moeda_Mercadoria'] });
-                console.log('valor formatado', valor)
+            }else if(chave == 'Valor_Mercadoria'){
+                if(parametros['Moeda_Mercadoria'] != null){
+                    valor = parametros[chave].toLocaleString('pt-BR', { style: 'currency', currency: parametros['Moeda_Mercadoria'] });
+                }else{
+                    valor = 'A SER CONFIRMADO';
+                }
+                
             }else{
                 valor = parametros[chave];
             }

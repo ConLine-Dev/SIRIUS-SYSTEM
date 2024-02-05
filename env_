@@ -1,0 +1,6 @@
+# Banco de dados
+DB_HOST=sirius-db.ddns.net
+DB_USER=aplicacao
+DB_PASSWORD=conline@2510A
+DB_PORT=3306
+DB_NAME=siriusDBO

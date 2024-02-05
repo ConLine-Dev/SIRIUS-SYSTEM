@@ -1,9 +1,28 @@
 window.onload = async function () {
 
    await checkLoginExpiration()
+
+   setInterval(async () => {
+      await checkLoginExpiration()
+   }, 1000);
+
    const StorageGoogle = await getInfosLogin();
    await setInfosLogin(StorageGoogle)
-   console.log(StorageGoogle)
+
+   // console.log(window)
+const teste = await window.ipcRenderer.invoke('check-for-updates'); 
+console.log(teste)
+
+// console.log(window.ipcRenderer)
+// Exemplo de uso no lado do cliente
+const electron = window.electron;
+
+// Ouvindo um evento chamado 'meu-evento'
+electron.on('update-available', (arg) => {
+  console.log('Evento recebido no lado do cliente:', arg);
+  // Faça o que precisar com os dados recebidos
+});
+ 
 }
 
 
@@ -18,6 +37,8 @@ async function checkLoginExpiration() {
   
    if(!localStorage.getItem('StorageGoogle')) {
         window.location.href = '/app/login';
+   }else{
+      document.querySelector('body').style.display = 'block'
    }
 
 
@@ -71,6 +92,25 @@ async function setInfosLogin(StorageGoogle){
     
     
 }
+
+
+// Exemplo no código do frontend (renderer process)
+// const { ipcRenderer } = window;
+
+// console.log(ipcRenderer)
+// ipcRenderer.on('update-available', () => {
+//   // Lidar com uma atualização disponível
+//   console.log('Atualização disponível. Baixando...');
+// });
+
+// ipcRenderer.on('update-downloaded', () => {
+//   // Lidar com uma atualização baixada e pronta para instalação
+//   console.log('Atualização baixada. Reiniciando aplicativo para instalar...');
+//   ipcRenderer.invoke('quit-and-install');
+// });
+
+// // Exemplo para verificar atualizações manualmente
+// ipcRenderer.invoke('check-for-updates');
 
 
 

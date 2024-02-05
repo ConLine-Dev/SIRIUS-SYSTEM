@@ -906,7 +906,7 @@ async function ListAllEmails(id){
         </div>
             <div class="flex-fill">
                 <a href="javascript:void(0);">
-                    <p class="mb-1 fs-12"> ${element.name} <span class="float-end text-muted fw-normal fs-11">${element.send_date}</span> </p>
+                    <p class="mb-1 fs-12"> ${element.name} <span class="float-end text-muted fw-normal fs-11">${formatarData(element.send_date)}</span> </p>
                 </a>
                 <p class=" mb-0"> 
                     <span class="d-block mb-0 fw-semibold">${element.subject}</span> 
@@ -974,7 +974,7 @@ async function selectEmail(e,id){
     
     document.querySelector('#imgEmailSelected').setAttribute('src',`https://cdn.conlinebr.com.br/colaboradores/${getEmailById[0].id_headcargo}`);
     document.querySelector('.emailsFromName').innerHTML = getEmailById[0].name;
-    document.querySelector('.dateEmailSelectd').innerHTML = getEmailById[0].send_date;
+    document.querySelector('.dateEmailSelectd').innerHTML = formatarData(getEmailById[0].send_date);
     document.querySelector('.emailsTO').innerHTML = listTO;
     document.querySelector('.bodyAllemailsSend').innerHTML = bodyAllemailsSend;
 }
@@ -1057,4 +1057,35 @@ function contemPalavra(str) {
     const regex = /\bNAO EMPILHAVEL\b/;
     return regex.test(str);
 }
+
+function formatarData(dataStr) {
+    // Dividir a string de data em partes
+    const partesDataHora = dataStr.split(' ');
+    const partesData = partesDataHora[0].split('-');
+    const partesHora = partesDataHora[1].split(':');
+  
+    // Criar um objeto Date com as partes
+    const dataObj = new Date(
+      partesData[0],
+      partesData[1] - 1, // Os meses em JavaScript são de 0 a 11
+      partesData[2],
+      partesHora[0],
+      partesHora[1],
+      partesHora[2]
+    );
+  
+    // Formatar a data no estilo desejado (DD/MM/YYYY HH:mm:ss)
+    const dataFormatada = `${zeroEsquerda(dataObj.getDate())}/${zeroEsquerda(
+      dataObj.getMonth() + 1
+    )}/${dataObj.getFullYear()} ${zeroEsquerda(dataObj.getHours())}:${zeroEsquerda(
+      dataObj.getMinutes()
+    )}:${zeroEsquerda(dataObj.getSeconds())}`;
+  
+    return dataFormatada;
+  }
+  
+  // Função auxiliar para adicionar zero à esquerda, se necessário
+  function zeroEsquerda(valor) {
+    return valor < 10 ? `0${valor}` : valor;
+  }
 

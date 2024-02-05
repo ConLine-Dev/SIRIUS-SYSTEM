@@ -42,10 +42,20 @@ window.onload = function () {
    }
 
    checkLoginExpiration();
+
+   setInterval(async () => {
+       checkLoginExpiration()
+   }, 1000);
 }
 
 // Função para verificar se o tempo de login expirou
 function checkLoginExpiration() {
+
+   if(localStorage.getItem('StorageGoogle')) {
+      window.location.href = urlHome
+   }
+
+
    const loginTime = localStorage.getItem('loginTime');
 
    if (loginTime) {
@@ -54,12 +64,12 @@ function checkLoginExpiration() {
 
       // 24 horas em milissegundos
       const twentyFourHours = 1000;
-
+      console.log(elapsedTime >= twentyFourHours)
       if (elapsedTime >= twentyFourHours) {
          // Limpa os dados do usuário e redireciona para a página de login
          localStorage.removeItem('StorageGoogle');
          localStorage.removeItem('loginTime');
-         window.location.href = '/app/login';
+         window.location.href = urlLogin
       }
    }
 }

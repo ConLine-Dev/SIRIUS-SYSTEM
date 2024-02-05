@@ -16,7 +16,7 @@ app.use(express.json());
 const server = http.createServer(app); 
 
 // Statics
-app.use('/', express.static(path.join(__dirname, '../public')))
+app.use('/', express.static(path.join(__dirname, 'public')))
 
 // Routes
 app.use('/api', listApi);

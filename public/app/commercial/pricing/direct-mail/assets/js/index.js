@@ -1071,6 +1071,13 @@ async function substituirValoresNaString(str, parametros) {
                     valor = 'A SER CONFIRMADO';
                 }
                 
+            }else if(chave == 'NCM_Descricao'){
+                if(parametros['NCM_Descricao'] != null){
+                    valor = parametros[chave];
+                }else{
+                    valor = 'A SER CONFIRMADO';
+                }
+                
             }else{
                 valor = parametros[chave];
             }

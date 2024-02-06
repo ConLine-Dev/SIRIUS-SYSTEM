@@ -188,7 +188,10 @@ async function GenerateToModel(id = 0){
 
     // Codifica a referência para garantir que as barras sejam tratadas corretamente na URL
     const refProposalEncoded = encodeURIComponent(refProposal);
-    const getAllDetailsProposal = await makeRequest(`/api/direct_mail_pricing/getProposal/${refProposalEncoded}`)
+
+    const getAllDetailsProposal = await makeRequest(`/api/direct_mail_pricing/getProposal`, 'POST', {body:refProposalEncoded})
+
+
     const getProposal = getAllDetailsProposal.result;
     const getProposalDetails = getAllDetailsProposal.table;
 

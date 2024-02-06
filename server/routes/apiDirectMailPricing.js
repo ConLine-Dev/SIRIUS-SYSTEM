@@ -50,9 +50,10 @@ router.get('/getModelById/:id', async (req, res, next) => {
     }
 });
 
-router.get('/getProposal/:id', async (req, res, next) => {
+router.post('/getProposal', async (req, res, next) => {
+    const {body} = req.body;
     try {
-        const refProposalDecoded = decodeURIComponent(req.params.id);
+        const refProposalDecoded = decodeURIComponent(body);
         const result = await direct_mail_pricing.getProposal(refProposalDecoded);
         const table = await direct_mail_pricing.getProposalDetails(refProposalDecoded);
 
@@ -187,7 +188,7 @@ router.get('/removeModelEmail/:id', async (req, res, next) => {
 router.get('/ListAllEmails', async (req, res, next) => {
     try {
         const result = await direct_mail_pricing.ListAllEmails();
-        console.log(result)
+  
         res.status(200).json(result)
     } catch (error) {
         res.status(404).json('Erro')   

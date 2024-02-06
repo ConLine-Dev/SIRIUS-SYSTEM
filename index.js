@@ -32,7 +32,7 @@ io.on('connection', (socket) => {
 
 
 // connection
-const port = process.env.PORT || 9005;
+const port = process.env.PORT || 6666;
 server.listen(port, () =>
   console.log(`Listening to port http://localhost:${port} Node.js v${process.versions.node}!`)
 );

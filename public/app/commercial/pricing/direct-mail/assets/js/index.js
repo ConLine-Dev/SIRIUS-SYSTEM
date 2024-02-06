@@ -288,6 +288,8 @@ async function createClicks(){
 
         await ListAllEmails()
         document.querySelectorAll('.listEmails li')[0].click()
+
+        $('#mail-Compose').modal('hide');
         // console.log(result)
     })
 

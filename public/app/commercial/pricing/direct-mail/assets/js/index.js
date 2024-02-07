@@ -1,4 +1,4 @@
-let choicesInstance, groupSend, modelEmail, bccSend, quillEmailModel, selected = {model: false, title: false};
+let choicesInstance, inputSelectProposal, groupSend, modelEmail, bccSend,bccoSend,fileSend, quillEmailModel, selected = {model: false, title: false};
 const StorageGoogleData = localStorage.getItem('StorageGoogle');
 const StorageGoogle = JSON.parse(StorageGoogleData);
 console.log(StorageGoogle)
@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadGroupSend();
     await loadModelsEmails();
     await createMask();
+    await getAllProposalByRef();
     await createClicks();
     await getAllGroups();
     await ListModelsEditing();
@@ -81,6 +82,73 @@ async function GenerateToEmail(id = 0){
         removeItemButton: true,
         noChoicesText: 'Não há opções disponíveis'
     });
+}
+
+GenerateFileToProposal()
+
+async function GenerateFileToProposal(id = 0){
+
+    // const getContactsByGroup = await makeRequest(`/api/direct_mail_pricing/getContactsByGroup/${id}`)
+
+    // Formate o array para ser usado com o Choices.js
+    // var listaDeOpcoesFile = getContactsByGroup.map(function(element) {
+    //     return {
+    //         customProperties:{name:element.name},
+    //         value: `${element.email}`,
+    //         label: `${element.name} [${element.email}]`,
+    //         selected: true,
+    //     };
+    // });
+
+    
+    // listaDeOpcoes.push({value:0, label:'Selecione', selected: true, disabled: true})
+
+     // Destrua a instância anterior do Choices (se existir)
+     if (fileSend) {
+        fileSend.destroy();
+    }
+
+    fileSend = new Choices('select[name="fileSend"]', {
+        // choices: [], //listaDeOpcoesFile,
+        // allowHTML: true,
+        allowSearch: true,
+        removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis'
+    });
+
+    console.log(fileSend)
+
+    // Adicione um ouvinte de evento 'search'
+    fileSend.passedElement.element.addEventListener('search', async function(event) {
+        // event.detail.value contém o valor da pesquisa
+        var searchTerm = event.detail.value;
+        console.log(searchTerm)
+
+        // Execute a sua lógica de pesquisa dinâmica aqui
+        // Por exemplo, você pode chamar uma função que faz uma requisição AJAX para obter resultados de pesquisa com base em 'searchTerm'
+        await performDynamicSearch(searchTerm);
+    });
+}
+
+// Função para realizar a pesquisa dinâmica (exemplo com AJAX)
+async function performDynamicSearch(searchTerm) {
+    searchTerm = searchTerm || '';
+
+    const optionsData = [
+        { value: 'opcao1', label: 'Casa' },
+        { value: 'opcao2', label: 'Carro' },
+        { value: 'opcao3', label: 'Moto' },
+        // Adicione mais opções conforme necessário
+    ];
+
+    const filteredOptions = optionsData.filter(option =>
+        option.label.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    fileSend.setChoices(filteredOptions, 'value', 'label', true);
+    // const getContactsByGroup = await makeRequest(`/api/direct_mail_pricing/getContactsByGroup/${id}`)
+
+
 }
 
 async function loadGroupSend(){
@@ -171,12 +239,12 @@ async function loadModelsEmails(){
 
 async function createMask(){
     /* prefix */
-    new Cleave('input[name="RefProposta"]', {
-        prefix: 'PF',
-        delimiter: '/',
-        blocks: [8, 2],
-        uppercase: true
-    });
+    // new Cleave('input[name="RefProposta"]', {
+    //     prefix: 'PF',
+    //     delimiter: '/',
+    //     blocks: [8, 2],
+    //     uppercase: true
+    // });
 }
 
 async function GenerateToModel(id = 0){
@@ -272,6 +340,7 @@ async function createClicks(){
         // Obtenha as opções selecionadas
         const opcoesSelecionadas = choicesInstance.getValue();
         const opcoesSelecionadasCC = bccSend.getValue(true);
+        const opcoesSelecionadasCCO = bccoSend.getValue(true);
         
         
         // Mapeie para obter apenas os IDs
@@ -282,8 +351,16 @@ async function createClicks(){
             };
         });
 
+        const formBody = {
+            body:bodyEmail, 
+            EmailTO:idsSelecionados, 
+            subject:document.querySelector('input[name="subject"]').value, 
+            ccAddress:opcoesSelecionadasCC, 
+            ccOAddress:opcoesSelecionadasCCO,
+            system_userID:StorageGoogle.system_userID
+        }
 
-        const result = await makeRequest('/api/direct_mail_pricing/sendMail', 'POST', {body:bodyEmail, EmailTO:idsSelecionados, subject:document.querySelector('input[name="subject"]').value, ccAddress:opcoesSelecionadasCC, system_userID:StorageGoogle.system_userID})
+        const result = await makeRequest('/api/direct_mail_pricing/sendMail', 'POST', formBody)
 
 
         await ListAllEmails()
@@ -312,6 +389,24 @@ async function createClicks(){
         return expression.test(value);
         },
     }).setValue(['pricing.impo@conlinebr.com.br']);
+
+    bccoSend = new Choices('input[name="mailCCO"]', {
+        allowHTML: true,
+        editItems: true,
+        customAddItemText: 'Apenas valores que correspondam a condições específicas podem ser adicionados',
+        // removeItemButton: true,
+        addItemText: (value) => {
+            return `Pressione Enter para adicionar <b>"${value}"</b>`;
+          },
+        addItemFilter: function (value) {
+        if (!value) {
+            return false;
+        }
+        const regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const expression = new RegExp(regex.source, 'i');
+        return expression.test(value);
+        },
+    })
 
 
 
@@ -497,6 +592,59 @@ async function createClicks(){
 
 }
 
+async function getAllProposalByRef(){
+    
+     // Destrua a instância anterior do Choices (se existir)
+     if (inputSelectProposal) {
+        inputSelectProposal.destroy();
+    }
+
+   
+
+    inputSelectProposal = new Choices('select[name="RefProposta"]', {
+        // choices: [], //listaDeOpcoesFile,
+        // allowHTML: true,
+        // allowSearch: true,
+        // removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis'
+    });
+
+    console.log('aqui', inputSelectProposal)
+
+    
+    new Cleave(inputSelectProposal.input.element, {
+        // prefix: 'PF',
+        // delimiter: '/',
+        // blocks: [8, 2],
+        uppercase: true
+    });
+
+
+    // Adicione um ouvinte de evento 'search'
+    inputSelectProposal.passedElement.element.addEventListener('search', async function(event) {
+        // event.detail.value contém o valor da pesquisa
+        const searchTerm = event.detail.value || '';
+
+        if(searchTerm.length > 5){
+            const filteredOptions = await makeRequest(`/api/direct_mail_pricing/getAllProposalByRef`, 'POST', {body:searchTerm})
+            console.log(filteredOptions)
+            // const optionsData = [
+            //     { value: 'opcao1', label: 'Casa' },
+            //     { value: 'opcao2', label: 'Carro' },
+            //     { value: 'opcao3', label: 'Moto' },
+            //     // Adicione mais opções conforme necessário
+            // ];
+        
+            // const filteredOptions = optionsData.filter(option =>
+            //     option.label.toLowerCase().includes(searchTerm.toLowerCase())
+            // );
+        
+            inputSelectProposal.setChoices(filteredOptions, 'value', 'label', true);
+        }
+
+       
+    });
+}
 
 
 function selectMark(value) {

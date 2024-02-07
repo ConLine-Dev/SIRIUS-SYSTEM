@@ -56,6 +56,7 @@ router.post('/getProposal', async (req, res, next) => {
         const refProposalDecoded = decodeURIComponent(body);
         const result = await direct_mail_pricing.getProposal(refProposalDecoded);
         const table = await direct_mail_pricing.getProposalDetails(refProposalDecoded);
+       
 
         res.status(200).json({result,table})
     } catch (error) {
@@ -63,11 +64,50 @@ router.post('/getProposal', async (req, res, next) => {
     }
 });
 
-router.post('/sendMail', async (req, res, next) => {
-    const {body, EmailTO, subject, ccAddress, system_userID} = req.body;
+
+router.post('/getAllProposalByRef', async (req, res, next) => {
+    const {body} = req.body;
+    try {
+        const refProposalDecoded = decodeURIComponent(body);
+        let result = await direct_mail_pricing.getAllProposalByRef(refProposalDecoded);
+
+
+        // Formate o array para ser usado com o Choices.js
+        // { value: 'opcao1', label: 'Casa' }
+        result = result.map(function(element) {
+            return {
+                customProperties:{name:element.Numero_Proposta},
+                value: `${element.Numero_Proposta}`,
+                label: `${element.Numero_Proposta} [${element.Incoterm}]`,
+                selected: true,
+            };
+        });
+       
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+router.post('/getFileByProposal', async (req, res, next) => {
+    const {body} = req.body;
     try {
 
-        const result = await direct_mail_pricing.sendMail(body, EmailTO, subject, ccAddress, system_userID);
+        const files = await direct_mail_pricing.getFileByProposal(body);
+
+        res.status(200).json({files})
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+
+
+router.post('/sendMail', async (req, res, next) => {
+    const {body, EmailTO, subject, ccAddress,ccOAddress, system_userID} = req.body;
+    try {
+
+        const result = await direct_mail_pricing.sendMail(body, EmailTO, subject, ccAddress,ccOAddress, system_userID);
         res.status(200).json(result)
     } catch (error) {
         res.status(404).json('Erro')   

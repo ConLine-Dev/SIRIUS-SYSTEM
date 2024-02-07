@@ -667,11 +667,13 @@
                     </div>
                     <div class="modal-body px-4">
                         <div class="row">
-                            <div class="col-xl-3 mb-2">
+                            <div class="col-xl-4 mb-2">
                                 <label for="mailBcc" class="form-label text-dark fw-semibold">Ref Proposta</label>
-                                <input type="text" class="form-control" name="RefProposta" placeholder="PF000000/24"> 
+                                <!-- <input type="text" class="form-control" name="RefProposta" placeholder="PF000000/24">  -->
+                                <select class="form-control choices__input" name="RefProposta" >
+                                </select>
                             </div>
-                            <div class="col-xl-6 mb-2">
+                            <div class="col-xl-5 mb-2">
                                 <label for="mailBcc" class="form-label text-dark fw-semibold">Modelo</label>
                                 <select class="form-control choices__input" name="modelEmail" >
                                 </select>
@@ -701,10 +703,24 @@
                                 <input class="form-control choices__input" name="mailCC" id="choices-text-email-filter" type="text" placeholder="Cópia carbono" hidden="" tabindex="-1">
                             
                             </div>
+                            <div class="col-xl-12 mb-2">
+                                <label for="mailCC" class="form-label text-dark fw-semibold">Cópia oculta</label>
+                                <!-- <input type="email" class="form-control" name="mailCC"> -->
+                                <input class="form-control choices__input" name="mailCCO" id="choices-text-email-filter" type="text" placeholder="Cópia oculta" hidden="" tabindex="-1">
+                            
+                            </div>
                              
                             <div class="col-xl-12 mb-2">
-                                <label for="Subject" class="form-label">Assunto</label>
-                                <input type="text" name="subject" class="form-control" placeholder="Assunto"> </div>
+                                <label for="Subject" class="form-label">Assunto:</label>
+                                <input type="text" name="subject" class="form-control" placeholder="Assunto"> 
+                            </div>
+
+                            <div class="col-xl-12 mb-2">
+                                <label for="fileSend" class="form-label">Anexos:</label>
+                                <select class="form-control choices__input" multiple name="fileSend">
+                                </select>
+                            </div>
+                           
                             <div class="col-xl-12">
                                 <label class="col-form-label">Corpo :</label>
                                 <div class="mail-compose">
@@ -845,7 +861,7 @@
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-xl-12 mb-2">
-                                                                        <label for="Subject" class="form-label">Assunto</label>
+                                                                        <label for="Subject" class="form-label">Assunto:</label>
                                                                         <input type="text" name="subjectModel" class="form-control" placeholder="Assunto"> 
                                                                     </div>
                                                                     <div class="col-xl-12">

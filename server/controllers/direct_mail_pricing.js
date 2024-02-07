@@ -30,9 +30,72 @@ const direct_mail_pricing = {
     
         return result;
     },
+    getAllProposalByRef: async function(id){
+
+        let result = await executeQuerySQL(`SELECT
+                                            Pfr.Numero_Proposta,
+                                            Itr.Nome AS Incoterm,
+                                            Ofr.Local_Coleta,
+                                            Des.Nome AS Destino,
+                                            Ori.Nome AS Origem,
+                                            Mer.Nome AS Mercadoria,
+                                            Mda.Sigla AS Moeda_Mercadoria,
+                                            Pfc.Valor_Mercadoria,
+                                            Pfc.NCM_Descricao
+                                            FROM
+                                            mov_Oferta_Frete Ofr
+                                            LEFT OUTER JOIN
+                                            mov_Proposta_Frete Pfr ON Pfr.IdProposta_Frete = Ofr.IdProposta_Frete
+                                            LEFT OUTER JOIN
+                                            mov_Proposta_Frete_Carga Pfc ON Pfc.IdProposta_Frete = Pfr.IdProposta_Frete
+                                            LEFT OUTER JOIN
+                                            cad_Mercadoria Mer ON Mer.IdMercadoria = Pfc.IdMercadoria
+                                            LEFT OUTER JOIN
+                                            cad_Moeda Mda ON Mda.IdMoeda = Pfc.IdMoeda_Mercadoria
+                                            LEFT OUTER JOIN
+                                            cad_Incoterm Itr ON Itr.IdIncoterm = Ofr.IdIncoterm
+                                            LEFT OUTER JOIN
+                                            cad_Origem_Destino Des ON Des.IdOrigem_Destino = Ofr.IdDestino
+                                            LEFT OUTER JOIN
+                                            cad_Origem_Destino Ori ON Ori.IdOrigem_Destino = Ofr.IdOrigem
+                                            WHERE Pfr.Numero_Proposta LIKE '%${id}%'`);
+        return result;
+    },
     getProposal: async function(id){
 
         let result = await executeQuerySQL(`SELECT
+                                            Pfr.Numero_Proposta,
+                                            Itr.Nome AS Incoterm,
+                                            Ofr.Local_Coleta,
+                                            Des.Nome AS Destino,
+                                            Ori.Nome AS Origem,
+                                            Mer.Nome AS Mercadoria,
+                                            Mda.Sigla AS Moeda_Mercadoria,
+                                            Pfc.Valor_Mercadoria,
+                                            Pfc.NCM_Descricao
+                                            FROM
+                                            mov_Oferta_Frete Ofr
+                                            LEFT OUTER JOIN
+                                            mov_Proposta_Frete Pfr ON Pfr.IdProposta_Frete = Ofr.IdProposta_Frete
+                                            LEFT OUTER JOIN
+                                            mov_Proposta_Frete_Carga Pfc ON Pfc.IdProposta_Frete = Pfr.IdProposta_Frete
+                                            LEFT OUTER JOIN
+                                            cad_Mercadoria Mer ON Mer.IdMercadoria = Pfc.IdMercadoria
+                                            LEFT OUTER JOIN
+                                            cad_Moeda Mda ON Mda.IdMoeda = Pfc.IdMoeda_Mercadoria
+                                            LEFT OUTER JOIN
+                                            cad_Incoterm Itr ON Itr.IdIncoterm = Ofr.IdIncoterm
+                                            LEFT OUTER JOIN
+                                            cad_Origem_Destino Des ON Des.IdOrigem_Destino = Ofr.IdDestino
+                                            LEFT OUTER JOIN
+                                            cad_Origem_Destino Ori ON Ori.IdOrigem_Destino = Ofr.IdOrigem
+                                            WHERE Pfr.Numero_Proposta = '${id}'`);
+        return result;
+    },
+    getFileByProposal: async function(id){
+
+        let result = await executeQuerySQL(`SELECT
+                                            Pfr.IdProjeto_Atividade,
                                             Pfr.Numero_Proposta,
                                             Itr.Nome AS Incoterm,
                                             Ofr.Local_Coleta,
@@ -90,7 +153,7 @@ const direct_mail_pricing = {
                                             WHERE Pfr.Numero_Proposta = '${id}'`);
         return result;
     },
-    sendMail: async function(html, EmailTO, subject, bccAddress, userID) {
+    sendMail: async function(html, EmailTO, subject, bccAddress,ccOAddress, userID) {
         // Configurações para o serviço SMTP (exemplo usando Gmail)
         const user = await Users.getUserById(userID)
 
@@ -128,6 +191,8 @@ const direct_mail_pricing = {
                 saudacao: getGreeting()
             }
             
+            
+            const ccOAddressNew = ccOAddress.join(', ')
             const bccAddressNew = bccAddress.join(', ')
 
       
@@ -137,7 +202,8 @@ const direct_mail_pricing = {
                 to: `${recipient.name} <${recipient.email}>`,
                 subject: subject,
                 html: CustomHTML,    
-                cc: bccAddressNew
+                cc: bccAddressNew,
+                bcc:ccOAddressNew
             };
     
             // Envia o e-mail para o destinatário atual

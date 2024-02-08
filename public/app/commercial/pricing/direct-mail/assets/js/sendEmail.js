@@ -305,7 +305,7 @@ async function GenerateToModel(id = 0){
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Largura ? element.Largura.toFixed(2)+'cm' : '-'}</td>
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Altura ? element.Altura.toFixed(2)+'cm' : '-'}</td>
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Metros_Cubicos ? element.Metros_Cubicos.toFixed(2)+'m³' : '-'}</td>
-                                                <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Peso_Bruto ? element.Peso_Bruto.toFixed(2)+'kb' : '-'}</td>
+                                                <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Peso_Bruto ? element.Peso_Bruto.toFixed(2)+'kg' : '-'}</td>
                                             </tr>`
                 });
 
@@ -323,7 +323,7 @@ async function GenerateToModel(id = 0){
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${larg != 0 ? larg.toFixed(2)+'cm' : '-'}</td>
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${alt != 0 ? alt.toFixed(2)+'cm' : '-'}</td>
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${met != 0 ? met.toFixed(2)+'m³' : '-'}</td>
-                                                <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${peso != 0 ? peso.toFixed(2)+'kb' : '-'}</td>
+                                                <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${peso != 0 ? peso.toFixed(2)+'kg' : '-'}</td>
                                             </tr>`
                 getModelById[0].body += `</tbody></table>`
             }

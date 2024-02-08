@@ -3,8 +3,14 @@ const router = express.Router();
 const path = require("path");
 const fs = require('fs');
 const { direct_mail_pricing } = require('../controllers/direct_mail_pricing');
+const { executeQuerySQL } = require('../connect/sqlServer');
 
 
+module.exports = function(io) {
+    // io.on('connection', (socket) => {
+    //     // Handle socket events
+    //     console.log('conectado')
+    //   });
 
 router.get('/getGroups', async (req, res, next) => {
     try {
@@ -102,12 +108,38 @@ router.post('/getFileByProposal', async (req, res, next) => {
 });
 
 
+router.get('/downloadPDF', async (req, res, next) => {
+   
+    const result = await executeQuerySQL(`
+            DECLARE @IdArquivo INT = 21399;
+
+            -- Selecione os dados do arquivo
+            DECLARE @DadosArquivo VARBINARY(MAX);
+
+            SELECT @DadosArquivo = Dados_Arquivo
+            FROM arq_Arquivo
+            WHERE IdArquivo = @IdArquivo;
+
+            SELECT @DadosArquivo AS DadosArquivo;
+        `)
+    console.log(result)
+        // Obtenha os dados do arquivo do resultado da consulta
+    // const dadosArquivo = result[0].DadosArquivo;
+    // console.log(dadosArquivo)
+
+    const arquivoSalvo = fs.writeFileSync('./teste.pdf', dadosArquivo);
+    // console.log(arquivoSalvo)
+ 
+});
+
 
 router.post('/sendMail', async (req, res, next) => {
     const {body, EmailTO, subject, ccAddress,ccOAddress, system_userID} = req.body;
     try {
 
-        const result = await direct_mail_pricing.sendMail(body, EmailTO, subject, ccAddress,ccOAddress, system_userID);
+        const result = await direct_mail_pricing.sendMail(body, EmailTO, subject, ccAddress,ccOAddress, system_userID, io);
+
+        
         res.status(200).json(result)
     } catch (error) {
         res.status(404).json('Erro')   
@@ -245,6 +277,9 @@ router.get('/getEmailById/:id', async (req, res, next) => {
 });
 
 
+return router;
+
+};
 
 
 
@@ -252,11 +287,4 @@ router.get('/getEmailById/:id', async (req, res, next) => {
 
 
 
-
-
-
-
-
-
-
-module.exports = router;
+// module.exports = router;

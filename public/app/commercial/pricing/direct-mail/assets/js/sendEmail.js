@@ -3,14 +3,7 @@ const StorageGoogleData = localStorage.getItem('StorageGoogle');
 const StorageGoogle = JSON.parse(StorageGoogleData);
 console.log(StorageGoogle)
 
-const socket = io();
 
-socket.on("table", async (data) => {
-    if(data == 'ListAllEmails'){
-        await ListAllEmails()
-        // document.querySelectorAll('.listEmails li')[0].click()
-    }
-  });
 
 document.addEventListener("DOMContentLoaded", async () => {
     await GenerateEditorText();
@@ -20,9 +13,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     await createMask();
     await getAllProposalByRef();
     await createClicks();
-    await getAllGroups();
-    await ListModelsEditing();
-    await ListAllEmails()
+    // await getAllGroups();
+    // await ListModelsEditing();
+    // await ListAllEmails()
     
 })
 
@@ -44,7 +37,7 @@ async function GenerateEditorText(){
     ['clean']                                         // remove formatting button
 ];
 
-    new Quill('#mail-compose-editor', {
+    const newQiall = new Quill('#mail-compose-editor', {
         modules: {
             toolbar: toolbarOptions,
             table: true,
@@ -52,29 +45,20 @@ async function GenerateEditorText(){
         theme: 'snow'
     });
 
+    newQiall.on('editor-change', function(eventName, delta, oldDelta, source) {
+        if (eventName === 'text-change' && source === 'user') {
+            // Obtém todos os parágrafos no editor
+            var paragraphs = document.querySelectorAll('#mail-compose-editor .ql-editor p');
 
-    quillEmailModel = new Quill('#modelEmailEditor', {
-        modules: {
-            toolbar: toolbarOptions,
-            table: true,
-        },
-        theme: 'snow'
+            // Itera sobre cada parágrafo e adiciona o estilo de margem zero
+            paragraphs.forEach(function(paragraph) {
+                paragraph.style.margin = '0';
+            });
+        }
     });
 
-        // Adiciona um ouvinte de evento para o evento 'text-change' do Quill
-        // Adiciona um ouvinte de evento para o evento 'editor-change' do Quill
-        // Adiciona um ouvinte de evento para o evento 'editor-change' do Quill
-        quillEmailModel.on('editor-change', function(eventName, delta, oldDelta, source) {
-            if (eventName === 'text-change' && source === 'user') {
-                // Obtém todos os parágrafos no editor
-                var paragraphs = document.querySelectorAll('#modelEmailEditor .ql-editor p');
 
-                // Itera sobre cada parágrafo e adiciona o estilo de margem zero
-                paragraphs.forEach(function(paragraph) {
-                    paragraph.style.margin = '0';
-                });
-            }
-        });
+ 
 }
 
 async function GenerateToEmail(id = 0){
@@ -321,7 +305,7 @@ async function GenerateToModel(id = 0){
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Largura ? element.Largura.toFixed(2)+'cm' : '-'}</td>
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Altura ? element.Altura.toFixed(2)+'cm' : '-'}</td>
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Metros_Cubicos ? element.Metros_Cubicos.toFixed(2)+'m³' : '-'}</td>
-                                                <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Peso_Bruto ? element.Peso_Bruto.toFixed(2)+'kg' : '-'}</td>
+                                                <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;">${element.Peso_Bruto ? element.Peso_Bruto.toFixed(2)+'kb' : '-'}</td>
                                             </tr>`
                 });
 
@@ -339,7 +323,7 @@ async function GenerateToModel(id = 0){
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${larg != 0 ? larg.toFixed(2)+'cm' : '-'}</td>
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${alt != 0 ? alt.toFixed(2)+'cm' : '-'}</td>
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${met != 0 ? met.toFixed(2)+'m³' : '-'}</td>
-                                                <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${peso != 0 ? peso.toFixed(2)+'kg' : '-'}</td>
+                                                <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${peso != 0 ? peso.toFixed(2)+'kb' : '-'}</td>
                                             </tr>`
                 getModelById[0].body += `</tbody></table>`
             }
@@ -368,15 +352,7 @@ async function GenerateToModel(id = 0){
 async function createClicks(){
 
     
-    const buttonNewEmail = document.querySelector('#buttonNewEmail');
-    buttonNewEmail.addEventListener('click', async function(e){
-        e.preventDefault()
-
-        const body = {
-            url: '/app/commercial/pricing/direct-mail/sendEmail'
-        }
-        window.ipcRenderer.invoke('open-exWindow', body);
-    })
+  
 
 
     const buttonSendEmail = document.querySelector('#buttonSendEmail');
@@ -461,183 +437,7 @@ async function createClicks(){
 
 
 
-    // START MODELS EMAILS FUNCTIONS
-    buttonAddModelEmail.addEventListener('click', function(e){
-        e.preventDefault();
-        buttonAddModelEmail.style.display = 'none';
-        inputAddModelEmail.style.display = 'flex';
-        document.querySelector('#inputAddModelEmail input').focus()
-    })
 
-    document.querySelectorAll('#inputAddModelEmail button')[0].addEventListener('click', async function(e){
-        e.preventDefault();
-        const value = document.querySelector('#inputAddModelEmail input').value
-        if(value != ''){
-            await newModelEmail(value)
-            await loadModelsEmails();
-            document.querySelector('#inputAddModelEmail input').value = ''
-            buttonAddModelEmail.style.display = 'flex';
-            inputAddModelEmail.style.display = 'none';
-        }
-        
-    })
-    document.querySelectorAll('#inputAddModelEmail button')[1].addEventListener('click', async function(e){
-        e.preventDefault();
-        document.querySelector('#inputAddModelEmail input').value = ''
-        buttonAddModelEmail.style.display = 'flex';
-        inputAddModelEmail.style.display = 'none';
-        
-    })
-    document.querySelector('#inputAddModelEmail input').addEventListener('keyup', async function(e){
-        e.preventDefault();
-
-        if(e.keyCode === 13 && this.value != ''){
-            await newModelEmail(this.value)
-            await loadModelsEmails();
-            this.value = ''
-            buttonAddModelEmail.style.display = 'flex';
-            inputAddModelEmail.style.display = 'none';
-        }
-        
-    })
-
-
-
-    document.querySelector('input[name="subjectModel"]').addEventListener('click', function(){
-        selected.title = true;
-        selected.model = false;
-    })
-    
-    document.querySelector('#modelEmailEditor .ql-editor').addEventListener('click', function(event) {
-        selected.title = false;
-        selected.model = true;
-    });
-   
-    // END MODELS EMAILS FUNCTIONS
-
-
-    // START CONTACTS FUNCTIONS
-    buttonAddGroup.addEventListener('click', function(e){
-        e.preventDefault();
-        buttonAddGroup.style.display = 'none';
-        inputAddGroup.style.display = 'flex';
-        document.querySelector('#inputAddGroup input').focus()
-    })
-
-    document.querySelectorAll('#inputAddGroup button')[0].addEventListener('click', async function(e){
-        e.preventDefault();
-        const value = document.querySelector('#inputAddGroup input').value
-        if(value != ''){
-            await newGroup(value)
-            document.querySelector('#inputAddGroup input').value = ''
-            buttonAddGroup.style.display = 'flex';
-            inputAddGroup.style.display = 'none';
-        }
-        
-    })
-    document.querySelectorAll('#inputAddGroup button')[1].addEventListener('click', async function(e){
-        e.preventDefault();
-        document.querySelector('#inputAddGroup input').value = ''
-        buttonAddGroup.style.display = 'flex';
-        inputAddGroup.style.display = 'none';
-        
-    })
-
-    document.querySelector('#inputAddGroup input').addEventListener('keyup', async function(e){
-        e.preventDefault();
-
-        if(e.keyCode === 13 && this.value != ''){
-            await newGroup(this.value)
-            this.value = ''
-            buttonAddGroup.style.display = 'flex';
-            inputAddGroup.style.display = 'none';
-        }
-        
-    })
-
-
-
-    buttonAddContact.addEventListener('click', function(e){
-        e.preventDefault();
-        buttonAddContact.style.display = 'none';
-        inputAddContact.style.display = 'flex';
-        document.querySelectorAll('#inputAddContact input')[0].focus()
-
-        document.querySelectorAll('#inputAddContact button')[0].removeAttribute('editing');
-        document.querySelectorAll('#inputAddContact button i')[0].classList.remove('ri-save-line');
-        document.querySelectorAll('#inputAddContact button i')[0].classList.add('ri-add-circle-line');
-       
-    })
-
-    document.querySelectorAll('#inputAddContact button')[0].addEventListener('click', async function(e){
-        e.preventDefault();
-        const name = document.querySelectorAll('#inputAddContact input')[0].value;
-        const email = document.querySelectorAll('#inputAddContact input')[1].value;
-        const groupID = document.querySelectorAll('#bodyGroups li.files-type.active')[0].getAttribute('id');
-
-        const type = this.getAttribute('editing');
-   
-        if(name != '' && email != ''){
-            if(!type){
-                await newContact(name, email, groupID)
-            }else{
-                const body = {
-                    name:name,
-                    email:email,
-                    id: this.getAttribute('id')
-                }
-                await saveContact(body)
-            }
-            
-            document.querySelectorAll('#inputAddContact input')[0].value = ''
-            document.querySelectorAll('#inputAddContact input')[1].value = ''
-            buttonAddContact.style.display = 'flex';
-            inputAddContact.style.display = 'none';
-        }
-        
-    })
-
-    document.querySelectorAll('#inputAddContact button')[1].addEventListener('click', async function(e){
-        e.preventDefault();
-            document.querySelectorAll('#inputAddContact input')[0].value = ''
-            document.querySelectorAll('#inputAddContact input')[1].value = ''
-            buttonAddContact.style.display = 'flex';
-            inputAddContact.style.display = 'none';
-        
-    })
-
-
-    document.querySelectorAll('#inputAddContact input').forEach(element => {
-        element.addEventListener('keyup', async function(e){
-            e.preventDefault();
-            const name = document.querySelectorAll('#inputAddContact input')[0].value
-            const email = document.querySelectorAll('#inputAddContact input')[1].value
-            const groupID = document.querySelectorAll('#bodyGroups li.files-type.active')[0].getAttribute('id');
-            if(e.keyCode === 13 && name != '' && email != ''){
-
-
-                const type = document.querySelectorAll('#inputAddContact button')[0].getAttribute('editing');
-
-                if (!type) {
-                    await newContact(name, email, groupID)
-                } else {
-                    const body = {
-                        name: name,
-                        email: email,
-                        id: document.querySelectorAll('#inputAddContact button')[0].getAttribute('id')
-                    }
-                    await saveContact(body)
-                }
-
-                document.querySelectorAll('#inputAddContact input')[0].value = ''
-                document.querySelectorAll('#inputAddContact input')[1].value = ''
-                buttonAddContact.style.display = 'flex';
-                inputAddContact.style.display = 'none';
-            }
-            
-        })
-    });
-    // END CONTACTS FUNCTIONS
 
 
 }

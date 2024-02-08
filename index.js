@@ -15,15 +15,18 @@ app.use(express.json());
 // Create an HTTP server using the Express app
 const server = http.createServer(app); 
 
+// Initialize Socket.io by passing the HTTP server instance
+const io = socketIO(server);
+
 // Statics
 app.use('/', express.static(path.join(__dirname, './public')))
 
 // Routes
-app.use('/api', listApi);
+// Pass the io instance to the setIO function
+const apiRoutes = listApi(io);
+app.use('/api', apiRoutes);
 app.use('/app', listApp);
 
-// Initialize Socket.io by passing the HTTP server instance
-const io = socketIO(server);
 
 // Socket.io events handling
 io.on('connection', (socket) => {

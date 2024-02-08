@@ -153,7 +153,7 @@ const direct_mail_pricing = {
                                             WHERE Pfr.Numero_Proposta = '${id}'`);
         return result;
     },
-    sendMail: async function(html, EmailTO, subject, bccAddress,ccOAddress, userID) {
+    sendMail: async function(html, EmailTO, subject, bccAddress,ccOAddress, userID, io) {
         // Configurações para o serviço SMTP (exemplo usando Gmail)
         const user = await Users.getUserById(userID)
 
@@ -169,7 +169,7 @@ const direct_mail_pricing = {
         const date_now = await helpers.getDateNow();
         const result = await executeQuery('INSERT INTO direct_mail_pricing_history (subject, body, send_date, userID) VALUES (?, ?, ?, ?)', [subject, html, date_now, userID])
         const historyID = result.insertId
-    
+        let successfulEmailsCount = 0;
         // Loop através da lista de destinatários
         for (const recipient of EmailTO) {
             // Configurações do e-mail para cada destinatário
@@ -214,17 +214,30 @@ const direct_mail_pricing = {
                     await executeQuery('INSERT INTO direct_mail_pricing_details (`body`,`accepted`, `rejected`, `response`, `from`, `to`,`cc`, `messageId`, `historyId`, `status`, `userID`) VALUES (?,?, ?, ?, ?, ?,?, ?, ?, ?, ?)', [null,null, null, response, user[0].system_email, recipient.email, bccAddressNew, null, historyID, 0, userID])
            
                     console.error(`Erro ao enviar e-mail para ${recipient.email}:`, error);
+                    successfulEmailsCount++;
+                     // Verifica se todos os e-mails foram enviados antes de emitir o evento
+                     if (successfulEmailsCount === EmailTO.length) {
+                        io.emit('table', 'ListAllEmails');
+                    }
                 } else {
                     const { messageId, envelope, accepted, rejected, pending, response } = info;
                     const acceptedString = accepted.join(', ');
                     const rejectedString = rejected.join(', ');
                    await executeQuery('INSERT INTO direct_mail_pricing_details (`body`,`accepted`, `rejected`, `response`, `from`, `to`,`cc`, `messageId`, `historyId`, `status`, `userID`) VALUES (?,?, ?, ?, ?, ?,?, ?, ?, ?, ?)', [CustomHTML,acceptedString, rejectedString, response, user[0].system_email, recipient.email,bccAddressNew, messageId, historyID, 1, userID])
                     console.log(`E-mail enviado com sucesso para ${recipient.email}. Detalhes:`, info);
+                    successfulEmailsCount++;
+
+                    // Verifica se todos os e-mails foram enviados antes de emitir o evento
+                    if (successfulEmailsCount === EmailTO.length) {
+                        io.emit('table', 'ListAllEmails');
+                    }
                 }
             });
 
            
         }
+
+        // io.emit('table', 'ListAllEmails');
 
         return result;
     },

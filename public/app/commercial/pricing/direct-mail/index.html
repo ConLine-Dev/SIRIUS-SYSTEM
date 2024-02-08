@@ -519,7 +519,11 @@
                                 <div class="row" style="align-items: center;">
                                     <div class="col-6"><h6 class="fw-semibold mb-0">Todos E-mails</h6> </div>
                                     <div class="col-6">
-                                        <button style="float: right;" class="btn btn-success d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#mail-Compose"> 
+                                        <!-- <button style="float: right;" class="btn btn-success d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#mail-Compose"> 
+                                            <i class="ri-add-circle-line fs-16 align-middle me-1"></i>
+                                            Novo
+                                        </button> -->
+                                        <button id="buttonNewEmail" style="float: right;" class="btn btn-success d-flex align-items-center justify-content-center"> 
                                             <i class="ri-add-circle-line fs-16 align-middle me-1"></i>
                                             Novo
                                         </button>
@@ -715,7 +719,7 @@
                                 <input type="text" name="subject" class="form-control" placeholder="Assunto"> 
                             </div>
 
-                            <div class="col-xl-12 mb-2">
+                            <div class="col-xl-12 mb-2" style="display: none;">
                                 <label for="fileSend" class="form-label">Anexos:</label>
                                 <select class="form-control choices__input" multiple name="fileSend">
                                 </select>
@@ -1357,6 +1361,8 @@
 
     <script src="../../../assets/js/fetchAPI.js"></script>
 
+
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script src="./assets/js/index.js"></script>
 
     <div class="flatpickr-calendar hasTime animate" tabindex="-1">

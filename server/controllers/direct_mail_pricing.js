@@ -231,8 +231,20 @@ const direct_mail_pricing = {
                     // Verifica se todos os e-mails foram enviados antes de emitir o evento
                     if (successfulEmailsCount === EmailTO.length) {
                         io.emit('table', 'ListAllEmails');
-                       await executeQuerySQL(`UPDATE mov_Proposta_Frete SET Situacao = 9 /*Revisão Pricing*/ WHERE Numero_Proposta = '${proposalRef}'`)
-                       console.log('propsota atualizada com sucesso', proposalRef)
+
+                        // Verificar se a variável proposalRef existe e não é nula ou undefined
+                        if (proposalRef !== null && proposalRef !== undefined && proposalRef.trim() !== '') {
+                            // Remover espaços em branco da variável
+                            const trimmedProposalRef = proposalRef.trim();
+
+                            // Executar a consulta SQL
+                            await executeQuerySQL(`UPDATE mov_Proposta_Frete SET Situacao = 9 /*Revisão Pricing*/ WHERE Numero_Proposta = '${trimmedProposalRef}'`);
+                            
+                            // Log de sucesso
+                            console.log('Proposta atualizada com sucesso', trimmedProposalRef);
+                        }
+                        
+               
                     }
                 }
             });

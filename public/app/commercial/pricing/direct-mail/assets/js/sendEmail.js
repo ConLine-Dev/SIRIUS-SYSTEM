@@ -358,7 +358,7 @@ async function createClicks(){
     const buttonSendEmail = document.querySelector('#buttonSendEmail');
     buttonSendEmail.addEventListener('click', async function(e){
         e.preventDefault();
-
+        buttonSendEmail.textContent = 'Enviando...'
         let bodyEmail = document.querySelectorAll('#mail-compose-editor .ql-editor')[0].innerHTML;
 
         // Obtenha as opções selecionadas
@@ -389,11 +389,12 @@ async function createClicks(){
 
         const result = await makeRequest('/api/direct_mail_pricing/sendMail', 'POST', formBody)
 
+        // buttonSendEmail.textContent = 'Enviar';
+        await window.ipcRenderer.invoke('closeWindow');
+        // await ListAllEmails()
+        // document.querySelectorAll('.listEmails li')[0].click()
 
-        await ListAllEmails()
-        document.querySelectorAll('.listEmails li')[0].click()
-
-        $('#mail-Compose').modal('hide');
+        // $('#mail-Compose').modal('hide');
         // console.log(result)
     })
 

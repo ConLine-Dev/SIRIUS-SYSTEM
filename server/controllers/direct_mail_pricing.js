@@ -67,6 +67,7 @@ const direct_mail_pricing = {
                                             Pfr.Numero_Proposta,
                                             Itr.Nome AS Incoterm,
                                             Ofr.Local_Coleta,
+                                            Ofr.Local_Entrega,
                                             Des.Nome AS Destino,
                                             Ori.Nome AS Origem,
                                             Mer.Nome AS Mercadoria,

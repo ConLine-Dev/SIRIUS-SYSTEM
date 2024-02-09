@@ -358,6 +358,7 @@ async function createClicks(){
     const buttonSendEmail = document.querySelector('#buttonSendEmail');
     buttonSendEmail.addEventListener('click', async function(e){
         e.preventDefault();
+        buttonSendEmail.disabled = true;
         buttonSendEmail.textContent = 'Enviando...'
         let bodyEmail = document.querySelectorAll('#mail-compose-editor .ql-editor')[0].innerHTML;
 
@@ -390,6 +391,7 @@ async function createClicks(){
         const result = await makeRequest('/api/direct_mail_pricing/sendMail', 'POST', formBody)
 
         // buttonSendEmail.textContent = 'Enviar';
+        // buttonSendEmail.disabled = false;
         await window.ipcRenderer.invoke('closeWindow');
         // await ListAllEmails()
         // document.querySelectorAll('.listEmails li')[0].click()

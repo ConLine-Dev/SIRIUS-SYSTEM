@@ -2,20 +2,45 @@ const { executeQuerySQL } = require('../connect/sqlServer');
 
 
 const launches_adm = {
-    getAll: async function(){
-        // Criar uma nova instância do objeto Date
-        const dataAtual = new Date();
+    getAllLaunches: async function(){
+    const result = await executeQuerySQL(`select ffc.Data_Vencimento as 'Data_Vencimento'
+    , case ffc.Situacao
+    when 1 then 'Em aberto'
+    when 2 then 'Quitada'
+    when 3 then 'Parcialmente quitada'
+    when 4 then 'Unificada'
+    when 5 then 'Em cobrança'
+    when 7 then 'Em combrança judicial'
+    when 8 then 'Negativado'
+    when 9 then 'Protestado'
+    when 10 then 'Junk'
+    when 6 then 'Cancelada' 
+    end as 'Situacao'
+    , ffc.Historico_Resumo
+    , pss.Nome as 'Pessoa'
+    , ttc.Nome as 'Tipo_Transacao'
+    from mov_Fatura_Financeira ffc
+    
+    join mov_Registro_Financeiro rfc on rfc.IdRegistro_Financeiro = ffc.IdRegistro_Financeiro
+    join cad_Pessoa pss on pss.IdPessoa = rfc.IdPessoa
+    join cad_Tipo_Transacao ttc on ttc.IdTipo_Transacao = rfc.IdTipo_Transacao`);
+    
+    // Mapear os resultados e formatar a data
+    const resultadosFormatados = result.map(item => ({
+        'Data_Vencimento': '<span style="display:none">'+new Date(item.Data_Vencimento).toISOString().split('T')[0]+'</span>'+new Date(item.Data_Vencimento).toLocaleDateString('pt-BR', { timeZone: 'UTC' }),
+        'Situacao': item.Situacao,
+        'Historico_Resumo': item.Historico_Resumo,
+        'Pessoa': item.Pessoa,
+        'Tipo_Transacao': item.Tipo_Transacao
+    }));
 
-        // Obter componentes individuais da data
-        const ano = dataAtual.getFullYear();
-        const mes = String(dataAtual.getMonth() + 1).padStart(2, '0'); // Os meses são baseados em zero
-        const dia = String(dataAtual.getDate()).padStart(2, '0');
-        const horas = String(dataAtual.getHours()).padStart(2, '0');
-        const minutos = String(dataAtual.getMinutes()).padStart(2, '0');
-        const segundos = String(dataAtual.getSeconds()).padStart(2, '0');
+    const format = {
+        "data": resultadosFormatados
+    }
 
-        // Criar a string formatada no estilo "YYYY-MM-DD HH:mm:ss"
-        return `${ano}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
+
+
+    return format;
     }
 }
 

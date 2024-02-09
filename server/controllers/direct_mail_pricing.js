@@ -154,7 +154,7 @@ const direct_mail_pricing = {
                                             WHERE Pfr.Numero_Proposta = '${id}'`);
         return result;
     },
-    sendMail: async function(html, EmailTO, subject, bccAddress,ccOAddress, userID, io) {
+    sendMail: async function(html, EmailTO, subject, bccAddress,ccOAddress, userID, io, proposalRef) {
         // Configurações para o serviço SMTP (exemplo usando Gmail)
         const user = await Users.getUserById(userID)
 
@@ -231,12 +231,15 @@ const direct_mail_pricing = {
                     // Verifica se todos os e-mails foram enviados antes de emitir o evento
                     if (successfulEmailsCount === EmailTO.length) {
                         io.emit('table', 'ListAllEmails');
+                       await executeQuerySQL(`UPDATE mov_Proposta_Frete SET Situacao = 9 /*Revisão Pricing*/ WHERE Numero_Proposta = '${proposalRef}'`)
+                       console.log('propsota atualizada com sucesso', proposalRef)
                     }
                 }
             });
 
            
         }
+        
 
         // io.emit('table', 'ListAllEmails');
 

@@ -385,7 +385,8 @@ async function createClicks(){
             subject:document.querySelector('input[name="subject"]').value, 
             ccAddress:opcoesSelecionadasCC, 
             ccOAddress:opcoesSelecionadasCCO,
-            system_userID:StorageGoogle.system_userID
+            system_userID:StorageGoogle.system_userID,
+            proposalRef:inputSelectProposal.getValue(true)
         }
 
         const result = await makeRequest('/api/direct_mail_pricing/sendMail', 'POST', formBody)

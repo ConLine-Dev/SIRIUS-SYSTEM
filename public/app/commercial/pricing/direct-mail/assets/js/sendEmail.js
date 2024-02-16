@@ -319,9 +319,9 @@ async function GenerateToModel(id = 0){
                                             </tr>`
                 getModelById[0].body += `<tr>
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${quant}x</td>
-                                                <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${comp != 0 ? comp.toFixed(2)+'cm' : '-'}</td>
-                                                <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${larg != 0 ? larg.toFixed(2)+'cm' : '-'}</td>
-                                                <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${alt != 0 ? alt.toFixed(2)+'cm' : '-'}</td>
+                                                <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">-</td>
+                                                <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">-</td>
+                                                <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">-</td>
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${met != 0 ? met.toFixed(2)+'m³' : '-'}</td>
                                                 <td data-row="row-nqh7" style="border: 1px solid #000 !important; padding: 2px 5px !important;font-weight: bold;">${peso != 0 ? peso.toFixed(2)+'kg' : '-'}</td>
                                             </tr>`

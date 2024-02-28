@@ -16,6 +16,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     // await getAllGroups();
     // await ListModelsEditing();
     // await ListAllEmails()
+
+
+
+
+
+
+
+    inputFileSelectProposal = new Choices('select[name="fileSend"]', {
+        removeItemButton: true,
+        allowSearch: true,
+        shouldSort: false,
+        noChoicesText: 'Não há opções disponíveis'
+    });
     
 })
 
@@ -93,51 +106,6 @@ async function GenerateToEmail(id = 0){
     });
 }
 
-// GenerateFileToProposal()
-
-// async function GenerateFileToProposal(id = 0){
-
-//     // const getContactsByGroup = await makeRequest(`/api/direct_mail_pricing/getContactsByGroup/${id}`)
-
-//     // Formate o array para ser usado com o Choices.js
-//     // var listaDeOpcoesFile = getContactsByGroup.map(function(element) {
-//     //     return {
-//     //         customProperties:{name:element.name},
-//     //         value: `${element.email}`,
-//     //         label: `${element.name} [${element.email}]`,
-//     //         selected: true,
-//     //     };
-//     // });
-
-    
-//     // listaDeOpcoes.push({value:0, label:'Selecione', selected: true, disabled: true})
-
-//      // Destrua a instância anterior do Choices (se existir)
-//      if (fileSend) {
-//         fileSend.destroy();
-//     }
-
-//     fileSend = new Choices('select[name="fileSend"]', {
-//         // choices: [], //listaDeOpcoesFile,
-//         // allowHTML: true,
-//         allowSearch: true,
-//         removeItemButton: true,
-//         noChoicesText: 'Não há opções disponíveis'
-//     });
-
-  
-
-//     // Adicione um ouvinte de evento 'search'
-//     fileSend.passedElement.element.addEventListener('search', async function(event) {
-//         // event.detail.value contém o valor da pesquisa
-//         var searchTerm = event.detail.value;
-//         console.log(searchTerm)
-
-//         // Execute a sua lógica de pesquisa dinâmica aqui
-//         // Por exemplo, você pode chamar uma função que faz uma requisição AJAX para obter resultados de pesquisa com base em 'searchTerm'
-//         await performDynamicSearch(searchTerm);
-//     });
-// }
 
 // Função para realizar a pesquisa dinâmica (exemplo com AJAX)
 async function performDynamicSearch(searchTerm) {
@@ -389,7 +357,8 @@ async function createClicks(){
             ccOAddress:opcoesSelecionadasCCO,
             system_userID:StorageGoogle.system_userID,
             proposalRef:inputSelectProposal.getValue(true),
-            files:opcoesSelecionadasFiles
+            files:opcoesSelecionadasFiles,
+            revisaoPricing:document.getElementById('revisaoPricing').checked
         }
 
         const result = await makeRequest('/api/direct_mail_pricing/sendMail', 'POST', formBody)

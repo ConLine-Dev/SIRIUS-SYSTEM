@@ -278,7 +278,7 @@ const direct_mail_pricing = {
 
      return result
     },
-    sendMail: async function(html, EmailTO, subject, bccAddress,ccOAddress, userID, io, proposalRef, files) {
+    sendMail: async function(html, EmailTO, subject, bccAddress,ccOAddress, userID, io, proposalRef, files, revisaoPricing) {
         // console.log('aqui')
         const allFiles = await this.getAllFilesProposalById(files)
 
@@ -380,7 +380,11 @@ const direct_mail_pricing = {
                             const trimmedProposalRef = proposalRef.trim();
 
                             // Executar a consulta SQL
-                          await executeQuerySQL(`UPDATE mov_Proposta_Frete SET Situacao = 9 /*Revisão Pricing*/ WHERE Numero_Proposta = '${trimmedProposalRef}'`);
+
+                            if(revisaoPricing){
+                                await executeQuerySQL(`UPDATE mov_Proposta_Frete SET Situacao = 9 /*Revisão Pricing*/ WHERE Numero_Proposta = '${trimmedProposalRef}'`);
+                            }
+                          
                             
                             // Log de sucesso
                             console.log('Proposta atualizada com sucesso', trimmedProposalRef);

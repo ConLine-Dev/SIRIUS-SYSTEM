@@ -82,7 +82,8 @@ router.post('/getAllProposalByRef', async (req, res, next) => {
         // Formate o array para ser usado com o Choices.js
         // { value: 'opcao1', label: 'Casa' }
         result = result.map(function(element) {
-            let allfiles = result_files.filter(proposta => proposta.IdProposta_Frete === element.IdProposta_Frete) || null;
+            let allfiles = result_files.filter(proposta => proposta.IdProposta_Frete === element.IdProposta_Frete) || [];
+            
             return {
                 customProperties:{name:element.Numero_Proposta, files:allfiles},
                 value: `${element.Numero_Proposta}`,

@@ -299,15 +299,19 @@ const direct_mail_pricing = {
         const date_now = await helpers.getDateNow();
         const result = await executeQuery('INSERT INTO direct_mail_pricing_history (subject, body, send_date, userID) VALUES (?, ?, ?, ?)', [subject, html, date_now, userID])
         const historyID = result.insertId
-
-        allFiles.map(async function(dados){
-            const arrayBuffer = new ArrayBuffer(dados.content); // Substitua pelo seu ArrayBuffer
-            const buffer = Buffer.from(arrayBuffer);
-            await executeQuery('INSERT INTO direct_mail_pricing_files (name, body, id_history) VALUES (?, ?, ?)', [dados.filename, buffer, historyID])
-
-            //   // Convertendo para ArrayBuffer
-            // const arrayBuffer = new Uint8Array(buffer).buffer;
-        })
+        
+        if(allFiles != null){
+            console.log('dsads')
+            allFiles.map(async function(dados){
+                const arrayBuffer = new ArrayBuffer(dados.content); // Substitua pelo seu ArrayBuffer
+                const buffer = Buffer.from(arrayBuffer);
+                await executeQuery('INSERT INTO direct_mail_pricing_files (name, body, id_history) VALUES (?, ?, ?)', [dados.filename, buffer, historyID])
+    
+                //   // Convertendo para ArrayBuffer
+                // const arrayBuffer = new Uint8Array(buffer).buffer;
+            })
+        }
+        
         
 
         
@@ -346,7 +350,7 @@ const direct_mail_pricing = {
                 html: CustomHTML,    
                 cc: bccAddressNew,
                 bcc:ccOAddressNew,
-                attachments: allFiles.map(dados => ({ filename: dados.filename, content: dados.content }))
+                attachments: allFiles != null ? allFiles.map(dados => ({ filename: dados.filename, content: dados.content })) : false
             };
     
             // Envia o e-mail para o destinatário atual

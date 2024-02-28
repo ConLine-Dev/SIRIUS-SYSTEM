@@ -70,19 +70,21 @@ router.post('/getProposal', async (req, res, next) => {
     }
 });
 
-
 router.post('/getAllProposalByRef', async (req, res, next) => {
     const {body} = req.body;
     try {
         const refProposalDecoded = decodeURIComponent(body);
         let result = await direct_mail_pricing.getAllProposalByRef(refProposalDecoded);
+   
+        let result_files = await direct_mail_pricing.getAllFilesProposalByRef(refProposalDecoded)
 
-
+    
         // Formate o array para ser usado com o Choices.js
         // { value: 'opcao1', label: 'Casa' }
         result = result.map(function(element) {
+            let allfiles = result_files.filter(proposta => proposta.IdProposta_Frete === element.IdProposta_Frete) || null;
             return {
-                customProperties:{name:element.Numero_Proposta},
+                customProperties:{name:element.Numero_Proposta, files:allfiles},
                 value: `${element.Numero_Proposta}`,
                 label: `${element.Numero_Proposta} [${element.Incoterm}]`,
                 selected: true,
@@ -107,6 +109,29 @@ router.post('/getFileByProposal', async (req, res, next) => {
     }
 });
 
+router.post('/editingNameGroup', async (req, res, next) => {
+    const {body} = req.body;
+    try {
+
+        const result = await direct_mail_pricing.editingNameGroup(body);
+
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+router.post('/getFilesEmailsHistory', async (req, res, next) => {
+    const {body} = req.body;
+    try {
+
+        const result = await direct_mail_pricing.getFilesEmailsHistory(body.id);
+
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
 
 router.get('/downloadPDF', async (req, res, next) => {
    
@@ -132,12 +157,11 @@ router.get('/downloadPDF', async (req, res, next) => {
  
 });
 
-
 router.post('/sendMail', async (req, res, next) => {
-    const {body, EmailTO, subject, ccAddress,ccOAddress, system_userID, proposalRef} = req.body;
+    const {body, EmailTO, subject, ccAddress,ccOAddress, system_userID, proposalRef, files} = req.body;
     try {
 
-        const result = await direct_mail_pricing.sendMail(body, EmailTO, subject, ccAddress,ccOAddress, system_userID, io, proposalRef);
+        const result = await direct_mail_pricing.sendMail(body, EmailTO, subject, ccAddress,ccOAddress, system_userID, io, proposalRef, files);
 
         
         res.status(200).json(result)
@@ -165,8 +189,6 @@ router.post('/registerContact', async (req, res, next) => {
         res.status(404).json('Erro')   
     }
 });
-
-
 
 router.get('/getAllGroups', async (req, res, next) => {
     try {
@@ -212,8 +234,6 @@ router.get('/removeGroup/:id', async (req, res, next) => {
         res.status(404).json('Erro')   
     }
 });
-
-
 
 
 router.post('/editContact', async (req, res, next) => {

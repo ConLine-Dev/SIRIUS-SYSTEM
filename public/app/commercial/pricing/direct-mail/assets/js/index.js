@@ -836,8 +836,7 @@ async function getAllGroups(){
                                             <div class="me-2"> 
                                                 <i class="ri-star-s-line fs-16"></i> 
                                             </div> 
-                                            <span class="flex-fill text-nowrap"> ${element.name}
-                                            </span> 
+                                            <span class="flex-fill text-nowrap">${element.name}</span> 
                                             <div class="me-2 removeGroup" id="${element.id}" onclick="removeGroup(this)"> 
                                                 <i class="ri-close-circle-line text-muted"></i>
                                             </div> 
@@ -864,6 +863,36 @@ async function getAllGroups(){
             await getContactByGroup(id);
 
         })
+
+        element.addEventListener('dblclick', async function (e) {
+            const id = element.getAttribute('id');
+            const spanElement = element.querySelector('span');
+            const text = spanElement.textContent;
+        
+            // Criar um novo input e atribuir o valor atual do span
+            const inputElement = document.createElement('input');
+            inputElement.type = 'text';
+            inputElement.className = 'form-control bg-light border-0';
+            inputElement.value = text;
+        
+            // Substituir o span pelo input
+            spanElement.replaceWith(inputElement);
+        
+            // Adicionar ouvinte de eventos para o evento blur no novo input
+            inputElement.addEventListener('blur', async function () {
+                // Atualizar o textContent do span com o valor do input
+                const value = inputElement.value
+                spanElement.textContent = inputElement.value;
+        
+                // Substituir o input pelo span novamente
+                inputElement.replaceWith(spanElement);
+
+                await editingNameGroup(id, value)
+            });
+        
+            // Focar no novo input para que o usuário possa editar imediatamente
+            inputElement.focus();
+        });
     });
 
     if(document.querySelectorAll('#bodyGroups li.files-type.active')[0]){
@@ -875,6 +904,12 @@ async function getAllGroups(){
 
 }
 
+async function editingNameGroup(id, value){
+    const result = await makeRequest('/api/direct_mail_pricing/editingNameGroup', 'POST', {body:{name:value, id:id}})
+
+    console.log(result)
+
+}
 
 async function removeGroup(e){
     const id = e.getAttribute('id')
@@ -1031,6 +1066,7 @@ async function removeModel(e,event){
 
 }
 
+
 async function selectModelByID(id, e, name){
     const getModel = await makeRequest(`/api/direct_mail_pricing/getModelById/${id}`)
 
@@ -1164,11 +1200,58 @@ async function selectEmail(e,id){
         document.querySelector('#defaultEmailsSelecte').style.display = 'block'
         document.querySelector('#emaildetails').style.display = 'none'
     }
+    let allfiles = '';
+
+    const consultFiles = await makeRequest(`/api/direct_mail_pricing/getFilesEmailsHistory`, 'POST', {body:{id:id}})
+
+    for (let index = 0; index < consultFiles.length; index++) {
+        const element = consultFiles[index];
+
+        allfiles += `<a href="javascript:void(0);" class="mail-attachment border mb-1">
+        <div class="attachment-icon">
+           <svg xmlns="http://www.w3.org/2000/svg" baseProfile="tiny" viewBox="0 0 512 512">
+              <path fill="#FFF" d="M422.3 477.9c0 7.6-6.2 13.8-13.8 13.8h-305c-7.6 0-13.8-6.2-13.8-13.8V34.1c0-7.6 6.2-13.8 13.8-13.8h230.1V109h88.7v368.9z"></path>
+              <path fill="#2B669F" d="M333.6 6H103.5C88 6 75.4 18.6 75.4 34.1v443.8c0 15.5 12.6 28.1 28.1 28.1h305c15.5 0 28.1-12.6 28.1-28.1V109.1L333.6 6zm88.7 471.9c0 7.6-6.2 13.8-13.8 13.8h-305c-7.6 0-13.8-6.2-13.8-13.8V34.1c0-7.6 6.2-13.8 13.8-13.8h230.1V109h88.7v368.9z"></path>
+              <path fill="#084272" d="M333.6 6v103.1h103z"></path>
+              <g>
+                 <path fill="#084272" d="M465.9 450.8H46.1V308c0-9.8 7.9-17.7 17.7-17.7h384.3c9.8 0 17.7 7.9 17.7 17.7v142.8z"></path>
+                 <path fill="#1A252D" d="M436.6 450.8v19.5l29.3-19.5zM75.4 450.8v19.5l-29.3-19.5z"></path>
+                 <path fill="#2B669F" d="M64.1 308.4h383.7v124.5H64.1z"></path>
+              </g>
+              <g fill="#2B669F">
+                 <path d="M298.3 78.6h-177a6.7 6.7 0 010-13.4h177a6.7 6.7 0 010 13.4zM298.3 110.6h-177a6.7 6.7 0 010-13.4h177a6.7 6.7 0 010 13.4zM391.8 142.5H121.3a6.7 6.7 0 010-13.4h270.5a6.7 6.7 0 010 13.4zM391.8 174.5H121.3a6.7 6.7 0 010-13.4h270.5a6.7 6.7 0 010 13.4zM391.8 206.5H121.3a6.7 6.7 0 010-13.4h270.5a6.7 6.7 0 010 13.4zM391.8 238.4H121.3a6.7 6.7 0 010-13.4h270.5a6.7 6.7 0 010 13.4zM391.8 270.4H121.3a6.7 6.7 0 010-13.4h270.5a6.7 6.7 0 010 13.4z"></path>
+              </g>
+              <g fill="#FFF">
+                 <path d="M229.3 373.3c0 6.9-1.6 12.5-4.7 16.7-3.1 4.2-7.5 6.3-13.2 6.3-2.2 0-4.2-.4-5.9-1.3-1.7-.9-3.2-2.1-4.5-3.7v21.8h-14.4v-63.8h13.6l.4 5c1.3-1.9 2.8-3.3 4.6-4.3 1.8-1 3.8-1.5 6.1-1.5 5.7 0 10.1 2.2 13.3 6.6 3.1 4.4 4.7 10.2 4.7 17.4v.8zm-14.3-.9c0-3.9-.6-7-1.7-9.4-1.1-2.4-3-3.5-5.4-3.5-1.6 0-3 .3-4.1.9-1.1.6-2 1.5-2.7 2.6v19.2c.7 1 1.6 1.7 2.7 2.2 1.1.5 2.5.7 4.1.7 2.5 0 4.3-1 5.4-3.1 1.1-2.1 1.6-5 1.6-8.7v-.9zM239.8 372.4c0-7.2 1.6-13 4.7-17.4 3.1-4.4 7.6-6.6 13.3-6.6 2.1 0 4 .5 5.8 1.5 1.7 1 3.3 2.4 4.6 4.2V329h14.4v66.4H270l-1-5.6c-1.4 2.1-3 3.7-4.9 4.8-1.9 1.1-4 1.7-6.4 1.7-5.7 0-10.1-2.1-13.2-6.3-3.1-4.2-4.7-9.7-4.7-16.6v-1zm14.4.9c0 3.7.5 6.7 1.6 8.7 1.1 2.1 2.9 3.1 5.5 3.1 1.5 0 2.8-.3 4-.8 1.1-.6 2.1-1.4 2.8-2.4v-18.6c-.7-1.2-1.7-2.2-2.8-2.8-1.1-.7-2.4-1-3.9-1-2.6 0-4.4 1.2-5.5 3.5-1.1 2.4-1.7 5.5-1.7 9.4v.9zM300 395.4v-36.1h-6.6v-10h6.6v-4.8c0-5.3 1.6-9.3 4.8-12.2 3.2-2.9 7.7-4.3 13.5-4.3 1.1 0 2.2.1 3.3.2 1.1.2 2.4.4 3.8.7l-1.1 10.6c-.8-.1-1.5-.2-2.1-.3-.6-.1-1.3-.1-2.2-.1-1.8 0-3.2.5-4.2 1.4-1 .9-1.4 2.3-1.4 4v4.8h9.1v10h-9.1v36.1H300z"></path>
+              </g>
+           </svg>
+        </div>
+        <div class="lh-1">
+           <p class="mb-1 attachment-name text-truncate"> ${element.name} </p>
+
+        </div>
+     </a>`;
+    }
+
     
     
 
     document.querySelector('.subjectSelected').textContent = getEmailById[0].subject
-    let bodyAllemailsSend = '<div class="accordion accordion-primary" id="accordionPrimaryExample">'
+    
+    let bodyAllemailsSend = `<div class="mail-attachments mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="mb-0"> <span class="fs-14 fw-semibold"><i class="ri-attachment-2 me-1 align-middle"></i>Anexos:</span> </div>
+            <div> 
+    
+        </div>
+    </div>
+    <div class="mt-2 d-flex flex-wrap">
+       ${allfiles}
+ 
+    </div>
+ </div>`
+    bodyAllemailsSend += '<div class="accordion accordion-primary" id="accordionPrimaryExample">'
+    
     let listTO = ''
     getEmailById.forEach(element => {
         listTO += element.to + ',';

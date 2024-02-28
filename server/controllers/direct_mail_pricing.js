@@ -3,6 +3,8 @@ const { executeQuerySQL } = require('../connect/sqlServer');
 const { helpers } = require('./helpers');
 const { Users } = require('./users');
 const nodemailer = require('nodemailer');
+const axios = require('axios');
+const { json } = require('express');
 
 
 const direct_mail_pricing = {
@@ -12,10 +14,18 @@ const direct_mail_pricing = {
     
         return result;
     },
+    editingNameGroup: async function(body){
+        console.log(body)
+        const id = body.id
+        const name = body.name;
+
+        let result = await executeQuery(`UPDATE direct_mail_pricing_group SET name = '${name}' WHERE id = ${id}`);
+        return result;
+    },
     getContactsByGroup: async function(id){
  
         let result = await executeQuery('SELECT * FROM direct_mail_pricing_group_list WHERE `group` = '+id+'');
-        console.log(result)
+
         return result;
     },
     getAllModel: async function(){
@@ -31,8 +41,9 @@ const direct_mail_pricing = {
         return result;
     },
     getAllProposalByRef: async function(id){
-
+       
         let result = await executeQuerySQL(`SELECT
+                                            Pfr.IdProposta_Frete,
                                             Pfr.Numero_Proposta,
                                             Itr.Nome AS Incoterm,
                                             Ofr.Local_Coleta,
@@ -59,7 +70,115 @@ const direct_mail_pricing = {
                                             LEFT OUTER JOIN
                                             cad_Origem_Destino Ori ON Ori.IdOrigem_Destino = Ofr.IdOrigem
                                             WHERE Pfr.Numero_Proposta LIKE '%${id}%'`);
+
+
         return result;
+    },
+    getAllFilesProposalByRef: async function(id){
+       
+        let result_files = await executeQuerySQL(`SELECT
+                                                    Arq.IdArquivo,
+                                                    Prf.Numero_Proposta,
+                                                    Prf.IdProposta_Frete,
+                                                    Arq.Nome AS Nome_Arquivo,
+                                                    Ada.GUID,
+                                                    Ada.Content_Type
+                                                FROM
+                                                    mov_Proposta_Frete Prf
+                                                LEFT OUTER JOIN
+                                                    mov_Projeto_Atividade_Arquivo Paa ON Paa.IdProjeto_Atividade = Prf.IdProjeto_Atividade
+                                                LEFT OUTER JOIN
+                                                    arq_Arquivo Arq ON Arq.IdArquivo = Paa.IdArquivo
+                                                LEFT OUTER JOIN
+                                                    arq_Dados_Arquivo Ada ON Ada.IdDados_Arquivo = Arq.IdDados_Arquivo
+                                                WHERE
+                                                Prf.Numero_Proposta LIKE '%${id}%'`);
+
+                                                 
+        return result_files;
+    },
+    getAllFilesProposalById: async function(files){
+
+        if (files.length === 0) {
+            return null;
+        }
+
+        try {
+            // Filtrar apenas os valores que não são números
+            const valoresNaoNumericos = files.map(item => item.value)
+            // Criar uma string com os valores separados por vírgula
+            const listaSeparadaPorVirgula = valoresNaoNumericos.join(',');
+    
+            let result_files = await executeQuerySQL(`SELECT
+                                                        Arq.IdArquivo,
+                                                        Prf.Numero_Proposta,
+                                                        Prf.IdProposta_Frete,
+                                                        Arq.Nome AS Nome_Arquivo,
+                                                        Ada.GUID,
+                                                        Ada.Content_Type
+                                                    FROM
+                                                        mov_Proposta_Frete Prf
+                                                    LEFT OUTER JOIN
+                                                        mov_Projeto_Atividade_Arquivo Paa ON Paa.IdProjeto_Atividade = Prf.IdProjeto_Atividade
+                                                    LEFT OUTER JOIN
+                                                        arq_Arquivo Arq ON Arq.IdArquivo = Paa.IdArquivo
+                                                    LEFT OUTER JOIN
+                                                        arq_Dados_Arquivo Ada ON Ada.IdDados_Arquivo = Arq.IdDados_Arquivo
+                                                    WHERE
+                                                    Arq.IdArquivo in (${listaSeparadaPorVirgula})`);
+
+            // Função para baixar e retornar os dados de um arquivo
+            const baixarDadosDoArquivo = async (url) => {
+
+                let guid = url.GUID
+                guid = guid.toLowerCase()
+               
+                const response = await axios({
+                    method: 'get',
+                    url: `https://api.headsoft.com.br/geral/blob-stream/private/${guid}?&url=false`, //`https://api.headsoft.com.br/geral/blob-stream/private/${guid}?filename=${url.Nome_Arquivo}&url=true`,
+                    responseType: 'arraybuffer',  // Configura responseType para 'arraybuffer'
+                    headers: {
+                        'Authorization': `Bearer eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjI2YzExYTIzLTMyMTAtNDRmYS1iY2VkLTExNzFmNGU3YWFlNiIsImNvbnRhaW5lciI6ImNvbmxpbmUiLCJpc3MiOiJIZWFkU29mdCIsImF1ZCI6IkZpbGVTdHJlYW0ifQ.rp-og-UgHsZ1mr3J8tQamF0h89T83I3gIW-lRFRWcSk`
+                      }
+                });
+            
+            
+                // Retornar os dados do arquivo em um objeto
+                return {
+                    filename: url.Nome_Arquivo,
+                    content: response.data
+                };
+                
+            };
+
+
+            // Baixar dados de todos os arquivos
+            // const promessasDeDownload = result_files.map(url => baixarDadosDoArquivo(url));
+            // Baixar dados de todos os arquivos
+            const dadosDosArquivos = await Promise.all(result_files.map(url => baixarDadosDoArquivo(url)));
+            return dadosDosArquivos;
+            // // Aguardar o download de todos os arquivosdsa
+            // Promise.all(promessasDeDownload)
+            // .then(dadosDosArquivos => {
+
+            //     return dadosDosArquivos
+            
+            //     // const promessasDeDownload2 = dadosDosArquivos.map(url => baixarDadosDoArquivo(url));
+         
+            // })
+            // .catch(error => {
+            //  console.log(error)
+            //  return null
+            // });
+
+        } catch (error) {
+            // console.log(`https://api.headsoft.com.br/geral/blob-stream/private/${guid}?filename=${url.Nome_Arquivo}&url=false`)
+        // console.error('Erro ao baixar o arquivo da URL:', error);
+        throw error;
+        }
+
+
+  
     },
     getProposal: async function(id){
 
@@ -154,7 +273,17 @@ const direct_mail_pricing = {
                                             WHERE Pfr.Numero_Proposta = '${id}'`);
         return result;
     },
-    sendMail: async function(html, EmailTO, subject, bccAddress,ccOAddress, userID, io, proposalRef) {
+    getFilesEmailsHistory: async function(id){
+     const result = await executeQuery(`SELECT * FROM direct_mail_pricing_files WHERE id_history = ${id}`)
+
+     return result
+    },
+    sendMail: async function(html, EmailTO, subject, bccAddress,ccOAddress, userID, io, proposalRef, files) {
+        // console.log('aqui')
+        const allFiles = await this.getAllFilesProposalById(files)
+
+
+
         // Configurações para o serviço SMTP (exemplo usando Gmail)
         const user = await Users.getUserById(userID)
 
@@ -170,6 +299,18 @@ const direct_mail_pricing = {
         const date_now = await helpers.getDateNow();
         const result = await executeQuery('INSERT INTO direct_mail_pricing_history (subject, body, send_date, userID) VALUES (?, ?, ?, ?)', [subject, html, date_now, userID])
         const historyID = result.insertId
+
+        allFiles.map(async function(dados){
+            const arrayBuffer = new ArrayBuffer(dados.content); // Substitua pelo seu ArrayBuffer
+            const buffer = Buffer.from(arrayBuffer);
+            await executeQuery('INSERT INTO direct_mail_pricing_files (name, body, id_history) VALUES (?, ?, ?)', [dados.filename, buffer, historyID])
+
+            //   // Convertendo para ArrayBuffer
+            // const arrayBuffer = new Uint8Array(buffer).buffer;
+        })
+        
+
+        
         let successfulEmailsCount = 0;
         // Loop através da lista de destinatários
         for (const recipient of EmailTO) {
@@ -204,7 +345,8 @@ const direct_mail_pricing = {
                 subject: subject,
                 html: CustomHTML,    
                 cc: bccAddressNew,
-                bcc:ccOAddressNew
+                bcc:ccOAddressNew,
+                attachments: allFiles.map(dados => ({ filename: dados.filename, content: dados.content }))
             };
     
             // Envia o e-mail para o destinatário atual
@@ -212,7 +354,7 @@ const direct_mail_pricing = {
                 if (error) {
                     const { response } = error;
              
-                    await executeQuery('INSERT INTO direct_mail_pricing_details (`body`,`accepted`, `rejected`, `response`, `from`, `to`,`cc`, `messageId`, `historyId`, `status`, `userID`) VALUES (?,?, ?, ?, ?, ?,?, ?, ?, ?, ?)', [null,null, null, response, user[0].system_email, recipient.email, bccAddressNew, null, historyID, 0, userID])
+                   await executeQuery('INSERT INTO direct_mail_pricing_details (`body`,`accepted`, `rejected`, `response`, `from`, `to`,`cc`, `messageId`, `historyId`, `status`, `userID`) VALUES (?,?, ?, ?, ?, ?,?, ?, ?, ?, ?)', [null,null, null, response, user[0].system_email, recipient.email, bccAddressNew, null, historyID, 0, userID])
            
                     console.error(`Erro ao enviar e-mail para ${recipient.email}:`, error);
                     successfulEmailsCount++;
@@ -224,7 +366,7 @@ const direct_mail_pricing = {
                     const { messageId, envelope, accepted, rejected, pending, response } = info;
                     const acceptedString = accepted.join(', ');
                     const rejectedString = rejected.join(', ');
-                   await executeQuery('INSERT INTO direct_mail_pricing_details (`body`,`accepted`, `rejected`, `response`, `from`, `to`,`cc`, `messageId`, `historyId`, `status`, `userID`) VALUES (?,?, ?, ?, ?, ?,?, ?, ?, ?, ?)', [CustomHTML,acceptedString, rejectedString, response, user[0].system_email, recipient.email,bccAddressNew, messageId, historyID, 1, userID])
+               await executeQuery('INSERT INTO direct_mail_pricing_details (`body`,`accepted`, `rejected`, `response`, `from`, `to`,`cc`, `messageId`, `historyId`, `status`, `userID`) VALUES (?,?, ?, ?, ?, ?,?, ?, ?, ?, ?)', [CustomHTML,acceptedString, rejectedString, response, user[0].system_email, recipient.email,bccAddressNew, messageId, historyID, 1, userID])
                     console.log(`E-mail enviado com sucesso para ${recipient.email}. Detalhes:`, info);
                     successfulEmailsCount++;
 
@@ -238,7 +380,7 @@ const direct_mail_pricing = {
                             const trimmedProposalRef = proposalRef.trim();
 
                             // Executar a consulta SQL
-                            await executeQuerySQL(`UPDATE mov_Proposta_Frete SET Situacao = 9 /*Revisão Pricing*/ WHERE Numero_Proposta = '${trimmedProposalRef}'`);
+                          await executeQuerySQL(`UPDATE mov_Proposta_Frete SET Situacao = 9 /*Revisão Pricing*/ WHERE Numero_Proposta = '${trimmedProposalRef}'`);
                             
                             // Log de sucesso
                             console.log('Proposta atualizada com sucesso', trimmedProposalRef);
@@ -368,7 +510,6 @@ const direct_mail_pricing = {
     
 }
 
-// direct_mail_pricing.ListAllEmails()
 
     module.exports = {
         direct_mail_pricing,

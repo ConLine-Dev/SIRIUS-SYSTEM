@@ -1,4 +1,4 @@
-let choicesInstance, inputSelectProposal, groupSend, modelEmail, bccSend,bccoSend,fileSend, quillEmailModel, selected = {model: false, title: false};
+let choicesInstance, inputSelectProposal,inputFileSelectProposal, groupSend, modelEmail, bccSend,bccoSend,fileSend, quillEmailModel, selected = {model: false, title: false};
 const StorageGoogleData = localStorage.getItem('StorageGoogle');
 const StorageGoogle = JSON.parse(StorageGoogleData);
 console.log(StorageGoogle)
@@ -93,51 +93,51 @@ async function GenerateToEmail(id = 0){
     });
 }
 
-GenerateFileToProposal()
+// GenerateFileToProposal()
 
-async function GenerateFileToProposal(id = 0){
+// async function GenerateFileToProposal(id = 0){
 
-    // const getContactsByGroup = await makeRequest(`/api/direct_mail_pricing/getContactsByGroup/${id}`)
+//     // const getContactsByGroup = await makeRequest(`/api/direct_mail_pricing/getContactsByGroup/${id}`)
 
-    // Formate o array para ser usado com o Choices.js
-    // var listaDeOpcoesFile = getContactsByGroup.map(function(element) {
-    //     return {
-    //         customProperties:{name:element.name},
-    //         value: `${element.email}`,
-    //         label: `${element.name} [${element.email}]`,
-    //         selected: true,
-    //     };
-    // });
+//     // Formate o array para ser usado com o Choices.js
+//     // var listaDeOpcoesFile = getContactsByGroup.map(function(element) {
+//     //     return {
+//     //         customProperties:{name:element.name},
+//     //         value: `${element.email}`,
+//     //         label: `${element.name} [${element.email}]`,
+//     //         selected: true,
+//     //     };
+//     // });
 
     
-    // listaDeOpcoes.push({value:0, label:'Selecione', selected: true, disabled: true})
+//     // listaDeOpcoes.push({value:0, label:'Selecione', selected: true, disabled: true})
 
-     // Destrua a instância anterior do Choices (se existir)
-     if (fileSend) {
-        fileSend.destroy();
-    }
+//      // Destrua a instância anterior do Choices (se existir)
+//      if (fileSend) {
+//         fileSend.destroy();
+//     }
 
-    fileSend = new Choices('select[name="fileSend"]', {
-        // choices: [], //listaDeOpcoesFile,
-        // allowHTML: true,
-        allowSearch: true,
-        removeItemButton: true,
-        noChoicesText: 'Não há opções disponíveis'
-    });
+//     fileSend = new Choices('select[name="fileSend"]', {
+//         // choices: [], //listaDeOpcoesFile,
+//         // allowHTML: true,
+//         allowSearch: true,
+//         removeItemButton: true,
+//         noChoicesText: 'Não há opções disponíveis'
+//     });
 
-    console.log(fileSend)
+  
 
-    // Adicione um ouvinte de evento 'search'
-    fileSend.passedElement.element.addEventListener('search', async function(event) {
-        // event.detail.value contém o valor da pesquisa
-        var searchTerm = event.detail.value;
-        console.log(searchTerm)
+//     // Adicione um ouvinte de evento 'search'
+//     fileSend.passedElement.element.addEventListener('search', async function(event) {
+//         // event.detail.value contém o valor da pesquisa
+//         var searchTerm = event.detail.value;
+//         console.log(searchTerm)
 
-        // Execute a sua lógica de pesquisa dinâmica aqui
-        // Por exemplo, você pode chamar uma função que faz uma requisição AJAX para obter resultados de pesquisa com base em 'searchTerm'
-        await performDynamicSearch(searchTerm);
-    });
-}
+//         // Execute a sua lógica de pesquisa dinâmica aqui
+//         // Por exemplo, você pode chamar uma função que faz uma requisição AJAX para obter resultados de pesquisa com base em 'searchTerm'
+//         await performDynamicSearch(searchTerm);
+//     });
+// }
 
 // Função para realizar a pesquisa dinâmica (exemplo com AJAX)
 async function performDynamicSearch(searchTerm) {
@@ -366,6 +366,8 @@ async function createClicks(){
         const opcoesSelecionadas = choicesInstance.getValue();
         const opcoesSelecionadasCC = bccSend.getValue(true);
         const opcoesSelecionadasCCO = bccoSend.getValue(true);
+        const opcoesSelecionadasFiles = inputFileSelectProposal.getValue();
+        
         
         
         // Mapeie para obter apenas os IDs
@@ -386,7 +388,8 @@ async function createClicks(){
             ccAddress:opcoesSelecionadasCC, 
             ccOAddress:opcoesSelecionadasCCO,
             system_userID:StorageGoogle.system_userID,
-            proposalRef:inputSelectProposal.getValue(true)
+            proposalRef:inputSelectProposal.getValue(true),
+            files:opcoesSelecionadasFiles
         }
 
         const result = await makeRequest('/api/direct_mail_pricing/sendMail', 'POST', formBody)
@@ -453,7 +456,6 @@ async function getAllProposalByRef(){
         inputSelectProposal.destroy();
     }
 
-   
 
     inputSelectProposal = new Choices('select[name="RefProposta"]', {
         // choices: [], //listaDeOpcoesFile,
@@ -463,9 +465,7 @@ async function getAllProposalByRef(){
         noChoicesText: 'Não há opções disponíveis'
     });
 
-    console.log('aqui', inputSelectProposal)
 
-    
     new Cleave(inputSelectProposal.input.element, {
         // prefix: 'PF',
         // delimiter: '/',
@@ -487,7 +487,60 @@ async function getAllProposalByRef(){
 
        
     });
+
+
+    document.querySelector('select[name="RefProposta"]').addEventListener(
+        'addItem',
+        async function(event) {
+
+          await setFilesProposal()
+        },
+        false,
+      );
 }
+
+async function setFilesProposal(){
+
+    const opcoesSelecionadas = inputSelectProposal.getValue();
+
+    if(opcoesSelecionadas){
+
+        let files = opcoesSelecionadas.customProperties.files
+        
+        const listaDeOpcoes = [];
+
+        for (let index = 0; index < files.length; index++) {
+            const element = files[index];
+
+            listaDeOpcoes.push({
+                value: `${element.IdArquivo}`,
+                label: `${element.Nome_Arquivo}`,
+            })
+            
+        }
+
+    
+        if (inputFileSelectProposal) {
+            inputFileSelectProposal.destroy();
+        }
+        
+        inputFileSelectProposal = new Choices('select[name="fileSend"]', {
+            choices: listaDeOpcoes,
+            removeItemButton: true,
+            allowSearch: true,
+            shouldSort: false,
+            noChoicesText: 'Não há opções disponíveis'
+        });
+
+
+ 
+
+      
+    }
+   
+}
+
+
 
 
 function selectMark(value) {
@@ -901,7 +954,6 @@ function inputSearchContacts(e){
     });
 }
 
-
 async function ListAllEmailsByDept(){
     const ListAllEmailsByDept = await makeRequest('/api/direct_mail_pricing/ListAllEmailsByDept')
 }
@@ -952,7 +1004,6 @@ async function ListAllEmails(id){
    
 }
 
-
 async function selectEmail(e,id){
     const getEmailById = await makeRequest(`/api/direct_mail_pricing/getEmailById/${id}`)
 
@@ -974,6 +1025,7 @@ async function selectEmail(e,id){
     document.querySelector('.subjectSelected').textContent = getEmailById[0].subject
     let bodyAllemailsSend = '<div class="accordion accordion-primary" id="accordionPrimaryExample">'
     let listTO = ''
+
     getEmailById.forEach(element => {
         listTO += element.to + ',';
         bodyAllemailsSend += `<div class="accordion-item">

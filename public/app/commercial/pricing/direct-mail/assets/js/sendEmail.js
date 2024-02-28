@@ -481,10 +481,13 @@ async function setFilesProposal(){
         for (let index = 0; index < files.length; index++) {
             const element = files[index];
 
-            listaDeOpcoes.push({
-                value: `${element.IdArquivo}`,
-                label: `${element.Nome_Arquivo}`,
-            })
+            if(element.Nome_Arquivo != null){
+                listaDeOpcoes.push({
+                    value: `${element.IdArquivo}`,
+                    label: `${element.Nome_Arquivo}`,
+                })
+            }
+            
             
         }
 

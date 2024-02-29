@@ -391,7 +391,7 @@ async function createClicks(){
         const expression = new RegExp(regex.source, 'i');
         return expression.test(value);
         },
-    }).setValue(['pricing.impo@conlinebr.com.br']);
+    }).setValue(['pricing.lcl@conlinebr.com.br']);
 
     bccoSend = new Choices('input[name="mailCCO"]', {
         allowHTML: true,

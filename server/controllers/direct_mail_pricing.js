@@ -47,29 +47,66 @@ const direct_mail_pricing = {
                                             Pfr.Numero_Proposta,
                                             Itr.Nome AS Incoterm,
                                             Ofr.Local_Coleta,
+                                            Ofr.Local_Entrega,
                                             Des.Nome AS Destino,
                                             Ori.Nome AS Origem,
                                             Mer.Nome AS Mercadoria,
                                             Mda.Sigla AS Moeda_Mercadoria,
                                             Pfc.Valor_Mercadoria,
-                                            Pfc.NCM_Descricao
-                                            FROM
+                                            Pfc.NCM_Descricao,
+                                            Pfc.Peso_Taxado,
+                                            Pfc.Descricao AS Descricao_Carga,
+                                            CASE Ofr.Modalidade_Pagamento_Master
+                                            WHEN 0 THEN 'Não Informado'
+                                            WHEN 1 THEN 'Collect/Prepaid'
+                                            WHEN 2 THEN 'Collect'
+                                            WHEN 3 THEN 'Prepaid'
+                                            WHEN 4 THEN 'Prepaid abroad'
+                                            END AS Modalidade_Pagamento_Master,
+                                            COALESCE(Clg.Carga_Empilhavel, 'Nao') AS Carga_Empilhavel
+                                        FROM
                                             mov_Oferta_Frete Ofr
-                                            LEFT OUTER JOIN
+                                        LEFT OUTER JOIN
                                             mov_Proposta_Frete Pfr ON Pfr.IdProposta_Frete = Ofr.IdProposta_Frete
-                                            LEFT OUTER JOIN
+                                        LEFT OUTER JOIN
                                             mov_Proposta_Frete_Carga Pfc ON Pfc.IdProposta_Frete = Pfr.IdProposta_Frete
-                                            LEFT OUTER JOIN
+                                        LEFT OUTER JOIN
                                             cad_Mercadoria Mer ON Mer.IdMercadoria = Pfc.IdMercadoria
-                                            LEFT OUTER JOIN
+                                        LEFT OUTER JOIN
                                             cad_Moeda Mda ON Mda.IdMoeda = Pfc.IdMoeda_Mercadoria
-                                            LEFT OUTER JOIN
+                                        LEFT OUTER JOIN
                                             cad_Incoterm Itr ON Itr.IdIncoterm = Ofr.IdIncoterm
-                                            LEFT OUTER JOIN
+                                        LEFT OUTER JOIN
                                             cad_Origem_Destino Des ON Des.IdOrigem_Destino = Ofr.IdDestino
-                                            LEFT OUTER JOIN
+                                        LEFT OUTER JOIN
                                             cad_Origem_Destino Ori ON Ori.IdOrigem_Destino = Ofr.IdOrigem
-                                            WHERE Pfr.Numero_Proposta LIKE '%${id}%'`);
+                                        LEFT OUTER JOIN (
+                                            SELECT
+                                            Ofr.IdOferta_Frete,
+                                            CASE 
+                                                WHEN COUNT(Cgl.IdConfiguracao_Campo_Livre) > 0 THEN 'Sim' ELSE 'Nao' 
+                                            END AS Carga_Empilhavel
+                                            FROM
+                                            mov_Atividade Atv
+                                            Left Outer Join
+                                            mov_Proposta_Frete Pfr on Pfr.IdProjeto_Atividade = Atv.IdProjeto_Atividade
+                                            LEFT OUTER JOIN
+                                            mov_Oferta_Frete Ofr ON Ofr.IdProposta_Frete = Pfr.IdProposta_Frete
+                                            JOIN
+                                            mov_Oferta_Frete_Campo_Livre Fcl ON Fcl.IdOferta_Frete = Ofr.IdOferta_Frete
+                                            JOIN
+                                            mov_Campo_Livre Clv ON Clv.IdCampo_Livre = Fcl.IdCampo_Livre
+                                            LEFT OUTER JOIN
+                                            cad_Configuracao_Campo_Livre Cgl ON Cgl.IdConfiguracao_Campo_Livre = Clv.IdConfiguracao_Campo_Livre
+                                            WHERE
+                                            Pfr.Numero_Proposta LIKE '%${id}%'
+                                            AND Clv.valor_boleano = 1
+                                            AND Cgl.IdConfiguracao_Campo_Livre = 240
+                                            AND Ofr.Tipo_Operacao = 1
+                                            GROUP BY
+                                            Ofr.IdOferta_Frete
+                                        ) Clg ON Clg.IdOferta_Frete = Ofr.IdOferta_Frete
+                                        WHERE Pfr.Numero_Proposta LIKE '%${id}%'`);
 
 
         return result;
@@ -183,33 +220,72 @@ const direct_mail_pricing = {
     getProposal: async function(id){
 
         let result = await executeQuerySQL(`SELECT
-                                            Pfr.Numero_Proposta,
-                                            Itr.Nome AS Incoterm,
-                                            Ofr.Local_Coleta,
-                                            Ofr.Local_Entrega,
-                                            Des.Nome AS Destino,
-                                            Ori.Nome AS Origem,
-                                            Mer.Nome AS Mercadoria,
-                                            Mda.Sigla AS Moeda_Mercadoria,
-                                            Pfc.Valor_Mercadoria,
-                                            Pfc.NCM_Descricao
-                                            FROM
-                                            mov_Oferta_Frete Ofr
-                                            LEFT OUTER JOIN
-                                            mov_Proposta_Frete Pfr ON Pfr.IdProposta_Frete = Ofr.IdProposta_Frete
-                                            LEFT OUTER JOIN
-                                            mov_Proposta_Frete_Carga Pfc ON Pfc.IdProposta_Frete = Pfr.IdProposta_Frete
-                                            LEFT OUTER JOIN
-                                            cad_Mercadoria Mer ON Mer.IdMercadoria = Pfc.IdMercadoria
-                                            LEFT OUTER JOIN
-                                            cad_Moeda Mda ON Mda.IdMoeda = Pfc.IdMoeda_Mercadoria
-                                            LEFT OUTER JOIN
-                                            cad_Incoterm Itr ON Itr.IdIncoterm = Ofr.IdIncoterm
-                                            LEFT OUTER JOIN
-                                            cad_Origem_Destino Des ON Des.IdOrigem_Destino = Ofr.IdDestino
-                                            LEFT OUTER JOIN
-                                            cad_Origem_Destino Ori ON Ori.IdOrigem_Destino = Ofr.IdOrigem
-                                            WHERE Pfr.Numero_Proposta = '${id}'`);
+        Pfr.IdProposta_Frete,
+        Pfr.Numero_Proposta,
+        Itr.Nome AS Incoterm,
+        Ofr.Local_Coleta,
+        Ofr.Local_Entrega,
+        Des.Nome AS Destino,
+        Ori.Nome AS Origem,
+        Mer.Nome AS Mercadoria,
+        Mda.Sigla AS Moeda_Mercadoria,
+        Pfc.Valor_Mercadoria,
+        Pfc.NCM_Descricao,
+        Pfc.Peso_Taxado,
+        Pfc.Descricao AS Descricao_Carga,
+        CASE Ofr.Modalidade_Pagamento_Master
+        WHEN 0 THEN 'Não Informado'
+        WHEN 1 THEN 'Collect/Prepaid'
+        WHEN 2 THEN 'Collect'
+        WHEN 3 THEN 'Prepaid'
+        WHEN 4 THEN 'Prepaid abroad'
+        END AS Modalidade_Pagamento_Master,
+        COALESCE(Clg.Carga_Empilhavel, 'Nao') AS Carga_Empilhavel
+    FROM
+        mov_Oferta_Frete Ofr
+    LEFT OUTER JOIN
+        mov_Proposta_Frete Pfr ON Pfr.IdProposta_Frete = Ofr.IdProposta_Frete
+    LEFT OUTER JOIN
+        mov_Proposta_Frete_Carga Pfc ON Pfc.IdProposta_Frete = Pfr.IdProposta_Frete
+    LEFT OUTER JOIN
+        cad_Mercadoria Mer ON Mer.IdMercadoria = Pfc.IdMercadoria
+    LEFT OUTER JOIN
+        cad_Moeda Mda ON Mda.IdMoeda = Pfc.IdMoeda_Mercadoria
+    LEFT OUTER JOIN
+        cad_Incoterm Itr ON Itr.IdIncoterm = Ofr.IdIncoterm
+    LEFT OUTER JOIN
+        cad_Origem_Destino Des ON Des.IdOrigem_Destino = Ofr.IdDestino
+    LEFT OUTER JOIN
+        cad_Origem_Destino Ori ON Ori.IdOrigem_Destino = Ofr.IdOrigem
+    LEFT OUTER JOIN (
+        SELECT
+        Ofr.IdOferta_Frete,
+        CASE 
+            WHEN COUNT(Cgl.IdConfiguracao_Campo_Livre) > 0 THEN 'Sim' ELSE 'Nao' 
+        END AS Carga_Empilhavel
+        FROM
+        mov_Atividade Atv
+        Left Outer Join
+        mov_Proposta_Frete Pfr on Pfr.IdProjeto_Atividade = Atv.IdProjeto_Atividade
+        LEFT OUTER JOIN
+        mov_Oferta_Frete Ofr ON Ofr.IdProposta_Frete = Pfr.IdProposta_Frete
+        JOIN
+        mov_Oferta_Frete_Campo_Livre Fcl ON Fcl.IdOferta_Frete = Ofr.IdOferta_Frete
+        JOIN
+        mov_Campo_Livre Clv ON Clv.IdCampo_Livre = Fcl.IdCampo_Livre
+        LEFT OUTER JOIN
+        cad_Configuracao_Campo_Livre Cgl ON Cgl.IdConfiguracao_Campo_Livre = Clv.IdConfiguracao_Campo_Livre
+        WHERE
+        Pfr.Numero_Proposta = '${id}'
+        AND Clv.valor_boleano = 1
+        AND Cgl.IdConfiguracao_Campo_Livre = 240
+        AND Ofr.Tipo_Operacao = 1
+        GROUP BY
+        Ofr.IdOferta_Frete
+    ) Clg ON Clg.IdOferta_Frete = Ofr.IdOferta_Frete
+    WHERE Pfr.Numero_Proposta = '${id}'`);
+
+
         return result;
     },
     getFileByProposal: async function(id){

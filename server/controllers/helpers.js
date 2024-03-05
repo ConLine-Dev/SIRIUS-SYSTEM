@@ -1,9 +1,9 @@
 
 const helpers = {
-    getDateNow: async function(){
+    getDateNow: async function(value){
         // Criar uma nova instância do objeto Date
-        const dataAtual = new Date();
-
+        const dataAtual = value ? new Date(value) : new Date()
+        
         // Obter componentes individuais da data
         const ano = dataAtual.getFullYear();
         const mes = String(dataAtual.getMonth() + 1).padStart(2, '0'); // Os meses são baseados em zero

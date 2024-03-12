@@ -1208,6 +1208,7 @@ async function addEmailTolist(element){
             <div class="flex-fill">
                 <a href="javascript:void(0);">
                     <p class="mb-1 fs-12"> ${element.name} <span class="float-end text-muted fw-normal fs-11">${formatarData(element.send_date)}</span> </p>
+                    
                 </a>
                 <p class=" mb-0"> 
                     <span class="d-block mb-0 fw-semibold">${element.subject}</span> 

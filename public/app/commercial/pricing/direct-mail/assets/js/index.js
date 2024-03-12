@@ -6,8 +6,10 @@ console.log(StorageGoogle)
 const socket = io();
 
 socket.on("table", async (data) => {
-    if(data == 'ListAllEmails'){
-        await ListAllEmails()
+    console.log(data)
+    if(data.type == 'newEmail'){
+        await addEmailTolist(data.data)
+        // await ListAllEmails()
         // document.querySelectorAll('.listEmails li')[0].click()
     }
   });
@@ -366,8 +368,52 @@ async function GenerateToModel(id = 0){
 }
 
 async function createClicks(){
+      
+    const buttonSelectTypeMyEmail = document.querySelectorAll('#tabSelectEmails button')[0];
+    buttonSelectTypeMyEmail.addEventListener('click', function (e){
 
-    
+        // Obtém todos os elementos com a classe 'listEmails' que têm o atributo 'data-department' igual a 'true'
+        const elementsToShow = document.querySelectorAll('.listEmails [data-department="false"]');
+
+
+        // Esconde todos os elementos dentro da classe 'listEmails'
+        const allElements = document.querySelectorAll('.listEmails [data-department="true"]');
+
+        allElements.forEach(element => {
+            // element.style.display = 'none';
+            element.classList.remove('visible');
+        });
+
+        // Mostra apenas os elementos que têm o atributo 'data-department' igual a 'true'
+        elementsToShow.forEach(element => {
+            element.classList.add('visible');
+            // element.style.display = 'block'; // Isso restaura o valor padrão de exibição (pode ser 'block', 'inline', etc.)
+        });
+    })
+
+    const buttonSelectTypeGroupEmail = document.querySelectorAll('#tabSelectEmails button')[1];
+
+    buttonSelectTypeGroupEmail.addEventListener('click', function (e){
+
+        // Obtém todos os elementos com a classe 'listEmails' que têm o atributo 'data-department' igual a 'true'
+        const elementsToShow = document.querySelectorAll('.listEmails [data-department="true"]');
+
+        // Esconde todos os elementos dentro da classe 'listEmails'
+        const allElements = document.querySelectorAll('.listEmails [data-department="false"]');
+        allElements.forEach(element => {
+            // element.style.display = 'none';
+            element.classList.remove('visible');
+        });
+
+        // Mostra apenas os elementos que têm o atributo 'data-department' igual a 'true'
+        elementsToShow.forEach(element => {
+            element.classList.add('visible');
+            // element.style.display = ''; // Isso restaura o valor padrão de exibição (pode ser 'block', 'inline', etc.)
+        });
+    })
+
+   
+
     const buttonNewEmail = document.querySelector('#buttonNewEmail');
     buttonNewEmail.addEventListener('click', async function(e){
         e.preventDefault()
@@ -1138,9 +1184,49 @@ async function ListAllEmailsByDept(){
     const ListAllEmailsByDept = await makeRequest('/api/direct_mail_pricing/ListAllEmailsByDept')
 }
 
+async function addEmailTolist(element){
+    const myEmail = document.querySelectorAll('#tabSelectEmails button')[0]
+
+    const myVisible = myEmail.classList.contains('active') ? 'visible' : 'false';
+
+    const tempElement = document.createElement('div');
+
+    // Define o conteúdo HTML do elemento temporário
+    tempElement.innerHTML = element.body;
+
+    // Obtém o texto do elemento (sem interpretar as tags HTML)
+    const textoInline = tempElement.textContent || tempElement.innerText;
+
+
+    const listEmail = `<li class="${myVisible}" data-department="${element.userID != StorageGoogle.system_userID}" style="cursor:pointer;" onclick="selectEmail(this,${element.id})">
+        <div class="d-flex align-items-top">
+        
+            <div class="me-1 lh-1"> <span class="avatar avatar-md online me-2 avatar-rounded mail-msg-avatar"> 
+                <img src="https://cdn.conlinebr.com.br/colaboradores/${element.id_headcargo}" alt=""> 
+            </span> 
+        </div>
+            <div class="flex-fill">
+                <a href="javascript:void(0);">
+                    <p class="mb-1 fs-12"> ${element.name} <span class="float-end text-muted fw-normal fs-11">${formatarData(element.send_date)}</span> </p>
+                </a>
+                <p class=" mb-0"> 
+                    <span class="d-block mb-0 fw-semibold">${element.subject}</span> 
+                    <span class="fs-11 text-muted text-wrap">
+                    ${(textoInline).slice(0,100)}...
+                    </span>                                                            
+                </p>
+            </div>
+        </div>
+    </li>`;
+
+    // document.querySelector('.listEmails').innerHTML += listEmail;
+    document.querySelector('.listEmails').insertAdjacentHTML('afterbegin', listEmail);
+}
+
 async function ListAllEmails(id){
-    const ListAllEmails = await makeRequest('/api/direct_mail_pricing/ListAllEmails')
-    // console.log(ListAllEmails)
+    // const ListAllEmails = await makeRequest('/api/direct_mail_pricing/ListAllEmails')
+    const ListAllEmails = await makeRequest('/api/direct_mail_pricing/ListAllEmails', 'POST', StorageGoogle)
+
     let listEmail = ''
     ListAllEmails.forEach(element => {
         // Cria um elemento temporário
@@ -1154,7 +1240,16 @@ async function ListAllEmails(id){
 
         const classe = id && id == element.id ? 'active' : ''
 
-        listEmail += `<li class="${classe}" style="cursor:pointer;" onclick="selectEmail(this,${element.id})">
+        const myEmail = document.querySelectorAll('#tabSelectEmails button')[0]
+        const deptEmail = document.querySelectorAll('#tabSelectEmails button')[1]
+
+        const myVisible = myEmail.classList.contains('active') ? true : false;
+
+
+        const typeVisible = element.userID == StorageGoogle.system_userID && myVisible ? 'visible' : '';
+
+
+        listEmail += `<li class="${classe} ${typeVisible}" data-department="${element.userID != StorageGoogle.system_userID}" style="cursor:pointer;" onclick="selectEmail(this,${element.id})">
         <div class="d-flex align-items-top">
         
             <div class="me-1 lh-1"> <span class="avatar avatar-md online me-2 avatar-rounded mail-msg-avatar"> 
@@ -1283,18 +1378,25 @@ async function selectEmail(e,id){
     document.querySelector('.bodyAllemailsSend').innerHTML = bodyAllemailsSend;
 }
 
-function searchMailList(e){
-    var termoPesquisa = e.value.toLowerCase(); // Obtém o valor do input em minúsculas
-    // Itera sobre os itens da lista e mostra/oculta com base no termo de pesquisa
-    var listaItems = document.querySelectorAll('.listEmails li');
-    listaItems.forEach(function(item) {
-        var textoItem = item.textContent.toLowerCase();
+function searchMailList(e) {
+    var termoPesquisa = e.value.trim().toLowerCase(); // Obtém o valor do input em minúsculas
 
-        // Verifica se o texto do item contém o termo de pesquisa
+    const myEmail = document.querySelectorAll('#tabSelectEmails button')[0]
+
+
+    const myVisible = myEmail.classList.contains('active') ? false : true;
+
+    var listaItems = document.querySelectorAll('.listEmails [data-department="'+myVisible+'"]');
+
+    
+    listaItems.forEach(function(element) {
+        var textoItem = element.textContent.toLowerCase();
+        // var isVisible = element.getAttribute('data-department') === 'true';
+
         if (textoItem.includes(termoPesquisa)) {
-            item.style.display = 'block'; // Mostra o item
+            element.classList.add('visible');
         } else {
-            item.style.display = 'none'; // Oculta o item
+            element.classList.remove('visible');
         }
     });
 }

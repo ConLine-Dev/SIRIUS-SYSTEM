@@ -355,7 +355,6 @@ const direct_mail_pricing = {
      return result
     },
     sendMail: async function(html, EmailTO, subject, bccAddress,ccOAddress, userID, io, proposalRef, files, revisaoPricing) {
-        // console.log('aqui')
         const allFiles = await this.getAllFilesProposalById(files)
 
 
@@ -377,7 +376,7 @@ const direct_mail_pricing = {
         const historyID = result.insertId
         
         if(allFiles != null){
-            console.log('dsads')
+
             allFiles.map(async function(dados){
                 const arrayBuffer = new ArrayBuffer(dados.content); // Substitua pelo seu ArrayBuffer
                 const buffer = Buffer.from(arrayBuffer);
@@ -440,19 +439,23 @@ const direct_mail_pricing = {
                     successfulEmailsCount++;
                      // Verifica se todos os e-mails foram enviados antes de emitir o evento
                      if (successfulEmailsCount === EmailTO.length) {
+
                         io.emit('table', 'ListAllEmails');
                     }
                 } else {
                     const { messageId, envelope, accepted, rejected, pending, response } = info;
                     const acceptedString = accepted.join(', ');
                     const rejectedString = rejected.join(', ');
-               await executeQuery('INSERT INTO direct_mail_pricing_details (`body`,`accepted`, `rejected`, `response`, `from`, `to`,`cc`, `messageId`, `historyId`, `status`, `userID`) VALUES (?,?, ?, ?, ?, ?,?, ?, ?, ?, ?)', [CustomHTML,acceptedString, rejectedString, response, user[0].system_email, recipient.email,bccAddressNew, messageId, historyID, 1, userID])
+               const lastInsert = await executeQuery('INSERT INTO direct_mail_pricing_details (`body`,`accepted`, `rejected`, `response`, `from`, `to`,`cc`, `messageId`, `historyId`, `status`, `userID`) VALUES (?,?, ?, ?, ?, ?,?, ?, ?, ?, ?)', [CustomHTML,acceptedString, rejectedString, response, user[0].system_email, recipient.email,bccAddressNew, messageId, historyID, 1, userID])
                     console.log(`E-mail enviado com sucesso para ${recipient.email}. Detalhes:`, info);
                     successfulEmailsCount++;
 
                     // Verifica se todos os e-mails foram enviados antes de emitir o evento
                     if (successfulEmailsCount === EmailTO.length) {
-                        io.emit('table', 'ListAllEmails');
+            
+                        const email = await direct_mail_pricing.ListEmailByID(historyID)
+                        
+                        io.emit('table', {type: 'newEmail', data: email[0]});
 
                         // Verificar se a variável proposalRef existe e não é nula ou undefined
                         if (proposalRef !== null && proposalRef !== undefined && proposalRef.trim() !== '') {
@@ -572,10 +575,61 @@ const direct_mail_pricing = {
 
         return result;
     },
-    ListAllEmailsByDept: async function(userID){
-        const user = await Users.getUserById(userID)
-        console.log(user)
-        // const usersDepartment = await Users.getUsersByDep(id)
+    ListAllEmailsByDept: async function(user){
+
+
+
+        const result = await executeQuery(`SELECT
+        dmp.*,
+        usr.collaborator_id, 
+        clt.id_headcargo, 
+        GROUP_CONCAT(dr.department_id) AS department_ids,
+        clt.name 
+    FROM 
+        siriusDBO.direct_mail_pricing_history AS dmp
+    JOIN 
+        users AS usr ON dmp.userID = usr.id
+    JOIN 
+        collaborators AS clt ON usr.collaborator_id = clt.id 
+    JOIN 
+        departments_relations AS dr ON dr.collaborator_id = clt.id 
+    WHERE 
+        (dr.department_id IN (${user.department_ids})) OR (dmp.userID = ${user.system_userID})
+    GROUP BY 
+        usr.collaborator_id, clt.id_headcargo, dmp.id, clt.name
+    ORDER BY 
+        dmp.id DESC;`);
+
+        
+        return result;
+
+    },
+    ListEmailByID: async function(id){
+
+        const result = await executeQuery(`SELECT
+        dmp.*,
+        usr.collaborator_id, 
+        clt.id_headcargo, 
+        GROUP_CONCAT(dr.department_id) AS department_ids,
+        clt.name 
+    FROM 
+        siriusDBO.direct_mail_pricing_history AS dmp
+    JOIN 
+        users AS usr ON dmp.userID = usr.id
+    JOIN 
+        collaborators AS clt ON usr.collaborator_id = clt.id 
+    JOIN 
+        departments_relations AS dr ON dr.collaborator_id = clt.id 
+    WHERE 
+    dmp.id = ${id}
+    GROUP BY 
+        usr.collaborator_id, clt.id_headcargo, dmp.id, clt.name
+    ORDER BY 
+        dmp.id DESC`);
+
+        
+        return result;
+
     },
     ListAllEmails: async function(){
         const result = await executeQuery(`SELECT direct_mail_pricing_history.*, usr.collaborator_id, clt.id_headcargo, clt.name FROM siriusDBO.direct_mail_pricing_history
@@ -583,6 +637,7 @@ const direct_mail_pricing = {
         JOIN collaborators as clt ON usr.collaborator_id = clt.id ORDER BY id desc`);
         return result;
     },
+
     getEmailById: async function(id){
         const result = await executeQuery(`SELECT direct_mail_pricing_details.*, htr.subject, htr.send_date, usr.collaborator_id, clt.id_headcargo, clt.name FROM siriusDBO.direct_mail_pricing_details
         JOIN direct_mail_pricing_history as htr ON htr.id = direct_mail_pricing_details.historyId 

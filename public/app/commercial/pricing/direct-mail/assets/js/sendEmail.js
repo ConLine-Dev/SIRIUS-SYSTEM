@@ -319,9 +319,6 @@ async function GenerateToModel(id = 0){
 
 async function createClicks(){
 
-    
-  
-
 
     const buttonSendEmail = document.querySelector('#buttonSendEmail');
     buttonSendEmail.addEventListener('click', async function(e){
@@ -931,7 +928,12 @@ async function ListAllEmailsByDept(){
 }
 
 async function ListAllEmails(id){
+    // StorageGoogle
     const ListAllEmails = await makeRequest('/api/direct_mail_pricing/ListAllEmails')
+
+
+    // const ListAllEmails = await makeRequest('/api/direct_mail_pricing/ListAllEmails', 'POST', StorageGoogle)
+    
     // console.log(ListAllEmails)
     let listEmail = ''
     ListAllEmails.forEach(element => {

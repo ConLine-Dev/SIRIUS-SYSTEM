@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require('fs');
 const { direct_mail_pricing } = require('../controllers/direct_mail_pricing');
 const { executeQuerySQL } = require('../connect/sqlServer');
+const { Users } = require('../controllers/users');
 
 
 module.exports = function(io) {
@@ -236,7 +237,6 @@ router.get('/removeGroup/:id', async (req, res, next) => {
     }
 });
 
-
 router.post('/editContact', async (req, res, next) => {
     const {body} = req.body
     try {
@@ -246,7 +246,6 @@ router.post('/editContact', async (req, res, next) => {
         res.status(404).json('Erro')   
     }
 });
-
 
 router.post('/registerModelEmail', async (req, res, next) => {
     const {body} = req.body;
@@ -268,7 +267,6 @@ router.post('/editModelEmail', async (req, res, next) => {
     }
 });
 
-
 router.get('/removeModelEmail/:id', async (req, res, next) => {
     try {
         const result = await direct_mail_pricing.removeModelEmail(req.params.id);
@@ -281,6 +279,18 @@ router.get('/removeModelEmail/:id', async (req, res, next) => {
 router.get('/ListAllEmails', async (req, res, next) => {
     try {
         const result = await direct_mail_pricing.ListAllEmails();
+  
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(404).json('Erro')   
+    }
+});
+
+router.post('/ListAllEmails', async (req, res, next) => {
+    try {
+
+        const attUser = await Users.ListUserByEmail(req.body.email);
+        const result = await direct_mail_pricing.ListAllEmailsByDept(attUser[0]);
   
         res.status(200).json(result)
     } catch (error) {

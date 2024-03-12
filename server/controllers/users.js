@@ -42,21 +42,24 @@ const Users = {
     ListUserByEmail: async function(email){
  
         let result = await executeQuery(`SELECT
-                                        users.id AS 'system_userID',
-                                        users.email AS 'system_email',
-                                        users.email_password AS 'email_password',
-                                        users.collaborator_id AS 'system_collaborator_id',
-                                        colab.id_headcargo AS 'system_id_headcargo',
-                                        colab.name AS 'system_username',
-                                        colab.image AS 'system_image',
-                                        colab.family_name AS 'system_familyName'
-                                    FROM
-                                        users
-                                    join collaborators colab ON colab.id = users.collaborator_id
-                                    WHERE users.email = '${email}'
-                                    ORDER BY
-                                        colab.name ASC
-                                        `);
+        users.id AS 'system_userID',
+        users.email AS 'system_email',
+        users.email_password AS 'email_password',
+        users.collaborator_id AS 'system_collaborator_id',
+        colab.id_headcargo AS 'system_id_headcargo',
+        colab.name AS 'system_username',
+        colab.image AS 'system_image',
+        colab.family_name AS 'system_familyName',
+        GROUP_CONCAT(departments_relations.department_id) AS 'department_ids'
+    FROM
+        users
+    JOIN collaborators colab ON colab.id = users.collaborator_id
+    LEFT JOIN departments_relations ON departments_relations.collaborator_id = colab.id
+    WHERE users.email = '${email}'
+    GROUP BY
+        users.id, users.email, users.email_password, users.collaborator_id, colab.id_headcargo, colab.name, colab.image, colab.family_name
+    ORDER BY
+        colab.name ASC`);
     
         return result;
     },

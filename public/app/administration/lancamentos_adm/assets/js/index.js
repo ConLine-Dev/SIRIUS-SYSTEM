@@ -26,7 +26,8 @@ async function generateTable() {
             { data: 'Situacao' },
             { data: 'Historico_Resumo' },
             { data: 'Pessoa' },
-            { data: 'Tipo_Transacao' }
+            { data: 'Tipo_Transacao' },
+            { data: 'Valor' }
             // Adicione mais colunas conforme necessário
         ],
         buttons: [

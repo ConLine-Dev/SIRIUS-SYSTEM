@@ -19,11 +19,14 @@ const launches_adm = {
     , ffc.Historico_Resumo
     , pss.Nome as 'Pessoa'
     , ttc.Nome as 'Tipo_Transacao'
+    , ffc.valor as 'valor'
     from mov_Fatura_Financeira ffc
-    
     join mov_Registro_Financeiro rfc on rfc.IdRegistro_Financeiro = ffc.IdRegistro_Financeiro
     join cad_Pessoa pss on pss.IdPessoa = rfc.IdPessoa
-    join cad_Tipo_Transacao ttc on ttc.IdTipo_Transacao = rfc.IdTipo_Transacao`);
+    join cad_Tipo_Transacao ttc on ttc.IdTipo_Transacao = rfc.IdTipo_Transacao
+    WHERE 
+    ttc.Nome LIKE 'DESPESA DO RH' OR
+    ffc.Historico_Resumo LIKE '%ENDOMARKETING%'`);
     
     // Mapear os resultados e formatar a data
     const resultadosFormatados = result.map(item => ({
@@ -31,6 +34,7 @@ const launches_adm = {
         'Situacao': item.Situacao,
         'Historico_Resumo': item.Historico_Resumo,
         'Pessoa': item.Pessoa,
+        'Valor': (item.valor).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
         'Tipo_Transacao': item.Tipo_Transacao
     }));
 

@@ -3,6 +3,7 @@ const router = express.Router();
 const Users = require('./apiUsers');
 const apiDirectMailPricing = require('./apiDirectMailPricing');
 const administration_launches_adm = require('./administration_launches_adm');
+const apiAppMonitor = require('./apiAppMonitor');
 const Posts = require('./apiPosts');
 // const Posts = require('./apiPosts');
 
@@ -20,6 +21,9 @@ const setIO = (io) => {
 
      // Use as rotas do arquivo apiPosts.js
      router.use('/posts', Posts(io));
+
+     // Use as rotas do arquivo apiAppMonitor.js
+     router.use('/AppMonitor', apiAppMonitor);
   
     return router;
   };

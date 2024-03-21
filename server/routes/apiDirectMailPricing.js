@@ -76,6 +76,8 @@ router.post('/getAllProposalByRef', async (req, res, next) => {
     try {
         const refProposalDecoded = decodeURIComponent(body);
         let result = await direct_mail_pricing.getAllProposalByRef(refProposalDecoded);
+        
+        console.log(result)
    
         let result_files = await direct_mail_pricing.getAllFilesProposalByRef(refProposalDecoded)
 

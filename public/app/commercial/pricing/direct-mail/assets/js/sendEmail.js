@@ -447,6 +447,7 @@ async function getAllProposalByRef(){
 
         if(searchTerm.length > 5){
             const filteredOptions = await makeRequest(`/api/direct_mail_pricing/getAllProposalByRef`, 'POST', {body:searchTerm})
+            console.log(filteredOptions)
         
             inputSelectProposal.setChoices(filteredOptions, 'value', 'label', true);
         }

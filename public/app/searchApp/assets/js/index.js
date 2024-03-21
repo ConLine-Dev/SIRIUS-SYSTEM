@@ -8,6 +8,7 @@ window.onload = async function () {
 
    const StorageGoogle = await getInfosLogin();
    await setInfosLogin(StorageGoogle)
+   // console.log(StorageGoogle)
 
    // console.log(window)
 const teste = await window.ipcRenderer.invoke('check-for-updates'); 
@@ -71,7 +72,7 @@ async function getInfosLogin(){
 
 async function setInfosLogin(StorageGoogle){
    document.querySelectorAll('.imgUser').forEach(element => {
-      element.src = StorageGoogle.picture
+      element.src = StorageGoogle.picture ? StorageGoogle.picture : StorageGoogle.system_image
     });
 
     document.querySelectorAll('.UserName').forEach(element => {

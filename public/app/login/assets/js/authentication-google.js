@@ -8,7 +8,7 @@ async function handleCredentialResponse(response) {
    if(data.email_verified) {
 
       const system = await makeRequest('/api/users/ListUserByEmail', 'POST', {body:data.email})
-      
+
       // Juntando os dois arrays
       const mergedData = Object.assign({}, system[0], data);
  

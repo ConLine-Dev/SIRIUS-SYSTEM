@@ -1,8 +1,7 @@
 const express = require('express');
 const http = require('http'); // Add this line
 const path = require('path');
-const socketIO = require('socket.io'); // Add this line
-
+const socketIO = require('socket.io'); 
 
 // Import routes pages
 const listApp = require('./server/routes/app');
@@ -32,7 +31,6 @@ app.use('/app', listApp);
 io.on('connection', (socket) => {
 
 });
-
 
 // connection
 const port = process.env.PORT || 5000;

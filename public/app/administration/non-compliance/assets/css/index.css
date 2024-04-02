@@ -1,0 +1,12 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    justify-content: normal;
+    min-height: 100vh;
+}
+
+.icon-text-align i,
+.icon-text-align span {
+        display: inline-block;
+        vertical-align: middle;
+}

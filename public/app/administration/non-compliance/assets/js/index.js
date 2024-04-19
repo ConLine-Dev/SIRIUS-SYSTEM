@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
   
-    // await generateTable();
+    await generateTable();
+
 
     document.querySelector('#loader2').classList.add('d-none')
 })
@@ -8,26 +9,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function generateTable() {
     // Fazer a requisição à API
-    const dados = await makeRequest(`/api/launches_adm/getAllLaunches/`);
+    const dados = await makeRequest(`/api/non-compliance/AllOccurrence`);
 
     // Destruir a tabela existente, se houver
-    if ($.fn.DataTable.isDataTable('#table_despesasADM')) {
-        $('#table_despesasADM').DataTable().destroy();
+    if ($.fn.DataTable.isDataTable('#table_rnc')) {
+        $('#table_rnc').DataTable().destroy();
     }
 
     // Criar a nova tabela com os dados da API
-    $('#table_despesasADM').DataTable({
+    $('#table_rnc').DataTable({
         dom: 'Bfrtip',
         pageLength: 15,
         order: [[0, 'desc']],
         data: dados.data,
         columns: [
-            { data: 'Data_Vencimento' },
-            { data: 'Situacao' },
-            { data: 'Historico_Resumo' },
-            { data: 'Pessoa' },
-            { data: 'Tipo_Transacao' },
-            { data: 'Valor' }
+            { data: 'reference' },
+            { data: 'occurrence' },
+            { data: 'description' },
+            { data: 'origin' },
+            { data: 'date_occurrence' }
             // Adicione mais colunas conforme necessário
         ],
         buttons: [

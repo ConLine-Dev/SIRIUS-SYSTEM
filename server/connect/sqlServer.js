@@ -38,7 +38,7 @@ const executeQuerySQL = async (query) => {
     } catch (error) {
       attempts += 100;
       // console.error(query);
-      // console.error(error);
+      console.error(error);
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }

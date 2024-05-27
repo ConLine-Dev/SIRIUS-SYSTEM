@@ -1,0 +1,32 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "sirius-db.ddns.net",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "sirius",
+            "database": "SIRIUS",
+            "username": "aplicacao",
+            "password": "conline@2510A"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "144.22.181.195",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "sirius amazon",
+            "database": "SIRIUS",
+            "username": "aplicacao",
+            "password": "conline@2510A"
+        }
+    ]
+}

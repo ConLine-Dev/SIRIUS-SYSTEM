@@ -1,6 +1,6 @@
 // Variaveis globais para gerenciamento de selects com o Choices
 // s antes da variavel se refere a select
-let sAllUnits, sAllOrigins, sAllApproval, sAllResponsible, sAllResponsibleActions, sAllTypes, listReasons = [], listActions = []
+let sAllUnits, sAllOrigins, sAllApproval, sAllResponsible, sAllResponsibleActions, sAllTypes, listPreventive = [], listReasons = [], listActions = []
 
 
 async function getAllUnit(){
@@ -186,6 +186,16 @@ async function getAllResponsible(){
         
     });
 
+    sAllResponsibleActions = new Choices('select[name="Preventive_responsible"]', {
+        choices: listaDeOpcoes,
+        // allowHTML: true,
+        // allowSearch: true,
+        shouldSort: false,
+        // removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis',
+        
+    });
+
 }
 
 async function renderTableReason(){
@@ -209,11 +219,39 @@ async function renderTableReason(){
 
 async function renderTableActions(){
 
-    const tableBody = document.querySelector('#table_actions tbody')
+    const tableBody = document.querySelector('#table_corrective tbody')
 
     let row = ''
     for (let index = 0; index < listActions.length; index++) {
         const element = listActions[index];
+
+        const parts = element.expiration.split('-');
+        const expiration = parts[2] + '/' + parts[1] + '/' + parts[0];
+
+        row += `<tr>
+                    <td>${index+1}</td>
+                    <td>${element.description}</td>
+                    <td>${element.responsible_name}</td>
+                    <td>
+                        <span class="icon-text-align">
+                            <i class="las la-calendar-alt fs-5"></i> ${expiration}
+                        </span>
+                    </td>
+                    <td><span class="badge bg-outline-warning">Pendente</span></td>
+                </tr>`
+        
+        
+    }
+
+    tableBody.innerHTML = row
+}
+async function renderTablePreventive(){
+
+    const tableBody = document.querySelector('#table_preventive tbody')
+
+    let row = ''
+    for (let index = 0; index < listPreventive.length; index++) {
+        const element = listPreventive[index];
 
         const parts = element.expiration.split('-');
         const expiration = parts[2] + '/' + parts[1] + '/' + parts[0];
@@ -297,6 +335,43 @@ async function addAction(e){
     //chama a função para renderizar a tabela ações imediatas
     await renderTableActions()
 }
+
+async function addPreventive(e){
+    // pegar o valor do textarea actions e adiciona a um array chamado listActions para ser listado posteriormente na tabela ações imediatas (salva na memoria temp)
+    // esta sendo chamado no front com onclick
+    const Preventive_responsible = document.querySelector('[name="Preventive_responsible"]')
+    const Preventive_expiration = document.querySelector('[name="Preventive_expiration"]').value
+    const Preventive_description = document.querySelector('[name="Preventive_description"]').value
+
+
+    if(Preventive_responsible.value.trim() == 0 || Preventive_expiration.trim() == '' || Preventive_description.trim() == ''){
+        return false;
+    }
+    
+    // desabilita o botão
+    e.setAttribute('disabled', true)
+
+    // adicona o valor ao array 
+    listPreventive.push({
+        responsible_id:Preventive_responsible.value,
+        responsible_name:Preventive_responsible.textContent,
+        expiration:Preventive_expiration,
+        description:Preventive_description
+    })
+
+    // limpa o campo textarea
+    Preventive_expiration.value = ''
+    Preventive_description.value = ''
+
+    // habilita o botão
+    e.removeAttribute('disabled')
+    console.log(listPreventive)
+
+
+    //chama a função para renderizar a tabela ações imediatas
+    await renderTablePreventive()
+}
+
 
 async function getValuesOccurrence(e) {
     

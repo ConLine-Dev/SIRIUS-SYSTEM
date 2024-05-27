@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Nova Ocorrência</title>
+    <title>Gerenciamento de Cameras</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
@@ -46,7 +46,7 @@
     
     
 
-    <link rel="stylesheet" href="./assets/css/new_occurrence.css">
+    <link rel="stylesheet" href="./assets/css/index.css">
     <meta http-equiv="imagetoolbar" content="no">
 </head>
 
@@ -498,9 +498,6 @@
         </div>
     </div>
     <!-- End Switcher -->
-    <div id="loader" style="display: none;">
-        <img src="../../assets/images/media/loader.svg" alt="">
-    </div>
     <!-- Loader -->
     <div id="loader2">
         <img src="../../assets/images/media/loader.svg" alt="">
@@ -518,329 +515,21 @@
         <!-- Start::app-content -->
         <div class="main-content">
             <div class="container-fluid">
-              
                 <div class="row">
                     <div class="col-xl-12">
                         <div class="card custom-card">
-                            <div class="card-header justify-content-between">
-                                <div class="card-title"> Nova Ocorrência </div>
+                            <div class="card-header">
+                                <div class="card-title"> Visualização de Cameras </div>
                             </div>
-                            
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-12"> 
-                                        <label for="input-label" class="form-label">Ocorrência</label> 
-                                        <input type="text" name="occurrence" class="form-control form-input"> 
-                                    </div>
-                                  
-                                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
-                                        <label for="input-label" class="form-label">Data Ocorrência</label> 
-                                        <input type="date" name="date_occurrence" class="form-control form-input" > 
-                                    </div>
-                                </div>
-                                <br>
-                                <div class="row">
-                                    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12"> 
-                                        <label for="input-label" class="form-label">Unidade</label> 
-                                        <select name="unit" class="form-input"></select>
-                                  
-                                    </div>
-                                    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12"> 
-                                        <label for="input-label" class="form-label">Origem</label> 
-                                        <select name="origin" class="form-input"></select>
-                                  
-                                    </div>
-                                    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12"> 
-                                        <label for="input-label" class="form-label">Tipo</label> 
-                                        <select name="types" class="form-input"></select>
-                                  
-                                    </div>
-                                    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12"> 
-                                        <label for="input-label" class="form-label">Aprovação</label> 
-                                        <select name="approval" class="form-input"></select>
-                                  
-                                    </div>
-                                  
-                                </div>
-                                <br>
-                                <div class="row">
-                                    <div class="col-12"> 
-                                        <label for="input-label" class="form-label">Responsáveis</label> 
-                                        <select name="occurrence_responsible" multiple class="form-input "></select>
-                                  
-                                    </div>
-                                </div>
-                                <br>
-                                <div class="row">
-                                    <div class="col-12"> 
-                                        <label for="input-label" class="form-label">Descrição</label> 
-                                        <textarea name="description" class="form-control form-input"cols="30" rows="10"></textarea>
-                                  
-                                    </div>
-                                </div>
-                               
+                           
+                                        <div class="row listCam">
+                                            
+                                        </div>
+                            
                              
                             </div>
-                         
                         </div>
-                       
-                        <div class="card custom-card">
-                            <div class="card-header justify-content-between">
-                                <div class="card-title"> Identificação das causas (5 porquês) </div>
-                                <div class="d-flex">
-                                    <button class="btn btn-sm btn-primary btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#modalCause"><i class="ri-add-line fw-semibold align-middle me-1"></i> Adicionar <b>causa</b></button>
-                                    <!-- Start::add task modal -->
-                                    <!-- End::add task modal -->
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="table_reasons" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="min-width: 10px;width: 10px">#</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Causa</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                      <!-- <tr>
-                                                        <td>1º PORQUÊ?</td>
-                                                        <td>Primeira causa descrita </td>
-                                                      </tr>
-                                                      <tr>
-                                                        <td>2º PORQUÊ?</td>
-                                                        <td>Segunda causa descrita </td>
-                                                      </tr> -->
-                                                    </tbody>
-                                                
-                                                </table>
-                                            </div>
-                                        </div>
-                            
-                              
-                                </div>
-                                <br>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <label for="input-label" class="form-label">Causa raiz</label> 
-                                        <textarea name="occurrence_responsible" class="form-input form-control" cols="30" rows="5"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                           
-                       
-                        </div>
-
-                        <div class="card custom-card">
-                            <div class="card-header justify-content-between">
-                                <div class="card-title"> Ação corretiva </div>
-                                <div class="d-flex">
-                                    <button class="btn btn-sm btn-primary btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#modalActions"><i class="ri-add-line fw-semibold align-middle me-1"></i> Adicionar <b>ação corretiva</b></button>
-                                    <!-- Start::add task modal -->
-                                    <!-- End::add task modal -->
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="table_corrective" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 70px;">N°</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Ação</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Responsável</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 110px;">Prazo</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Status</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <!-- <tr>
-                                                            <td>1</td>
-                                                            <td>Incluir informação nos procedimentos operacionais de cópia não controlada</td>
-                                                            <td>Alexandra</td>
-                                                            <td>
-                                                                <span class="icon-text-align">
-                                                                    <i class="las la-calendar-alt fs-5"></i> 27/03/2024
-                                                                </span>
-                                                            </td>
-                                                            <td><span class="badge bg-outline-warning">Pendente</span></td>
-                                                        </tr> -->
-                                                    </tbody>
-                                                
-                                                </table>
-                                            </div>
-                                        </div>
-                            
-                              
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card custom-card">
-                            <div class="card-header justify-content-between">
-                                <div class="card-title"> Ação preventiva </div>
-                                <div class="d-flex">
-                                    <button class="btn btn-sm btn-primary btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#modalPreventive"><i class="ri-add-line fw-semibold align-middle me-1"></i> Adicionar <b>ação preventiva</b></button>
-                                    <!-- Start::add task modal -->
-                                    <!-- End::add task modal -->
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="table_preventive" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 70px;">N°</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Ação</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Responsável</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 110px;">Prazo</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Status</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <!-- <tr>
-                                                            <td>1</td>
-                                                            <td>Incluir informação nos procedimentos operacionais de cópia não controlada</td>
-                                                            <td>Alexandra</td>
-                                                            <td>
-                                                                <span class="icon-text-align">
-                                                                    <i class="las la-calendar-alt fs-5"></i> 27/03/2024
-                                                                </span>
-                                                            </td>
-                                                            <td><span class="badge bg-outline-warning">Pendente</span></td>
-                                                        </tr> -->
-                                                    </tbody>
-                                                
-                                                </table>
-                                            </div>
-                                        </div>
-                            
-                              
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row" >
-                            <div class="col-12">
-                                <button style="width: 100%;" class="btn btn-primary" onclick="getValuesOccurrence(this)">Registrar</button>
-
-                            </div>
-                        </div>
-                        <br>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        
-        <div class="modal fade" id="modalActions" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar Ação Imediata</h6>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body"> 
-                       <div class="row">
-                            <div class="col-6"> 
-                                <label for="input-label" class="form-label">Responsável</label> 
-                                <select name="action_responsible"></select>
-                            </div>  
-                            <div class="col-3"> 
-                               
-                            </div>  
-                            <div class="col-3"> 
-                                <label for="input-label" class="form-label">Prazo</label> 
-                                <input type="date" class="form-control" name="action_expiration"> 
-                            </div>  
-                       </div>  
-                       <br>
-                       <div class="row">
-                        <div class="col-12"> 
-                            <label for="input-label" class="form-label">Ação</label> 
-                            <textarea class="form-control" name="action_description" cols="30" rows="10"></textarea>
-                        </div> 
-                      
-                       </div>
-                       <br>
-                       <div class="row" >
-                        <div class="col-12">
-                            <button style="width: 100%;" class="btn btn-primary" onclick="addAction(this)">Cadastrar</button>
-
-                        </div>
-                    </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="modalPreventive" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar Ação Preventiva</h6>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body"> 
-                       <div class="row">
-                            <div class="col-6"> 
-                                <label for="input-label" class="form-label">Responsável</label> 
-                                <select name="Preventive_responsible"></select>
-                            </div>  
-                            <div class="col-3"> 
-                               
-                            </div>  
-                            <div class="col-3"> 
-                                <label for="input-label" class="form-label">Prazo</label> 
-                                <input type="date" class="form-control" name="Preventive_expiration"> 
-                            </div>  
-                       </div>  
-                       <br>
-                       <div class="row">
-                        <div class="col-12"> 
-                            <label for="input-label" class="form-label">Ação</label> 
-                            <textarea class="form-control" name="Preventive_description" cols="30" rows="10"></textarea>
-                        </div> 
-                      
-                       </div>
-                       <br>
-                       <div class="row" >
-                        <div class="col-12">
-                            <button style="width: 100%;" class="btn btn-primary" onclick="addPreventive(this)">Cadastrar</button>
-
-                        </div>
-                    </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="modalCause" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar identificação de causas (5 Porquês)</h6>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body"> 
-                       <div class="row">
-                        <div class="col-12"> 
-                            <label for="input-label" class="form-label">Causas</label> 
-                            <textarea class="form-control" name="reason" cols="30" rows="10"></textarea>
-                        </div> 
-                      
-                       </div>
-                       <br>
-                       <div class="row" >
-                        <div class="col-12">
-                            <button style="width: 100%;" class="btn btn-primary" onclick="addReason(this)">Cadastrar</button>
-
-                        </div>
-                    </div>
                     </div>
                 </div>
             </div>
@@ -990,7 +679,7 @@
 
 
 
-    <script src="./assets/js/new_occurrence.js"></script>
+    <script src="./assets/js/index.js"></script>
 
 
 

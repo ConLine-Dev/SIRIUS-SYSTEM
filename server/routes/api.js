@@ -4,6 +4,8 @@ const Users = require('./apiUsers');
 const apiDirectMailPricing = require('./apiDirectMailPricing');
 const administration_launches_adm = require('./administration_launches_adm');
 const api_non_compliance = require('./api-non-compliance');
+const api_user_headcargo = require('./api-user-headcargo');
+const api_headcargo = require('./api-headcargo');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -33,6 +35,12 @@ const setIO = (io) => {
 
     // Use as rotas do arquivo apiAppMonitor.js
     router.use('/system', apiSystem);
+
+     // Use as rotas do arquivo apiAppMonitor.js
+     router.use('/headcargo/user', api_user_headcargo);
+
+     // Use as rotas do arquivo apiAppMonitor.js
+     router.use('/headcargo/commission', api_headcargo);
   
     return router;
   };

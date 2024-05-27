@@ -1,0 +1,34 @@
+#loader2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--custom-white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+@media (min-width:576px) {
+    .file-manager-container .file-manager-navigation {
+        width: 100%;
+    }
+}
+
+.file-manager-container {
+    margin: 0 -10px;
+}
+.file-manager-container .files-main-nav {
+    max-height: 100vh;
+}
+
+.file-manager-container .file-manager-folders, .file-manager-container .file-manager-navigation, .file-manager-container .selected-file-details {
+    height: 100vh
+}
+
+
+.simplebar-wrapper{
+    margin-bottom: 41px;
+}

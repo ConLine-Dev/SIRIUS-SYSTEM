@@ -20,6 +20,7 @@
     "express": "^4.18.2",
     "mssql": "^10.0.2",
     "mysql2": "^3.6.1",
+    "node-rtsp-stream": "^0.0.9",
     "nodemailer": "^6.9.5",
     "nodemon": "^3.0.1",
     "socket.io": "^4.7.2"

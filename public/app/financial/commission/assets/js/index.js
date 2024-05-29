@@ -5,9 +5,66 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
     await loadAssets();
+    await eventsCliks();
+    await setDateDefaultFilter();
 
+    if(!tables['table_commission_commercial']){
+        tables['table_commission_commercial'] = $('#table_commission_commercial').DataTable({
+            // dom: 'Bfrtip',
+            layout: {
+                topStart: {
+                    buttons: [
+                        {
+                            text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Salvar Registro',
+                            className: 'btn btn-primary label-btn btn-table-custom',
+                            action: function (e, dt, node, config) {
+                                alert('Button activated');
+                            }
+                        }
+                    ]
+                }
+            },
+            paging: false,
+            scrollX: true,
+            scrollY: '60vh',
+            pageInfo: false,
+            bInfo:false,  
+            order: [[0, 'desc']],
+            language: {
+                searchPlaceholder: 'Pesquisar...',
+                sSearch: '',
+            },
+        })
+    }
+    
+
+  
     document.querySelector('#loader2').classList.add('d-none')
 })
+
+async function setDateDefaultFilter(){
+        // Função para formatar a data no formato YYYY-MM-DD
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Obter a data atual
+        const currentDate = new Date();
+
+        // Criar a data para o primeiro dia de janeiro do ano atual
+        const startOfYearDate = new Date(currentDate.getFullYear(), 0, 1);
+
+        // Formatar as datas
+        const formattedCurrentDate = formatDate(currentDate);
+        const formattedStartOfYearDate = formatDate(startOfYearDate);
+
+        // Preencher os inputs com as datas formatadas
+        document.getElementById('dataDe').value = formattedStartOfYearDate;
+        document.getElementById('dataAte').value = formattedCurrentDate;
+}
 
 async function loadAssets(){
  
@@ -112,15 +169,26 @@ async function selectUserComission(id, Name, typeText){
 
 async function submitCommission(){
      // Fazer a requisição à API
+    document.querySelector('#loader2').classList.remove('d-none')
     const filters = await getFilters();
-    console.log(filters)
     if(!filters){
         alert('Verifique os campos obrigatorios')
+        document.querySelector('#loader2').classList.add('d-none')
     }
 
 
+    const dados = await makeRequest(`/api/headcargo/commission/filterComission`,'POST', {filters: filters});
 
-     const dados = await makeRequest(`/api/headcargo/commission/filterComission`,'POST', {filters: filters});
+    const idvalue = listOfSales.value != '000' ? listOfSales : listOfInside
+    const typeSales = listOfSales.value != '000' ? 'Vendedor' : 'Inside'
+
+    const typeID = listOfSales.value != '000' ? 0 : 1 //0 VENDEDOR | 1 INSIDE
+
+    const selectedValue = idvalue.value;
+    const selectedText = idvalue.options[idvalue.selectedIndex].text;
+
+
+     await selectUserComission(selectedValue, selectedText, typeSales);
 
      document.querySelector('.total_profit').textContent = dados.valor_Estimado_total
 
@@ -134,13 +202,33 @@ async function submitCommission(){
         $('#table_commission_commercial').DataTable().destroy();
     }
 
+
     // Criar a nova tabela com os dados da API
-    $('#table_commission_commercial').DataTable({
-        dom: 'Bfrtip',
-        pageLength: 15,
+    tables['table_commission_commercial'] = $('#table_commission_commercial').DataTable({
+        // dom: 'Bfrtip',
+        layout: {
+            topStart: {
+                buttons: [
+                    {
+                        text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Salvar Registro',
+                        className: 'btn btn-primary label-btn btn-table-custom',
+                        action: async function (e, dt, node, config) {
+                            await createRegister(typeID, {de:filters.dataDe, ate: filters.dataAte})
+                        }
+                    }
+                ]
+            }
+        },
+        paging: false,
+        scrollX: true,
+        scrollY: '60vh',
+        pageInfo: false,
+        bInfo:false,  
+        // pageLength: 15,
         order: [[0, 'desc']],
         data: dados.data,
         columns: [
+            { data: 'check', "orderable": false},
             { data: 'modal' },
             { data: 'processo' },
             { data: 'abertura' },
@@ -159,7 +247,7 @@ async function submitCommission(){
             // Adicione mais colunas conforme necessário
         ],
         buttons: [
-            'excel', 'pdf', 'print'
+            // 'excel', 'pdf', 'print'
         ],
         language: {
             searchPlaceholder: 'Pesquisar...',
@@ -167,43 +255,12 @@ async function submitCommission(){
         },
     });
 
+    
+    document.querySelector('#loader2').classList.add('d-none')
 
 
 }
 
-async function generateTable() {
-    // Fazer a requisição à API
-    const dados = await makeRequest(`/api/launches_adm/getAllLaunches/`);
-
-    // Destruir a tabela existente, se houver
-    if ($.fn.DataTable.isDataTable('#table_commission_commercial')) {
-        $('#table_commission_commercial').DataTable().destroy();
-    }
-
-    // Criar a nova tabela com os dados da API
-    $('#table_commission_commercial').DataTable({
-        dom: 'Bfrtip',
-        pageLength: 15,
-        order: [[0, 'desc']],
-        data: dados.data,
-        // columns: [
-        //     { data: 'Data_Vencimento' },
-        //     { data: 'Situacao' },
-        //     { data: 'Historico_Resumo' },
-        //     { data: 'Pessoa' },
-        //     { data: 'Tipo_Transacao' },
-        //     { data: 'Valor' }
-        //     // Adicione mais colunas conforme necessário
-        // ],
-        buttons: [
-            'excel', 'pdf', 'print'
-        ],
-        language: {
-            searchPlaceholder: 'Pesquisar...',
-            sSearch: '',
-        },
-    });
-}
 
 async function loadSales() {
     // Fazer a requisição à API
@@ -230,7 +287,7 @@ async function loadSales() {
         if(this.value != '000'){
             const selectedValue = this.value;
             const selectedText = this.options[this.selectedIndex].text;
-            await selectUserComission(selectedValue, selectedText, 'Vendedor');
+            // await selectUserComission(selectedValue, selectedText, 'Vendedor');
     
             // Define o valor do outro select como '000' e dispara o evento 'change'
             $("#listOfInside").val('000').trigger('change');
@@ -263,7 +320,7 @@ async function loadInsideSales() {
         if(this.value != '000'){
             const selectedValue = this.value;
             const selectedText = this.options[this.selectedIndex].text;
-            await selectUserComission(selectedValue, selectedText, 'Inside');
+            // await selectUserComission(selectedValue, selectedText, 'Inside');
     
             // Define o valor do outro select como '000' e dispara o evento 'change'
             $("#listOfSales").val('000').trigger('change');
@@ -272,7 +329,45 @@ async function loadInsideSales() {
     });
 }
 
+async function createRegister(typeID, dateFilter){
+    const allProcessSelected = document.querySelectorAll('.selectCheckbox')
+    const processSelected = []
 
+    for (let index = 0; index < allProcessSelected.length; index++) {
+        const element = allProcessSelected[index];
+
+        if(element.checked){
+            processSelected.push(element.getAttribute('data-id'))
+        }
+          
+    }
+
+   
+
+
+
+    const dados = await makeRequest(`/api/headcargo/commission/createRegister`,'POST', {process: processSelected, type: typeID, dateFilter:dateFilter});
+    console.log(dados)
+
+    
+}
+
+async function eventsCliks(){
+    
+    // ESCUTA O EVENTO CLICK NO CHECKBOX DA TABELA PARA MARCAR TODOS OS PROCESSOS OU DESMARCAR
+    const selectAllCheckbox = document.querySelector('.selectAllCheckbox')
+    selectAllCheckbox.addEventListener('click', function(){
+        const all = this.checked
+
+        const allChecks = document.querySelectorAll('.selectCheckbox')
+        for (let index = 0; index < allChecks.length; index++) {
+            const element = allChecks[index];
+            element.checked = all
+            
+        }
+    })
+
+}
 
 
 function formatarNome(nome) {
@@ -309,3 +404,5 @@ function formatarNome(nome) {
     );
     return $state;
 };
+
+

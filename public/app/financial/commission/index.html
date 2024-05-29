@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Despesas Administrativas</title>
+    <title>Controle de Comissões</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
@@ -38,6 +38,7 @@
     <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.min.css">
 
     <!-- <link rel="stylesheet" href="../../assets/libs/quill/quill.snow.css">
     <link rel="stylesheet" href="../../assets/libs/quill/quill.bubble.css"> -->
@@ -525,7 +526,7 @@
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-icon btn-primary-light btn-wave waves-light waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="ri-settings-3-line"></i> </button>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="javascript:void(0);">Histórico</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0);">Todos Registros</a></li>
                                         <!-- <li><a class="dropdown-item" href="javascript:void(0);">Another action</a></li>
                                         <li><a class="dropdown-item" href="javascript:void(0);">Something else here</a></li> -->
                                     </ul>
@@ -704,7 +705,7 @@
                                       </div>
                                       <div class="flex-fill">
                                         <div class="d-flex mb-1 align-items-top justify-content-between">
-                                          <h5 class="fw-semibold mb-0 lh-1 nameComissionado">Adriani Silveira</h5>
+                                          <h5 class="fw-semibold mb-0 lh-1 nameComissionado">-</h5>
                                       
                                         </div>
                                         <p class="mb-0 fs-10 op-7 text-muted fw-semibold">COMISSIONADO <span class="typeComission"></span></p>
@@ -795,6 +796,9 @@
                                                 <table id="table_commission_commercial" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
                                                     <thead>
                                                         <tr>
+                                                            <th class="" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1"  style="width: 350px;">
+                                                                <input class="form-check-input me-2 selectAllCheckbox" id="selectAllChecked" type="checkbox" checked="">
+                                                            </th>
                                                             <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 350px;">Modal</th>
                                                             <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Processo</th>
                                                             <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Abertura</th>
@@ -961,17 +965,32 @@
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 
 
-    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.7/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.min.js"></script>
+
     <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+
+    <!-- <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script> -->
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.dataTables.js"></script>
+
     <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
     <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 
+    <!-- <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.dataTables.js"></script> -->
+
+
+
+    <script src="../../assets/js/real-time.js"></script>
 
     <script src="./assets/js/index.js"></script>
 

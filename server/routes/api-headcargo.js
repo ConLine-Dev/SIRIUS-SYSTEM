@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const path = require("path");
 const fs = require('fs');
-const { headcadgo } = require('../controllers/headCargo');
+const { headcargo } = require('../controllers/headCargo');
 
 
 
@@ -10,7 +10,7 @@ const { headcadgo } = require('../controllers/headCargo');
 //     const body = req.body;
 
 //     try {
-//         const result = await headcadgo.gerenateCommission(body);
+//         const result = await headcargo.gerenateCommission(body);
 
 //         res.status(200).json(result)
 //     } catch (error) {
@@ -20,11 +20,25 @@ const { headcadgo } = require('../controllers/headCargo');
 //     }
 // });
 
+router.post('/createRegister', async (req, res, next) => {
+    const {process, type, dateFilter} = req.body;
+
+    try {
+        const result = await headcargo.createRegisterComission(process, type, dateFilter);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+
+        res.status(404).json('Erro')   
+    }
+});
+
 router.post('/filterComission', async (req, res, next) => {
     const {filters} = req.body;
 
     try {
-        const result = await headcadgo.gerenateCommission(filters);
+        const result = await headcargo.gerenateCommission(filters);
 
         res.status(200).json(result)
     } catch (error) {

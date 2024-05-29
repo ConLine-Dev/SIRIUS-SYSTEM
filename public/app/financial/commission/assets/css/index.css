@@ -16,6 +16,13 @@
         width: 100%;
     }
 }
+.btn-table-custom{
+    padding-left: 40px !important;
+}
+
+.dt-search{
+    margin-bottom: 6px;
+}
 
 .file-manager-container {
     margin: 0 -10px;

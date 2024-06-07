@@ -1,3 +1,7 @@
+// Verifica o localStorage para alterar a mensagem de boas vindas
+const StorageGoogleData = localStorage.getItem('StorageGoogle');
+const StorageGoogle = JSON.parse(StorageGoogleData);
+
 document.addEventListener("DOMContentLoaded", async () => {
   
     // await generateTable();
@@ -73,7 +77,6 @@ async function loadAssets(){
     
 }
 
-
 async function getFilters(){
 
     // Selecionar todos os elementos checkbox com a classe 'recebimento'
@@ -147,7 +150,6 @@ async function getFilters(){
     return filters;
 }
 
-
 async function selectUserComission(id, Name, typeText){
     var img = document.querySelector('.imgComissionado');
     var name = document.querySelector('.nameComissionado');
@@ -165,7 +167,6 @@ async function selectUserComission(id, Name, typeText){
 
 
 }
-
 
 async function submitCommission(){
      // Fazer a requisição à API
@@ -186,6 +187,14 @@ async function submitCommission(){
 
     const selectedValue = idvalue.value;
     const selectedText = idvalue.options[idvalue.selectedIndex].text;
+
+    const user = {
+        name: selectedText,
+        id: selectedValue,
+        type: typeID,
+        userLog: StorageGoogle.system_userID,
+        collabId: StorageGoogle.system_collaborator_id
+    }
 
 
      await selectUserComission(selectedValue, selectedText, typeSales);
@@ -213,7 +222,7 @@ async function submitCommission(){
                         text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Salvar Registro',
                         className: 'btn btn-primary label-btn btn-table-custom',
                         action: async function (e, dt, node, config) {
-                            await createRegister(typeID, {de:filters.dataDe, ate: filters.dataAte})
+                            await createRegister(typeID, {de:filters.dataDe, ate: filters.dataAte}, user)
                         }
                     }
                 ]
@@ -260,7 +269,6 @@ async function submitCommission(){
 
 
 }
-
 
 async function loadSales() {
     // Fazer a requisição à API
@@ -329,7 +337,7 @@ async function loadInsideSales() {
     });
 }
 
-async function createRegister(typeID, dateFilter){
+async function createRegister(typeID, dateFilter, user){
     const allProcessSelected = document.querySelectorAll('.selectCheckbox')
     const processSelected = []
 
@@ -346,7 +354,7 @@ async function createRegister(typeID, dateFilter){
 
 
 
-    const dados = await makeRequest(`/api/headcargo/commission/createRegister`,'POST', {process: processSelected, type: typeID, dateFilter:dateFilter});
+    const dados = await makeRequest(`/api/headcargo/commission/createRegister`,'POST', {process: processSelected, type: typeID, dateFilter:dateFilter, user});
     console.log(dados)
 
     
@@ -369,7 +377,6 @@ async function eventsCliks(){
 
 }
 
-
 function formatarNome(nome) {
     const preposicoes = new Set(["de", "do", "da", "dos", "das"]);
     const palavras = nome.split(" ");
@@ -385,7 +392,6 @@ function formatarNome(nome) {
     
     return palavrasFormatadas.join(" ");
 }
-
  /* templating */
  function formatState(state) {
     if (!state.id) {

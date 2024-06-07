@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const { executeQuerySQL } = require('../connect/sqlServer');
+const { executeQuery } = require('../connect/mysql');
 
 
 const headcargo = {
@@ -16,7 +17,7 @@ const headcargo = {
         const recebimento = `AND RecebimentoCodigo IN (${(value.recebimento).join(',')})`;
         const pagamento = `AND PagamentoCodigo IN (${(value.recebimento).join(',')})`;
         
-        const Abertura_Processo = `AND (CAST(Abertura_Processo AS DATE) >= '${value.dataDe}' AND CAST(Abertura_Processo AS DATE) <= '${value.dataAte}')`;
+        const Abertura_Processo = `AND (CAST(Data_Compensacao AS DATE) >= '${value.dataDe}' AND CAST(Data_Compensacao AS DATE) <= '${value.dataAte}')`;
 
         
         
@@ -103,7 +104,7 @@ const headcargo = {
                 Exp.Nome AS Exportador,
                 Imp.Nome AS Importador,
                 
-                COALESCE(Lhs.Comissao_VENDedor_Pago, 0) AS Comissao_Vendedor_Pago,
+                COALESCE(Lhs.Comissao_Vendedor_Pago, 0) AS Comissao_Vendedor_Pago,
                 COALESCE(Lhs.Comissao_Inside_Sales_Pago, 0) AS Comissao_Inside_Sales_Pago,
                 
                 CASE Lhs.Situacao_Agenciamento
@@ -252,6 +253,7 @@ const headcargo = {
         ${recebimento}
         ${Abertura_Processo}
         `
+
         const commissions = await executeQuerySQL(sql)
 
 
@@ -269,10 +271,10 @@ const headcargo = {
             'importador': headcargo.formatarNome(item.Importador),
             'exportador': headcargo.formatarNome(item.Exportador),
             'comissao_vendedor': item.Comissao_Vendedor_Pago == 0 ? 'Pendente' : 'Pago',
-            'comissao_inside': item.Comissao_Insade_Sales_Pago == 0 ? 'Pendente' : 'Pago',
+            'comissao_inside': item.Comissao_Inside_Sales_Pago == 0 ? 'Pendente' : 'Pago',
             'estimado': (item.Valor_Estimado || 0).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
             'efetivo': (item.Valor_Efetivo || 0).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
-            'restante': (item.Valor_Efetivo || 0 - item.Valor_Estimado || 0).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+            'restante': ((item.Valor_Efetivo || 0) - (item.Valor_Estimado || 0)).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
         }));
 
         let valor_Estimado_total = 0
@@ -294,21 +296,256 @@ const headcargo = {
         return format;
   
     },
-    createRegisterComission: async function(processList, type, dateFilter){
+    createRegisterComission: async function(processList, type, dateFilter, user){
+         
+
         // Convertendo o array original em uma string de números sequenciais separados por vírgulas
-        const resultConcat = processList.map((_, index) => index + 1).join(',');     
+        const resultConcat = processList.map((index) => index).join(',');     
        
         const infoProcess = await headcargo.getAllProcessToReference(resultConcat);
 
-        const templateHTML =  await headcargo.createHTMLComission(infoProcess, type, dateFilter)
-        // console.log(templateHTML)
+        await headcargo.registerDBComission(infoProcess, user)
+        // const templateHTML =  await headcargo.createTableComission(infoProcess, type, dateFilter, user)
+   
+        // const createBody = await headcargo.createBodyHTMLComission('00000', templateHTML.title, templateHTML.html, 'Petryck William', templateHTML.filterDates, templateHTML)
 
-        headcargo.sendEmailComission(templateHTML.subject, templateHTML.html)
+        // const register = await headcargo.registerDBComission(infoProcess);
+
+        // const sendmail = await headcargo.sendEmailComission(templateHTML.subject, createBody)
+
+        // return sendmail;
+
+    },
+    registerDBComission: async function(process, user){
+        const commissioned_type = user.type == 0 ? 1 : 2
+        const userLogId = user.userLog;
+        const currentYear = new Date().getFullYear() % 100;
+
+        const getLastQuantity = await executeQuery(`SELECT reference FROM commission_reference ORDER BY id DESC LIMIT 1`)
+        let lastQuantity = 1
+        if(getLastQuantity.length > 0){
+       
+            const lastReference = getLastQuantity[0].reference;
+     
+            const lastYear = parseInt(lastReference.substring(lastReference.length - 2));
+        
+            if (lastYear === currentYear) {
+              lastQuantity = parseInt(lastReference.substring(3, 7)) + 1;
+            } 
+        }
+
+        const reference = `CMS${lastQuantity.toString().padStart(4, '0')}-${currentYear}`;
+
+
+
+        const result = await executeQuery(`INSERT INTO commission_reference (reference, date, commissioned_type, by_user, user) VALUES ('${reference}', '${headcargo.getFormattedDate()}', ${commissioned_type}, ${userLogId}, ${user.id})`)
+        const idReferenci = result.insertId;
+
+     
+        const resultadosFormatados = await Promise.all(process.map(async function(item) {
+          const percentagemResult = await headcargo.getPercentagemComissionByHeadID(user.id, commissioned_type, item.Valor_Efetivo);
+          
+          let percentagem = 0;
+          if (percentagemResult.status) {
+              percentagem = percentagemResult.percentage;
+          }
+
+          
+      
+          return [
+              parseInt(idReferenci),
+              parseInt(item.IdLogistica_House),
+              item.Numero_Processo,
+              item.Modalidade,
+              parseInt(item.IdVendedor),
+              parseInt(item.IdInside_Sales),
+              item.Valor_Efetivo,
+              percentagem, // row.percentage,
+              item.Valor_Efetivo * (percentagem / 100), // row.commission,
+              headcargo.getFormattedDate(),
+              null, // row.date_status,
+              userLogId, // row.by_user,
+              null // row.audited
+          ];
+      }));
+
+    
+    
+        const sql = `INSERT INTO commission_history (
+          reference, id_process, reference_process, modal, id_seller, id_inside, 
+          effective, percentage, commission,create_date, date_status, by_user, audited
+        ) VALUES ?`;
+        
+        await executeQuery(sql, [resultadosFormatados]);
+
 
 
     },
-    createHTMLComission: async function(processList, type, dateFilter){
+    createBodyHTMLComission: async function(codigo, title,processos, responsavel, filterDates, alltable){
 
+        const body = `<center style="width: 100%; table-layout: fixed;">
+        <div style="background-color: #f8f9fa; width: 100%; max-width: 800px; margin: 0 auto;">
+          <table class="m_-284055676835661507container" style="max-width: 800px; width: 800px; word-break: break-word; margin: 0 auto;" role="presentation" border="0" width="600" cellspacing="0" cellpadding="0" align="center" bgcolor="#FFFFFF">
+            <tbody>
+              <tr>
+                <td id="m_-284055676835661507moduleContainer" style="background-color: #ffffff;" align="center" valign="top" bgcolor="#ffffff">
+                  <table id="m_-284055676835661507headerLogoCTAModulefea5f133-4261-4101-ace3-f19e2be0486d" style="max-width: 800px; width: 100%; background: #f8f9fa;" role="presentation" border="0" width="600" cellspacing="0" cellpadding="0" align="center">
+                    <tbody>
+                      <tr>
+                        <td id="m_-284055676835661507header-Logo-cta0a4e22de-622c-4c98-9dc7-25eb34d738f0" class="m_-284055676835661507header" dir="ltr" style="padding: 24px 24px 24px 30px;" valign="top">
+                          <table style="max-width: 800px; width: 100%;" role="presentation" border="0" width="600" cellspacing="0" cellpadding="0" align="left">
+                            <tbody>
+                              <tr>
+                                <td class="m_-284055676835661507width50 m_-284055676835661507pad-l0" style="font-family: 'Google Sans', 'Noto Sans JP', Arial, sans-serif; padding-left: 20px; font-size: 14px; vertical-align: middle; width: 99.6283%; text-align: right;" align="left" valign="middle" width="300">
+                                  <p>
+                                    <img class="m_-284055676835661507logo m_-284055676835661507no-arrow CToWUd" style="float: left;" src="https://conlinebr.com.br/assets/img/logosirius_preta.png" alt="Google Cloud" width="154" height="61" /><p> ${responsavel} </p>
+                                  </p>
+                                  <p>Referencia: ${codigo} </p>
+                                  <p>${filterDates}</p>
+                                </td>
+                               
+                                <td class="m_-284055676835661507showMobileHeaderCTA" style="font-family: 'Google Sans', 'Noto Sans JP', Arial, sans-serif; font-size: 14px; vertical-align: middle; width: 55.7621%; text-align: right; display: none;" align="right" valign="middle" width="300">
+                                  <table role="presentation" border="0" cellspacing="0" cellpadding="0" align="right">
+                                    <tbody>
+                                      <tr>
+                                        <td dir="ltr" style="border-radius: 4px;" align="right" bgcolor="#1a73e8">
+                                          <a class="m_-284055676835661507whiteText" style="font-family: 'Google Sans','Noto Sans JP',Arial,sans-serif; color: #ffffff; text-decoration: none; font-size: 14px; letter-spacing: 1px; font-weight: bold; border-radius: 4px; border: 1px solid #1a73e8; margin: 0; padding: 14px 16px 14px 16px; display: inline-block;" href="https://go.cloudplatformonline.com/ODA4LUdKVy0zMTQAAAGFu64YaFlB_CTrqKZdd6nw54VKpoijqn9z6z0Iu0R9XB3LClbCbQUq9KfEltcl-sGBc-Vrseo=" target="_blank" data-saferedirecturl="https://www.google.com/url?q=https://go.cloudplatformonline.com/ODA4LUdKVy0zMTQAAAGFu64YaFlB_CTrqKZdd6nw54VKpoijqn9z6z0Iu0R9XB3LClbCbQUq9KfEltcl-sGBc-Vrseo%3D&amp;source=gmail&amp;ust=1658425432932000&amp;usg=AOvVaw0E7TcrfN_UKeM4UpxY7Zhq">Baixe agora</a>
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  
+               
+                  <table id="m_-284055676835661507bodyCopyModule" style="max-width: 800px; width: 100%;" role="presentation" border="0" width="600" cellspacing="0" cellpadding="0" align="center">
+                    <tbody>
+                      <tr>
+                        <td class="m_-284055676835661507inner-container" dir="ltr" style="padding: 0px 0px 0px 0px;" valign="top">
+                          <p id="m_-284055676835661507bodyCopy" style="font-family: 'Google Sans Text&rsquo;,&rsquo;Noto Sans JP',Arial,sans-serif; font-size: 14px; line-height: 24px; color: #5f6368; margin: 0; padding: 0; text-align: left;">
+                            ${title}
+                          </p>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+    
+                  <table id="m_-284055676835661507bodyCopyModule" style="max-width: 800px; width: 100%;" role="presentation" border="0" width="600" cellspacing="0" cellpadding="0" align="center">
+                    <tbody>
+                      <tr>
+                        <td class="m_-284055676835661507inner-container" dir="ltr" style="padding: 8px 50px 8px 50px;" valign="top">
+                          <p id="m_-284055676835661507bodyCopy" style="font-family: 'Google Sans Text&rsquo;,&rsquo;Noto Sans JP',Arial,sans-serif; font-size: 14px; line-height: 24px; color: #5f6368; margin: 0; padding: 0; text-align: left;">
+                            ${processos}
+                          </p>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+    
+                  
+              
+                  <br />
+                  <table id="m_-284055676835661507footerModule" style="max-width: 800px; width: 100%; background: #f8f9fa;" role="presentation" border="0" width="600" cellspacing="0" cellpadding="0" align="center">
+                    <tbody>
+                      <tr>
+                        <td class="m_-284055676835661507inner-container" style="padding: 40px 50px 0 50px;" valign="top">
+                          <table style="max-width: 800px; width: 100%;" role="presentation" border="0" width="600" cellspacing="0" cellpadding="0" <tbody>
+                            <tr>
+                              <td>
+                                <table style="width: 100%;" role="presentation" border="0" cellspacing="0" cellpadding="0">
+                                  <tbody>
+                                    <tr>
+                                      <td dir="ltr" style="padding-bottom: 16px;" align="left">
+                                        <table style="width: 100%;" role="presentation" border="0" width="100%" cellspacing="0" cellpadding="0">
+                                          <tbody>
+                                            <tr>
+                                              <td dir="ltr" style="vertical-align: middle;" align="left" valign="middle">
+                                                <img id="m_-284055676835661507footerLogo" class="m_-284055676835661507no-arrow CToWUd" style="width: 109px; display: block; margin: 0px; border: none;" src="https://conlinebr.com.br/logosirius_preta.png" alt="Google Cloud" width="140" height="43" />
+                                              </td>
+                                              <td dir="ltr" style="vertical-align: middle; display: none!important;" align="right" valign="middle">
+                                                <img id="m_-284055676835661507footerIcons" class="m_-284055676835661507no-arrow CToWUd" style="width: 137px; display: none!important; margin: 0; border: none;" src="https://conlinebr.com.br/logosirius_preta.png" width="137" />
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td dir="ltr" style="font-family: 'Google Sans Text&rsquo;,&rsquo;Noto Sans JP',Arial,sans-serif; font-size: 12px; font-weight: 400; line-height: 18px; color: #5f6368; margin: 0; padding: 0; text-align: left; padding-bottom: 18px;">
+                                        <div id="m_-284055676835661507footer-copyright-address">&copy; 2024 SiriusOS</div>
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </td>
+                            </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td class="m_-284055676835661507inner-container m_-284055676835661507social-container" style="padding: 0 50px 40px 35px;" valign="top">
+                  <table style="max-width: 800px; width: 100%;" role="presentation" border="0" width="600" cellspacing="0" cellpadding="0">
+                    <tbody>
+                      <tr>
+                        <td>
+                          <table style="width: 100%;" role="presentation" border="0" cellspacing="0" cellpadding="0">
+                            <tbody>
+                              <tr>
+                                <td align="left">
+                                  <div id="m_-284055676835661507footerlinks">
+                                    <table style="width: auto;" role="presentation" border="0" cellspacing="0" cellpadding="0">
+                                      <tbody>
+                                        <tr>
+                                          <td style="width: 48px; font-family: 'Roboto',Arial,sans-serif;" width="48">
+                                            <img class="CToWUd" style="height: 48px;" src="https://ci3.googleusercontent.com/proxy/Ocfa0OsbBWMHgEVhCXF-bJGFcmjvAkiFsEYOTxWqnt3zTERwMJ2y6Z1Gi09_bVpTaDZgOa1QIuOv-qIR4pbCfbeBMJxgCIvYEVwg7-g5xARbyNVS2PVVR2U=s0-d-e1-ft#https://lp.cloudplatformonline.com/rs/808-GJW-314/images/blog-a11y.png" alt="Blog" height="48" border="0" />
+                                          </td>
+                                          <td style="width: 48px; padding-left: 10px; font-family: 'Roboto',Arial,sans-serif;" width="48">
+                                            <img class="CToWUd" style="height: 48px;" src="https://ci5.googleusercontent.com/proxy/zYjPz8Z0RjuUpt9yF9HxxmDZo9_ACAJisQtVqZ7PpbcBOg8s0-qL678khRAjBHXR7JKFkUqhKxVagOdOIyU5RNH1Nq6dcI1LOZBDgZw8CjcFLvPKtIR3ryPe5g=s0-d-e1-ft#https://lp.cloudplatformonline.com/rs/808-GJW-314/images/github-a11y.png" alt="GitHub" height="48" border="0" />
+                                          </td>
+                                          <td style="width: 48px; padding-left: 10px; font-family: 'Roboto',Arial,sans-serif;" width="48">
+                                            <img class="CToWUd" style="height: 48px;" src="https://ci5.googleusercontent.com/proxy/P4-kMwIH20UTWoMxQXfuxS8bDbU4p1VpRUfQRv2lniW3lDiHdFR9bT8kp4XSx0jwuXRDahWAWYkSFDICDtRkizBCm_40dhv5jwaKogi2Rsq5yYrqR_Jn3377Thka=s0-d-e1-ft#https://lp.cloudplatformonline.com/rs/808-GJW-314/images/linkedin-a11y.png" alt="LinkedIn" height="48" border="0" />
+                                          </td>
+                                          <td style="width: 48px; padding-left: 10px; font-family: 'Roboto',Arial,sans-serif;" width="48">
+                                            <img class="CToWUd" style="height: 48px;" src="https://ci3.googleusercontent.com/proxy/RQaprs5bsnsypbF1Fk8FuGt0sK_SVYFedXHINuCu6LE8dC4lMjED0K_gEZReT8X1dHGaajLqlH7SbEdyN_kdJGF-qCO55wFB8xnX-pjwXhB93LFjMPMcZKyKcf8=s0-d-e1-ft#https://lp.cloudplatformonline.com/rs/808-GJW-314/images/twitter-a11y.png" alt="Twitter" height="48" border="0" />
+                                          </td>
+                                          <td style="width: 48px; padding-left: 10px; font-family: 'Roboto',Arial,sans-serif;" width="48">
+                                            <img class="CToWUd" style="height: 48px;" src="https://ci6.googleusercontent.com/proxy/fDUrH2Y9sy86_A6NCrvXTHsY7et3rBY5y9YARJ1pYcLpO4BZufjHoHYor-OrgtRVhP9fbjrplysF_xCiNGd-Zb6SugBhXYkyquMPNGNMPnkCCkzU2PkikQbH_sGn=s0-d-e1-ft#https://lp.cloudplatformonline.com/rs/808-GJW-314/images/facebook-a11y.png" alt="Facebook" height="48" border="0" />
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          </td>
+          </tr>
+          </tbody>
+          </table>
+        </div>
+      </center>`
+
+      return body;
+    },
+    createTableComission: async function(processList, type, dateFilter, user){
+      const commissioned_type = type == 0 ? 1 : 2
         // assunto do email
         const assunto = `[ConLine]- Pagamento Comissões`;
 
@@ -316,13 +553,11 @@ const headcargo = {
         const new_data_de = headcargo.formatDate(dateFilter.de)
         const new_data_ate = headcargo.formatDate(dateFilter.ate)
 
+        
+
 
 
         let Row_process = `
-            Olá, segue processos para pagamento de comissão <strong>${type == 0 ? 'Vendedor' : 'Inside'}</strong>.
-            <br> 
-            De: <strong> ${new_data_de}</strong> Até: <strong> ${new_data_ate}</strong>
-            <br> O calculo de comissão é calculado com base no <strong>lucro estimado</strong> pois o efetivo é dinamico
             <tr>
                 <td style="border-color:black;border-style:solid;border-width:1px;font-weight: 900;text-align: center">REFERENCIA</td>
                 <td style="border-color:black;border-style:solid;border-width:1px;font-weight: 900;text-align: center">CLIENTE</td>
@@ -330,18 +565,23 @@ const headcargo = {
                 <td style="border-color:black;border-style:solid;border-width:1px;font-weight: 900;text-align: center">INSIDE</td>
                 <td style="border-color:black;border-style:solid;border-width:1px;font-weight: 900;text-align: center">ESTIMADO</td>
                 <td style="border-color:black;border-style:solid;border-width:1px;font-weight: 900;text-align: center">EFETIVO</td>
-                <td style="border-color:black;border-style:solid;border-width:1px;font-weight: 900;text-align: center">%</td>
-                <td style="border-color:black;border-style:solid;border-width:1px;font-weight: 900;text-align: center">COMISSÃO</td>
             </tr>`;
 
         let total_efetivo = 0
         let total_estimado = 0
-
+        let total_comissao = 0
         for (let index = 0; index < processList.length; index++) {
             const e = processList[index];
-            total_efetivo += e.Valor_Efetivo
-            total_estimado += e.Valor_Estimado
+            total_efetivo += e.Valor_Efetivo;
+            total_estimado += e.Valor_Estimado;
+            
+            let comissaoAplicada = false;
+            let comissao_processo = 0;
+            let comissao_porcentagem = 0;
+           
 
+      
+        
             Row_process += `
             <tr>
                 <td style="border-color:black;border-style:solid;border-width:1px;white-space: nowrap;">${e.Numero_Processo}</td>
@@ -349,15 +589,65 @@ const headcargo = {
                 <td style="border-color:black;border-style:solid;border-width:1px;white-space: nowrap;padding: 8px;">${e.Vendedor == '' || e.Vendedor == null ? 'Sem Seleção' : headcargo.formatarNome(e.Vendedor)}</td>
                 <td style="border-color:black;border-style:solid;border-width:1px;white-space: nowrap;padding: 8px;">${e.Inside_Sales == '' || e.Inside_Sales == null ? 'Sem Seleção' : headcargo.formatarNome(e.Inside_Sales)}</td>
                 <td style="border-color:black;border-style:solid;border-width:1px;text-align: right;white-space: nowrap;">${e.Valor_Estimado.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</td>
-                <td style="border-color:black;border-style:solid;border-width:1px;text-align: right;white-space: nowrap;">${e.Valor_Efetivo.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</td>
-                <td style="border-color:black;border-style:solid;border-width:1px;text-align: center;white-space: nowrap;padding: 8px;">%</td>
-                <td style="border-color:black;border-style:solid;border-width:1px;text-align: right;white-space: nowrap;padding: 8px;"><strong>${e.Valor_Estimado.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</strong></td>
+                <td style="border-color:black;border-style:solid;border-width:1px;text-align: right;white-space: nowrap;">${e.Valor_Efetivo.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</td>1
             </tr>`;
             
         }
-        console.log(processList)
+
+        const filterDates = `<strong> ${new_data_de}</strong> Até <strong> ${new_data_ate}</strong>`
+
+        const header = `<div style="display: flex;height: 96px; max-width: 809px; justify-content: space-around; margin: 0px;">
+        <div style="margin: 5px;background-color: #f8f9fa; padding: 5px; border-radius: 0 0 0 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 271px;">
+        
+            <div style="display: flex; align-items: center; justify-content: center;">
+            
+                <div style="width: 40px; height: 40px; border-radius: 50%; background-color: #ff4d4d; margin-right: 10px;margin-top: 7px;background-image: url(https://cdn.conlinebr.com.br/colaboradores/${user.id});background-position: center center;background-size: cover;">
+                
+                </div>
+       
+    
+                <h2 style="margin-bottom: 0px;">${user.name}</h2>
+            </div>
+            
+                <p style="font-size: 12px; color: #666;">Comissionado [${type == 0 ? 'Vendedor' : 'Inside'}]</p>
+        </div>
+       
+        
+        <div style="margin: 5px;background-color: #f8f9fa; padding: 5px; border-radius: 0 0 0 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 200px;">
+            <h2 style="margin-bottom: 10px;">${total_estimado.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</h2>
+            <p style="font-size: 12px; color: #666;">Lucro de Processos</p>
+        </div>
+        
+        <div style="margin: 5px;background-color: #f8f9fa; padding: 5px; border-radius: 0 0 0 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 200px;">
+            <h2 style="margin-bottom: 10px;">${total_comissao.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</h2>
+            <p style="font-size: 12px; color: #666;">Comissão</p>
+        </div>
+        
+        
+        <div style="margin: 5px;background-color: #f8f9fa; padding: 5px; border-radius: 0 0 10px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 200px;">
+            <h2 style="margin-bottom: 10px;">${processList.length}</h2>
+            <p style="font-size: 12px; color: #666;">Processos</p>
+        </div>
+    
+    </div>`
+
+        let title = `
+        ${header}
+        <div style="font-size: 10px;padding: 0 10px 0 10px;"> 
+            Atenção o filtro de data é com base na data de compensação, Exportação: <strong>Data Embarque</strong> ou <strong>Previsao de Embarque</strong> 
+            e 
+            Importação: <strong>Data Desembarque</strong> ou <strong>Previsao de Desembarque</strong>
+            <br> 
+            O cálculo de comissão é calculado com base no <strong>lucro estimado</strong> pois o efetivo é dinâmico.
+        </div>`
+
+
+        // console.log(processList)
 
         return {
+            total_comissao:total_comissao,
+            filterDates:filterDates,
+            title:title,
             subject:assunto,
             html:Row_process,
             total_efetivo:total_efetivo,
@@ -392,13 +682,19 @@ const headcargo = {
         };
 
         // Envia o e-mail para o destinatário atual
-        transporter.sendMail(mailOptions, async (error, info) => {
+        const sendmail = transporter.sendMail(mailOptions, async (error, info) => {
             if (!error) {
                 console.log('email enviado com sucesso')
+
+                return true
             }else{
+
                 console.log(error)
+                return false;
             }
         })
+
+        return sendmail;
 
 
     },
@@ -629,10 +925,65 @@ const headcargo = {
         WHERE
         IdLogistica_House IN (${listProcess})`
 
-
         const result = await executeQuerySQL(sql)
 
         return result
+    },
+    getPercentagemComissionByHeadID: async function(id, type, value) {
+      // Consulta principal
+      let sql = `SELECT * FROM collaborators collab
+                JOIN commission_percentage cmp ON collab.id = cmp.id_collaborators
+                WHERE collab.id_headcargo = ${id}
+                AND cmp.type = ${type}
+                AND ${value} BETWEEN cmp.value_min AND cmp.value_max`;
+
+      let result = await executeQuery(sql);
+
+      if (result.length > 0) {
+          return {
+              status: true,
+              percentage: result[0].percentage
+          };
+      }
+
+      // Consulta para valor menor que o mínimo
+      sql = `SELECT * FROM collaborators collab
+            JOIN commission_percentage cmp ON collab.id = cmp.id_collaborators
+            WHERE collab.id_headcargo = ${id}
+            AND cmp.type = ${type}
+            ORDER BY cmp.value_min ASC
+            LIMIT 1`;
+
+      result = await executeQuery(sql);
+
+      if (result.length > 0 && value < result[0].value_min) {
+          return {
+              status: true,
+              percentage: result[0].percentage
+          };
+      }
+
+      // Consulta para valor maior que o máximo
+      sql = `SELECT * FROM collaborators collab
+            JOIN commission_percentage cmp ON collab.id = cmp.id_collaborators
+            WHERE collab.id_headcargo = ${id}
+            AND cmp.type = ${type}
+            ORDER BY cmp.value_max DESC
+            LIMIT 1`;
+
+      result = await executeQuery(sql);
+
+      if (result.length > 0 && value > result[0].value_max) {
+          return {
+              status: true,
+              percentage: result[0].percentage
+          };
+      }
+
+        // Se nenhuma condição foi atendida
+        return {
+            status: false
+        };
     },
     formatarNome: function(nome) {
         const preposicoes = new Set(["de", "do", "da", "dos", "das"]);
@@ -666,6 +1017,19 @@ const headcargo = {
     const month = String(date.getMonth() + 1).padStart(2, '0'); // Garante que o mês tenha dois dígitos
     const year = date.getFullYear(); // Obtém o ano
     return `${day}/${month}/${year}`; // Retorna a data formatada
+    },
+    getFormattedDate: function(){
+      const date = new Date();
+    
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // meses começam de 0 a 11, então adicionamos 1
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     }
 }
 

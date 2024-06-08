@@ -6,6 +6,10 @@ const administration_launches_adm = require('./administration_launches_adm');
 const api_non_compliance = require('./api-non-compliance');
 const api_user_headcargo = require('./api-user-headcargo');
 const api_headcargo = require('./api-headcargo');
+const api_called_projects = require('./api-called-projects');
+const api_called_tickets = require('./api-called-tickets');
+const api_called = require('./api-called');
+
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -41,6 +45,15 @@ const setIO = (io) => {
 
      // Use as rotas do arquivo apiAppMonitor.js
      router.use('/headcargo/commission', api_headcargo);
+
+     // Use as rotas do arquivo apiAppMonitor.js
+     router.use('/called/projects', api_called_projects);
+
+     // Use as rotas do arquivo apiAppMonitor.js
+     router.use('/called/tickets', api_called_tickets);
+
+     // Use as rotas do arquivo apiAppMonitor.js
+     router.use('/called', api_called);
   
     return router;
   };

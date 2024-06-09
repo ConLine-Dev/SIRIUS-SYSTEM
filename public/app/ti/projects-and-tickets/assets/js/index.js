@@ -1,4 +1,4 @@
-let choicesInstance;
+let choicesInstance, SCategories;
 
 async function events(){
     const ButtonAddTicket = document.getElementById('ButtonAddTicket')
@@ -20,17 +20,23 @@ async function events(){
            type:'#new-tasks-draggable',
            timeInit:document.getElementsByName("timeInit")[0].value,
            responsible:{
-               id:document.getElementsByName("responsible")[0],
-               name:document.getElementsByName("responsible")[0].value},
+               id:document.getElementsByName("responsible")[0].value,
+               name:document.getElementsByName("responsible")[0].value
+            },
+           categories:{
+                id:document.getElementsByName("categories")[0].value,
+                name:document.getElementsByName("categories")[0].textContent
+            },
            timeEnd:document.getElementsByName("timeEnd")[0].value,
+           finished_at:document.getElementsByName("finished_at")[0].value,
            title:document.getElementsByName("title")[0].value,
            atribuido:idsSelecionados,
            description: document.getElementsByName("description")[0].value,
        }
 
-       console.log(settingsTicket)
+       console.log(settingsTicket, document.getElementsByName("responsible")[0])
 
-       createTicket(settingsTicket)
+    //    createTicket(settingsTicket)
 
     })
 
@@ -82,6 +88,30 @@ async function listAllUsersTIToChoise(){
     });
 }
 
+async function listCategories(){
+    const categories = await makeRequest('/api/called/categories')
+
+
+    // Formate o array para ser usado com o Choices.js
+    var categoryList = categories.map(function(element) {
+        return {
+            customProperties:{id:element.id},
+            value: `${element.id}`,
+            label: `${element.name}`,
+            id: element.id
+        };
+    });
+
+
+    SCategories = new Choices('select[name="categories"]', {
+        choices: categoryList,
+        // allowHTML: true,
+        // allowSearch: true,
+        // removeItemButton: true,
+    });
+}
+
+
 async function listResponsibles(){
         
     const listAllUsers = await makeRequest('/api/users/listAllUsers')
@@ -109,7 +139,7 @@ async function createTicket(settingsTicket){
 
     let users = '';
     settingsTicket.atribuido.forEach(element => {
-        users += `<span class="avatar avatar-sm avatar-rounded">
+        users += `<span class="avatar avatar-sm avatar-rounded" tittle="teste">
             <img src="https://cdn.conlinebr.com.br/colaboradores/${element.dataHead}" alt="img">
         </span>`;
  });    
@@ -206,6 +236,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await listAllUsersTI()
     await listAllUsersTIToChoise()
     await listResponsibles()
+    await listCategories()
 
 })
 

@@ -15,14 +15,66 @@ router.get('/listAll', async (req, res, next) => {
     }
 });
 
-router.post('/create', async (req, res, next) => {
-    const { title, description, status, priority, project_id, assigned_to } = req.body;
+router.post('/getById', async (req, res, next) => {
+    const { id } = req.body
     try {
-        const result = await tickets.create(title, description, status, priority, project_id, assigned_to);
+        const result = await tickets.getById(id);
 
         res.status(200).json(result)
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json(error);
+    }
+});
+
+router.post('/removeTicket', async (req, res, next) => {
+    const { id } = req.body
+    try {
+        const result = await tickets.removeTicket(id);
+
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json(error);
+    }
+});
+
+router.post('/createMessage', async (req, res, next) => {
+    try {
+        const result = await tickets.createMessage(req.body);
+
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json(error);
+    }
+});
+
+router.post('/listMessage', async (req, res, next) => {
+    try {
+        const result = await tickets.listMessage(req.body.id);
+
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json(error);
+    }
+});
+
+router.post('/create', async (req, res, next) => {
+    try {
+        const result = await tickets.create(req.body);
+
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json(error);
+    }
+});
+
+router.post('/updateStatus', async (req, res, next) => {
+    const {id, status} = req.body
+    try {
+        const result = await tickets.updateStatus(id, status);
+
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json(error);
     }
 });
 

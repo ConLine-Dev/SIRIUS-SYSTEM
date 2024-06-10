@@ -525,7 +525,7 @@
                                         </div>
 
                                     <div class="d-flex" role="search">
-                                        <input class="form-control me-2" type="search" placeholder="Search"
+                                        <input class="form-control me-2" id="btnPesquisa" type="search" placeholder="Search"
                                             aria-label="Search">
 
                                     </div>
@@ -627,7 +627,7 @@
                                 <div class="simplebar-mask">
                                     <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
                                         <div class="simplebar-content-wrapper" tabindex="0" role="region"
-                                            aria-label="scrollable content" style="height: auto; overflow: hidden;">
+                                            aria-label="scrollable content" style="height: auto;">
                                             <div class="simplebar-content" style="padding: 0px;">
                                                 <div class="defaultBodyTicket" id="inprogress-tasks-draggable" data-view-btn="inprogress-tasks">
                                                  
@@ -829,6 +829,169 @@
                             <div class="modal-footer">
                                
                                     <button type="button" id="ButtonAddTicket" class="btn btn-primary">Adicionar</button></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="edit-task" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" style="max-width: 50%;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title">Novo Chamado ou Projeto</h6>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body px-4">
+                               <div class="row" style="margin-right: -37px;">
+                                <div class="col-7">
+                                    <div class="row gy-2">
+                                  
+                                        <div class="col-xl-12">
+                                            <label for="task-name" class="form-label">Título</label>
+                                            <input type="text" class="form-control" name="edit_title" placeholder="Título">
+                                        </div>
+                                       
+                                        <div class="col-xl-12">
+                                            <label class="form-label">Responsável</label>
+                                            <select class="form-control" name="edit_responsible"></select>
+                                            <!-- <input type="text" class="form-control" name="responsible" placeholder="Responsável"> -->
+                                        </div>
+
+                                        <div class="col-xl-12">
+                                            <label for="text-area" class="form-label">Descrição</label>
+                                            <textarea class="form-control" name="edit_description" rows="2" placeholder="Escreva uma descrição"></textarea>
+                                        </div>
+                                    
+    
+                                        <div class="col-xl-12">
+                                            <label class="form-label">Categoria</label>
+                                            <select class="form-control" name="edit_categories"></select>
+                                            <!-- <input type="text" class="form-control" name="responsible" placeholder="Responsável"> -->
+                                        </div>
+
+                                        <div class="col-xl-12">
+                                            <label class="form-label">Atribuído a</label>
+                                            <!-- <input type="text" class="form-control" name="atribuido" placeholder="Atribuído a"> -->
+                                            <select class="form-control choices__input" multiple name="edit_atribuido"  id="">
+                                            </select>
+                                        </div>
+    
+                                        <div class="col-xl-6">
+                                            <label class="form-label">Previsão de Inicio</label>
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                                    <input type="text" class="form-control flatpickr-input targetDate " name="edit_timeInit" id="targetDate"
+                                                        placeholder="Choose date and time" readonly="readonly">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-6">
+                                            <label class="form-label">Previsão de Fim</label>
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                                    <input type="text" class="form-control flatpickr-input targetDate" name="edit_timeEnd"  id="targetDate"
+                                                        placeholder="Choose date and time" readonly="readonly">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-6">
+                                            <label class="form-label">Finalizado em</label>
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                                    <input type="text" class="form-control flatpickr-input targetDate" name="edit_finished_at"  id="targetDate"
+                                                        placeholder="Choose date and time" readonly="readonly">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-12" style="display: none;">
+                                            <label for="text-area" class="form-label">Arquivos/Imagem</label>
+                                    
+                                            <input type="file" class="multiple-filepond" name="filepond" multiple data-allow-reorder="true"
+                                                data-max-file-size="3MB" data-max-files="3">
+                                        
+                                        </div>
+                                    
+                                    </div>
+                                </div>
+                                <div class="col-5 main-chart-wrapper p-2 gap-2 d-lg-flex">
+                                    <div class="main-chat-area border" style="height: auto;margin-left: 11px;">
+                                       
+                                        <div class="chat-content" id="main-chat-content" data-simplebar="init">
+                                            <div class="simplebar-wrapper" >
+                                                <div class="simplebar-height-auto-observer-wrapper">
+                                                    <div class="simplebar-height-auto-observer"></div>
+                                                </div>
+                                                <div class="simplebar-mask">
+                                                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                                        <div class="simplebar-content-wrapper cardScrollMessage" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden;">
+                                                            <div class="simplebar-content" style="padding: 10px;">
+                                                                <ul class="list-unstyled chat-ticket">
+                                                                    <!-- <li class="chat-item-start">
+                                                                        <div class="chat-list-inner">
+              
+                                                                            <div class="ms-3"> <span class="chatting-user-info"> <span class="chatnameperson">Emiley Jackson</span> <span class="msg-sent-time">11:48PM</span> </span>
+                                                                                <div class="main-chat-msg">
+                                                                                    <div>
+                                                                                        <p class="mb-0">Nice to meet you 😀</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </li> -->
+                                                                    <!-- <li class="chat-item-start">
+                                                                        <div class="chat-list-inner">
+                                                
+                                                                            <div class="ms-3"> <span class="chatting-user-info chatnameperson"> Emiley Jackson <span class="msg-sent-time">11:45PM</span> </span>
+                                                                                <div class="main-chat-msg">
+                                                                                    <div>
+                                                                                        <p class="mb-0">Happy to talk with you,chat you later 👋</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </li> -->
+                                                                    <!-- <li class="chat-item-end">
+                                                                        <div class="chat-list-inner">
+                                
+                                                                            <div class="ms-3"> <span class="chatting-user-info chatnameperson"> Petryck William <span class="msg-sent-time">11:45PM</span> </span>
+                                                                                <div class="main-chat-msg">
+                                                                                    <div>
+                                                                                        <p class="mb-0">Entrei em contato com o responsavel e o mesmo solicitou que o aguardasse quando estivesse no escritório 👋</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </li> -->
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="simplebar-placeholder" style="width: auto; height: 251px;"></div>
+                                            </div>
+                                            <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                                <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                                            </div>
+                                            <div class="simplebar-track simplebar-vertical" style="visibility: hidden;">
+                                                <div class="simplebar-scrollbar" style="height: 0px; transform: translate3d(0px, 9px, 0px); display: none;"></div>
+                                            </div>
+                                        </div>
+                                        <div class="chat-footer">
+                                            <input class="form-control inputMessage" placeholder="Digite sua mensagem aqui..." type="text">
+                                            
+                                            <a style="margin-left: 5px;" aria-label="anchor" class="btn btn-primary btn-icon btn-send" id="ButtonAddMessage" href="javascript:void(0)"> <i class="ri-send-plane-2-line"></i> </a>
+                                        </div>
+                                    </div>
+                                </div>
+                               </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="ButtonRemoveTicket" style="float: left;left: 20px;position: absolute;" class="btn btn-primary">Remover</button>
+                                    <button type="button" id="ButtonSaveTicket" class="btn btn-primary">Salvar</button>
+                                </div>
                         </div>
                     </div>
                 </div>

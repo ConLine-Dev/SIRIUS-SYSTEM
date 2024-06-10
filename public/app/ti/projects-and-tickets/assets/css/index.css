@@ -32,3 +32,13 @@ body{
 .kanban-tasks{
     min-height: calc(100% - 51px) !important;
 }
+
+#main-chat-content{
+    overflow: auto;
+    padding-bottom: 171px;
+}
+
+
+.simplebar-content-wrapper{
+    overflow: auto !important;
+}

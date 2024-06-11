@@ -17,6 +17,11 @@ const tickets = {
             const atribuido = await executeQuery(`SELECT car.*, collab.name,collab.family_name,collab.family_name, collab.id_headcargo FROM called_assigned_relations car
             JOIN collaborators collab ON collab.id = car.collaborator_id WHERE ticket_id = ${element.id}`);
 
+            const msg = await executeQuery(`SELECT clm.*,collab.name, collab.family_name,collab.family_name, collab.id_headcargo 
+                                    FROM called_messages clm
+                                    JOIN collaborators collab ON collab.id = clm.collab_id 
+                                    WHERE clm.ticket_id = ${element.id}`);
+
             ticketsList.push({
                 id:element.id,
                 title:element.title,
@@ -26,7 +31,8 @@ const tickets = {
                 start_forecast:element.start_forecast,
                 end_forecast:element.end_forecast,
                 finished_at:element.finished_at,
-                atribuido:atribuido
+                atribuido:atribuido,
+                messageCount: msg.length
             })
         }
 

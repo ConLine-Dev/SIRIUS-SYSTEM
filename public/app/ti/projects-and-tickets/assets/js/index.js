@@ -16,7 +16,7 @@ async function initEvents() {
 
 // Inicializa o evento do botão de adicionar ticket
 function initializeButtonAddTicket() {
-    
+
     const buttonAddTicket = document.getElementById('ButtonAddTicket');
     const buttonRemoveTicket = document.getElementById('ButtonRemoveTicket');
     const buttonSaveTicket = document.getElementById('ButtonSaveTicket');
@@ -299,7 +299,7 @@ async function createTicket(settingsTicket) {
                     <div>
                         <a href="javascript:void(0);" class="text-muted">
                             <span class="me-1"><i class="ri-message-2-line align-middle fw-normal"></i></span>
-                            <span class="fw-semibold fs-12">00</span>
+                            <span class="fw-semibold fs-12">0</span>
                         </a>
                     </div>
                     <div class="avatar-list-stacked">${users}</div>
@@ -364,53 +364,56 @@ async function listAllTickets() {
 
     const tickets = await makeRequest('/api/called/tickets/listAll');
 
-    tickets.forEach(ticket => {
+    for (let index = 0; index < tickets.length; index++) {
+        const ticket = tickets[index];
         const users = ticket.atribuido.map(item => `
-            <span class="avatar avatar-sm avatar-rounded" title="${item.name}">
-                <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt="img">
-            </span>`).join('');
+        <span class="avatar avatar-sm avatar-rounded" title="${item.name}">
+            <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt="img">
+        </span>`).join('');
 
-         
+     
+ 
 
-        const dateEnd = ticket.finished_at 
-            ? `<span class="badge bg-success-transparent">${formatDate(ticket.finished_at)}</span>` 
-            : ticket.end_forecast 
-            ? `<span class="badge bg-danger-transparent">${formatDate(ticket.end_forecast)}</span>`
-            : '';
+    const dateEnd = ticket.finished_at 
+        ? `<span class="badge bg-success-transparent">${formatDate(ticket.finished_at)}</span>` 
+        : ticket.end_forecast 
+        ? `<span class="badge bg-danger-transparent">${formatDate(ticket.end_forecast)}</span>`
+        : '';
 
-        const card = `
-        <div class="card custom-card task-card task-card-${ticket.id}" id="${ticket.id}">
-            <div class="card-body p-0">
-                <div class="p-3 kanban-board-head">
-                    <div class="d-flex text-muted justify-content-between mb-1 fs-12 fw-semibold">
-                        <div><span class="badge bg-success-transparent">${formatDate(ticket.start_forecast)}</span></div>
-                        <div>${dateEnd}</div>
-                    </div>
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div class="task-badges"></div>
-                    </div>
-                    <div class="kanban-content mt-2">
-                        <h6 class="fw-semibold mb-1 fs-15">${ticket.title}</h6>
-                        <div class="kanban-task-description">${ticket.description}</div>
-                    </div>
+    const card = `
+    <div class="card custom-card task-card task-card-${ticket.id}" id="${ticket.id}">
+        <div class="card-body p-0">
+            <div class="p-3 kanban-board-head">
+                <div class="d-flex text-muted justify-content-between mb-1 fs-12 fw-semibold">
+                    <div><span class="badge bg-success-transparent">${formatDate(ticket.start_forecast)}</span></div>
+                    <div>${dateEnd}</div>
                 </div>
-                <div class="p-3 border-top border-block-start-dashed">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <a href="javascript:void(0);" class="text-muted">
-                                <span class="me-1"><i class="ri-message-2-line align-middle fw-normal"></i></span>
-                                <span class="fw-semibold fs-12">02</span>
-                            </a>
-                        </div>
-                        <div class="avatar-list-stacked">${users}</div>
-                    </div>
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="task-badges"></div>
+                </div>
+                <div class="kanban-content mt-2">
+                    <h6 class="fw-semibold mb-1 fs-15">${ticket.title}</h6>
+                    <div class="kanban-task-description">${ticket.description}</div>
                 </div>
             </div>
-        </div>`;
+            <div class="p-3 border-top border-block-start-dashed">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="javascript:void(0);" class="text-muted">
+                            <span class="me-1"><i class="ri-message-2-line align-middle fw-normal"></i></span>
+                            <span class="fw-semibold fs-12">${ticket.messageCount}</span>
+                        </a>
+                    </div>
+                    <div class="avatar-list-stacked">${users}</div>
+                </div>
+            </div>
+        </div>
+    </div>`;
 
-        const container = document.querySelector(`#${ticket.status}`) || document.querySelector('#new-tasks-draggable');
-        container.innerHTML += card;
-    });
+    const container = document.querySelector(`#${ticket.status}`) || document.querySelector('#new-tasks-draggable');
+    container.innerHTML += card; 
+    }
+   
 }
 
 // Função para rolar até o final de um elemento específico

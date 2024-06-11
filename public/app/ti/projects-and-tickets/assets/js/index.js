@@ -16,52 +16,61 @@ async function initEvents() {
 
 // Inicializa o evento do botão de adicionar ticket
 function initializeButtonAddTicket() {
-    const ButtonAddTicket = document.getElementById('ButtonAddTicket');
-    ButtonAddTicket.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const settingsTicket = getTicketSettings();
-        await createTicket(settingsTicket);
-    });
-
-    const ButtonRemoveTicket = document.getElementById('ButtonRemoveTicket');
-    ButtonRemoveTicket.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const id = e.target.getAttribute('data-id')
-        await removeTicket(id);
-    });
-
-
-    const ButtonSaveTicket = document.getElementById('ButtonSaveTicket');
-    ButtonSaveTicket.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const settingsTicket = getTicketEditing();
-        await saveTicket(settingsTicket);
-    });
-
-
-    
-
-    
-    // Evento de clique no botão
-    const ButtonAddMessage = document.getElementById('ButtonAddMessage');
-    ButtonAddMessage.addEventListener('click', async (e) => {
-        e.preventDefault();
-        await addMessage();
-    });
-
-    
-    // Evento de tecla pressionada no input
+    const buttonAddTicket = document.getElementById('ButtonAddTicket');
+    const buttonRemoveTicket = document.getElementById('ButtonRemoveTicket');
+    const buttonSaveTicket = document.getElementById('ButtonSaveTicket');
+    const buttonAddMessage = document.getElementById('ButtonAddMessage');
     const inputMessage = document.querySelector('.inputMessage');
-    inputMessage.addEventListener('keypress', async (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            await addMessage();
-        }
-    });
 
+    removeExistingEventListeners(buttonAddTicket, buttonRemoveTicket, buttonSaveTicket, buttonAddMessage, inputMessage);
 
+    addEventListeners(buttonAddTicket, buttonRemoveTicket, buttonSaveTicket, buttonAddMessage, inputMessage);
+}
 
+function removeExistingEventListeners(buttonAddTicket, buttonRemoveTicket, buttonSaveTicket, buttonAddMessage, inputMessage) {
+    buttonAddTicket.removeEventListener('click', handleAddTicket);
+    buttonRemoveTicket.removeEventListener('click', handleRemoveTicket);
+    buttonSaveTicket.removeEventListener('click', handleSaveTicket);
+    buttonAddMessage.removeEventListener('click', handleAddMessage);
+    inputMessage.removeEventListener('keypress', handleInputMessageKeypress);
+}
 
+function addEventListeners(buttonAddTicket, buttonRemoveTicket, buttonSaveTicket, buttonAddMessage, inputMessage) {
+    buttonAddTicket.addEventListener('click', handleAddTicket);
+    buttonRemoveTicket.addEventListener('click', handleRemoveTicket);
+    buttonSaveTicket.addEventListener('click', handleSaveTicket);
+    buttonAddMessage.addEventListener('click', handleAddMessage);
+    inputMessage.addEventListener('keypress', handleInputMessageKeypress);
+}
+
+async function handleAddTicket(event) {
+    event.preventDefault();
+    const ticketSettings = getTicketSettings();
+    await createTicket(ticketSettings);
+}
+
+async function handleRemoveTicket(event) {
+    event.preventDefault();
+    const ticketId = event.target.getAttribute('data-id');
+    await removeTicket(ticketId);
+}
+
+async function handleSaveTicket(event) {
+    event.preventDefault();
+    const ticketSettings = getTicketEditing();
+    await saveTicket(ticketSettings);
+}
+
+async function handleAddMessage(event) {
+    event.preventDefault();
+    await addMessage();
+}
+
+async function handleInputMessageKeypress(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        await addMessage();
+    }
 }
 
 // remove ticket
@@ -289,7 +298,7 @@ async function createTicket(settingsTicket) {
                     <div>
                         <a href="javascript:void(0);" class="text-muted">
                             <span class="me-1"><i class="ri-message-2-line align-middle fw-normal"></i></span>
-                            <span class="fw-semibold fs-12">02</span>
+                            <span class="fw-semibold fs-12">00</span>
                         </a>
                     </div>
                     <div class="avatar-list-stacked">${users}</div>
@@ -301,6 +310,8 @@ async function createTicket(settingsTicket) {
     document.querySelector(settingsTicket.type).innerHTML += card;
 
     initializeTaskCardEvents()
+
+    $('#add-task').modal('hide');
 }
 
 

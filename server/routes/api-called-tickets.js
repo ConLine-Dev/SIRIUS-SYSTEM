@@ -57,6 +57,16 @@ router.post('/listMessage', async (req, res, next) => {
     }
 });
 
+router.post('/saveTicket', async (req, res, next) => {
+    try {
+        const result = await tickets.saveTicket(req.body);
+
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json(error);
+    }
+});
+
 router.post('/create', async (req, res, next) => {
     try {
         const result = await tickets.create(req.body);

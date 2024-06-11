@@ -31,7 +31,7 @@ function initializeButtonAddTicket() {
     });
 
 
-    const ButtonSaveTicket = document.getElementById('ButtonAddTicket');
+    const ButtonSaveTicket = document.getElementById('ButtonSaveTicket');
     ButtonSaveTicket.addEventListener('click', async (e) => {
         e.preventDefault();
         const settingsTicket = getTicketEditing();
@@ -106,31 +106,33 @@ function getTicketSettings() {
 }
 
 function getTicketEditing() {
-    const selectedOptions = choicesInstance.getValue().map(opcao => ({
+    const selectedOptions = choicesInstanceEdit.getValue().map(opcao => ({
         id: opcao.value,
         name: opcao.label,
         dataHead: opcao.customProperties?.dataHead
     }));
 
-    const responsibleElement = document.getElementsByName('responsible')[0];
+    const responsibleElement = document.getElementsByName('edit_responsible')[0];
     const responsibleOption = responsibleElement.options[responsibleElement.selectedIndex];
 
+    const id = document.querySelector('#ButtonRemoveTicket').getAttribute('data-id')
     return {
+        id:id,
         type: '#new-tasks-draggable',
         responsible: {
             id: responsibleOption.id,
             name: responsibleOption.text
         },
         categories: {
-            id: document.getElementsByName("categories")[0].value,
-            name: document.getElementsByName("categories")[0].textContent
+            id: document.getElementsByName("edit_categories")[0].value,
+            name: document.getElementsByName("edit_categories")[0].textContent
         },
-        timeInit: document.getElementsByName("timeInit")[0].value,
-        timeEnd: document.getElementsByName("timeEnd")[0].value,
-        finished_at: document.getElementsByName("finished_at")[0].value,
-        title: document.getElementsByName("title")[0].value,
+        timeInit: document.getElementsByName("edit_timeInit")[0].value,
+        timeEnd: document.getElementsByName("edit_timeEnd")[0].value,
+        finished_at: document.getElementsByName("edit_finished_at")[0].value,
+        title: document.getElementsByName("edit_title")[0].value,
         atribuido: selectedOptions,
-        description: document.getElementsByName("description")[0].value,
+        description: document.getElementsByName("edit_description")[0].value,
     };
 }
 
@@ -247,9 +249,10 @@ function updateResponsibleOptions(users, selectName) {
 
 
 async function saveTicket(settingsTicket){
-    const ticket = await makeRequest('/api/called/tickets/create', 'POST', settingsTicket);
+    const ticket = await makeRequest('/api/called/tickets/saveTicket', 'POST', settingsTicket);
 
     await listAllTickets()
+    await initEvents()
 
 }
 
@@ -338,6 +341,15 @@ async function addMessage(){
 
 // Lista todos os tickets
 async function listAllTickets() {
+
+    const cards = document.querySelectorAll('.task-card')
+    for (let index = 0; index < cards.length; index++) {
+        const element = cards[index];
+        element.remove()
+        
+    }
+
+
     const tickets = await makeRequest('/api/called/tickets/listAll');
 
     tickets.forEach(ticket => {
@@ -404,10 +416,11 @@ async function editTask(taskId) {
         let data = await makeRequest('/api/called/tickets/getById', 'POST', { id: taskId });
         data = data[0];
 
+
         // Preenche os campos do modal com os dados recebidos
         document.querySelector('input[name="edit_title"]').value = data.title;
         document.querySelector('textarea[name="edit_description"]').value = data.description;
-        document.querySelector('select[name="edit_categories"]').value = data.category;
+        document.querySelector('select[name="edit_categories"]').value = data.categorieID;
 
         // Limpa as seleções existentes e seleciona as opções corretas
         if (choicesInstanceEdit) {
@@ -417,9 +430,9 @@ async function editTask(taskId) {
         const selectedAtribuido = data.atribuido.map(item => item.collaborator_id);
         selectedAtribuido.forEach(id => choicesInstanceEdit.setChoiceByValue(id));
 
-        document.querySelector('input[name="edit_timeInit"]').value = formatDate(data.start_forecast);
-        document.querySelector('input[name="edit_timeEnd"]').value = formatDate(data.end_forecast);
-        document.querySelector('input[name="edit_finished_at"]').value = formatDate(data.finished_at);
+        document.querySelector('input[name="edit_timeInit"]').value = data.start_forecast ? formatDate(data.start_forecast) : '';
+        document.querySelector('input[name="edit_timeEnd"]').value = data.end_forecast ? formatDate(data.end_forecast) : '';
+        document.querySelector('input[name="edit_finished_at"]').value = data.finished_at ? formatDate(data.finished_at) : '';
 
         document.querySelector('#ButtonRemoveTicket').setAttribute('data-id', taskId)
         document.querySelector('#ButtonSaveTicket').setAttribute('data-id', taskId)

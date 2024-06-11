@@ -34,9 +34,14 @@ const tickets = {
     },
     getById: async function(id){
         const ticketsList = []
-        const tickets = await executeQuery(`SELECT ct.*,collab.name,collab.family_name,collab.family_name, collab.id_headcargo FROM called_tickets ct
+        const tickets = await executeQuery(`SELECT ct.*,cc.name as categorie,cc.id as categorieID, collab.name,collab.family_name,collab.family_name, collab.id_headcargo 
+        FROM called_tickets ct
         JOIN collaborators collab ON collab.id = ct.collaborator_id
+        JOIN called_ticket_categories ctc ON ctc.ticket_id = ct.id
+        JOIN called_categories cc ON cc.id = ctc.category_id
         WHERE ct.id = ${id}`);
+
+      
 
         for (let index = 0; index < tickets.length; index++) {
             const element = tickets[index];
@@ -48,6 +53,8 @@ const tickets = {
             ticketsList.push({
                 id:element.id,
                 title:element.title,
+                categorieName:element.categorie,
+                categorieID:element.categorieID,
                 description:element.description,
                 status:element.status,
                 responsible:element.collaborator_id,
@@ -127,6 +134,42 @@ const tickets = {
 
 
         return { id: result.insertId};
+    },
+    saveTicket: async function(value){
+        const timeInit = isNaN(Date.parse(value.timeInit)) ? null : value.timeInit;
+        const timeEnd = isNaN(Date.parse(value.timeEnd)) ? null : value.timeEnd;
+        const finished_at = isNaN(Date.parse(value.finished_at)) ? null : value.finished_at;
+
+        // Atualiza as informações básicas do ticket
+        await executeQuery(
+            'UPDATE called_tickets SET title = ?, status = ?, description = ?, collaborator_id = ?, start_forecast = ?, end_forecast = ?, finished_at = ? WHERE id = ?',
+            [value.title, value.status, value.description, value.responsible.id, timeInit, timeEnd, finished_at, value.id]
+        );
+
+        // Atualiza a categoria do ticket
+        await executeQuery(
+            'UPDATE called_ticket_categories SET category_id = ? WHERE ticket_id = ?',
+            [value.categories.id, value.id]
+        );
+
+        // Remove as relações atuais de atribuição do ticket
+        await executeQuery(
+            'DELETE FROM called_assigned_relations WHERE ticket_id = ?',
+            [value.id]
+        );
+
+        // Insere as novas relações de atribuição
+        const atribuido = value.atribuido;
+        for (let index = 0; index < atribuido.length; index++) {
+            const element = atribuido[index];
+
+            await executeQuery(
+                'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
+                [value.id, element.id]
+            );
+        }
+
+        return { id: value.id };
     },
     updateStatus: async function(id, status){
         await executeQuery(`UPDATE called_tickets SET status = '${status}' WHERE id = ${id}`);

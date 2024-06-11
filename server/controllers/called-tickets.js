@@ -142,8 +142,8 @@ const tickets = {
 
         // Atualiza as informações básicas do ticket
         await executeQuery(
-            'UPDATE called_tickets SET title = ?, status = ?, description = ?, collaborator_id = ?, start_forecast = ?, end_forecast = ?, finished_at = ? WHERE id = ?',
-            [value.title, value.status, value.description, value.responsible.id, timeInit, timeEnd, finished_at, value.id]
+            'UPDATE called_tickets SET title = ?, description = ?, collaborator_id = ?, start_forecast = ?, end_forecast = ?, finished_at = ? WHERE id = ?',
+            [value.title, value.description, value.responsible.id, timeInit, timeEnd, finished_at, value.id]
         );
 
         // Atualiza a categoria do ticket

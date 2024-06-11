@@ -30,6 +30,17 @@ function initializeButtonAddTicket() {
         await removeTicket(id);
     });
 
+
+    const ButtonSaveTicket = document.getElementById('ButtonAddTicket');
+    ButtonSaveTicket.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const settingsTicket = getTicketEditing();
+        await saveTicket(settingsTicket);
+    });
+
+
+    
+
     
     // Evento de clique no botão
     const ButtonAddMessage = document.getElementById('ButtonAddMessage');
@@ -66,6 +77,35 @@ async function removeTicket(id){
 
 // Obtém as configurações do ticket a partir dos inputs do formulário
 function getTicketSettings() {
+    const selectedOptions = choicesInstance.getValue().map(opcao => ({
+        id: opcao.value,
+        name: opcao.label,
+        dataHead: opcao.customProperties?.dataHead
+    }));
+
+    const responsibleElement = document.getElementsByName('responsible')[0];
+    const responsibleOption = responsibleElement.options[responsibleElement.selectedIndex];
+
+    return {
+        type: '#new-tasks-draggable',
+        responsible: {
+            id: responsibleOption.id,
+            name: responsibleOption.text
+        },
+        categories: {
+            id: document.getElementsByName("categories")[0].value,
+            name: document.getElementsByName("categories")[0].textContent
+        },
+        timeInit: document.getElementsByName("timeInit")[0].value,
+        timeEnd: document.getElementsByName("timeEnd")[0].value,
+        finished_at: document.getElementsByName("finished_at")[0].value,
+        title: document.getElementsByName("title")[0].value,
+        atribuido: selectedOptions,
+        description: document.getElementsByName("description")[0].value,
+    };
+}
+
+function getTicketEditing() {
     const selectedOptions = choicesInstance.getValue().map(opcao => ({
         id: opcao.value,
         name: opcao.label,
@@ -203,6 +243,14 @@ function updateResponsibleOptions(users, selectName) {
         placeholder: "Selecione o colaborador",
         escapeMarkup: m => m
     });
+}
+
+
+async function saveTicket(settingsTicket){
+    const ticket = await makeRequest('/api/called/tickets/create', 'POST', settingsTicket);
+
+    await listAllTickets()
+
 }
 
 // Cria um novo ticket

@@ -16,6 +16,7 @@ async function initEvents() {
 
 // Inicializa o evento do botão de adicionar ticket
 function initializeButtonAddTicket() {
+    
     const buttonAddTicket = document.getElementById('ButtonAddTicket');
     const buttonRemoveTicket = document.getElementById('ButtonRemoveTicket');
     const buttonSaveTicket = document.getElementById('ButtonSaveTicket');

@@ -4,7 +4,7 @@ let choicesInstance, choicesInstanceEdit, SCategories;
   const StorageGoogleData = localStorage.getItem('StorageGoogle');
   const StorageGoogle = JSON.parse(StorageGoogleData);
 
-  console.log(StorageGoogle)
+
 
 // Função principal para iniciar os eventos
 async function initEvents() {

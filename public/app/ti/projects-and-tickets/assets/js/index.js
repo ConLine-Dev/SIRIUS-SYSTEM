@@ -490,7 +490,7 @@ function formatDate(value) {
     const horas = String(dataAtual.getHours()).padStart(2, '0');
     const minutos = String(dataAtual.getMinutes()).padStart(2, '0');
 
-    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+    return `${ano}-${mes}-${dia} ${horas}:${minutos}`;
 }
 
 // Suporte ao Select2 para formatar as imagens no select

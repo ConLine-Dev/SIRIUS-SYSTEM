@@ -1,4 +1,4 @@
-let choicesInstance, choicesInstanceEdit, SCategories;
+let choicesInstance, choicesInstanceEdit, SCategories, SEditing_Categories;
 
   // Verifica o localStorage para alterar a mensagem de boas vindas
   const StorageGoogleData = localStorage.getItem('StorageGoogle');
@@ -104,6 +104,7 @@ async function handleRemoveTicket(event) {
 async function handleSaveTicket(event) {
     event.preventDefault();
     const ticketSettings = getTicketEditing();
+
     await saveTicket(ticketSettings);
 }
 
@@ -133,6 +134,8 @@ async function removeTicket(id){
 
 // Obtém as configurações do ticket a partir dos inputs do formulário
 function getTicketSettings() {
+
+
     const selectedOptions = choicesInstance.getValue().map(opcao => ({
         id: opcao.value,
         name: opcao.label,
@@ -149,7 +152,7 @@ function getTicketSettings() {
             name: responsibleOption.text
         },
         categories: {
-            id: document.getElementsByName("categories")[0].value,
+            id: SCategories.getValue(true),
             name: document.getElementsByName("categories")[0].textContent
         },
         timeInit: document.getElementsByName("timeInit")[0].value,
@@ -180,7 +183,7 @@ function getTicketEditing() {
             name: responsibleOption.text
         },
         categories: {
-            id: document.getElementsByName("edit_categories")[0].value,
+            id: SEditing_Categories.getValue(true),
             name: document.getElementsByName("edit_categories")[0].textContent
         },
         timeInit: document.getElementsByName("edit_timeInit")[0].value,
@@ -265,7 +268,7 @@ async function listCategories() {
     const categories = await makeRequest('/api/called/categories');
     const categoryList = categories.map(category => ({
         customProperties: { id: category.id },
-        value: `${category.id}`,
+        value: category.id,
         label: `${category.name}`,
         id: category.id
     }));
@@ -274,7 +277,7 @@ async function listCategories() {
         choices: categoryList,
     });
 
-    new Choices('select[name="edit_categories"]', {
+    SEditing_Categories = new Choices('select[name="edit_categories"]', {
         choices: categoryList,
     });
 }
@@ -307,8 +310,10 @@ function updateResponsibleOptions(users, selectName) {
 async function saveTicket(settingsTicket){
     const ticket = await makeRequest('/api/called/tickets/saveTicket', 'POST', settingsTicket);
 
+    $('#edit-task').modal('hide');
     await listAllTickets()
     await initEvents()
+
 
 }
 
@@ -316,7 +321,7 @@ async function saveTicket(settingsTicket){
 async function createTicket(settingsTicket) {
     
     const ticket = await makeRequest('/api/called/tickets/create', 'POST', settingsTicket);
-        console.log(settingsTicket)
+
     const users = settingsTicket.atribuido.map(user => `
         <span class="avatar avatar-sm avatar-rounded" title="${user.name}" data-collabID="${user.id}" data-headcargoId="${user.dataHead}">
             <img src="https://cdn.conlinebr.com.br/colaboradores/${user.dataHead}" alt="img">
@@ -478,11 +483,16 @@ async function editTask(taskId) {
         let data = await makeRequest('/api/called/tickets/getById', 'POST', { id: taskId });
         data = data[0];
 
-
         // Preenche os campos do modal com os dados recebidos
         document.querySelector('input[name="edit_title"]').value = data.title;
         document.querySelector('textarea[name="edit_description"]').value = data.description;
         document.querySelector('select[name="edit_categories"]').value = data.categorieID;
+     
+
+        SEditing_Categories.setChoiceByValue(data.categorieID);
+        SEditing_Categories.setChoiceByValue(data.categorieID);
+        SEditing_Categories.setChoiceByValue(data.categorieID);
+    
 
         // Limpa as seleções existentes e seleciona as opções corretas
         if (choicesInstanceEdit) {

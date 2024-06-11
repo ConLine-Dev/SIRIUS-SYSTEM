@@ -142,6 +142,7 @@ const tickets = {
         return { id: result.insertId};
     },
     saveTicket: async function(value){
+        console.log(value)
         const timeInit = isNaN(Date.parse(value.timeInit)) ? null : value.timeInit;
         const timeEnd = isNaN(Date.parse(value.timeEnd)) ? null : value.timeEnd;
         const finished_at = isNaN(Date.parse(value.finished_at)) ? null : value.finished_at;

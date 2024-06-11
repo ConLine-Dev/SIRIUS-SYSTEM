@@ -12,7 +12,49 @@ async function initEvents() {
     initializeFilter();
     initializeTaskCardEvents();
     initializeDatePicker();
+    // Inicializar os event listeners
+    initializeCollaboratorFilter();
 }
+
+
+
+function initializeCollaboratorFilter() {
+    const collaboratorButtons = document.querySelectorAll('.btnSelectTI');
+    const allButton = document.querySelector('.avatar.bg-primary');
+    
+    collaboratorButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            const collabId = event.currentTarget.getAttribute('data-collabid');
+            filterTicketsByCollaborator(collabId);
+        });
+    });
+
+
+    allButton.removeEventListener('click', showAllTickets);
+    allButton.addEventListener('click', showAllTickets);
+}
+
+function filterTicketsByCollaborator(collabId) {
+    const allTickets = document.querySelectorAll('.defaultBodyTicket .task-card');
+    
+    allTickets.forEach(ticket => {
+        const userTiAttributed = ticket.querySelector('.userTiAtributed');
+        if (userTiAttributed && userTiAttributed.getAttribute('data-collabid') === collabId) {
+            ticket.style.display = 'block';
+        } else {
+            ticket.style.display = 'none';
+        }
+    });
+}
+
+function showAllTickets() {
+    const allTickets = document.querySelectorAll('.defaultBodyTicket .task-card');
+    
+    allTickets.forEach(ticket => {
+        ticket.style.display = 'block';
+    });
+}
+
 
 // Inicializa o evento do botão de adicionar ticket
 function initializeButtonAddTicket() {
@@ -21,6 +63,7 @@ function initializeButtonAddTicket() {
     const buttonRemoveTicket = document.getElementById('ButtonRemoveTicket');
     const buttonSaveTicket = document.getElementById('ButtonSaveTicket');
     const buttonAddMessage = document.getElementById('ButtonAddMessage');
+    
     const inputMessage = document.querySelector('.inputMessage');
 
     removeExistingEventListeners(buttonAddTicket, buttonRemoveTicket, buttonSaveTicket, buttonAddMessage, inputMessage);
@@ -41,6 +84,8 @@ function addEventListeners(buttonAddTicket, buttonRemoveTicket, buttonSaveTicket
     buttonRemoveTicket.addEventListener('click', handleRemoveTicket);
     buttonSaveTicket.addEventListener('click', handleSaveTicket);
     buttonAddMessage.addEventListener('click', handleAddMessage);
+ 
+
     inputMessage.addEventListener('keypress', handleInputMessageKeypress);
 }
 
@@ -66,6 +111,7 @@ async function handleAddMessage(event) {
     event.preventDefault();
     await addMessage();
 }
+
 
 async function handleInputMessageKeypress(event) {
     if (event.key === 'Enter') {
@@ -187,7 +233,7 @@ async function listAllUsersTI() {
 
     listusers.forEach(user => {
         DivSelected.innerHTML += `
-        <span class="avatar avatar-rounded">
+        <span class="avatar avatar-rounded btnSelectTI" data-collabID="${user.collab_id}" data-userID="${user.userID}" data-headcargoId="${user.id_headcargo}">
             <img src="https://cdn.conlinebr.com.br/colaboradores/${user.id_headcargo}" alt="img">
         </span>`;
     });
@@ -270,9 +316,9 @@ async function saveTicket(settingsTicket){
 async function createTicket(settingsTicket) {
     
     const ticket = await makeRequest('/api/called/tickets/create', 'POST', settingsTicket);
-
+        console.log(settingsTicket)
     const users = settingsTicket.atribuido.map(user => `
-        <span class="avatar avatar-sm avatar-rounded" title="${user.name}">
+        <span class="avatar avatar-sm avatar-rounded" title="${user.name}" data-collabID="${user.id}" data-headcargoId="${user.dataHead}">
             <img src="https://cdn.conlinebr.com.br/colaboradores/${user.dataHead}" alt="img">
         </span>`).join('');
 
@@ -366,8 +412,9 @@ async function listAllTickets() {
 
     for (let index = 0; index < tickets.length; index++) {
         const ticket = tickets[index];
+
         const users = ticket.atribuido.map(item => `
-        <span class="avatar avatar-sm avatar-rounded" title="${item.name}">
+        <span class="avatar avatar-sm avatar-rounded userTiAtributed" title="${item.name}" data-collabID="${item.collaborator_id}" data-headcargoId="${item.id_headcargo}">
             <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt="img">
         </span>`).join('');
 
@@ -542,4 +589,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     await listAllTickets();
     await eventDragDrop(tickets);
     await initEvents();
+
 });

@@ -16,8 +16,7 @@ async function initEvents() {
     initializeCollaboratorFilter();
 }
 
-
-
+// Clique na imagem para fazer o filtro do colab responsavel
 function initializeCollaboratorFilter() {
     const collaboratorButtons = document.querySelectorAll('.btnSelectTI');
     const allButton = document.querySelector('.avatar.bg-primary');
@@ -34,19 +33,27 @@ function initializeCollaboratorFilter() {
     allButton.addEventListener('click', showAllTickets);
 }
 
+// Apresenta os chamados do colaborador clicado
 function filterTicketsByCollaborator(collabId) {
-    const allTickets = document.querySelectorAll('.defaultBodyTicket .task-card');
+    const allTickets = document.querySelectorAll('.defaultBodyTicket .task-card'); // Captura todos os tickets
     
     allTickets.forEach(ticket => {
-        const userTiAttributed = ticket.querySelector('.userTiAtributed');
-        if (userTiAttributed && userTiAttributed.getAttribute('data-collabid') === collabId) {
-            ticket.style.display = 'block';
-        } else {
-            ticket.style.display = 'none';
+
+        ticket.style.display = 'none' // Da display none em todos os tickets
+        const userTiAttributed = ticket.querySelectorAll('.userTiAtributed'); // Pega todos os colaboradores atribuidos nos tickets
+
+        for (let i = 0; i < userTiAttributed.length; i++) {
+            const item = userTiAttributed[i];
+            
+            // Quando encontrar um chamado que tenha o colaborador, da display block no ticket
+            if (item && item.getAttribute('data-collabid') == collabId) {
+                ticket.style.display = 'block'
+            }
         }
     });
 }
 
+// Botao de mostrar todos os chamados
 function showAllTickets() {
     const allTickets = document.querySelectorAll('.defaultBodyTicket .task-card');
     
@@ -71,6 +78,7 @@ function initializeButtonAddTicket() {
     addEventListeners(buttonAddTicket, buttonRemoveTicket, buttonSaveTicket, buttonAddMessage, inputMessage);
 }
 
+
 function removeExistingEventListeners(buttonAddTicket, buttonRemoveTicket, buttonSaveTicket, buttonAddMessage, inputMessage) {
     buttonAddTicket.removeEventListener('click', handleAddTicket);
     buttonRemoveTicket.removeEventListener('click', handleRemoveTicket);
@@ -89,18 +97,21 @@ function addEventListeners(buttonAddTicket, buttonRemoveTicket, buttonSaveTicket
     inputMessage.addEventListener('keypress', handleInputMessageKeypress);
 }
 
+// Bota abrir novo chamado
 async function handleAddTicket(event) {
     event.preventDefault();
     const ticketSettings = getTicketSettings();
     await createTicket(ticketSettings);
 }
 
+// Botão remover chamado
 async function handleRemoveTicket(event) {
     event.preventDefault();
     const ticketId = event.target.getAttribute('data-id');
     await removeTicket(ticketId);
 }
 
+// Botão de salvar chamado
 async function handleSaveTicket(event) {
     event.preventDefault();
     const ticketSettings = getTicketEditing();
@@ -108,12 +119,13 @@ async function handleSaveTicket(event) {
     await saveTicket(ticketSettings);
 }
 
+// Botão de adicionar mensagem no chat
 async function handleAddMessage(event) {
     event.preventDefault();
     await addMessage();
 }
 
-
+// Adiciona mensagem ao clicar ENTER
 async function handleInputMessageKeypress(event) {
     if (event.key === 'Enter') {
         event.preventDefault();
@@ -134,8 +146,6 @@ async function removeTicket(id){
 
 // Obtém as configurações do ticket a partir dos inputs do formulário
 function getTicketSettings() {
-
-
     const selectedOptions = choicesInstance.getValue().map(opcao => ({
         id: opcao.value,
         name: opcao.label,
@@ -289,16 +299,24 @@ async function listResponsibles() {
     updateResponsibleOptions(users, 'edit_responsible');
 }
 
+
+
+
 // Atualiza as opções de responsáveis nos selects
 function updateResponsibleOptions(users, selectName) {
     const selectElement = document.querySelector(`select[name="${selectName}"]`);
     selectElement.innerHTML = '';
+    selectElement.innerHTML += `<option></option>`; // Criado um option vazio para nunca vir selecionado o primeiro colaborador da lista
+    
+    // ForEach pra inserir todos os colaboradores no select2
     users.forEach(user => {
         selectElement.innerHTML += `<option data-headcargoID="${user.id_headcargo}" id="${user.id_colab}" value="${user.id_colab}">${user.username} ${user.familyName}</option>`;
     });
 
+    // Configurações padrões do select2
     $(`select[name="${selectName}"]`).select2({
         dropdownParent: $(`#${selectName === 'responsible' ? 'add-task' : 'edit-task'}`),
+        allowClear: true,
         templateResult: selectFormatImg,
         templateSelection: selectFormatImg,
         placeholder: "Selecione o colaborador",
@@ -306,7 +324,7 @@ function updateResponsibleOptions(users, selectName) {
     });
 }
 
-
+// Botão de salvar chamado dentro do modal
 async function saveTicket(settingsTicket){
     const ticket = await makeRequest('/api/called/tickets/saveTicket', 'POST', settingsTicket);
 
@@ -366,7 +384,7 @@ async function createTicket(settingsTicket) {
     $('#add-task').modal('hide');
 }
 
-
+// Função para adicionar Mensagem
 async function addMessage(){
     const inputMessage = document.querySelector('.inputMessage');
     const ButtonAddMessage = document.getElementById('ButtonAddMessage');
@@ -487,11 +505,13 @@ async function editTask(taskId) {
         document.querySelector('input[name="edit_title"]').value = data.title;
         document.querySelector('textarea[name="edit_description"]').value = data.description;
         document.querySelector('select[name="edit_categories"]').value = data.categorieID;
-     
+        document.querySelector('select[name="edit_responsible"]').value = data.responsible;
+
+        $('select[name="edit_responsible"]').val(data.responsible).trigger('change');
 
         SEditing_Categories.setChoiceByValue(data.categorieID);
-        SEditing_Categories.setChoiceByValue(data.categorieID);
-        SEditing_Categories.setChoiceByValue(data.categorieID);
+        // SEditing_Categories.setChoiceByValue(data.categorieID);
+        // SEditing_Categories.setChoiceByValue(data.categorieID);
     
 
         // Limpa as seleções existentes e seleciona as opções corretas

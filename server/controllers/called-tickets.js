@@ -2,7 +2,24 @@ const nodemailer = require('nodemailer');
 const { executeQuerySQL } = require('../connect/sqlServer');
 const { executeQuery } = require('../connect/mysql');
 
+// Função para converter data para o formato do banco
+function convertDateToISO(dateStr) {
+    // Verifica se a string está vazia ou é nula
+    if (!dateStr) {
+        return null;
+    }
 
+    // Divide a string de data e hora
+    const [datePart, timePart] = dateStr.split(' ');
+
+    // Divide a data no formato dd-mm-yyyy
+    const [day, month, year] = datePart.split('-');
+
+    // Constrói a nova string no formato yyyy-mm-dd hh:mm
+    const isoDateStr = `${year}-${month}-${day} ${timePart}`;
+
+    return isoDateStr;
+}
 
 const tickets = {
     listAll: async function(value){
@@ -111,10 +128,9 @@ const tickets = {
         
     },
     create: async function(value){
-
-        const timeInit = isNaN(Date.parse(value.timeInit)) ? null : value.timeInit;
-        const timeEnd = isNaN(Date.parse(value.timeEnd)) ? null : value.timeEnd;
-        const finished_at = isNaN(Date.parse(value.finished_at)) ? null : value.finished_at;
+        const timeInit = value.timeInit ? convertDateToISO(value.timeInit) : null;
+        const timeEnd = value.timeEnd ?  convertDateToISO(value.timeEnd) : null;
+        const finished_at = value.finished_at ? convertDateToISO(value.finished_at) : null;
 
         const result = await executeQuery(
             'INSERT INTO called_tickets (title,status, description, collaborator_id, start_forecast, end_forecast, finished_at) VALUES (?,?, ?, ?, ?, ?, ?)',
@@ -142,10 +158,9 @@ const tickets = {
         return { id: result.insertId};
     },
     saveTicket: async function(value){
-        console.log(value)
-        const timeInit = isNaN(Date.parse(value.timeInit)) ? null : value.timeInit;
-        const timeEnd = isNaN(Date.parse(value.timeEnd)) ? null : value.timeEnd;
-        const finished_at = isNaN(Date.parse(value.finished_at)) ? null : value.finished_at;
+        const timeInit = value.timeInit ? convertDateToISO(value.timeInit) : null;
+        const timeEnd = value.timeEnd ?  convertDateToISO(value.timeEnd) : null;
+        const finished_at = value.finished_at ? convertDateToISO(value.finished_at) : null;
 
         // Atualiza as informações básicas do ticket
         await executeQuery(

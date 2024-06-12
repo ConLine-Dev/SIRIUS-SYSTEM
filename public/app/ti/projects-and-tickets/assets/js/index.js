@@ -299,30 +299,46 @@ async function listResponsibles() {
     updateResponsibleOptions(users, 'edit_responsible');
 }
 
-
-
-
 // Atualiza as opções de responsáveis nos selects
 function updateResponsibleOptions(users, selectName) {
     const selectElement = document.querySelector(`select[name="${selectName}"]`);
-    selectElement.innerHTML = '';
-    selectElement.innerHTML += `<option></option>`; // Criado um option vazio para nunca vir selecionado o primeiro colaborador da lista
-    
+
     // ForEach pra inserir todos os colaboradores no select2
     users.forEach(user => {
         selectElement.innerHTML += `<option data-headcargoID="${user.id_headcargo}" id="${user.id_colab}" value="${user.id_colab}">${user.username} ${user.familyName}</option>`;
     });
 
     // Configurações padrões do select2
-    $(`select[name="${selectName}"]`).select2({
+    const $select = $(`select[name="${selectName}"]`).select2({
         dropdownParent: $(`#${selectName === 'responsible' ? 'add-task' : 'edit-task'}`),
-        // allowClear: true,
         templateResult: selectFormatImg,
         templateSelection: selectFormatImg,
         placeholder: "Selecione o colaborador",
-        escapeMarkup: m => m
+        escapeMarkup: m => m,
+        allowClear: true // Permite limpar a seleção
+    });
+
+    // Definindo o valor como null e disparando o evento change para atualizar a interface
+    $select.val(null).trigger('change');
+
+    // Função auxiliar para tentar focar no campo de pesquisa
+    function focusSearchField() {
+        const searchField = document.querySelector('.select2-search__field');
+        if (searchField) {
+            searchField.focus();
+        } else {
+            setTimeout(focusSearchField, 100);
+        }
+    }
+
+    // Evento para focar no input de pesquisa do Select2 quando ele é aberto
+    $select.on('select2:open', function () {
+        focusSearchField();
     });
 }
+
+
+
 
 // Botão de salvar chamado dentro do modal
 async function saveTicket(settingsTicket){
@@ -509,10 +525,7 @@ async function editTask(taskId) {
         $('select[name="edit_responsible"]').val(data.responsible).trigger('change');
 
         SEditing_Categories.setChoiceByValue(data.categorieID);
-        // SEditing_Categories.setChoiceByValue(data.categorieID);
-        // SEditing_Categories.setChoiceByValue(data.categorieID);
     
-
         // Limpa as seleções existentes e seleciona as opções corretas
         if (choicesInstanceEdit) {
             choicesInstanceEdit.removeActiveItems();
@@ -527,8 +540,6 @@ async function editTask(taskId) {
 
         document.querySelector('#ButtonRemoveTicket').setAttribute('data-id', taskId)
         document.querySelector('#ButtonSaveTicket').setAttribute('data-id', taskId)
-
-
 
         let messages = await makeRequest('/api/called/tickets/listMessage', 'POST', { id: taskId });
 
@@ -550,19 +561,12 @@ async function editTask(taskId) {
                                 </div>
                             </li>`
 
-
-        document.querySelector(`.chat-ticket`).innerHTML += messageList
-        
+            document.querySelector(`.chat-ticket`).innerHTML += messageList
         }
 
         setTimeout(() => {
             scrollToBottom(`.cardScrollMessage`)
         }, 500);
-
-        
-
-    
-        
 
         // Abre o modal de edição
         new bootstrap.Modal(document.getElementById('edit-task')).show();
@@ -625,4 +629,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         time_24hr: true,
         locale: 'pt'
     })
+
+    document.querySelector('#loader2').classList.add('d-none')
 });

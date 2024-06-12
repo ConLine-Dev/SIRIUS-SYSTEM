@@ -337,7 +337,6 @@ async function saveTicket(settingsTicket){
 
 // Cria um novo ticket
 async function createTicket(settingsTicket) {
-    
     const ticket = await makeRequest('/api/called/tickets/create', 'POST', settingsTicket);
 
     const users = settingsTicket.atribuido.map(user => `
@@ -582,7 +581,7 @@ function formatDate(value) {
     const horas = String(dataAtual.getHours()).padStart(2, '0');
     const minutos = String(dataAtual.getMinutes()).padStart(2, '0');
 
-    return `${ano}-${mes}-${dia} ${horas}:${minutos}`;
+    return `${dia}-${mes}-${ano} ${horas}:${minutos}`;
 }
 
 // Suporte ao Select2 para formatar as imagens no select
@@ -620,4 +619,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     await eventDragDrop(tickets);
     await initEvents();
 
+    flatpickr(".flatpickr-input", {
+        dateFormat: "d-m-Y H:i",
+        enableTime: true,
+        time_24hr: true,
+        locale: 'pt'
+    })
 });

@@ -42,3 +42,7 @@ body{
 .simplebar-content-wrapper{
     overflow: auto !important;
 }
+
+textarea {
+    min-height: 6.5rem !important;
+}

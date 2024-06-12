@@ -316,7 +316,7 @@ function updateResponsibleOptions(users, selectName) {
     // Configurações padrões do select2
     $(`select[name="${selectName}"]`).select2({
         dropdownParent: $(`#${selectName === 'responsible' ? 'add-task' : 'edit-task'}`),
-        allowClear: true,
+        // allowClear: true,
         templateResult: selectFormatImg,
         templateSelection: selectFormatImg,
         placeholder: "Selecione o colaborador",

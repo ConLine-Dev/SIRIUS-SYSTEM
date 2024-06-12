@@ -314,6 +314,7 @@ async function listResponsibles() {
 // Atualiza as opções de responsáveis nos selects
 function updateResponsibleOptions(users, selectName) {
     const selectElement = document.querySelector(`select[name="${selectName}"]`);
+    selectElement.innerHTML = '';
 
     // ForEach pra inserir todos os colaboradores no select2
     users.forEach(user => {
@@ -356,8 +357,6 @@ async function saveTicket(settingsTicket){
     $('#edit-task').modal('hide');
     await listAllTickets()
     await initEvents()
-
-
 }
 
 // Cria um novo ticket
@@ -584,7 +583,6 @@ async function editTask(taskId) {
     }
 }
 
-
 // Formata a data no estilo "DD/MM/YYYY HH:mm"
 function formatDate(value) {
     const dataAtual = value ? new Date(value) : new Date();
@@ -594,7 +592,7 @@ function formatDate(value) {
     const horas = String(dataAtual.getHours()).padStart(2, '0');
     const minutos = String(dataAtual.getMinutes()).padStart(2, '0');
 
-    return `${dia}-${mes}-${ano} ${horas}:${minutos}`;
+    return `${ano}-${mes}-${dia} ${horas}:${minutos}`;
 }
 
 // Suporte ao Select2 para formatar as imagens no select
@@ -632,12 +630,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     await eventDragDrop(tickets);
     await initEvents();
 
-    flatpickr(".flatpickr-input", {
-        dateFormat: "d-m-Y H:i",
-        enableTime: true,
-        time_24hr: true,
-        locale: 'pt'
-    })
+    // flatpickr(".flatpickr-input", {
+    //     dateFormat: "d-m-Y H:i",
+    //     enableTime: true,
+    //     time_24hr: true,
+    //     locale: 'pt'
+    // })
 
     document.querySelector('#loader2').classList.add('d-none')
 });

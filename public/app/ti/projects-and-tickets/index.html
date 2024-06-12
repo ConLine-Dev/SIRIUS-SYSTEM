@@ -514,20 +514,15 @@
                             <div class="card-body p-3">
                                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                                     <div class="row kanban-board">
-                                        <div class="col-6"><button class="btn btn-primary me-2"
-                                                data-bs-toggle="modal" data-bs-target="#add-task"><i
-                                                    class="ri-add-line me-1 fw-semibold align-middle"></i>
-                                                Novo Chamado</button></div>
-                                  
-                                    </div>
-                                    <div class="avatar-list-stacked listusers">
-                                      
+                                        <div class="col-6"><button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#add-task">
+                                            <i class="ri-add-line me-1 fw-semibold align-middle"></i>
+                                                Novo Chamado
+                                            </button>
                                         </div>
-
+                                    </div>
+                                    <div class="avatar-list-stacked listusers"></div>
                                     <div class="d-flex" role="search">
-                                        <input class="form-control me-2" id="btnPesquisa" type="search" placeholder="Search"
-                                            aria-label="Search">
-
+                                        <input class="form-control me-2" id="btnPesquisa" type="search" placeholder="Pesquisar" aria-label="Search">
                                     </div>
                                 </div>
                             </div>
@@ -784,6 +779,7 @@
                                         <label class="form-label">Atribuído a</label>
                                         <!-- <input type="text" class="form-control" name="atribuido" placeholder="Atribuído a"> -->
                                         <select class="form-control choices__input" multiple name="atribuido"  id="">
+                                            <option value="">Selecione a quem será atribuido</option>
                                         </select>
                                     </div>
                                     <div class="col-xl-6">
@@ -791,8 +787,7 @@
                                         <div class="form-group">
                                             <div class="input-group">
                                                 <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                                                <input type="text" class="form-control flatpickr-input targetDate " name="timeInit" id="targetDate"
-                                                    placeholder="Choose date and time" readonly="readonly">
+                                                <input type="text" class="form-control flatpickr-input targetDate" name="timeInit" id="targetDate" placeholder="Escolha a data e hora" readonly="readonly" >
                                             </div>
                                         </div>
                                     </div>
@@ -801,8 +796,7 @@
                                         <div class="form-group">
                                             <div class="input-group">
                                                 <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                                                <input type="text" class="form-control flatpickr-input targetDate" name="timeEnd"  id="targetDate"
-                                                    placeholder="Choose date and time" readonly="readonly">
+                                                <input type="text" class="form-control flatpickr-input targetDate" name="timeEnd"  id="targetDate" placeholder="Escolha a data e hora" readonly="readonly" >
                                             </div>
                                         </div>
                                     </div>
@@ -811,8 +805,7 @@
                                         <div class="form-group">
                                             <div class="input-group">
                                                 <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                                                <input type="text" class="form-control flatpickr-input targetDate" name="finished_at"  id="targetDate"
-                                                    placeholder="Choose date and time" readonly="readonly">
+                                                <input type="text" class="form-control flatpickr-input targetDate" name="finished_at"  id="targetDate" placeholder="Escolha a data e hora" readonly="readonly" >
                                             </div>
                                         </div>
                                     </div>
@@ -882,7 +875,7 @@
                                                 <div class="input-group">
                                                     <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
                                                     <input type="text" class="form-control flatpickr-input targetDate " name="edit_timeInit" id="targetDate"
-                                                        placeholder="Choose date and time" readonly="readonly">
+                                                        placeholder="Escolha a data e hora" readonly="readonly">
                                                 </div>
                                             </div>
                                         </div>
@@ -892,7 +885,7 @@
                                                 <div class="input-group">
                                                     <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
                                                     <input type="text" class="form-control flatpickr-input targetDate" name="edit_timeEnd"  id="targetDate"
-                                                        placeholder="Choose date and time" readonly="readonly">
+                                                        placeholder="Escolha a data e hora" readonly="readonly">
                                                 </div>
                                             </div>
                                         </div>
@@ -902,7 +895,7 @@
                                                 <div class="input-group">
                                                     <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
                                                     <input type="text" class="form-control flatpickr-input targetDate" name="edit_finished_at"  id="targetDate"
-                                                        placeholder="Choose date and time" readonly="readonly">
+                                                        placeholder="Escolha a data e hora" readonly="readonly">
                                                 </div>
                                             </div>
                                         </div>
@@ -1063,123 +1056,51 @@
     <!-- Scroll To Top -->
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
     <div id="responsive-overlay"></div>
+
     <!-- Scroll To Top -->
     <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
     <!-- Popper JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
     <!-- Bootstrap JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 
     <!-- Defaultmenu JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <!-- <script src="../../assets/js/defaultmenu.min.js"></script> -->
   
     <!-- Node Waves JS-->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/node-waves/waves.min.js"></script>
-  
-
- 
    
     <!-- Color Picker JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
     <!-- Custom-Switcher JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/js/custom-switcher.min.js"></script>
  
     <!-- Filepond JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/filepond/filepond.min.js"></script>
-  
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js"></script>
-  
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script
-        src="../../assets/libs/filepond-plugin-image-exif-orientation/filepond-plugin-image-exif-orientation.min.js"></script>
-
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script
-        src="../../assets/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js"></script>
-  
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
+    <script src="../../assets/libs/filepond-plugin-image-exif-orientation/filepond-plugin-image-exif-orientation.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js"></script>
     <script src="../../assets/libs/filepond-plugin-file-encode/filepond-plugin-file-encode.min.js"></script>
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.js"></script>
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script
-        src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
   
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script
-        src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
 
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/filepond-plugin-image-crop/filepond-plugin-image-crop.min.js"></script>
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/filepond-plugin-image-resize/filepond-plugin-image-resize.min.js"></script>
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/filepond-plugin-image-transform/filepond-plugin-image-transform.min.js"></script>
     <!-- Flat Picker JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+    <script src="../../assets/libs/flatpickr/pt.js"></script>
 
     <!-- Dragula JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/dragula/dragula.min.js"></script>
 
-
-   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <!-- Internal Task  JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/js/task-kanban-board.js"></script>
-
     <script src="../../assets/js/fetchAPI.js"></script>
-
     <script src="./assets/js/index.js"></script>
 
     <div class="flatpickr-calendar hasTime animate" tabindex="-1">
@@ -1290,9 +1211,6 @@
     </div>
 
     <!-- Custom JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/js/custom.js"></script>
     <div class="pcr-app " data-theme="nano" aria-label="color picker dialog" role="window" style="left: 0px; top: 8px;">
         <div class="pcr-selection">
@@ -1364,6 +1282,17 @@
                 hidden="" aria-label="cancel and close"><input class="pcr-clear" value="Clear" type="button"
                 style="display:none" hidden="" aria-label="clear and close"></div>
     </div>
+
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          flatpickr(".flatpickr-input", {
+            dateFormat: "d/m/Y H:i:S",
+            enableTime: true,
+            time_24hr: true,
+            locale: 'pt'
+          });
+        });
+      </script> -->
 </body>
 
 </html>

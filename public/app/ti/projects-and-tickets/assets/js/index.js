@@ -266,10 +266,22 @@ async function listAllUsersTIToChoice() {
 
     choicesInstance = new Choices('select[name="atribuido"]', {
         choices: optionsList,
+        allowHTML: true,
+        allowSearch: true,
+        shouldSort: false,
+        removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis',
+        noResultsText: 'Não há opções disponíveis',
     });
 
     choicesInstanceEdit = new Choices('select[name="edit_atribuido"]', {
         choices: optionsList,
+        allowHTML: true,
+        allowSearch: true,
+        shouldSort: false,
+        removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis',
+        noResultsText: 'Não há opções disponíveis',
     });
 }
 
@@ -336,9 +348,6 @@ function updateResponsibleOptions(users, selectName) {
         focusSearchField();
     });
 }
-
-
-
 
 // Botão de salvar chamado dentro do modal
 async function saveTicket(settingsTicket){

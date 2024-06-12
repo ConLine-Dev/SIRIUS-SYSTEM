@@ -735,7 +735,6 @@
                                     <div class="col-xl-12">
                                         <label class="form-label">Responsável</label>
                                         <select class="form-control" name="responsible"></select>
-                                        <!-- <input type="text" class="form-control" name="responsible" placeholder="Responsável"> -->
                                     </div>
                                     <div class="col-xl-12">
                                         <label for="text-area" class="form-label">Descrição</label>
@@ -746,13 +745,11 @@
                                             <select class="form-control" name="categories">
                                                 <option value="">Selecione uma categoria</option>
                                             </select>
-                                            <!-- <input type="text" class="form-control" name="responsible" placeholder="Responsável"> -->
                                         </div>
                                     <div class="col-xl-12">
                                         <label class="form-label">Atribuído a</label>
-                                        <!-- <input type="text" class="form-control" name="atribuido" placeholder="Atribuído a"> -->
-                                        <select class="form-control choices__input" multiple name="atribuido"  id="">
-                                            <option value="">Selecione a quem será atribuido</option>
+                                        <select class="form-control choices__input" multiple name="atribuido">
+                                            <option value="">Selecione a quem atribuir</option>
                                         </select>
                                     </div>
                                     <div class="col-xl-6">
@@ -821,9 +818,7 @@
                                         <div class="col-xl-12">
                                             <label class="form-label">Responsável</label>
                                             <select class="form-control" name="edit_responsible">
-                                                <option value="">Selecione um responsável</option>
                                             </select>
-                                            <!-- <input type="text" class="form-control" name="responsible" placeholder="Responsável"> -->
                                         </div>
 
                                         <div class="col-xl-12">
@@ -834,14 +829,15 @@
     
                                         <div class="col-xl-12">
                                             <label class="form-label">Categoria</label>
-                                            <select class="form-control" name="edit_categories"></select>
-                                            <!-- <input type="text" class="form-control" name="responsible" placeholder="Responsável"> -->
+                                            <select class="form-control" name="edit_categories">
+                                                <option value="">Selecione uma categoria</option>
+                                            </select>
                                         </div>
 
                                         <div class="col-xl-12">
                                             <label class="form-label">Atribuído a</label>
-                                            <!-- <input type="text" class="form-control" name="atribuido" placeholder="Atribuído a"> -->
-                                            <select class="form-control choices__input" multiple name="edit_atribuido"  id="">
+                                            <select class="form-control choices__input" multiple name="edit_atribuido">
+                                                <option value="">Selecione a quem atribuir</option>
                                             </select>
                                         </div>
     

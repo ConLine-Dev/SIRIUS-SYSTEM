@@ -42,7 +42,7 @@ router.post('/filterComission', async (req, res, next) => {
 
         res.status(200).json(result)
     } catch (error) {
-
+        console.log(error)
         res.status(404).json('Erro')   
     }
 });

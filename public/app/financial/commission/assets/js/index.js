@@ -2,6 +2,8 @@
 const StorageGoogleData = localStorage.getItem('StorageGoogle');
 const StorageGoogle = JSON.parse(StorageGoogleData);
 
+let toastCount = 0;
+
 document.addEventListener("DOMContentLoaded", async () => {
   
     // await generateTable();
@@ -21,8 +23,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                         {
                             text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Salvar Registro',
                             className: 'btn btn-primary label-btn btn-table-custom',
+                            enabled: false,
                             action: function (e, dt, node, config) {
-                                alert('Button activated');
+                               
                             }
                         }
                     ]
@@ -44,6 +47,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   
     document.querySelector('#loader2').classList.add('d-none')
+
+    // setTimeout(() => {
+    //     CreteToast()
+    //     console.log('dsa')
+    // }, 2000);
+
+    // setInterval(() => {
+    //     createToast('Sirius', 'Comissão foi registrada e enviado por email')
+    // }, 2000);
 })
 
 async function setDateDefaultFilter(){
@@ -87,6 +99,15 @@ async function getFilters(){
     const recebimentoList = recebimentoArray.map(checkbox => checkbox.checked ? checkbox.value : '').filter(valor => valor !== '');
 
 
+    
+    // Selecionar todos os elementos checkbox com a classe 'ComissaoAgente'
+    let ComissaoAgente = document.querySelectorAll('.ComissaoAgente');
+    // Converter NodeList para Array
+    let ComissaoAgenteArray = Array.from(ComissaoAgente);
+    // Mapeia o array para obter os valores dos checkboxes marcados
+    const ComissaoAgenteList = ComissaoAgenteArray.map(checkbox => checkbox.checked ? checkbox.value : '').filter(valor => valor !== '');
+
+
     // Selecionar todos os elementos checkbox com a classe 'pagamento'
     let pagamento = document.querySelectorAll('.pagamento');
     // Converter NodeList para Array
@@ -120,19 +141,47 @@ async function getFilters(){
 
 
 
+     // Verificar se todas as listas têm pelo menos um valor
+     if (recebimentoList.length === 0) {
+        alert("Por favor, selecione pelo menos uma opção de 'Recebimento'.");
+        return false
+    }
+    if (ComissaoAgenteList.length === 0) {
+        alert("Por favor, selecione pelo menos uma opção de 'Comissao Agente'.");
+        return false
+    }
+    if (pagamentoList.length === 0) {
+        alert("Por favor, selecione pelo menos uma opção de 'Pagamento'.");
+        return false
+    }
+    if (comissao_vendedorList.length === 0) {
+        alert("Por favor, selecione pelo menos uma opção de 'Comissao Vendedor'.");
+        return false
+    }
+    if (comissao_insideList.length === 0) {
+        alert("Por favor, selecione pelo menos uma opção de 'Comissao Inside'.");
+        return false
+    }
+    if (modalidadeList.length === 0) {
+        alert("Por favor, selecione pelo menos uma opção de 'Modalidade'.");
+        return false
+    }
+
+
      // Obtendo os valores dos campos dataDe, dataAte, vendedorID e InsideID
      const dataDeValue = dataDe.value;
      const dataAteValue = dataAte.value;
      const vendedorIDValue = listOfSales.value;
      const insideIDValue = listOfInside.value;
  
+        if(!dataDeValue || !dataAteValue){
+            alert("Por favor, preencha 'De' e 'Até'");
+        }
 
-     // Verificando se pelo menos um dos campos tem um valor
-     if ((!dataDeValue || !dataAteValue) && (vendedorIDValue == '000' && !insideIDValue == '000') ) {
-
-         // Se nenhum campo tiver um valor, você pode lançar um erro ou lidar com isso de outra forma
-         return false
-     }
+     if (vendedorIDValue == '000' && insideIDValue == '000') {
+        alert("Por favor, selecione um 'Vendedor' ou 'Inside' para ser comissionado.");
+        return false;
+    }
 
 
      const filters = {
@@ -142,6 +191,7 @@ async function getFilters(){
         InsideID: insideIDValue,
         recebimento: recebimentoList,
         pagamento: pagamentoList,
+        ComissaoAgente:ComissaoAgenteList,
         comissaoVendedor: comissao_vendedorList,
         ComissaoInside: comissao_insideList,
         modalidade: modalidadeList,
@@ -172,9 +222,12 @@ async function submitCommission(){
      // Fazer a requisição à API
     document.querySelector('#loader2').classList.remove('d-none')
     const filters = await getFilters();
+    console.log(filters)
     if(!filters){
-        alert('Verifique os campos obrigatorios')
+        // alert('Verifique os campos obrigatorios')
         document.querySelector('#loader2').classList.add('d-none')
+
+        return false
     }
 
 
@@ -199,13 +252,15 @@ async function submitCommission(){
 
      await selectUserComission(selectedValue, selectedText, typeSales);
 
-     document.querySelector('.total_profit').textContent = dados.valor_Estimado_total
+
+     document.querySelector('.total_profit').textContent = dados.valor_Efetivo_total
 
      document.querySelector('.quantidade_processo').textContent = dados.quantidade_processo
 
      document.querySelector('.valor_Comissao_total').textContent = dados.valor_Comissao_total
      
 
+   
      // Destruir a tabela existente, se houver
     if ($.fn.DataTable.isDataTable('#table_commission_commercial')) {
         $('#table_commission_commercial').DataTable().destroy();
@@ -220,7 +275,7 @@ async function submitCommission(){
                 buttons: [
                     {
                         text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Salvar Registro',
-                        className: 'btn btn-primary label-btn btn-table-custom',
+                        className: 'btn btn-primary label-btn btn-table-custom btn_salvarRegistro',
                         action: async function (e, dt, node, config) {
                             await createRegister(typeID, {de:filters.dataDe, ate: filters.dataAte}, user)
                         }
@@ -264,10 +319,58 @@ async function submitCommission(){
         },
     });
 
+ 
+
     
     document.querySelector('#loader2').classList.add('d-none')
 
+    createToast('Sirius', `Filtro de comissões do(a) ${selectedText} foi gerado com sucesso!`)
 
+}
+
+
+function createToast(title, text) {
+    toastCount++;
+
+    // Create a new toast element
+    const toast = document.createElement('div');
+    toast.className = 'toast align-items-center  border-0';
+    toast.id = `toast-${toastCount}`;
+    toast.role = 'alert';
+    toast.ariaLive = 'assertive';
+    toast.ariaAtomic = 'true';
+    toast.dataset.bsDelay = '5000'; // Auto hide after 5 seconds
+
+    // Toast header
+    const toastHeader = document.createElement('div');
+    toastHeader.className = 'toast-header text-bg-danger';
+    toastHeader.innerHTML = `
+        <strong class="me-auto">${title}</strong>
+        <small>Agora mesmo</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    `;
+
+    // Toast body
+    const toastBody = document.createElement('div');
+    toastBody.className = 'toast-body';
+    toastBody.innerText = text;
+
+    // Append header and body to the toast element
+    toast.appendChild(toastHeader);
+    toast.appendChild(toastBody);
+
+    // Append the toast element to the toast container
+    const toastContainer = document.getElementById('toast-container');
+    toastContainer.appendChild(toast);
+
+    // Initialize and show the toast
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+
+    // Remove the toast from the DOM when it is hidden
+    toast.addEventListener('hidden.bs.toast', function() {
+        toastContainer.removeChild(toast);
+    });
 }
 
 async function loadSales() {
@@ -338,6 +441,7 @@ async function loadInsideSales() {
 }
 
 async function createRegister(typeID, dateFilter, user){
+    document.querySelector('#loader2').classList.remove('d-none')
     const allProcessSelected = document.querySelectorAll('.selectCheckbox')
     const processSelected = []
 
@@ -355,9 +459,9 @@ async function createRegister(typeID, dateFilter, user){
 
 
     const dados = await makeRequest(`/api/headcargo/commission/createRegister`,'POST', {process: processSelected, type: typeID, dateFilter:dateFilter, user});
-    console.log(dados)
-
     
+
+    document.querySelector('#loader2').classList.add('d-none')
 }
 
 async function eventsCliks(){

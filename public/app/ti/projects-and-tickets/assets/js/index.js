@@ -101,7 +101,13 @@ function addEventListeners(buttonAddTicket, buttonRemoveTicket, buttonSaveTicket
 async function handleAddTicket(event) {
     event.preventDefault();
     const ticketSettings = getTicketSettings();
+
+    document.querySelector('#loader2').classList.remove('d-none')
     await createTicket(ticketSettings);
+    await listAllTickets()
+    await initEvents()
+    await clearFormFields();
+    document.querySelector('#loader2').classList.add('d-none')
 }
 
 // Botão remover chamado
@@ -116,7 +122,9 @@ async function handleSaveTicket(event) {
     event.preventDefault();
     const ticketSettings = getTicketEditing();
 
+    document.querySelector('#loader2').classList.remove('d-none')
     await saveTicket(ticketSettings);
+    document.querySelector('#loader2').classList.add('d-none')
 }
 
 // Botão de adicionar mensagem no chat
@@ -173,6 +181,25 @@ function getTicketSettings() {
         description: document.getElementsByName("description")[0].value,
     };
 }
+
+async function clearFormFields() {
+    // Limpa os campos de texto
+    document.getElementsByName("timeInit")[0].value = "";
+    document.getElementsByName("timeEnd")[0].value = "";
+    document.getElementsByName("finished_at")[0].value = "";
+    document.getElementsByName("title")[0].value = "";
+    document.getElementsByName("description")[0].value = "";
+
+    // Limpa o campo de seleção 'responsible'
+    document.getElementsByName('responsible')[0].selectedIndex = 0;
+
+    // Limpa o campo de categorias
+    SCategories.setChoiceByValue([0]);
+
+    // Limpa o campo de atribuição
+    choicesInstance.removeActiveItems();  // Limpa a seleção, mantendo as opções
+}
+
 
 function getTicketEditing() {
     const selectedOptions = choicesInstanceEdit.getValue().map(opcao => ({
@@ -285,10 +312,9 @@ async function listAllUsersTIToChoice() {
     });
 }
 
-// Lista todas as categorias
 async function listCategories() {
     const categories = await makeRequest('/api/called/categories');
-    const categoryList = categories.map(category => ({
+    let categoryList = categories.map(category => ({
         customProperties: { id: category.id },
         value: category.id,
         label: `${category.name}`,
@@ -297,12 +323,25 @@ async function listCategories() {
 
     SCategories = new Choices('select[name="categories"]', {
         choices: categoryList,
+        allowHTML: true,
+        allowSearch: true,
+        shouldSort: false,
+        removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis',
+        noResultsText: 'Não há opções disponíveis',
     });
 
     SEditing_Categories = new Choices('select[name="edit_categories"]', {
         choices: categoryList,
+        allowHTML: true,
+        allowSearch: true,
+        shouldSort: false,
+        removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis',
+        noResultsText: 'Não há opções disponíveis',
     });
 }
+
 
 // Lista todos os responsáveis
 async function listResponsibles() {
@@ -355,8 +394,17 @@ async function saveTicket(settingsTicket){
     const ticket = await makeRequest('/api/called/tickets/saveTicket', 'POST', settingsTicket);
 
     $('#edit-task').modal('hide');
-    await listAllTickets()
-    await initEvents()
+    // Se a data de finalizado for vazia, só lista os chamados normalmente
+    if (settingsTicket.finished_at == '') {
+        await listAllTickets()
+        await initEvents()
+
+        // Se a data de finalizado for diferente de vazia, joga o chamado para concluido
+    } else if (settingsTicket.finished_at !== '') {
+        await makeRequest('/api/called/tickets/updateStatus', 'POST', { id: settingsTicket.id, status: 'completed-tasks-draggable' });
+        await listAllTickets()
+        await initEvents()
+    }
 }
 
 // Cria um novo ticket
@@ -445,7 +493,6 @@ async function addMessage(){
 
 // Lista todos os tickets
 async function listAllTickets() {
-
     const cards = document.querySelectorAll('.task-card')
     for (let index = 0; index < cards.length; index++) {
         const element = cards[index];
@@ -610,6 +657,11 @@ async function eventDragDrop(tickets) {
         const newContainerId = target.getAttribute('id');
         await makeRequest('/api/called/tickets/updateStatus', 'POST', { id: cardId, status: newContainerId });
     });
+}
+
+// Função que envia o ticket para o status de concluido quando for inserido a data de finalizacao
+async function concludesWhenFinishedDate() {
+
 }
 
 // Função principal executada ao carregar o DOM

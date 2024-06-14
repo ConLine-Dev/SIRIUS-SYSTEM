@@ -566,15 +566,15 @@
                                                         <li class="files-type">
                                                             <label for="input-date" class="form-label">Recebimento:</label> 
                                                             <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 recebimento" type="checkbox" value="0" checked=""> 
+                                                                <input class="form-check-input me-2 recebimento" type="checkbox" value="0" > 
                                                                 <label class="form-check-label" for="c-1"> Sem recebimento </label>
                                                             </div>
                                                             <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 recebimento" type="checkbox" value="1" checked=""> 
+                                                                <input class="form-check-input me-2 recebimento" type="checkbox" value="1" > 
                                                                 <label class="form-check-label" for="c-1"> Em aberto </label>
                                                             </div>
                                                             <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 recebimento" type="checkbox" value="2" checked=""> 
+                                                                <input class="form-check-input me-2 recebimento" type="checkbox" value="2" > 
                                                                 <label class="form-check-label" for="c-1"> Parcialmente recebido </label>
                                                             </div>
 
@@ -599,6 +599,25 @@
                                                             </div>
                                                             <div class="form-check mb-2"> 
                                                                 <input class="form-check-input me-2 pagamento" type="checkbox" value="3" checked=""> 
+                                                                <label class="form-check-label" for="c-1"> Pago </label>
+                                                            </div>
+                                                        </li>
+                                                        <li>
+                                                            <label for="input-date" class="form-label">Comissão Agente:</label> 
+                                                            <div class="form-check mb-2"> 
+                                                                <input class="form-check-input me-2 ComissaoAgente" type="checkbox" value="0" > 
+                                                                <label class="form-check-label" for="c-1"> Sem pagamento </label>
+                                                            </div>
+                                                            <div class="form-check mb-2"> 
+                                                                <input class="form-check-input me-2 ComissaoAgente" type="checkbox" value="1" > 
+                                                                <label class="form-check-label" for="c-1"> Em aberto </label>
+                                                            </div>
+                                                            <div class="form-check mb-2"> 
+                                                                <input class="form-check-input me-2 ComissaoAgente" type="checkbox" value="2" > 
+                                                                <label class="form-check-label" for="c-1"> Parcialmente pago </label>
+                                                            </div>
+                                                            <div class="form-check mb-2"> 
+                                                                <input class="form-check-input me-2 ComissaoAgente" type="checkbox" value="3" checked=""> 
                                                                 <label class="form-check-label" for="c-1"> Pago </label>
                                                             </div>
                                                         </li>
@@ -835,6 +854,11 @@
  
 
     </div>
+
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 11">
+       
+      </div>
+    
     <!-- Scroll To Top -->
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
     <div id="responsive-overlay"></div>

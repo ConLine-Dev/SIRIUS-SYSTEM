@@ -5,6 +5,7 @@ const { executeQuery } = require('../connect/mysql');
 
 const headcargo = {
     gerenateCommission: async function(value){
+     
 
         const modalidade = (value.modalidade).join(',');
         const comissaoVendedor = `AND Comissao_Vendedor_Pago IN (${(value.comissaoVendedor).join(',')})`;
@@ -16,6 +17,9 @@ const headcargo = {
 
         const recebimento = `AND RecebimentoCodigo IN (${(value.recebimento).join(',')})`;
         const pagamento = `AND PagamentoCodigo IN (${(value.recebimento).join(',')})`;
+
+        
+        const AgenteCodigo = `AND AgenteCodigo IN (${(value.ComissaoAgente).join(',')})`;
         
         const Abertura_Processo = `AND (CAST(Data_Compensacao AS DATE) >= '${value.dataDe}' AND CAST(Data_Compensacao AS DATE) <= '${value.dataAte}')`;
 
@@ -251,9 +255,11 @@ const headcargo = {
         ${InsideID}
         ${pagamento}
         ${recebimento}
+        ${AgenteCodigo}
         ${Abertura_Processo}
         `
 
+          
         const commissions = await executeQuerySQL(sql)
 
 
@@ -279,15 +285,31 @@ const headcargo = {
 
         let valor_Estimado_total = 0
         let valor_Comissao_total = 0
+        let valor_Efetivo_total = 0
+
+        let userComission = InsideID != "" ? value.InsideID : vendedorID != "" ? value.vendedorID : null
+        let commissioned_type = InsideID != "" ? 2 : vendedorID != "" ? 1 : null
         for (let index = 0; index < commissions.length; index++) {
-            const element = commissions[index];
+          const element = commissions[index];
+          const percentagemResult = await headcargo.getPercentagemComissionByHeadID(userComission, commissioned_type, element.Valor_Efetivo);
+          
+          let percentagem = 0;
+          if (percentagemResult.status) {
+              percentagem = percentagemResult.percentage;
+          }
+
+        
+
+            
             valor_Estimado_total += element.Valor_Estimado
-            valor_Comissao_total += 0
+            valor_Comissao_total += element.Valor_Efetivo * (percentagem / 100)
+            valor_Efetivo_total += element.Valor_Efetivo
         }
 
 
         const format = {
             "data": resultadosFormatados,
+            valor_Efetivo_total:(valor_Efetivo_total).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
             valor_Estimado_total:(valor_Estimado_total).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
             valor_Comissao_total:(valor_Comissao_total).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
             quantidade_processo:commissions.length
@@ -304,16 +326,16 @@ const headcargo = {
        
         const infoProcess = await headcargo.getAllProcessToReference(resultConcat);
 
-        await headcargo.registerDBComission(infoProcess, user)
-        // const templateHTML =  await headcargo.createTableComission(infoProcess, type, dateFilter, user)
+        const register = await headcargo.registerDBComission(infoProcess, user)
+        
+        const templateHTML =  await headcargo.createTableComission(infoProcess, type, dateFilter, user, register)
    
-        // const createBody = await headcargo.createBodyHTMLComission('00000', templateHTML.title, templateHTML.html, 'Petryck William', templateHTML.filterDates, templateHTML)
+        const createBody = await headcargo.createBodyHTMLComission(register.reference, templateHTML.title, templateHTML.html, 'Petryck William', templateHTML.filterDates, templateHTML)
 
-        // const register = await headcargo.registerDBComission(infoProcess);
 
-        // const sendmail = await headcargo.sendEmailComission(templateHTML.subject, createBody)
+        const sendmail = await headcargo.sendEmailComission(templateHTML.subject, createBody)
 
-        // return sendmail;
+        return sendmail;
 
     },
     registerDBComission: async function(process, user){
@@ -341,7 +363,7 @@ const headcargo = {
         const result = await executeQuery(`INSERT INTO commission_reference (reference, date, commissioned_type, by_user, user) VALUES ('${reference}', '${headcargo.getFormattedDate()}', ${commissioned_type}, ${userLogId}, ${user.id})`)
         const idReferenci = result.insertId;
 
-     
+        let total_comissao = 0;
         const resultadosFormatados = await Promise.all(process.map(async function(item) {
           const percentagemResult = await headcargo.getPercentagemComissionByHeadID(user.id, commissioned_type, item.Valor_Efetivo);
           
@@ -350,7 +372,7 @@ const headcargo = {
               percentagem = percentagemResult.percentage;
           }
 
-          
+          total_comissao += item.Valor_Efetivo * (percentagem / 100)
       
           return [
               parseInt(idReferenci),
@@ -376,7 +398,16 @@ const headcargo = {
           effective, percentage, commission,create_date, date_status, by_user, audited
         ) VALUES ?`;
         
-        await executeQuery(sql, [resultadosFormatados]);
+        const result_commission = await executeQuery(sql, [resultadosFormatados]);
+
+        const reference_commission = await executeQuery(`SELECT * FROM commission_reference WHERE id = ${idReferenci}`);
+
+
+
+        return {
+          total_comissinado: total_comissao,
+          reference:reference_commission[0].reference
+        }
 
 
 
@@ -544,7 +575,7 @@ const headcargo = {
 
       return body;
     },
-    createTableComission: async function(processList, type, dateFilter, user){
+    createTableComission: async function(processList, type, dateFilter, user, registerComission){
       const commissioned_type = type == 0 ? 1 : 2
         // assunto do email
         const assunto = `[ConLine]- Pagamento Comissões`;
@@ -569,7 +600,7 @@ const headcargo = {
 
         let total_efetivo = 0
         let total_estimado = 0
-        let total_comissao = 0
+        // let total_comissao = 0
         for (let index = 0; index < processList.length; index++) {
             const e = processList[index];
             total_efetivo += e.Valor_Efetivo;
@@ -614,12 +645,12 @@ const headcargo = {
        
         
         <div style="margin: 5px;background-color: #f8f9fa; padding: 5px; border-radius: 0 0 0 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 200px;">
-            <h2 style="margin-bottom: 10px;">${total_estimado.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</h2>
+            <h2 style="margin-bottom: 10px;">${total_efetivo.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</h2>
             <p style="font-size: 12px; color: #666;">Lucro de Processos</p>
         </div>
         
         <div style="margin: 5px;background-color: #f8f9fa; padding: 5px; border-radius: 0 0 0 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 200px;">
-            <h2 style="margin-bottom: 10px;">${total_comissao.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</h2>
+            <h2 style="margin-bottom: 10px;">${(registerComission.total_comissinado).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</h2>
             <p style="font-size: 12px; color: #666;">Comissão</p>
         </div>
         
@@ -638,14 +669,14 @@ const headcargo = {
             e 
             Importação: <strong>Data Desembarque</strong> ou <strong>Previsao de Desembarque</strong>
             <br> 
-            O cálculo de comissão é calculado com base no <strong>lucro estimado</strong> pois o efetivo é dinâmico.
+            O cálculo de comissão é calculado com base no <strong>lucro efetivo</strong>.
         </div>`
 
 
         // console.log(processList)
 
         return {
-            total_comissao:total_comissao,
+            total_comissao:registerComission.total_comissinado,
             filterDates:filterDates,
             title:title,
             subject:assunto,
@@ -686,15 +717,15 @@ const headcargo = {
             if (!error) {
                 console.log('email enviado com sucesso')
 
-                return true
+                // return true
             }else{
 
                 console.log(error)
-                return false;
+                // return false;
             }
         })
 
-        return sendmail;
+        return true;
 
 
     },

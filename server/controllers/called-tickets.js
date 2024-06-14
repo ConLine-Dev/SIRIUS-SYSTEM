@@ -128,9 +128,9 @@ const tickets = {
         
     },
     create: async function(value){
-        const timeInit = value.timeInit ? convertDateToISO(value.timeInit) : null;
-        const timeEnd = value.timeEnd ?  convertDateToISO(value.timeEnd) : null;
-        const finished_at = value.finished_at ? convertDateToISO(value.finished_at) : null;
+        const timeInit = value.timeInit ? value.timeInit : null;
+        const timeEnd = value.timeEnd ?  value.timeEnd : null;
+        const finished_at = value.finished_at ? value.finished_at : null;
 
         const result = await executeQuery(
             'INSERT INTO called_tickets (title,status, description, collaborator_id, start_forecast, end_forecast, finished_at) VALUES (?,?, ?, ?, ?, ?, ?)',
@@ -158,9 +158,9 @@ const tickets = {
         return { id: result.insertId};
     },
     saveTicket: async function(value){
-        const timeInit = value.timeInit ? convertDateToISO(value.timeInit) : null;
-        const timeEnd = value.timeEnd ?  convertDateToISO(value.timeEnd) : null;
-        const finished_at = value.finished_at ? convertDateToISO(value.finished_at) : null;
+        const timeInit = value.timeInit ? value.timeInit : null;
+        const timeEnd = value.timeEnd ? value.timeEnd : null;
+        const finished_at = value.finished_at ? value.finished_at : null;
 
         // Atualiza as informações básicas do ticket
         await executeQuery(

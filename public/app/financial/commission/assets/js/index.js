@@ -1,22 +1,35 @@
-// Verifica o localStorage para alterar a mensagem de boas vindas
+/**
+ * Desenvolvido por: Petryck William
+ * GitHub: https://github.com/peewilliam
+ */
+
+/**
+ * Verifica o localStorage para alterar a mensagem de boas vindas
+ */
+// Obtém os dados armazenados no localStorage sob a chave 'StorageGoogle'
 const StorageGoogleData = localStorage.getItem('StorageGoogle');
+// Converte os dados armazenados de JSON para um objeto JavaScript
 const StorageGoogle = JSON.parse(StorageGoogleData);
 
+// Variável para contar o número de toasts exibidos
 let toastCount = 0;
 
+/**
+ * Evento que será disparado quando o DOM estiver completamente carregado,
+ * mas antes que recursos adicionais (como imagens e folhas de estilo) sejam carregados.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
-  
-    // await generateTable();
-
-
-
+    // Carregar os recursos necessários
     await loadAssets();
+    // Configurar eventos de clique
     await eventsCliks();
+    // Definir a data padrão do filtro
     await setDateDefaultFilter();
 
-    if(!tables['table_commission_commercial']){
+    // Inicializar DataTable se não estiver já inicializado
+    if (!tables['table_commission_commercial']) {
+        // Configura a tabela com DataTable
         tables['table_commission_commercial'] = $('#table_commission_commercial').DataTable({
-            // dom: 'Bfrtip',
             layout: {
                 topStart: {
                     buttons: [
@@ -25,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             className: 'btn btn-primary label-btn btn-table-custom',
                             enabled: false,
                             action: function (e, dt, node, config) {
-                               
+                                // Ação a ser executada ao clicar no botão
                             }
                         }
                     ]
@@ -35,241 +48,161 @@ document.addEventListener("DOMContentLoaded", async () => {
             scrollX: true,
             scrollY: '60vh',
             pageInfo: false,
-            bInfo:false,  
+            bInfo: false,
             order: [[0, 'desc']],
             language: {
                 searchPlaceholder: 'Pesquisar...',
                 sSearch: '',
             },
-        })
+        });
     }
-    
 
-  
-    document.querySelector('#loader2').classList.add('d-none')
+    // Esconder o loader
+    document.querySelector('#loader2').classList.add('d-none');
+});
 
-    // setTimeout(() => {
-    //     CreteToast()
-    //     console.log('dsa')
-    // }, 2000);
+/**
+ * Função para definir a data padrão do filtro.
+ */
+async function setDateDefaultFilter() {
+    /**
+     * Função para formatar a data no formato YYYY-MM-DD
+     * @param {Date} date - Objeto de data a ser formatado
+     * @returns {string} - Data formatada como YYYY-MM-DD
+     */
+    function formatDate(date) {
+        const year = date.getFullYear(); // Obtém o ano
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Obtém o mês (0-indexado) e adiciona um zero à esquerda se necessário
+        const day = String(date.getDate()).padStart(2, '0'); // Obtém o dia e adiciona um zero à esquerda se necessário
+        return `${year}-${month}-${day}`; // Retorna a data formatada como YYYY-MM-DD
+    }
 
-    // setInterval(() => {
-    //     createToast('Sirius', 'Comissão foi registrada e enviado por email')
-    // }, 2000);
-})
+    const currentDate = new Date(); // Cria um novo objeto de data para a data atual
+    const startOfYearDate = new Date(currentDate.getFullYear(), 0, 1); // Cria um novo objeto de data para o primeiro dia do ano
 
-async function setDateDefaultFilter(){
-        // Função para formatar a data no formato YYYY-MM-DD
-        function formatDate(date) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
+    const formattedCurrentDate = formatDate(currentDate); // Formata a data atual
+    const formattedStartOfYearDate = formatDate(startOfYearDate); // Formata a data do primeiro dia do ano
 
-        // Obter a data atual
-        const currentDate = new Date();
-
-        // Criar a data para o primeiro dia de janeiro do ano atual
-        const startOfYearDate = new Date(currentDate.getFullYear(), 0, 1);
-
-        // Formatar as datas
-        const formattedCurrentDate = formatDate(currentDate);
-        const formattedStartOfYearDate = formatDate(startOfYearDate);
-
-        // Preencher os inputs com as datas formatadas
-        document.getElementById('dataDe').value = formattedStartOfYearDate;
-        document.getElementById('dataAte').value = formattedCurrentDate;
+    document.getElementById('dataDe').value = formattedStartOfYearDate; // Define o valor do input 'dataDe' com a data formatada do primeiro dia do ano
+    document.getElementById('dataAte').value = formattedCurrentDate; // Define o valor do input 'dataAte' com a data formatada atual
 }
 
-async function loadAssets(){
- 
-    await loadSales();
-    await loadInsideSales();
-    
+/**
+ * Função para carregar os recursos necessários.
+ */
+async function loadAssets() {
+    await loadSales(); // Carrega os dados de vendas
+    await loadInsideSales(); // Carrega os dados de vendas internas
 }
 
-async function getFilters(){
+/**
+ * Função para obter os filtros selecionados.
+ */
+async function getFilters() {
+    // Obtém os valores dos checkboxes selecionados para cada categoria de filtro
+    const recebimentoList = getCheckedValues('.recebimento');
+    const ComissaoAgenteList = getCheckedValues('.ComissaoAgente');
+    const pagamentoList = getCheckedValues('.pagamento');
+    const comissao_vendedorList = getCheckedValues('.comissao_vendedor');
+    const comissao_insideList = getCheckedValues('.comissao_vendedor');
+    const modalidadeList = getCheckedValues('.modalidade');
 
-    // Selecionar todos os elementos checkbox com a classe 'recebimento'
-    let recebimento = document.querySelectorAll('.recebimento');
-    // Converter NodeList para Array
-    let recebimentoArray = Array.from(recebimento);
-    // Mapeia o array para obter os valores dos checkboxes marcados
-    const recebimentoList = recebimentoArray.map(checkbox => checkbox.checked ? checkbox.value : '').filter(valor => valor !== '');
-
-
-    
-    // Selecionar todos os elementos checkbox com a classe 'ComissaoAgente'
-    let ComissaoAgente = document.querySelectorAll('.ComissaoAgente');
-    // Converter NodeList para Array
-    let ComissaoAgenteArray = Array.from(ComissaoAgente);
-    // Mapeia o array para obter os valores dos checkboxes marcados
-    const ComissaoAgenteList = ComissaoAgenteArray.map(checkbox => checkbox.checked ? checkbox.value : '').filter(valor => valor !== '');
-
-
-    // Selecionar todos os elementos checkbox com a classe 'pagamento'
-    let pagamento = document.querySelectorAll('.pagamento');
-    // Converter NodeList para Array
-    let pagamentoArray = Array.from(pagamento);
-    // Mapeia o array para obter os valores dos checkboxes marcados
-    const pagamentoList = pagamentoArray.map(checkbox => checkbox.checked ? checkbox.value : '').filter(valor => valor !== '');
-
-
-    // Selecionar todos os elementos checkbox com a classe 'comissao_vendedor'
-    let comissao_vendedor = document.querySelectorAll('.comissao_vendedor');
-    // Converter NodeList para Array
-    let comissao_vendedorArray = Array.from(comissao_vendedor);
-    // Mapeia o array para obter os valores dos checkboxes marcados
-    const comissao_vendedorList = comissao_vendedorArray.map(checkbox => checkbox.checked ? checkbox.value : '').filter(valor => valor !== '');
-
-
-    // Selecionar todos os elementos checkbox com a classe 'comissao_vendedor'
-    let comissao_inside = document.querySelectorAll('.comissao_vendedor');
-    // Converter NodeList para Array
-    let comissao_insideArray = Array.from(comissao_inside);
-    // Mapeia o array para obter os valores dos checkboxes marcados
-    const comissao_insideList = comissao_insideArray.map(checkbox => checkbox.checked ? checkbox.value : '').filter(valor => valor !== '');
-
-
-    // Selecionar todos os elementos checkbox com a classe 'modalidade'
-    let modalidade = document.querySelectorAll('.modalidade');
-    // Converter NodeList para Array
-    let modalidadeArray = Array.from(modalidade);
-    // Mapeia o array para obter os valores dos checkboxes marcados
-    const modalidadeList = modalidadeArray.map(checkbox => checkbox.checked ? checkbox.value : '').filter(valor => valor !== '');
-
-
-
-     // Verificar se todas as listas têm pelo menos um valor
-     if (recebimentoList.length === 0) {
-        alert("Por favor, selecione pelo menos uma opção de 'Recebimento'.");
-        return false
-    }
-    if (ComissaoAgenteList.length === 0) {
-        alert("Por favor, selecione pelo menos uma opção de 'Comissao Agente'.");
-        return false
-    }
-    if (pagamentoList.length === 0) {
-        alert("Por favor, selecione pelo menos uma opção de 'Pagamento'.");
-        return false
-    }
-    if (comissao_vendedorList.length === 0) {
-        alert("Por favor, selecione pelo menos uma opção de 'Comissao Vendedor'.");
-        return false
-    }
-    if (comissao_insideList.length === 0) {
-        alert("Por favor, selecione pelo menos uma opção de 'Comissao Inside'.");
-        return false
-    }
-    if (modalidadeList.length === 0) {
-        alert("Por favor, selecione pelo menos uma opção de 'Modalidade'.");
-        return false
+    // Valida se ao menos uma opção de cada categoria foi selecionada
+    if (!validateFilters(recebimentoList, ComissaoAgenteList, pagamentoList, comissao_vendedorList, comissao_insideList, modalidadeList)) {
+        return false;
     }
 
+    // Obtém os valores dos inputs de data e das seleções de vendedores
+    const dataDeValue = dataDe.value;
+    const dataAteValue = dataAte.value;
+    const vendedorIDValue = listOfSales.value;
+    const insideIDValue = listOfInside.value;
 
-     // Obtendo os valores dos campos dataDe, dataAte, vendedorID e InsideID
-     const dataDeValue = dataDe.value;
-     const dataAteValue = dataAte.value;
-     const vendedorIDValue = listOfSales.value;
-     const insideIDValue = listOfInside.value;
- 
-        if(!dataDeValue || !dataAteValue){
-            alert("Por favor, preencha 'De' e 'Até'");
-        }
+    // Verifica se os inputs de data foram preenchidos
+    if (!dataDeValue || !dataAteValue) {
+        alert("Por favor, preencha 'De' e 'Até'");
+        return false;
+    }
 
-     if (vendedorIDValue == '000' && insideIDValue == '000') {
+    // Verifica se ao menos um vendedor ou um inside foi selecionado
+    if (vendedorIDValue === '000' && insideIDValue === '000') {
         alert("Por favor, selecione um 'Vendedor' ou 'Inside' para ser comissionado.");
         return false;
     }
 
-
-     const filters = {
+    // Retorna um objeto contendo todos os filtros selecionados
+    return {
         dataDe: dataDeValue,
         dataAte: dataAteValue,
         vendedorID: vendedorIDValue,
         InsideID: insideIDValue,
         recebimento: recebimentoList,
         pagamento: pagamentoList,
-        ComissaoAgente:ComissaoAgenteList,
+        ComissaoAgente: ComissaoAgenteList,
         comissaoVendedor: comissao_vendedorList,
         ComissaoInside: comissao_insideList,
         modalidade: modalidadeList,
-    }
-
-    return filters;
+    };
 }
 
-async function selectUserComission(id, Name, typeText){
-    var img = document.querySelector('.imgComissionado');
-    var name = document.querySelector('.nameComissionado');
-    var type = document.querySelector('.typeComission');
+/**
+ * Função para selecionar a comissão de um usuário.
+ * @param {string} id - ID do usuário
+ * @param {string} Name - Nome do usuário
+ * @param {string} typeText - Tipo de usuário (Vendedor ou Inside)
+ */
+async function selectUserComission(id, Name, typeText) {
+    const img = document.querySelector('.imgComissionado'); // Seleciona o elemento da imagem do comissionado
+    const name = document.querySelector('.nameComissionado'); // Seleciona o elemento do nome do comissionado
+    const type = document.querySelector('.typeComission'); // Seleciona o elemento do tipo de comissão
 
-    
-    type.textContent = ` [${typeText}]`
-    name.textContent = Name
-    // Define os estilos usando a propriedade style
-    img.innerHTML = ''
-    img.style.backgroundImage = 'url(https://cdn.conlinebr.com.br/colaboradores/'+id+')';
-    img.style.backgroundPosition = 'center';
-    img.style.backgroundSize = 'cover';
-
-
-
+    type.textContent = ` [${typeText}]`; // Define o texto do tipo de comissão
+    name.textContent = Name; // Define o texto do nome do comissionado
+    img.innerHTML = ''; // Limpa o conteúdo do elemento da imagem
+    img.style.backgroundImage = `url(https://cdn.conlinebr.com.br/colaboradores/${id})`; // Define a imagem de fundo com a URL do colaborador
+    img.style.backgroundPosition = 'center'; // Centraliza a imagem de fundo
+    img.style.backgroundSize = 'cover'; // Ajusta a imagem de fundo para cobrir todo o elemento
 }
 
-async function submitCommission(){
-     // Fazer a requisição à API
-    document.querySelector('#loader2').classList.remove('d-none')
-    const filters = await getFilters();
-    console.log(filters)
-    if(!filters){
-        // alert('Verifique os campos obrigatorios')
-        document.querySelector('#loader2').classList.add('d-none')
-
-        return false
+/**
+ * Função para submeter a comissão.
+ */
+async function submitCommission() {
+    document.querySelector('#loader2').classList.remove('d-none'); // Exibe o loader
+    const filters = await getFilters(); // Obtém os filtros selecionados
+    if (!filters) {
+        document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader se os filtros não forem válidos
+        return false;
     }
 
+    const dados = await makeRequest(`/api/headcargo/commission/filterComission`, 'POST', { filters }); // Faz uma requisição para filtrar a comissão
 
-    const dados = await makeRequest(`/api/headcargo/commission/filterComission`,'POST', {filters: filters});
+    const idvalue = listOfSales.value !== '000' ? listOfSales : listOfInside; // Define o elemento ID com base na seleção
+    const typeSales = listOfSales.value !== '000' ? 'Vendedor' : 'Inside'; // Define o tipo de vendas
+    const typeID = listOfSales.value !== '000' ? 0 : 1; // Define o tipo de ID (0 para Vendedor, 1 para Inside)
 
-    const idvalue = listOfSales.value != '000' ? listOfSales : listOfInside
-    const typeSales = listOfSales.value != '000' ? 'Vendedor' : 'Inside'
-
-    const typeID = listOfSales.value != '000' ? 0 : 1 //0 VENDEDOR | 1 INSIDE
-
-    const selectedValue = idvalue.value;
-    const selectedText = idvalue.options[idvalue.selectedIndex].text;
+    const selectedValue = idvalue.value; // Obtém o valor selecionado
+    const selectedText = idvalue.options[idvalue.selectedIndex].text; // Obtém o texto selecionado
 
     const user = {
         name: selectedText,
         id: selectedValue,
         type: typeID,
         userLog: StorageGoogle.system_userID,
-        collabId: StorageGoogle.system_collaborator_id
-    }
+        collabId: StorageGoogle.system_collaborator_id,
+    }; // Cria um objeto usuário com os detalhes selecionados
 
+    await selectUserComission(selectedValue, selectedText, typeSales); // Seleciona a comissão do usuário
 
-     await selectUserComission(selectedValue, selectedText, typeSales);
+    document.querySelector('.total_profit').textContent = dados.valor_Efetivo_total; // Atualiza o total de lucro
+    document.querySelector('.quantidade_processo').textContent = dados.quantidade_processo; // Atualiza a quantidade de processos
+    document.querySelector('.valor_Comissao_total').textContent = dados.valor_Comissao_total; // Atualiza o valor total da comissão
 
-
-     document.querySelector('.total_profit').textContent = dados.valor_Efetivo_total
-
-     document.querySelector('.quantidade_processo').textContent = dados.quantidade_processo
-
-     document.querySelector('.valor_Comissao_total').textContent = dados.valor_Comissao_total
-     
-
-   
-     // Destruir a tabela existente, se houver
     if ($.fn.DataTable.isDataTable('#table_commission_commercial')) {
-        $('#table_commission_commercial').DataTable().destroy();
+        $('#table_commission_commercial').DataTable().destroy(); // Destrói a tabela DataTable existente
     }
 
-
-    // Criar a nova tabela com os dados da API
     tables['table_commission_commercial'] = $('#table_commission_commercial').DataTable({
-        // dom: 'Bfrtip',
         layout: {
             topStart: {
                 buttons: [
@@ -277,7 +210,7 @@ async function submitCommission(){
                         text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Salvar Registro',
                         className: 'btn btn-primary label-btn btn-table-custom btn_salvarRegistro',
                         action: async function (e, dt, node, config) {
-                            await createRegister(typeID, {de:filters.dataDe, ate: filters.dataAte}, user)
+                            await createRegister(typeID, { de: filters.dataDe, ate: filters.dataAte }, user); // Cria um novo registro ao clicar no botão
                         }
                     }
                 ]
@@ -287,232 +220,255 @@ async function submitCommission(){
         scrollX: true,
         scrollY: '60vh',
         pageInfo: false,
-        bInfo:false,  
-        // pageLength: 15,
+        bInfo: false,
         order: [[0, 'desc']],
-        data: dados.data,
+        data: dados.data, // Define os dados da tabela
         columns: [
-            { data: 'check', "orderable": false},
-            { data: 'modal' },
-            { data: 'processo' },
-            { data: 'abertura' },
-            { data: 'data_compensacao' },
-            { data: 'tipo' },
-            { data: 'cliente' },
-            { data: 'vendedor' },
-            { data: 'inside' },
-            { data: 'importador' },
-            { data: 'exportador' },
-            { data: 'comissao_vendedor' },
-            { data: 'comissao_inside' },
-            { data: 'estimado' },
-            { data: 'efetivo' },
-            { data: 'restante' }
-            // Adicione mais colunas conforme necessário
-        ],
-        buttons: [
-            // 'excel', 'pdf', 'print'
+            { data: 'check', orderable: false }, // Coluna de checkbox
+            { data: 'modal' }, // Coluna de modal
+            { data: 'processo' }, // Coluna de processo
+            { data: 'abertura' }, // Coluna de abertura
+            { data: 'data_compensacao' }, // Coluna de data de compensação
+            { data: 'tipo' }, // Coluna de tipo
+            { data: 'cliente' }, // Coluna de cliente
+            { data: 'vendedor' }, // Coluna de vendedor
+            { data: 'inside' }, // Coluna de inside
+            { data: 'importador' }, // Coluna de importador
+            { data: 'exportador' }, // Coluna de exportador
+            { data: 'comissao_vendedor' }, // Coluna de comissão de vendedor
+            { data: 'comissao_inside' }, // Coluna de comissão de inside
+            { data: 'estimado' }, // Coluna de valor estimado
+            { data: 'efetivo' }, // Coluna de valor efetivo
+            { data: 'restante' }, // Coluna de valor restante
         ],
         language: {
-            searchPlaceholder: 'Pesquisar...',
-            sSearch: '',
+            searchPlaceholder: 'Pesquisar...', // Define o placeholder do campo de busca
+            sSearch: '', // Define o texto do campo de busca
         },
     });
 
- 
+    document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
 
-    
-    document.querySelector('#loader2').classList.add('d-none')
-
-    createToast('Sirius', `Filtro de comissões do(a) ${selectedText} foi gerado com sucesso!`)
-
+    createToast('Sirius', `Filtro de comissões do(a) ${selectedText} foi gerado com sucesso!`); // Exibe uma mensagem de sucesso
 }
 
-
+/**
+ * Função para criar um toast.
+ * @param {string} title - Título do toast
+ * @param {string} text - Texto do toast
+ */
 function createToast(title, text) {
-    toastCount++;
+    toastCount++; // Incrementa o contador de toasts
+    const toast = document.createElement('div'); // Cria um novo elemento div para o toast
+    toast.className = 'toast align-items-center border-0'; // Define as classes do toast
+    toast.id = `toast-${toastCount}`; // Define o ID do toast
+    toast.role = 'alert'; // Define o papel do toast como alerta
+    toast.ariaLive = 'assertive'; // Define a propriedade aria-live como assertiva
+    toast.ariaAtomic = 'true'; // Define a propriedade aria-atomic como true
+    toast.dataset.bsDelay = '5000'; // Define o atraso do toast para 5 segundos
 
-    // Create a new toast element
-    const toast = document.createElement('div');
-    toast.className = 'toast align-items-center  border-0';
-    toast.id = `toast-${toastCount}`;
-    toast.role = 'alert';
-    toast.ariaLive = 'assertive';
-    toast.ariaAtomic = 'true';
-    toast.dataset.bsDelay = '5000'; // Auto hide after 5 seconds
-
-    // Toast header
-    const toastHeader = document.createElement('div');
-    toastHeader.className = 'toast-header text-bg-danger';
+    const toastHeader = document.createElement('div'); // Cria um novo elemento div para o cabeçalho do toast
+    toastHeader.className = 'toast-header text-bg-danger'; // Define as classes do cabeçalho do toast
     toastHeader.innerHTML = `
         <strong class="me-auto">${title}</strong>
         <small>Agora mesmo</small>
         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-    `;
+    `; // Define o conteúdo HTML do cabeçalho do toast
 
-    // Toast body
-    const toastBody = document.createElement('div');
-    toastBody.className = 'toast-body';
-    toastBody.innerText = text;
+    const toastBody = document.createElement('div'); // Cria um novo elemento div para o corpo do toast
+    toastBody.className = 'toast-body'; // Define a classe do corpo do toast
+    toastBody.innerText = text; // Define o texto do corpo do toast
 
-    // Append header and body to the toast element
-    toast.appendChild(toastHeader);
-    toast.appendChild(toastBody);
+    toast.appendChild(toastHeader); // Adiciona o cabeçalho ao toast
+    toast.appendChild(toastBody); // Adiciona o corpo ao toast
 
-    // Append the toast element to the toast container
-    const toastContainer = document.getElementById('toast-container');
-    toastContainer.appendChild(toast);
+    const toastContainer = document.getElementById('toast-container'); // Seleciona o contêiner de toasts
+    toastContainer.appendChild(toast); // Adiciona o toast ao contêiner
 
-    // Initialize and show the toast
-    const bsToast = new bootstrap.Toast(toast);
-    bsToast.show();
+    const bsToast = new bootstrap.Toast(toast); // Inicializa o toast com o Bootstrap
+    bsToast.show(); // Exibe o toast
 
-    // Remove the toast from the DOM when it is hidden
     toast.addEventListener('hidden.bs.toast', function() {
-        toastContainer.removeChild(toast);
+        toastContainer.removeChild(toast); // Remove o toast do DOM quando ele for ocultado
     });
 }
 
+/**
+ * Função para carregar os dados de vendas.
+ */
 async function loadSales() {
-    // Fazer a requisição à API
-    const getSales = await makeRequest(`/api/headcargo/user/ByDep/62`);
+    const getSales = await makeRequest(`/api/headcargo/user/ByDep/62`); // Faz uma requisição para obter os dados de vendas
+    const options = getSales.map(sales => `<option value="${sales.IdFuncionario}">${formatarNome(sales.Nome)}</option>`); // Cria opções para cada venda
+    const optionDefault = `<option value="000" selected>Sem seleção</option>`; // Cria uma opção padrão
+    const listOfSales = document.getElementById('listOfSales'); // Seleciona o elemento de lista de vendas
+    listOfSales.innerHTML = optionDefault + options.join(''); // Define o conteúdo HTML da lista de vendas
 
-    // Mapeia o array de frutas para criar opções <option>
-    const options = getSales.map(sales => `<option value="${sales.IdFuncionario}">${formatarNome(sales.Nome)}</option>`);
-
-    const optionDefault = `<option value="000" selected>Sem seleção</option>`;
-    // Adiciona as opções ao <select>
-    const listOfSales = document.getElementById('listOfSales');
-    listOfSales.innerHTML = optionDefault + options.join('');
-
-    // Inicializa o select2
     $("#listOfSales").select2({
-        templateResult: formatState,
-        templateSelection: formatState, // Use the same format for the selected option
-        placeholder: "Choose Customer"
+        templateResult: formatState, // Define o template para exibir as opções
+        templateSelection: formatState, // Define o template para a seleção
+        placeholder: "Choose Customer" // Define o placeholder
     });
 
-    // Adiciona um event listener para o evento de mudança usando jQuery
     $("#listOfSales").on('change', async function(e) {
-
-        if(this.value != '000'){
+        if (this.value !== '000') {
             const selectedValue = this.value;
             const selectedText = this.options[this.selectedIndex].text;
-            // await selectUserComission(selectedValue, selectedText, 'Vendedor');
-    
-            // Define o valor do outro select como '000' e dispara o evento 'change'
-            $("#listOfInside").val('000').trigger('change');
+            $("#listOfInside").val('000').trigger('change'); // Define o valor da outra lista como padrão e dispara o evento 'change'
         }
-       
     });
 }
 
+/**
+ * Função para carregar os dados de vendas internas.
+ */
 async function loadInsideSales() {
-    // Fazer a requisição à API
-    const getSales = await makeRequest(`/api/headcargo/user/ByDep/75`);
+    const getSales = await makeRequest(`/api/headcargo/user/ByDep/75`); // Faz uma requisição para obter os dados de vendas internas
+    const options = getSales.map(sales => `<option value="${sales.IdFuncionario}">${formatarNome(sales.Nome)}</option>`); // Cria opções para cada venda interna
+    const optionDefault = `<option value="000" selected>Sem seleção</option>`; // Cria uma opção padrão
+    const listOfInside = document.getElementById('listOfInside'); // Seleciona o elemento de lista de vendas internas
+    listOfInside.innerHTML = optionDefault + options.join(''); // Define o conteúdo HTML da lista de vendas internas
 
-    // Mapeia o array de frutas para criar opções <option>
-    const options = getSales.map(sales => `<option value="${sales.IdFuncionario}">${formatarNome(sales.Nome)}</option>`);
-
-    const optionDefault = `<option value="000" selected>Sem seleção</option>`;
-    // Adiciona as opções ao <select>
-    const listOfInside = document.getElementById('listOfInside');
-    listOfInside.innerHTML = optionDefault + options.join('');
-
-    // Inicializa o select2
     $("#listOfInside").select2({
-        templateResult: formatState,
-        templateSelection: formatState, // Use the same format for the selected option
-        placeholder: "Choose Customer"
+        templateResult: formatState, // Define o template para exibir as opções
+        templateSelection: formatState, // Define o template para a seleção
+        placeholder: "Choose Customer" // Define o placeholder
     });
 
-    // Adiciona um event listener para o evento de mudança usando jQuery
     $("#listOfInside").on('change', async function(e) {
-        if(this.value != '000'){
+        if (this.value !== '000') {
             const selectedValue = this.value;
             const selectedText = this.options[this.selectedIndex].text;
-            // await selectUserComission(selectedValue, selectedText, 'Inside');
-    
-            // Define o valor do outro select como '000' e dispara o evento 'change'
-            $("#listOfSales").val('000').trigger('change');
+            $("#listOfSales").val('000').trigger('change'); // Define o valor da outra lista como padrão e dispara o evento 'change'
         }
-        
     });
 }
 
-async function createRegister(typeID, dateFilter, user){
-    document.querySelector('#loader2').classList.remove('d-none')
-    const allProcessSelected = document.querySelectorAll('.selectCheckbox')
-    const processSelected = []
+/**
+ * Função para criar um registro.
+ * @param {number} typeID - Tipo de ID (0 para Vendedor, 1 para Inside)
+ * @param {object} dateFilter - Filtros de data
+ * @param {object} user - Dados do usuário
+ */
+async function createRegister(typeID, dateFilter, user) {
+    document.querySelector('.btn_salvarRegistro').setAttribute('disabled', true); // Desabilita o botão de salvar registro
+    const allProcessSelected = document.querySelectorAll('.selectCheckbox'); // Seleciona todos os checkboxes de processos
+    const processSelected = [];
 
+    // Itera sobre todos os checkboxes e adiciona os processos selecionados à lista
     for (let index = 0; index < allProcessSelected.length; index++) {
         const element = allProcessSelected[index];
-
-        if(element.checked){
-            processSelected.push(element.getAttribute('data-id'))
+        if (element.checked) {
+            processSelected.push(element.getAttribute('data-id'));
         }
-          
     }
 
-   
+    createToast('Sirius', `Registro de comissão gerado, não se preocupe, estamos fazendo tudo para você`); // Exibe uma mensagem de sucesso
+    const dados = await makeRequest(`/api/headcargo/commission/createRegister`, 'POST', { process: processSelected, type: typeID, dateFilter, user }); // Faz uma requisição para criar um novo registro
+    document.querySelector('.btn_salvarRegistro').removeAttribute('disabled'); // Reabilita o botão de salvar registro
 
-
-
-    const dados = await makeRequest(`/api/headcargo/commission/createRegister`,'POST', {process: processSelected, type: typeID, dateFilter:dateFilter, user});
-    
-
-    document.querySelector('#loader2').classList.add('d-none')
+    if (dados.success) {
+        createToast('Sirius', `Email registro de comissão enviado com sucesso!`); // Exibe uma mensagem de sucesso se a criação do registro for bem-sucedida
+    } else {
+        createToast('Sirius', `Tivemos problemas para gerar o registro e enviar o email.`); // Exibe uma mensagem de erro se houver problemas
+    }
 }
 
-async function eventsCliks(){
-    
-    // ESCUTA O EVENTO CLICK NO CHECKBOX DA TABELA PARA MARCAR TODOS OS PROCESSOS OU DESMARCAR
-    const selectAllCheckbox = document.querySelector('.selectAllCheckbox')
-    selectAllCheckbox.addEventListener('click', function(){
-        const all = this.checked
-
-        const allChecks = document.querySelectorAll('.selectCheckbox')
+/**
+ * Função para configurar eventos de clique.
+ */
+async function eventsCliks() {
+    // Seleciona o checkbox para selecionar todos os processos
+    const selectAllCheckbox = document.querySelector('.selectAllCheckbox');
+    selectAllCheckbox.addEventListener('click', function() {
+        const all = this.checked; // Obtém o estado do checkbox (selecionado ou não)
+        const allChecks = document.querySelectorAll('.selectCheckbox'); // Seleciona todos os checkboxes de processos
         for (let index = 0; index < allChecks.length; index++) {
             const element = allChecks[index];
-            element.checked = all
-            
-        }
-    })
-
-}
-
-function formatarNome(nome) {
-    const preposicoes = new Set(["de", "do", "da", "dos", "das"]);
-    const palavras = nome.split(" ");
-    
-    const palavrasFormatadas = palavras.map((palavra, index) => {
-        // Se a palavra for uma preposição e não é a primeira palavra
-        if (preposicoes.has(palavra.toLowerCase()) && index !== 0) {
-            return palavra.toLowerCase();
-        } else {
-            return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
+            element.checked = all; // Define o estado de todos os checkboxes com base no estado do checkbox "selecionar todos"
         }
     });
-    
-    return palavrasFormatadas.join(" ");
 }
- /* templating */
- function formatState(state) {
+
+/**
+ * Função para formatar o nome.
+ * @param {string} nome - Nome a ser formatado
+ * @returns {string} - Nome formatado
+ */
+function formatarNome(nome) {
+    const preposicoes = new Set(["de", "do", "da", "dos", "das"]); // Conjunto de preposições
+    const palavras = nome.split(" "); // Divide o nome em palavras
+    const palavrasFormatadas = palavras.map((palavra, index) => {
+        // Verifica se a palavra é uma preposição e não é a primeira palavra
+        if (preposicoes.has(palavra.toLowerCase()) && index !== 0) {
+            return palavra.toLowerCase(); // Retorna a palavra em minúsculas
+        } else {
+            return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase(); // Retorna a palavra com a primeira letra em maiúscula e o restante em minúsculas
+        }
+    });
+    return palavrasFormatadas.join(" "); // Junta as palavras formatadas em uma string
+}
+
+/**
+ * Função para formatar o estado.
+ * @param {object} state - Estado a ser formatado
+ * @returns {jQuery} - Elemento jQuery formatado
+ */
+function formatState(state) {
     if (!state.id) {
-        return state.text;
+        return state.text; // Retorna o texto se o estado não tiver ID
     }
-    var baseUrl = ''
-    if(state.id == '000'){
-        baseUrl = "../../assets/images/media/not-user.png";  
-    }else{
-        baseUrl = "https://cdn.conlinebr.com.br/colaboradores/"+state.id;
-    }
-
-
-    var $state = $(
-        '<span><img src="'+baseUrl+'" class="img-flag" > ' + state.text + '</span>'
+    const baseUrl = state.id === '000' ? "../../assets/images/media/not-user.png" : `https://cdn.conlinebr.com.br/colaboradores/${state.id}`; // Define a URL da imagem
+    const $state = $(
+        `<span><img src="${baseUrl}" class="img-flag"> ${state.text}</span>` // Cria um elemento span com a imagem e o texto do estado
     );
     return $state;
-};
+}
 
+/**
+ * Função para obter valores de checkboxes marcados.
+ * @param {string} selector - Seletor dos checkboxes
+ * @returns {Array} - Lista de valores dos checkboxes marcados
+ */
+function getCheckedValues(selector) {
+    const checkboxes = document.querySelectorAll(selector); // Seleciona os checkboxes com o seletor fornecido
+    const checkboxArray = Array.from(checkboxes); // Converte a NodeList para um array
+    return checkboxArray.map(checkbox => checkbox.checked ? checkbox.value : '').filter(valor => valor !== ''); // Retorna os valores dos checkboxes marcados, filtrando valores vazios
+}
 
+/**
+ * Função para validar os filtros selecionados.
+ * @param {Array} recebimentoList - Lista de valores de recebimento
+ * @param {Array} ComissaoAgenteList - Lista de valores de comissão de agente
+ * @param {Array} pagamentoList - Lista de valores de pagamento
+ * @param {Array} comissao_vendedorList - Lista de valores de comissão de vendedor
+ * @param {Array} comissao_insideList - Lista de valores de comissão de inside
+ * @param {Array} modalidadeList - Lista de valores de modalidade
+ * @returns {boolean} - Verdadeiro se todos os filtros são válidos, falso caso contrário
+ */
+function validateFilters(recebimentoList, ComissaoAgenteList, pagamentoList, comissao_vendedorList, comissao_insideList, modalidadeList) {
+    if (recebimentoList.length === 0) {
+        alert("Por favor, selecione pelo menos uma opção de 'Recebimento'.");
+        return false;
+    }
+    if (ComissaoAgenteList.length === 0) {
+        alert("Por favor, selecione pelo menos uma opção de 'Comissao Agente'.");
+        return false;
+    }
+    if (pagamentoList.length === 0) {
+        alert("Por favor, selecione pelo menos uma opção de 'Pagamento'.");
+        return false;
+    }
+    if (comissao_vendedorList.length === 0) {
+        alert("Por favor, selecione pelo menos uma opção de 'Comissao Vendedor'.");
+        return false;
+    }
+    if (comissao_insideList.length === 0) {
+        alert("Por favor, selecione pelo menos uma opção de 'Comissao Inside'.");
+        return false;
+    }
+    if (modalidadeList.length === 0) {
+        alert("Por favor, selecione pelo menos uma opção de 'Modalidade'.");
+        return false;
+    }
+    return true;
+}

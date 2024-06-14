@@ -318,6 +318,70 @@ const headcargo = {
         return format;
   
     },
+    listRegisterComission: async function(){
+      const sql = `SELECT cmmr.*, collab.name, collab.family_name FROM commission_reference cmmr
+      JOIN collaborators collab ON collab.id_headcargo = cmmr.user ORDER BY cmmr.id`;
+      const registers = await executeQuery(sql)
+      return registers;
+    },
+    getRegisterById: async function(id){
+      const sql = `SELECT
+      cmmh.*,
+      cllt_inside.name as 'InsideName',
+      cllt_inside.family_name as 'InsideFamily',
+      cllt_vendedor.name as 'SellerName',
+      cllt_vendedor.family_name as 'SellerFamily',
+      collab_user.name as 'ByUserName',
+      collab_user.family_name as 'ByUserFamily',
+      cllt_inside.id_headcargo as 'InsideHeadID',
+      cllt_vendedor.id_headcargo as 'SellerHeadID',
+      cmmr.commissioned_type
+      FROM commission_history cmmh
+      JOIN collaborators cllt_inside ON cllt_inside.id_headcargo = cmmh.id_inside
+      JOIN collaborators cllt_vendedor ON cllt_vendedor.id_headcargo = cmmh.id_seller
+      JOIN users cad_user ON cad_user.id = cmmh.by_user
+      JOIN collaborators collab_user ON collab_user.id = cad_user.collaborator_id
+      JOIN commission_reference cmmr ON cmmr.id = cmmh.reference
+      WHERE cmmh.reference = ${id}`;
+
+      const registers = await executeQuery(sql)
+
+      // Mapear os resultados e formatar a data
+      const newRegisters = registers.map(item => ({
+        'modal': item.modal,
+        'processo': item.reference_process,
+        'payment': item.audited ? '<span style="display:none">'+item.audited+'</span>'+new Date(item.audited).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '',
+        'seller': headcargo.formatarNome(item.SellerName+' '+item.SellerFamily),
+        'inside': headcargo.formatarNome(item.InsideName+' '+item.InsideFamily),
+        'valueComission': Number(item.commission).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
+        'ValueProfit': Number(item.effective).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
+        'create_date': new Date(item.create_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }),
+        'byUser': headcargo.formatarNome(item.ByUserName+' '+item.ByUserFamily),
+        'status': item.status == 0 ? 'Pendente' : 'Pago',
+        'commissioned_type':item.commissioned_type
+      }));
+
+
+
+      let total_profit_process = 0
+      let total_comission = 0
+      for (let index = 0; index < registers.length; index++) {
+        const element = registers[index];
+          total_profit_process += Number(element.effective)
+          total_comission += Number(element.commission)
+      }
+
+
+      
+
+      return {
+        data:newRegisters,
+        total_comission:Number(total_comission).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
+        total_profit_process:Number(total_profit_process).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
+        comissionUserID: registers[0].commissioned_type == 1 ? registers[0].SellerHeadID : registers[0].InsideHeadID,
+        comissionUserName: registers[0].commissioned_type == 1 ? headcargo.formatarNome(registers[0].SellerName+' '+registers[0].SellerFamily) : headcargo.formatarNome(registers[0].InsideName+' '+registers[0].InsideFamily)
+      };
+    },
     createRegisterComission: async function(processList, type, dateFilter, user){
          
 
@@ -713,19 +777,14 @@ const headcargo = {
         };
 
         // Envia o e-mail para o destinatário atual
-        const sendmail = transporter.sendMail(mailOptions, async (error, info) => {
-            if (!error) {
-                console.log('email enviado com sucesso')
-
-                // return true
-            }else{
-
-                console.log(error)
-                // return false;
-            }
-        })
-
-        return true;
+        try {
+          const info = await transporter.sendMail(mailOptions);
+          console.log('Email enviado com sucesso:', info.response);
+          return { success: true, timestamp: new Date().toISOString() };
+        } catch (error) {
+            console.error('Erro ao enviar email:', error);
+            return { success: false, error: error.message };
+        }
 
 
     },

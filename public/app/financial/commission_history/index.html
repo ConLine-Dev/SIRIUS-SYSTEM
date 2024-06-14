@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Controle de Comissões</title>
+    <title>Registro de Comissões</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
@@ -522,186 +522,60 @@
                         <div class="file-manager-navigation">
                             <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
                                 <div>
-                                    <h6 class="fw-semibold mb-0">Controle de Comissões</h6> </div>
+                                    <h6 class="fw-semibold mb-0">Registros</h6> </div>
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-icon btn-primary-light btn-wave waves-light waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="ri-settings-3-line"></i> </button>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="/app/financial/commission_history/">Todos Registros</a></li>
+                                        <li><a class="dropdown-item" href="/app/financial/commission/">Ger. de comissões</a></li>
                                         <!-- <li><a class="dropdown-item" href="javascript:void(0);">Another action</a></li>
                                         <li><a class="dropdown-item" href="javascript:void(0);">Something else here</a></li> -->
                                     </ul>
                                 </div>
                             </div>
+                            <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
+                                <div style="width: 100%;">
+                                    <input class="form-control" type="text" placeholder="Referência CMS...">
+                                </div>
+                               
+                            </div>
                        
                       
-                                <ul class="list-unstyled files-main-nav" id="files-main-nav" data-simplebar="init">
-                                    <div class="simplebar-wrapper" >
-                                        <div class="simplebar-height-auto-observer-wrapper">
-                                            <div class="simplebar-height-auto-observer"></div>
-                                        </div>
-                                        <div class="simplebar-mask">
-                                            <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
-                                                <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
-                                                    <div class="simplebar-content" style="padding: 16px;padding-bottom: 81px;">
-                                                        <li class="files-type">
-                                                          
-                                                                <label for="input-date" class="form-label">De:</label> 
-                                                                <input type="date" class="form-control" id="dataDe"> 
+                            <div class="card-body p-0">
+                                <ul class="list-group list-group-flush listHistory">
+                                    <li class="list-group-item">
+                                        <div class="d-flex align-items-center justify-content-between  flex-wrap">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div> <span class="avatar bg-light"> <img src="https://cdn.conlinebr.com.br/colaboradores/48906" alt=""> </span> </div>
+                                                <div> 
+                                                    <span class="d-block fw-semibold">Gesiane Pezzini <i class="bi bi-patch-check-fill text-success ms-2"></i></span> 
+                                                    <span class="d-block text-muted fs-12 fw-normal">Pago</span>
+                                                 </div>
+                                            </div>
 
-                                                              
-                                                          
-                                                        </li>
-                                                        <li class="files-type">
-                                                            <label for="input-date" class="form-label">Até:</label> 
-                                                            <input type="date" class="form-control" id="dataAte"> 
-                                                        </li>
-                                                        <li class="files-type">
-                                                            <label for="input-date" class="form-label">Vendedor:</label> 
-                                                            <select name="" id="listOfSales" class="form-control" id="vendedorID"></select>
-                                                        </li>
-                                                        <li class="files-type">
-                                                            <label for="input-date" class="form-label">Inside Sales:</label> 
-                                                            <select name="" id="listOfInside" class="form-control" id="InsideID"></select>
-                                                        </li>
-                                                        <li class="files-type">
-                                                            <label for="input-date" class="form-label">Recebimento:</label> 
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 recebimento" type="checkbox" value="0" > 
-                                                                <label class="form-check-label" for="c-1"> Sem recebimento </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 recebimento" type="checkbox" value="1" > 
-                                                                <label class="form-check-label" for="c-1"> Em aberto </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 recebimento" type="checkbox" value="2" > 
-                                                                <label class="form-check-label" for="c-1"> Parcialmente recebido </label>
-                                                            </div>
-
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 recebimento" type="checkbox" value="3" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Recebido </label>
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <label for="input-date" class="form-label">Pagamento:</label> 
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 pagamento" type="checkbox" value="0" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Sem pagamento </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 pagamento" type="checkbox" value="1" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Em aberto </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 pagamento" type="checkbox" value="2" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Parcialmente pago </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 pagamento" type="checkbox" value="3" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Pago </label>
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <label for="input-date" class="form-label">Comissão Agente:</label> 
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 ComissaoAgente" type="checkbox" value="0" > 
-                                                                <label class="form-check-label" for="c-1"> Sem pagamento </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 ComissaoAgente" type="checkbox" value="1" > 
-                                                                <label class="form-check-label" for="c-1"> Em aberto </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 ComissaoAgente" type="checkbox" value="2" > 
-                                                                <label class="form-check-label" for="c-1"> Parcialmente pago </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 ComissaoAgente" type="checkbox" value="3" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Pago </label>
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <label for="input-date" class="form-label">Comissão Vendedor:</label> 
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 comissao_vendedor" type="checkbox" value="1" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Pago </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 comissao_vendedor" type="checkbox" value="0" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Sem pagamento </label>
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <label for="input-date" class="form-label">Comissão Inside Sales:</label> 
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 comissao_inside" type="checkbox" value="1" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Pago </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 comissao_inside" type="checkbox" value="0" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Sem pagamento </label>
-                                                            </div>
-                                                        </li>
-                                                        <li class="mb-4">
-                                                            <label for="input-date" class="form-label">Modalidade:</label> 
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="5" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Importação Maritima </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="4" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Importação Aérea </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="6" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Importação Terrestre </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="2" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Exportação Maritima </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="1" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Exportação Aérea </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="3" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Exportação Terrestre </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="9" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Nacional Terrestre </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="7"  checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Nacional Aéreo </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="8"  checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Cabotagem </label>
-                                                            </div>
-                                                          
-                                                        </li>
-                                                        
-                                                        <li class="d-flex align-items-center justify-content-center">
-                                                          
-                                                                <button onclick="submitCommission()" class="btn btn-primary-gradient" style="width: 100%;">Filtrar</button>
-                                                        
-                                                        </li>
-                                                    </div>
-                                                </div>
+                                            <div> 
+                                                <span class="fs-12 text-muted">Referência</span> 
+                                                <span class="d-block text-muted fs-12 fw-normal">CMS0072-24</span> 
                                             </div>
                                         </div>
-                                        <div class="simplebar-placeholder" style="width: auto; height: 809px;"></div>
-                                    </div>
-                                    <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
-                                        <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
-                                    </div>
-                                    <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
-                                        <div class="simplebar-scrollbar" style="height: 546px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
-                                    </div>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <div class="d-flex align-items-center justify-content-between  flex-wrap">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div> <span class="avatar bg-light"> <img src="https://cdn.conlinebr.com.br/colaboradores/48906" alt=""> </span> </div>
+                                                <div> 
+                                                    <span class="d-block fw-semibold">Gesiane Pezzini <i class="bi bi-patch-exclamation-fill text-danger ms-2"></i></span> 
+                                                    <span class="d-block text-muted fs-12 fw-normal">Pago</span>
+                                                 </div>
+                                            </div>
+
+                                            <div> 
+                                                <span class="fs-12 text-muted">Referência</span> 
+                                                <span class="d-block text-muted fs-12 fw-normal">CMS0072-24</span> 
+                                            </div>
+                                        </div>
+                                    </li>
                                 </ul>
+                            </div>
                            
                         </div>
                        </div>
@@ -806,7 +680,7 @@
                         </div>
                         <div class="card custom-card">
                             <div class="card-header">
-                                <div class="card-title"> Gerenciamento de Comissões </div>
+                                <div class="card-title"> Registro de Comissões </div>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -815,24 +689,16 @@
                                                 <table id="table_commission_commercial" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
                                                     <thead>
                                                         <tr>
-                                                            <th class="" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1"  style="width: 350px;">
-                                                                <input class="form-check-input me-2 selectAllCheckbox" id="selectAllChecked" type="checkbox" checked="">
-                                                            </th>
-                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 350px;">Modal</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Processo</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Abertura</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Compensação</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Tipo</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Cliente</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Vendedor</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Inside</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Consignee</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Shipper</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Comissão Vendedor</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Comissão IS</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Estimado</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Efetivo</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Restante</th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending">Processo</th>
+                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending">Modal</th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Vendedor</th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Inside</th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Criado em</th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Pago em</th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Status</th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Profit</th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Comissão</th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Gerado por</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -1015,6 +881,7 @@
 
 
     <script src="../../assets/js/real-time.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
 
     <script src="./assets/js/index.js"></script>
 

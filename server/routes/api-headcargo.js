@@ -34,6 +34,35 @@ router.post('/createRegister', async (req, res, next) => {
     }
 });
 
+router.post('/getRegisterById', async (req, res, next) => {
+    const {id} = req.body;
+
+    try {
+        const result = await headcargo.getRegisterById(id);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+
+        res.status(404).json('Erro')   
+    }
+});
+
+
+
+
+router.post('/listRegister', async (req, res, next) => {
+    try {
+        const result = await headcargo.listRegisterComission();
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+
+        res.status(404).json('Erro')   
+    }
+});
+
 router.post('/filterComission', async (req, res, next) => {
     const {filters} = req.body;
 

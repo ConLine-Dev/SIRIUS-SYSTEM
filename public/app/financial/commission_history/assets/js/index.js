@@ -11,7 +11,7 @@ const StorageGoogleData = localStorage.getItem('StorageGoogle');
 // Converte os dados armazenados de JSON para um objeto JavaScript
 const StorageGoogle = JSON.parse(StorageGoogleData);
 
-
+let commissionedID, commissionedName,commissionTotalProfitProcess,commissionType, commissionTotalComission,commissionLength, registerCommissionID;
 /**
  * Evento que será disparado quando o DOM estiver completamente carregado,
  * mas antes que recursos adicionais (como imagens e folhas de estilo) sejam carregados.
@@ -86,9 +86,16 @@ async function events(){
 
 async function getRegisterById(id){
     const register = await makeRequest(`/api/headcargo/commission/getRegisterById`,'POST', {id:id});
-    
-    console.log(register.data[0])
+    console.log(register)
     const typeSales = register.data[0].commissioned_type == 1 ? 'Vendedor' : 'Inside'; 
+
+    commissionedName = register.comissionUserName;
+    commissionedID = register.comissionUserID;
+    registerCommissionID = register.registerID
+    commissionTotalProfitProcess = register.total_profit_process
+    commissionTotalComission = register.total_comission
+    commissionLength = (register.data).length;
+    commissionType = typeSales
 
     await createTableRegisters(register.data, register.comissionUserName, typeSales)
 
@@ -112,7 +119,13 @@ async function getRegisterById(id){
 }  
 
 async function createTableRegisters(registers, name, type){
-    console.log(registers[0])
+    // console.log(registers[0])
+
+    if ($.fn.DataTable.isDataTable('#table_commission_commercial')) {
+        $('#table_commission_commercial').DataTable().destroy(); // Destrói a tabela DataTable existente
+    }
+
+
     $('#table_commission_commercial').DataTable({
                 layout: {
                     topStart: {
@@ -129,7 +142,8 @@ async function createTableRegisters(registers, name, type){
                                 text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Enviar por E-mail',
                                 className: 'btn btn-primary label-btn btn-table-custom',
                                 enabled: true,
-                                action: function (e, dt, node, config) {
+                                action: async function (e, dt, node, config) {
+                                    await sendEmailRegisterComission()
                                     // Ação a ser executada ao clicar no botão
                                 }
                             },
@@ -169,6 +183,23 @@ async function createTableRegisters(registers, name, type){
                     sSearch: '',
                 },
     });
+}
+
+
+async function sendEmailRegisterComission(){
+    const data = {
+        commissionedID:commissionedID,
+        commissionedName:commissionedName,
+        registerCommissionID:registerCommissionID,
+        commissionTotalProfitProcess:commissionTotalProfitProcess,
+        commissionType:commissionType,
+        commissionTotalComission:commissionTotalComission,
+        commissionLength:commissionLength
+    }
+
+    const sendEmail = await makeRequest(`/api/headcargo/commission/sendEmailRegisters`,'POST', data);
+
+    return sendEmail;
 }
 
 function exportToExcel(data, fileName) {

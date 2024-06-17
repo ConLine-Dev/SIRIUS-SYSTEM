@@ -324,6 +324,10 @@ const headcargo = {
       const registers = await executeQuery(sql)
       return registers;
     },
+    sendEmailRegisters: async function(data){
+      console.log(data)
+      return data
+    },
     getRegisterById: async function(id){
       const sql = `SELECT
       cmmh.*,
@@ -376,6 +380,7 @@ const headcargo = {
 
       return {
         data:newRegisters,
+        registerID:id,
         total_comission:Number(total_comission).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
         total_profit_process:Number(total_profit_process).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
         comissionUserID: registers[0].commissioned_type == 1 ? registers[0].SellerHeadID : registers[0].InsideHeadID,

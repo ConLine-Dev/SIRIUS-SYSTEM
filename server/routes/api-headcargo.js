@@ -48,7 +48,17 @@ router.post('/getRegisterById', async (req, res, next) => {
     }
 });
 
+router.post('/sendEmailRegisters', async (req, res, next) => {
+    try {
+        const result = await headcargo.sendEmailRegisters(req.body);
 
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+
+        res.status(404).json('Erro')   
+    }
+});
 
 
 router.post('/listRegister', async (req, res, next) => {

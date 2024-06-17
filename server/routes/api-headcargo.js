@@ -60,6 +60,20 @@ router.post('/sendEmailRegisters', async (req, res, next) => {
     }
 });
 
+router.post('/confirmPayment', async (req, res, next) => {
+    const {id} = req.body;
+    try {
+        const result = await headcargo.confirmPayment(id);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+
+        res.status(404).json('Erro')   
+    }
+});
+
+
 
 router.post('/listRegister', async (req, res, next) => {
     try {

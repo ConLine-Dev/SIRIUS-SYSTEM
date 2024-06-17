@@ -33,14 +33,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             layout: {
                 topStart: {
                     buttons: [
-                        {
-                            text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Salvar Registro',
-                            className: 'btn btn-primary label-btn btn-table-custom',
-                            enabled: false,
-                            action: function (e, dt, node, config) {
-                                // Ação a ser executada ao clicar no botão
-                            }
-                        }
+                        // {
+                        //     text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Salvar Registro',
+                        //     className: 'btn btn-primary label-btn btn-table-custom',
+                        //     enabled: false,
+                        //     action: function (e, dt, node, config) {
+                        //         // Ação a ser executada ao clicar no botão
+                        //     }
+                        // }
                     ]
                 }
             },
@@ -51,9 +51,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             bInfo: false,
             order: [[0, 'desc']],
             language: {
+                url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
                 searchPlaceholder: 'Pesquisar...',
-                sSearch: '',
-            },
+                Search: '',
+            }
         });
     }
 
@@ -242,9 +243,10 @@ async function submitCommission() {
             { data: 'restante' }, // Coluna de valor restante
         ],
         language: {
-            searchPlaceholder: 'Pesquisar...', // Define o placeholder do campo de busca
-            sSearch: '', // Define o texto do campo de busca
-        },
+            url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
+            searchPlaceholder: 'Pesquisar...',
+            Search: '',
+        }
     });
 
     document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
@@ -298,6 +300,7 @@ function createToast(title, text) {
  */
 async function loadSales() {
     const getSales = await makeRequest(`/api/headcargo/user/ByDep/62`); // Faz uma requisição para obter os dados de vendas
+
     const options = getSales.map(sales => `<option value="${sales.IdFuncionario}">${formatarNome(sales.Nome)}</option>`); // Cria opções para cada venda
     const optionDefault = `<option value="000" selected>Sem seleção</option>`; // Cria uma opção padrão
     const listOfSales = document.getElementById('listOfSales'); // Seleciona o elemento de lista de vendas

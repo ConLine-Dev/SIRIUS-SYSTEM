@@ -325,8 +325,54 @@ const headcargo = {
       return registers;
     },
     sendEmailRegisters: async function(data){
-      console.log(data)
-      return data
+ 
+      const resultHistory = await executeQuery(`SELECT * FROM commission_history WHERE reference = ${data.registerCommissionID}`);
+      const reference = await executeQuery(`SELECT * FROM commission_reference WHERE id = ${data.registerCommissionID}`);
+      let commissionTotalComission = parseFloat((data.commissionTotalComission).replace('R$', '').trim().replace(/\./g, '').replace(',', '.'));
+      const resultConcat = resultHistory.map((index) => index.id_process).join(',');
+      const getAllProcessToReference = await headcargo.getAllProcessToReference(resultConcat)
+      
+      const type = reference[0].commissioned_type == 1 ? 0 : 1;
+      const templateHTML =  await headcargo.createTableComission(getAllProcessToReference, type, {de:reference[0].filter_from, ate:reference[0].filter_to}, {name:data.commissionedName, id:reference[0].user}, {total_comissinado:commissionTotalComission})
+
+      const responsiblesGenarate = await executeQuery(`SELECT users.*, 
+      cllt.name as 'name', cllt.family_name as 'family_name' FROM users 
+      JOIN collaborators cllt ON users.collaborator_id = cllt.id
+      WHERE users.id = ${reference[0].by_user}`)
+ 
+      const nameGenerated = headcargo.formatarNome(responsiblesGenarate[0].name+' '+responsiblesGenarate[0].family_name)
+
+      const createBody = await headcargo.createBodyHTMLComission(reference[0].reference, templateHTML.title, templateHTML.html, nameGenerated, templateHTML.filterDates, templateHTML)
+
+    
+      const sendmail = await headcargo.sendEmailComission(templateHTML.subject, createBody)
+      
+      
+      return sendmail
+    },
+    confirmPayment: async function(id){
+  
+      const resultHistory = await executeQuery(`SELECT * FROM commission_history WHERE reference = ${id}`);
+      const resultDbContat = resultHistory.map((index) => index.id).join(',');
+
+
+      const resultReference = await executeQuery(`SELECT * FROM commission_reference WHERE id = ${id}`);
+      const resultConcat = resultHistory.map((index) => index.id_process).join(',');
+      
+ 
+      //baixa na tabela do sirius
+      await executeQuery(`UPDATE commission_history SET status = 1,payment_date = '${headcargo.getFormattedDate()}' WHERE id IN (${resultDbContat})`);
+      await executeQuery(`UPDATE commission_reference SET status = 1, payment_date = '${headcargo.getFormattedDate()}' WHERE id = ${id}`);
+
+      const typeComission = resultReference[0].commissioned_type == 1 ? 'Comissao_Vendedor_Pago' : 'Comissao_Inside_Sales_Pago'
+
+      console.log(typeComission)
+      const teste = await executeQuerySQL(`SELECT ${typeComission} FROM mov_Logistica_House WHERE IdLogistica_house IN (${resultConcat})`)
+      
+      return teste
+      // await executeQuerySQL(`UPDATE mov_Logistica_House SET ${typeComission} = 1 WHERE IdLogistica_house in (${resultConcat})`)
+
+    
     },
     getRegisterById: async function(id){
       const sql = `SELECT
@@ -354,14 +400,14 @@ const headcargo = {
       const newRegisters = registers.map(item => ({
         'modal': item.modal,
         'processo': item.reference_process,
-        'payment': item.audited ? '<span style="display:none">'+item.audited+'</span>'+new Date(item.audited).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '',
+        'payment': item.payment_date ? '<span style="display:none">'+item.payment_date+'</span>'+new Date(item.payment_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'Pendente',
         'seller': headcargo.formatarNome(item.SellerName+' '+item.SellerFamily),
         'inside': headcargo.formatarNome(item.InsideName+' '+item.InsideFamily),
         'valueComission': Number(item.commission).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
         'ValueProfit': Number(item.effective).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
         'create_date': new Date(item.create_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }),
         'byUser': headcargo.formatarNome(item.ByUserName+' '+item.ByUserFamily),
-        'status': item.status == 0 ? 'Pendente' : 'Pago',
+        'status': item.status == 0 ? 'Em aberto' : 'Pago',
         'commissioned_type':item.commissioned_type
       }));
 
@@ -395,11 +441,17 @@ const headcargo = {
        
         const infoProcess = await headcargo.getAllProcessToReference(resultConcat);
 
-        const register = await headcargo.registerDBComission(infoProcess, user)
+        const register = await headcargo.registerDBComission(infoProcess, user, dateFilter)
         
         const templateHTML =  await headcargo.createTableComission(infoProcess, type, dateFilter, user, register)
+
+        const responsiblesGenarate = await executeQuery(`SELECT users.*, 
+        cllt.name as 'name', cllt.family_name as 'family_name' FROM users 
+        JOIN collaborators cllt ON users.collaborator_id = cllt.id
+        WHERE users.id = ${user.userLog}`)
    
-        const createBody = await headcargo.createBodyHTMLComission(register.reference, templateHTML.title, templateHTML.html, 'Petryck William', templateHTML.filterDates, templateHTML)
+        const nameGenerated = headcargo.formatarNome(responsiblesGenarate[0].name+' '+responsiblesGenarate[0].family_name)
+        const createBody = await headcargo.createBodyHTMLComission(register.reference, templateHTML.title, templateHTML.html, nameGenerated, templateHTML.filterDates, templateHTML)
 
 
         const sendmail = await headcargo.sendEmailComission(templateHTML.subject, createBody)
@@ -407,7 +459,7 @@ const headcargo = {
         return sendmail;
 
     },
-    registerDBComission: async function(process, user){
+    registerDBComission: async function(process, user, dateFilter){
         const commissioned_type = user.type == 0 ? 1 : 2
         const userLogId = user.userLog;
         const currentYear = new Date().getFullYear() % 100;
@@ -427,9 +479,7 @@ const headcargo = {
 
         const reference = `CMS${lastQuantity.toString().padStart(4, '0')}-${currentYear}`;
 
-
-
-        const result = await executeQuery(`INSERT INTO commission_reference (reference, date, commissioned_type, by_user, user) VALUES ('${reference}', '${headcargo.getFormattedDate()}', ${commissioned_type}, ${userLogId}, ${user.id})`)
+        const result = await executeQuery(`INSERT INTO commission_reference (reference, date, commissioned_type, by_user, user, filter_from, filter_to) VALUES ('${reference}', '${headcargo.getFormattedDate()}', ${commissioned_type}, ${userLogId}, ${user.id}, '${dateFilter.de}', '${dateFilter.ate}')`)
         const idReferenci = result.insertId;
 
         let total_comissao = 0;
@@ -645,6 +695,8 @@ const headcargo = {
       return body;
     },
     createTableComission: async function(processList, type, dateFilter, user, registerComission){
+      
+      console.log(dateFilter)
       const commissioned_type = type == 0 ? 1 : 2
         // assunto do email
         const assunto = `[ConLine]- Pagamento Comissões`;
@@ -652,10 +704,6 @@ const headcargo = {
         // formata a data apresentada no email
         const new_data_de = headcargo.formatDate(dateFilter.de)
         const new_data_ate = headcargo.formatDate(dateFilter.ate)
-
-        
-
-
 
         let Row_process = `
             <tr>
@@ -688,8 +736,8 @@ const headcargo = {
                 <td style="border-color:black;border-style:solid;border-width:1px;white-space: nowrap;">${e.Cliente == '' || e.Cliente == null ? 'Sem Seleção' : headcargo.formatarNome(e.Cliente.slice(0, 20))}</td>
                 <td style="border-color:black;border-style:solid;border-width:1px;white-space: nowrap;padding: 8px;">${e.Vendedor == '' || e.Vendedor == null ? 'Sem Seleção' : headcargo.formatarNome(e.Vendedor)}</td>
                 <td style="border-color:black;border-style:solid;border-width:1px;white-space: nowrap;padding: 8px;">${e.Inside_Sales == '' || e.Inside_Sales == null ? 'Sem Seleção' : headcargo.formatarNome(e.Inside_Sales)}</td>
-                <td style="border-color:black;border-style:solid;border-width:1px;text-align: right;white-space: nowrap;">${e.Valor_Estimado.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</td>
-                <td style="border-color:black;border-style:solid;border-width:1px;text-align: right;white-space: nowrap;">${e.Valor_Efetivo.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</td>1
+                <td style="border-color:black;border-style:solid;border-width:1px;text-align: right;white-space: nowrap;">${Number(e.Valor_Estimado).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</td>
+                <td style="border-color:black;border-style:solid;border-width:1px;text-align: right;white-space: nowrap;">${Number(e.Valor_Efetivo).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</td>
             </tr>`;
             
         }

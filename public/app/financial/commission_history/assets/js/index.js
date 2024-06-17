@@ -11,7 +11,9 @@ const StorageGoogleData = localStorage.getItem('StorageGoogle');
 // Converte os dados armazenados de JSON para um objeto JavaScript
 const StorageGoogle = JSON.parse(StorageGoogleData);
 
-let commissionedID, commissionedName,commissionTotalProfitProcess,commissionType, commissionTotalComission,commissionLength, registerCommissionID;
+// Variável
+let toastCount = 0,commissionedID, commissionedName,commissionTotalProfitProcess,commissionType, commissionTotalComission,commissionLength, registerCommissionID;
+
 /**
  * Evento que será disparado quando o DOM estiver completamente carregado,
  * mas antes que recursos adicionais (como imagens e folhas de estilo) sejam carregados.
@@ -61,27 +63,25 @@ async function listRegisters(){
     
 }
 
-async function events(){
-    const histories = document.querySelectorAll('.listHistory li');
-
-    for (let index = 0; index < histories.length; index++) {
-        const item = histories[index];
-
-        item.addEventListener('click', async function(e){
-            const id = this.getAttribute('data-comissionid')
-            const list = document.querySelectorAll('.listHistory li')
-            for (let index = 0; index < list.length; index++) {
-                const element = list[index];
-                element.classList.remove('activeRef')
-                
-            }
-            
-            await getRegisterById(id)
-            this.classList.add('activeRef')
-        })
-    }
-
+async function events() {
+    const listHistory = document.querySelector('.listHistory');
     
+    // Remove todos os event listeners existentes
+    const newElement = listHistory.cloneNode(true);
+    listHistory.parentNode.replaceChild(newElement, listHistory);
+
+    newElement.addEventListener('click', async function(e) {
+        if (e.target && e.target.closest('li')) {
+            const item = e.target.closest('li');
+            const id = item.getAttribute('data-comissionid');
+            const list = document.querySelectorAll('.listHistory li');
+
+            list.forEach(element => element.classList.remove('activeRef'));
+
+            await getRegisterById(id);
+            item.classList.add('activeRef');
+        }
+    });
 }
 
 async function getRegisterById(id){
@@ -119,7 +119,7 @@ async function getRegisterById(id){
 }  
 
 async function createTableRegisters(registers, name, type){
-    // console.log(registers[0])
+
 
     if ($.fn.DataTable.isDataTable('#table_commission_commercial')) {
         $('#table_commission_commercial').DataTable().destroy(); // Destrói a tabela DataTable existente
@@ -133,9 +133,24 @@ async function createTableRegisters(registers, name, type){
                             {
                                 text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Confirmar Pagamento',
                                 className: 'btn btn-primary label-btn btn-table-custom',
-                                enabled: registers[0].status == "Pendente" ? true : false,
-                                action: function (e, dt, node, config) {
+                                enabled: registers[0].status == "Em aberto" ? true : false,
+                                action: async function (e, dt, node, config) {
+                                    e.currentTarget.setAttribute('disabled', true)
                                     // Ação a ser executada ao clicar no botão
+                                    await confirmPayment();
+
+                                    createToast('Sirius', `Baixa de comissões para ${commissionedName} no valor total de ${commissionTotalComission} efetuada com sucesso!`); // Exibe uma mensagem de sucesso
+                                    await getRegisterById(registerCommissionID)
+                                    await listRegisters()
+                                    await events();
+
+                                    document.querySelector(`.listHistory li[data-comissionid="${registerCommissionID}"]`).classList.add('activeRef')
+                                    
+                                    
+
+
+
+                                  
                                 }
                             },
                             {
@@ -143,7 +158,14 @@ async function createTableRegisters(registers, name, type){
                                 className: 'btn btn-primary label-btn btn-table-custom',
                                 enabled: true,
                                 action: async function (e, dt, node, config) {
+                                    createToast('Sirius', `Enviando registro de comissão por e-mail, não se preocupe, estamos fazendo tudo para você`); // Exibe uma mensagem de sucesso
+
+                                    e.currentTarget.setAttribute('disabled', true)
                                     await sendEmailRegisterComission()
+                                    createToast('Sirius', `Registro de comissões enviado com sucesso!`); // Exibe uma mensagem de sucesso
+                                    setTimeout(() => {
+                                        e.currentTarget.removeAttribute('disabled')
+                                    }, 1000);
                                     // Ação a ser executada ao clicar no botão
                                 }
                             },
@@ -152,8 +174,14 @@ async function createTableRegisters(registers, name, type){
                                 className: 'btn btn-primary label-btn btn-table-custom',
                                 enabled: true,
                                 action: function (e, dt, node, config) {
+                                    createToast('Sirius', `Analisando dados e gerando Excel`); // Exibe uma mensagem de sucesso
+                                    e.currentTarget.setAttribute('disabled', true)
                                     exportToExcel(registers, `Registro de Comissão - ${name} - ${type}.xlsx`);
                                     // Ação a ser executada ao clicar no botão
+                                    createToast('Sirius', `Registro de Comissão - ${name} - ${type}.xlsx gerado com sucesso!`); // Exibe uma mensagem de sucesso
+                                    setTimeout(() => {
+                                        e.currentTarget.removeAttribute('disabled')
+                                    }, 1000);
                                 }
                             }
                         ]
@@ -179,12 +207,20 @@ async function createTableRegisters(registers, name, type){
                     { data: 'byUser' }, // Coluna de inside
                 ],
                 language: {
+                    url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
                     searchPlaceholder: 'Pesquisar...',
-                    sSearch: '',
-                },
+                    Search: '',
+                }
     });
 }
 
+async function confirmPayment(data){
+
+    const sendEmail = await makeRequest(`/api/headcargo/commission/confirmPayment`,'POST', {id:registerCommissionID});
+
+
+    
+}
 
 async function sendEmailRegisterComission(){
     const data = {
@@ -205,6 +241,16 @@ async function sendEmailRegisterComission(){
 function exportToExcel(data, fileName) {
      // Transformar os dados em um formato adequado para exportação
      var formattedData = data.map(function(row) {
+
+
+
+        if(row.payment != 'Pendente'){
+            const str = row.payment;
+            const regex = /<span.*?>(.*?)<\/span>(.*)/;
+            const match = str.match(regex);
+            row.payment = match[2]; // 2024-06-17 16:09:01
+        }
+    
       
         return {
             "Modal": row.modal,
@@ -288,5 +334,48 @@ function formatarNome(nome) {
     
     return palavrasFormatadas.join(" ");
 }
+
+
+/**
+ * Função para criar um toast.
+ * @param {string} title - Título do toast
+ * @param {string} text - Texto do toast
+ */
+function createToast(title, text) {
+    toastCount++; // Incrementa o contador de toasts
+    const toast = document.createElement('div'); // Cria um novo elemento div para o toast
+    toast.className = 'toast align-items-center border-0'; // Define as classes do toast
+    toast.id = `toast-${toastCount}`; // Define o ID do toast
+    toast.role = 'alert'; // Define o papel do toast como alerta
+    toast.ariaLive = 'assertive'; // Define a propriedade aria-live como assertiva
+    toast.ariaAtomic = 'true'; // Define a propriedade aria-atomic como true
+    toast.dataset.bsDelay = '5000'; // Define o atraso do toast para 5 segundos
+
+    const toastHeader = document.createElement('div'); // Cria um novo elemento div para o cabeçalho do toast
+    toastHeader.className = 'toast-header text-bg-danger'; // Define as classes do cabeçalho do toast
+    toastHeader.innerHTML = `
+        <strong class="me-auto">${title}</strong>
+        <small>Agora mesmo</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    `; // Define o conteúdo HTML do cabeçalho do toast
+
+    const toastBody = document.createElement('div'); // Cria um novo elemento div para o corpo do toast
+    toastBody.className = 'toast-body'; // Define a classe do corpo do toast
+    toastBody.innerText = text; // Define o texto do corpo do toast
+
+    toast.appendChild(toastHeader); // Adiciona o cabeçalho ao toast
+    toast.appendChild(toastBody); // Adiciona o corpo ao toast
+
+    const toastContainer = document.getElementById('toast-container'); // Seleciona o contêiner de toasts
+    toastContainer.appendChild(toast); // Adiciona o toast ao contêiner
+
+    const bsToast = new bootstrap.Toast(toast); // Inicializa o toast com o Bootstrap
+    bsToast.show(); // Exibe o toast
+
+    toast.addEventListener('hidden.bs.toast', function() {
+        toastContainer.removeChild(toast); // Remove o toast do DOM quando ele for ocultado
+    });
+}
+
 
 

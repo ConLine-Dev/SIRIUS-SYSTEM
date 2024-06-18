@@ -356,18 +356,14 @@ const headcargo = {
       const resultHistory = await executeQuery(`SELECT * FROM commission_history WHERE reference = ${id}`);
       const resultDbContat = resultHistory.map((index) => index.id).join(',');
 
-
       const resultReference = await executeQuery(`SELECT * FROM commission_reference WHERE id = ${id}`);
       const resultConcat = resultHistory.map((index) => index.id_process).join(',');
       
- 
       //baixa na tabela do sirius
       await executeQuery(`UPDATE commission_history SET status = 1,payment_date = '${headcargo.getFormattedDate()}' WHERE id IN (${resultDbContat})`);
       await executeQuery(`UPDATE commission_reference SET status = 1, payment_date = '${headcargo.getFormattedDate()}' WHERE id = ${id}`);
 
       const typeComission = resultReference[0].commissioned_type == 1 ? 'Comissao_Vendedor_Pago' : 'Comissao_Inside_Sales_Pago'
-
-      console.log(typeComission)
       const teste = await executeQuerySQL(`SELECT ${typeComission} FROM mov_Logistica_House WHERE IdLogistica_house IN (${resultConcat})`)
       
       return teste
@@ -1129,35 +1125,49 @@ const headcargo = {
             status: false
         };
     },
-    listSettings: async function(id, type){
-      
-      const collaborator = await executeQuery(`SELECT * FROM collaborators WHERE id_headcargo = ${id}`);
-
-      let resultadosFormatados;
-      if(collaborator.length){
-        const result = await executeQuery(`SELECT 
+    listSettings: async function(id, type) {
+        const collaborator = await executeQuery(`SELECT * FROM collaborators WHERE id_headcargo = ${id}`);
+    
+        let resultadosFormatados;
+        if (collaborator.length) {
+            const result = await executeQuery(`SELECT 
                 cmmp.*, cllt.name, cllt.family_name 
                 FROM commission_percentage cmmp
                 JOIN collaborators cllt ON cllt.id = cmmp.per
-                WHERE 
-                type = ${type} AND id_collaborators = ${collaborator[0].id}`)
-
-                resultadosFormatados = await Promise.all(result.map(async function(item) {
-            return {
-            ...item, // mantém todas as propriedades existentes
-            perFullName: headcargo.formatarNome(item.name+' '+item.family_name),
-            percentage:item.percentage+'%',
-            value_max:Number(item.value_max).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            value_min:Number(item.value_min).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            date: headcargo.FormattedDateTime(item.date) // sobrescreve apenas a propriedade 'date'
-            };
-        }));
-      }else{
-        resultadosFormatados = []
-      }
-      
-
-      return resultadosFormatados;
+                WHERE type = ${type} AND id_collaborators = ${collaborator[0].id}`);
+    
+            resultadosFormatados = await Promise.all(result.map(async function(item) {
+                return {
+                    ...item, // mantém todas as propriedades existentes
+                    perFullName: headcargo.formatarNome(item.name + ' ' + item.family_name),
+                    percentage: item.percentage + '%',
+                    value_max: Number(item.value_max).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                value_min: Number(item.value_min).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                    date: headcargo.FormattedDateTime(item.date) // sobrescreve apenas a propriedade 'date'
+                };
+            }));
+        } else {
+            resultadosFormatados = [];
+        }
+    
+        return resultadosFormatados;
+    },
+    registerPercentage: async function(value) {
+      const getCollab = await executeQuery(`SELECT * FROM collaborators WHERE id_headcargo = ${value.commissionedID}`);
+  
+      const data = [
+          getCollab[0].id,
+          value.percentage,
+          value.min_value,
+          value.max_value,
+          value.commissionType,
+          value.userID
+      ];
+  
+      const sql = `INSERT INTO commission_percentage (id_collaborators, percentage, value_min, value_max, type, per) VALUES (?)`;
+      const result_commission = await executeQuery(sql, [data]);
+  
+      return result_commission;
     },
     formatarNome: function(nome) {
         const preposicoes = new Set(["de", "do", "da", "dos", "das"]);
@@ -1192,7 +1202,7 @@ const headcargo = {
     const year = date.getFullYear(); // Obtém o ano
     return `${day}/${month}/${year}`; // Retorna a data formatada
     },
-    // Função para formatar uma data no formato pt-BR (dd/mm/aaaa)
+    // Função para formatar uma data no formato pt-BR (dd/mm/aaaa h:m:s) 
     FormattedDateTime: function(time){
     const date = new Date(time);
     

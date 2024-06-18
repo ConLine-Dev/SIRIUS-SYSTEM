@@ -111,6 +111,20 @@ router.post('/listSettings', async (req, res, next) => {
     }
 });
 
+router.post('/registerPercentage', async (req, res, next) => {
+    try {
+        const result = await headcargo.registerPercentage(req.body);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+        res.status(404).json('Erro')   
+    }
+});
+
+
+
+
 
 
 

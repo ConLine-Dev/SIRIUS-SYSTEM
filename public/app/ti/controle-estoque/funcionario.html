@@ -509,57 +509,126 @@
         <div class="main-content">
             <div class="container-fluid">
 
+            
                 <div class="row">
-                    <div class="col-xl-12">
-                        <div class="card custom-card">
-                            <div class="card-body p-3">
-                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                                    <div class="row kanban-board">
-                                        <div class="col-6"><button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#add-estoque">
-                                            <i class="ri-add-line me-1 fw-semibold align-middle"></i>
-                                                Cadastro
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex" role="search">
-                                        <input class="form-control me-2" id="btnPesquisa" type="search" placeholder="Pesquisar" aria-label="Search">
-                                    </div>
+                    <div class="col-2 " style="background-color: var(--custom-white)" >
+                        <div class="file-manager-navigation">
+                            <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
+                                <div>
+                                    <h6 class="fw-semibold mb-0">Colaboradores</h6> </div>
+                            </div>
+                            <div class="p-3 border-bottom">
+                                <div class="input-group">
+                                    <input type="text" class="form-control bg-light border-0" placeholder="Search Files" aria-describedby="button-addon2">
+                                    <button class="btn btn-light" type="button" id="button-addon2"><i class="ri-search-line text-muted"></i></button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-        
+                            <div class="file-manager-container">
+                                <ul class="list-unstyled files-main-nav" id="files-main-nav" data-simplebar="init">
+                                    <div class="simplebar-wrapper" style="margin: -16px;">
+                                        <div class="simplebar-height-auto-observer-wrapper">
+                                            <div class="simplebar-height-auto-observer"></div>
+                                        </div>
+                                        <div class="simplebar-mask">
+                                            <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                                <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
+                                                    <div class="simplebar-content " style="padding: 16px;">
+                                                       
+                                                        <li class="active files-type">
+                                                            <a href="javascript:void(0)">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="me-2"> 
+                                                                        <span class="avatar bg-light avatar-md mb-1"> <img src="https://cdn.conlinebr.com.br/colaboradores/182" alt=""> </span>
+                                                                    </div> <span class="flex-fill text-nowrap"> Petryck William Silva Leite </span> </div>
+                                                            </a>
+                                                        </li>
 
-                <div class="row">
-                    <div class="col-xl-12">
-                        <div class="card custom-card">
-                            <div class="card-header">
-                                <div class="card-title">Controle de Funcionários</div>
+                                                        <li class=" files-type">
+                                                            <a href="javascript:void(0)">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="me-2"> 
+                                                                        <span class="avatar bg-light avatar-md mb-1"> <img src="https://cdn.conlinebr.com.br/colaboradores/258" alt=""> </span>
+                                                                    </div> <span class="flex-fill text-nowrap"> Ederson Ceccato </span> </div>
+                                                            </a>
+                                                        </li>
+
+                                                        <li class=" files-type">
+                                                            <a href="javascript:void(0)">
+                                                                <div class="d-flex align-items-center">
+                                                                    <div class="me-2"> 
+                                                                        <span class="avatar bg-light avatar-md mb-1"> <img src="https://cdn.conlinebr.com.br/colaboradores/914" alt=""> </span>
+                                                                    </div> <span class="flex-fill text-nowrap"> Dayana Alves </span> </div>
+                                                            </a>
+                                                        </li>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="simplebar-placeholder" style="width: auto; height: 806px;"></div>
+                                    </div>
+                                    <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                        <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                                    </div>
+                                    <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                                        <div class="simplebar-scrollbar" style="height: 664px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+                                    </div>
+                                </ul>
                             </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
+                        </div>
+                    </div>
+            
+                    <div class="col-10">
+                        <div class="listCards">
+                            <div class="row">
+                                <div class="col-xl-12">
+                                    <div class="card custom-card">
+                                        <div class="card-header">
+                                            <div class="card-title">Controle de Materiais</div>
+                                        </div>
+                                    </div>
                                     <div class="row">
-                                        <div class="col-sm-12">
-                                            <table id="table_estoque" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Nome do Funcionário</th>
-                                                        <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Quantidade</th>
-                                                        <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Tipo de Material</th>
-                                                        <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Fornecedor</th>
-                                                        <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Valor(R$)</th>
-                                                        <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Data de Aquisição</th>
-                                                    </tr>
-                                                </thead>
-                                            </table>
+
+                                        <div class="col-xl-6 col-xxl-3 col-lg-6 col-md-6 col-sm-12">
+                                            <div class="card custom-card" style="min-height: 241px;">
+                                               <center><button class="btn-primary btn" style="margin-top: 23%;">Vincular Novo</button></center>
+                                            </div>
+                                        </div>
+
+
+                                        <!-- Card para informar o que cada colaborador tem -->
+                                        <div class="col-xl-6 col-xxl-3 col-lg-6 col-md-6 col-sm-12">
+                                            <div class="card custom-card">
+                                                <div class="card-header d-block">
+                                                    <div class="d-sm-flex d-block align-items-center">
+                                                        <div class="me-2"> <span class="avatar bg-light avatar-md mb-1"> <img src="../assets/images/ecommerce/png/1.png" alt=""> </span> </div>
+                                                        <div class="flex-fill">
+                                                            <a href="javascript:void(0)"> <span class="fs-14 fw-semibold">Notebook</span> </a> <span class="d-block text-success">$1,299</span> </div>
+                                                        <div class="text-sm-center"> <span class="fs-14 fw-semibold">CP:</span> <span class="d-sm-block">#SPK-1203</span> </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="orders-delivery-address">
+                                                            <p class="mb-1 fw-semibold">Delivery Address</p>
+                                                            <p class="text-muted mb-0"> mig-1-11,monroe street,georgetown,Washington D.C </p>
+                                                        </div>
+                                                        <div class="delivery-date text-center ms-auto"> <span class="fs-18 text-primary fw-bold">13</span> <span class="fw-semibold">Dec</span> </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-footer d-sm-flex d-block align-items-center justify-content-between">
+                                                    <div><span class="text-muted me-2">Status:</span><span class="badge bg-success-transparent">Shipped</span></div>
+                                                    <div class="mt-sm-0 mt-2">
+                                                        <button class="btn btn-sm btn-danger-light">Cancel Order</button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>            
             </div>
         </div>
     </div>
@@ -568,81 +637,7 @@
     <div class="modal fade" id="add-estoque" tabindex="-1" aria-modal="true" role="dialog">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h6 class="modal-title">Cadastro Novo Produto</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <!--Formulário Cadastro Produto-->
-                <form id="cadastroFun">
-                    <div class="modal-body px-3">
-                        <div class="row gy-2">
-                            <div>
-                                <div class="row" style="align-items: center;">
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <label for="nomeItem">Nome do Funcionário</label>
-                                            <input type="text" class="form-control" id="nomeItem" placeholder="Digite o nome">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-8">
-                                        <div class="form-group">
-                                            <label for="tipoMaterial">Tipo de Material</label>
-                                            <select class="form-control" id="tipoMaterial">
-                                                <option value="">Selecione o tipo</option>
-                                                <option value="Monitor">Monitor</option>
-                                                <option value="Notebook">Notebook</option>
-                                                <option value="Periférico">Periférico</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="col-4">
-                                            <div class="form-group">
-                                                <label for="quantidade">Quantidade</label>
-                                                <input type="number" class="form-control" id="quantidade" placeholder="Quant.">
-                                            </div>
-                                        </div>
-
-                                    </div>
-    
-                                    <div class="col-2" style="margin-top: 16px;">
-                                        <div class="form-group">
-                                            <button class="form-control btn-primary" id="btnCp">CP</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- lista de Funcionários -->
-                            <div id="listaFuncionarios"></div>
-                            
-
-                                <div class="col-4">
-                                    <label for="nomeMaterial">Fornecedor</label>
-                                    <input type="text" class="form-control" id="fornecedor" placeholder="Digite o fornecedor">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="nomeMaterial">Emprestado</label>
-                                    <input type="text" class="form-control" id="valor" placeholder="Digite o valor">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="dataAquisicao">Data de Aquisição</label>
-                                    <input type="date" class="form-control" id="dataAquisicao">
-                                </div>
-
-
-                            
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                    
-                        <button type='submit' id="ButtonAddTicket" class="btn btn-primary">Cadastrar</button>
-                    </div>
-                </form>
+                
             </div>
         </div>
     </div>
@@ -686,7 +681,7 @@
     <script src="../../assets/libs/datatables/jszip.min.js"></script>
 
     <script src="../../assets/libs/sweetalert2/sweetalert2@10.js"></script>
-    <script src="./assets/js/index.js"></script>
+    <script src="./assets/js/funcionario.js"></script>
 
     <!-- Custom JS -->
     <script src="../../assets/js/custom.js"></script>

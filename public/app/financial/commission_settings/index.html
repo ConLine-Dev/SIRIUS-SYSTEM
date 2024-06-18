@@ -647,41 +647,74 @@
                               </div>
 
                         </div>
-                        <div class="card custom-card">
-                            <div class="card-header">
-                                <div class="card-title"> Registro de Comissões </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="table_commission_commercial" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending">Processo</th>
-                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending">Modal</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Vendedor</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Inside</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Criado em</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Pago em</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Status</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Profit</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Comissão</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Gerado por</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                      
-                                                    </tbody>
-                                                
-                                                </table>
+                       <div class="row">
+                        <div class="col-6">
+                            <div class="card custom-card">
+                                <div class="card-header">
+                                    <div class="card-title"> Comissão Vendedor Externo </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <table id="table_settings_seller" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending">Mínimo</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Máximo</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Porcetagem</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Data</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Registro</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        
+                                                        </tbody>
+                                                    
+                                                    </table>
+                                                </div>
                                             </div>
-                                        </div>
-                            
-                              
+                                
+                                
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="col-6">
+                            <div class="card custom-card">
+                                <div class="card-header">
+                                    <div class="card-title"> Comissão Vendedor Interno (Inside) </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <table id="table_settings_inside" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending">Mínimo</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Máximo</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Porcetagem</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Data</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Registro</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        
+                                                        </tbody>
+                                                    
+                                                    </table>
+                                                </div>
+                                            </div>
+                                
+                                
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                       </div>
+                       
                     </div>
                 </div>
             </div>
@@ -692,7 +725,40 @@
 
     <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 11">
        
-      </div>
+    </div>
+
+    <div class="modal" id="registerSettings" tabindex="-1" aria-labelledby="registerSettings" data-bs-keyboard="false" aria-modal="true" role="dialog">
+        <!-- Scrollable modal -->
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="titleRegisterSettings">-</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <label for="">Mínimo</label>
+                            <input class="form-control min_value" type="text">
+                        </div>
+                        <div class="col-4">
+                            <label for="">Máximo</label>
+                            <input class="form-control max_value" type="text">
+                        </div>
+                        <div class="col-4">
+                            <label for="">Porcentagem</label>
+                            <input class="form-control percentage" type="number" max="100" min="0">
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Cadastrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <!-- Scroll To Top -->
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>

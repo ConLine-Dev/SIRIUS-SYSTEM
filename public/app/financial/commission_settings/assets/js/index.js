@@ -22,32 +22,118 @@ window.addEventListener("load", async () => {
 
     await listCollaborators();
     await events();
-    
+
     document.querySelector('#loader2').classList.add('d-none')
 
 })
 
 
+async function getSettingsSellerById(userID){
+    document.querySelector('#loader2').classList.remove('d-none')
 
-async function events() {
-    const listCollaborators = document.querySelector('.listCollaborators');
-    
-    // Remove todos os event listeners existentes
-    const newElement = listCollaborators.cloneNode(true);
-    listCollaborators.parentNode.replaceChild(newElement, listCollaborators);
+    if ($.fn.DataTable.isDataTable('#table_settings_inside') || $.fn.DataTable.isDataTable('#table_settings_seller')) {
+        $('#table_settings_inside').DataTable().destroy(); // Destrói a tabela DataTable existente
+        $('#table_settings_seller').DataTable().destroy(); // Destrói a tabela DataTable existente
+    }
 
-    newElement.addEventListener('click', async function(e) {
-        if (e.target && e.target.closest('li')) {
-            const item = e.target.closest('li');
-            const id = item.getAttribute('data-idHeadCargo');
-            const list = document.querySelectorAll('.listCollaborators li');
+    const resultSeller = await makeRequest(`/api/headcargo/commission/listSettings`,'POST', {id:userID, type:1});
+    $('#table_settings_seller').DataTable({
+            layout: {
+                topStart: {
+                    buttons: [
+                        {
+                            text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Cadastrar',
+                            className: 'btn btn-primary label-btn btn-table-custom',
+                            enabled: true,
+                            action: async function (e, dt, node, config) {
 
-            list.forEach(element => element.classList.remove('activeRef'));
+                                document.querySelector('#titleRegisterSettings').innerHTML = 'Porcentagem Vendedor Externo'
+                                $('#registerSettings').modal('show')
+                            }
+                        }
+                    ]
+                }
+            },
+            data:resultSeller,
+            paging: false,
+            scrollX: true,
+            scrollY: '60vh',
+            pageInfo: false,
+            bInfo: false,
+            order: [[0, 'desc']],
+            columns: [
+                { data: 'value_min' }, // Coluna de processo
+                { data: 'value_max' }, // Coluna de modal
+                { data: 'percentage' }, // Coluna de abertura
+                { data: 'date' }, // Coluna de abertura
+                { data: 'perFullName' }, // Coluna de abertura
+            ],
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
+                searchPlaceholder: 'Pesquisar...',
+                Search: '',
+            }
+    });
 
-            // await getRegisterById(id);
-            item.classList.add('activeRef');
+
+    const resultInside = await makeRequest(`/api/headcargo/commission/listSettings`,'POST', {id:userID, type:2});
+    $('#table_settings_inside').DataTable({
+        layout: {
+            topStart: {
+                buttons: [
+                    {
+                        text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Cadastrar',
+                        className: 'btn btn-primary label-btn btn-table-custom',
+                        enabled: true,
+                        action: async function (e, dt, node, config) {
+                            document.querySelector('#titleRegisterSettings').innerHTML = 'Porcentagem Vendedor Interno (Inside)'
+                            $('#registerSettings').modal('show')
+                        }
+                    }
+                ]
+            }
+        },
+        data:resultInside,
+        paging: false,
+        scrollX: true,
+        scrollY: '60vh',
+        pageInfo: false,
+        bInfo: false,
+        order: [[0, 'desc']],
+        columns: [
+            { data: 'value_min' }, // Coluna de processo
+            { data: 'value_max' }, // Coluna de modal
+            { data: 'percentage' }, // Coluna de abertura
+            { data: 'date' }, // Coluna de abertura
+            { data: 'perFullName' }, // Coluna de abertura
+        ],
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
+            searchPlaceholder: 'Pesquisar...',
+            Search: '',
         }
     });
+
+    document.querySelector('#loader2').classList.add('d-none')
+}
+
+
+
+async function events() {
+    // Formatação para BRL (Real Brasileiro)
+    new Cleave('.min_value', {
+        numeral: true,
+        numeralThousandsGroupStyle: 'thousand',
+        prefix: 'R$ ',
+        rawValueTrimPrefix: true
+    });
+    new Cleave('.max_value', {
+        numeral: true,
+        numeralThousandsGroupStyle: 'thousand',
+        prefix: 'R$ ',
+        rawValueTrimPrefix: true
+    });
+
 }
 
 
@@ -86,8 +172,26 @@ async function listCollaborators(){
                     </li>`
     }
 
+    document.querySelector('.listCollaborators').innerHTML = history
 
-  document.querySelector('.listCollaborators').innerHTML = history
+    const listCollaborators = document.querySelector('.listCollaborators');
+        
+    // Remove todos os event listeners existentes
+    const newElement = listCollaborators.cloneNode(true);
+    listCollaborators.parentNode.replaceChild(newElement, listCollaborators);
+
+    newElement.addEventListener('click', async function(e) {
+        if (e.target && e.target.closest('li')) {
+            const item = e.target.closest('li');
+            const id = item.getAttribute('data-idHeadCargo');
+            const list = document.querySelectorAll('.listCollaborators li');
+
+            list.forEach(element => element.classList.remove('activeRef'));
+
+            await getSettingsSellerById(id);
+            item.classList.add('activeRef');
+        }
+    });
 }
 
 

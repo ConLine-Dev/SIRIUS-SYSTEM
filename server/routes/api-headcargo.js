@@ -73,8 +73,6 @@ router.post('/confirmPayment', async (req, res, next) => {
     }
 });
 
-
-
 router.post('/listRegister', async (req, res, next) => {
     try {
         const result = await headcargo.listRegisterComission();
@@ -92,6 +90,19 @@ router.post('/filterComission', async (req, res, next) => {
 
     try {
         const result = await headcargo.gerenateCommission(filters);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+        res.status(404).json('Erro')   
+    }
+});
+
+router.post('/listSettings', async (req, res, next) => {
+    const {id, type} = req.body;
+
+    try {
+        const result = await headcargo.listSettings(id, type);
 
         res.status(200).json(result)
     } catch (error) {

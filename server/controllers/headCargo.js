@@ -3,6 +3,7 @@ const { executeQuerySQL } = require('../connect/sqlServer');
 const { executeQuery } = require('../connect/mysql');
 
 
+
 const headcargo = {
     gerenateCommission: async function(value){
      
@@ -1128,6 +1129,36 @@ const headcargo = {
             status: false
         };
     },
+    listSettings: async function(id, type){
+      
+      const collaborator = await executeQuery(`SELECT * FROM collaborators WHERE id_headcargo = ${id}`);
+
+      let resultadosFormatados;
+      if(collaborator.length){
+        const result = await executeQuery(`SELECT 
+                cmmp.*, cllt.name, cllt.family_name 
+                FROM commission_percentage cmmp
+                JOIN collaborators cllt ON cllt.id = cmmp.per
+                WHERE 
+                type = ${type} AND id_collaborators = ${collaborator[0].id}`)
+
+                resultadosFormatados = await Promise.all(result.map(async function(item) {
+            return {
+            ...item, // mantém todas as propriedades existentes
+            perFullName: headcargo.formatarNome(item.name+' '+item.family_name),
+            percentage:item.percentage+'%',
+            value_max:Number(item.value_max).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            value_min:Number(item.value_min).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+            date: headcargo.FormattedDateTime(item.date) // sobrescreve apenas a propriedade 'date'
+            };
+        }));
+      }else{
+        resultadosFormatados = []
+      }
+      
+
+      return resultadosFormatados;
+    },
     formatarNome: function(nome) {
         const preposicoes = new Set(["de", "do", "da", "dos", "das"]);
         const palavras = nome?.split(" ");
@@ -1161,8 +1192,9 @@ const headcargo = {
     const year = date.getFullYear(); // Obtém o ano
     return `${day}/${month}/${year}`; // Retorna a data formatada
     },
-    getFormattedDate: function(){
-      const date = new Date();
+    // Função para formatar uma data no formato pt-BR (dd/mm/aaaa)
+    FormattedDateTime: function(time){
+    const date = new Date(time);
     
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); // meses começam de 0 a 11, então adicionamos 1
@@ -1172,7 +1204,20 @@ const headcargo = {
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
     
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    },
+    getFormattedDate: function(){
+      const date = new Date();
+    
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // meses começam de 0 a 11, então adicionamos 1
+      const day = String(date.getDate()).padStart(2, '0');
+      
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     }
 }
 

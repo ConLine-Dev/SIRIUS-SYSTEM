@@ -572,7 +572,9 @@
                     <h6 class="modal-title">Cadastro Novo Produto</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="materialForm">
+
+                <!--Formulário Cadastro Produto-->
+                <form id="cadastroFun">
                     <div class="modal-body px-3">
                         <div class="row gy-2">
                             <div>
@@ -604,8 +606,6 @@
 
                                     </div>
     
-                                    
-    
                                     <div class="col-2" style="margin-top: 16px;">
                                         <div class="form-group">
                                             <button class="form-control btn-primary" id="btnCp">CP</button>
@@ -613,21 +613,18 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- lista de Funcionários -->
+                            <div id="listaFuncionarios"></div>
                             
 
-                            <div id="listaProdutos">
-                                <!-- lista de produtos -->
-                            </div>
-                            
-                                
-
-                                <div class="form-group">
+                                <div class="col-4">
                                     <label for="nomeMaterial">Fornecedor</label>
                                     <input type="text" class="form-control" id="fornecedor" placeholder="Digite o fornecedor">
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="nomeMaterial">Valor(R$)</label>
+                                    <label for="nomeMaterial">Emprestado</label>
                                     <input type="text" class="form-control" id="valor" placeholder="Digite o valor">
                                 </div>
 
@@ -637,10 +634,6 @@
                                 </div>
 
 
-                                <div class="form-group">
-                                    <label for="descricao">Descrição</label>
-                                    <textarea class="form-control" id="descricao" rows="3" placeholder="Digite uma breve descrição do material" ></textarea>
-                                </div>
                             
                         </div>
                     </div>

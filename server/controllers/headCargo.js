@@ -1139,10 +1139,11 @@ const headcargo = {
             resultadosFormatados = await Promise.all(result.map(async function(item) {
                 return {
                     ...item, // mantém todas as propriedades existentes
+                    actions:`<button onclick="removeSettings(${item.id})" class="btn btn-danger-light btn-icon ms-1 btn-sm settings-delete-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete"><i class="ri-delete-bin-5-line"></i></button>`,
                     perFullName: headcargo.formatarNome(item.name + ' ' + item.family_name),
                     percentage: item.percentage + '%',
                     value_max: Number(item.value_max).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-                value_min: Number(item.value_min).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                    value_min: Number(item.value_min).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
                     date: headcargo.FormattedDateTime(item.date) // sobrescreve apenas a propriedade 'date'
                 };
             }));
@@ -1151,6 +1152,21 @@ const headcargo = {
         }
     
         return resultadosFormatados;
+    },
+    removeSetting: async function(id){
+      // DELETE FROM `siriusDBO`.`commission_percentage` WHERE (`id` = '41');
+      const result = await executeQuery(`DELETE FROM commission_percentage WHERE id = ${id}`);
+      return result
+
+    },
+    verifyRegisters: async function(data){
+
+      const comissioned = data.vendedorID != '000' ? data.vendedorID : data.InsideID
+
+      const verify = await executeQuery(`SELECT * FROM commission_reference WHERE user = ${comissioned} AND status != 1`)
+
+      
+      return verify.length > 0 ? false : true
     },
     registerPercentage: async function(value) {
       const getCollab = await executeQuery(`SELECT * FROM collaborators WHERE id_headcargo = ${value.commissionedID}`);

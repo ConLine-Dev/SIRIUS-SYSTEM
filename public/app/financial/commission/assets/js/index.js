@@ -12,7 +12,7 @@ const StorageGoogleData = localStorage.getItem('StorageGoogle');
 const StorageGoogle = JSON.parse(StorageGoogleData);
 
 // Variável para contar o número de toasts exibidos
-let toastCount = 0;
+let toastCount = 0, verifyGlobal = true;
 
 /**
  * Evento que será disparado quando o DOM estiver completamente carregado,
@@ -176,6 +176,9 @@ async function submitCommission() {
         return false;
     }
 
+    const verify = await makeRequest(`/api/headcargo/commission/verifyRegisters`, 'POST', { filters });
+
+
     const dados = await makeRequest(`/api/headcargo/commission/filterComission`, 'POST', { filters }); // Faz uma requisição para filtrar a comissão
 
     const idvalue = listOfSales.value !== '000' ? listOfSales : listOfInside; // Define o elemento ID com base na seleção
@@ -208,8 +211,9 @@ async function submitCommission() {
             topStart: {
                 buttons: [
                     {
-                        text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Salvar Registro',
-                        className: 'btn btn-primary label-btn btn-table-custom btn_salvarRegistro',
+                        text: '<i class="ri-check-double-line label-btn-icon me-2"></i> Gerar Registro',
+                        className: 'btn btn-success label-btn btn-table-custom btn_salvarRegistro',
+                        enabled: verify,
                         action: async function (e, dt, node, config) {
                             await createRegister(typeID, { de: filters.dataDe, ate: filters.dataAte }, user); // Cria um novo registro ao clicar no botão
                         }
@@ -252,6 +256,11 @@ async function submitCommission() {
     document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
 
     createToast('Sirius', `Filtro de comissões do(a) ${selectedText} foi gerado com sucesso!`); // Exibe uma mensagem de sucesso
+
+
+    if(!verify){
+        createToast('Sirius', `Atenção você não pode gerar um registro do(a) ${selectedText} pois já existe um registro em aberto.`); // Exibe uma mensagem de sucesso  
+    }
 }
 
 /**
@@ -353,6 +362,21 @@ async function loadInsideSales() {
  * @param {object} user - Dados do usuário
  */
 async function createRegister(typeID, dateFilter, user) {
+
+    const filters = {
+        vendedorID: user.id
+    }
+
+    const verify = await makeRequest(`/api/headcargo/commission/verifyRegisters`, 'POST', { filters });
+
+    if(!verify){
+        document.querySelector('.btn_salvarRegistro').setAttribute('disabled', true); 
+        createToast('Sirius', `Atenção você não pode gerar um novo registro do(a) ${user.name} pois já existe um registro em aberto.`); // Exibe uma mensagem de sucesso  
+        return false;
+    }
+
+
+
     document.querySelector('.btn_salvarRegistro').setAttribute('disabled', true); // Desabilita o botão de salvar registro
     const allProcessSelected = document.querySelectorAll('.selectCheckbox'); // Seleciona todos os checkboxes de processos
     const processSelected = [];
@@ -367,7 +391,7 @@ async function createRegister(typeID, dateFilter, user) {
 
     createToast('Sirius', `Registro de comissão gerado, não se preocupe, estamos fazendo tudo para você`); // Exibe uma mensagem de sucesso
     const dados = await makeRequest(`/api/headcargo/commission/createRegister`, 'POST', { process: processSelected, type: typeID, dateFilter, user }); // Faz uma requisição para criar um novo registro
-    document.querySelector('.btn_salvarRegistro').removeAttribute('disabled'); // Reabilita o botão de salvar registro
+    // document.querySelector('.btn_salvarRegistro').removeAttribute('disabled'); // Reabilita o botão de salvar registro
 
     if (dados.success) {
         createToast('Sirius', `Email registro de comissão enviado com sucesso!`); // Exibe uma mensagem de sucesso se a criação do registro for bem-sucedida

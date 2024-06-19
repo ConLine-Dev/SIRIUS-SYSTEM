@@ -11,123 +11,90 @@ const StorageGoogleData = localStorage.getItem('StorageGoogle');
 // Converte os dados armazenados de JSON para um objeto JavaScript
 const StorageGoogle = JSON.parse(StorageGoogleData);
 
-console.log(StorageGoogle)
 
-// Variável
-let toastCount = 0,commissionedID, commissionedName,commissionTotalProfitProcess,commissionType, commissionTotalComission,commissionLength, registerCommissionID;
+// Variáveis globais
+let toastCount = 0,
+    commissionedID, 
+    commissionedName,
+    commissionTotalProfitProcess,
+    commissionType, 
+    commissionTotalComission,
+    commissionLength, 
+    registerCommissionID;
 
 /**
- * Evento que será disparado quando o DOM estiver completamente carregado,
- * mas antes que recursos adicionais (como imagens e folhas de estilo) sejam carregados.
+ * Evento que será disparado quando a página estiver completamente carregada
+ * (incluindo CSS, imagens, etc.)
  */
 window.addEventListener("load", async () => {
+    await listCollaborators(); // Lista os colaboradores
+    await events(); // Configura os eventos
+    document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
+});
 
-    await listCollaborators();
-    await events();
-
-    document.querySelector('#loader2').classList.add('d-none')
-
-})
-
-
-async function getSettingsSellerById(userID, textName){
-    commissionedID = userID
-    commissionedName = textName
-
-    document.querySelector('#loader2').classList.remove('d-none')
+/**
+ * Função para obter as configurações do vendedor pelo ID
+ * @param {number} userID - ID do usuário
+ * @param {string} textName - Nome do usuário
+ */
+async function getSettingsSellerById(userID, textName) {
+    commissionedID = userID;
+    commissionedName = textName;
+    document.querySelector('#loader2').classList.remove('d-none'); // Mostra o loader
 
     // Atualiza os detalhes do comissionado no DOM
     const img = document.querySelector('.imgComissionado');
     const name = document.querySelector('.nameComissionado');
     const type = document.querySelector('.typeComission');
 
-    // type.textContent = ` [${typeSales}]`;
     name.textContent = textName;
     img.innerHTML = '';
     img.style.backgroundImage = `url(https://cdn.conlinebr.com.br/colaboradores/${userID})`;
     img.style.backgroundPosition = 'center';
     img.style.backgroundSize = 'cover';
 
- 
-
-
+    // Destrói as tabelas DataTable existentes
     if ($.fn.DataTable.isDataTable('#table_settings_inside') || $.fn.DataTable.isDataTable('#table_settings_seller')) {
-        $('#table_settings_inside').DataTable().destroy(); // Destrói a tabela DataTable existente
-        $('#table_settings_seller').DataTable().destroy(); // Destrói a tabela DataTable existente
+        $('#table_settings_inside').DataTable().destroy();
+        $('#table_settings_seller').DataTable().destroy();
     }
 
-    const resultSeller = await makeRequest(`/api/headcargo/commission/listSettings`,'POST', {id:userID, type:1});
+    // Obtém as configurações do vendedor externo
+    const resultSeller = await makeRequest(`/api/headcargo/commission/listSettings`, 'POST', { id: userID, type: 1 });
     $('#table_settings_seller').DataTable({
-            layout: {
-                topStart: {
-                    buttons: [
-                        {
-                            text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Cadastrar',
-                            className: 'btn btn-primary label-btn btn-table-custom',
-                            enabled: true,
-                            action: async function (e, dt, node, config) {
-
-                                document.querySelector('#titleRegisterSettings').innerHTML = 'Porcentagem Vendedor Externo'
-                                commissionType = 1
-                                $('#registerSettings').modal('show')
-                            }
-                        }
-                    ]
-                }
-            },
-            data:resultSeller,
-            paging: false,
-            scrollX: true,
-            scrollY: '60vh',
-            pageInfo: false,
-            bInfo: false,
-            order: [[0, 'desc']],
-            columns: [
-                { data: 'value_min' }, // Coluna de processo
-                { data: 'value_max' }, // Coluna de modal
-                { data: 'percentage' }, // Coluna de abertura
-                { data: 'date' }, // Coluna de abertura
-                { data: 'perFullName' }, // Coluna de abertura
-            ],
-            language: {
-                url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
-                searchPlaceholder: 'Pesquisar...',
-                Search: '',
-            }
-    });
-
-
-    const resultInside = await makeRequest(`/api/headcargo/commission/listSettings`,'POST', {id:userID, type:2});
-    $('#table_settings_inside').DataTable({
         layout: {
             topStart: {
                 buttons: [
                     {
-                        text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Cadastrar',
-                        className: 'btn btn-primary label-btn btn-table-custom',
+                        text: ' <i class="ri-save-3-line label-btn-icon me-2"></i> Cadastrar',
+                        className: 'btn btn-success label-btn btn-table-custom',
                         enabled: true,
-                        action: async function (e, dt, node, config) {
-                            document.querySelector('#titleRegisterSettings').innerHTML = 'Porcentagem Vendedor Interno (Inside)'
-                            commissionType = 2
-                            $('#registerSettings').modal('show')
+                        action: async function () {
+                            document.querySelector('#titleRegisterSettings').innerHTML = 'Porcentagem Vendedor Externo';
+                            commissionType = 1;
+                            $('#registerSettings').modal('show');
                         }
                     }
                 ]
             }
         },
-        data:resultInside,
+        data: resultSeller,
         paging: false,
         scrollX: true,
         scrollY: '60vh',
         pageInfo: false,
         bInfo: false,
+        columnDefs: [
+            { "orderable": false, "targets": 5 }
+        ],
         order: [[0, 'desc']],
         columns: [
-            { data: 'value_min' }, // Coluna de processo
-            { data: 'value_max' }, // Coluna de modal
-            { data: 'percentage' }, // Coluna de abertura
-            { data: 'date' }, // Coluna de abertura
-            { data: 'perFullName' }, // Coluna de abertura
+            { data: 'value_min' },
+            { data: 'value_max' },
+            { data: 'percentage' },
+            { data: 'date' },
+            { data: 'perFullName' },
+            { data: 'actions' }
         ],
         language: {
             url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
@@ -136,26 +103,66 @@ async function getSettingsSellerById(userID, textName){
         }
     });
 
+    // Obtém as configurações do vendedor interno
+    const resultInside = await makeRequest(`/api/headcargo/commission/listSettings`, 'POST', { id: userID, type: 2 });
+    $('#table_settings_inside').DataTable({
+        layout: {
+            topStart: {
+                buttons: [
+                    {
+                        text: ' <i class="ri-save-3-line label-btn-icon me-2"></i> Cadastrar',
+                        className: 'btn btn-success label-btn btn-table-custom',
+                        enabled: true,
+                        action: async function () {
+                            document.querySelector('#titleRegisterSettings').innerHTML = 'Porcentagem Vendedor Interno (Inside)';
+                            commissionType = 2;
+                            $('#registerSettings').modal('show');
+                        }
+                    }
+                ]
+            }
+        },
+        data: resultInside,
+        paging: false,
+        scrollX: true,
+        scrollY: '60vh',
+        pageInfo: false,
+        bInfo: false,
+        columnDefs: [
+            { "orderable": false, "targets": 5 }
+        ],
+        order: [[0, 'desc']],
+        columns: [
+            { data: 'value_min' },
+            { data: 'value_max' },
+            { data: 'percentage' },
+            { data: 'date' },
+            { data: 'perFullName' },
+            { data: 'actions' }
+        ],
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
+            searchPlaceholder: 'Pesquisar...',
+            Search: '',
+        }
+    });
 
     // Atualiza os totais no DOM
-    if(resultInside.length > 0){
-    document.querySelector('.total_profit').textContent = resultInside[resultInside.length - 1].date;
+    if (resultInside.length > 0) {
+        document.querySelector('.total_profit').textContent = resultInside[resultInside.length - 1].date;
     }
 
-    if(resultSeller.length > 0){
-    document.querySelector('.valor_Comissao_total').textContent = resultSeller[resultSeller.length - 1].date;
+    if (resultSeller.length > 0) {
+        document.querySelector('.valor_Comissao_total').textContent = resultSeller[resultSeller.length - 1].date;
     }
-    
-    
-    // document.querySelector('.quantidade_processo').textContent = register.data.length;
-    // document.querySelector('.valor_Comissao_total').textContent = register.total_comission;
 
-    document.querySelector('#loader2').classList.add('d-none')
+    document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
 }
 
-
+/**
+ * Função para configurar eventos
+ */
 async function events() {
-
     // Formatação para BRL (Real Brasileiro)
     new Cleave('.min_value', {
         numeral: true,
@@ -165,7 +172,8 @@ async function events() {
         prefix: 'R$ ',
         rawValueTrimPrefix: true
     });
-    
+
+    // Formatação para BRL (Real Brasileiro)
     new Cleave('.max_value', {
         numeral: true,
         numeralThousandsGroupStyle: 'thousand',
@@ -175,17 +183,37 @@ async function events() {
         rawValueTrimPrefix: true
     });
 
+    const searchInput = document.querySelector('.searchInput');
 
-    
+    // Remove todos os event listeners existentes substituindo o elemento por uma cópia
+    const newSearchInput = searchInput.cloneNode(true);
+    searchInput.parentNode.replaceChild(newSearchInput, searchInput);
 
-    await eventConfirmPercentage()
+    // Adiciona um event listener ao novo elemento da lista
+    newSearchInput.addEventListener('input', function () {
+        const filter = this.value.toLowerCase();
+        const items = document.querySelectorAll('.listCollaborators li');
 
+        items.forEach(function (item) {
+            const text = item.textContent.toLowerCase();
+            if (text.includes(filter)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    await eventConfirmPercentage(); // Configura o evento para confirmação de porcentagem
 }
 
+/**
+ * Função para configurar o evento de confirmação de porcentagem
+ */
 async function eventConfirmPercentage() {
     const buttonConfirm = document.querySelector('.btnconfirmPercentage');
 
-    buttonConfirm.addEventListener('click', async function(e) {
+    buttonConfirm.addEventListener('click', async function () {
         const min_value = document.querySelector('input[name="min_value"]');
         const max_value = document.querySelector('input[name="max_value"]');
         const percentage = document.querySelector('input[name="percentage"]');
@@ -199,39 +227,58 @@ async function eventConfirmPercentage() {
             commissionType: commissionType
         };
 
-        min_value.value = 'R$ '
-        max_value.value = 'R$ '
-        percentage.value = ''
-       
+        min_value.value = 'R$ ';
+        max_value.value = 'R$ ';
+        percentage.value = '';
+
         $('#registerSettings').modal('hide');
         await registerPercentage(body);
     });
 }
 
-async function registerPercentage(data){
-    // Faz uma requisição para obter os detalhes do registro pelo ID
-    const register = await makeRequest(`/api/headcargo/commission/registerPercentage`, 'POST', data);
+async function removeSettings(id){
+     // Faz uma requisição para registrar a comissão
+     const removeRegister = await makeRequest(`/api/headcargo/commission/removeSetting`, 'POST', {id:id}); 
+
+     // Atualiza as configurações do vendedor pelo ID
+    await getSettingsSellerById(commissionedID, commissionedName);
 
 
-    await getSettingsSellerById(commissionedID, commissionedName)
-    return register
+    createToast('Sirius', `Removido a configuração de porcentagem ${commissionedName} com sucesso!`);
+
+    return removeRegister
 }
 
+/**
+ * Função para registrar a porcentagem de comissão
+ * @param {Object} data - Dados da comissão
+ */
+async function registerPercentage(data) {
+    // Faz uma requisição para registrar a comissão
+    const register = await makeRequest(`/api/headcargo/commission/registerPercentage`, 'POST', data);
 
-async function listCollaborators(){
+    // Atualiza as configurações do vendedor pelo ID
+    await getSettingsSellerById(commissionedID, commissionedName);
+    return register;
+}
+
+/**
+ * Função para listar colaboradores
+ */
+async function listCollaborators() {
+    // Obtém a lista de vendedores e vendedores internos
     const getSales = await makeRequest(`/api/headcargo/user/ByDep/62`);
     const getInsideSales = await makeRequest(`/api/headcargo/user/ByDep/75`);
 
+    // Combina as listas e remove duplicatas
     const mergedArray = getSales.concat(getInsideSales);
-
     const uniqueArray = mergedArray.filter((item, index, self) => {
         return self.findIndex((t) => t.IdFuncionario === item.IdFuncionario) === index;
     });
 
+    let history = '';
 
-
-    let history = ''
-
+    // Cria a lista de colaboradores
     for (let index = 0; index < uniqueArray.length; index++) {
         const element = uniqueArray[index];
 
@@ -244,29 +291,27 @@ async function listCollaborators(){
                                     <span class="d-block text-muted fs-12 fw-normal"></span>
                                 </div>
                             </div>
-
                             <div> 
-                                <span class="fs-12 text-muted">Referência</span> 
+                                <span class="fs-12 text-muted"></span> 
                                 <span class="d-block text-muted fs-12 fw-normal"></span> 
                             </div>
                         </div>
-                    </li>`
+                    </li>`;
     }
 
-    document.querySelector('.listCollaborators').innerHTML = history
+    document.querySelector('.listCollaborators').innerHTML = history;
 
     const listCollaborators = document.querySelector('.listCollaborators');
-        
+
     // Remove todos os event listeners existentes
     const newElement = listCollaborators.cloneNode(true);
     listCollaborators.parentNode.replaceChild(newElement, listCollaborators);
 
-    newElement.addEventListener('click', async function(e) {
+    newElement.addEventListener('click', async function (e) {
         if (e.target && e.target.closest('li')) {
             const item = e.target.closest('li');
             const id = item.getAttribute('data-idHeadCargo');
-           
-            const textName = item.querySelector('.nameColab').textContent
+            const textName = item.querySelector('.nameColab').textContent;
             const list = document.querySelectorAll('.listCollaborators li');
 
             list.forEach(element => element.classList.remove('activeRef'));
@@ -277,12 +322,15 @@ async function listCollaborators(){
     });
 }
 
-
-
+/**
+ * Função para formatar nomes
+ * @param {string} nome - Nome a ser formatado
+ * @returns {string} - Nome formatado
+ */
 function formatarNome(nome) {
     const preposicoes = new Set(["de", "do", "da", "dos", "das"]);
     const palavras = nome.split(" ");
-    
+
     const palavrasFormatadas = palavras.map((palavra, index) => {
         // Se a palavra for uma preposição e não é a primeira palavra
         if (preposicoes.has(palavra.toLowerCase()) && index !== 0) {
@@ -291,10 +339,9 @@ function formatarNome(nome) {
             return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
         }
     });
-    
+
     return palavrasFormatadas.join(" ");
 }
-
 
 /**
  * Função para converter valor formatado em BRL para um valor numérico
@@ -341,10 +388,7 @@ function createToast(title, text) {
     const bsToast = new bootstrap.Toast(toast); // Inicializa o toast com o Bootstrap
     bsToast.show(); // Exibe o toast
 
-    toast.addEventListener('hidden.bs.toast', function() {
+    toast.addEventListener('hidden.bs.toast', function () {
         toastContainer.removeChild(toast); // Remove o toast do DOM quando ele for ocultado
     });
 }
-
-
-

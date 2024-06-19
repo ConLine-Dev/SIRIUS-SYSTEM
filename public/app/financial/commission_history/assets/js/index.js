@@ -89,6 +89,28 @@ async function events() {
             item.classList.add('activeRef');
         }
     });
+
+
+    const searchInput = document.querySelector('.searchInput')
+
+    // Remove todos os event listeners existentes substituindo o elemento por uma cópia
+    const newSearchInput = searchInput.cloneNode(true);
+    searchInput.parentNode.replaceChild(newSearchInput, searchInput);
+
+    // Adiciona um event listener ao novo elemento da lista
+    newSearchInput.addEventListener('input', function() {
+        var filter = this.value.toLowerCase();
+        var items = document.querySelectorAll('.listHistory li');
+
+        items.forEach(function(item) {
+            var text = item.textContent.toLowerCase();
+            if (text.includes(filter)) {
+                item.style.display = 'block'
+            } else {
+                item.style.display = 'none'
+            }
+        });
+    });
 }
 
 /**
@@ -156,8 +178,8 @@ async function createTableRegisters(registers, name, type) {
             topStart: {
                 buttons: [
                     {
-                        text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Confirmar Pagamento',
-                        className: 'btn btn-primary label-btn btn-table-custom',
+                        text: ' <i class="ri-currency-line label-btn-icon me-2"></i> Confirmar Pagamento',
+                        className: 'btn btn-success label-btn btn-table-custom',
                         enabled: registers[0].status == "Em aberto" ? true : false,
                         action: async function (e, dt, node, config) {
                             e.currentTarget.setAttribute('disabled', true);
@@ -170,8 +192,22 @@ async function createTableRegisters(registers, name, type) {
                         }
                     },
                     {
-                        text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Enviar por E-mail',
-                        className: 'btn btn-primary label-btn btn-table-custom',
+                        text: ' <i class="ri-close-circle-line label-btn-icon me-2"></i> Cancelar',
+                        className: 'btn btn-danger label-btn btn-table-custom',
+                        enabled: registers[0].status == "Em aberto" ? true : false,
+                        action: function (e, dt, node, config) {
+                            // createToast('Sirius', `Analisando dados e gerando Excel`);
+                            // e.currentTarget.setAttribute('disabled', true);
+                            // exportToExcel(registers, `Registro de Comissão - ${name} - ${type}.xlsx`);
+                            // createToast('Sirius', `Registro de Comissão - ${name} - ${type}.xlsx gerado com sucesso!`);
+                            // setTimeout(() => {
+                            //     e.currentTarget.removeAttribute('disabled');
+                            // }, 1000);
+                        }
+                    },
+                    {
+                        text: ' <i class="ri-mail-send-fill label-btn-icon me-2"></i> Enviar por E-mail',
+                        className: 'btn btn-secondary label-btn btn-table-custom',
                         enabled: true,
                         action: async function (e, dt, node, config) {
                             createToast('Sirius', `Enviando registro de comissão por e-mail, não se preocupe, estamos fazendo tudo para você`);
@@ -184,8 +220,8 @@ async function createTableRegisters(registers, name, type) {
                         }
                     },
                     {
-                        text: ' <i class="ri-file-list-2-line label-btn-icon me-2"></i> Exportar para Excel',
-                        className: 'btn btn-primary label-btn btn-table-custom',
+                        text: ' <i class="ri-file-excel-2-line label-btn-icon me-2"></i> Exportar para Excel',
+                        className: 'btn btn-secondary label-btn btn-table-custom',
                         enabled: true,
                         action: function (e, dt, node, config) {
                             createToast('Sirius', `Analisando dados e gerando Excel`);
@@ -225,6 +261,14 @@ async function createTableRegisters(registers, name, type) {
             sSearch: '',
         }
     });
+}
+
+/**
+ * Função para cancelar o registro de pagamento de uma comissão
+ */
+async function cancelRegister() {
+    // Faz uma requisição para confirmar o pagamento pelo ID do registro
+    const sendEmail = await makeRequest(`/api/headcargo/commission/cancelRegister`, 'POST', { id: registerCommissionID });
 }
 
 /**

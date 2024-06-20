@@ -18,3 +18,7 @@
 .form-control.btn-primary:disabled {
     opacity: 0.5;
 }
+
+#listAllCollaborators #listCollaborators li {
+    margin-bottom: 10px;
+}

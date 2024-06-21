@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Despesas Administrativas</title>
+    <title>Configurações de Comissões</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
@@ -38,6 +38,7 @@
     <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.min.css">
 
     <!-- <link rel="stylesheet" href="../../assets/libs/quill/quill.snow.css">
     <link rel="stylesheet" href="../../assets/libs/quill/quill.bubble.css"> -->
@@ -507,7 +508,7 @@
         <img src="../../assets/images/media/loader.svg" alt="">
     </div> -->
     <!-- Loader -->
-    <div class="page">
+    <div class="">
         <!-- app-header -->
 
         <!-- /app-header -->
@@ -516,38 +517,206 @@
         <div class="main-content">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-xl-12">
-                        <div class="card custom-card">
-                            <div class="card-header">
-                                <div class="card-title"> Despesas administrativas </div>
+                    <div class="col-2">
+                       <div class="file-manager-container">
+                        <div class="file-manager-navigation">
+                            <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
+                                <div>
+                                    <h6 class="fw-semibold mb-0">Colaboradores</h6> </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-icon btn-primary-light btn-wave waves-light waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="ri-settings-3-line"></i> </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="/app/financial/commission/">Ger. de comissões</a></li>
+                                        <!-- <li><a class="dropdown-item" href="javascript:void(0);">Another action</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0);">Something else here</a></li> -->
+                                    </ul>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="table_despesasADM" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 350px;">Vencimento</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Situação</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Descrição</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Pessoa</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Tipo</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Valor</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                      
-                                                    </tbody>
-                                                
-                                                </table>
-                                            </div>
+                            <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
+                                <div style="width: 100%;">
+                                    <input class="form-control searchInput" type="text" placeholder="Nome do colaborador...">
+                                </div>
+                               
+                            </div>
+                       
+                      
+                            <div class="card-body p-0">
+                                <ul class="list-group list-group-flush listCollaborators">
+                                   
+                                </ul>
+                            </div>
+                           
+                        </div>
+                       </div>
+                    </div>
+                  
+                    <div class="col-10">
+                        <br>
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="card custom-card">
+                                  <div class="card-body">
+                                    <div class="d-flex align-items-top">
+                                      <div class="me-3">
+                                        <span class="avatar avatar-md p-2 bg-primary imgComissionado">
+                                          <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                                            <path d="M0 0h24v24H0V0z" fill="none"></path>
+                                            <path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"></path>
+                                          </svg>
+                                        </span>
+                                      </div>
+                                      <div class="flex-fill">
+                                        <div class="d-flex mb-1 align-items-top justify-content-between">
+                                          <h5 class="fw-semibold mb-0 lh-1 nameComissionado">-</h5>
+                                      
                                         </div>
-                            
-                              
+                                        <p class="mb-0 fs-10 op-7 text-muted fw-semibold">COMISSIONADO <span class="typeComission"></span></p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col-3">
+                                <div class="card custom-card">
+                                  <div class="card-body">
+                                    <div class="d-flex align-items-top">
+                                      <div class="me-3">
+                                        <span class="avatar avatar-md p-2 bg-primary">
+                                          <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                                            <path d="M0 0h24v24H0V0z" fill="none"></path>
+                                            <path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"></path>
+                                          </svg>
+                                        </span>
+                                      </div>
+                                      <div class="flex-fill">
+                                        <div class="d-flex mb-1 align-items-top justify-content-between">
+                                          <h5 class="fw-semibold mb-0 lh-1 total_profit">-</h5>
+                                      
+                                        </div>
+                                        <p class="mb-0 fs-10 op-7 text-muted fw-semibold">ULTIMA CONFIGURAÇÃO VENDEDOR EXTERNO</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col-3">
+                                <div class="card custom-card">
+                                  <div class="card-body">
+                                    <div class="d-flex align-items-top">
+                                      <div class="me-3">
+                                        <span class="avatar avatar-md p-2 bg-primary">
+                                          <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                                            <path d="M0 0h24v24H0V0z" fill="none"></path>
+                                            <path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"></path>
+                                          </svg>
+                                        </span>
+                                      </div>
+                                      <div class="flex-fill">
+                                        <div class="d-flex mb-1 align-items-top justify-content-between">
+                                          <h5 class="fw-semibold mb-0 lh-1 valor_Comissao_total">-</h5>
+                                      
+                                        </div>
+                                        <p class="mb-0 fs-10 op-7 text-muted fw-semibold">ULTIMA CONFIGURAÇÃO VENDEDOR INTERNO</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col-3">
+                                <div class="card custom-card">
+                                  <div class="card-body">
+                                    <div class="d-flex align-items-top">
+                                      <div class="me-3">
+                                        <span class="avatar avatar-md p-2 bg-primary">
+                                          <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                                            <path d="M0 0h24v24H0V0z" fill="none"></path>
+                                            <path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"></path>
+                                          </svg>
+                                        </span>
+                                      </div>
+                                      <div class="flex-fill">
+                                        <div class="d-flex mb-1 align-items-top justify-content-between">
+                                          <h5 class="fw-semibold mb-0 lh-1 quantidade_processo">00</h5>
+                                      
+                                        </div>
+                                        <p class="mb-0 fs-10 op-7 text-muted fw-semibold">QUANTIDADE DE PROCESSOS</p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                        </div>
+                       <div class="row">
+                        <div class="col-6">
+                            <div class="card custom-card">
+                                <div class="card-header">
+                                    <div class="card-title"> Comissão Vendedor Externo </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <table id="table_settings_seller" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending">Mínimo</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Máximo</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Porcetagem</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Data</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Registro</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending"></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        
+                                                        </tbody>
+                                                    
+                                                    </table>
+                                                </div>
+                                            </div>
+                                
+                                
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="col-6">
+                            <div class="card custom-card">
+                                <div class="card-header">
+                                    <div class="card-title"> Comissão Vendedor Interno (Inside) </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <table id="table_settings_inside" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending">Mínimo</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Máximo</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Porcetagem</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Data</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending">Registro</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending"></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        
+                                                        </tbody>
+                                                    
+                                                    </table>
+                                                </div>
+                                            </div>
+                                
+                                
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                       </div>
+                       
                     </div>
                 </div>
             </div>
@@ -556,8 +725,43 @@
 
     </div>
 
-   
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 11">
+       
+    </div>
 
+    <div class="modal" id="registerSettings" tabindex="-1" aria-labelledby="registerSettings" data-bs-keyboard="false" aria-modal="true" role="dialog">
+        <!-- Scrollable modal -->
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="titleRegisterSettings">-</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <label for="">Mínimo</label>
+                            <input name="min_value" class="form-control min_value" type="text">
+                        </div>
+                        <div class="col-4">
+                            <label for="">Máximo</label>
+                            <input name="max_value" class="form-control max_value" type="text">
+                        </div>
+                        <div class="col-4">
+                            <label for="">Porcentagem</label>
+                            <input name="percentage" class="form-control percentage" type="number" max="100" min="0">
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary btnconfirmPercentage">Cadastrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Scroll To Top -->
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
     <div id="responsive-overlay"></div>
@@ -688,17 +892,33 @@
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 
 
-    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.7/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.min.js"></script>
+
     <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+
+    <!-- <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script> -->
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.dataTables.js"></script>
+
     <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
     <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 
+    <!-- <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.dataTables.js"></script> -->
+
+
+
+    <script src="../../assets/js/real-time.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
 
     <script src="./assets/js/index.js"></script>
 

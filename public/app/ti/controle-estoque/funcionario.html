@@ -30,12 +30,6 @@
     <!-- Color Picker Css -->
     <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
     <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
-    <!-- Choices Css -->
-    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
-    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
-    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
-    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
-    <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 
@@ -45,7 +39,7 @@
     <link rel="stylesheet" href="https://cdn.quilljs.com/2.0.0-dev.2/quill.bubble.css">
 
 
-    <link rel="stylesheet" href="./assets/css/index.css">
+    <link rel="stylesheet" href="./assets/css/funcionario.css">
     <meta http-equiv="imagetoolbar" content="no">
 </head>
 
@@ -506,7 +500,7 @@
         <img src="../../assets/images/media/loader.svg" alt="">
     </div> -->
     <!-- Loader -->
-    <div class="">
+    <div class="page">
         <!-- app-header -->
 
         <!-- /app-header -->
@@ -515,68 +509,112 @@
         <div class="main-content">
             <div class="container-fluid">
 
+            
                 <div class="row">
-                    <div class="col-xl-12">
-                        <div class="card custom-card">
-                            <div class="card-body p-3">
-                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-                                    <div class="row kanban-board">
-                                        <div class="col-6"><button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#add-estoque">
-                                            <i class="ri-add-line me-1 fw-semibold align-middle"></i>
-                                                Novo Produto
-                                            </button>
-                                        </div>
+                    <div class="col-2 " style="background-color: var(--custom-white)" >
+                        <div class="file-manager-navigation">
+                            <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
 
-                                      
-                                    </div>
-                                    <div class="d-flex" role="search">
-                                        <input class="form-control me-2" id="btnPesquisa" type="search" placeholder="Pesquisar" aria-label="Search">
-                                    </div>
+                                <div><h6 class="fw-semibold mb-0">Colaboradores</h6> </div>
+                                
+                            </div>
+                            <div class="p-3 border-bottom">
+                                <div class="input-group">
+                                    <input type="text" class="form-control bg-light border-0" placeholder="Search Files" aria-describedby="button-addon2">
+                                    <button class="btn btn-light" type="button" id="button-addon2"><i class="ri-search-line text-muted"></i></button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-        
-
-                <div class="row">
-                    <div class="col-xl-12">
-                        <div class="card custom-card">
-                            <div class="card-header">
-                                <div class="card-title"> Controle de Estoque </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="table_estoque" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Nome do Item</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Código do Patrimônio</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Quantidade</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Tipo de Material</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Fornecedor</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Valor(R$)</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Data de Aquisição</th>
-                                                        </tr>
-                                                    </thead>
-                                                
-                                                </table>
+                            <div id="listAllCollaborators">
+                                <ul class="list-unstyled files-main-nav" id="files-main-nav" data-simplebar="init">
+                                    <div class="simplebar-wrapper" style="margin: -16px;">
+                                        <div class="simplebar-height-auto-observer-wrapper">
+                                            <div class="simplebar-height-auto-observer"></div>
+                                        </div>
+                                        <div class="simplebar-mask">
+                                            <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                                <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
+                                                    <div class="simplebar-content" id="listCollaborators" style="padding: 16px;">
+                                                       <!--LISTAR COLABORADORES-->
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                            
-                              
+                                        <div class="simplebar-placeholder" style="width: auto; height: 806px;"></div>
+                                    </div>
+                                    <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                        <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                                    </div>
+                                    <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                                        <div class="simplebar-scrollbar" style="height: 664px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+                                    </div>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+            
+                    <div class="col-10">
+                        <div class="listCards">
+                            <div class="row">
+                                <div class="col-xl-12">
+                                    <div class="card custom-card">
+                                        <div class="card-header">
+                                            <div class="card-title">Controle de Materiais</div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+
+                                        <div class="col-xl-6 col-xxl-3 col-lg-6 col-md-6 col-sm-12">
+                                            <div class="card custom-card" style="min-height: 241px;">
+                                               <center><button class="btn-primary btn" style="margin-top: 23%;">Vincular Novo</button></center>
+                                            </div>
+                                        </div>
+
+
+                                        <!-- Card para informar o que cada colaborador tem -->
+                                        <div class="col-xl-6 col-xxl-3 col-lg-6 col-md-6 col-sm-12">
+                                            <div class="card custom-card">
+                                                <div class="card-header d-block">
+                                                    <div class="d-sm-flex d-block align-items-center">
+                                                        <div class="me-2"> <span class="avatar bg-light avatar-md mb-1"> <img src="https://cdn.conlinebr.com.br/colaboradores/182" alt=""> </span> </div>
+                                                        <div class="flex-fill">
+                                                            <a href="javascript:void(0)"> <span class="fs-14 fw-semibold">Notebook</span> </a> <span class="d-block text-success">$1,299</span> </div>
+                                                        <div class="text-sm-center"> <span class="fs-14 fw-semibold">CP:</span> <span class="d-sm-block">#SPK-1203</span> </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="orders-delivery-address">
+                                                            <p class="mb-1 fw-semibold">Delivery Address</p>
+                                                            <p class="text-muted mb-0"> mig-1-11,monroe street,georgetown,Washington D.C </p>
+                                                        </div>
+                                                        <div class="delivery-date text-center ms-auto"> <span class="fs-18 text-primary fw-bold">13</span> <span class="fw-semibold">Dec</span> </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-footer d-sm-flex d-block align-items-center justify-content-between">
+                                                    <div><span class="text-muted me-2">Status:</span><span class="badge bg-success-transparent">Shipped</span></div>
+                                                    <div class="mt-sm-0 mt-2">
+                                                        <button class="btn btn-sm btn-danger-light">Cancel Order</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>            
             </div>
         </div>
-        
+    </div>
 
+    <!--Modal Cadastro Produto-->
+    <div class="modal fade" id="add-estoque" tabindex="-1" aria-modal="true" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                
+            </div>
+        </div>
     </div>
 
     <!-- Scroll To Top -->
@@ -585,223 +623,39 @@
     <!-- Scroll To Top -->
     <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
     <!-- Popper JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
     <!-- Bootstrap JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Defaultmenu JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <!-- <script src="../../assets/js/defaultmenu.min.js"></script> -->
   
     <!-- Node Waves JS-->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/node-waves/waves.min.js"></script>
 
-
-    <!--Modal-->
-    <div class="modal fade" id="add-estoque" tabindex="-1" aria-modal="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h6 class="modal-title">Cadastro Novo Produto</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form id="materialForm">
-                <div class="modal-body px-4">
-                    <div class="row gy-2">
-                        <div class="row">
-                            <div class="col-7">
-                                <div class="form-group">
-                                    <label for="numeroPatrimonio">Nome do Item</label>
-                                    <input type="text" class="form-control" id="nomeItem" placeholder="Digite o nome do item" required>
-                                </div>
-                            </div>
-                            <div class="col-5">
-                                <div class="form-group">
-                                    <label for="nomeMaterial">Código do Patrimônio</label>
-                                    <input type="number" class="form-control" id="codigoPatrimonio" placeholder="Digite o código" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="nomeMaterial">Quantidade</label>
-                            <input type="number" class="form-control" id="quantidade" placeholder="Digite a quantidade" required>
-                        </div>
-                           
-                            <div class="form-group">
-                                <label for="tipoMaterial">Tipo de Material</label>
-                                <select class="form-control" id="tipoMaterial" required>
-                                    <option value="">Selecione o tipo</option>
-                                    <option value="Monitor">Monitor</option>
-                                    <option value="Notebook">Notebook</option>
-                                    <option value="Periférico">Periférico</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="nomeMaterial">Fornecedor</label>
-                                <input type="text" class="form-control" id="fornecedor" placeholder="Digite o fornecedor" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="nomeMaterial">Valor(R$)</label>
-                                <input type="text" class="form-control" id="valor" placeholder="Digite o valor" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="dataAquisicao">Data de Aquisição</label>
-                                <input type="date" class="form-control" id="dataAquisicao" required>
-                            </div>
-
-
-                            <div class="form-group">
-                                <label for="descricao">Descrição</label>
-                                <textarea class="form-control" id="descricao" rows="3" placeholder="Digite uma breve descrição do material" required></textarea>
-                            </div>
-                        
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                   
-                    <button type="submit" id="ButtonAddTicket butt" class="btn btn-primary">Cadastrar</button>
-                </div>
-                    </form>
-            </div>
-        </div>
-    </div>
- 
-   
     <!-- Color Picker JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
     <!-- Custom-Switcher JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/js/custom-switcher.min.js"></script>
- 
-    <!-- Filepond JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script src="../../assets/libs/filepond/filepond.min.js"></script>
-  
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script src="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js"></script>
-  
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script
-        src="../../assets/libs/filepond-plugin-image-exif-orientation/filepond-plugin-image-exif-orientation.min.js"></script>
-
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script
-        src="../../assets/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js"></script>
-  
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script src="../../assets/libs/filepond-plugin-file-encode/filepond-plugin-file-encode.min.js"></script>
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script src="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.js"></script>
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script
-        src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
-  
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script
-        src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
-
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script src="../../assets/libs/filepond-plugin-image-crop/filepond-plugin-image-crop.min.js"></script>
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script src="../../assets/libs/filepond-plugin-image-resize/filepond-plugin-image-resize.min.js"></script>
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script src="../../assets/libs/filepond-plugin-image-transform/filepond-plugin-image-transform.min.js"></script>
-    <!-- Flat Picker JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
-
-    <!-- Dragula JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-    <script src="../../assets/libs/dragula/dragula.min.js"></script>
-
-
    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
     <!-- Internal Task  JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
-
-    
     <script src="https://cdn.quilljs.com/2.0.0-dev.2/quill.js"></script>
-
     <script src="../../assets/js/task-kanban-board.js"></script>
-
     <script src="../../assets/libs/cleave/cleave.min.js"></script>
-
     <script src="../../assets/js/fetchAPI.js"></script>
 
+    <script src="../../assets/libs/datatables/jquery.dataTables.min.js"></script>
+    <script src="../../assets/libs/datatables/dataTables.bootstrap5.min.js"></script>
+    <script src="../../assets/libs/datatables/dataTables.responsive.min.js"></script>
+    <script src="../../assets/libs/datatables/dataTables.buttons.min.js"></script>
+    <script src="../../assets/libs/datatables/buttons.print.min.js"></script>
+    <script src="../../assets/libs/datatables/pdfmake.min.js"></script>
+    <script src="../../assets/libs/datatables/vfs_fonts.js"></script>
+    <script src="../../assets/libs/datatables/buttons.html5.min.js"></script>
+    <script src="../../assets/libs/datatables/jszip.min.js"></script>
 
-    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-
-
-    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-    <script src="./assets/js/index.js"></script>
-
-
+    <script src="../../assets/libs/sweetalert2/sweetalert2@10.js"></script>
+    <script type="module" src="./assets/js/funcionario.js"></script>
 
     <!-- Custom JS -->
-    <noscript>
-        <p>To display this page you need a browser that supports JavaScript.</p>
-    </noscript>
     <script src="../../assets/js/custom.js"></script>
 
 </body>

@@ -48,8 +48,30 @@ router.post('/getRegisterById', async (req, res, next) => {
     }
 });
 
+router.post('/sendEmailRegisters', async (req, res, next) => {
+    try {
+        const result = await headcargo.sendEmailRegisters(req.body);
 
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
 
+        res.status(404).json('Erro')   
+    }
+});
+
+router.post('/confirmPayment', async (req, res, next) => {
+    const {id} = req.body;
+    try {
+        const result = await headcargo.confirmPayment(id);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+
+        res.status(404).json('Erro')   
+    }
+});
 
 router.post('/listRegister', async (req, res, next) => {
     try {
@@ -75,6 +97,72 @@ router.post('/filterComission', async (req, res, next) => {
         res.status(404).json('Erro')   
     }
 });
+
+router.post('/listSettings', async (req, res, next) => {
+    const {id, type} = req.body;
+
+    try {
+        const result = await headcargo.listSettings(id, type);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+        res.status(404).json('Erro')   
+    }
+});
+
+router.post('/removeSetting', async (req, res, next) => {
+    const {id} = req.body;
+    try {
+        const result = await headcargo.removeSetting(id);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+        res.status(404).json('Erro')   
+    }
+});
+
+router.post('/verifyRegisters', async (req, res, next) => {
+    const {filters} = req.body;
+    try {
+        const result = await headcargo.verifyRegisters(filters);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+        res.status(404).json('Erro')   
+    }
+});
+
+router.post('/registerPercentage', async (req, res, next) => {
+    try {
+        const result = await headcargo.registerPercentage(req.body);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+        res.status(404).json('Erro')   
+    }
+});
+
+router.post('/cancelRegister', async (req, res, next) => {
+    const {id} = req.body;
+    try {
+        const result = await headcargo.registerPercentage(req.body);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+        res.status(404).json('Erro')   
+    }
+});
+
+
+
+
+
+
 
 
 

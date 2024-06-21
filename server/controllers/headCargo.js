@@ -3,6 +3,7 @@ const { executeQuerySQL } = require('../connect/sqlServer');
 const { executeQuery } = require('../connect/mysql');
 
 
+
 const headcargo = {
     gerenateCommission: async function(value){
      
@@ -324,6 +325,52 @@ const headcargo = {
       const registers = await executeQuery(sql)
       return registers;
     },
+    sendEmailRegisters: async function(data){
+ 
+      const resultHistory = await executeQuery(`SELECT * FROM commission_history WHERE reference = ${data.registerCommissionID}`);
+      const reference = await executeQuery(`SELECT * FROM commission_reference WHERE id = ${data.registerCommissionID}`);
+      let commissionTotalComission = parseFloat((data.commissionTotalComission).replace('R$', '').trim().replace(/\./g, '').replace(',', '.'));
+      const resultConcat = resultHistory.map((index) => index.id_process).join(',');
+      const getAllProcessToReference = await headcargo.getAllProcessToReference(resultConcat)
+      
+      const type = reference[0].commissioned_type == 1 ? 0 : 1;
+      const templateHTML =  await headcargo.createTableComission(getAllProcessToReference, type, {de:reference[0].filter_from, ate:reference[0].filter_to}, {name:data.commissionedName, id:reference[0].user}, {total_comissinado:commissionTotalComission})
+
+      const responsiblesGenarate = await executeQuery(`SELECT users.*, 
+      cllt.name as 'name', cllt.family_name as 'family_name' FROM users 
+      JOIN collaborators cllt ON users.collaborator_id = cllt.id
+      WHERE users.id = ${reference[0].by_user}`)
+ 
+      const nameGenerated = headcargo.formatarNome(responsiblesGenarate[0].name+' '+responsiblesGenarate[0].family_name)
+
+      const createBody = await headcargo.createBodyHTMLComission(reference[0].reference, templateHTML.title, templateHTML.html, nameGenerated, templateHTML.filterDates, templateHTML)
+
+    
+      const sendmail = await headcargo.sendEmailComission(templateHTML.subject, createBody)
+      
+      
+      return sendmail
+    },
+    confirmPayment: async function(id){
+  
+      const resultHistory = await executeQuery(`SELECT * FROM commission_history WHERE reference = ${id}`);
+      const resultDbContat = resultHistory.map((index) => index.id).join(',');
+
+      const resultReference = await executeQuery(`SELECT * FROM commission_reference WHERE id = ${id}`);
+      const resultConcat = resultHistory.map((index) => index.id_process).join(',');
+      
+      //baixa na tabela do sirius
+      await executeQuery(`UPDATE commission_history SET status = 1,payment_date = '${headcargo.getFormattedDate()}' WHERE id IN (${resultDbContat})`);
+      await executeQuery(`UPDATE commission_reference SET status = 1, payment_date = '${headcargo.getFormattedDate()}' WHERE id = ${id}`);
+
+      const typeComission = resultReference[0].commissioned_type == 1 ? 'Comissao_Vendedor_Pago' : 'Comissao_Inside_Sales_Pago'
+      const teste = await executeQuerySQL(`SELECT ${typeComission} FROM mov_Logistica_House WHERE IdLogistica_house IN (${resultConcat})`)
+      
+      return teste
+      // await executeQuerySQL(`UPDATE mov_Logistica_House SET ${typeComission} = 1 WHERE IdLogistica_house in (${resultConcat})`)
+
+    
+    },
     getRegisterById: async function(id){
       const sql = `SELECT
       cmmh.*,
@@ -350,14 +397,14 @@ const headcargo = {
       const newRegisters = registers.map(item => ({
         'modal': item.modal,
         'processo': item.reference_process,
-        'payment': item.audited ? '<span style="display:none">'+item.audited+'</span>'+new Date(item.audited).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '',
+        'payment': item.payment_date ? '<span style="display:none">'+item.payment_date+'</span>'+new Date(item.payment_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'Pendente',
         'seller': headcargo.formatarNome(item.SellerName+' '+item.SellerFamily),
         'inside': headcargo.formatarNome(item.InsideName+' '+item.InsideFamily),
         'valueComission': Number(item.commission).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
         'ValueProfit': Number(item.effective).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
         'create_date': new Date(item.create_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }),
         'byUser': headcargo.formatarNome(item.ByUserName+' '+item.ByUserFamily),
-        'status': item.status == 0 ? 'Pendente' : 'Pago',
+        'status': item.status == 0 ? 'Em aberto' : 'Pago',
         'commissioned_type':item.commissioned_type
       }));
 
@@ -376,6 +423,7 @@ const headcargo = {
 
       return {
         data:newRegisters,
+        registerID:id,
         total_comission:Number(total_comission).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
         total_profit_process:Number(total_profit_process).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
         comissionUserID: registers[0].commissioned_type == 1 ? registers[0].SellerHeadID : registers[0].InsideHeadID,
@@ -390,11 +438,17 @@ const headcargo = {
        
         const infoProcess = await headcargo.getAllProcessToReference(resultConcat);
 
-        const register = await headcargo.registerDBComission(infoProcess, user)
+        const register = await headcargo.registerDBComission(infoProcess, user, dateFilter)
         
         const templateHTML =  await headcargo.createTableComission(infoProcess, type, dateFilter, user, register)
+
+        const responsiblesGenarate = await executeQuery(`SELECT users.*, 
+        cllt.name as 'name', cllt.family_name as 'family_name' FROM users 
+        JOIN collaborators cllt ON users.collaborator_id = cllt.id
+        WHERE users.id = ${user.userLog}`)
    
-        const createBody = await headcargo.createBodyHTMLComission(register.reference, templateHTML.title, templateHTML.html, 'Petryck William', templateHTML.filterDates, templateHTML)
+        const nameGenerated = headcargo.formatarNome(responsiblesGenarate[0].name+' '+responsiblesGenarate[0].family_name)
+        const createBody = await headcargo.createBodyHTMLComission(register.reference, templateHTML.title, templateHTML.html, nameGenerated, templateHTML.filterDates, templateHTML)
 
 
         const sendmail = await headcargo.sendEmailComission(templateHTML.subject, createBody)
@@ -402,7 +456,7 @@ const headcargo = {
         return sendmail;
 
     },
-    registerDBComission: async function(process, user){
+    registerDBComission: async function(process, user, dateFilter){
         const commissioned_type = user.type == 0 ? 1 : 2
         const userLogId = user.userLog;
         const currentYear = new Date().getFullYear() % 100;
@@ -422,9 +476,7 @@ const headcargo = {
 
         const reference = `CMS${lastQuantity.toString().padStart(4, '0')}-${currentYear}`;
 
-
-
-        const result = await executeQuery(`INSERT INTO commission_reference (reference, date, commissioned_type, by_user, user) VALUES ('${reference}', '${headcargo.getFormattedDate()}', ${commissioned_type}, ${userLogId}, ${user.id})`)
+        const result = await executeQuery(`INSERT INTO commission_reference (reference, date, commissioned_type, by_user, user, filter_from, filter_to) VALUES ('${reference}', '${headcargo.getFormattedDate()}', ${commissioned_type}, ${userLogId}, ${user.id}, '${dateFilter.de}', '${dateFilter.ate}')`)
         const idReferenci = result.insertId;
 
         let total_comissao = 0;
@@ -640,6 +692,8 @@ const headcargo = {
       return body;
     },
     createTableComission: async function(processList, type, dateFilter, user, registerComission){
+      
+      console.log(dateFilter)
       const commissioned_type = type == 0 ? 1 : 2
         // assunto do email
         const assunto = `[ConLine]- Pagamento Comissões`;
@@ -647,10 +701,6 @@ const headcargo = {
         // formata a data apresentada no email
         const new_data_de = headcargo.formatDate(dateFilter.de)
         const new_data_ate = headcargo.formatDate(dateFilter.ate)
-
-        
-
-
 
         let Row_process = `
             <tr>
@@ -683,8 +733,8 @@ const headcargo = {
                 <td style="border-color:black;border-style:solid;border-width:1px;white-space: nowrap;">${e.Cliente == '' || e.Cliente == null ? 'Sem Seleção' : headcargo.formatarNome(e.Cliente.slice(0, 20))}</td>
                 <td style="border-color:black;border-style:solid;border-width:1px;white-space: nowrap;padding: 8px;">${e.Vendedor == '' || e.Vendedor == null ? 'Sem Seleção' : headcargo.formatarNome(e.Vendedor)}</td>
                 <td style="border-color:black;border-style:solid;border-width:1px;white-space: nowrap;padding: 8px;">${e.Inside_Sales == '' || e.Inside_Sales == null ? 'Sem Seleção' : headcargo.formatarNome(e.Inside_Sales)}</td>
-                <td style="border-color:black;border-style:solid;border-width:1px;text-align: right;white-space: nowrap;">${e.Valor_Estimado.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</td>
-                <td style="border-color:black;border-style:solid;border-width:1px;text-align: right;white-space: nowrap;">${e.Valor_Efetivo.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</td>1
+                <td style="border-color:black;border-style:solid;border-width:1px;text-align: right;white-space: nowrap;">${Number(e.Valor_Estimado).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</td>
+                <td style="border-color:black;border-style:solid;border-width:1px;text-align: right;white-space: nowrap;">${Number(e.Valor_Efetivo).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</td>
             </tr>`;
             
         }
@@ -1075,6 +1125,66 @@ const headcargo = {
             status: false
         };
     },
+    listSettings: async function(id, type) {
+        const collaborator = await executeQuery(`SELECT * FROM collaborators WHERE id_headcargo = ${id}`);
+    
+        let resultadosFormatados;
+        if (collaborator.length) {
+            const result = await executeQuery(`SELECT 
+                cmmp.*, cllt.name, cllt.family_name 
+                FROM commission_percentage cmmp
+                JOIN collaborators cllt ON cllt.id = cmmp.per
+                WHERE type = ${type} AND id_collaborators = ${collaborator[0].id}`);
+    
+            resultadosFormatados = await Promise.all(result.map(async function(item) {
+                return {
+                    ...item, // mantém todas as propriedades existentes
+                    actions:`<button onclick="removeSettings(${item.id})" class="btn btn-danger-light btn-icon ms-1 btn-sm settings-delete-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete"><i class="ri-delete-bin-5-line"></i></button>`,
+                    perFullName: headcargo.formatarNome(item.name + ' ' + item.family_name),
+                    percentage: item.percentage + '%',
+                    value_max: Number(item.value_max).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                    value_min: Number(item.value_min).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+                    date: headcargo.FormattedDateTime(item.date) // sobrescreve apenas a propriedade 'date'
+                };
+            }));
+        } else {
+            resultadosFormatados = [];
+        }
+    
+        return resultadosFormatados;
+    },
+    removeSetting: async function(id){
+      // DELETE FROM `siriusDBO`.`commission_percentage` WHERE (`id` = '41');
+      const result = await executeQuery(`DELETE FROM commission_percentage WHERE id = ${id}`);
+      return result
+
+    },
+    verifyRegisters: async function(data){
+
+      const comissioned = data.vendedorID != '000' ? data.vendedorID : data.InsideID
+
+      const verify = await executeQuery(`SELECT * FROM commission_reference WHERE user = ${comissioned} AND status != 1`)
+
+      
+      return verify.length > 0 ? false : true
+    },
+    registerPercentage: async function(value) {
+      const getCollab = await executeQuery(`SELECT * FROM collaborators WHERE id_headcargo = ${value.commissionedID}`);
+  
+      const data = [
+          getCollab[0].id,
+          value.percentage,
+          value.min_value,
+          value.max_value,
+          value.commissionType,
+          value.userID
+      ];
+  
+      const sql = `INSERT INTO commission_percentage (id_collaborators, percentage, value_min, value_max, type, per) VALUES (?)`;
+      const result_commission = await executeQuery(sql, [data]);
+  
+      return result_commission;
+    },
     formatarNome: function(nome) {
         const preposicoes = new Set(["de", "do", "da", "dos", "das"]);
         const palavras = nome?.split(" ");
@@ -1108,8 +1218,9 @@ const headcargo = {
     const year = date.getFullYear(); // Obtém o ano
     return `${day}/${month}/${year}`; // Retorna a data formatada
     },
-    getFormattedDate: function(){
-      const date = new Date();
+    // Função para formatar uma data no formato pt-BR (dd/mm/aaaa h:m:s) 
+    FormattedDateTime: function(time){
+    const date = new Date(time);
     
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); // meses começam de 0 a 11, então adicionamos 1
@@ -1119,7 +1230,20 @@ const headcargo = {
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
     
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    },
+    getFormattedDate: function(){
+      const date = new Date();
+    
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // meses começam de 0 a 11, então adicionamos 1
+      const day = String(date.getDate()).padStart(2, '0');
+      
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     }
 }
 

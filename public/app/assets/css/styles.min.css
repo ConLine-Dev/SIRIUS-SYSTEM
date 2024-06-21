@@ -20135,7 +20135,7 @@ code[class*=language-] {
     }
 
     .main-content {
-        padding-block-start: 3.75rem
+        /* padding-block-start: 3.75rem */
     }
 
     .main-sidebar-header {

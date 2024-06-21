@@ -6,17 +6,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Controle Funcionário</title>
-    <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
-    <meta name="Author" content="Spruko Technologies Private Limited">
-    <meta name="keywords"
-        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+    <title>Projetos TI</title>
+    <meta name="Description" content="Controle de chamados & projetos TI">
+    <meta name="Author" content="ConLine">
+
     <!-- Favicon -->
     <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
     <!-- Choices JS -->
     <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
     <!-- Main Theme Js -->
-    <script src="../../assets/js/main.js"></script>
+    <!-- <script src="../../assets/js/main.js"></script> -->
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <!-- Style Css -->
@@ -30,14 +29,14 @@
     <!-- Color Picker Css -->
     <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
     <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
+    <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-
-    <!-- <link rel="stylesheet" href="../../assets/libs/quill/quill.snow.css">
-    <link rel="stylesheet" href="../../assets/libs/quill/quill.bubble.css"> -->
-    <link rel="stylesheet" href="https://cdn.quilljs.com/2.0.0-dev.2/quill.snow.css">
-    <link rel="stylesheet" href="https://cdn.quilljs.com/2.0.0-dev.2/quill.bubble.css">
-
 
     <link rel="stylesheet" href="./assets/css/funcionario.css">
     <meta http-equiv="imagetoolbar" content="no">
@@ -491,448 +490,213 @@
         </div>
     </div>
     <!-- End Switcher -->
+
     <!-- Loader -->
-    <div id="loader2">
+    <div id="loader2" class="d-none">
         <img src="../../assets/images/media/loader.svg" alt="">
     </div>
-       
 
-        <div class="">
-            <!-- app-header -->
-            <header class="app-header">
-   
-               <!-- Start::main-header-container -->
-               <div class="main-header-container container-fluid">
-   
-                   <!-- Start::header-content-left -->
-                   <div class="header-content-left">
-   
-                       <!-- Start::header-element -->
-                       <div class="header-element">
-                           <!-- Start::header-link -->
-                           <a aria-label="Hide Sidebar" class="card-collaborators" data-bs-toggle="sidebar" href="javascript:void(0);"><span></span></a>
-                           <!-- End::header-link -->
-                       </div>
-                       <!-- End::header-element -->
-                   </div>
-                   <!-- End::header-content-left -->
-   
-                       <!-- Start::header-element -->
-                       <div class="header-element">
-                           <!-- Start::header-link|switcher-icon -->
-                           <a href="javascript:void(0);" class="header-link switcher-icon" data-bs-toggle="offcanvas" data-bs-target="#switcher-canvas">
-                               <i class="bx bx-cog header-link-icon"></i>
-                           </a>
-                           <!-- End::header-link|switcher-icon -->
-                       </div>
-                       <!-- End::header-element -->
-   
-                   </div>
-                <!-- End::header-content-right -->
-            </header>
-        </div>
-           
-   
-               <!-- Start::app-content -->
-               <div class="main-content app-content">
-                   <div class="container-fluid">
-                       <div class="file-manager-container p-2 gap-2 d-sm-flex">
-                           <div class="file-manager-navigation">
-                               <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
-                                   <div>
-                                       <h6 class="fw-semibold mb-0">Colaboradores</h6>
-                                   </div>
-                                   <div class="dropdown">
-                                       <button class="btn btn-sm btn-icon btn-primary-light btn-wave waves-light waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                           <i class="ri-settings-3-line"></i>
-                                       </button>
-                                       <ul class="dropdown-menu">
-                                           <li><a class="dropdown-item" href="javascript:void(0);">Hidden Files</a></li>
-                                           <li><a class="dropdown-item" href="javascript:void(0);">Another action</a></li>
-                                           <li><a class="dropdown-item" href="javascript:void(0);">Something else here</a></li>
-                                       </ul>
-                                   </div>
-                               </div>
-                               <div class="p-3 border-bottom">
-                                   <div class="input-group">
-                                       <input type="text" class="form-control bg-light border-0" placeholder="Search Files" aria-describedby="button-addon2">
-                                       <button class="btn btn-light" type="button" id="button-addon2"><i class="ri-search-line text-muted"></i></button>
-                                   </div>
-                               </div>
-                               <div>
-                                   <ul class="list-unstyled files-main-nav" id="files-main-nav" data-simplebar="init"><div class="simplebar-wrapper" style="margin: -16px;"><div class="simplebar-height-auto-observer-wrapper"><div class="simplebar-height-auto-observer"></div></div><div class="simplebar-mask"><div class="simplebar-offset" style="right: 0px; bottom: 0px;"><div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;"><div class="simplebar-content" style="padding: 16px;">
-                                       <li class="active files-type">
-                                           <a href="javascript:void(0)">
-                                               <div class="d-flex align-items-center">
-                                                   <div class="me-2" id="listAllCollaborators">
-                                                       <i class="ri-folder-2-line fs-16"></i>
-                                                   </div>
-                                                   <span class="flex-fill text-nowrap">
-                                                       My Files
-                                                   </span>
-                                               </div>
-                                           </a>
-                                       </li>
-                                       
-                                       <li class="files-type">
-                                           <a href="javascript:void(0)">
-                                               <div class="d-flex align-items-center">
-                                                   <div class="me-2">
-                                                       <i class="ri-star-s-line fs-16"></i>
-                                                   </div>
-                                                   <span class="flex-fill text-nowrap">
-                                                       favourites
-                                                   </span>
-                                               </div>
-                                           </a>
-                                       </li>
-                                   </div></div></div></div><div class="simplebar-placeholder" style="width: auto; height: 822px;"></div></div><div class="simplebar-track simplebar-horizontal" style="visibility: hidden;"><div class="simplebar-scrollbar" style="width: 0px; display: none;"></div></div><div class="simplebar-track simplebar-vertical" style="visibility: visible;"><div class="simplebar-scrollbar" style="height: 484px; transform: translate3d(0px, 0px, 0px); display: block;"></div></div></ul>
-                               </div>
-                           </div>
-                           <div class="file-manager-folders">
-                               <div class="d-flex p-3 flex-wrap gap-2 align-items-center justify-content-between border-bottom">
-                                   <div>
-                                       <h6 class="fw-semibold mb-0">Folders</h6>
-                                   </div>
-                                   <div class="d-flex gap-2">
-                                       <button id="folders-close-btn" class="d-sm-none d-block btn btn-icon btn-sm btn-danger-light">
-                                           <i class="ri-close-fill"></i>
-                                       </button>
-                                       <button class="btn btn-sm btn-primary d-flex align-items-center justify-content-center btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#create-folder">
-                                           <i class="ri-add-circle-line align-middle me-1"></i>Create Folder
-                                       </button>
-                                       <div class="modal fade" id="create-folder" tabindex="-1" aria-labelledby="create-folder" data-bs-keyboard="false" aria-hidden="true">
-                                           <div class="modal-dialog modal-dialog-centered">
-                                               <div class="modal-content">
-                                                   <div class="modal-header">
-                                                       <h6 class="modal-title" id="staticBackdropLabel">Create Folder
-                                                       </h6>
-                                                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                   </div>
-                                                   <div class="modal-body">
-                                                       <label for="create-folder1" class="form-label">Folder Name</label>
-                                                       <input type="text" class="form-control" id="create-folder1" placeholder="Folder Name">
-                                                   </div>
-                                                   <div class="modal-footer">
-                                                       <button type="button" class="btn btn-sm btn-icon btn-light" data-bs-dismiss="modal"><i class="ri-close-fill"></i></button>
-                                                       <button type="button" class="btn btn-sm btn-success">Create</button>
-                                                   </div>
-                                               </div>
-                                           </div>
-                                       </div>
-                                       <button class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#create-file">
-                                           <i class="ri-add-circle-line align-middle me-1"></i>Create File
-                                       </button>
-                                       <div class="modal fade" id="create-file" tabindex="-1" aria-labelledby="create-file" data-bs-keyboard="false" aria-hidden="true">
-                                           <div class="modal-dialog modal-dialog-centered">
-                                               <div class="modal-content">
-                                                   <div class="modal-header">
-                                                       <h6 class="modal-title" id="staticBackdropLabel1">Create File
-                                                       </h6>
-                                                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                   </div>
-                                                   <div class="modal-body">
-                                                       <label for="create-file1" class="form-label">File Name</label>
-                                                       <input type="text" class="form-control" id="create-file1" placeholder="File Name">
-                                                   </div>
-                                                   <div class="modal-footer">
-                                                       <button type="button" class="btn btn-sm btn-icon btn-light" data-bs-dismiss="modal"><i class="ri-close-fill"></i></button>
-                                                       <button type="button" class="btn btn-sm btn-success">Create</button>
-                                                   </div>
-                                               </div>
-                                           </div>
-                                       </div>
-                                   </div>
-                               </div>
-                               <div class="p-3 file-folders-container" id="file-folders-container" data-simplebar="init"><div class="simplebar-wrapper" style="margin: -16px;"><div class="simplebar-height-auto-observer-wrapper"><div class="simplebar-height-auto-observer"></div></div><div class="simplebar-mask"><div class="simplebar-offset" style="right: 0px; bottom: 0px;"><div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;"><div class="simplebar-content" style="padding: 16px;">
-                                   
-                                  
-                                   <div class="d-flex mb-3 align-items-center justify-content-between">
-                                       <p class="mb-0 fw-semibold fs-14">Folders</p>
-                                       <button class="btn btn-sm btn-primary-light">View All</button>
-                                   </div>
-                                   <div class="row mb-3">
-                                       <div class="col-xxl-3 col-xl-6 col-lg-6 col-md-6">
-                                           <div class="card border custom-card shadow-none">
-                                               <div class="card-body bg-primary-transparent">
-                                                   <div class="mb-4 folder-svg-container d-flex flex-wrap justify-content-between align-items-top">
-                                                       <div>
-                                                           <svg xmlns="http://www.w3.org/2000/svg" class="svg-primary" data-name="Layer 1" viewBox="0 0 24 24"><path opacity="1" d="M19.97586,10V9a3,3,0,0,0-3-3H10.69678l-.31622-.94868A3,3,0,0,0,7.53451,3H3.97586a3,3,0,0,0-3,3V19a2,2,0,0,0,2,2H3.3067a2,2,0,0,0,1.96774-1.64223l1.40283-7.71554A2,2,0,0,1,8.645,10Z"></path><path opacity="0.3" d="M22.02386,10H8.645a2,2,0,0,0-1.96777,1.64221L5.27441,19.35773A2,2,0,0,1,3.3067,21H19.55292a2,2,0,0,0,1.96771-1.64227l1.48712-8.17884A1,1,0,0,0,22.02386,10Z"></path></svg>
-                                                       </div>
-                                                       <div>
-                                                           <div class="dropdown">
-                                                               <button class="btn btn-sm btn-icon btn-primary btn-wave waves-light waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                   <i class="ri-more-2-fill"></i>
-                                                               </button>
-                                                               <ul class="dropdown-menu">
-                                                                   <li><a class="dropdown-item" href="javascript:void(0);">Delete</a></li>
-                                                                   <li><a class="dropdown-item" href="javascript:void(0);">Rename</a></li>
-                                                                   <li><a class="dropdown-item" href="javascript:void(0);">Hide Folder</a></li>
-                                                               </ul>
-                                                           </div>
-                                                       </div>
-                                                   </div>
-                                                   <p class="fs-14 fw-semibold mb-1 lh-1">
-                                                       <a href="javascript:void(0);">Images</a>
-                                                   </p>
-                                                   <div class="d-flex align-items-center justify-content-between flex-wrap">
-                                                       <div>
-                                                           <span class="text-muted fs-12">
-                                                               246 Files
-                                                           </span>
-                                                       </div>
-                                                       <div>
-                                                           <span class="text-default fw-semibold">
-                                                               214.32MB
-                                                           </span>
-                                                       </div>
-                                                   </div>
-                                               </div>
-                                           </div>
-                                       </div>
-                                       <div class="col-xxl-3 col-xl-6 col-lg-6 col-md-6">
-                                           <div class="card border custom-card shadow-none">
-                                               <div class="card-body">
-                                                   <div class="mb-4 folder-svg-container d-flex flex-wrap justify-content-between align-items-top">
-                                                       <div>
-                                                           <svg xmlns="http://www.w3.org/2000/svg" class="svg-primary" data-name="Layer 1" viewBox="0 0 24 24"><path opacity="1" d="M19.97586,10V9a3,3,0,0,0-3-3H10.69678l-.31622-.94868A3,3,0,0,0,7.53451,3H3.97586a3,3,0,0,0-3,3V19a2,2,0,0,0,2,2H3.3067a2,2,0,0,0,1.96774-1.64223l1.40283-7.71554A2,2,0,0,1,8.645,10Z"></path><path opacity="0.3" d="M22.02386,10H8.645a2,2,0,0,0-1.96777,1.64221L5.27441,19.35773A2,2,0,0,1,3.3067,21H19.55292a2,2,0,0,0,1.96771-1.64227l1.48712-8.17884A1,1,0,0,0,22.02386,10Z"></path></svg>
-                                                       </div>
-                                                       <div>
-                                                           <div class="dropdown">
-                                                               <button class="btn btn-sm btn-icon btn-primary-light btn-wave waves-light waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                   <i class="ri-more-2-fill"></i>
-                                                               </button>
-                                                               <ul class="dropdown-menu">
-                                                                   <li><a class="dropdown-item" href="javascript:void(0);">Delete</a></li>
-                                                                   <li><a class="dropdown-item" href="javascript:void(0);">Rename</a></li>
-                                                                   <li><a class="dropdown-item" href="javascript:void(0);">Hide Folder</a></li>
-                                                               </ul>
-                                                           </div>
-                                                       </div>
-                                                   </div>
-                                                   <p class="fs-14 fw-semibold mb-1 lh-1">
-                                                       <a href="javascript:void(0);">Docs</a>
-                                                   </p>
-                                                   <div class="d-flex align-items-center justify-content-between flex-wrap">
-                                                       <div>
-                                                           <span class="text-muted fs-12">
-                                                               17 Files
-                                                           </span>
-                                                       </div>
-                                                       <div>
-                                                           <span class="text-default fw-semibold">
-                                                               432.39KB
-                                                           </span>
-                                                       </div>
-                                                   </div>
-                                               </div>
-                                           </div>
-                                       </div>
-                                       <div class="col-xxl-3 col-xl-6 col-lg-6 col-md-6">
-                                           <div class="card border custom-card shadow-none">
-                                               <div class="card-body">
-                                                   <div class="mb-4 folder-svg-container d-flex flex-wrap justify-content-between align-items-top">
-                                                       <div>
-                                                           <svg xmlns="http://www.w3.org/2000/svg" class="svg-primary" data-name="Layer 1" viewBox="0 0 24 24"><path opacity="1" d="M19.97586,10V9a3,3,0,0,0-3-3H10.69678l-.31622-.94868A3,3,0,0,0,7.53451,3H3.97586a3,3,0,0,0-3,3V19a2,2,0,0,0,2,2H3.3067a2,2,0,0,0,1.96774-1.64223l1.40283-7.71554A2,2,0,0,1,8.645,10Z"></path><path opacity="0.3" d="M22.02386,10H8.645a2,2,0,0,0-1.96777,1.64221L5.27441,19.35773A2,2,0,0,1,3.3067,21H19.55292a2,2,0,0,0,1.96771-1.64227l1.48712-8.17884A1,1,0,0,0,22.02386,10Z"></path></svg>
-                                                       </div>
-                                                       <div>
-                                                           <div class="dropdown">
-                                                               <button class="btn btn-sm btn-icon btn-primary-light btn-wave waves-light waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                   <i class="ri-more-2-fill"></i>
-                                                               </button>
-                                                               <ul class="dropdown-menu">
-                                                                   <li><a class="dropdown-item" href="javascript:void(0);">Delete</a></li>
-                                                                   <li><a class="dropdown-item" href="javascript:void(0);">Rename</a></li>
-                                                                   <li><a class="dropdown-item" href="javascript:void(0);">Hide Folder</a></li>
-                                                               </ul>
-                                                           </div>
-                                                       </div>
-                                                   </div>
-                                                   <p class="fs-14 fw-semibold mb-1 lh-1">
-                                                       <a href="javascript:void(0);">Downloads</a>
-                                                   </p>
-                                                   <div class="d-flex align-items-center justify-content-between flex-wrap">
-                                                       <div>
-                                                           <span class="text-muted fs-12">
-                                                               437 Files
-                                                           </span>
-                                                       </div>
-                                                       <div>
-                                                           <span class="text-default fw-semibold">
-                                                               3.12GB
-                                                           </span>
-                                                       </div>
-                                                   </div>
-                                               </div>
-                                           </div>
-                                       </div>
-                                       <div class="col-xxl-3 col-xl-6 col-lg-6 col-md-6">
-                                           <div class="card border custom-card shadow-none">
-                                               <div class="card-body">
-                                                   <div class="mb-4 folder-svg-container d-flex flex-wrap justify-content-between align-items-top">
-                                                       <div>
-                                                           <svg xmlns="http://www.w3.org/2000/svg" class="svg-primary" data-name="Layer 1" viewBox="0 0 24 24"><path opacity="1" d="M19.97586,10V9a3,3,0,0,0-3-3H10.69678l-.31622-.94868A3,3,0,0,0,7.53451,3H3.97586a3,3,0,0,0-3,3V19a2,2,0,0,0,2,2H3.3067a2,2,0,0,0,1.96774-1.64223l1.40283-7.71554A2,2,0,0,1,8.645,10Z"></path><path opacity="0.3" d="M22.02386,10H8.645a2,2,0,0,0-1.96777,1.64221L5.27441,19.35773A2,2,0,0,1,3.3067,21H19.55292a2,2,0,0,0,1.96771-1.64227l1.48712-8.17884A1,1,0,0,0,22.02386,10Z"></path></svg>
-                                                       </div>
-                                                       <div>
-                                                           <div class="dropdown">
-                                                               <button class="btn btn-sm btn-icon btn-primary-light btn-wave waves-light waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                   <i class="ri-more-2-fill"></i>
-                                                               </button>
-                                                               <ul class="dropdown-menu">
-                                                                   <li><a class="dropdown-item" href="javascript:void(0);">Delete</a></li>
-                                                                   <li><a class="dropdown-item" href="javascript:void(0);">Rename</a></li>
-                                                                   <li><a class="dropdown-item" href="javascript:void(0);">Hide Folder</a></li>
-                                                               </ul>
-                                                           </div>
-                                                       </div>
-                                                   </div>
-                                                   <p class="fs-14 fw-semibold mb-1 lh-1">
-                                                       <a href="javascript:void(0);">Apps</a>
-                                                   </p>
-                                                   <div class="d-flex align-items-center justify-content-between flex-wrap">
-                                                       <div>
-                                                           <span class="text-muted fs-12">
-                                                               165 Files
-                                                           </span>
-                                                       </div>
-                                                       <div>
-                                                           <span class="text-default fw-semibold">
-                                                               12.56GB
-                                                           </span>
-                                                       </div>
-                                                   </div>
-                                               </div>
-                                           </div>
-                                       </div>
-                                   </div>
-                                  
+    <!-- Body -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="file-manager-container p-2 gap-2 d-sm-flex">
+                <div class="file-manager-navigation" style="min-height: 98vh !important;">
+                    <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
+                        <div>
+                            <h6 class="fw-semibold mb-0">Colaboradores</h6>
+                        </div>
+                    </div>
+                    <div class="p-3 border-bottom">
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-light border-0" id="search" placeholder="Pesquisar Colaborador" aria-describedby="button-addon2">
+                            <button class="btn btn-light" type="button" id="button-addon2"><i class="ri-search-line text-muted"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                    <ul class="list-unstyled files-main-nav" id="files-main-nav" data-simplebar="init">
+                        <div class="simplebar-wrapper" style="margin: -16px;">
+                            <div class="simplebar-height-auto-observer-wrapper">
+                                <div class="simplebar-height-auto-observer"></div>
+                            </div>
+                            <div class="simplebar-mask">
+                                <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                    <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
+                                        <div class="simplebar-content" id="listCollaborators" style="padding: 16px;">
+                                           <!--LISTA COLABORADORES-->
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="simplebar-placeholder" style="width: auto; height: 806px;"></div>
+                        </div>
+                        <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                            <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                        </div>
+                        <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                            <div class="simplebar-scrollbar" style="height: 525px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+                        </div>
+                    </ul>
+                </div>
+                </div>
+                <div class="file-manager-folders" style="min-height: 98vh !important;">
+                    <div class="p-3 file-folders-container" id="file-folders-container" data-simplebar="init"><div class="simplebar-wrapper" style="margin: -16px;"><div class="simplebar-height-auto-observer-wrapper"><div class="simplebar-height-auto-observer"></div></div><div class="simplebar-mask"><div class="simplebar-offset" style="right: 0px; bottom: 0px;"><div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;"><div class="simplebar-content" style="padding: 16px;">
+                        
+                        <div class="card custom-card">
+                            <div class="card-header py-1 pb-3">
+                                <div class="card-title fw-semibold fs-14">Produtos</div>
+                            </div>
+                        </div>
 
+                        <div class="row mb-3" style="height: 87vh;">
+                            <div class="shadow-none projects-tracking-card overflow-hidden text-center col">
+                                <div class="card-body" style="height: 100%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -27%);"> 
+                                    <img src="../../assets/images/media/stock.png" alt="" class="mb-1" style="height: auto; width: 50%;">
+                                    <div> 
+                                        <span class="fs-15 fw-semibold d-block mt-4 mb-3">Selecione um colaborador ao lado 
+                                            <br>
+                                            <h1>←</h1>
+                                        </span>
+                                        <!-- <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light">Track Here</button> -->
+                                    </div>
+                                    <span class="shape-1 text-primary">
+                                        <i class="ti ti-circle fs-20 fw-bold"></i>
+                                    </span>
+                                    <span class="shape-2 text-secondary">
+                                        <i class="ti ti-triangle fs-20 fw-bold"></i>
+                                    </span>
+                                    <span class="shape-3 text-warning">
+                                        <i class="ti ti-square fs-20 fw-bold"></i>
+                                    </span> 
+                                    <span class="shape-4 text-info">
+                                        <i class="ti ti-square-rotated fs-20 fw-bold"></i>
+                                    </span> 
+                                    <span class="shape-5 text-success">
+                                        <i class="ti ti-pentagon fs-20 fw-bold"></i>
+                                    </span> 
+                                    <span class="shape-6 text-danger">
+                                        <i class="ti ti-star fs-20 fw-bold"></i>
+                                    </span>        
+                                    <span class="shape-7 text-pink">
+                                        <i class="ti ti-hexagon fs-20 fw-bold"></i>
+                                    </span> 
+                                    <span class="shape-8 text-teal">
+                                        <i class="ti ti-octagon fs-20 fw-bold"></i>
+                                    </span> 
+                                    <span class="shape-9 text-primary">
+                                        <i class="ti ti-circle fs-20 fw-bold"></i>
+                                    </span>        
+                                    <span class="shape-10 text-secondary">
+                                        <i class="ti ti-triangle fs-20 fw-bold"></i>
+                                    </span> 
+                                    <span class="shape-11 text-warning">
+                                        <i class="ti ti-square fs-20 fw-bold"></i>
+                                    </span> 
+                                    <span class="shape-12 text-info">
+                                        <i class="ti ti-square-rotated fs-20 fw-bold"></i>
+                                    </span>        
+                                    <span class="shape-13 text-success">
+                                        <i class="ti ti-pentagon fs-20 fw-bold"></i>
+                                    </span> 
+                                    <span class="shape-14 text-danger">
+                                        <i class="ti ti-star fs-20 fw-bold"></i>
+                                    </span> 
+                                    <span class="shape-15 text-pink">
+                                        <i class="ti ti-hexagon fs-20 fw-bold"></i>
+                                    </span>        
+                                    <span class="shape-16 text-teal">
+                                        <i class="ti ti-octagon fs-20 fw-bold"></i>
+                                    </span> 
+                                </div>
+                            </div>
+                        </div>
 
-
-                                   
-                               </div></div></div></div><div class="simplebar-placeholder" style="width: auto; height: 928px;"></div></div><div class="simplebar-track simplebar-horizontal" style="visibility: hidden;"><div class="simplebar-scrollbar" style="width: 0px; display: none;"></div></div><div class="simplebar-track simplebar-vertical" style="visibility: visible;"><div class="simplebar-scrollbar" style="height: 560px; transform: translate3d(0px, 0px, 0px); display: block;"></div></div></div>
-                           </div>
-                       </div>
-                   </div>
-               </div>
-               <!-- End::app-content -->
-   
-               <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModal" aria-hidden="true">
-                   <div class="modal-dialog">
-                     <div class="modal-content">
-                       <div class="modal-body">
-                         <div class="input-group">
-                           <a href="javascript:void(0);" class="input-group-text" id="Search-Grid"><i class="fe fe-search header-link-icon fs-18"></i></a>
-                           <input type="search" class="form-control border-0 px-2" placeholder="Search" aria-label="Username">
-                           <a href="javascript:void(0);" class="input-group-text" id="voice-search"><i class="fe fe-mic header-link-icon"></i></a>
-                           <a href="javascript:void(0);" class="btn btn-light btn-icon" data-bs-toggle="dropdown" aria-expanded="false">
-                             <i class="fe fe-more-vertical"></i>
-                           </a>
-                           <ul class="dropdown-menu">
-                             <li><a class="dropdown-item" href="javascript:void(0);">Action</a></li>
-                             <li><a class="dropdown-item" href="javascript:void(0);">Another action</a></li>
-                             <li><a class="dropdown-item" href="javascript:void(0);">Something else here</a></li>
-                             <li><hr class="dropdown-divider"></li>
-                             <li><a class="dropdown-item" href="javascript:void(0);">Separated link</a></li>
-                           </ul>
-                         </div>
-                         <div class="mt-4">
-                           <p class="font-weight-semibold text-muted mb-2">Are You Looking For...</p>
-                           <span class="search-tags"><i class="fe fe-user me-2"></i>People<a href="javascript:void(0)" class="tag-addon"><i class="fe fe-x"></i></a></span>
-                           <span class="search-tags"><i class="fe fe-file-text me-2"></i>Pages<a href="javascript:void(0)" class="tag-addon"><i class="fe fe-x"></i></a></span>
-                           <span class="search-tags"><i class="fe fe-align-left me-2"></i>Articles<a href="javascript:void(0)" class="tag-addon"><i class="fe fe-x"></i></a></span>
-                           <span class="search-tags"><i class="fe fe-server me-2"></i>Tags<a href="javascript:void(0)" class="tag-addon"><i class="fe fe-x"></i></a></span>
-                         </div>
-                         <div class="my-4">
-                           <p class="font-weight-semibold text-muted mb-2">Recent Search :</p>
-                           <div class="p-2 border br-5 d-flex align-items-center text-muted mb-2 alert">
-                             <a href="notifications.html"><span>Notifications</span></a>
-                             <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert" aria-label="Close"><i class="fe fe-x text-muted"></i></a>
-                           </div>
-                           <div class="p-2 border br-5 d-flex align-items-center text-muted mb-2 alert">
-                             <a href="alerts.html"><span>Alerts</span></a>
-                             <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert" aria-label="Close"><i class="fe fe-x text-muted"></i></a>
-                           </div>
-                           <div class="p-2 border br-5 d-flex align-items-center text-muted mb-0 alert">
-                             <a href="mail.html"><span>Mail</span></a>
-                             <a class="ms-auto lh-1" href="javascript:void(0);" data-bs-dismiss="alert" aria-label="Close"><i class="fe fe-x text-muted"></i></a>
-                           </div>
-                         </div>
-                       </div>
-                       <div class="modal-footer">
-                         <div class="btn-group ms-auto">
-                           <button class="btn btn-sm btn-primary-light">Search</button>
-                           <button class="btn btn-sm btn-primary">Clear Recents</button>
-                         </div>
-                       </div>
-                     </div>
-                   </div>
-               </div>
-               <!-- Footer Start -->
-               <footer class="footer mt-auto py-3 bg-white text-center">
-                   <div class="container">
-                       <span class="text-muted"> Copyright © <span id="year">2024</span> <a href="javascript:void(0);" class="text-dark fw-semibold">Ynex</a>.
-                           Designed with <span class="bi bi-heart-fill text-danger"></span> by <a href="javascript:void(0);">
-                               <span class="fw-semibold text-primary text-decoration-underline">Spruko</span>
-                           </a> All
-                           rights
-                           reserved
-                       </span>
-                   </div>
-               </footer>
-               <!-- Footer End -->
-
-    <!--Modal Cadastro Produto-->
-    <!-- <div class="modal fade" id="add-estoque" tabindex="-1" aria-modal="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                
+                        <div class="row mb-3 d-none">
+                            <div class="col-xxl-3 col-xl-6 col-lg-6 col-md-6">
+                                <div class="card border custom-card shadow-none">
+                                    <div class="card-body bg-primary-transparent">
+                                        <div class="mb-4 folder-svg-container d-flex flex-wrap justify-content-between align-items-top">
+                                            <div>
+                                                <div class="dropdown">
+                                                <button class="btn-primary btn" style="margin-top: 50%;">+</button>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Card para informar o que cada colaborador tem -->
+                            <div class="col-xl-6 col-xxl-3 col-lg-6 col-md-6 col-sm-12">
+                                <div class="card custom-card">
+                                    <div class="card-header d-block">
+                                        <div class="d-sm-flex d-block align-items-center">
+                                            <div class="me-2"> <span class="avatar bg-light avatar-md mb-1"> <img src="https://cdn.conlinebr.com.br/colaboradores/182" alt=""> </span> </div>
+                                            <div class="flex-fill">
+                                                <a href="javascript:void(0)"> <span class="fs-14 fw-semibold">Notebook</span> </a> <span class="d-block text-success">$1,299</span> </div>
+                                            <div class="text-sm-center"> <span class="fs-14 fw-semibold">CP:</span> <span class="d-sm-block">#SPK-1203</span> </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div class="orders-delivery-address">
+                                                <p class="mb-1 fw-semibold">Delivery Address</p>
+                                                <p class="text-muted mb-0"> mig-1-11,monroe street,georgetown,Washington D.C </p>
+                                            </div>
+                                            <div class="delivery-date text-center ms-auto"> <span class="fs-18 text-primary fw-bold">13</span> <span class="fw-semibold">Dec</span> </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer d-sm-flex d-block align-items-center justify-content-between">
+                                        <div><span class="text-muted me-2">Status:</span><span class="badge bg-success-transparent">Shipped</span></div>
+                                        <div class="mt-sm-0 mt-2">
+                                            <button class="btn btn-sm btn-danger-light">Cancel Order</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                    </div></div></div></div><div class="simplebar-placeholder" style="width: auto; height: 928px;"></div></div><div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                    <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div></div><div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                        <div class="simplebar-scrollbar" style="height: 560px; transform: translate3d(0px, 0px, 0px); display: block;"></div></div></div>
+                </div>
             </div>
         </div>
-    </div> -->
+    </div>
 
     <!-- Scroll To Top -->
-    <!-- <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
-    <div id="responsive-overlay"></div> -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+
     <!-- Scroll To Top -->
-     
     <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
     <!-- Popper JS -->
     <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Defaultmenu JS -->
+    <!-- <script src="../../assets/js/defaultmenu.min.js"></script> -->
   
     <!-- Node Waves JS-->
     <script src="../../assets/libs/node-waves/waves.min.js"></script>
-
+   
     <!-- Color Picker JS -->
     <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
     <!-- Custom-Switcher JS -->
     <script src="../../assets/js/custom-switcher.min.js"></script>
-    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script src="../../assets/libs/select2/select2.min.js"></script>
+
     <!-- Internal Task  JS -->
-    <script src="https://cdn.quilljs.com/2.0.0-dev.2/quill.js"></script>
-    <script src="../../assets/js/task-kanban-board.js"></script>
-    <script src="../../assets/libs/cleave/cleave.min.js"></script>
     <script src="../../assets/js/fetchAPI.js"></script>
-
-    <script src="../../assets/libs/datatables/jquery.dataTables.min.js"></script>
-    <script src="../../assets/libs/datatables/dataTables.bootstrap5.min.js"></script>
-    <script src="../../assets/libs/datatables/dataTables.responsive.min.js"></script>
-    <script src="../../assets/libs/datatables/dataTables.buttons.min.js"></script>
-    <script src="../../assets/libs/datatables/buttons.print.min.js"></script>
-    <script src="../../assets/libs/datatables/pdfmake.min.js"></script>
-    <script src="../../assets/libs/datatables/vfs_fonts.js"></script>
-    <script src="../../assets/libs/datatables/buttons.html5.min.js"></script>
-    <script src="../../assets/libs/datatables/jszip.min.js"></script>
-
-    <script src="../../assets/libs/sweetalert2/sweetalert2@10.js"></script>
-    <script type="module" src="./assets/js/funcionario.js"></script>
+    <script src="./assets/js/funcionario.js"></script>
 
     <!-- Custom JS -->
     <script src="../../assets/js/custom.js"></script>
-
 </body>
 
 </html>

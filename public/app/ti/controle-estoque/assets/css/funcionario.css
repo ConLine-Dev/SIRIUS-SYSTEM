@@ -33,3 +33,22 @@
     flex-wrap: wrap;
     gap: .25rem;
 }
+
+.avatar.avatar-md {
+    width: 2rem !important;
+    height: 2rem !important;
+    line-height: 2rem !important;
+    font-size: .8rem;
+}
+
+.file-manager-container .files-main-nav {
+    max-height: calc(100vh);
+}
+
+.file-manager-container ul.files-main-nav li:hover {
+    background-color: var(--primary01);
+}
+
+.file-manager-container .file-folders-container {
+    max-height: calc(100vh);
+}

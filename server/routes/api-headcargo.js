@@ -149,7 +149,7 @@ router.post('/registerPercentage', async (req, res, next) => {
 router.post('/cancelRegister', async (req, res, next) => {
     const {id} = req.body;
     try {
-        const result = await headcargo.registerPercentage(req.body);
+        const result = await headcargo.cancelRegister(id);
 
         res.status(200).json(result)
     } catch (error) {

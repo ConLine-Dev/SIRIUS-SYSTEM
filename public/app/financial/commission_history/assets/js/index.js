@@ -48,7 +48,13 @@ async function listRegisters() {
                                 </div>
                                 <div> 
                                     <span class="d-block fw-semibold">${formatarNome(element.name + ' ' + element.family_name)} 
-                                    ${element.status == 0 ? '<i title="Comissão não foi paga" class="bi bi-patch-exclamation-fill text-danger ms-2"></i>' : '<i title="Comissão paga" class="bi bi-patch-check-fill text-success ms-2"></i>'}</span> 
+                                    ${element.status == 0 ? 
+                                        '<i title="Comissão pendente" class="bi bi-patch-exclamation-fill text-warning ms-2"></i>' 
+                                    : element.status == 3 ?
+                                        '<i title="Registro cancelado" class="bi bi-x-octagon-fill text-danger ms-2"></i>'
+                                    :    
+                                        '<i title="Comissão paga" class="bi bi-patch-check-fill text-success ms-2"></i>'
+                                    }</span> 
                                     <span class="d-block text-muted fs-12 fw-normal">${element.commissioned_type == 1 ? 'Vendedor' : 'Inside'}</span>
                                 </div>
                             </div>
@@ -172,6 +178,7 @@ async function createTableRegisters(registers, name, type) {
         $('#table_commission_commercial').DataTable().destroy();
     }
 
+   
     // Inicializa a nova tabela DataTable
     $('#table_commission_commercial').DataTable({
         layout: {
@@ -180,7 +187,7 @@ async function createTableRegisters(registers, name, type) {
                     {
                         text: ' <i class="ri-currency-line label-btn-icon me-2"></i> Confirmar Pagamento',
                         className: 'btn btn-success label-btn btn-table-custom',
-                        enabled: registers[0].status == "Em aberto" ? true : false,
+                        enabled: registers[0].status_id == 0 ? true : false,
                         action: async function (e, dt, node, config) {
                             e.currentTarget.setAttribute('disabled', true);
                             await confirmPayment();
@@ -194,8 +201,20 @@ async function createTableRegisters(registers, name, type) {
                     {
                         text: ' <i class="ri-close-circle-line label-btn-icon me-2"></i> Cancelar',
                         className: 'btn btn-danger label-btn btn-table-custom',
-                        enabled: registers[0].status == "Em aberto" ? true : false,
-                        action: function (e, dt, node, config) {
+                        enabled: registers[0].status_id == 0 ? true : false,
+                        action: async function (e, dt, node, config) {
+                            createToast('Sirius', `Cancelando resgistro...`);
+                            e.currentTarget.setAttribute('disabled', true);
+                            await cancelRegister()
+                            createToast('Sirius', `Registro cancelado com sucesso!`);
+                            await getRegisterById(registerCommissionID);
+                            await listRegisters();
+                            await events();
+                            document.querySelector(`.listHistory li[data-comissionid="${registerCommissionID}"]`).classList.add('activeRef');
+                            setTimeout(() => {
+                                e.currentTarget.removeAttribute('disabled');
+                            }, 1000);
+
                             // createToast('Sirius', `Analisando dados e gerando Excel`);
                             // e.currentTarget.setAttribute('disabled', true);
                             // exportToExcel(registers, `Registro de Comissão - ${name} - ${type}.xlsx`);
@@ -269,6 +288,7 @@ async function createTableRegisters(registers, name, type) {
 async function cancelRegister() {
     // Faz uma requisição para confirmar o pagamento pelo ID do registro
     const sendEmail = await makeRequest(`/api/headcargo/commission/cancelRegister`, 'POST', { id: registerCommissionID });
+    return sendEmail
 }
 
 /**

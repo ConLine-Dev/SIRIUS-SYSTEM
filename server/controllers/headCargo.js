@@ -351,6 +351,41 @@ const headcargo = {
       
       return sendmail
     },
+    sendEmailRegisterCanceled: async function (id){
+      const resultHistory = await executeQuery(`SELECT * FROM commission_history WHERE reference = ${id}`);
+      const reference = await executeQuery(`SELECT * FROM commission_reference WHERE id = ${id}`);
+
+      let commissionTotalComission = 0
+      for (let index = 0; index < resultHistory.length; index++) {
+        const element = resultHistory[index];
+        commissionTotalComission += element.commission
+      }
+
+      
+      const nameComissioned = await executeQuery(`SELECT * FROM collaborators WHERE id_headcargo = ${reference[0].user}`)
+      const nameComissionedFomrated = headcargo.formatarNome(nameComissioned[0].name+' '+nameComissioned[0].family_name)
+
+      const resultConcat = resultHistory.map((index) => index.id_process).join(',');
+      const getAllProcessToReference = await headcargo.getAllProcessToReference(resultConcat)
+      
+      const type = reference[0].commissioned_type == 1 ? 0 : 1;
+      const templateHTML =  await headcargo.createTableComission(getAllProcessToReference, type, {de:reference[0].filter_from, ate:reference[0].filter_to}, {name:nameComissionedFomrated, id:reference[0].user}, {total_comissinado:commissionTotalComission})
+
+      const responsiblesGenarate = await executeQuery(`SELECT users.*, 
+      cllt.name as 'name', cllt.family_name as 'family_name' FROM users 
+      JOIN collaborators cllt ON users.collaborator_id = cllt.id
+      WHERE users.id = ${reference[0].by_user}`)
+ 
+      const nameGenerated = headcargo.formatarNome(responsiblesGenarate[0].name+' '+responsiblesGenarate[0].family_name)
+
+      const createBody = await headcargo.createBodyHTMLComission(reference[0].reference, templateHTML.title, templateHTML.html, nameGenerated, templateHTML.filterDates, templateHTML)
+
+      templateHTML.subject = '[CANCELADO] '+templateHTML.subject
+      const sendmail = await headcargo.sendEmailComission(templateHTML.subject, createBody)
+      
+      
+      return sendmail
+    },
     confirmPayment: async function(id){
   
       const resultHistory = await executeQuery(`SELECT * FROM commission_history WHERE reference = ${id}`);
@@ -404,6 +439,7 @@ const headcargo = {
         'ValueProfit': Number(item.effective).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
         'create_date': new Date(item.create_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }),
         'byUser': headcargo.formatarNome(item.ByUserName+' '+item.ByUserFamily),
+        'status_id': item.status,
         'status': item.status == 0 ? 'Em aberto' : 'Pago',
         'commissioned_type':item.commissioned_type
       }));
@@ -429,6 +465,19 @@ const headcargo = {
         comissionUserID: registers[0].commissioned_type == 1 ? registers[0].SellerHeadID : registers[0].InsideHeadID,
         comissionUserName: registers[0].commissioned_type == 1 ? headcargo.formatarNome(registers[0].SellerName+' '+registers[0].SellerFamily) : headcargo.formatarNome(registers[0].InsideName+' '+registers[0].InsideFamily)
       };
+    },
+    cancelRegister: async function(id){
+        
+      const resultHistory = await executeQuery(`SELECT * FROM commission_history WHERE reference = ${id}`);
+      const resultDbContat = resultHistory.map((index) => index.id).join(',');
+      
+      //baixa na tabela do sirius
+      await executeQuery(`UPDATE commission_history SET status = 3,payment_date = '${headcargo.getFormattedDate()}' WHERE id IN (${resultDbContat})`);
+      await executeQuery(`UPDATE commission_reference SET status = 3, payment_date = '${headcargo.getFormattedDate()}' WHERE id = ${id}`);  
+
+      await headcargo.sendEmailRegisterCanceled(id);
+      
+      return true
     },
     createRegisterComission: async function(processList, type, dateFilter, user){
          
@@ -1163,7 +1212,7 @@ const headcargo = {
 
       const comissioned = data.vendedorID != '000' ? data.vendedorID : data.InsideID
 
-      const verify = await executeQuery(`SELECT * FROM commission_reference WHERE user = ${comissioned} AND status != 1`)
+      const verify = await executeQuery(`SELECT * FROM commission_reference WHERE user = ${comissioned} AND status != 1 AND status != 3`)
 
       
       return verify.length > 0 ? false : true

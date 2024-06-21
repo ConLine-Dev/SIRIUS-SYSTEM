@@ -22,3 +22,14 @@
 #listAllCollaborators #listCollaborators li {
     margin-bottom: 10px;
 }
+
+.card-collaborators {
+    padding: 1rem 1.25rem;
+    background-color: transparent !important;
+    border-block-end: 1px solid var(--default-border);
+    display: flex;
+    align-items: center;
+    position: relative;
+    flex-wrap: wrap;
+    gap: .25rem;
+}

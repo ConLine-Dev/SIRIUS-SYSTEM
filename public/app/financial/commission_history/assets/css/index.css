@@ -16,6 +16,7 @@
         width: 100%;
     }
 }
+
 .btn-table-custom{
     padding-left: 40px !important;
 }
@@ -35,16 +36,15 @@
     height: 100vh
 }
 
-
 .simplebar-wrapper{
     margin-bottom: 41px;
 }
-
 
 .listHistory{
     overflow: scroll;
     max-height: 100%;
 }
+
 .listHistory li{
     cursor: pointer;
 }

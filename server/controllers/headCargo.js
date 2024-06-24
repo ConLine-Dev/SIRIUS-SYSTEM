@@ -1224,6 +1224,17 @@ const headcargo = {
       
       return verify.length > 0 ? false : true
     },
+    verifyPercentageComission: async function(id){
+      const getCollab = await executeQuery(`SELECT * FROM collaborators WHERE id_headcargo = ${id}`);
+
+      const verify = await executeQuery(`SELECT * FROM commission_percentage WHERE id_collaborators = ${getCollab[0].id}`);
+
+      if (verify.length > 0) {
+        return true
+      }else{
+        return false
+      }
+    },
     registerPercentage: async function(value) {
       const getCollab = await executeQuery(`SELECT * FROM collaborators WHERE id_headcargo = ${value.commissionedID}`);
   

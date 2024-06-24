@@ -121,13 +121,21 @@ async function getFilters() {
 
     // Verifica se os inputs de data foram preenchidos
     if (!dataDeValue || !dataAteValue) {
-        alert("Por favor, preencha 'De' e 'Até'");
+        Swal.fire(
+            'Atenção',
+            "Por favor, preencha 'De' e 'Até' com base da data de compensação que deseja filtrar.",
+            'error'
+            )
         return false;
     }
 
     // Verifica se ao menos um vendedor ou um inside foi selecionado
     if (vendedorIDValue === '000' && insideIDValue === '000') {
-        alert("Por favor, selecione um 'Vendedor' ou 'Inside' para ser comissionado.");
+        Swal.fire(
+            'Atenção',
+            "Por favor, selecione um 'Vendedor' ou 'Inside' para ser comissionado.",
+            'error'
+            )
         return false;
     }
 
@@ -206,6 +214,12 @@ async function submitCommission() {
         $('#table_commission_commercial').DataTable().destroy(); // Destrói a tabela DataTable existente
     }
 
+  
+    const verifyPercentageComission = await makeRequest(`/api/headcargo/commission/verifyPercentageComission`, 'POST', { id:selectedValue });
+
+    // document.querySelector('.btn_salvarRegistro').setAttribute('disabled', true);
+
+
     tables['table_commission_commercial'] = $('#table_commission_commercial').DataTable({
         layout: {
             topStart: {
@@ -213,9 +227,28 @@ async function submitCommission() {
                     {
                         text: '<i class="ri-check-double-line label-btn-icon me-2"></i> Gerar Registro',
                         className: 'btn btn-success label-btn btn-table-custom btn_salvarRegistro',
-                        enabled: verify,
+                        enabled: verify && verifyPercentageComission,
                         action: async function (e, dt, node, config) {
-                            await createRegister(typeID, { de: filters.dataDe, ate: filters.dataAte }, user); // Cria um novo registro ao clicar no botão
+                            Swal.fire({
+                                title: 'Gerar Registro de Comissão?',
+                                text: "Você tem certeza, isso não poderá ser desfeito!",
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Sim, realizar registro!'
+                            }).then(async (result) => {
+                                if (result.isConfirmed) {
+
+                                    await createRegister(typeID, { de: filters.dataDe, ate: filters.dataAte }, user); // Cria um novo registro ao clicar no botão
+                                    // Swal.fire(
+                                    //     'Registro',
+                                    //     'Registro efetuado com sucesso, consulte no módulo de registros.',
+                                    //     'success'
+                                    // )
+                                }
+                            })
+                            
                         }
                     }
                 ]
@@ -256,6 +289,10 @@ async function submitCommission() {
     document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
 
     createToast('Sirius', `Filtro de comissões do(a) ${selectedText} foi gerado com sucesso!`); // Exibe uma mensagem de sucesso
+
+    if(!verifyPercentageComission){
+        createToast('Sirius', `Não existe porcentagem de comissão cadastrada para o colaborador(a) ${selectedText}.`); // Exibe uma mensagem de sucesso 
+    }
 
 
     if(!verify){
@@ -375,7 +412,13 @@ async function createRegister(typeID, dateFilter, user) {
         return false;
     }
 
+     const verifyPercentageComission = await makeRequest(`/api/headcargo/commission/verifyPercentageComission`, 'POST', { id:user.id });
 
+     if(!verifyPercentageComission){
+        document.querySelector('.btn_salvarRegistro').setAttribute('disabled', true); 
+        createToast('Sirius', `Não existe porcentagem de comissão cadastrada para o colaborador(a) ${selectedText}.`); // Exibe uma mensagem de sucesso 
+        return false;
+    }
 
     document.querySelector('.btn_salvarRegistro').setAttribute('disabled', true); // Desabilita o botão de salvar registro
     const allProcessSelected = document.querySelectorAll('.selectCheckbox'); // Seleciona todos os checkboxes de processos
@@ -474,27 +517,51 @@ function getCheckedValues(selector) {
  */
 function validateFilters(recebimentoList, ComissaoAgenteList, pagamentoList, comissao_vendedorList, comissao_insideList, modalidadeList) {
     if (recebimentoList.length === 0) {
-        alert("Por favor, selecione pelo menos uma opção de 'Recebimento'.");
+        Swal.fire(
+            'Atenção',
+            "Por favor, selecione pelo menos uma opção de 'Recebimento'.",
+            'error'
+            )
         return false;
     }
     if (ComissaoAgenteList.length === 0) {
-        alert("Por favor, selecione pelo menos uma opção de 'Comissao Agente'.");
+        Swal.fire(
+            'Atenção',
+            "Por favor, selecione pelo menos uma opção de 'Comissao Agente'.",
+            'error'
+            )
         return false;
     }
     if (pagamentoList.length === 0) {
-        alert("Por favor, selecione pelo menos uma opção de 'Pagamento'.");
+        Swal.fire(
+            'Atenção',
+            "Por favor, selecione pelo menos uma opção de 'Pagamento'.",
+            'error'
+            )
         return false;
     }
     if (comissao_vendedorList.length === 0) {
-        alert("Por favor, selecione pelo menos uma opção de 'Comissao Vendedor'.");
+        Swal.fire(
+            'Atenção',
+            "Por favor, selecione pelo menos uma opção de 'Comissao Vendedor'.",
+            'error'
+            )
         return false;
     }
     if (comissao_insideList.length === 0) {
-        alert("Por favor, selecione pelo menos uma opção de 'Comissao Inside'.");
+        Swal.fire(
+            'Atenção',
+            "Por favor, selecione pelo menos uma opção de 'Comissao Inside'.",
+            'error'
+            )
         return false;
     }
     if (modalidadeList.length === 0) {
-        alert("Por favor, selecione pelo menos uma opção de 'Modalidade'.");
+        Swal.fire(
+            'Atenção',
+            "Por favor, selecione pelo menos uma opção de 'Modalidade'.",
+            'error'
+            )
         return false;
     }
     return true;

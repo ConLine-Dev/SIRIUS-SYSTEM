@@ -528,17 +528,22 @@ const headcargo = {
         const result = await executeQuery(`INSERT INTO commission_reference (reference, date, commissioned_type, by_user, user, filter_from, filter_to) VALUES ('${reference}', '${headcargo.getFormattedDate()}', ${commissioned_type}, ${userLogId}, ${user.id}, '${dateFilter.de}', '${dateFilter.ate}')`)
         const idReferenci = result.insertId;
 
-        let total_comissao = 0;
-        const resultadosFormatados = await Promise.all(process.map(async function(item) {
-          const percentagemResult = await headcargo.getPercentagemComissionByHeadID(user.id, commissioned_type, item.Valor_Efetivo);
-          
-          let percentagem = 0;
-          if (percentagemResult.status) {
-              percentagem = percentagemResult.percentage;
-          }
-
-          total_comissao += item.Valor_Efetivo * (percentagem / 100)
+        let valueComissionTotal = await Promise.all(process.map(async function(item) {
+          return item.Valor_Efetivo;
+        }));
       
+        let totalEfetivo = valueComissionTotal.reduce((total, valor) => total + valor, 0);
+        const percentagemResult = await headcargo.getPercentagemComissionByHeadID(user.id, commissioned_type, totalEfetivo);
+
+        let percentagem = 0;
+        if (percentagemResult.status) {
+            percentagem = percentagemResult.percentage;
+        }
+
+        let total_comissao = totalEfetivo * (percentagem / 100)
+
+        const resultadosFormatados = await Promise.all(process.map(async function(item) {
+  
           return [
               parseInt(idReferenci),
               parseInt(item.IdLogistica_House),
@@ -556,14 +561,16 @@ const headcargo = {
           ];
       }));
 
-    
+
     
         const sql = `INSERT INTO commission_history (
           reference, id_process, reference_process, modal, id_seller, id_inside, 
           effective, percentage, commission,create_date, date_status, by_user, audited
         ) VALUES ?`;
         
-        const result_commission = await executeQuery(sql, [resultadosFormatados]);
+        await executeQuery(sql, [resultadosFormatados]);
+
+        await executeQuery(`UPDATE commission_reference SET value_comission = ${total_comissao}, percentagem_comission = ${percentagem} WHERE id = ${idReferenci}`);
 
         const reference_commission = await executeQuery(`SELECT * FROM commission_reference WHERE id = ${idReferenci}`);
 

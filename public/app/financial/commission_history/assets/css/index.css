@@ -57,5 +57,20 @@
     background-color: #dddee5;
 }
 
+.text-ellipsis .text {
+    display: inline-block;
+    width: 115px;
+    max-width: 115px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: top; /* opcional, alinha o texto com o ícone */
+}
+
+.text-ellipsis i{
+    margin-left: 0px !important;
+}
+
+
 
   

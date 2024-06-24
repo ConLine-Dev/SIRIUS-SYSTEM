@@ -6,19 +6,6 @@ const { headcargo } = require('../controllers/headCargo');
 
 
 
-// router.post('/', async (req, res, next) => {
-//     const body = req.body;
-
-//     try {
-//         const result = await headcargo.gerenateCommission(body);
-
-//         res.status(200).json(result)
-//     } catch (error) {
-//         console.log(error)
-
-//         res.status(404).json('Erro')   
-//     }
-// });
 
 router.post('/createRegister', async (req, res, next) => {
     const {process, type, dateFilter, user} = req.body;

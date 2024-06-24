@@ -47,7 +47,9 @@ async function listRegisters() {
                                     </span>
                                 </div>
                                 <div> 
-                                    <span class="d-block fw-semibold">${formatarNome(element.name + ' ' + element.family_name)} 
+                                    <span class="d-block fw-semibold text-ellipsis">
+                                    <span class="text">${formatarNome(element.name + ' ' + element.family_name)}</span>
+                                    
                                     ${element.status == 0 ? 
                                         '<i title="Comissão pendente" class="bi bi-patch-exclamation-fill text-warning ms-2"></i>' 
                                     : element.status == 3 ?

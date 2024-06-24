@@ -400,11 +400,11 @@ const headcargo = {
 
       const typeComission = resultReference[0].commissioned_type == 1 ? 'Comissao_Vendedor_Pago' : 'Comissao_Inside_Sales_Pago'
       const teste = await executeQuerySQL(`SELECT ${typeComission} FROM mov_Logistica_House WHERE IdLogistica_house IN (${resultConcat})`)
-      
-      return teste
-      // await executeQuerySQL(`UPDATE mov_Logistica_House SET ${typeComission} = 1 WHERE IdLogistica_house in (${resultConcat})`)
-
     
+      //baixa na tabela do headcargo
+      await executeQuerySQL(`UPDATE mov_Logistica_House SET ${typeComission} = 1 WHERE IdLogistica_house in (${resultConcat})`)
+
+      return teste
     },
     getRegisterById: async function(id){
       const sql = `SELECT

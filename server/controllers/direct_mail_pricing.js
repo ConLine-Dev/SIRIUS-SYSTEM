@@ -354,14 +354,11 @@ const direct_mail_pricing = {
 
      return result
     },
-    sendMail: async function(html, EmailTO, subject, bccAddress,ccOAddress, userID, io, proposalRef, files, revisaoPricing) {
+    sendMail: async function(html, EmailTO, subject, bccAddress,ccOAddress, userID, io, proposalRef, files, revisaoPricing, changeStatusActivity) {
         const allFiles = await this.getAllFilesProposalById(files)
-
-
-
+        
         // Configurações para o serviço SMTP (exemplo usando Gmail)
         const user = await Users.getUserById(userID)
-
 
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -467,6 +464,19 @@ const direct_mail_pricing = {
                             if(revisaoPricing){
                                 await executeQuerySQL(`UPDATE mov_Proposta_Frete SET Situacao = 9 /*Revisão Pricing*/ WHERE Numero_Proposta = '${trimmedProposalRef}'`);
                             }
+
+
+                            if(changeStatusActivity){
+                                await executeQuerySQL(`UPDATE Atv
+                                SET Atv.Situacao = 2
+                                FROM mov_Atividade Atv
+                                LEFT JOIN mov_Proposta_Frete Pfr ON Pfr.IdProjeto_Atividade = Atv.IdProjeto_Atividade
+                                WHERE Atv.IdTarefa = 1105
+                                  AND Pfr.Numero_Proposta = '${trimmedProposalRef}'`);
+                            }
+
+
+
                           
                             
                             // Log de sucesso
@@ -579,26 +589,37 @@ const direct_mail_pricing = {
 
 
 
-        const result = await executeQuery(`SELECT
-        dmp.*,
-        usr.collaborator_id, 
-        clt.id_headcargo, 
-        GROUP_CONCAT(dr.department_id) AS department_ids,
-        clt.name 
-    FROM 
-        siriusDBO.direct_mail_pricing_history AS dmp
-    JOIN 
-        users AS usr ON dmp.userID = usr.id
-    JOIN 
-        collaborators AS clt ON usr.collaborator_id = clt.id 
-    JOIN 
-        departments_relations AS dr ON dr.collaborator_id = clt.id 
-    WHERE 
-        (dr.department_id IN (${user.department_ids})) OR (dmp.userID = ${user.system_userID})
-    GROUP BY 
-        usr.collaborator_id, clt.id_headcargo, dmp.id, clt.name
-    ORDER BY 
-        dmp.id DESC;`);
+        const result = await executeQuery(`SELECT 
+                                dmp.id,
+                                dmp.subject,
+                                SUBSTRING(dmp.body, 1, 100) AS body,
+                                dmp.send_date,
+                                dmp.userID,
+                                usr.collaborator_id,
+                                clt.id_headcargo,
+                                GROUP_CONCAT(dr.department_id) AS department_ids,
+                                clt.name
+                            FROM
+                                siriusDBO.direct_mail_pricing_history AS dmp
+                            JOIN
+                                users AS usr ON dmp.userID = usr.id
+                            JOIN
+                                collaborators AS clt ON usr.collaborator_id = clt.id
+                            JOIN
+                                departments_relations AS dr ON dr.collaborator_id = clt.id        
+                            WHERE
+                                (dr.department_id IN (${user.department_ids}))
+                                OR
+                                (dmp.userID = ${user.system_userID})
+                            GROUP BY
+                                dmp.id,
+                                usr.collaborator_id,
+                                clt.id_headcargo,
+                                clt.name
+                            ORDER BY
+                                dmp.id DESC`);
+
+                        
 
         
         return result;
@@ -632,12 +653,22 @@ const direct_mail_pricing = {
 
     },
     ListAllEmails: async function(){
-        const result = await executeQuery(`SELECT direct_mail_pricing_history.*, usr.collaborator_id, clt.id_headcargo, clt.name FROM siriusDBO.direct_mail_pricing_history
-        JOIN users as usr ON direct_mail_pricing_history.userID = usr.id
-        JOIN collaborators as clt ON usr.collaborator_id = clt.id ORDER BY id desc`);
+        const result = await executeQuery(`SELECT 
+        direct_mail_pricing_history.id,
+        direct_mail_pricing_history.subject,
+        SUBSTRING(direct_mail_pricing_history.body, 1, 100) AS body,
+        direct_mail_pricing_history.send_date,
+        direct_mail_pricing_history.userID,
+        usr.collaborator_id, 
+        clt.id_headcargo, 
+        clt.name 
+      FROM siriusDBO.direct_mail_pricing_history
+      JOIN users AS usr ON direct_mail_pricing_history.userID = usr.id
+      JOIN collaborators AS clt ON usr.collaborator_id = clt.id
+      ORDER BY direct_mail_pricing_history.id DESC;
+      `);
         return result;
     },
-
     getEmailById: async function(id){
         const result = await executeQuery(`SELECT direct_mail_pricing_details.*, htr.subject, htr.send_date, usr.collaborator_id, clt.id_headcargo, clt.name FROM siriusDBO.direct_mail_pricing_details
         JOIN direct_mail_pricing_history as htr ON htr.id = direct_mail_pricing_details.historyId 

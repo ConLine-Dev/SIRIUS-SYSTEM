@@ -15,6 +15,8 @@ socket.on("table", async (data) => {
   });
 
 document.addEventListener("DOMContentLoaded", async () => {
+
+
     await GenerateEditorText();
     await GenerateToEmail();
     await loadGroupSend();
@@ -25,6 +27,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     await getAllGroups();
     await ListModelsEditing();
     await ListAllEmails()
+
+
+    // Esconder o loader
+    document.querySelector('#loader2').classList.add('d-none');
     
 })
 
@@ -1225,9 +1231,11 @@ async function addEmailTolist(element){
 }
 
 async function ListAllEmails(id){
+
+    console.time('inciar tempo')
     // const ListAllEmails = await makeRequest('/api/direct_mail_pricing/ListAllEmails')
     const ListAllEmails = await makeRequest('/api/direct_mail_pricing/ListAllEmails', 'POST', StorageGoogle)
-
+    console.timeEnd('inciar tempo')
     let listEmail = ''
     ListAllEmails.forEach(element => {
         // Cria um elemento temporário
@@ -1277,6 +1285,8 @@ async function ListAllEmails(id){
 
 
     document.querySelector('.listEmails').innerHTML = listEmail;
+
+    
    
 }
 

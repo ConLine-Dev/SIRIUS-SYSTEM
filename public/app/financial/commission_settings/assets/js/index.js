@@ -237,16 +237,33 @@ async function eventConfirmPercentage() {
 }
 
 async function removeSettings(id){
-     // Faz uma requisição para registrar a comissão
-     const removeRegister = await makeRequest(`/api/headcargo/commission/removeSetting`, 'POST', {id:id}); 
+    
+    Swal.fire({
+        title: 'Remover configuração de porcentagem?',
+        text: "Você tem certeza, isso não poderá ser desfeito!",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, remover!'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
 
-     // Atualiza as configurações do vendedor pelo ID
-    await getSettingsSellerById(commissionedID, commissionedName);
+        // Faz uma requisição para registrar a comissão
+        const removeRegister = await makeRequest(`/api/headcargo/commission/removeSetting`, 'POST', {id:id}); 
+
+        // Atualiza as configurações do vendedor pelo ID
+        await getSettingsSellerById(commissionedID, commissionedName);
 
 
-    createToast('Sirius', `Removido a configuração de porcentagem ${commissionedName} com sucesso!`);
+        createToast('Sirius', `Removido a configuração de porcentagem ${commissionedName} com sucesso!`);
 
-    return removeRegister
+        return removeRegister
+                
+        }
+    })
+
+   
 }
 
 /**

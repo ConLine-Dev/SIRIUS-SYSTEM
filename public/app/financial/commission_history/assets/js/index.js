@@ -191,13 +191,29 @@ async function createTableRegisters(registers, name, type) {
                         className: 'btn btn-success label-btn btn-table-custom',
                         enabled: registers[0].status_id == 0 ? true : false,
                         action: async function (e, dt, node, config) {
-                            e.currentTarget.setAttribute('disabled', true);
-                            await confirmPayment();
-                            createToast('Sirius', `Baixa de comissões para ${commissionedName} no valor total de ${commissionTotalComission} efetuada com sucesso!`);
-                            await getRegisterById(registerCommissionID);
-                            await listRegisters();
-                            await events();
-                            document.querySelector(`.listHistory li[data-comissionid="${registerCommissionID}"]`).classList.add('activeRef');
+
+                            Swal.fire({
+                                title: 'Confirmar baixa no registro?',
+                                text: "Você tem certeza, isso não poderá ser desfeito!",
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Sim, realizar baixa!'
+                            }).then(async (result) => {
+                                if (result.isConfirmed) {
+
+                                    e.currentTarget.setAttribute('disabled', true);
+                                    await confirmPayment();
+                                    createToast('Sirius', `Baixa de comissões para ${commissionedName} no valor total de ${commissionTotalComission} efetuada com sucesso!`);
+                                    await getRegisterById(registerCommissionID);
+                                    await listRegisters();
+                                    await events();
+                                    document.querySelector(`.listHistory li[data-comissionid="${registerCommissionID}"]`).classList.add('activeRef');
+                                
+                                }
+                            })
+                        
                         }
                     },
                     {
@@ -205,25 +221,31 @@ async function createTableRegisters(registers, name, type) {
                         className: 'btn btn-danger label-btn btn-table-custom',
                         enabled: registers[0].status_id == 0 ? true : false,
                         action: async function (e, dt, node, config) {
-                            createToast('Sirius', `Cancelando resgistro...`);
-                            e.currentTarget.setAttribute('disabled', true);
-                            await cancelRegister()
-                            createToast('Sirius', `Registro cancelado com sucesso!`);
-                            await getRegisterById(registerCommissionID);
-                            await listRegisters();
-                            await events();
-                            document.querySelector(`.listHistory li[data-comissionid="${registerCommissionID}"]`).classList.add('activeRef');
-                            setTimeout(() => {
-                                e.currentTarget.removeAttribute('disabled');
-                            }, 1000);
-
-                            // createToast('Sirius', `Analisando dados e gerando Excel`);
-                            // e.currentTarget.setAttribute('disabled', true);
-                            // exportToExcel(registers, `Registro de Comissão - ${name} - ${type}.xlsx`);
-                            // createToast('Sirius', `Registro de Comissão - ${name} - ${type}.xlsx gerado com sucesso!`);
-                            // setTimeout(() => {
-                            //     e.currentTarget.removeAttribute('disabled');
-                            // }, 1000);
+                            Swal.fire({
+                                title: 'Cancelar registro?',
+                                text: "Você tem certeza, isso não poderá ser desfeito!",
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Sim, cancelar resgistro!'
+                            }).then(async (result) => {
+                                if (result.isConfirmed) {
+                                    e.currentTarget.setAttribute('disabled', true);
+                                    createToast('Sirius', `Cancelando resgistro...`);
+                                    
+                                    await cancelRegister()
+                                    createToast('Sirius', `Registro cancelado com sucesso!`);
+                                    await getRegisterById(registerCommissionID);
+                                    await listRegisters();
+                                    await events();
+                                    document.querySelector(`.listHistory li[data-comissionid="${registerCommissionID}"]`).classList.add('activeRef');
+                                    setTimeout(() => {
+                                        e.currentTarget.removeAttribute('disabled');
+                                    }, 1000);
+                                
+                                }
+                            })
                         }
                     },
                     {
@@ -231,13 +253,29 @@ async function createTableRegisters(registers, name, type) {
                         className: 'btn btn-secondary label-btn btn-table-custom',
                         enabled: true,
                         action: async function (e, dt, node, config) {
-                            createToast('Sirius', `Enviando registro de comissão por e-mail, não se preocupe, estamos fazendo tudo para você`);
-                            e.currentTarget.setAttribute('disabled', true);
-                            await sendEmailRegisterComission();
-                            createToast('Sirius', `Registro de comissões enviado com sucesso!`);
-                            setTimeout(() => {
-                                e.currentTarget.removeAttribute('disabled');
-                            }, 1000);
+
+                            Swal.fire({
+                                title: 'Vamos enviar essa registro por email?',
+                                text: "Este email por padrão será enviado para comissao-adm@conlinebr.com.br!",
+                                icon: 'question',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Sim, enviar email!'
+                            }).then(async (result) => {
+                                if (result.isConfirmed) {
+                                    e.currentTarget.setAttribute('disabled', true);
+                                    createToast('Sirius', `Enviando registro de comissão por e-mail, não se preocupe, estamos fazendo tudo para você`);
+                                    
+                                    await sendEmailRegisterComission();
+                                    createToast('Sirius', `Registro de comissões enviado com sucesso!`);
+                                    setTimeout(() => {
+                                        e.currentTarget.removeAttribute('disabled');
+                                    }, 1000);
+                                
+                                }
+                            })
+                           
                         }
                     },
                     {
@@ -245,8 +283,9 @@ async function createTableRegisters(registers, name, type) {
                         className: 'btn btn-secondary label-btn btn-table-custom',
                         enabled: true,
                         action: function (e, dt, node, config) {
-                            createToast('Sirius', `Analisando dados e gerando Excel`);
                             e.currentTarget.setAttribute('disabled', true);
+                            createToast('Sirius', `Analisando dados e gerando Excel`);
+                            
                             exportToExcel(registers, `Registro de Comissão - ${name} - ${type}.xlsx`);
                             createToast('Sirius', `Registro de Comissão - ${name} - ${type}.xlsx gerado com sucesso!`);
                             setTimeout(() => {

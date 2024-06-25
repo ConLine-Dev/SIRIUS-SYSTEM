@@ -16,6 +16,7 @@
         width: 100%;
     }
 }
+
 .btn-table-custom{
     padding-left: 40px !important;
 }
@@ -31,20 +32,25 @@
     max-height: 100vh;
 }
 
+.file-manager-navigation{
+    margin-top: 20px;
+    margin-bottom: -22px;
+}
+
+
 .file-manager-container .file-manager-folders, .file-manager-container .file-manager-navigation, .file-manager-container .selected-file-details {
     height: 100vh
 }
-
 
 .simplebar-wrapper{
     margin-bottom: 41px;
 }
 
-
 .listHistory{
     overflow: scroll;
     max-height: 100%;
 }
+
 .listHistory li{
     cursor: pointer;
 }

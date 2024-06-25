@@ -400,11 +400,11 @@ const headcargo = {
 
       const typeComission = resultReference[0].commissioned_type == 1 ? 'Comissao_Vendedor_Pago' : 'Comissao_Inside_Sales_Pago'
       const teste = await executeQuerySQL(`SELECT ${typeComission} FROM mov_Logistica_House WHERE IdLogistica_house IN (${resultConcat})`)
-      
-      return teste
-      // await executeQuerySQL(`UPDATE mov_Logistica_House SET ${typeComission} = 1 WHERE IdLogistica_house in (${resultConcat})`)
-
     
+      //baixa na tabela do headcargo
+      await executeQuerySQL(`UPDATE mov_Logistica_House SET ${typeComission} = 1 WHERE IdLogistica_house in (${resultConcat})`)
+
+      return teste
     },
     getRegisterById: async function(id){
       const sql = `SELECT
@@ -748,8 +748,7 @@ const headcargo = {
       return body;
     },
     createTableComission: async function(processList, type, dateFilter, user, registerComission){
-      
-      console.log(dateFilter)
+    
       const commissioned_type = type == 0 ? 1 : 2
         // assunto do email
         const assunto = `[ConLine]- Pagamento Comissões`;
@@ -843,7 +842,7 @@ const headcargo = {
         </div>`
 
 
-        // console.log(processList)
+
 
         return {
             total_comissao:registerComission.total_comissinado,
@@ -1223,6 +1222,17 @@ const headcargo = {
 
       
       return verify.length > 0 ? false : true
+    },
+    verifyPercentageComission: async function(id){
+      const getCollab = await executeQuery(`SELECT * FROM collaborators WHERE id_headcargo = ${id}`);
+
+      const verify = await executeQuery(`SELECT * FROM commission_percentage WHERE id_collaborators = ${getCollab[0].id}`);
+
+      if (verify.length > 0) {
+        return true
+      }else{
+        return false
+      }
     },
     registerPercentage: async function(value) {
       const getCollab = await executeQuery(`SELECT * FROM collaborators WHERE id_headcargo = ${value.commissionedID}`);

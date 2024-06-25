@@ -162,10 +162,10 @@ router.get('/downloadPDF', async (req, res, next) => {
 });
 
 router.post('/sendMail', async (req, res, next) => {
-    const {body, EmailTO, subject, ccAddress,ccOAddress, system_userID, proposalRef, files, revisaoPricing} = req.body;
+    const {body, EmailTO, subject, ccAddress,ccOAddress, system_userID, proposalRef, files, revisaoPricing, changeStatusActivity} = req.body;
     try {
 
-        const result = await direct_mail_pricing.sendMail(body, EmailTO, subject, ccAddress,ccOAddress, system_userID, io, proposalRef, files, revisaoPricing);
+        const result = await direct_mail_pricing.sendMail(body, EmailTO, subject, ccAddress,ccOAddress, system_userID, io, proposalRef, files, revisaoPricing, changeStatusActivity);
 
         
         res.status(200).json(result)
@@ -281,7 +281,7 @@ router.get('/removeModelEmail/:id', async (req, res, next) => {
 router.get('/ListAllEmails', async (req, res, next) => {
     try {
         const result = await direct_mail_pricing.ListAllEmails();
-  
+
         res.status(200).json(result)
     } catch (error) {
         res.status(404).json('Erro')   
@@ -290,10 +290,9 @@ router.get('/ListAllEmails', async (req, res, next) => {
 
 router.post('/ListAllEmails', async (req, res, next) => {
     try {
-
         const attUser = await Users.ListUserByEmail(req.body.email);
         const result = await direct_mail_pricing.ListAllEmailsByDept(attUser[0]);
-  
+
         res.status(200).json(result)
     } catch (error) {
         res.status(404).json('Erro')   

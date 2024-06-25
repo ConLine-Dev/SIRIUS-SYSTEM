@@ -125,7 +125,7 @@ router.post('/verifyRegisters', async (req, res, next) => {
 router.post('/verifyPercentageComission', async (req, res, next) => {
     const {id} = req.body;
     try {
-        console.log(id)
+
         const result = await headcargo.verifyPercentageComission(id);
 
         res.status(200).json(result)

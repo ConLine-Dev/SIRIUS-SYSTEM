@@ -748,8 +748,7 @@ const headcargo = {
       return body;
     },
     createTableComission: async function(processList, type, dateFilter, user, registerComission){
-      
-      console.log(dateFilter)
+    
       const commissioned_type = type == 0 ? 1 : 2
         // assunto do email
         const assunto = `[ConLine]- Pagamento Comissões`;
@@ -843,7 +842,7 @@ const headcargo = {
         </div>`
 
 
-        // console.log(processList)
+
 
         return {
             total_comissao:registerComission.total_comissinado,

@@ -1,8 +1,10 @@
+// Esta função lista todos os colaboradores 
 async function listCollaborators(data) {
     const collaborators = document.getElementById('listCollaborators');
 
     let html = '';
 
+    //Essa funçao faz a busca no banco para puxar todos os colaboradores
     for (let i = 0; i < data.length; i++) {
         const item = data[i];
 
@@ -64,7 +66,7 @@ async function sales_cards(collaborator_id, data) {
 }
 
 
-
+// Esta função é executada quando for pesquisar e selecionar um colaborador  
 function eventClick() {
 
     // ========== PESQUISA ========== //    

@@ -376,47 +376,39 @@ async function GenerateToModel(id = 0){
 async function createClicks(){
       
     const buttonSelectTypeMyEmail = document.querySelectorAll('#tabSelectEmails button')[0];
-    buttonSelectTypeMyEmail.addEventListener('click', function (e){
-
-        // Obtém todos os elementos com a classe 'listEmails' que têm o atributo 'data-department' igual a 'true'
-        const elementsToShow = document.querySelectorAll('.listEmails [data-department="false"]');
-
-
-        // Esconde todos os elementos dentro da classe 'listEmails'
-        const allElements = document.querySelectorAll('.listEmails [data-department="true"]');
-
-        allElements.forEach(element => {
-            // element.style.display = 'none';
-            element.classList.remove('visible');
-        });
-
-        // Mostra apenas os elementos que têm o atributo 'data-department' igual a 'true'
-        elementsToShow.forEach(element => {
-            element.classList.add('visible');
-            // element.style.display = 'block'; // Isso restaura o valor padrão de exibição (pode ser 'block', 'inline', etc.)
-        });
-    })
-
     const buttonSelectTypeGroupEmail = document.querySelectorAll('#tabSelectEmails button')[1];
 
-    buttonSelectTypeGroupEmail.addEventListener('click', function (e){
+    buttonSelectTypeMyEmail.addEventListener('click', function (e) {
+        showElements('.listEmails [data-department="false"]', '.listEmails [data-department="true"]');
+    });
 
-        // Obtém todos os elementos com a classe 'listEmails' que têm o atributo 'data-department' igual a 'true'
-        const elementsToShow = document.querySelectorAll('.listEmails [data-department="true"]');
+    buttonSelectTypeGroupEmail.addEventListener('click', function (e) {
+        showElements('.listEmails [data-department="true"]', '.listEmails [data-department="false"]');
+    });
 
-        // Esconde todos os elementos dentro da classe 'listEmails'
-        const allElements = document.querySelectorAll('.listEmails [data-department="false"]');
-        allElements.forEach(element => {
-            // element.style.display = 'none';
+    function showElements(elementsToShowSelector, elementsToHideSelector) {
+        const elementsToShow = document.querySelectorAll(elementsToShowSelector);
+        const elementsToHide = document.querySelectorAll(elementsToHideSelector);
+
+        const fragment = document.createDocumentFragment();
+
+        // Esconder elementos que não estão sendo mostrados
+        elementsToHide.forEach(element => {
             element.classList.remove('visible');
+            fragment.appendChild(element);
         });
 
-        // Mostra apenas os elementos que têm o atributo 'data-department' igual a 'true'
+        // Mostrar elementos que devem ser mostrados
         elementsToShow.forEach(element => {
             element.classList.add('visible');
-            // element.style.display = ''; // Isso restaura o valor padrão de exibição (pode ser 'block', 'inline', etc.)
+            fragment.appendChild(element);
         });
-    })
+
+        // Adicionar todos os elementos de volta ao DOM de uma vez
+        const container = document.querySelector('.listEmails');
+        container.innerHTML = ''; // Limpar container antes de adicionar o fragmento
+        container.appendChild(fragment);
+    }
 
    
 

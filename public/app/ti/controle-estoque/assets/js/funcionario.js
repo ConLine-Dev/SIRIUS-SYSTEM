@@ -1,11 +1,12 @@
 async function listCollaborators(data) {
     const collaborators = document.getElementById('listCollaborators');
+
     let html = '';
 
     for (let i = 0; i < data.length; i++) {
         const item = data[i];
 
-        html += `<li class="files-type">
+        html += `<li class="files-type" data-collaborator-id="${item.id}">
                     <a href="javascript:void(0)">
                         <div class="d-flex align-items-center">
                             <div class="me-2"> 
@@ -21,6 +22,48 @@ async function listCollaborators(data) {
 
     collaborators.innerHTML = html;
 }
+
+async function sales_cards(collaborator_id, data) {
+    const cards = document.getElementById('cards')
+
+    let html_cards = ''
+
+    html_cards += `<div class="col-xxl-3 col-xl-6 col-lg-6 col-md-6" collaborator-id="${collaborator_id}">
+                        <div class="card border custom-card shadow-none">
+                            <div class="card-body bg-primary-transparent">
+                                <div class="mb-4 folder-svg-container d-flex flex-wrap justify-content-center align-items-top">
+                                    <div>
+                                        <div class="dropdown">
+                                        <button class="btn-primary btn" style="margin-top: 50%;">+</button>
+                                        </div>
+                                    </div>
+                                </div>   
+                            </div>
+                        </div>
+                    </div>`
+
+
+    for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+
+        html_cards += `<div class="col-xxl-3 col-xl-6 col-lg-6 col-md-6">
+                                <div class="card border custom-card shadow-none">
+                                    <div class="card-body bg-primary-transparent" style="position: relative; padding: 3rem !important;">
+                                        <div class="mb-4 folder-svg-container d-flex flex-wrap justify-content-center align-items-center">
+                                            <div style="position: absolute; top: 50%; transform: translateY(-50%);">
+                                                <span style="font-size: 1.25rem; font-weight: bold; text-transform: uppercase;">${item.name}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`
+    }
+
+    cards.innerHTML = html_cards
+
+}
+
+
 
 function eventClick() {
 
@@ -43,6 +86,34 @@ function eventClick() {
         });
     })
     // ========== FIM PESQUISA ========== // 
+
+
+    // ========== SELEÇAO VENDEDOR ========== // 
+    const sales_selected = document.querySelectorAll('.files-type')
+    sales_selected.forEach(item => {
+        item.addEventListener('click', async function () {
+            sales_selected.forEach(selected => {
+                selected.classList.remove('active')
+            });
+
+            item.classList.add('active')
+
+            const collaborator_id = this.getAttribute('data-collaborator-id')
+            const getProductCategoryByCollaborator = await makeRequest(`/api/product/getProductCategory/${collaborator_id}`, 'POST',);
+            await sales_cards(collaborator_id, getProductCategoryByCollaborator)
+
+            const img_cards = document.getElementById('img-cards')
+            const cards = document.getElementById('cards')
+
+            if (!img_cards.classList.contains('d-none')) {
+                img_cards.classList.add('d-none')
+                cards.classList.remove('d-none')
+            }
+        })
+    });
+    // ========== FIM SELEÇAO VENDEDOR ========== // 
+
+
 }
 
 
@@ -50,6 +121,7 @@ function eventClick() {
 window.addEventListener("load", async () => {
 
     const getAllCollaborators = await makeRequest('/api/collaborators/listAllCollaborators', 'POST',);
+
 
     await listCollaborators(getAllCollaborators)
 

@@ -125,6 +125,7 @@ function clickCp() {
     listaProdutos.innerHTML = html
 }
 
+
 function eventoClick() {
     //Esta função formata o valor para Real
     new Cleave('#valor', {

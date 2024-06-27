@@ -1,4 +1,4 @@
-// Esta função lista todos os colaboradores 
+// Função lista todos os colaboradores 
 async function listCollaborators(data) {
     const collaborators = document.getElementById('listCollaborators');
 
@@ -25,6 +25,7 @@ async function listCollaborators(data) {
     collaborators.innerHTML = html;
 }
 
+// Função lista os cards de adicionar novo produto e categoria
 async function sales_cards(collaborator_id, data) {
     const cards = document.getElementById('cards')
 
@@ -66,7 +67,7 @@ async function sales_cards(collaborator_id, data) {
 }
 
 
-// Esta função é executada quando for pesquisar e selecionar um colaborador  
+// Função é executada quando for pesquisar e selecionar um colaborador  
 function eventClick() {
 
     // ========== PESQUISA ========== //    
@@ -119,7 +120,7 @@ function eventClick() {
 }
 
 
-// Esta função é executada após toda a página ser executada
+// Função executada após toda a página ser executada
 window.addEventListener("load", async () => {
 
     const getAllCollaborators = await makeRequest('/api/collaborators/listAllCollaborators', 'POST',);

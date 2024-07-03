@@ -6,7 +6,7 @@ const { headcargo } = require('../controllers/headCargo');
 
 
 
-
+// INICIO API CONTROLE DE COMISSÃO
 router.post('/createRegister', async (req, res, next) => {
     const {process, type, dateFilter, user} = req.body;
 
@@ -158,6 +158,27 @@ router.post('/cancelRegister', async (req, res, next) => {
         res.status(404).json('Erro')   
     }
 });
+// FIM API CONTROLE DE COMISSÃO
+
+
+
+// INICIO API Gestão de Inatividade Comercial
+router.post('/listAllClienteInactive', async (req, res, next) => {
+    const {filters} = req.body;
+    try {
+        const result = await headcargo.listAllClienteInactive(filters);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+        res.status(404).json('Erro')   
+    }
+});
+
+
+// INICIO API Gestão de Inatividade Comercial
+
+
 
 
 

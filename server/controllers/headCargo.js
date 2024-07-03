@@ -5,6 +5,7 @@ const { executeQuery } = require('../connect/mysql');
 
 
 const headcargo = {
+    // INICIO API CONTROLE DE COMISSÃO
     gerenateCommission: async function(value){
      
 
@@ -1310,7 +1311,147 @@ const headcargo = {
       const seconds = String(date.getSeconds()).padStart(2, '0');
       
       return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-    }
+    },
+    // FIM API CONTROLE DE COMISSÃO
+    // INICIO API Gestão de Inatividade Comercial
+    listAllClienteInactive: async function(filters) {
+
+        let daysOfCotation = filters ? filters.lastQuote : 30;
+        let daysOfProcess = filters ? filters.lastProcess : 30;
+        let responsible = '';
+
+        if(filters && filters.salesID != 'all'){
+          responsible = `AND Ven.IdPessoa = ${filters.salesID}`;
+        }
+
+   
+       
+
+
+        const sqlCotation = `SELECT DISTINCT
+                                Ven.IdPessoa AS IDVENDEDOR,
+                                Ven.Nome AS VENDEDOR,
+                                Psa.IdPessoa AS IDCLIENTE,
+                                Psa.Nome AS CLIENTE,
+                                Psa.Cpf_Cnpj AS CNPJ,
+                                FORMAT(PROPOSTA.ULTIMA_DATA_PROPOSTA, 'yyyy-MM-dd') AS ULTIMA_DATA_PROPOSTA,
+                                DATEDIFF(DAY, PROPOSTA.ULTIMA_DATA_PROPOSTA, GETDATE()) AS INTERVALO
+                            FROM
+                                cad_Pessoa Psa 
+                            LEFT OUTER JOIN (
+                                SELECT 
+                                  Pfr.IdCliente,
+                                  MAX(Pfr.Data_Proposta) AS ULTIMA_DATA_PROPOSTA
+                                FROM
+                                  mov_Proposta_Frete Pfr 
+                                GROUP BY
+                                  Pfr.IdCliente
+                            ) AS PROPOSTA ON PROPOSTA.IdCliente = Psa.IdPessoa
+                            LEFT OUTER JOIN 
+                                mov_Proposta_Frete Pfr ON Pfr.IdCliente = PROPOSTA.IdCliente AND Pfr.Data_Proposta = PROPOSTA.ULTIMA_DATA_PROPOSTA    
+                            LEFT OUTER JOIN
+                                cad_Cliente Cli ON Cli.IdPessoa = PROPOSTA.IdCliente
+                            LEFT OUTER JOIN
+                                cad_Pessoa Ven ON Ven.IdPessoa = Cli.IdVendedor_Responsavel
+                            WHERE
+                                PROPOSTA.ULTIMA_DATA_PROPOSTA < DATEADD(DAY, -${daysOfCotation}, GETDATE())
+                                AND Pfr.Numero_Proposta NOT LIKE '%test%'
+                                AND Psa.Nome NOT LIKE '%test%'
+                                ${responsible}`
+
+        const sqlProcess = `SELECT DISTINCT
+                                Psa.IdPessoa AS IDCLIENTE,
+                                Psa.Nome AS CLIENTE,
+                                Psa.Cpf_Cnpj AS CNPJ,
+                                FORMAT(PROCESSO.ULTIMA_DATA_PROCESSO, 'yyyy-MM-dd') AS ULTIMA_DATA_PROCESSO,
+                                DATEDIFF(DAY, PROCESSO.ULTIMA_DATA_PROCESSO, GETDATE()) AS INTERVALO
+                              FROM
+                                cad_Pessoa Psa 
+                              LEFT OUTER JOIN (
+                                SELECT 
+                                    Lhs.IdCliente,
+                                    MAX(Lhs.Data_Abertura_Processo) AS ULTIMA_DATA_PROCESSO
+                                FROM
+                                    mov_Logistica_House Lhs 
+                                GROUP BY
+                                    Lhs.IdCliente
+                              ) AS PROCESSO ON PROCESSO.IdCliente = Psa.IdPessoa
+                              LEFT OUTER JOIN 
+                                mov_Logistica_House Lhs ON Lhs.IdCliente = PROCESSO.IdCliente AND Lhs.Data_Abertura_Processo = PROCESSO.ULTIMA_DATA_PROCESSO
+                              WHERE
+                                PROCESSO.ULTIMA_DATA_PROCESSO < DATEADD(DAY, -${daysOfProcess}, GETDATE())
+                                AND Lhs.Numero_Processo NOT LIKE '%test%'
+                                AND Psa.Nome NOT LIKE '%test%'`
+
+          const resultCotation = await executeQuerySQL(sqlCotation);
+          const resultProcess = await executeQuerySQL(sqlProcess);
+
+
+          const allClientsInactive = [];
+
+          for (let index = 0; index < resultCotation.length; index++) {
+            const element = resultCotation[index];
+            const existingClientIndex = allClientsInactive.findIndex(item => item.IDCLIENTE === element.IDCLIENTE);
+          
+            if (existingClientIndex !== -1) {
+              // Cliente já existe, atualize os campos necessários
+              const process = resultProcess.find(item => item.IDCLIENTE === element.IDCLIENTE);
+              allClientsInactive[existingClientIndex].cotationDate = element.ULTIMA_DATA_PROPOSTA;
+              allClientsInactive[existingClientIndex].processDate = process ? process.ULTIMA_DATA_PROCESSO : null;
+              allClientsInactive[existingClientIndex].responsible = element.VENDEDOR;
+              allClientsInactive[existingClientIndex].responsibleID = element.IDVENDEDOR;
+              allClientsInactive[existingClientIndex].clientCNPJ = element.CNPJ;
+              allClientsInactive[existingClientIndex].clientName = element.CLIENTE;
+              allClientsInactive[existingClientIndex].intervalCotation = element.INTERVALO;
+              allClientsInactive[existingClientIndex].intervalProcess = process ? process.INTERVALO : 0;
+            } else {
+              // Cliente não existe, adicione um novo item
+              const process = resultProcess.find(item => item.IDCLIENTE === element.IDCLIENTE);
+              allClientsInactive.push({
+                IDCLIENTE: element.IDCLIENTE,
+                cotationDate: element.ULTIMA_DATA_PROPOSTA,
+                processDate: process ? process.ULTIMA_DATA_PROCESSO : null,
+                responsible: element.VENDEDOR,
+                responsibleID: element.IDVENDEDOR,
+                clientCNPJ: element.CNPJ,
+                clientName: element.CLIENTE,
+                intervalCotation: element.INTERVALO,
+                intervalProcess: process ? process.INTERVALO : 0
+              });
+            }
+          }
+          
+
+
+
+          const ClienteInactive = await Promise.all(allClientsInactive.map(async function(item) {
+              const clientName = `<div>
+                                    <p class="mb-0 fw-semibold">${item.clientName ? headcargo.formatarNome(item.clientName) : 'Sem vinculação'}</p>
+                                    <p class="mb-0 fs-11 text-muted">${!item.clientCNPJ ? 'Não Preenchido' : item.clientCNPJ}</p>
+                                  </div>`
+              const responsible = `<div class="d-flex align-items-center gap-2">
+                                    <div class="lh-1">
+                                      <span class="avatar avatar-rounded avatar-sm">
+                                        <img src="${item.responsibleID ? `https://cdn.conlinebr.com.br/colaboradores/${item.responsibleID}` : `https://conlinebr.com.br/assets/img/icon-semfundo.png`}" alt="">
+                                      </span>
+                                    </div>
+                                    <div>
+                                      <span class="d-block fw-semibold">${item.responsible ? item.responsible : 'Sem vinculação'}</span>
+                                    </div>
+                                  </div>`
+
+              return {
+                  ...item, // mantém todas as propriedades existentes
+                  clientName: clientName,
+                  responsible: responsible,
+                  lastQuote: `<span style="display:none">${item.intervalCotation} - ${item.cotationDate}</span><span class="d-block"><i class="ri-calendar-2-line me-2 align-middle fs-14 text-muted"></i>${headcargo.formatDate(item.cotationDate)} (${item.intervalCotation} dias)</span>`,
+                  lastProcess: `<span style="display:none">${item.intervalProcess} - ${item.processDate}</span><span class="d-block"><i class="ri-calendar-2-line me-2 align-middle fs-14 text-muted"></i>${item.processDate != null ? headcargo.formatDate(item.processDate) : 'Sem Processo'} (${item.intervalProcess} dias)</span>`,
+              };
+          }));
+     
+  
+      return ClienteInactive;
+  },
 }
 
 

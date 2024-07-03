@@ -1,24 +1,44 @@
 let daysOfProcess = 30, daysOfCotation = 30, Responsible = 'all';
 
+// Inicialize o Web Worker (TENTEI FAZER UMA FORMA DIFERENTE PARA FAZER REQUISIÇÕES)
+const worker = new Worker('./assets/js/worker.js');
+
 /**
  * Função para carregar os dados de vendedores.
  */
-async function loadSales() {
-    const getSales = await makeRequest(`/api/headcargo/user/ByDep/62`); // Faz uma requisição para obter os dados de vendedores
+function loadSales() {
+    return new Promise((resolve, reject) => {
+        worker.postMessage({
+            url: `/api/headcargo/user/ByDep/62`
+        });
 
-    const options = getSales.map(sales => `<option value="${sales.IdFuncionario}">${formatarNome(sales.Nome)}</option>`); // Cria opções para cada vendedor
-    const optionDefault = `<option value="all" selected>Sem seleção</option>`; // Cria uma opção padrão
-    const listOfSales = document.getElementById('listOfSales'); // Seleciona o elemento de lista de vendedores
-    listOfSales.innerHTML = optionDefault + options.join(''); // Define o conteúdo HTML da lista de vendedores
+        worker.addEventListener('message', function handler(event) {
+            const { status, data, error } = event.data;
 
-    $("#listOfSales").select2({
-        templateResult: formatState, // Define o template para exibir as opções
-        templateSelection: formatState, // Define o template para a seleção
-        placeholder: "Choose Customer" // Define o placeholder
-    });
+            if (status === 'success') {
+                const options = data.map(sales => `<option value="${sales.IdFuncionario}">${formatarNome(sales.Nome)}</option>`);
+                const optionDefault = `<option value="all" selected>Sem seleção</option>`;
+                const listOfSales = document.getElementById('listOfSales');
+                listOfSales.innerHTML = optionDefault + options.join('');
 
-    $("#listOfSales").on('change', async function(e) {
-        Responsible = this.value; // Atualiza o valor de Responsible quando a seleção muda
+                $("#listOfSales").select2({
+                    templateResult: formatState,
+                    templateSelection: formatState,
+                    placeholder: "Choose Customer"
+                });
+
+                $("#listOfSales").on('change', function(e) {
+                    Responsible = this.value;
+                });
+
+                worker.removeEventListener('message', handler);
+                resolve();
+            } else {
+                console.error('Erro ao carregar vendedores:', error);
+                worker.removeEventListener('message', handler);
+                reject(error);
+            }
+        });
     });
 }
 
@@ -28,17 +48,16 @@ async function loadSales() {
  * @returns {string} - Nome formatado
  */
 function formatarNome(nome) {
-    const preposicoes = new Set(["de", "do", "da", "dos", "das"]); // Conjunto de preposições
-    const palavras = nome.split(" "); // Divide o nome em palavras
+    const preposicoes = new Set(["de", "do", "da", "dos", "das"]);
+    const palavras = nome.split(" ");
     const palavrasFormatadas = palavras.map((palavra, index) => {
-        // Verifica se a palavra é uma preposição e não é a primeira palavra
         if (preposicoes.has(palavra.toLowerCase()) && index !== 0) {
-            return palavra.toLowerCase(); // Retorna a palavra em minúsculas
+            return palavra.toLowerCase();
         } else {
-            return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase(); // Retorna a palavra com a primeira letra em maiúscula e o restante em minúsculas
+            return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
         }
     });
-    return palavrasFormatadas.join(" "); // Junta as palavras formatadas em uma string
+    return palavrasFormatadas.join(" ");
 }
 
 /**
@@ -48,11 +67,11 @@ function formatarNome(nome) {
  */
 function formatState(state) {
     if (!state.id) {
-        return state.text; // Retorna o texto se o estado não tiver ID
+        return state.text;
     }
-    const baseUrl = state.id === 'all' ? "../../assets/images/media/not-user.png" : `https://cdn.conlinebr.com.br/colaboradores/${state.id}`; // Define a URL da imagem
+    const baseUrl = state.id === 'all' ? "../../assets/images/media/not-user.png" : `https://cdn.conlinebr.com.br/colaboradores/${state.id}`;
     const $state = $(
-        `<span><img src="${baseUrl}" class="img-flag"> ${state.text}</span>` // Cria um elemento span com a imagem e o texto do estado
+        `<span><img src="${baseUrl}" class="img-flag"> ${state.text}</span>`
     );
     return $state;
 }
@@ -73,8 +92,8 @@ async function getFilters() {
  * Função para enviar os filtros.
  */
 async function submitFilter() {
-    document.querySelector('#loader2').classList.remove('d-none'); // Exibe o loader
-    const filters = await getFilters(); // Obtém os filtros selecionados
+    document.querySelector('#loader2').classList.remove('d-none');
+    const filters = await getFilters();
     await generateTable(filters);
     document.querySelector('#loader2').classList.add('d-none');
 }
@@ -84,56 +103,67 @@ async function submitFilter() {
  * @param {object} filters - Filtros selecionados
  */
 async function generateTable(filters) {
-    return new Promise(async (resolve, reject) => {
-        const dados = await makeRequest(`/api/headcargo/inactive-clients-report/listAllClienteInactive`, 'POST', { filters });
+    return new Promise((resolve, reject) => {
+        worker.postMessage({
+            url: `/api/headcargo/inactive-clients-report/listAllClienteInactive`,
+            method: 'POST',
+            body: { filters }
+        });
 
-        // Esconder a tabela antes de destruir
-        // $('#table-inactive-clients').hide();
+        worker.addEventListener('message', function handler(event) {
+            const { status, data, error } = event.data;
 
-        // Destruir a tabela existente, se houver
-        if ($.fn.DataTable.isDataTable('#table-inactive-clients')) {
-            $('#table-inactive-clients').DataTable().destroy();
-        }
+            if (status === 'success') {
+                if ($.fn.DataTable.isDataTable('#table-inactive-clients')) {
+                    $('#table-inactive-clients').DataTable().destroy();
+                }
 
-        // Criar a nova tabela com os dados da API
-        const dataTable = $('#table-inactive-clients').DataTable({
-            dom: 'Bfrtip',
-            order: [[0, 'desc']],
-            data: dados,
-            columns: [
-                { data: 'clientName' },
-                { data: 'responsible' },
-                { data: 'lastQuote' },
-                { data: 'lastProcess' },
-                // Adicione mais colunas conforme necessário
-            ],
-            buttons: [
-                'excel', 'pdf'
-            ],
-            paging: false,
-            scrollX: true,
-            scrollY: '78vh',
-            pageInfo: false,
-            bInfo: false,
-            order: [[0, 'desc']],
-            language: {
-                url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
-                searchPlaceholder: 'Pesquisar...',
-            },
-            initComplete: function () {
-                // Após a inicialização completa do DataTables, mostrar a tabela e resolver a promessa
-                // $('#table-inactive-clients').show();
-                resolve();
-            },
-            error: function (xhr, error, thrown) {
-                // Em caso de erro na inicialização do DataTables, rejeitar a promessa
-                console.error('Erro ao inicializar o DataTable:', error);
+                const table = $('#table-inactive-clients').DataTable({
+                    dom: 'Bfrtip',
+                    // responsive: true,
+                    order: [[0, 'desc']],
+                    data: data,
+                    columns: [
+                        { data: 'clientName' },
+                        { data: 'responsible' },
+                        { data: 'lastQuote' },
+                        { data: 'lastProcess' },
+                    ],
+                    buttons: [
+                        'excel', 'pdf'
+                    ],
+                    paging: false,
+                    scrollX: true,
+                    scrollY: '78vh',
+                    pageInfo: false,
+                    bInfo: false,
+                    order: [[0, 'desc']],
+                    language: {
+                        url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
+                        searchPlaceholder: 'Pesquisar...',
+                    },
+                    initComplete: function () {
+                        requestAnimationFrame(() => {
+                            resolve();
+                        });
+                    },
+                    error: function (xhr, error, thrown) {
+                        console.error('Erro ao inicializar o DataTable:', error);
+                        requestAnimationFrame(() => {
+                            reject(error);
+                        });
+                    }
+                });
+
+
+
+                worker.removeEventListener('message', handler);
+            } else {
+                console.error('Erro ao gerar a tabela:', error);
+                worker.removeEventListener('message', handler);
                 reject(error);
             }
         });
-
-        // Retornar a instância do DataTables para manipulações futuras, se necessário
-        return dataTable;
     });
 }
 

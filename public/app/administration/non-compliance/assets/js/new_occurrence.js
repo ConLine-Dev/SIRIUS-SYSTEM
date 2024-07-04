@@ -26,7 +26,7 @@ async function getAllUnit(){
 
 
     // renderiza o select com as opções formatadas
-    sAllUnits = new Choices('select[name="unit"]', {
+    sAllUnits = new Choices('select[name="company_id"]', {
         choices: listaDeOpcoes,
         // allowHTML: true,
         // allowSearch: true,
@@ -62,7 +62,7 @@ async function getAllOrigins(){
 
 
     // renderiza o select com as opções formatadas
-    sAllOrigins = new Choices('select[name="origin"]', {
+    sAllOrigins = new Choices('select[name="origin_id"]', {
         choices: listaDeOpcoes,
         // allowHTML: true,
         // allowSearch: true,
@@ -132,7 +132,7 @@ async function getAllTypes(){
 
 
     // renderiza o select com as opções formatadas
-    sAllTypes = new Choices('select[name="types"]', {
+    sAllTypes = new Choices('select[name="type_id"]', {
         choices: listaDeOpcoes,
         // allowHTML: true,
         // allowSearch: true,
@@ -376,31 +376,29 @@ async function addPreventive(e){
 async function getValuesOccurrence(e) {
     
     const elements = document.querySelectorAll('.form-input[name]');
+
     const formBody = {};
 
     for (let index = 0; index < elements.length; index++) {
         const item = elements[index];
-
-        if(item.value.trim() == '' || item.value.trim() == 0){
-            console.log('campos invalidos')
-            return false;
-        }
+        // if(item.value.trim() == '' || item.value.trim() == 0){
+        //     console.log('campos invalidos')
+        //     return false;
+        // }
         
         // Adicionando dinamicamente o nome e o valor ao objeto
-        // REVER AMANHA E REFAZER O IF 
+        // REVER AMANHA E REFAZER O IF
         formBody[item.getAttribute('name')] = (item.getAttribute('name') == 'occurrence_responsible' || item.getAttribute('name') == 'types') ? sAllResponsible.getValue(true) : item.value
         
     }
 
 
     const sendToServer = await makeRequest(`/api/non-compliance/NewOccurrence`, 'POST', {
-        formBody,
-        listReasons,
-        listActions
+        formBody
     });
     
 
-    console.log(sendToServer)
+    console.log(formBody)
 
 
 }

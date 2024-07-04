@@ -72,10 +72,9 @@ module.exports = function(io) {
 
     router.post('/NewOccurrence', async (req, res, next) => {
         const body = req.body
-        // body.occurrence, body.date_occurrence, body.unit, body.origin, body.approval, body.description
         try {
             const result = await non_compliance.NewOccurrence(body);
-            res.status(200).json('result')
+            res.status(200).json(result)
 
         } catch (error) {
             res.status(404).json(error)   

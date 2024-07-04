@@ -1321,7 +1321,7 @@ const headcargo = {
         let responsible = '';
 
         if(filters && filters.salesID != 'all'){
-          responsible = `AND Ven.IdPessoa = ${filters.salesID}`;
+          responsible = `AND (Ven.IdPessoa = ${filters.salesID} OR Ins.IdPessoa = ${filters.salesID})`;
         }
 
    
@@ -1329,6 +1329,8 @@ const headcargo = {
 
 
         const sqlCotation = `SELECT DISTINCT
+                                Ins.IdPessoa AS IDINSIDE,
+                                Ins.Nome AS INSIDE,
                                 Ven.IdPessoa AS IDVENDEDOR,
                                 Ven.Nome AS VENDEDOR,
                                 Psa.IdPessoa AS IDCLIENTE,
@@ -1353,6 +1355,8 @@ const headcargo = {
                                 cad_Cliente Cli ON Cli.IdPessoa = PROPOSTA.IdCliente
                             LEFT OUTER JOIN
                                 cad_Pessoa Ven ON Ven.IdPessoa = Cli.IdVendedor_Responsavel
+                            LEFT OUTER JOIN
+                                cad_Pessoa Ins ON Ins.IdPessoa = Cli.IdFuncionario_Responsavel
                             WHERE
                                 PROPOSTA.ULTIMA_DATA_PROPOSTA < DATEADD(DAY, -${daysOfCotation}, GETDATE())
                                 AND Pfr.Numero_Proposta NOT LIKE '%test%'
@@ -1400,6 +1404,8 @@ const headcargo = {
               allClientsInactive[existingClientIndex].processDate = process ? process.ULTIMA_DATA_PROCESSO : null;
               allClientsInactive[existingClientIndex].responsible = element.VENDEDOR;
               allClientsInactive[existingClientIndex].responsibleID = element.IDVENDEDOR;
+              allClientsInactive[existingClientIndex].inside = element.INSIDE;
+              allClientsInactive[existingClientIndex].insideID = element.IDINSIDE;
               allClientsInactive[existingClientIndex].clientCNPJ = element.CNPJ;
               allClientsInactive[existingClientIndex].clientName = element.CLIENTE;
               allClientsInactive[existingClientIndex].intervalCotation = element.INTERVALO;
@@ -1411,6 +1417,8 @@ const headcargo = {
                 IDCLIENTE: element.IDCLIENTE,
                 cotationDate: element.ULTIMA_DATA_PROPOSTA,
                 processDate: process ? process.ULTIMA_DATA_PROCESSO : null,
+                inside: element.INSIDE,
+                insideID: element.IDINSIDE,
                 responsible: element.VENDEDOR,
                 responsibleID: element.IDVENDEDOR,
                 clientCNPJ: element.CNPJ,
@@ -1440,10 +1448,22 @@ const headcargo = {
                                     </div>
                                   </div>`
 
+              const inside = `<div class="d-flex align-items-center gap-2">
+              <div class="lh-1">
+                <span class="avatar avatar-rounded avatar-sm">
+                  <img src="${item.insideID ? `https://cdn.conlinebr.com.br/colaboradores/${item.insideID}` : `https://conlinebr.com.br/assets/img/icon-semfundo.png`}" alt="">
+                </span>
+              </div>
+              <div>
+                <span class="d-block fw-semibold">${item.inside ? item.inside : 'Sem vinculação'}</span>
+              </div>
+            </div>`
+
               return {
                   ...item, // mantém todas as propriedades existentes
                   clientName: clientName,
                   responsible: responsible,
+                  inside: inside,
                   lastQuote: `<span style="display:none">${item.intervalCotation} - ${item.cotationDate}</span><span class="d-block"><i class="ri-calendar-2-line me-2 align-middle fs-14 text-muted"></i>${headcargo.formatDate(item.cotationDate)} (${item.intervalCotation} dias)</span>`,
                   lastProcess: `<span style="display:none">${item.intervalProcess} - ${item.processDate}</span><span class="d-block"><i class="ri-calendar-2-line me-2 align-middle fs-14 text-muted"></i>${item.processDate != null ? headcargo.formatDate(item.processDate) : 'Sem Processo'} (${item.intervalProcess} dias)</span>`,
               };

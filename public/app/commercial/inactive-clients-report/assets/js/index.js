@@ -126,6 +126,7 @@ async function generateTable(filters) {
                     columns: [
                         { data: 'clientName' },
                         { data: 'responsible' },
+                        { data: 'inside' },
                         { data: 'lastQuote' },
                         { data: 'lastProcess' },
                     ],

@@ -1,25 +1,8 @@
 const nodemailer = require('nodemailer');
 const { executeQuerySQL } = require('../connect/sqlServer');
 const { executeQuery } = require('../connect/mysql');
+const ExcelJS = require('exceljs');
 
-// Função para converter data para o formato do banco
-function convertDateToISO(dateStr) {
-    // Verifica se a string está vazia ou é nula
-    if (!dateStr) {
-        return null;
-    }
-
-    // Divide a string de data e hora
-    const [datePart, timePart] = dateStr.split(' ');
-
-    // Divide a data no formato dd-mm-yyyy
-    const [day, month, year] = datePart.split('-');
-
-    // Constrói a nova string no formato yyyy-mm-dd hh:mm
-    const isoDateStr = `${year}-${month}-${day} ${timePart}`;
-
-    return isoDateStr;
-}
 
 const tickets = {
     listAll: async function(value){
@@ -223,7 +206,88 @@ const tickets = {
         
         return palavrasFormatadas.join(" ");
     },
+    exportTicketsToExcel: async function(filePath){
+        const statusMapping = {
+            'new-tasks-draggable': 'Novos',
+            'completed-tasks-draggable': 'Finalizada',
+            'todo-tasks-draggable': 'Em análise',
+            'inprogress-tasks-draggable': 'Em andamento',
+            'inreview-tasks-draggable': 'Em revisão'
+        };
+    
+        const ticketsList = [];
+        const tickets = await executeQuery(`SELECT ct.*, collab.name AS collab_name, collab.family_name AS collab_family_name, collab.id_headcargo 
+                                            FROM called_tickets ct
+                                            JOIN collaborators collab ON collab.id = ct.collaborator_id`);
+    
+        for (let index = 0; index < tickets.length; index++) {
+            const element = tickets[index];
+    
+            const atribuidoQuery = await executeQuery(`SELECT collab.name, collab.family_name 
+                                                       FROM called_assigned_relations car
+                                                       JOIN collaborators collab ON collab.id = car.collaborator_id 
+                                                       WHERE ticket_id = ${element.id}`);
+    
+            const atribuido = atribuidoQuery.map(a => `${a.name} ${a.family_name}`).join(', ');
+    
+            const msgQuery = await executeQuery(`SELECT clm.*,collab.name, collab.family_name,collab.family_name, collab.id_headcargo 
+                                                FROM called_messages clm
+                                                JOIN collaborators collab ON collab.id = clm.collab_id 
+                                                WHERE clm.ticket_id = ${element.id}`);
+    
+            const messages = msgQuery.map(m => `${m.name} ${m.family_name}: ${m.body}`).join('\n');
+    
+            ticketsList.push({
+                id: element.id,
+                title: element.title,
+                description: element.description,
+                status: statusMapping[element.status] || element.status,
+                responsible: `${element.collab_name} ${element.collab_family_name}`,
+                start_forecast: element.start_forecast,
+                end_forecast: element.end_forecast,
+                finished_at: element.finished_at,
+                atribuido: atribuido,
+                messages: messages
+            });
+        }
+    
+        // Criar um novo workbook e worksheet
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Tickets');
+    
+        // Adicionar cabeçalhos das colunas
+        worksheet.columns = [
+            // { header: 'ID', key: 'id', width: 10 },
+            { header: 'Título', key: 'title', width: 30 },
+            { header: 'Descrição', key: 'description', width: 30 },
+            { header: 'Status', key: 'status', width: 15 },
+            { header: 'Responsável', key: 'responsible', width: 30 },
+            { header: 'Previsão de Início', key: 'start_forecast', width: 20 },
+            { header: 'Previsão de Término', key: 'end_forecast', width: 20 },
+            { header: 'Finalizado em', key: 'finished_at', width: 20 },
+            { header: 'Atribuído', key: 'atribuido', width: 30 },
+            { header: 'Mensagens', key: 'messages', width: 50 }
+        ];
+    
+        // Adicionar dados das linhas
+        ticketsList.forEach(ticket => {
+            worksheet.addRow(ticket);
+        });
+    
+        // Salvar o arquivo
+        await workbook.xlsx.writeFile(filePath);
+    }
 }
+
+
+// Chamar a função e exportar os tickets para um arquivo Excel
+// tickets.exportTicketsToExcel('tickets.xlsx')
+//     .then(() => {
+//         console.log('Arquivo Excel gerado com sucesso.');
+//     })
+//     .catch(error => {
+//         console.error('Erro ao gerar o arquivo Excel:', error);
+//     });
 
 
 module.exports = {

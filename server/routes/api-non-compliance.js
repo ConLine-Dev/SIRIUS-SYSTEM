@@ -60,6 +60,29 @@ module.exports = function(io) {
         }
     });
 
+    router.get('/getPendingOccurrences', async (req, res, next) => {
+        try {
+            const result = await non_compliance.getPendingOccurrences();
+            res.status(200).json(result)
+
+        } catch (error) {
+            res.status(404).json(error)   
+        }
+    });
+
+    
+    router.post('/getOcurrenceById', async (req, res, next) => {
+        const {id} = req.body
+        console.log(id)
+        try {
+            const result = await non_compliance.getOcurrenceById(id);
+            res.status(200).json(result)
+
+        } catch (error) {
+            res.status(404).json(error)   
+        }
+    });
+
     router.get('/AllOccurrence', async (req, res, next) => {
         try {
             const result = await non_compliance.getAllOccurrence();
@@ -73,7 +96,7 @@ module.exports = function(io) {
     router.post('/NewOccurrence', async (req, res, next) => {
         const body = req.body
         try {
-            const result = await non_compliance.NewOccurrence(body);
+            const result = await non_compliance.newOccurrence(body);
             res.status(200).json(result)
 
         } catch (error) {

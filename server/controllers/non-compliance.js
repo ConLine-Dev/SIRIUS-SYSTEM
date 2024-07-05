@@ -17,9 +17,87 @@ const non_compliance = {
     
         return result;
     },
+    getPendingOccurrences: async function(){
+        const status = {
+            0: 'Pendente de Aprovação',
+            1: 'Aguardando Preenchimento',
+        }
+
+        const occurrence = await executeQuery(`
+        SELECT 
+            o.editing,
+            o.id,
+            o.title,
+            o.status,
+            o.reference,
+            o.description AS description,
+            ot.name AS type,
+            o.occurrence_date AS date_occurrence
+        FROM 
+            occurrences o
+        JOIN 
+            occurrences_type ot ON o.type_id = ot.id
+        WHERE o.status = 0`)
+
+
+
+        const formtOccurrence = await Promise.all(occurrence.map(async function(item) {
+
+        const responsibles = await executeQuery(`
+        SELECT * FROM siriusDBO.occurrences_responsibles ors
+        join collaborators clt ON clt.id = ors.collaborator_id
+        WHERE ors.occurrence_id = ${item.id}`)
+
+        let users = ``;
+        for (let index = 0; index < responsibles.length; index++) {
+            const element = responsibles[index];
+
+            users += `<span class="avatar avatar-rounded" title="${element.name} ${element.family_name}" > 
+                            <img src="https://cdn.conlinebr.com.br/colaboradores/${element.id_headcargo}" alt="img"> 
+                    </span>`
+            
+        }
+
+        const actions = `
+        <div class="btn-list"> 
+            <a data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample" class="btn btn-sm btn-warning-light btn-icon"><i class="ri-eye-line"></i></a>
+            <button class="btn btn-sm btn-info-light btn-icon"><i class="ri-pencil-line"></i></button>
+            <button class="btn btn-sm btn-danger-light btn-icon contact-delete"><i class="ri-delete-bin-line"></i></button>
+        </div>`;
+
+
+
+        return {
+            ...item, // mantém todas as propriedades existentes
+            title:item.title,
+            editing:item.editing,
+            id:item.id,
+            status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,
+            reference: `<b>${item.reference}</b>`,
+            responsibles: `<div class="avatar-list-stacked">${users}</div>`,
+            date_occurrence: `<span class="icon-text-align">
+                <i class="las la-calendar-alt fs-5"></i> ${non_compliance.formatDate(item.date_occurrence)}
+            </span>`,
+            description: item.description,
+            type: item.type,
+            action:actions
+        };
+        }));
+            
+
+        return formtOccurrence; 
+    },
     getAllOccurrence: async function(){
+
+        const status = {
+            0: 'Pendente de Aprovação',
+            1: 'Aguardando Preenchimento',
+        }
+
         const occurrence = await executeQuery(`
                     SELECT 
+                        o.title,
+                        o.id,
                         o.reference,
                         o.description AS description,
                         ot.name AS type,
@@ -32,23 +110,30 @@ const non_compliance = {
 
 
         const formtOccurrence = await Promise.all(occurrence.map(async function(item) {
-        
-            // const inside = `<div class="d-flex align-items-center gap-2">
-            // <div class="lh-1">
-            //     <span class="avatar avatar-rounded avatar-sm">
-            //     <img src="${item.insideID ? `https://cdn.conlinebr.com.br/colaboradores/${item.insideID}` : `https://conlinebr.com.br/assets/img/icon-semfundo.png`}" alt="">
-            //     </span>
-            // </div>
-            // <div>
-            //     <span class="d-block fw-semibold">${item.inside ? item.inside : 'Sem vinculação'}</span>
-            // </div>
-            // </div>`
 
+            const responsibles = await executeQuery(`
+            SELECT * FROM siriusDBO.occurrences_responsibles ors
+            join collaborators clt ON clt.id = ors.collaborator_id
+            WHERE ors.occurrence_id = ${item.id}`)
+        
+            let users = ``;
+            for (let index = 0; index < responsibles.length; index++) {
+                const element = responsibles[index];
+
+                users += `<span class="avatar avatar-rounded" title="${element.name} ${element.family_name}" > 
+                                <img src="https://cdn.conlinebr.com.br/colaboradores/${element.id_headcargo}" alt="img"> 
+                        </span>`
+                
+            }
+          
             
 
             return {
                 ...item, // mantém todas as propriedades existentes
-                reference: item.reference,
+                title:item.title,
+                status: `<span class="badge bg-info-transparent">${status[item.status]}</span>`,
+                reference: `<b>${item.reference}</b>`,
+                responsibles: `<div class="avatar-list-stacked">${users}</div>`,
                 date_occurrence: `<span class="icon-text-align">
                     <i class="las la-calendar-alt fs-5"></i> ${non_compliance.formatDate(item.date_occurrence)}
                 </span>`,
@@ -62,6 +147,65 @@ const non_compliance = {
 
         return formtOccurrence; 
     },
+    getOcurrenceById: async function(id){
+        const status = {
+            0: 'Pendente de Aprovação',
+            1: 'Aguardando Preenchimento',
+        }
+
+        const occurrence = await executeQuery(`
+        SELECT 
+            o.second_part,
+            o.editing,
+            o.title,
+            o.id,
+            o.status,
+            o.reference,
+            o.correction,
+            o.company_id,
+            o.origin_id,
+            o.description AS description,
+            ot.id AS typeId,
+            ot.name AS type,
+            o.occurrence_date AS date_occurrence
+        FROM 
+            occurrences o
+        JOIN 
+            occurrences_type ot ON o.type_id = ot.id
+        WHERE o.id = ${id}`)
+
+
+
+        const formtOccurrence = await Promise.all(occurrence.map(async function(item) {
+
+        const responsibles = await executeQuery(`
+        SELECT * FROM siriusDBO.occurrences_responsibles ors
+        join collaborators clt ON clt.id = ors.collaborator_id
+        WHERE ors.occurrence_id = ${item.id}`)
+
+
+        return {
+            ...item, // mantém todas as propriedades existentes
+            id:item.id,
+            second_part:item.second_part,
+            editing:item.editing,
+            statusName: status[item.status],
+            status: item.status,
+            correction:item.correction,
+            company_id:item.company_id,
+            origin_id:item.origin_id,
+            reference: item.reference,
+            responsibles: responsibles,
+            date_occurrence: item.date_occurrence,
+            description: item.description,
+            type: item.type,
+            typeId: item.typeId
+        };
+        }));
+            
+
+        return formtOccurrence[0]; 
+    },
     generateReference: async function(occurrenceId){
         const currentDate = new Date();
         const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Adiciona zero à esquerda se o mês tiver apenas um dígito
@@ -71,7 +215,7 @@ const non_compliance = {
         const reference = `OC${month}${formattedId}/${year}`;
         return reference;
     },
-    NewOccurrence: async function(body){
+    newOccurrence: async function(body){
         const formBody = body.formBody
 
         console.log(formBody)
@@ -80,8 +224,8 @@ const non_compliance = {
         // const listActions = body.listActions
 
         const date = new Date()
-        const insertOccurrence = await executeQuery(`INSERT INTO occurrences (company_id, origin_id, type_id, occurrence_date, description, correction, create_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-         [formBody.company_id, formBody.origin_id, formBody.type_id, formBody.occurrence_date, formBody.description, formBody.correction, date])
+        const insertOccurrence = await executeQuery(`INSERT INTO occurrences (title,company_id, origin_id, type_id, occurrence_date, description, correction, create_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+         [formBody.occurrence, formBody.company_id, formBody.origin_id, formBody.type_id, formBody.occurrence_date, formBody.description, formBody.correction, date])
 
 
         // Criando a referência com o ID inserido e o ano atual
@@ -103,14 +247,6 @@ const non_compliance = {
          
         return insertOccurrence
 
-    },
-    NewReason: async function(body){
-        const result = await executeQuery(`INSERT INTO occurrences_reason (reason, occurrences_id) VALUES (?, ?)`,
-        [body.reason, body.occurrences_id])
-    },
-    NewActions: async function(body){
-        const result = await executeQuery(`INSERT INTO occurrences_actions (action, responsible, expiration, status) VALUES (?, ?, ?, ?)`,
-        [body.action, body.responsible, body.expiration, body.status])
     },
     // Função para formatar uma data no formato pt-BR (dd/mm/aaaa)
     formatDate: function (dateString) {

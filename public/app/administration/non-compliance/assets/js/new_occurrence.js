@@ -398,7 +398,8 @@ async function getValuesOccurrence(e) {
     });
     
 
-    console.log(formBody)
+    
+    window.close()
 
 
 }

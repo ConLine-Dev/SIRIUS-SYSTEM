@@ -6,17 +6,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Gerencimento de ocorrencias e não conformidades</title>
-    <meta name="Description" content="Gerencimento de ocorrencias e não conformidades">
-    <meta name="Author" content="Petryck William Silva leite">
+    <title>Visualizar Ocorrência</title>
+    <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
+    <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
-        content="">
+        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
     <!-- Favicon -->
     <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
     <!-- Choices JS -->
     <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
     <!-- Main Theme Js -->
-    <script src="../../assets/js/main.js"></script>
+    <!-- <script src="../../assets/js/main.js"></script> -->
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <!-- Style Css -->
@@ -46,7 +46,7 @@
     
     
 
-    <link rel="stylesheet" href="./assets/css/index.css">
+    <link rel="stylesheet" href="./assets/css/view-occurrence.css">
     <meta http-equiv="imagetoolbar" content="no">
 </head>
 
@@ -498,6 +498,9 @@
         </div>
     </div>
     <!-- End Switcher -->
+    <div id="loader" style="display: none;">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
     <!-- Loader -->
     <div id="loader2">
         <img src="../../assets/images/media/loader.svg" alt="">
@@ -513,207 +516,410 @@
         <!-- /app-header -->
         <!-- End::app-sidebar -->
         <!-- Start::app-content -->
-        <div class="main-content">
-            <div class="container-fluid">
-                <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-                    <h1 class="page-title fw-semibold fs-18 mb-0">Gerenciamento de ocorrências  e não conformidades</h1>
-                    <div class="ms-md-1 ms-0">
-                        <nav>
-                            <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="javascript:void(0);">Administrativo</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Ocorrencias / não conformidades</li>
-                            </ol>
-                        </nav>
-                    </div>
-                </div>
-
+        <div class="">
+            <div class="">
+              
                 <div class="row">
                     <div class="col-xl-12">
-                        <div class="card custom-card">
-
-                             <!-- OCORRENCIAS -->
-                             <div class="card-header justify-content-between">
-                                <div class="card-title"> Ocorrências Pendêntes </div>
-                                <div class="d-flex">
-                                    <button class="btn btn-sm btn-primary" id="newOccurenceButton"><i class="ri-add-line fw-semibold align-middle me-1"></i> Nova ocorrência</button>
-                                    <!-- Start::add task modal -->
-                                    <!-- End::add task modal -->
-                                </div>
-                            </div>
-                            
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="occurrences_table" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 350px;">Referência</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Título</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Descrição</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Tipo</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Envolvidos</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Status</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Data Ocorrência</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Ação</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td><b>RNC08/23</b></td>
-                                                            <td>Incluir informação nos procedimentos operacionais de cópia não controlada</td>
-                                                            <td>
-                                                                <div class="d-flex align-items-center"> <span class="avatar avatar-xs me-2 avatar-rounded"> <img src="https://cdn.conlinebr.com.br/colaboradores/48901" alt="img"> </span>Marcone Vidal </div>
-                                                            </td>
-                                                            <td> 
-                                                                <span class="icon-text-align">
-                                                                    <i class="las la-calendar-alt fs-5"></i> 27/03/2024
-                                                                </span>
-                                                            </td>
-                                                          </tr>
-                                                    </tbody>
+                        <div class="card custom-card bodyWindows">
+                            <div class=" justify-content-between headerButtons">
+                                <ul class="nav nav-tabs border-0" role="tablist">
+                                    <li class="nav-item " role="presentation"> 
+                                        <a class="nav-link label-btn btn " data-bs-toggle="tab" role="tab" href="#hometab-dropdown" aria-selected="false" tabindex="-1">
+                                            <i class="ri-save-3-line label-btn-icon me-2"></i>
+                                            Salvar
+                                        </a> 
+                                    </li>
+                                    <li class="nav-item dropdown" role="presentation"> 
+                                        <a class="nav-link dropdown-toggle btn label-btn" data-bs-toggle="dropdown" href="javascript:void(0);" role="button" aria-expanded="false">
+                                            <i class="ri-lock-unlock-line label-btn-icon me-2"></i>
+                                            
+                                            Bloqueios</a>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a class="dropdown-item " href="#homeabout-dropdown">
                                                 
-                                                </table>
-                                            </div>
+                                                    Bloquear 1° etapa</a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="javascript:void(0);">Bloquear 2° etapa</a>
+                                            </li>
+
+                                            <li> <hr class="dropdown-divider"> </li>
+
+                                            <li>
+                                                <a class="dropdown-item" href="#homeabout-dropdown">Desbloquear 1° etapa</a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="javascript:void(0);">Desbloquear 2° etapa</a>
+                                            </li>
+                                          
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="card-header justify-content-between">
+                                <div class="card-title"> Ocorrência <span id="referenceOccurrence"></span> </div>
+                            </div>
+                            
+                            <div class="card-body default">
+                                <div class="row">
+                                    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-12"> 
+                                        <label for="input-label" class="form-label">Ocorrência</label> 
+                                        <input type="text" name="occurrence" class="form-control form-input"> 
+                                    </div>
+                                  
+                                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
+                                        <label for="input-label" class="form-label">Data Ocorrência</label> 
+                                        <input type="date" name="occurrence_date" class="form-control form-input" > 
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12"> 
+                                        <label for="input-label" class="form-label">Unidade</label> 
+                                        <select name="company_id" class="form-input"></select>
+                                  
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12"> 
+                                        <label for="input-label" class="form-label">Origem</label> 
+                                        <select name="origin_id" class="form-input"></select>
+                                  
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12"> 
+                                        <label for="input-label" class="form-label">Tipo</label> 
+                                        <select name="type_id" class="form-input"></select>
+                                  
+                                    </div>
+                                    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12" style="display: none;"> 
+                                        <label for="input-label" class="form-label">Aprovação</label> 
+                                        <select name="approval" class="form-input"></select>
+                                  
+                                    </div>
+                                  
+                                </div>
+                                <br>
+                                <div class="row">
+                                    <div class="col-12"> 
+                                        <label for="input-label" class="form-label">Quais pessoas serão informadas sobre essa ocorrência</label> 
+                                        <select name="occurrence_responsible" multiple class="form-input "></select>
+                                  
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                    <div class="col-12"> 
+                                        <label for="input-label" class="form-label">Descrição</label> 
+                                        <textarea name="description" class="form-control form-input"cols="30" rows="5"></textarea>
+                                  
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                    <div class="col-12"> 
+                                        <label for="input-label" class="form-label">Correção [ Ações já tomada(s) ]</label> 
+                                        <textarea name="correction" class="form-control form-input"cols="30" rows="5"></textarea>
+                                  
+                                    </div>
+                                </div>
+                               
+                                
+                             
+                            </div>
+
+                       
+                            <div class="card custom-card statusApproval inactive">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title"> Analise da causa Método ISHIKAWA (só irá aparecer após aprovação da qualidade)</div>
+                                    <div class="d-flex">
+    
+                                        <!-- Start::add task modal -->
+                                        <!-- End::add task modal -->
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12"> 
+                                            <label for="input-label" class="form-label">Mão de obra</label> <br>
+                                            <label for="input-label" class="form-label fs-11">A não conformidade tem relação com a falta de: treinamento, qualificação, formação, experiência,  motivação, atenção, disciplina, dedicação,  relacionamento, etc?</label> 
+                                            <textarea name="dsadsadsads" class="form-control form-input"cols="30" rows="5"></textarea>
+                                      
                                         </div>
-                            
-                              
-                                </div>
-                            </div>
-
-
-
-
-                            <div class="card-header justify-content-between" style="display: none;">
-                                <div class="card-title"> Ações Pendêntes </div>
-                                <div class="d-flex">
-                                    <button class="btn btn-sm btn-primary btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#create-task"><i class="ri-add-line fw-semibold align-middle me-1"></i> Nova ocorrência</button>
-                                    <!-- Start::add task modal -->
-                                    <!-- End::add task modal -->
-                                </div>
-                            </div>
-                            
-                            <div class="card-body" style="display: none;">
-                                <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="table_despesasADM" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 350px;">RNC</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Ação</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Responsável</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Prazo</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td><b>RNC08/23</b></td>
-                                                            <td>Incluir informação nos procedimentos operacionais de cópia não controlada</td>
-                                                            <td>
-                                                                <div class="d-flex align-items-center"> <span class="avatar avatar-xs me-2 avatar-rounded"> <img src="https://cdn.conlinebr.com.br/colaboradores/48901" alt="img"> </span>Marcone Vidal </div>
-                                                            </td>
-                                                            <td> 
-                                                                <span class="icon-text-align">
-                                                                    <i class="las la-calendar-alt fs-5"></i> 27/03/2024
-                                                                </span>
-                                                            </td>
-                                                          </tr>
-                                                    </tbody>
-                                                
-                                                </table>
-                                            </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-12"> 
+                                            <label for="input-label" class="form-label">Método</label> <br>
+                                            <label for="input-label" class="form-label fs-11"> A não conformidade tem relação com a falta de: especificação, procedimentos, instruções, desenhos, esquemas, etc?</label> 
+                                            <textarea name="dsadsadsads" class="form-control form-input"cols="30" rows="5"></textarea>
+                                      
                                         </div>
-                            
-                              
-                                </div>
-                            </div>
-                            <div class="card-header justify-content-between" style="display: none;">
-                                <div class="card-title"> Não conformidade e Oportunidade de melhoria </div>
-                              
-                            </div>
-                          
-                            
-                            <div class="card-body" style="display: none;">
-                                <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="table_rnc" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead class="table-primary">
-                                                        <tr>
-                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 350px;">Referência</th>
-                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 350px;">Título</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 308px;">Descrição</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Tipo</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Data ocorrência</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                      <tr>
-                                                        <td><b>RNC08/23</b></td>
-                                                        <td>teste</td>
-                                                        <td>teste</td>
-                                                        <td><span class="badge bg-outline-primary">Real</span></td>
-                                                        <td> 
-                                                            <span class="icon-text-align">
-                                                                <i class="las la-calendar-alt fs-5"></i> 27/03/2024
-                                                            </span>
-                                                        </td>
-                                                        
-                                                      </tr>
-                                                      <tr>
-                                                        <td><b>RNC08/23</b></td>
-                                                        <td>teste</td>
-                                                        <td>teste</td>
-                                                        <td><span class="badge bg-outline-primary">Real</span></td>
-                                                        <td> 
-                                                            <span class="icon-text-align">
-                                                                <i class="las la-calendar-alt fs-5"></i> 27/03/2024
-                                                            </span>
-                                                        </td>
-                                                        
-                                                      </tr>
-                                                      <tr>
-                                                        <td><b>RNC08/23</b></td>
-                                                        <td>teste</td>
-                                                        <td>teste</td>
-                                                        <td><span class="badge bg-outline-primary">Real</span></td>
-                                                        <td> 
-                                                            <span class="icon-text-align">
-                                                                <i class="las la-calendar-alt fs-5"></i> 27/03/2024
-                                                            </span>
-                                                        </td>
-                                                       
-                                                      </tr>
-                                                      <tr>
-                                                        <td><b>RNC08/23</b></td>
-                                                        <td>teste</td>
-                                                        <td>teste</td>
-                                                        <td><span class="badge bg-outline-primary">Real</span></td>
-                                                        <td> 
-                                                            <span class="icon-text-align">
-                                                                <i class="las la-calendar-alt fs-5"></i> 27/03/2024
-                                                            </span>
-                                                        </td>
-                                                        
-                                                      </tr>
-                                                    </tbody>
-                                                
-                                                </table>
-                                            </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-12"> 
+                                            <label for="input-label" class="form-label">Material</label> <br>
+                                            <label for="input-label" class="form-label fs-11">A não conformidade tem relação com a falta de: dimensão, composição, propriedades, mecânicas,  estocagem,  embalagem, transporte, etc?</label> 
+                                            <textarea name="dsadsadsads" class="form-control form-input"cols="30" rows="5"></textarea>
+                                      
                                         </div>
-                            
-                              
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <label for="input-label" class="form-label">Meio Ambiente</label> <br>
+                                            <label for="input-label" class="form-label fs-11">A não conformidade tem relação com a falta de: espaço, temperatura, sazonalidade, iluminação, desorganização ambiente,  etc?</label> 
+                                            <textarea name="dsadsadsads" class="form-input form-control" cols="30" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <label for="input-label" class="form-label">Máquina</label> <br>
+                                            <label for="input-label" class="form-label fs-11">A não conformidade tem relação com a falta de: equipamentos, dispositivos, ferramentas, pressão,  precisão,  lubrificação, vazamentos,  manutenção, ajuste, instrumentação, fixação, velocidade, limpeza, etc?</label> 
+                                            <textarea name="dsadsadsads" class="form-input form-control" cols="30" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <label for="input-label" class="form-label">Causa raiz</label> <br>
+    
+                                            <textarea name="dsadsadsads" class="form-input form-control" cols="30" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                    
                                 </div>
-                            </div>
-
+                               
                            
+                            </div>
+
+                     
+                            <div class="card custom-card statusApproval inactive">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title"> Ação corretiva (só irá aparecer após aprovação da qualidade)</div>
+                                    <div class="d-flex">
+                                        <button class="btn btn-sm btn-primary btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#modalActions"><i class="ri-add-line fw-semibold align-middle me-1"></i> Adicionar <b>ação corretiva</b></button>
+                                        <!-- Start::add task modal -->
+                                        <!-- End::add task modal -->
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <table id="table_corrective" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 70px;">N°</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Ação</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Responsável</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 110px;">Prazo</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Status</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Evidêncía</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <!-- <tr>
+                                                                <td>1</td>
+                                                                <td>Incluir informação nos procedimentos operacionais de cópia não controlada</td>
+                                                                <td>Alexandra</td>
+                                                                <td>
+                                                                    <span class="icon-text-align">
+                                                                        <i class="las la-calendar-alt fs-5"></i> 27/03/2024
+                                                                    </span>
+                                                                </td>
+                                                                <td><span class="badge bg-outline-warning">Pendente</span></td>
+                                                            </tr> -->
+                                                        </tbody>
+                                                    
+                                                    </table>
+                                                </div>
+                                            </div>
+                                
+                                  
+                                    </div>
+                                </div>
+                            </div>
+    
+                      
+                            <div class="card custom-card statusApproval inactive">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title"> Avaliação De Eficácia (só irá aparecer após aprovação da qualidade)</div>
+                                    <div class="d-flex">
+                                        <button class="btn btn-sm btn-primary btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#modalActions"><i class="ri-add-line fw-semibold align-middle me-1"></i> Adicionar <b>avaliação de eficácia</b></button>
+                                        <!-- Start::add task modal -->
+                                        <!-- End::add task modal -->
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                            <div class="row">
+                                                <div class="col-sm-12">
+                                                    <table id="table_corrective" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Ação</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Responsável</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 110px;">Prazo (previsão)</th>
+                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Evidêncía</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <!-- <tr>
+                                                                <td>1</td>
+                                                                <td>Incluir informação nos procedimentos operacionais de cópia não controlada</td>
+                                                                <td>Alexandra</td>
+                                                                <td>
+                                                                    <span class="icon-text-align">
+                                                                        <i class="las la-calendar-alt fs-5"></i> 27/03/2024
+                                                                    </span>
+                                                                </td>
+                                                                <td><span class="badge bg-outline-warning">Pendente</span></td>
+                                                            </tr> -->
+                                                        </tbody>
+                                                    
+                                                    </table>
+                                                </div>
+                                            </div>
+                                
+                                  
+                                    </div>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <label for="input-label" class="form-label">Riscos, Oportunidade E Mudanças Foram Necessárias ?</label> <br>
+    
+                                            <textarea name="occurrence_responsible" class="form-input form-control" cols="30" rows="5"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+                            
                         </div>
+
+                        
+                       
+
                     </div>
                 </div>
             </div>
         </div>
 
+        
+        <div class="modal fade" id="modalActions" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar Ação Imediata</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body"> 
+                       <div class="row">
+                            <div class="col-6"> 
+                                <label for="input-label" class="form-label">Responsável</label> 
+                                <select name="action_responsible"></select>
+                            </div>  
+                            <div class="col-3"> 
+                               
+                            </div>  
+                            <div class="col-3"> 
+                                <label for="input-label" class="form-label">Prazo</label> 
+                                <input type="date" class="form-control" name="action_expiration"> 
+                            </div>  
+                       </div>  
+                       <br>
+                       <div class="row">
+                        <div class="col-12"> 
+                            <label for="input-label" class="form-label">Ação</label> 
+                            <textarea class="form-control" name="action_description" cols="30" rows="10"></textarea>
+                        </div> 
+                      
+                       </div>
+                       <br>
+                       <div class="row" >
+                        <div class="col-12">
+                            <button style="width: 100%;" class="btn btn-primary" onclick="addAction(this)">Cadastrar</button>
+
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalPreventive" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar Ação Preventiva</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body"> 
+                       <div class="row">
+                            <div class="col-6"> 
+                                <label for="input-label" class="form-label">Responsável</label> 
+                                <select name="Preventive_responsible"></select>
+                            </div>  
+                            <div class="col-3"> 
+                               
+                            </div>  
+                            <div class="col-3"> 
+                                <label for="input-label" class="form-label">Prazo</label> 
+                                <input type="date" class="form-control" name="Preventive_expiration"> 
+                            </div>  
+                       </div>  
+                       <br>
+                       <div class="row">
+                        <div class="col-12"> 
+                            <label for="input-label" class="form-label">Ação</label> 
+                            <textarea class="form-control" name="Preventive_description" cols="30" rows="10"></textarea>
+                        </div> 
+                      
+                       </div>
+                       <br>
+                       <div class="row" >
+                        <div class="col-12">
+                            <button style="width: 100%;" class="btn btn-primary" onclick="addPreventive(this)">Cadastrar</button>
+
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalCause" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar identificação de causas (5 Porquês)</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body"> 
+                       <div class="row">
+                        <div class="col-12"> 
+                            <label for="input-label" class="form-label">Causas</label> 
+                            <textarea class="form-control" name="reason" cols="30" rows="10"></textarea>
+                        </div> 
+                      
+                       </div>
+                       <br>
+                       <div class="row" >
+                        <div class="col-12">
+                            <button style="width: 100%;" class="btn btn-primary" onclick="addReason(this)">Cadastrar</button>
+
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
  
 
     </div>
@@ -859,7 +1065,7 @@
 
 
 
-    <script src="./assets/js/index.js"></script>
+    <script src="./assets/js/view-occurrence.js"></script>
 
 
 

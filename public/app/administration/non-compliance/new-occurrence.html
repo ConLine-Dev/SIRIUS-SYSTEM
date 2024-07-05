@@ -510,18 +510,18 @@
         <img src="../../assets/images/media/loader.svg" alt="">
     </div> -->
     <!-- Loader -->
-    <div class="page">
+    <div class="">
         <!-- app-header -->
 
         <!-- /app-header -->
         <!-- End::app-sidebar -->
         <!-- Start::app-content -->
-        <div class="main-content">
-            <div class="container-fluid">
+        <div class="">
+            <div class="">
               
                 <div class="row">
                     <div class="col-xl-12">
-                        <div class="card custom-card">
+                        <div class="card custom-card bodyWindows">
                             <div class="card-header justify-content-between">
                                 <div class="card-title"> Nova Ocorrência </div>
                             </div>
@@ -590,182 +590,16 @@
                                
                              
                             </div>
+
+                            <div class="card-footer">
+                                <button class="btn btn-primary" style="width: 100%;" onclick="getValuesOccurrence(this)">Registrar</button>
+                            </div>
                          
                         </div>
 
-                        <div class="card custom-card" style="display: none;">
-                            <div class="card-header justify-content-between">
-                                <div class="card-title"> Analise da causa Método ISHIKAWA (só irá aparecer após aprovação da qualidade)</div>
-                                <div class="d-flex">
-
-                                    <!-- Start::add task modal -->
-                                    <!-- End::add task modal -->
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-12"> 
-                                        <label for="input-label" class="form-label">Mão de obra</label> <br>
-                                        <label for="input-label" class="form-label fs-11">A não conformidade tem relação com a falta de: treinamento, qualificação, formação, experiência,  motivação, atenção, disciplina, dedicação,  relacionamento, etc?</label> 
-                                        <textarea name="dsadsadsads" class="form-control form-input"cols="30" rows="5"></textarea>
-                                  
-                                    </div>
-                                </div>
-                                <br>
-                                <div class="row">
-                                    <div class="col-12"> 
-                                        <label for="input-label" class="form-label">Método</label> <br>
-                                        <label for="input-label" class="form-label fs-11"> A não conformidade tem relação com a falta de: especificação, procedimentos, instruções, desenhos, esquemas, etc?</label> 
-                                        <textarea name="dsadsadsads" class="form-control form-input"cols="30" rows="5"></textarea>
-                                  
-                                    </div>
-                                </div>
-                                <br>
-                                <div class="row">
-                                    <div class="col-12"> 
-                                        <label for="input-label" class="form-label">Material</label> <br>
-                                        <label for="input-label" class="form-label fs-11">A não conformidade tem relação com a falta de: dimensão, composição, propriedades, mecânicas,  estocagem,  embalagem, transporte, etc?</label> 
-                                        <textarea name="dsadsadsads" class="form-control form-input"cols="30" rows="5"></textarea>
-                                  
-                                    </div>
-                                </div>
-                                <br>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <label for="input-label" class="form-label">Meio Ambiente</label> <br>
-                                        <label for="input-label" class="form-label fs-11">A não conformidade tem relação com a falta de: espaço, temperatura, sazonalidade, iluminação, desorganização ambiente,  etc?</label> 
-                                        <textarea name="dsadsadsads" class="form-input form-control" cols="30" rows="5"></textarea>
-                                    </div>
-                                </div>
-                                <br>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <label for="input-label" class="form-label">Máquina</label> <br>
-                                        <label for="input-label" class="form-label fs-11">A não conformidade tem relação com a falta de: equipamentos, dispositivos, ferramentas, pressão,  precisão,  lubrificação, vazamentos,  manutenção, ajuste, instrumentação, fixação, velocidade, limpeza, etc?</label> 
-                                        <textarea name="dsadsadsads" class="form-input form-control" cols="30" rows="5"></textarea>
-                                    </div>
-                                </div>
-                                <br>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <label for="input-label" class="form-label">Causa raiz</label> <br>
-
-                                        <textarea name="dsadsadsads" class="form-input form-control" cols="30" rows="5"></textarea>
-                                    </div>
-                                </div>
-                                
-                            </div>
-                           
-                       
-                        </div>
-                      
-                        <div class="card custom-card" style="display: none;">
-                            <div class="card-header justify-content-between">
-                                <div class="card-title"> Ação corretiva (só irá aparecer após aprovação da qualidade)</div>
-                                <div class="d-flex">
-                                    <button class="btn btn-sm btn-primary btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#modalActions"><i class="ri-add-line fw-semibold align-middle me-1"></i> Adicionar <b>ação corretiva</b></button>
-                                    <!-- Start::add task modal -->
-                                    <!-- End::add task modal -->
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="table_corrective" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 70px;">N°</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Ação</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Responsável</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 110px;">Prazo</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Status</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Evidêncía</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <!-- <tr>
-                                                            <td>1</td>
-                                                            <td>Incluir informação nos procedimentos operacionais de cópia não controlada</td>
-                                                            <td>Alexandra</td>
-                                                            <td>
-                                                                <span class="icon-text-align">
-                                                                    <i class="las la-calendar-alt fs-5"></i> 27/03/2024
-                                                                </span>
-                                                            </td>
-                                                            <td><span class="badge bg-outline-warning">Pendente</span></td>
-                                                        </tr> -->
-                                                    </tbody>
-                                                
-                                                </table>
-                                            </div>
-                                        </div>
-                            
-                              
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card custom-card" style="display: none;">
-                            <div class="card-header justify-content-between">
-                                <div class="card-title"> Avaliação De Eficácia (só irá aparecer após aprovação da qualidade)</div>
-                                <div class="d-flex">
-                                    <button class="btn btn-sm btn-primary btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#modalActions"><i class="ri-add-line fw-semibold align-middle me-1"></i> Adicionar <b>avaliação de eficácia</b></button>
-                                    <!-- Start::add task modal -->
-                                    <!-- End::add task modal -->
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="table_corrective" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Ação</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Responsável</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 110px;">Prazo (previsão)</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Evidêncía</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <!-- <tr>
-                                                            <td>1</td>
-                                                            <td>Incluir informação nos procedimentos operacionais de cópia não controlada</td>
-                                                            <td>Alexandra</td>
-                                                            <td>
-                                                                <span class="icon-text-align">
-                                                                    <i class="las la-calendar-alt fs-5"></i> 27/03/2024
-                                                                </span>
-                                                            </td>
-                                                            <td><span class="badge bg-outline-warning">Pendente</span></td>
-                                                        </tr> -->
-                                                    </tbody>
-                                                
-                                                </table>
-                                            </div>
-                                        </div>
-                            
-                              
-                                </div>
-                                <br>
-                                <div class="row">
-                                    <div class="col-12">
-                                        <label for="input-label" class="form-label">Riscos, Oportunidade E Mudanças Foram Necessárias ?</label> <br>
-
-                                        <textarea name="occurrence_responsible" class="form-input form-control" cols="30" rows="5"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    
                        
 
-                        <div class="row" >
-                            <div class="col-12">
-                                <button style="width: 100%;" class="btn btn-primary" onclick="getValuesOccurrence(this)">Registrar</button>
-
-                            </div>
-                        </div>
                         <br>
                     </div>
                 </div>

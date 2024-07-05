@@ -1,3 +1,7 @@
+body{
+    min-height: auto !important;
+}
+
 #loader2{
     position: fixed;
     top: 0;
@@ -20,4 +24,9 @@
 .icon-text-align span {
         display: inline-block;
         vertical-align: middle;
+}
+
+
+.bodyWindows{
+    margin-bottom: -21px !important;
 }

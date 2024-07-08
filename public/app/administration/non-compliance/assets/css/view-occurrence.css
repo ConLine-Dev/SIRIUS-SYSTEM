@@ -1,6 +1,8 @@
+
+
 .headerButtons{
     padding-bottom: 8px !important;
-    z-index: 9999999999;
+    z-index: 150;
     position: fixed !important;
     top: -10px !important;
     width: 100%;
@@ -14,15 +16,26 @@
     gap: .25rem;
 }
 
+.disabled{
+    background-color: light-dark(rgba(239, 239, 239, 0.3), rgba(19, 1, 1, 0.3)) !important;
+    color: light-dark(rgba(16, 16, 16, 0.3), rgba(255, 255, 255, 0.3)) !important;
+    border-color: transparent !important;
+    /* border-color: light-dark(rgba(118, 118, 118, 0.3), rgba(195, 195, 195, 0.3)) !important; */
+}
+
+
+
 
 .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
     /* color: auto !important; */
     background-color: transparent !important;
     /* border-color: auto !important; */
 }
-.active:hover {
+/* .active:hover {
     border-color: var(--default-border) !important;
-}
+} */
+
+
 
 .dropdown-menu{
     width: 172px !important;
@@ -61,4 +74,25 @@
     margin-top: 60px;
     margin-bottom: -21px !important;
 }
+
+.block1Etapa, .block2Etapa{
+    cursor: pointer;
+}
+
+#loader2{
+    z-index: 9999999999;
+}
+
+.selectStatus select{
+    width: 100%;
+}
+.selectStatus .choices__list{
+    min-width: 221px;
+}
+
+
+
+
+
+
 

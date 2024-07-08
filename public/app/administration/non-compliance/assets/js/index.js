@@ -29,7 +29,7 @@ async function listPendingOccurrences(){
             { data: 'responsibles' },
             { data: 'status' },
             { data: 'date_occurrence' },
-            { data: 'action' }
+            // { data: 'action' }
             // Adicione mais colunas conforme necessário
         ],
         buttons: [

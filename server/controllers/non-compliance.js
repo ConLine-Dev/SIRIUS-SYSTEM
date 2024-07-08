@@ -248,6 +248,13 @@ const non_compliance = {
         return insertOccurrence
 
     },
+    changeBlock: async function(body){
+        const {type,prop, id} = body
+
+        const occurrence = await executeQuery(`UPDATE occurrences SET ${prop} = ${type} WHERE (id = ${id})`)
+
+        return occurrence;
+    },
     // Função para formatar uma data no formato pt-BR (dd/mm/aaaa)
     formatDate: function (dateString) {
         const date = new Date(dateString); // Cria um objeto Date a partir da string de data

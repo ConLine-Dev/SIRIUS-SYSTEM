@@ -116,6 +116,18 @@ module.exports = function(io) {
         }
     });
 
+    router.post('/changeBlock', async (req, res, next) => {
+        const body = req.body
+        // body.reason, body.occurrences_id
+        try {
+            const result = await non_compliance.changeBlock(body);
+            res.status(200).json(result)
+
+        } catch (error) {
+            res.status(404).json(error)   
+        }
+    });
+
     router.post('/NewActions', async (req, res, next) => {
         const body = req.body
         // body.action, body.responsible, body.expiration, body.status

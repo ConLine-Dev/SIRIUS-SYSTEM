@@ -46,7 +46,7 @@
     
     
 
-    <link rel="stylesheet" href="./assets/css/view-occurrence.css">
+    <link href="./assets/css/view-occurrence.css" rel="stylesheet" >
     <meta http-equiv="imagetoolbar" content="no">
 </head>
 
@@ -502,7 +502,7 @@
         <img src="../../assets/images/media/loader.svg" alt="">
     </div>
     <!-- Loader -->
-    <div id="loader2">
+    <div id="loader2" style="z-index: 9999999999999 !important;">
         <img src="../../assets/images/media/loader.svg" alt="">
     </div>
 
@@ -530,37 +530,59 @@
                                             Salvar
                                         </a> 
                                     </li>
-                                    <li class="nav-item dropdown" role="presentation"> 
+                                    <li class="nav-item dropdown groupBlocks" role="presentation"> 
                                         <a class="nav-link dropdown-toggle btn label-btn" data-bs-toggle="dropdown" href="javascript:void(0);" role="button" aria-expanded="false">
                                             <i class="ri-lock-unlock-line label-btn-icon me-2"></i>
                                             
                                             Bloqueios</a>
                                         <ul class="dropdown-menu">
                                             <li>
-                                                <a class="dropdown-item " href="#homeabout-dropdown">
-                                                
-                                                    Bloquear 1° etapa</a>
+                                                <a class="dropdown-item block1Etapa">Bloquear 1° etapa</a>
                                             </li>
                                             <li>
-                                                <a class="dropdown-item" href="javascript:void(0);">Bloquear 2° etapa</a>
+                                                <a class="dropdown-item block2Etapa">Bloquear 2° etapa</a>
                                             </li>
-
-                                            <li> <hr class="dropdown-divider"> </li>
-
-                                            <li>
-                                                <a class="dropdown-item" href="#homeabout-dropdown">Desbloquear 1° etapa</a>
-                                            </li>
-                                            <li>
-                                                <a class="dropdown-item" href="javascript:void(0);">Desbloquear 2° etapa</a>
-                                            </li>
-                                          
                                         </ul>
                                     </li>
+                                    
+                                    <li class="nav-item " role="presentation"> 
+                                        <a class="nav-link label-btn btn btnAprove" data-bs-toggle="tab" role="tab" href="#hometab-dropdown" aria-selected="false" tabindex="-1">
+                                            <i class="ri-check-double-line label-btn-icon me-2"></i>
+                                            Aprovar
+                                        </a> 
+                                    </li>
+                                    <li class="nav-item " role="presentation"> 
+                                        <a id="btnReprove" class="nav-link label-btn btn btnReprove">
+                                            <i class="ri-arrow-go-back-line label-btn-icon me-2"></i>
+                                            Reprovar
+                                        </a> 
+                                        
+                                    </li>
+                                    <li class="nav-item " role="presentation"> 
+                                        <a  class="nav-link label-btn btn btnFinalize">
+                                            <i class="ri-trophy-line label-btn-icon me-2"></i>
+                                            Finalizar
+                                        </a> 
+                                        
+                                    </li>
+                                    <li class="nav-item " role="presentation"> 
+                                        <a  class="nav-link label-btn btn btnReset">
+                                            <i class="ri-reset-left-line label-btn-icon me-2"></i>
+                                            Restaurar
+                                        </a> 
+                                        
+                                    </li>
+                                    
                                 </ul>
                             </div>
                             
                             <div class="card-header justify-content-between">
                                 <div class="card-title"> Ocorrência <span id="referenceOccurrence"></span> </div>
+                                <div class="d-flex selectStatus">
+                                   
+                                    <select name="status_occurrence" class="form-input">
+                                    </select>
+                                </div>
                             </div>
                             
                             <div class="card-body default">

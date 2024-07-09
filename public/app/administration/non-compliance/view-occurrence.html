@@ -567,11 +567,21 @@
                                     </li>
                                     <li class="nav-item " role="presentation"> 
                                         <a  class="nav-link label-btn btn btnReset">
-                                            <i class="ri-reset-left-line label-btn-icon me-2"></i>
+                                            <i class="ri-refresh-line label-btn-icon me-2"></i>
                                             Restaurar
                                         </a> 
                                         
                                     </li>
+                                    <li class="nav-item " role="presentation"> 
+                                        <a  class="nav-link label-btn btn" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                            <i class="ri-chat-history-line label-btn-icon me-2"></i>
+                                            Histórico
+                                        </a> 
+                                        
+                                    </li>
+
+
+
                                     
                                 </ul>
                             </div>
@@ -939,6 +949,20 @@
                         </div>
                     </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel1" aria-modal="true" role="dialog">
+            <div class="offcanvas-header border-bottom border-block-end-dashed">
+                <h5 class="offcanvas-title" id="offcanvasRightLabel1">Histórico </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body p-0">
+                <div>
+                    <ul class="list-group list-group-flush mb-0 bodyHistory">
+                    
+                    </ul>
                 </div>
             </div>
         </div>

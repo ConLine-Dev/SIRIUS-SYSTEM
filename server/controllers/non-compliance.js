@@ -37,7 +37,7 @@ const non_compliance = {
             occurrences o
         JOIN 
             occurrences_type ot ON o.type_id = ot.id
-        WHERE o.status = 0`)
+        WHERE o.status != 32`)
 
 
 
@@ -248,10 +248,21 @@ const non_compliance = {
         return insertOccurrence
 
     },
-    changeBlock: async function(body){
-        const {type,prop, id} = body
+    getHistory: async function(id){
+        const history = await executeQuery(`SELECT * FROM occurrences_history oh
+            JOIN collaborators clt ON clt.id = oh.collaborator_id
+            WHERE oh.occurrence_id = ${id}`)
 
+        return history;
+    },
+    changeBlock: async function(body){
+        const {type,prop, id, obs, userId} = body
+        const date = new Date()
         const occurrence = await executeQuery(`UPDATE occurrences SET ${prop} = ${type} WHERE (id = ${id})`)
+
+        await executeQuery(`INSERT INTO occurrences_history 
+        (occurrence_id, collaborator_id, body, create_at) VALUES (?, ?, ?, ?)`, [id, userId, obs, date])
+        
 
         return occurrence;
     },

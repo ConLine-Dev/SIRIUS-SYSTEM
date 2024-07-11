@@ -2,6 +2,23 @@ body{
     min-height: auto !important;
 }
 
+.headerButtons{
+    padding-bottom: 8px !important;
+    z-index: 150;
+    position: fixed !important;
+    top: -10px !important;
+    width: 100%;
+    color: var(--default-text-color);
+    background-color: var(--custom-white) !important;
+    padding: 1rem 1.25rem;
+    border-block-end: 3px solid var(--default-border);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .25rem;
+}
+
+
 #loader2{
     position: fixed;
     top: 0;
@@ -27,6 +44,11 @@ body{
 }
 
 
+.inactive{
+    display: none;
+}
+
 .bodyWindows{
+    margin-top: 60px;
     margin-bottom: -21px !important;
 }

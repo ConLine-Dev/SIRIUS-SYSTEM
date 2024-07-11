@@ -62,7 +62,7 @@ async function getAllStatus() {
         },
         {
             id: 2,
-            name: 'Aprovado - Libera Preenchimento 2ª etapa'
+            name: 'Aprovado - Liberado Preenchimento 2ª etapa'
         },
         {
             id: 3,
@@ -74,7 +74,7 @@ async function getAllStatus() {
         },
         {
             id: 5,
-            name: 'Aprovado 2ª etapa - Finalizado'
+            name: 'Finalizado'
         },
        
     ]
@@ -373,14 +373,13 @@ async function loadOccurence(occurrence) {
 
 
 
-    await loadHistory(occurrence.id)
+    await loadHistory(idOccurrence)
 }
 
 /**
  * Função assíncrona para carregar o historico da ocorrencia.
  */
 async function loadHistory(id){
-    console.log(id)
     const history = await makeRequest(`/api/non-compliance/getHistory`, 'POST', { id:id });
 
     let historyText = '';
@@ -388,20 +387,28 @@ async function loadHistory(id){
         const element = history[index];
         const name = await formatarNome(element.name+' '+element.family_name);
 
-        const date = new Date(element.create_at)
+        const date = new Date(element.create_at);
         const year = date.getFullYear(); // Obtém o ano
         const month = String(date.getMonth() + 1).padStart(2, '0'); // Obtém o mês (0-indexado) e adiciona um zero à esquerda se necessário
-        const day = String(date.getDate()).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0'); // Obtém o dia e adiciona um zero à esquerda se necessário
+        const hours = String(date.getHours()).padStart(2, '0'); // Obtém a hora e adiciona um zero à esquerda se necessário
+        const minutes = String(date.getMinutes()).padStart(2, '0'); // Obtém os minutos e adiciona um zero à esquerda se necessário
+        const seconds = String(date.getSeconds()).padStart(2, '0'); // Obtém os segundos e adiciona um zero à esquerda se necessário
+
+        const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+
+
         historyText += `<li class="list-group-item">
                             <div class="d-flex align-items-center">
                                 <div class="me-2"> <img src="https://cdn.conlinebr.com.br/colaboradores/${element.id_headcargo}" class="avatar avatar-md bg-primary avatar-rounded" alt=""> </div>
                                 <div class="flex-fill">
                                     <p class="fw-semibold mb-0">${name}
-                                        <span class="badge bg-light text-muted float-end">${year}-${month}-${day}</span>
+                                        <span class="badge bg-light text-muted float-end">${formattedDate}</span>
                                     </p>
                                     <span class="fs-12 text-muted">
                                         <!-- <i class="ri-time-line align-middle me-1 d-inline-block"></i> -->
-                                        1ª etapa aprovada
+                                        ${element.body}
                                     </span> 
                                     </div>
                             </div>
@@ -433,6 +440,12 @@ async function formatarNome(nome) {
     return palavrasFormatadas.join(" "); // Junta as palavras formatadas em uma string
 }
 
+
+/**
+ * Função para formatar a data.
+ * @param {string} dateString - Data a ser formatado
+ * @returns {string} - Data formatada
+ */
 async function formatDate(dateString) {
     const date = new Date(dateString)
     const year = date.getFullYear(); // Obtém o ano
@@ -511,6 +524,7 @@ async function headerManagement(occurrence){
 
         
     }else{
+        
         // SE FIZER PARTE DO DEPARTAMENTO QUALIDADE 
 
         document.querySelector('.btnAprove').classList.add('disabled')
@@ -544,7 +558,7 @@ async function headerManagement(occurrence){
 
     }
     
-
+    await loadHistory(idOccurrence)
 }
 
 /**
@@ -554,9 +568,11 @@ async function controlBlock(){
     const block1Etapa = document.querySelector('.block1Etapa');
     block1Etapa.addEventListener('click', async function(e){
         e.preventDefault();
-
+        const users = await getInfosLogin();
         const type = this.getAttribute('type')
+        let obs = ''
         if(type == 1){
+            obs = 'Bloqueado 1° etapa'
             document.querySelector('.block1Etapa').textContent = 'Desbloquear 1° etapa'
             document.querySelector('.block1Etapa').setAttribute('type', '0')
 
@@ -576,6 +592,7 @@ async function controlBlock(){
             sAllTypes.disable();
             sAllResponsible.disable();
         }else{
+            obs = 'Desbloqueado 1° etapa'
             document.querySelector('.block1Etapa').textContent = 'Bloquear 1° etapa'
             document.querySelector('.block1Etapa').setAttribute('type', '1')
 
@@ -596,7 +613,7 @@ async function controlBlock(){
             sAllResponsible.enable();
         }
 
-        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:type, prop:'editing', id:idOccurrence });
+        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:type, prop:'editing', id:idOccurrence, obs:obs, userId:users.system_collaborator_id });
         
     
        
@@ -607,9 +624,11 @@ async function controlBlock(){
     const block2Etapa = document.querySelector('.block2Etapa');
     block2Etapa.addEventListener('click', async function(e){
         e.preventDefault();
-
+        const users = await getInfosLogin();
         const type = this.getAttribute('type')
+        let obs = ''
         if(type == 1){
+            obs = 'Bloqueado 2° etapa'
             document.querySelector('.block2Etapa').textContent = 'Desbloquear 2° etapa'
             document.querySelector('.block2Etapa').setAttribute('type', '0')
 
@@ -624,6 +643,7 @@ async function controlBlock(){
                 element.setAttribute('disabled', true);
             });
         }else{
+            obs = 'Desbloqueado 2° etapa'
             document.querySelector('.block2Etapa').textContent = 'Bloquear 2° etapa'
             document.querySelector('.block2Etapa').setAttribute('type', '1')
 
@@ -639,7 +659,8 @@ async function controlBlock(){
             });
         }
 
-        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:type, prop:'second_part', id:idOccurrence });
+        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:type, prop:'second_part', id:idOccurrence, obs:obs, userId:users.system_collaborator_id });
+
 
     })
 }
@@ -671,7 +692,9 @@ async function controlButtons(){
 
         sAllStatus.setChoiceByValue(numberType.toString());
 
+        infoOccurence.status = numberType
         await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:numberType, prop:'status', id:idOccurrence, obs:obs, userId:users.system_collaborator_id });
+        await headerManagement(infoOccurence)
     })
 
 
@@ -695,7 +718,9 @@ async function controlButtons(){
         }
         
         sAllStatus.setChoiceByValue(numberType.toString());
+        infoOccurence.status = numberType
         await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:numberType, prop:'status', id:idOccurrence, obs:obs, userId:users.system_collaborator_id  });
+        await headerManagement(infoOccurence)
     })
 
     const btnFinalize = document.querySelector('.btnFinalize');
@@ -708,8 +733,12 @@ async function controlButtons(){
 
        
         sAllStatus.setChoiceByValue('5');
-
-        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:5, prop:'status', id:idOccurrence, obs:'Finalizado - Aprovado 2ª etapa', userId:users.system_collaborator_id  });
+        infoOccurence.status = 5
+        
+        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
+        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Bloqueado 2º etapa', userId:users.system_collaborator_id  });
+        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:5, prop:'status', id:idOccurrence, obs:'Finalizado', userId:users.system_collaborator_id  });
+        await headerManagement(infoOccurence)
     })
 
     const btnReset = document.querySelector('.btnReset');
@@ -720,9 +749,13 @@ async function controlButtons(){
         document.querySelector('.btnReprove').classList.add('disabled');
         document.querySelector('.btnFinalize').classList.add('disabled');
 
-        sAllStatus.setChoiceByValue('1');
-
-        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'status', id:idOccurrence, obs:'Restaurado', userId:users.system_collaborator_id  });
+        sAllStatus.setChoiceByValue('0');
+        infoOccurence.status = 0
+        
+        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'editing', id:idOccurrence, obs:'Desbloqueado 1º etapa', userId:users.system_collaborator_id  });
+        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Bloqueado 2º etapa', userId:users.system_collaborator_id  });
+        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'status', id:idOccurrence, obs:'Restaurado', userId:users.system_collaborator_id  });
+        await headerManagement(infoOccurence)
     })
 
 

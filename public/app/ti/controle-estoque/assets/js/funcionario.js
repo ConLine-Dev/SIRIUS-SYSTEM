@@ -37,7 +37,7 @@ async function sales_cards(collaborator_id, data) {
                                 <div class="mb-4 folder-svg-container d-flex flex-wrap justify-content-center align-items-top">
                                     <div>
                                         <div class="dropdown">
-                                        <button class="btn-primary btn" style="margin-top: 50%;">+</button>
+                                        <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#add-product" style="margin-top: 50%;">+</button>
                                         </div>
                                     </div>
                                 </div>   

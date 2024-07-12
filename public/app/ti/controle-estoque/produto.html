@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Colaboradores</title>
+    <title>Produtos</title>
     <meta name="Description" content="Controle de chamados & projetos TI">
     <meta name="Author" content="ConLine">
 
@@ -54,20 +54,47 @@
                                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                                     <div class="row kanban-board">
                                         <div class="col-6 d-grid align-items-top p-3">
-                                            <button class="btn-primary btn" style="margin-top: 50%;">+</button>
+                                            <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#add-product" style="margin-top: 50%;">
+                                                <i class="ri-add-circle-line fs-16 align-middle me-1"></i>
+                                            </button>
                                         </div>
-
                                     </div>
-
                                 </div>
-
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+<!--MODAL CADASTRO PRODUTO COLABORADORES-->
+    <div class="modal fade" id="add-product" tabindex="-1" arial-modal="true" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Cadastro Produto</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="ProductForm">
+                    <div class="modal-body px-3">
+                        <div class="row gy-2">
+                            <div>
+                                <div class="row" style="align-items: center;">
+                                    <div class="col-7">
+                                        <div class="form-group">
+                                            <label for="nameProduct">Nome Produto</label>
+                                            <input type="text" class="form-control" id="nameProduct" placeholder="Digite o nome do Produto">
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                     </div>
 
-                </div>
+                </form>
 
             </div>
 

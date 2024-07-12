@@ -1,8 +1,6 @@
 // Variáveis globais para gerenciamento de selects com o Choices
 // 's' antes da variável refere-se ao select
-let idOccurrence, infoOccurence,sAllUnits,sAllStatus,sAllOrigins,sAllApproval,sAllResponsible,sAllResponsibleActions,sAllTypes;
-
-
+let idOccurrence, correctiveEvidence, correctiveEvidenceView,effectivenessEvidence, infoOccurence,sAllUnits,sAllStatus,sAllOrigins,sAllApproval,sAllResponsible,sAllResponsibleActions,sAllTypes;
 
 
 /**
@@ -251,11 +249,21 @@ async function getAllResponsible() {
         noChoicesText: 'Não há opções disponíveis',
     });
 
-    sAllResponsibleActions = new Choices('select[name="Preventive_responsible"]', {
+
+    sAllResponsibleActions = new Choices('select[name="effectiveness_responsible"]', {
         choices: listaDeOpcoes,
         shouldSort: false,
         noChoicesText: 'Não há opções disponíveis',
     });
+
+
+    sAllResponsibleActions = new Choices('select[name="action_responsible_view"]', {
+        choices: listaDeOpcoes,
+        shouldSort: false,
+        noChoicesText: 'Não há opções disponíveis',
+    });
+
+    
 }
 
 /**
@@ -279,6 +287,7 @@ async function getOccurenceInfo() {
 async function loadOccurence(occurrence) {
 
     sAllStatus.disable();
+    console.log(occurrence)
 
     idOccurrence = occurrence.id
     // Preenche os campos de referência da ocorrência
@@ -286,6 +295,15 @@ async function loadOccurence(occurrence) {
     document.querySelector('input[name="occurrence"]').value = occurrence.title;
     document.querySelector('textarea[name="description"]').value = occurrence.description;
     document.querySelector('textarea[name="correction"]').value = occurrence.correction;
+    document.querySelector('input[name="occurrence_id"]').value = occurrence.id;
+
+    document.querySelector('textarea[name="manpower"]').value = occurrence.manpower;
+    document.querySelector('textarea[name="method"]').value = occurrence.method;
+    document.querySelector('textarea[name="material"]').value = occurrence.material;
+    document.querySelector('textarea[name="environment"]').value = occurrence.environment;
+    document.querySelector('textarea[name="machine"]').value = occurrence.machine;
+    document.querySelector('textarea[name="root_cause"]').value = occurrence.root_cause;
+    
 
     // Define as opções selecionadas nos selects
     sAllOrigins.setChoiceByValue(occurrence.origin_id.toString());
@@ -487,6 +505,12 @@ async function statusManagement(occurrence){
 
 
 
+       
+        // document.querySelector('.btnReset').classList.remove('disabled')
+    }
+
+    
+    if(occurrence.status != 4 && occurrence.status != 2) {
         // Desabilita campos na segunda parte da ocorrência
         const InputDefault = document.querySelectorAll('.statusApproval input');
         InputDefault.forEach(element => {
@@ -498,7 +522,6 @@ async function statusManagement(occurrence){
             element.setAttribute('disabled', true);
         });
 
-        // document.querySelector('.btnReset').classList.remove('disabled')
     }
 
     if(occurrence.status == 3){
@@ -547,6 +570,7 @@ async function headerManagement(occurrence){
         }else if(occurrence.status == 3){
             // 3 = Finalizar = Finalizado
             document.querySelector('.btnAprove').classList.remove('disabled')
+            document.querySelector('.btnReprove').classList.remove('disabled')
         }else if(occurrence.status == 4){
             // 4 = Restaurado = Restaurado
             document.querySelector('.btnFinalize').classList.remove('disabled')
@@ -572,7 +596,7 @@ async function controlBlock(){
         const type = this.getAttribute('type')
         let obs = ''
         if(type == 1){
-            obs = 'Bloqueado 1° etapa'
+            obs = 'Bloqueado 1° etapa';
             document.querySelector('.block1Etapa').textContent = 'Desbloquear 1° etapa'
             document.querySelector('.block1Etapa').setAttribute('type', '0')
 
@@ -683,17 +707,23 @@ async function controlButtons(){
         if(infoOccurence.status == 0){
             numberType = 2
             obs = 'Aprovado - Liberado Preenchimento 2ª etapa'
+            await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
+            await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'second_part', id:idOccurrence, obs:'Desbloqueado 2º etapa', userId:users.system_collaborator_id  });
         }
 
         if(infoOccurence.status == 3){
             numberType = 5
             obs = 'Aprovado 2ª etapa - Finalizado'
+            await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
+            await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Desbloqueado 2º etapa', userId:users.system_collaborator_id  });
         }
 
         sAllStatus.setChoiceByValue(numberType.toString());
 
         infoOccurence.status = numberType
         await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:numberType, prop:'status', id:idOccurrence, obs:obs, userId:users.system_collaborator_id });
+
+
         await headerManagement(infoOccurence)
     })
 
@@ -710,11 +740,13 @@ async function controlButtons(){
         if(infoOccurence.status == 0){
             numberType = 1
             obs = 'Reprovado - Aguardando Ajuste 1ª etapa'
+            await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'editing', id:idOccurrence, obs:'Desbloqueado 1º etapa', userId:users.system_collaborator_id  });
         }
 
         if(infoOccurence.status == 3){
             numberType = 4
             obs = 'Reprovado - Aguardando Ajuste 2ª etapa'
+            await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'second_part', id:idOccurrence, obs:'Desbloqueado 2º etapa', userId:users.system_collaborator_id  });
         }
         
         sAllStatus.setChoiceByValue(numberType.toString());
@@ -762,6 +794,326 @@ async function controlButtons(){
     
 }
 
+
+/**
+ * Função assíncrona para adicionar ação
+ */
+async function addAction() {
+    const actionResponsible = document.querySelector('[name=action_responsible]').value;
+    const actionExpiration = document.querySelector('[name=action_expiration]').value;
+    const actionDescription = document.querySelector('[name=action_description]').value;
+    const occurrence_id = document.querySelector('[name=occurrence_id]').value;
+
+    
+    const evidenceFiles = correctiveEvidence.getFiles();
+
+    const formData = new FormData();
+    formData.append('action_responsible', actionResponsible);
+    formData.append('action_expiration', actionExpiration);
+    formData.append('action_description', actionDescription);
+    formData.append('occurrence_id', occurrence_id);
+
+    for (let i = 0; i < evidenceFiles.length; i++) {
+        const file = evidenceFiles[i].file;
+        formData.append('evidence_files', file);
+    }
+  
+
+    const response = await fetch('/api/non-compliance/add-action', {
+        method: 'POST',
+        body: formData
+    });
+
+    const result = await response.json();
+    if (result.success) {
+        await table_corrective()
+        alert('Ação adicionada com sucesso!');
+        // Limpar o modal ou fechar
+    } else {
+        alert('Erro ao adicionar ação.');
+    }
+}
+
+async function getValuesOccurrence(e) {
+    
+    const elements = document.querySelectorAll('.form-input[name]');
+
+    const formBody = {};
+
+    for (let index = 0; index < elements.length; index++) {
+        const item = elements[index];
+        // if(item.value.trim() == '' || item.value.trim() == 0){
+        //     console.log('campos invalidos')
+        //     return false;
+        // }
+        
+        // Adicionando dinamicamente o nome e o valor ao objeto
+        // REVER AMANHA E REFAZER O IF
+        formBody[item.getAttribute('name')] = (item.getAttribute('name') == 'occurrence_responsible' || item.getAttribute('name') == 'types') ? sAllResponsible.getValue(true) : item.value
+        
+    }
+
+    console.log(formBody)
+
+    const sendToServer = await makeRequest(`/api/non-compliance/saveOccurence`, 'POST', {
+        formBody
+    });
+    
+
+    
+    // window.close()
+
+
+}
+
+async function viewActionCorrective(id) {
+    $('#modalActionsView').modal('show');
+    let action = await makeRequest(`/api/non-compliance/get-action/${id}`);
+    action = action.action;
+    console.log(action);
+
+    document.querySelector('[name=action_responsible_view]').value = action.responsible_id;
+    document.querySelector('[name=action_description_view]').value = action.action;
+
+    const date_occurrence = new Date(action.deadline);
+    const year = date_occurrence.getFullYear();
+    const month = ('0' + (date_occurrence.getMonth() + 1)).slice(-2);
+    const day = ('0' + date_occurrence.getDate()).slice(-2);
+    document.querySelector('[name=action_expiration_view]').value = `${year}-${month}-${day}`;
+
+    const evidence = action.evidence;
+
+    const mimeToIcon = {
+        'image/png': '../../assets/images/media/files/image.png',
+        'image/jpeg': '../../assets/images/media/files/image.png',
+        'application/pdf': '../../assets/images/media/files/pdf.png',
+        'application/msword': '../../assets/images/media/files/doc.png',
+        'application/vnd.ms-excel': '../../assets/images/media/files/xls.png',
+        'text/csv': '../../assets/images/media/files/csv-file.png',
+        'video/mp4': '../../assets/images/media/files/video.png',
+        'video/mpeg': '../../assets/images/media/files/video.png',
+        // Adicione mais mapeamentos conforme necessário
+    };
+
+    console.log(evidence);
+
+    let evidenceHTML = '';
+    for (let index = 0; index < evidence.length; index++) {
+        const element = evidence[index];
+        console.log(element);
+
+        let icon;
+        if (mimeToIcon[element.mimetype]) {
+            icon = mimeToIcon[element.mimetype];
+        } else {
+            icon = '../../assets/images/media/files/all.png'; // Ícone padrão para tipos de arquivo desconhecidos
+        }
+
+        evidenceHTML += `<li class="list-group-item">
+                            <div class="d-flex align-items-center flex-wrap gap-2">
+                                <div class="lh-1">
+                                    <span class="avatar avatar-rounded p-2 bg-light">
+                                        <img src="${icon}" alt="">
+                                    </span>
+                                </div>
+                                <div class="flex-fill">
+                                    <a href="javascript:void(0);">
+                                        <span class="d-block fw-semibold" style="max-width: 15ch;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">
+                                            ${element.originalname}
+                                        </span>
+                                    </a>
+                                    <span class="d-block text-muted fs-12 fw-normal">0.45MB</span>
+                                </div>
+                                <div class="btn-list">
+                                    <a href="/api/non-compliance/download-evidence/${element.filename}" class="btn btn-sm btn-icon btn-info-light btn-wave waves-effect waves-light">
+                                        <i class="ri-download-cloud-2-line"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-icon btn-danger-light btn-wave waves-effect waves-light btnDeleteActionEvidence" data-filename="${element.filename}" data-actionid="${id}">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </li>`;
+    }
+
+    document.querySelector('.listAllFilesActions').innerHTML = evidenceHTML;
+
+    // Adicionar evento de clique aos botões de exclusão
+    const deleteButtons = document.querySelectorAll('.listAllFilesActions .btnDeleteActionEvidence');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', async (event) => {
+            const filename = event.currentTarget.getAttribute('data-filename');
+            const actionId = event.currentTarget.getAttribute('data-actionid');
+            await deleteEvidence(actionId, filename);
+            // Atualizar a lista de evidências após a exclusão
+            viewActionCorrective(id);
+        });
+    });
+}
+
+async function dblClickOnActions(){
+    const rowTableOccurence = document.querySelectorAll(`#ActionsByOccurrence_table tbody tr`);
+
+    for (let index = 0; index < rowTableOccurence.length; index++) {
+        const element = rowTableOccurence[index];
+
+        // Define a função de callback do evento
+        const handleDoubleClick = async function(e) {
+            e.preventDefault();
+            const id = this.getAttribute('action-id');
+           
+            await viewActionCorrective(id)
+        };
+
+        // Remove event listener se já existir
+        element.removeEventListener('dblclick', handleDoubleClick);
+        // Adiciona event listener
+        element.addEventListener('dblclick', handleDoubleClick);
+    }
+}
+
+async function deleteEvidence(actionId, filename) {
+    try {
+        const response = await fetch(`/api/non-compliance/delete-evidence/${actionId}/${filename}`, {
+            method: 'DELETE',
+        });
+        const result = await response.json();
+        if (result.success) {
+            console.log('Evidência deletada com sucesso.');
+        } else {
+            console.error('Erro ao deletar a evidência:', result.message);
+        }
+    } catch (error) {
+        console.error('Erro ao deletar a evidência:', error);
+    }
+}
+
+async function events(){
+    /* filepond */
+   FilePond.registerPlugin(
+        FilePondPluginImagePreview,
+        FilePondPluginImageExifOrientation,
+        FilePondPluginFileValidateSize,
+        FilePondPluginFileEncode,
+        FilePondPluginImageEdit,
+        FilePondPluginFileValidateType,
+        FilePondPluginImageCrop,
+        FilePondPluginImageResize,
+        FilePondPluginImageTransform
+    );
+
+    /* multiple upload */
+    const ElementEvidence = document.querySelector('.multiple-filepond-Evidence');
+
+    // Criar a instância do FilePond com a opção labelIdle alterada correctiveEvidence
+    correctiveEvidence = FilePond.create(ElementEvidence, {
+        labelIdle: 'Arraste e solte seus arquivos aqui ou <span class="filepond--label-action">Procure</span>'
+    });
+
+    const MultipleEffectiveness = document.querySelector('.multiple-filepond-Effectiveness');
+    // Criar a instância do FilePond com a opção labelIdle alterada MultipleEffectiveness
+    effectivenessEvidence = FilePond.create(MultipleEffectiveness, {
+        labelIdle: 'Arraste e solte seus arquivos aqui ou <span class="filepond--label-action">Procure</span>'
+    });
+
+
+    const MultipleEffectivenessView = document.querySelector('.multiple-filepond-Evidence-view');
+    // Criar a instância do FilePond com a opção labelIdle alterada MultipleEffectiveness
+    correctiveEvidenceView = FilePond.create(MultipleEffectivenessView, {
+        labelIdle: 'Arraste e solte seus arquivos aqui ou <span class="filepond--label-action">Procure</span>'
+    });
+
+
+}
+
+async function table_corrective(){
+     // Fazer a requisição à API
+     const dados = await makeRequest(`/api/non-compliance/get-actions/${idOccurrence}`);
+
+     // Destruir a tabela existente, se houver
+     if ($.fn.DataTable.isDataTable('#ActionsByOccurrence_table')) {
+         $('#ActionsByOccurrence_table').DataTable().destroy();
+     }
+ 
+     // Criar a nova tabela com os dados da API
+     $('#ActionsByOccurrence_table').DataTable({
+         dom: 'frtip',
+         pageLength: 5,
+         order: [[0, 'desc']],
+         data: dados,
+         pageInfo: false,
+         bInfo: false,
+         columns: [
+             { data: 'action' },
+             { data: 'responsible' },
+             { data: 'deadline' },
+             { data: 'status' },
+             { data: 'verifyEvidence' },
+             // { data: 'action' }
+             // Adicione mais colunas conforme necessário
+         ],
+         buttons: [
+             'excel', 'pdf'
+         ],
+         language: {
+             url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
+             searchPlaceholder: 'Pesquisar...',
+         },
+         "rowCallback": function(row, data, index) {
+            // Adiciona um atributo id a cada linha
+            $(row).attr('action-id', data.id);
+        },
+         initComplete: function () {
+             requestAnimationFrame(async () => {
+                 await dblClickOnActions()
+             });
+         },
+     });
+}
+
+
+/**
+ * Função assíncrona para Avaliação De Eficácia
+ */
+async function addEffectiveness() {
+    const actionResponsible = document.querySelector('[name=effectiveness_responsible]').value;
+    const actionExpiration = document.querySelector('[name=effectiveness_expiration]').value;
+    const actionDescription = document.querySelector('[name=effectiveness_description]').value;
+    const occurrence_id = document.querySelector('[name=occurrence_id]').value;
+
+    
+    const evidenceFiles = effectivenessEvidence.getFiles();
+
+    const formData = new FormData();
+    formData.append('effectiveness_responsible', actionResponsible);
+    formData.append('effectiveness_expiration', actionExpiration);
+    formData.append('effectiveness_description', actionDescription);
+    formData.append('occurrence_id', occurrence_id);
+
+    for (let i = 0; i < evidenceFiles.length; i++) {
+        const file = evidenceFiles[i].file;
+        formData.append('evidence_files', file);
+    }
+  
+
+    const response = await fetch('/api/non-compliance/add-effectiveness', {
+        method: 'POST',
+        body: formData
+    });
+
+    const result = await response.json();
+    if (result.success) {
+        // await table_corrective()
+        alert('Ação adicionada com sucesso!');
+        // Limpar o modal ou fechar
+    } else {
+        alert('Erro ao adicionar ação.');
+    }
+}
+
+
+
+
 // Carrega as informações iniciais e configura os selects quando o DOM estiver pronto
 window.addEventListener("load", async () => {
     console.time(`A página "${document.title}" carregou em`);
@@ -772,11 +1124,11 @@ window.addEventListener("load", async () => {
     await getAllApproval();
     await getAllResponsible();
     await getAllTypes();
+    await events()
     await getOccurenceInfo();
     await controlBlock();
     await controlButtons();
-    
-    
+    await table_corrective()
 
     document.querySelector('#loader2').classList.add('d-none');
     console.timeEnd(`A página "${document.title}" carregou em`);

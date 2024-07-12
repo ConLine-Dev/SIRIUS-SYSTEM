@@ -2,7 +2,7 @@
 
 .headerButtons{
     padding-bottom: 8px !important;
-    z-index: 150;
+    z-index: 100;
     position: fixed !important;
     top: -10px !important;
     width: 100%;
@@ -23,7 +23,11 @@
     /* border-color: light-dark(rgba(118, 118, 118, 0.3), rgba(195, 195, 195, 0.3)) !important; */
 }
 
-
+.listFiles{
+    max-height: 347px;
+    min-height: 347px;
+    overflow-y: scroll !important;
+}
 
 
 .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
@@ -88,6 +92,11 @@
 }
 .selectStatus .choices__list{
     min-width: 221px;
+}
+
+.avatar {
+    width: auto;
+    height: 33px;
 }
 
 

@@ -525,7 +525,7 @@
                             <div class=" justify-content-between headerButtons">
                                 <ul class="nav nav-tabs border-0" role="tablist">
                                     <li class="nav-item " role="presentation"> 
-                                        <a class="nav-link label-btn btn " data-bs-toggle="tab" role="tab" href="#hometab-dropdown" aria-selected="false" tabindex="-1">
+                                        <a class="nav-link label-btn btn " onclick="getValuesOccurrence(this)" data-bs-toggle="tab" role="tab" href="#hometab-dropdown" aria-selected="false" tabindex="-1">
                                             <i class="ri-save-3-line label-btn-icon me-2"></i>
                                             Salvar
                                         </a> 
@@ -600,6 +600,7 @@
                                     <div class="col-xl-9 col-lg-9 col-md-9 col-sm-12"> 
                                         <label for="input-label" class="form-label">Ocorrência</label> 
                                         <input type="text" name="occurrence" class="form-control form-input"> 
+                                        <input type="text" name="occurrence_id" style="display: none;" class="form-control form-input"> 
                                     </div>
                                   
                                     <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
@@ -675,7 +676,7 @@
                                         <div class="col-12"> 
                                             <label for="input-label" class="form-label">Mão de obra</label> <br>
                                             <label for="input-label" class="form-label fs-11">A não conformidade tem relação com a falta de: treinamento, qualificação, formação, experiência,  motivação, atenção, disciplina, dedicação,  relacionamento, etc?</label> 
-                                            <textarea name="dsadsadsads" class="form-control form-input"cols="30" rows="5"></textarea>
+                                            <textarea name="manpower" class="form-control form-input"cols="30" rows="5"></textarea>
                                       
                                         </div>
                                     </div>
@@ -684,7 +685,7 @@
                                         <div class="col-12"> 
                                             <label for="input-label" class="form-label">Método</label> <br>
                                             <label for="input-label" class="form-label fs-11"> A não conformidade tem relação com a falta de: especificação, procedimentos, instruções, desenhos, esquemas, etc?</label> 
-                                            <textarea name="dsadsadsads" class="form-control form-input"cols="30" rows="5"></textarea>
+                                            <textarea name="method" class="form-control form-input"cols="30" rows="5"></textarea>
                                       
                                         </div>
                                     </div>
@@ -693,7 +694,7 @@
                                         <div class="col-12"> 
                                             <label for="input-label" class="form-label">Material</label> <br>
                                             <label for="input-label" class="form-label fs-11">A não conformidade tem relação com a falta de: dimensão, composição, propriedades, mecânicas,  estocagem,  embalagem, transporte, etc?</label> 
-                                            <textarea name="dsadsadsads" class="form-control form-input"cols="30" rows="5"></textarea>
+                                            <textarea name="material" class="form-control form-input"cols="30" rows="5"></textarea>
                                       
                                         </div>
                                     </div>
@@ -702,7 +703,7 @@
                                         <div class="col-12">
                                             <label for="input-label" class="form-label">Meio Ambiente</label> <br>
                                             <label for="input-label" class="form-label fs-11">A não conformidade tem relação com a falta de: espaço, temperatura, sazonalidade, iluminação, desorganização ambiente,  etc?</label> 
-                                            <textarea name="dsadsadsads" class="form-input form-control" cols="30" rows="5"></textarea>
+                                            <textarea name="environment" class="form-input form-control" cols="30" rows="5"></textarea>
                                         </div>
                                     </div>
                                     <br>
@@ -710,7 +711,7 @@
                                         <div class="col-12">
                                             <label for="input-label" class="form-label">Máquina</label> <br>
                                             <label for="input-label" class="form-label fs-11">A não conformidade tem relação com a falta de: equipamentos, dispositivos, ferramentas, pressão,  precisão,  lubrificação, vazamentos,  manutenção, ajuste, instrumentação, fixação, velocidade, limpeza, etc?</label> 
-                                            <textarea name="dsadsadsads" class="form-input form-control" cols="30" rows="5"></textarea>
+                                            <textarea name="machine" class="form-input form-control" cols="30" rows="5"></textarea>
                                         </div>
                                     </div>
                                     <br>
@@ -718,7 +719,7 @@
                                         <div class="col-12">
                                             <label for="input-label" class="form-label">Causa raiz</label> <br>
     
-                                            <textarea name="dsadsadsads" class="form-input form-control" cols="30" rows="5"></textarea>
+                                            <textarea name="root_cause" class="form-input form-control" cols="30" rows="5"></textarea>
                                         </div>
                                     </div>
                                     
@@ -741,10 +742,9 @@
                                     <div class="table-responsive">
                                             <div class="row">
                                                 <div class="col-sm-12">
-                                                    <table id="table_corrective" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                                    <table id="ActionsByOccurrence_table" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
                                                         <thead>
                                                             <tr>
-                                                                <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 70px;">N°</th>
                                                                 <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Ação</th>
                                                                 <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Responsável</th>
                                                                 <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 110px;">Prazo</th>
@@ -780,7 +780,7 @@
                                 <div class="card-header justify-content-between">
                                     <div class="card-title"> Avaliação De Eficácia (só irá aparecer após aprovação da qualidade)</div>
                                     <div class="d-flex">
-                                        <button class="btn btn-sm btn-primary btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#modalActions"><i class="ri-add-line fw-semibold align-middle me-1"></i> Adicionar <b>avaliação de eficácia</b></button>
+                                        <button class="btn btn-sm btn-primary btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#modalEffectiveness"><i class="ri-add-line fw-semibold align-middle me-1"></i> Adicionar <b>avaliação de eficácia</b></button>
                                         <!-- Start::add task modal -->
                                         <!-- End::add task modal -->
                                     </div>
@@ -848,7 +848,7 @@
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar Ação Imediata</h6>
+                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar Ação Corretiva</h6>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body"> 
@@ -871,6 +871,12 @@
                             <label for="input-label" class="form-label">Ação</label> 
                             <textarea class="form-control" name="action_description" cols="30" rows="10"></textarea>
                         </div> 
+                        <hr>
+                        <label for="input-label" class="form-label">Evidêncías</label> 
+                        <div class="col-12"> 
+                            
+                           <div class="multiple-filepond-Evidence" multiple></div>
+                        </div> 
                       
                        </div>
                        <br>
@@ -885,7 +891,124 @@
             </div>
         </div>
 
-        <div class="modal fade" id="modalPreventive" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
+        <div class="modal fade" id="modalActionsView" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        
+                            <h6 class="modal-title" id="exampleModalXlLabel">Ação Corretiva</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                       
+                    </div>
+                    <div class="modal-body"> 
+                       <div class="row">
+                            <div class="col-8">
+                                    <div class="row">
+                                        <div class="col-6"> 
+                                            <label for="input-label" class="form-label">Responsável</label> 
+                                            <select name="action_responsible_view"></select>
+                                        </div>  
+                                        <div class="col-3"> 
+                                        
+                                        </div>  
+                                        <div class="col-3"> 
+                                            <label for="input-label" class="form-label">Prazo</label> 
+                                            <input type="date" class="form-control" name="action_expiration_view"> 
+                                        </div>  
+                                </div>  
+                                <br>
+                                <div class="row">
+                                    <div class="col-12"> 
+                                        <label for="input-label" class="form-label">Ação</label> 
+                                        <textarea class="form-control" name="action_description_view" cols="30" rows="10"></textarea>
+                                    </div> 
+                                    
+                                
+                                </div>
+                            
+                            
+                            </div>
+                            <div class="col-4">
+                                <div class="card custom-card overflow-hidden listFiles">
+                                    <label for="input-label" class="form-label">Evidêncías</label> 
+                                    <div class="card-body p-0">
+                                        <ul class="list-group list-group-flush listAllFilesActions">
+                                          
+                                           
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                       
+                       </div>
+                       <div class="row" >
+                        
+                            <label for="input-label" class="form-label">Evidêncías</label>
+                            <div class="col-12">
+                                <div class="multiple-filepond-Evidence-view" multiple></div>
+                            </div>
+                       
+                            <div class="col-12">
+                                <br>
+                                <button style="width: 100%;" class="btn btn-primary" onclick="SaveAction(this)">Cadastrar</button>
+                            </div>
+                       
+                        </div>
+                      
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalEffectiveness" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar Avaliação De Eficácia2</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body"> 
+                       <div class="row">
+                            <div class="col-6"> 
+                                <label for="input-label" class="form-label">Responsável</label> 
+                                <select name="effectiveness_responsible"></select>
+                            </div>  
+                            <div class="col-3"> 
+                               
+                            </div>  
+                            <div class="col-3"> 
+                                <label for="input-label" class="form-label">Prazo</label> 
+                                <input type="date" class="form-control" name="effectiveness_expiration"> 
+                            </div>  
+                       </div>  
+                       <br>
+                       <div class="row">
+                        <div class="col-12"> 
+                            <label for="input-label" class="form-label">Ação</label> 
+                            <textarea class="form-control" name="effectiveness_description" cols="30" rows="10"></textarea>
+                        </div> 
+                        <hr>
+                        <label for="input-label" class="form-label">Evidêncías</label> 
+                        <div class="col-12"> 
+                            
+                           <div class="multiple-filepond-Effectiveness" multiple></div>
+                        </div> 
+                      
+                       </div>
+                       <br>
+                       <div class="row" >
+                        <div class="col-12">
+                            <button style="width: 100%;" class="btn btn-primary" onclick="addEffectiveness(this)">Cadastrar</button>
+
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalEffectiveness2" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -913,6 +1036,12 @@
                             <textarea class="form-control" name="Preventive_description" cols="30" rows="10"></textarea>
                         </div> 
                       
+                        <hr>
+                        <label for="input-label" class="form-label">Evidêncías</label> 
+                        <div class="col-12">
+                            
+                           <div class="multiple-filepond-Effectiveness" multiple></div>
+                        </div> 
                        </div>
                        <br>
                        <div class="row" >

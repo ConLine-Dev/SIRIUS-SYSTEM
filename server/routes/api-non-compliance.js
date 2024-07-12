@@ -264,7 +264,7 @@ module.exports = function(io) {
 
 
 
-    // new
+    // effectiveness
     router.post('/add-effectiveness', upload.array('evidence_files'), async (req, res) => {
         const body = req.body
         try {

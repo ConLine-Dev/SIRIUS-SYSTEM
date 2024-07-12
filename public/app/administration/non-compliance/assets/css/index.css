@@ -31,11 +31,20 @@
 
 
 /* CSS para ocultar apenas o texto "Pesquisar" */
-#occurrences_table_filter label {
+#pending_occurrences_table_filter label {
     font-size: 0;
 }
 
-#occurrences_table_filter label input {
+#pending_occurrences_table_filter label input {
+    margin-bottom: 10px;
+    font-size: initial;
+}
+
+#all_occurrences_table_filter label {
+    font-size: 0;
+}
+
+#all_occurrences_table_filter label input {
     margin-bottom: 10px;
     font-size: initial;
 }

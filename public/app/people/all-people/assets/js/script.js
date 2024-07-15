@@ -133,7 +133,7 @@ async function createSelectPeopleCategory(data) {
     });
 };
 
-// Função para pegar as opções selecionadas do Select
+// Função para pegar as opções selecionadas do Select Categoria da Pessoa
 async function getSelectPeopleCategoryValues() {
     if (selectPeopleCategory && selectPeopleCategory.getValue(true).length === 0) {
        return undefined;
@@ -146,31 +146,186 @@ async function getSelectPeopleCategoryValues() {
     }
 };
 
+// Função que cria o select para selecionar as categorias de pessoas
+let selectPeopleStatus;
+async function createSelectPeopleStatus(data) {
+    // Formate o array para ser usado com o Choices.js
+    const options = data.map(function(element) {
+        return {
+            value: `${element.id}`,
+            label: `${element.name}`,
+        };
+    });
+
+    // verifica se o select ja existe, caso exista destroi
+    if (selectPeopleStatus) {
+        selectPeopleStatus.destroy();
+    }
+
+    // renderiza o select com as opções formatadas
+    selectPeopleStatus = new Choices('#selectPeopleStatus', {
+        choices: options,
+        allowHTML: true,
+        allowSearch: true,
+        shouldSort: false,
+        removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis',
+        noResultsText: 'Não há opções disponíveis'
+    });
+};
+
+// Função para pegar as opções selecionadas do Select Status da Pessoa
+async function getSelectPeopleStatusValues() {
+    if (selectPeopleStatus && selectPeopleStatus.getValue(true).length === 0) {
+       return undefined;
+    } else {
+       // Usar o método getValue() para pegar os valores selecionados
+       const selectedValues = selectPeopleStatus.getValue(true);
+       // Transformar o array em uma string com os valores entre parênteses e separados por virgula
+       const formattedValues = `(${selectedValues.map(value => `${value}`).join(', ')})`
+       return formattedValues;
+    }
+};
+
+// Função que cria o select para selecionar os comerciais
+let selectCommercial;
+async function createSelectCommercial(data) {
+    // Formate o array para ser usado com o Choices.js
+    const options = data.map(function(element) {
+        return {
+            value: `${element.commercial_id}`,
+            label: `${element.commercial}`,
+        };
+    });
+
+    // verifica se o select ja existe, caso exista destroi
+    if (selectCommercial) {
+        selectCommercial.destroy();
+    }
+
+    // renderiza o select com as opções formatadas
+    selectCommercial = new Choices('#selectCommercial', {
+        choices: options,
+        allowHTML: true,
+        allowSearch: true,
+        shouldSort: false,
+        removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis',
+        noResultsText: 'Não há opções disponíveis'
+    });
+};
+
+// Função para pegar as opções selecionadas do Select Comercial
+async function getSelectCommercialValues() {
+    if (selectCommercial && selectCommercial.getValue(true).length === 0) {
+       return undefined;
+    } else {
+       // Usar o método getValue() para pegar os valores selecionados
+       const selectedValues = selectCommercial.getValue(true);
+       // Transformar o array em uma string com os valores entre parênteses e separados por virgula
+       const formattedValues = `(${selectedValues.map(value => `${value}`).join(', ')})`
+       return formattedValues;
+    }
+};
+
+// Função que cria o select para selecionar os funcionarios responsaveis(inside sales)
+let selectCollaboratorResponsable;
+async function createSelectCollaboratorResponsable(data) {
+    // Formate o array para ser usado com o Choices.js
+    const options = data.map(function(element) {
+        return {
+            value: `${element.collaborator_responsable_id}`,
+            label: `${element.collaborator_responsable}`,
+        };
+    });
+
+    // verifica se o select ja existe, caso exista destroi
+    if (selectCollaboratorResponsable) {
+        selectCollaboratorResponsable.destroy();
+    }
+
+    // renderiza o select com as opções formatadas
+    selectCollaboratorResponsable = new Choices('#selectCollaboratorResponsable', {
+        choices: options,
+        allowHTML: true,
+        allowSearch: true,
+        shouldSort: false,
+        removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis',
+        noResultsText: 'Não há opções disponíveis'
+    });
+};
+
+// Função para pegar as opções selecionadas do Select Funcionario Responsavel
+async function getSelectCollaboratorResponsableValues() {
+    if (selectCollaboratorResponsable && selectCollaboratorResponsable.getValue(true).length === 0) {
+       return undefined;
+    } else {
+       // Usar o método getValue() para pegar os valores selecionados
+       const selectedValues = selectCollaboratorResponsable.getValue(true);
+       // Transformar o array em uma string com os valores entre parênteses e separados por virgula
+       const formattedValues = `(${selectedValues.map(value => `${value}`).join(', ')})`
+       return formattedValues;
+    }
+};
+
+// Função que printa as categorias de cada pessoa
+async function listPeopleCategoryRelations(data) {
+    let categoriesHtml = '';
+    for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+        categoriesHtml += `<span class="badge rounded-pill bg-light text-default">${item.category}</span>`
+    };
+
+    return categoriesHtml;
+};
+
 // Função lista todos os colaboradores 
 async function listPeople(data) {
-   const people = document.getElementById('listPeople');
+    const people = document.getElementById('listPeople');
+    let html = '';
+        
+    //Essa funçao faz a busca no banco para puxar todos os colaboradores
+    for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+        const categories = await listPeopleCategoryRelations(item.categories);
 
-   let html = '';
+        let prospectStatus = '';
+        if (item.people.people_status_id === 1) {
+            prospectStatus = `<div class="btn-list float-end"> 
+                                <span class="badge bg-indigo rounded-pill" id="cart-icon-badge">${item.people.people_status}</span>
+                            </div>`
+        } else if (item.people.people_status_id === 3) {
+            prospectStatus = `<div class="btn-list float-end"> 
+                                <span class="badge bg-primary rounded-pill" id="cart-icon-badge">${item.people.people_status}</span>
+                            </div>`
+        }
 
-   //Essa funçao faz a busca no banco para puxar todos os colaboradores
-   for (let i = 0; i < data.length; i++) {
-       const item = data[i];
-       const cnpjCpfFormated = formatCnpjCpfString(item.cnpj_cpf)
+        const cnpjCpfFormated = formatCnpjCpfString(item.people.cnpj_cpf);
 
-       html += `<li class="files-type" data-people-id="${item.id}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="${item.fantasy_name}">
-                    <a href="javascript:void(0)">
-                        <div class="d-flex align-items-center">
-                            <span class="name flex-fill text-nowrap first-name" style="font-weight: bold; color: #000;">${item.fantasy_name}</span>
-                            <span class="name flex-fill text-nowrap second-name" style="font-weight: bold; color: #000; text-align: right;">${cnpjCpfFormated}</span>
-                            <span class="name flex-fill text-nowrap second-name d-none" style="font-weight: bold; color: #000; text-align: right;">${item.cnpj_cpf}</span>
-                            <span class="text-muted fs-12 responsable d-none"></span>
+        html += `<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 shadow-sm list-group-item-action py-3" style="cursor: pointer;" data-people-id="${item.people.id}"> 
+                        <div class="card-body">
+                            ${prospectStatus}
+                            <div class="d-flex mb-3 flex-wrap align-items-center"> 
+                                <div>
+                                    <h5 class="fw-semibold mb-0 d-flex align-items-center">
+                                        <a>${item.people.fantasy_name}</a>
+                                    </h5> 
+                                    <a>Comercial: ${item.people.commercial}</a>
+                                    <br>
+                                    <a>Funcionário Responsável: ${item.people.collaborator_responsable}</a>
+                                </div>
+                            </div>
+                            <div class="popular-tags"> 
+                                ${categories}
+                                <div class="btn-list float-end"> 
+                                    <span>${cnpjCpfFormated}</span>
+                                    <span class="d-none">${item.people.cnpj_cpf}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="d-flex align-items-center">
-                            <span class="text-muted fs-12 responsable"></span>
-                        </div>
-                    </a>
-                </li>`
-   }
+                    </div>`
+    }
 
    people.innerHTML = html;
 };
@@ -183,9 +338,9 @@ async function eventClick() {
         e.preventDefault();
         let term_search = this.value.toLowerCase(); // Obtém o valor do input em maiúscula
         // Itera sobre os itens da lista e mostra/oculta com base no termo de pesquisa
-        let list_items = document.querySelectorAll('.list-unstyled .files-type');
+        let list_items = document.querySelectorAll('[data-people-id]');
         list_items.forEach(function (item) {
-            let textoItem = item.querySelector('div').textContent.toLowerCase();
+            let textoItem = item.querySelector('.card-body').textContent.toLowerCase();
 
             // Verifica se o texto do item contém o termo de pesquisa
             if (textoItem.includes(term_search)) {
@@ -197,37 +352,15 @@ async function eventClick() {
     })
    // ========== FIM PESQUISA ========== // 
 
-   // ========== SELEÇAO PESSOA ========== // 
-    const peopleSelected = document.querySelectorAll('.files-type')
-    peopleSelected.forEach(item => {
-        item.addEventListener('click', async function () {
-            peopleSelected.forEach(selected => {
-                selected.classList.remove('active')
-            });
-
-            item.classList.add('active')
-
-            const peopleId = this.getAttribute('data-people-id');
-            // const getDataByPeople = await makeRequest(`/api/product/getProductCategory/${collaborator_id}`, 'POST',);
-
-            const img_cards = document.getElementById('img-cards')
-            const cards = document.getElementById('information')
-
-            if (!img_cards.classList.contains('d-none')) {
-                img_cards.classList.add('d-none')
-                cards.classList.remove('d-none')
-            }
-        })
-    });
-    // ========== FIM SELEÇAO PESSOA ========== // 
-
     // ========== BOTAO DE FILTRO ========== // 
     const btn_filter = document.getElementById('btn-filter');
     btn_filter.addEventListener('click', async function (e) {
         e.preventDefault();
 
-        // Armazena todas as depesas Selecionadas
-        const peopleCategorySelected = await getSelectPeopleCategoryValues();
+        const peopleCategorySelected = await getSelectPeopleCategoryValues(); // Armazena todas as categorias Selecionadas
+        const peopleStatusSelected = await getSelectPeopleStatusValues(); // Armazena todos os status Selecionadas
+        const commercialValues = await getSelectCommercialValues(); // Armazena todos os comerciais Selecionadas
+        const collaboratorResponsableValues = await getSelectCollaboratorResponsableValues(); // Armazena todos os funcionarios responsaveis Selecionadas
 
         // Pegar o filtro de tipo pessoa, se é PJ ou PF
         const peopleTypePJ = document.getElementById('peoplePJ').checked ? 1 : 0;
@@ -239,7 +372,8 @@ async function eventClick() {
         // Tela de carregando 'add=quando vc fecha algo/remove=quando vc abre algo'
         document.querySelector('#loader2').classList.remove('d-none')
 
-        const peopleFilter = await makeRequest(`/api/people/listAllPeople`, 'POST', {peopleCategorySelected: peopleCategorySelected, peopleAllType: peopleAllType});
+        const peopleFilter = await makeRequest(`/api/people/listAllPeople`, 'POST', {peopleCategorySelected: peopleCategorySelected, peopleAllType: peopleAllType, peopleStatusSelected: peopleStatusSelected, commercialValues: commercialValues, collaboratorResponsableValues: collaboratorResponsableValues});
+
         // CHAMA AS FUNÇÕES
         await listPeople(peopleFilter);
 
@@ -254,9 +388,15 @@ async function eventClick() {
 window.addEventListener("load", async () => {
    const getAllPeople = await makeRequest('/api/people/listAllPeople', 'POST',);
    const getAllPeopleCategory = await makeRequest('/api/people/getAllPeopleCategory', 'POST',);
+   const getAllPeopleStatus = await makeRequest('/api/people/getAllPeopleStatus', 'POST',);
+   const getAllCommercial = await makeRequest('/api/people/getAllCommercial', 'POST',);
+   const getAllCollaboratorsResponsable = await makeRequest('/api/people/getAllCollaboratorsResponsable', 'POST',);
 
    await listPeople(getAllPeople);
    await createSelectPeopleCategory(getAllPeopleCategory);
+   await createSelectPeopleStatus(getAllPeopleStatus);
+   await createSelectCommercial(getAllCommercial);
+   await createSelectCollaboratorResponsable(getAllCollaboratorsResponsable);
    await createSelectPeopleType();
    await eventClick();
    await active_tooltip();

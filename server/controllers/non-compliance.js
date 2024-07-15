@@ -438,10 +438,123 @@ const non_compliance = {
 
         await executeQuery(sql, values);
     },
+    editAction: async function(body, evidenceFiles) {
+        const { action_id, action_responsible, action_expiration, action_description } = body;
+
+    
+        // Recupera os dados atuais da evidência
+        const currentAction = await non_compliance.getAction(action_id); // Suponha que você tenha uma função para buscar a ação pelo ID
+    
+        // Verifica se há evidências atuais
+        let currentEvidence = [];
+        if (currentAction && currentAction.evidence) {
+            currentEvidence = JSON.parse(currentAction.evidence);
+        }
+    
+        // Prepara os novos dados de evidência
+        let newEvidenceData = [];
+        if (evidenceFiles && evidenceFiles.length > 0) {
+            newEvidenceData = evidenceFiles.map(file => ({
+                filename: file.filename,
+                originalname: file.originalname,
+                mimetype: file.mimetype,
+                path: file.path
+            }));
+        }
+    
+        // Combina os dados atuais com os novos dados de evidência
+        const combinedEvidence = [...currentEvidence, ...newEvidenceData];
+    
+        // Monta a query SQL para atualizar a ação corretiva
+        const sql = `UPDATE occurrences_corrective_actions 
+                     SET responsible_id = ?, deadline = ?, action = ?, evidence = ? 
+                     WHERE id = ?`;
+        const values = [
+            action_responsible,
+            action_expiration,
+            action_description,
+            JSON.stringify(combinedEvidence),
+            action_id
+        ];
+    
+        // Executa a query SQL
+        await executeQuery(sql, values);
+    },
     getAction: async function(actionId){
         const sql = `SELECT * FROM occurrences_corrective_actions WHERE id = ?`;
         const result = await executeQuery(sql, [actionId]);
 
+        return result[0];
+    },
+    addEffectiveness: async function(body, evidenceFiles){
+        const { occurrence_id, effectiveness_responsible, effectiveness_expiration, effectiveness_description } = body;
+        
+
+        const evidenceData = evidenceFiles.map(file => ({
+            filename: file.filename,
+            originalname: file.originalname,
+            mimetype: file.mimetype,
+            path: file.path
+        }));
+    
+        const sql = `INSERT INTO occurrences_effectiveness_evaluation (occurrence_id, responsible_id, deadline, action, evidence) VALUES (?, ?, ?, ?, ?)`;
+        const values = [
+            occurrence_id,
+            effectiveness_responsible,
+            effectiveness_expiration,
+            effectiveness_description,
+            JSON.stringify(evidenceData)
+        ];
+
+        const result = await executeQuery(sql, values);
+    },
+    editEffectiveness: async function(body, evidenceFiles) {
+        const { effectivenes_id, effectiveness_responsible, effectiveness_expiration, effectiveness_description } = body;
+        console.log(body)
+        // console.log(effectivenes_id, effectiveness_responsible, effectiveness_expiration, effectiveness_description)
+
+        // Recupera os dados atuais da eficácia
+        const currentEffectiveness = await getEffectivenes(effectivenes_id); // Suponha que você tenha uma função para buscar a eficácia pelo ID
+    
+        // Verifica se há evidências atuais
+        let currentEvidence = [];
+        if (currentEffectiveness && currentEffectiveness.evidence) {
+            currentEvidence = JSON.parse(currentEffectiveness.evidence);
+        }
+    
+        // Prepara os novos dados de evidência
+        let newEvidenceData = [];
+        if (evidenceFiles && evidenceFiles.length > 0) {
+            newEvidenceData = evidenceFiles.map(file => ({
+                filename: file.filename,
+                originalname: file.originalname,
+                mimetype: file.mimetype,
+                path: file.path
+            }));
+        }
+    
+        // Combina os dados atuais com os novos dados de evidência
+        const combinedEvidence = [...currentEvidence, ...newEvidenceData];
+    
+        // Monta a query SQL para atualizar a eficácia
+        const sql = `UPDATE occurrences_effectiveness_evaluation 
+                     SET responsible_id = ?, deadline = ?, action = ?, evidence = ? 
+                     WHERE id = ?`;
+        const values = [
+            effectiveness_responsible,
+            effectiveness_expiration,
+            effectiveness_description,
+            JSON.stringify(combinedEvidence),
+            effectivenes_id
+        ];
+    
+        // Executa a query SQL
+        const result = await executeQuery(sql, values);
+        return result; // Retorna o resultado da execução da query, se necessário
+    }, 
+    getEffectivenes: async function(effectivenesId){
+        const sql = `SELECT * FROM occurrences_effectiveness_evaluation WHERE id = ?`;
+        const result = await executeQuery(sql, [effectivenesId]);
         return result[0];
     },
     updateActionEvidence: async function(actionId, evidence) {
@@ -451,7 +564,8 @@ const non_compliance = {
     getActionsByOccurrence: async function(occurrenceId) {
         const sql = `SELECT oca.*,clt.family_name, clt.name, clt.id_headcargo FROM occurrences_corrective_actions oca
         JOIN collaborators clt ON clt.id = oca.responsible_id
-        WHERE occurrence_id = ?`;
+        WHERE occurrence_id = ? ORDER BY oca.id desc`;
+
         const result = await executeQuery(sql, [occurrenceId]);
 
 
@@ -480,6 +594,43 @@ const non_compliance = {
         }));
 
         return Actions;
+    },
+    getEffectivenessByOccurrence: async function(occurrenceId) {
+        const sql = `SELECT oee.*,clt.family_name, clt.name, clt.id_headcargo FROM occurrences_effectiveness_evaluation oee
+        JOIN collaborators clt ON clt.id = oee.responsible_id
+        WHERE occurrence_id = ? ORDER BY oee.id desc`;
+
+        const result = await executeQuery(sql, [occurrenceId]);
+
+        const status = {
+            0: 'Pendente',
+            1: 'Reprovado - Aguardando Ajuste 1ª etapa',
+        }
+
+        const Effectiveness = await Promise.all(result.map(async function(item) {
+            const users = `<div class="d-flex align-items-center">
+                                <span class="avatar avatar-sm  me-1 bg-light avatar-rounded" title="${item.name} ${item.family_name}"> 
+                                    <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt=""> 
+                                </span>
+                                <a href="javascript:void(0);" class="fw-semibold mb-0">
+                                    ${item.name} ${item.family_name}
+                                </a>
+                            </div>`
+            return {
+                ...item, // mantém todas as propriedades existentes
+                status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,
+                action: item.action,
+                deadline: `<span class="badge bg-danger-transparent"><i class="bi bi-clock me-1"></i>${non_compliance.formatDate(item.deadline)}</span>`,
+                responsible:users,
+                verifyEvidence: JSON.parse(item.evidence).length > 0 ? '<span class="badge bg-success-transparent">Sim</span>' : '<span class="badge bg-danger-transparent">Não</span>'
+            };
+        }));
+
+        return Effectiveness;
+    },
+    updateEffectivenessEvidence: async function(effectivenesId, evidence) {
+        const sql = `UPDATE occurrences_effectiveness_evaluation SET evidence = ? WHERE id = ?`;
+        await executeQuery(sql, [evidence, effectivenesId]);
     },
     // Função para formatar uma data no formato pt-BR (dd/mm/aaaa)
     formatDate: function (dateString) {

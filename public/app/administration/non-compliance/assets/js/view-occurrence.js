@@ -1,6 +1,6 @@
 // Variáveis globais para gerenciamento de selects com o Choices
 // 's' antes da variável refere-se ao select
-let idOccurrence, correctiveEvidence, correctiveEvidenceView,effectivenessEvidence, infoOccurence,sAllUnits,sAllStatus,sAllOrigins,sAllApproval,sAllResponsible,sAllResponsibleActions,sAllTypes;
+let idOccurrence, choices = [], ActionEvidence, ActionEvidence_view,effectivenessEvidence, correctiveEvidence_view, infoOccurence,sAllUnits,sAllStatus,sAllOrigins,sAllApproval,sAllResponsible,sAllResponsibleActions,sAllTypes;
 
 
 /**
@@ -9,7 +9,6 @@ let idOccurrence, correctiveEvidence, correctiveEvidenceView,effectivenessEviden
 async function getInfosLogin() {
     const StorageGoogleData = localStorage.getItem('StorageGoogle');
     const StorageGoogle = JSON.parse(StorageGoogleData);
-    console.log(StorageGoogle)
     return StorageGoogle;
 }
 
@@ -236,6 +235,7 @@ async function getAllResponsible() {
     }
 
     // Renderiza os selects com as opções formatadas
+
     sAllResponsible = new Choices('select[name="occurrence_responsible"]', {
         choices: listaDeOpcoes,
         shouldSort: false,
@@ -243,26 +243,46 @@ async function getAllResponsible() {
         noChoicesText: 'Não há opções disponíveis',
     });
 
-    sAllResponsibleActions = new Choices('select[name="action_responsible"]', {
+    choices['occurrence_responsible'] = new Choices('select[name="occurrence_responsible"]', {
+        choices: listaDeOpcoes,
+        shouldSort: false,
+        removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis',
+    });
+    
+    choices['occurrence_responsible'] = new Choices('select[name="occurrence_responsible"]', {
+        choices: listaDeOpcoes,
+        shouldSort: false,
+        removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis',
+    });
+
+    choices['action_responsible'] = new Choices('select[name="action_responsible"]', {
+        choices: listaDeOpcoes,
+        shouldSort: false,
+        noChoicesText: 'Não há opções disponíveis',
+    });
+
+    choices['action_responsible_view'] = new Choices('select[name="action_responsible_view"]', {
         choices: listaDeOpcoes,
         shouldSort: false,
         noChoicesText: 'Não há opções disponíveis',
     });
 
 
-    sAllResponsibleActions = new Choices('select[name="effectiveness_responsible"]', {
+    choices['effectiveness_responsible'] = new Choices('select[name="effectiveness_responsible"]', {
         choices: listaDeOpcoes,
         shouldSort: false,
         noChoicesText: 'Não há opções disponíveis',
     });
 
 
-    sAllResponsibleActions = new Choices('select[name="action_responsible_view"]', {
+    choices['effectiveness_responsible_view'] = new Choices('#modalEffectivenessView select[name="responsible_view"]', {
         choices: listaDeOpcoes,
         shouldSort: false,
         noChoicesText: 'Não há opções disponíveis',
     });
-
+    
     
 }
 
@@ -276,7 +296,6 @@ async function getOccurenceInfo() {
 
     const occurrence = await makeRequest(`/api/non-compliance/getOcurrenceById`, 'POST', { id });
     infoOccurence = occurrence
-    console.log(occurrence);
     await loadOccurence(occurrence);
 }
 
@@ -287,7 +306,6 @@ async function getOccurenceInfo() {
 async function loadOccurence(occurrence) {
 
     sAllStatus.disable();
-    console.log(occurrence)
 
     idOccurrence = occurrence.id
     // Preenche os campos de referência da ocorrência
@@ -436,40 +454,6 @@ async function loadHistory(id){
     }
 
     document.querySelector('.bodyHistory').innerHTML = historyText
-}
-
-
-/**
- * Função para formatar o nome.
- * @param {string} nome - Nome a ser formatado
- * @returns {string} - Nome formatado
- */
-async function formatarNome(nome) {
-    const preposicoes = new Set(["de", "do", "da", "dos", "das"]); // Conjunto de preposições
-    const palavras = nome.split(" "); // Divide o nome em palavras
-    const palavrasFormatadas = palavras.map((palavra, index) => {
-        // Verifica se a palavra é uma preposição e não é a primeira palavra
-        if (preposicoes.has(palavra.toLowerCase()) && index !== 0) {
-            return palavra.toLowerCase(); // Retorna a palavra em minúsculas
-        } else {
-            return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase(); // Retorna a palavra com a primeira letra em maiúscula e o restante em minúsculas
-        }
-    });
-    return palavrasFormatadas.join(" "); // Junta as palavras formatadas em uma string
-}
-
-
-/**
- * Função para formatar a data.
- * @param {string} dateString - Data a ser formatado
- * @returns {string} - Data formatada
- */
-async function formatDate(dateString) {
-    const date = new Date(dateString)
-    const year = date.getFullYear(); // Obtém o ano
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Obtém o mês (0-indexado) e adiciona um zero à esquerda se necessário
-    const day = String(date.getDate()).padStart(2, '0'); // Obtém o dia e adiciona um zero à esquerda se necessário
-    return `${year}-${month}-${day}`; // Retorna a data formatada como YYYY-MM-DD
 }
 
 
@@ -794,95 +778,500 @@ async function controlButtons(){
     
 }
 
-
 /**
- * Função assíncrona para adicionar ação
+ * Função assíncrona para adicionar uma nova ação.
  */
 async function addAction() {
+    // Obtém os valores dos campos de input
     const actionResponsible = document.querySelector('[name=action_responsible]').value;
     const actionExpiration = document.querySelector('[name=action_expiration]').value;
     const actionDescription = document.querySelector('[name=action_description]').value;
     const occurrence_id = document.querySelector('[name=occurrence_id]').value;
 
-    
-    const evidenceFiles = correctiveEvidence.getFiles();
+    // Obtém os arquivos de evidências
+    const evidenceFiles = ActionEvidence.getFiles();
 
+    // Cria um objeto FormData para enviar os dados e arquivos
     const formData = new FormData();
     formData.append('action_responsible', actionResponsible);
     formData.append('action_expiration', actionExpiration);
     formData.append('action_description', actionDescription);
     formData.append('occurrence_id', occurrence_id);
 
+    // Adiciona cada arquivo ao FormData
     for (let i = 0; i < evidenceFiles.length; i++) {
         const file = evidenceFiles[i].file;
         formData.append('evidence_files', file);
     }
-  
 
+    // Faz a requisição para adicionar a ação
     const response = await fetch('/api/non-compliance/add-action', {
         method: 'POST',
         body: formData
     });
 
+    // Converte a resposta para JSON
     const result = await response.json();
     if (result.success) {
-        await table_corrective()
-        alert('Ação adicionada com sucesso!');
-        // Limpar o modal ou fechar
+        // document.querySelector('[name=action_responsible]').value = '';
+        document.querySelector('[name=action_expiration]').value = '';
+        document.querySelector('[name=action_description]').value = '';
+        ActionEvidence.removeFiles(); // Limpa o FilePond
+
+        // Atualiza a tabela de ações e fecha o modal se a ação for adicionada com sucesso
+        await table_corrective();
+        $('#modalActions').modal('hide');
     } else {
+        // Mostra uma mensagem de erro se houver falha
         alert('Erro ao adicionar ação.');
     }
 }
 
-async function getValuesOccurrence(e) {
-    
-    const elements = document.querySelectorAll('.form-input[name]');
+/**
+ * Função assíncrona para editar Ação Corretiva.
+ */
+async function SaveAction() {
+    // Obtém os valores dos campos de input
+    const actionResponsible = document.querySelector('#modalActionsView [name=action_responsible_view]').value;
+    const actionExpiration = document.querySelector('#modalActionsView [name=action_expiration_view]').value;
+    const actionDescription = document.querySelector('#modalActionsView [name=action_description_view]').value;
+    const action_id = document.querySelector('#modalActionsView [name=action_id]').value;
 
-    const formBody = {};
+    // Obtém os arquivos de evidências
+    const evidenceFiles = ActionEvidence_view.getFiles();
 
-    for (let index = 0; index < elements.length; index++) {
-        const item = elements[index];
-        // if(item.value.trim() == '' || item.value.trim() == 0){
-        //     console.log('campos invalidos')
-        //     return false;
-        // }
-        
-        // Adicionando dinamicamente o nome e o valor ao objeto
-        // REVER AMANHA E REFAZER O IF
-        formBody[item.getAttribute('name')] = (item.getAttribute('name') == 'occurrence_responsible' || item.getAttribute('name') == 'types') ? sAllResponsible.getValue(true) : item.value
-        
+    // Cria um objeto FormData para enviar os dados e arquivos
+    const formData = new FormData();
+    formData.append('action_responsible', actionResponsible);
+    formData.append('action_expiration', actionExpiration);
+    formData.append('action_description', actionDescription);
+    formData.append('action_id', action_id);
+
+    // Adiciona cada arquivo ao FormData
+    for (let i = 0; i < evidenceFiles.length; i++) {
+        const file = evidenceFiles[i].file;
+        formData.append('evidence_files', file);
     }
 
-    console.log(formBody)
-
-    const sendToServer = await makeRequest(`/api/non-compliance/saveOccurence`, 'POST', {
-        formBody
+    // Faz a requisição para adicionar a ação
+    const response = await fetch('/api/non-compliance/save-action', {
+        method: 'POST',
+        body: formData
     });
-    
 
-    
-    // window.close()
+    // Converte a resposta para JSON
+    const result = await response.json();
+    if (result.success) {
+        // Limpa os campos do formulário após salvar com sucesso
+        // document.querySelector('#modalActionsView [name=action_responsible_view]').value = '';
+        document.querySelector('#modalActionsView [name=action_expiration_view]').value = '';
+        document.querySelector('#modalActionsView [name=action_description_view]').value = '';
+        ActionEvidence_view.removeFiles(); // Limpa o FilePond
 
-
+        // Atualiza a tabela de ações e fecha o modal se a ação for adicionada com sucesso
+        await table_corrective();
+        $('#modalActionsView').modal('hide');
+    } else {
+        // Mostra uma mensagem de erro se houver falha
+        alert('Erro ao adicionar ação.');
+    }
 }
 
+/**
+ * Função assíncrona para obter os valores da ocorrência.
+ */
+async function getValuesOccurrence(e) {
+    // Seleciona todos os elementos de input do formulário
+    const elements = document.querySelectorAll('.form-input[name]');
+    const formBody = {};
+
+    // Itera sobre os elementos e adiciona os valores ao objeto formBody
+    for (let index = 0; index < elements.length; index++) {
+        const item = elements[index];
+        formBody[item.getAttribute('name')] = (item.getAttribute('name') == 'occurrence_responsible' || item.getAttribute('name') == 'types') ? sAllResponsible.getValue(true) : item.value;
+    }
+
+    // Faz a requisição para salvar a ocorrência
+    await makeRequest(`/api/non-compliance/saveOccurence`, 'POST', {
+        formBody
+    });
+}
+
+/**
+ * Função assíncrona para visualizar uma ação corretiva.
+ */
 async function viewActionCorrective(id) {
+    // Mostra o modal de visualização de ações
     $('#modalActionsView').modal('show');
     let action = await makeRequest(`/api/non-compliance/get-action/${id}`);
     action = action.action;
-    console.log(action);
+    document.querySelector('#modalActionsView [name=action_id]').value = id
 
-    document.querySelector('[name=action_responsible_view]').value = action.responsible_id;
+    // Preenche os campos do modal com os dados da ação
+    // Obtém o valor de responsible_id que deseja selecionar
+    const responsibleId = action.responsible_id;
+
+    // Seleciona o elemento <select>
+    const selectElement = document.querySelector('#modalActionsView [name=action_responsible_view]');
+
+    // Percorre as opções do <select>
+    for (let option of selectElement.options) {
+        if (option.value === responsibleId) {
+            option.selected = true; // Marca a opção como selecionada
+            break; // Interrompe o loop após encontrar a opção correta
+        }
+    }
+
+    choices['action_responsible_view'].setChoiceByValue(responsibleId.toString());
+
+
     document.querySelector('[name=action_description_view]').value = action.action;
 
+    // Formata a data de expiração
     const date_occurrence = new Date(action.deadline);
     const year = date_occurrence.getFullYear();
     const month = ('0' + (date_occurrence.getMonth() + 1)).slice(-2);
     const day = ('0' + date_occurrence.getDate()).slice(-2);
     document.querySelector('[name=action_expiration_view]').value = `${year}-${month}-${day}`;
 
+    // Preenche a lista de evidências
     const evidence = action.evidence;
+    const mimeToIcon = {
+        'image/png': '../../assets/images/media/files/image.png',
+        'image/jpeg': '../../assets/images/media/files/image.png',
+        'application/pdf': '../../assets/images/media/files/pdf.png',
+        'application/msword': '../../assets/images/media/files/doc.png',
+        'application/vnd.ms-excel': '../../assets/images/media/files/xls.png',
+        'text/csv': '../../assets/images/media/files/csv-file.png',
+        'video/mp4': '../../assets/images/media/files/video.png',
+        'video/mpeg': '../../assets/images/media/files/video.png',
+    };
 
+    let evidenceHTML = '';
+    for (let index = 0; index < evidence.length; index++) {
+        const element = evidence[index];
+        let icon = mimeToIcon[element.mimetype] || '../../assets/images/media/files/all.png';
+
+        evidenceHTML += `<li class="list-group-item">
+                            <div class="d-flex align-items-center flex-wrap gap-2">
+                                <div class="lh-1">
+                                    <span class="avatar avatar-rounded p-2 bg-light">
+                                        <img src="${icon}" alt="">
+                                    </span>
+                                </div>
+                                <div class="flex-fill">
+                                    <a href="javascript:void(0);">
+                                        <span class="d-block fw-semibold" style="max-width: 15ch;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">
+                                            ${element.originalname}
+                                        </span>
+                                    </a>
+                                    <span class="d-block text-muted fs-12 fw-normal">0.45MB</span>
+                                </div>
+                                <div class="btn-list">
+                                    <a href="/api/non-compliance/download-evidence/${element.filename}" class="btn btn-sm btn-icon btn-info-light btn-wave waves-effect waves-light">
+                                        <i class="ri-download-cloud-2-line"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-icon btn-danger-light btn-wave waves-effect waves-light btnDeleteActionEvidence" data-filename="${element.filename}" data-actionid="${id}">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </li>`;
+    }
+
+    document.querySelector('.listAllFilesActions').innerHTML = evidenceHTML;
+
+    // Adiciona eventos de clique aos botões de exclusão de evidências
+    const deleteButtons = document.querySelectorAll('.listAllFilesActions .btnDeleteActionEvidence');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', async (event) => {
+            const filename = event.currentTarget.getAttribute('data-filename');
+            const actionId = event.currentTarget.getAttribute('data-actionid');
+            await deleteEvidence(actionId, filename);
+            viewActionCorrective(id); // Atualiza a lista de evidências após a exclusão
+        });
+    });
+}
+
+/**
+ * Função assíncrona para adicionar eventos de duplo clique às linhas da tabela de ações.
+ */
+async function dblClickOnActions() {
+    const rowTableOccurence = document.querySelectorAll(`#ActionsByOccurrence_table tbody tr`);
+
+    for (let index = 0; index < rowTableOccurence.length; index++) {
+        const element = rowTableOccurence[index];
+
+        // Define a função de callback do evento
+        const handleDoubleClick = async function(e) {
+            e.preventDefault();
+            const id = this.getAttribute('action-id');
+            await viewActionCorrective(id);
+        };
+
+        // Remove o event listener se já existir e adiciona o novo
+        element.removeEventListener('dblclick', handleDoubleClick);
+        element.addEventListener('dblclick', handleDoubleClick);
+    }
+}
+
+/**
+ * Função assíncrona para deletar uma evidência.
+ * @param {number} actionId - O ID da ação.
+ * @param {string} filename - O nome do arquivo da evidência.
+ */
+async function deleteEvidence(actionId, filename) {
+    try {
+        const response = await fetch(`/api/non-compliance/delete-evidence/${actionId}/${filename}`, {
+            method: 'DELETE',
+        });
+        const result = await response.json();
+        if (result.success) {
+            console.log('Evidência deletada com sucesso.');
+        } else {
+            console.error('Erro ao deletar a evidência:', result.message);
+        }
+    } catch (error) {
+        console.error('Erro ao deletar a evidência:', error);
+    }
+}
+
+/**
+ * Função assíncrona para configurar a tabela de ações corretivas.
+ */
+async function table_corrective() {
+    // Fazer a requisição à API para obter os dados das ações corretivas
+    const dados = await makeRequest(`/api/non-compliance/get-actions/${idOccurrence}`);
+
+    // Verifica se a tabela já foi inicializada com DataTables e a destrói se necessário
+    if ($.fn.DataTable.isDataTable('#ActionsByOccurrence_table')) {
+        $('#ActionsByOccurrence_table').DataTable().destroy();
+    }
+
+    // Inicializa a tabela DataTable com os dados obtidos da API
+    $('#ActionsByOccurrence_table').DataTable({
+        // Configuração de layout da tabela
+        dom: 'frtip', // Define a estrutura da tabela: filter (f), length (l), table (t), info (i), pagination (p)
+        pageLength: 5, // Define o número de registros por página
+        order: [[0, 'desc']], // Define a ordenação inicial da tabela (pela primeira coluna, em ordem decrescente)
+        data: dados, // Define os dados da tabela
+        pageInfo: false, // Oculta informações de paginação
+        bInfo: false, // Oculta informações adicionais da tabela
+        columns: [
+            { data: 'id', visible: false }, // Coluna oculta para o ID
+            { data: 'action', orderable: false }, // Coluna para a ação (não ordenável)
+            { data: 'responsible', orderable: false }, // Coluna para o responsável (não ordenável)
+            { data: 'deadline', orderable: false }, // Coluna para a data limite (não ordenável)
+            { data: 'status' }, // Coluna para o status (ordenável por padrão)
+            { data: 'verifyEvidence', orderable: false }, // Coluna para verificar evidências (não ordenável)
+        ],
+        buttons: [
+            'excel', 'pdf' // Botões para exportar a tabela em Excel e PDF
+        ],
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json", // URL para o arquivo de tradução em português
+            searchPlaceholder: 'Pesquisar...', // Placeholder para a caixa de pesquisa
+        },
+        // Função de callback para adicionar um atributo 'action-id' a cada linha da tabela
+        rowCallback: function(row, data, index) {
+            $(row).attr('action-id', data.id);
+        },
+        // Função de inicialização completa
+        initComplete: function () {
+            // Usa requestAnimationFrame para garantir que a função seja chamada após a renderização da tabela
+            requestAnimationFrame(async () => {
+                await dblClickOnActions(); // Adiciona eventos de duplo clique às linhas da tabela
+            });
+        },
+    });
+}
+
+/**
+ * Função assíncrona para adicionar uma Avaliação De Eficácia.
+ */
+async function addEffectiveness() {
+    // Obtém os valores dos campos do formulário
+    const actionResponsible = document.querySelector('[name=effectiveness_responsible]').value;
+    const actionExpiration = document.querySelector('[name=effectiveness_expiration]').value;
+    const actionDescription = document.querySelector('[name=effectiveness_description]').value;
+    const occurrence_id = document.querySelector('[name=occurrence_id]').value;
+
+    // Obtém os arquivos de evidência
+    const evidenceFiles = effectivenessEvidence.getFiles();
+
+    // Cria um objeto FormData para enviar os dados e arquivos
+    const formData = new FormData();
+    formData.append('effectiveness_responsible', actionResponsible);
+    formData.append('effectiveness_expiration', actionExpiration);
+    formData.append('effectiveness_description', actionDescription);
+    formData.append('occurrence_id', occurrence_id);
+
+    // Adiciona os arquivos de evidência ao FormData
+    for (let i = 0; i < evidenceFiles.length; i++) {
+        const file = evidenceFiles[i].file;
+        formData.append('evidence_files', file);
+    }
+
+    // Faz a requisição para adicionar a avaliação de eficácia
+    const response = await fetch('/api/non-compliance/add-effectivenes', {
+        method: 'POST',
+        body: formData
+    });
+
+    // Obtém o resultado da requisição
+    const result = await response.json();
+    if (result.success) {
+        // document.querySelector('[name=effectiveness_responsible]').value = '';
+        document.querySelector('[name=effectiveness_expiration]').value = '';
+        document.querySelector('[name=effectiveness_description]').value = '';
+        effectivenessEvidence.removeFiles();
+        // Atualiza a tabela e fecha o modal se a requisição for bem-sucedida
+        await table_effectiveness();
+        $('#modalEffectiveness').modal('hide');
+        alert('Ação adicionada com sucesso!');
+    } else {
+        alert('Erro ao adicionar ação.');
+    }
+}
+
+/**
+ * Função assíncrona para adicionar uma Avaliação De Eficácia.
+ */
+async function saveEffectiveness() {
+    // Obtém os valores dos campos do formulário
+    const actionResponsible = document.querySelector('#modalEffectivenessView [name=responsible_view]').value;
+    const actionExpiration = document.querySelector('#modalEffectivenessView [name=expiration_view]').value;
+    const actionDescription = document.querySelector('#modalEffectivenessView [name=description_view]').value;
+    const effectivenes_id = document.querySelector('#modalEffectivenessView  [name=effectivenes_id]').value;
+
+    // Obtém os arquivos de evidência
+    const evidenceFiles = correctiveEvidence_view.getFiles();
+
+    // Cria um objeto FormData para enviar os dados e arquivos
+    const formData = new FormData();
+    formData.append('effectiveness_responsible', actionResponsible);
+    formData.append('effectiveness_expiration', actionExpiration);
+    formData.append('effectiveness_description', actionDescription);
+    formData.append('effectivenes_id', effectivenes_id);
+
+    // Adiciona os arquivos de evidência ao FormData
+    for (let i = 0; i < evidenceFiles.length; i++) {
+        const file = evidenceFiles[i].file;
+        formData.append('evidence_files', file);
+    }
+
+    // Faz a requisição para adicionar a avaliação de eficácia
+    const response = await fetch('/api/non-compliance/save-effectivenes', {
+        method: 'POST',
+        body: formData
+    });
+
+    // Obtém o resultado da requisição
+    const result = await response.json();
+    if (result.success) {
+        // document.querySelector('#modalEffectivenessView [name=responsible_view]').value = '';
+        document.querySelector('#modalEffectivenessView [name=expiration_view]').value = '';
+        document.querySelector('#modalEffectivenessView [name=description_view]').value = '';
+        correctiveEvidence_view.removeFiles(); // Limpa o FilePond
+        
+        // Atualiza a tabela e fecha o modal se a requisição for bem-sucedida
+        await table_effectiveness();
+        $('#modalEffectivenessView').modal('hide');
+        alert('Ação adicionada com sucesso!');
+    } else {
+        alert('Erro ao adicionar ação.');
+    }
+}
+
+
+/**
+ * Função assíncrona para renderizar a tabela de Avaliação De Eficácia.
+ */
+async function table_effectiveness() {
+    // Fazer a requisição à API para obter os dados das avaliações de eficácia
+    const dados = await makeRequest(`/api/non-compliance/get-effectiveness/${idOccurrence}`);
+
+    // Verifica se a tabela já foi inicializada com DataTables e a destrói se necessário
+    if ($.fn.DataTable.isDataTable('#EffectivenessByOccurrence_table')) {
+        $('#EffectivenessByOccurrence_table').DataTable().destroy();
+    }
+
+    // Inicializa a tabela DataTable com os dados obtidos da API
+    $('#EffectivenessByOccurrence_table').DataTable({
+        dom: 'frtip', // Define a estrutura da tabela
+        pageLength: 5, // Define o número de registros por página
+        order: [[0, 'desc']], // Define a ordenação inicial da tabela
+        data: dados, // Define os dados da tabela
+        pageInfo: false, // Oculta informações de paginação
+        bInfo: false, // Oculta informações adicionais da tabela
+        columns: [
+            { data: 'id', visible: false }, // Coluna oculta para o ID
+            { data: 'action', orderable: false }, // Coluna para a ação (não ordenável)
+            { data: 'responsible', orderable: false }, // Coluna para o responsável (não ordenável)
+            { data: 'deadline', orderable: false }, // Coluna para a data limite (não ordenável)
+            { data: 'status' }, // Coluna para o status (ordenável por padrão)
+            { data: 'verifyEvidence', orderable: false }, // Coluna para verificar evidências (não ordenável)
+        ],
+        buttons: [
+            'excel', 'pdf' // Botões para exportar a tabela em Excel e PDF
+        ],
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json", // URL para o arquivo de tradução em português
+            searchPlaceholder: 'Pesquisar...', // Placeholder para a caixa de pesquisa
+        },
+        // Função de callback para adicionar um atributo 'effectivenes-id' a cada linha da tabela
+        rowCallback: function(row, data, index) {
+            $(row).attr('effectivenes-id', data.id);
+        },
+        // Função de inicialização completa
+        initComplete: function () {
+            // Usa requestAnimationFrame para garantir que a função seja chamada após a renderização da tabela
+            requestAnimationFrame(async () => {
+                await dblClickOnEffectiveness(); // Adiciona eventos de duplo clique às linhas da tabela
+            });
+        },
+    });
+}
+
+/**
+ * Função assíncrona para visualizar uma Avaliação De Eficácia específica.
+ * @param {number} id - ID da avaliação de eficácia.
+ */
+async function viewEffectiveness(id) {
+    $('#modalEffectivenessView').modal('show'); // Exibe o modal de visualização
+    let result = await makeRequest(`/api/non-compliance/get-effectivenes/${id}`); // Faz a requisição para obter os dados da avaliação de eficácia
+
+    document.querySelector('#modalEffectivenessView [name=effectivenes_id]').value = id
+    let effectivenes = result.effectivenes;
+
+    // Preenche os campos do modal com os dados da avaliação de eficácia
+    // Obtém o valor de responsible_id que deseja selecionar
+    const responsibleId = effectivenes.responsible_id;
+
+    // Seleciona o elemento <select>
+    const selectElement = document.querySelector('#modalEffectivenessView [name=responsible_view]');
+
+    // Percorre as opções do <select>
+    for (let option of selectElement.options) {
+        if (option.value === responsibleId) {
+            option.selected = true; // Marca a opção como selecionada
+            break; // Interrompe o loop após encontrar a opção correta
+        }
+    }
+
+    choices['effectiveness_responsible_view'].setChoiceByValue(responsibleId.toString());
+
+    document.querySelector('#modalEffectivenessView [name=description_view]').value = effectivenes.action;
+
+    const date_occurrence = new Date(effectivenes.deadline);
+    const year = date_occurrence.getFullYear();
+    const month = ('0' + (date_occurrence.getMonth() + 1)).slice(-2);
+    const day = ('0' + date_occurrence.getDate()).slice(-2);
+    document.querySelector('#modalEffectivenessView [name=expiration_view]').value = `${year}-${month}-${day}`;
+
+    const evidence = effectivenes.evidence;
+
+    // Mapeamento de mime types para ícones
     const mimeToIcon = {
         'image/png': '../../assets/images/media/files/image.png',
         'image/jpeg': '../../assets/images/media/files/image.png',
@@ -895,12 +1284,10 @@ async function viewActionCorrective(id) {
         // Adicione mais mapeamentos conforme necessário
     };
 
-    console.log(evidence);
-
+    // Gera o HTML para exibir as evidências
     let evidenceHTML = '';
     for (let index = 0; index < evidence.length; index++) {
         const element = evidence[index];
-        console.log(element);
 
         let icon;
         if (mimeToIcon[element.mimetype]) {
@@ -936,45 +1323,29 @@ async function viewActionCorrective(id) {
                         </li>`;
     }
 
-    document.querySelector('.listAllFilesActions').innerHTML = evidenceHTML;
+    // Insere o HTML gerado no modal
+    document.querySelector('.listAllFilesEffectiveness').innerHTML = evidenceHTML;
 
-    // Adicionar evento de clique aos botões de exclusão
-    const deleteButtons = document.querySelectorAll('.listAllFilesActions .btnDeleteActionEvidence');
+    // Adiciona evento de clique aos botões de exclusão
+    const deleteButtons = document.querySelectorAll('.listAllFilesEffectiveness .btnDeleteActionEvidence');
     deleteButtons.forEach(button => {
         button.addEventListener('click', async (event) => {
             const filename = event.currentTarget.getAttribute('data-filename');
             const actionId = event.currentTarget.getAttribute('data-actionid');
-            await deleteEvidence(actionId, filename);
-            // Atualizar a lista de evidências após a exclusão
-            viewActionCorrective(id);
+            await deleteEvidenceEffectiveness(actionId, filename); // Chama a função para deletar a evidência
+            viewEffectiveness(id); // Atualiza a lista de evidências após a exclusão
         });
     });
 }
 
-async function dblClickOnActions(){
-    const rowTableOccurence = document.querySelectorAll(`#ActionsByOccurrence_table tbody tr`);
-
-    for (let index = 0; index < rowTableOccurence.length; index++) {
-        const element = rowTableOccurence[index];
-
-        // Define a função de callback do evento
-        const handleDoubleClick = async function(e) {
-            e.preventDefault();
-            const id = this.getAttribute('action-id');
-           
-            await viewActionCorrective(id)
-        };
-
-        // Remove event listener se já existir
-        element.removeEventListener('dblclick', handleDoubleClick);
-        // Adiciona event listener
-        element.addEventListener('dblclick', handleDoubleClick);
-    }
-}
-
-async function deleteEvidence(actionId, filename) {
+/**
+ * Função assíncrona para deletar uma evidência de uma Avaliação De Eficácia.
+ * @param {number} effectivenesId - ID da avaliação de eficácia.
+ * @param {string} filename - Nome do arquivo a ser deletado.
+ */
+async function deleteEvidenceEffectiveness(effectivenesId, filename) {
     try {
-        const response = await fetch(`/api/non-compliance/delete-evidence/${actionId}/${filename}`, {
+        const response = await fetch(`/api/non-compliance/delete-evidence-effectivenes/${effectivenesId}/${filename}`, {
             method: 'DELETE',
         });
         const result = await response.json();
@@ -988,6 +1359,68 @@ async function deleteEvidence(actionId, filename) {
     }
 }
 
+/**
+ * Função assíncrona para adicionar eventos de duplo clique às linhas da tabela de Avaliação De Eficácia.
+ */
+async function dblClickOnEffectiveness() {
+    const rowTableOccurence = document.querySelectorAll('#EffectivenessByOccurrence_table tbody tr');
+
+    for (let index = 0; index < rowTableOccurence.length; index++) {
+        const element = rowTableOccurence[index];
+
+        // Define a função de callback do evento de duplo clique
+        const handleDoubleClick = async function(e) {
+            e.preventDefault();
+            const id = this.getAttribute('effectivenes-id');
+            await viewEffectiveness(id); // Chama a função para visualizar a avaliação de eficácia
+        };
+
+        // Remove event listener se já existir
+        element.removeEventListener('dblclick', handleDoubleClick);
+        // Adiciona event listener para o duplo clique
+        element.addEventListener('dblclick', handleDoubleClick);
+    }
+}
+
+
+
+/**
+ * Função para formatar o nome.
+ * @param {string} nome - Nome a ser formatado
+ * @returns {string} - Nome formatado
+ */
+async function formatarNome(nome) {
+    const preposicoes = new Set(["de", "do", "da", "dos", "das"]); // Conjunto de preposições
+    const palavras = nome.split(" "); // Divide o nome em palavras
+    const palavrasFormatadas = palavras.map((palavra, index) => {
+        // Verifica se a palavra é uma preposição e não é a primeira palavra
+        if (preposicoes.has(palavra.toLowerCase()) && index !== 0) {
+            return palavra.toLowerCase(); // Retorna a palavra em minúsculas
+        } else {
+            return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase(); // Retorna a palavra com a primeira letra em maiúscula e o restante em minúsculas
+        }
+    });
+    return palavrasFormatadas.join(" "); // Junta as palavras formatadas em uma string
+}
+
+
+/**
+ * Função para formatar a data.
+ * @param {string} dateString - Data a ser formatado
+ * @returns {string} - Data formatada
+ */
+async function formatDate(dateString) {
+    const date = new Date(dateString)
+    const year = date.getFullYear(); // Obtém o ano
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Obtém o mês (0-indexado) e adiciona um zero à esquerda se necessário
+    const day = String(date.getDate()).padStart(2, '0'); // Obtém o dia e adiciona um zero à esquerda se necessário
+    return `${year}-${month}-${day}`; // Retorna a data formatada como YYYY-MM-DD
+}
+
+
+/**
+ * Função assíncrona para inicializar eventos.
+ */
 async function events(){
     /* filepond */
    FilePond.registerPlugin(
@@ -1002,134 +1435,61 @@ async function events(){
         FilePondPluginImageTransform
     );
 
-    /* multiple upload */
-    const ElementEvidence = document.querySelector('.multiple-filepond-Evidence');
 
+    // ------- FILES UPLOAD ACTIONS Ação Corretiva 
+    // ACTION MODAL
     // Criar a instância do FilePond com a opção labelIdle alterada correctiveEvidence
-    correctiveEvidence = FilePond.create(ElementEvidence, {
+    ActionEvidence = FilePond.create(document.querySelector('.multiple-filepond-evidence-action-Evidence'), {
         labelIdle: 'Arraste e solte seus arquivos aqui ou <span class="filepond--label-action">Procure</span>'
     });
 
-    const MultipleEffectiveness = document.querySelector('.multiple-filepond-Effectiveness');
+    // ACTION VIEW MODAL
+    // Criar a instância do FilePond com a opção labelIdle alterada correctiveEvidence
+    ActionEvidence_view = FilePond.create(document.querySelector('.multiple-filepond-action-Evidence-view'), {
+        labelIdle: 'Arraste e solte seus arquivos aqui ou <span class="filepond--label-action">Procure</span>'
+    });
+
+
+
+    // ------- FILES UPLOAD Effectiveness Avaliação De Eficácia
     // Criar a instância do FilePond com a opção labelIdle alterada MultipleEffectiveness
-    effectivenessEvidence = FilePond.create(MultipleEffectiveness, {
+    effectivenessEvidence = FilePond.create(document.querySelector('.multiple-filepond-evidence-effectiveness'), {
         labelIdle: 'Arraste e solte seus arquivos aqui ou <span class="filepond--label-action">Procure</span>'
     });
 
 
-    const MultipleEffectivenessView = document.querySelector('.multiple-filepond-Evidence-view');
     // Criar a instância do FilePond com a opção labelIdle alterada MultipleEffectiveness
-    correctiveEvidenceView = FilePond.create(MultipleEffectivenessView, {
+    correctiveEvidence_view = FilePond.create(document.querySelector('.multiple-filepond-evidence-effectiveness-view'), {
         labelIdle: 'Arraste e solte seus arquivos aqui ou <span class="filepond--label-action">Procure</span>'
     });
 
 
-}
-
-async function table_corrective(){
-     // Fazer a requisição à API
-     const dados = await makeRequest(`/api/non-compliance/get-actions/${idOccurrence}`);
-
-     // Destruir a tabela existente, se houver
-     if ($.fn.DataTable.isDataTable('#ActionsByOccurrence_table')) {
-         $('#ActionsByOccurrence_table').DataTable().destroy();
-     }
- 
-     // Criar a nova tabela com os dados da API
-     $('#ActionsByOccurrence_table').DataTable({
-         dom: 'frtip',
-         pageLength: 5,
-         order: [[0, 'desc']],
-         data: dados,
-         pageInfo: false,
-         bInfo: false,
-         columns: [
-             { data: 'action' },
-             { data: 'responsible' },
-             { data: 'deadline' },
-             { data: 'status' },
-             { data: 'verifyEvidence' },
-             // { data: 'action' }
-             // Adicione mais colunas conforme necessário
-         ],
-         buttons: [
-             'excel', 'pdf'
-         ],
-         language: {
-             url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
-             searchPlaceholder: 'Pesquisar...',
-         },
-         "rowCallback": function(row, data, index) {
-            // Adiciona um atributo id a cada linha
-            $(row).attr('action-id', data.id);
-        },
-         initComplete: function () {
-             requestAnimationFrame(async () => {
-                 await dblClickOnActions()
-             });
-         },
-     });
 }
 
 
 /**
- * Função assíncrona para Avaliação De Eficácia
+ * Carrega as informações iniciais e configura os selects quando o DOM estiver pronto.
  */
-async function addEffectiveness() {
-    const actionResponsible = document.querySelector('[name=effectiveness_responsible]').value;
-    const actionExpiration = document.querySelector('[name=effectiveness_expiration]').value;
-    const actionDescription = document.querySelector('[name=effectiveness_description]').value;
-    const occurrence_id = document.querySelector('[name=occurrence_id]').value;
-
-    
-    const evidenceFiles = effectivenessEvidence.getFiles();
-
-    const formData = new FormData();
-    formData.append('effectiveness_responsible', actionResponsible);
-    formData.append('effectiveness_expiration', actionExpiration);
-    formData.append('effectiveness_description', actionDescription);
-    formData.append('occurrence_id', occurrence_id);
-
-    for (let i = 0; i < evidenceFiles.length; i++) {
-        const file = evidenceFiles[i].file;
-        formData.append('evidence_files', file);
-    }
-  
-
-    const response = await fetch('/api/non-compliance/add-effectiveness', {
-        method: 'POST',
-        body: formData
-    });
-
-    const result = await response.json();
-    if (result.success) {
-        // await table_corrective()
-        alert('Ação adicionada com sucesso!');
-        // Limpar o modal ou fechar
-    } else {
-        alert('Erro ao adicionar ação.');
-    }
-}
-
-
-
-
-// Carrega as informações iniciais e configura os selects quando o DOM estiver pronto
 window.addEventListener("load", async () => {
-    console.time(`A página "${document.title}" carregou em`);
+    console.time(`A página "${document.title}" carregou em`); // Inicia o contador de tempo para carregamento da página
 
+    // Carrega todas as informações necessárias de forma assíncrona
     await getAllStatus();
     await getAllUnit();
     await getAllOrigins();
     await getAllApproval();
     await getAllResponsible();
     await getAllTypes();
-    await events()
-    await getOccurenceInfo();
-    await controlBlock();
-    await controlButtons();
-    await table_corrective()
+    await events(); // Configura eventos adicionais
+    await getOccurenceInfo(); // Obtém informações da ocorrência
+    await controlBlock(); // Controla os blocos de informação
+    await controlButtons(); // Controla os botões da página
+    await table_corrective(); // Renderiza a tabela de ações corretivas
+    await table_effectiveness(); // Renderiza a tabela de avaliação de eficácia
 
+    // Esconde o loader após o carregamento completo
     document.querySelector('#loader2').classList.add('d-none');
-    console.timeEnd(`A página "${document.title}" carregou em`);
+    
+    console.timeEnd(`A página "${document.title}" carregou em`); // Finaliza o contador de tempo para carregamento da página
 });
+

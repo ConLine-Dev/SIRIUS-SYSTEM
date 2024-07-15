@@ -173,6 +173,8 @@ module.exports = function(io) {
         }
     });
 
+
+    // Actions - Ação Corretiva
     router.post('/NewActions', async (req, res, next) => {
         const body = req.body
         // body.action, body.responsible, body.expiration, body.status
@@ -190,6 +192,18 @@ module.exports = function(io) {
         try {
             const evidenceFiles = req.files;
             const result = await non_compliance.addAction(body, evidenceFiles);
+            res.status(200).json({ success: true, message: 'Ação adicionada com sucesso!' });
+        } catch (error) {
+            res.status(404).json({ success: false, message: 'Erro ao adicionar ação.' }); 
+        }
+   
+    });
+
+    router.post('/save-action', upload.array('evidence_files'), async (req, res) => {
+        const body = req.body
+        try {
+            const evidenceFiles = req.files;
+            const result = await non_compliance.editAction(body, evidenceFiles);
             res.status(200).json({ success: true, message: 'Ação adicionada com sucesso!' });
         } catch (error) {
             res.status(404).json({ success: false, message: 'Erro ao adicionar ação.' }); 
@@ -261,21 +275,90 @@ module.exports = function(io) {
             res.status(500).json({ success: false, message: 'Erro ao obter ações.' });
         }
     });
+    
 
-
-
-    // effectiveness
-    router.post('/add-effectiveness', upload.array('evidence_files'), async (req, res) => {
+    // Effectiveness - Avaliação De Eficácia 
+    router.post('/add-effectivenes', upload.array('evidence_files'), async (req, res) => {
         const body = req.body
         try {
             const evidenceFiles = req.files;
-            const result = await non_compliance.addAction(body, evidenceFiles);
+            const result = await non_compliance.addEffectiveness(body, evidenceFiles);
+            console.log(result)
             res.status(200).json({ success: true, message: 'Ação adicionada com sucesso!' });
         } catch (error) {
             res.status(404).json({ success: false, message: 'Erro ao adicionar ação.' }); 
         }
    
     });
+
+    router.post('/save-effectivenes', upload.array('evidence_files'), async (req, res) => {
+        const body = req.body
+        try {
+            const evidenceFiles = req.files;
+            const result = await non_compliance.editEffectiveness(body, evidenceFiles);
+      
+            res.status(200).json({ success: true, message: 'Ação adicionada com sucesso!' });
+        } catch (error) {
+            console.log(error)
+            res.status(404).json({ success: false, message: 'Erro ao adicionar ação.' }); 
+        }
+   
+    });
+
+    router.get('/get-effectiveness/:occurrence_id', async (req, res) => {
+        const occurrenceId = req.params.occurrence_id;
+        try {
+            const effectiveness = await non_compliance.getEffectivenessByOccurrence(occurrenceId);
+            // Parse JSON string if needed
+            effectiveness.forEach(effectivenes => {
+                effectivenes.evidence = JSON.parse(effectivenes.evidence);
+            });
+            res.json(effectiveness);
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({ success: false, message: 'Erro ao obter ações.' });
+        }
+    });
+
+    router.get('/get-effectivenes/:id', async (req, res) => {
+        const effectivenesId = req.params.id;
+        try {
+            const effectivenes = await non_compliance.getEffectivenes(effectivenesId);
+            effectivenes.evidence = JSON.parse(effectivenes.evidence); // Parse JSON
+            res.json({ success: true, effectivenes });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Erro ao obter ação.' });
+        }
+    });
+
+    router.delete('/delete-evidence-effectivenes/:effectivenesId/:filename', async (req, res) => {
+        const effectivenesId = req.params.effectivenesId;
+        const filename = req.params.filename;
+        const filePath = path.join(__dirname, '../../storageService/administration/non-compliance/evidence', filename);
+    
+        try {
+            // Delete file from filesystem
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+    
+            // Get action from database
+            const effectivenes = await non_compliance.getEffectivenes(effectivenesId);
+            let evidence = JSON.parse(effectivenes.evidence);
+    
+            // Remove file from evidence array
+            evidence = evidence.filter(file => file.filename !== filename);
+    
+            // Update action in database
+            await non_compliance.updateEffectivenessEvidence(effectivenesId, JSON.stringify(evidence));
+    
+            res.status(200).json({ success: true, message: 'Evidência deletada com sucesso.' });
+        } catch (error) {
+            console.error('Erro ao deletar a evidência:', error);
+            res.status(500).json({ success: false, message: 'Erro ao deletar a evidência.' });
+        }
+    });
+    
 
 
     return router;

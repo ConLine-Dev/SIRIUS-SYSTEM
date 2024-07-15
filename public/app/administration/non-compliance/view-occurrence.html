@@ -745,11 +745,12 @@
                                                     <table id="ActionsByOccurrence_table" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
                                                         <thead>
                                                             <tr>
-                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Ação</th>
-                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Responsável</th>
-                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 110px;">Prazo</th>
-                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Status</th>
-                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Evidêncía</th>
+                                                                <th style="width: 508px;">id</th>
+                                                                <th style="width: 508px;">Ação</th>
+                                                                <th style="width: 243px;">Responsável</th>
+                                                                <th style="width: 110px;">Prazo</th>
+                                                                <th style="width: 90px;">Status</th>
+                                                                <th style="width: 90px;">Evidêncía</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -789,13 +790,15 @@
                                     <div class="table-responsive">
                                             <div class="row">
                                                 <div class="col-sm-12">
-                                                    <table id="table_corrective" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                                    <table id="EffectivenessByOccurrence_table" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
                                                         <thead>
                                                             <tr>
-                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Ação</th>
-                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Responsável</th>
-                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 110px;">Prazo (previsão)</th>
-                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Evidêncía</th>
+                                                                <th style="width: 508px;">id</th>
+                                                                <th style="width: 508px;">Ação</th>
+                                                                <th style="width: 243px;">Responsável</th>
+                                                                <th style="width: 110px;">Prazo (previsão)</th>
+                                                                <th style="width: 90px;">Status</th>
+                                                                <th style="width: 90px;">Evidêncía</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -823,7 +826,7 @@
                                         <div class="col-12">
                                             <label for="input-label" class="form-label">Riscos, Oportunidade E Mudanças Foram Necessárias ?</label> <br>
     
-                                            <textarea name="occurrence_responsible" class="form-input form-control" cols="30" rows="5"></textarea>
+                                            <textarea name="ROMFN" class="form-input form-control" cols="30" rows="5"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -875,7 +878,7 @@
                         <label for="input-label" class="form-label">Evidêncías</label> 
                         <div class="col-12"> 
                             
-                           <div class="multiple-filepond-Evidence" multiple></div>
+                           <div class="multiple-filepond-evidence-action-Evidence" multiple></div>
                         </div> 
                       
                        </div>
@@ -908,6 +911,7 @@
                                         <div class="col-6"> 
                                             <label for="input-label" class="form-label">Responsável</label> 
                                             <select name="action_responsible_view"></select>
+                                            <input type="text" style="display: none;" name="action_id">
                                         </div>  
                                         <div class="col-3"> 
                                         
@@ -946,12 +950,83 @@
                         
                             <label for="input-label" class="form-label">Evidêncías</label>
                             <div class="col-12">
-                                <div class="multiple-filepond-Evidence-view" multiple></div>
+                                <div class="multiple-filepond-action-Evidence-view" multiple></div>
                             </div>
                        
                             <div class="col-12">
                                 <br>
                                 <button style="width: 100%;" class="btn btn-primary" onclick="SaveAction(this)">Cadastrar</button>
+                            </div>
+                       
+                        </div>
+                      
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalEffectivenessView" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        
+                            <h6 class="modal-title" id="exampleModalXlLabel">Ação Corretiva</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                       
+                    </div>
+                    <div class="modal-body"> 
+                       <div class="row">
+                            <div class="col-8">
+                                    <div class="row">
+                                        <div class="col-6"> 
+                                            <label for="input-label" class="form-label">Responsável</label> 
+                                            <select name="responsible_view"></select>
+                                            <input type="text" style="display: none;" name="effectivenes_id">
+                                        </div>  
+                                        <div class="col-3"> 
+                                        
+                                        </div>  
+                                        <div class="col-3"> 
+                                            <label for="input-label" class="form-label">Prazo</label> 
+                                            <input type="date" class="form-control" name="expiration_view"> 
+                                        </div>  
+                                </div>  
+                                <br>
+                                <div class="row">
+                                    <div class="col-12"> 
+                                        <label for="input-label" class="form-label">Ação</label> 
+                                        <textarea class="form-control" name="description_view" cols="30" rows="10"></textarea>
+                                    </div> 
+                                    
+                                
+                                </div>
+                            
+                            
+                            </div>
+                            <div class="col-4">
+                                <div class="card custom-card overflow-hidden listFiles">
+                                    <label for="input-label" class="form-label">Evidêncías</label> 
+                                    <div class="card-body p-0">
+                                        <ul class="list-group list-group-flush listAllFilesEffectiveness">
+                                          
+                                           
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                       
+                       </div>
+                       <div class="row" >
+                        
+                            <label for="input-label" class="form-label">Evidêncías</label>
+                            <div class="col-12">
+                                <div class="multiple-filepond-evidence-effectiveness-view" multiple></div>
+                            </div>
+                       
+                            <div class="col-12">
+                                <br>
+                                <button style="width: 100%;" class="btn btn-primary" onclick="saveEffectiveness(this)">Cadastrar</button>
                             </div>
                        
                         </div>
@@ -992,7 +1067,7 @@
                         <label for="input-label" class="form-label">Evidêncías</label> 
                         <div class="col-12"> 
                             
-                           <div class="multiple-filepond-Effectiveness" multiple></div>
+                           <div class="multiple-filepond-evidence-effectiveness" multiple></div>
                         </div> 
                       
                        </div>
@@ -1000,53 +1075,6 @@
                        <div class="row" >
                         <div class="col-12">
                             <button style="width: 100%;" class="btn btn-primary" onclick="addEffectiveness(this)">Cadastrar</button>
-
-                        </div>
-                    </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="modalEffectiveness2" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar Ação Preventiva</h6>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body"> 
-                       <div class="row">
-                            <div class="col-6"> 
-                                <label for="input-label" class="form-label">Responsável</label> 
-                                <select name="Preventive_responsible"></select>
-                            </div>  
-                            <div class="col-3"> 
-                               
-                            </div>  
-                            <div class="col-3"> 
-                                <label for="input-label" class="form-label">Prazo</label> 
-                                <input type="date" class="form-control" name="Preventive_expiration"> 
-                            </div>  
-                       </div>  
-                       <br>
-                       <div class="row">
-                        <div class="col-12"> 
-                            <label for="input-label" class="form-label">Ação</label> 
-                            <textarea class="form-control" name="Preventive_description" cols="30" rows="10"></textarea>
-                        </div> 
-                      
-                        <hr>
-                        <label for="input-label" class="form-label">Evidêncías</label> 
-                        <div class="col-12">
-                            
-                           <div class="multiple-filepond-Effectiveness" multiple></div>
-                        </div> 
-                       </div>
-                       <br>
-                       <div class="row" >
-                        <div class="col-12">
-                            <button style="width: 100%;" class="btn btn-primary" onclick="addPreventive(this)">Cadastrar</button>
 
                         </div>
                     </div>

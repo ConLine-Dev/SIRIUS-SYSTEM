@@ -99,6 +99,15 @@
     height: 33px;
 }
 
+#EffectivenessByOccurrence_table_filter label, #ActionsByOccurrence_table_filter label {
+    font-size: 0;
+}
+
+#EffectivenessByOccurrence_table_filter label input, #ActionsByOccurrence_table_filter label input {
+    margin-bottom: 10px;
+    font-size: initial;
+}
+
 
 
 

@@ -321,6 +321,9 @@ async function loadOccurence(occurrence) {
     document.querySelector('textarea[name="environment"]').value = occurrence.environment;
     document.querySelector('textarea[name="machine"]').value = occurrence.machine;
     document.querySelector('textarea[name="root_cause"]').value = occurrence.root_cause;
+
+    document.querySelector('textarea[name="ROMFN"]').value = occurrence.ROMFN;
+    
     
 
     // Define as opções selecionadas nos selects
@@ -544,6 +547,7 @@ async function headerManagement(occurrence){
         if (occurrence.status == 0) {
             // 0 = aberto agora = Pendente de Aprovação
             document.querySelector('.btnAprove').classList.remove('disabled')
+            document.querySelector('.btnReprove').classList.remove('disabled')
         }else if(occurrence.status == 1){
             // 1 = aprovado = Aguardando Preenchimento
             // document.querySelector('.btnReprove').classList.remove('disabled')
@@ -820,7 +824,7 @@ async function addAction() {
 
         // Atualiza a tabela de ações e fecha o modal se a ação for adicionada com sucesso
         await table_corrective();
-        $('#modalActions').modal('hide');
+        // $('#modalActions').modal('hide');
     } else {
         // Mostra uma mensagem de erro se houver falha
         alert('Erro ao adicionar ação.');
@@ -895,6 +899,8 @@ async function getValuesOccurrence(e) {
     await makeRequest(`/api/non-compliance/saveOccurence`, 'POST', {
         formBody
     });
+
+    window.close()
 }
 
 /**
@@ -1128,7 +1134,7 @@ async function addEffectiveness() {
         // Atualiza a tabela e fecha o modal se a requisição for bem-sucedida
         await table_effectiveness();
         $('#modalEffectiveness').modal('hide');
-        alert('Ação adicionada com sucesso!');
+        // alert('Ação adicionada com sucesso!');
     } else {
         alert('Erro ao adicionar ação.');
     }
@@ -1177,7 +1183,7 @@ async function saveEffectiveness() {
         // Atualiza a tabela e fecha o modal se a requisição for bem-sucedida
         await table_effectiveness();
         $('#modalEffectivenessView').modal('hide');
-        alert('Ação adicionada com sucesso!');
+        // alert('Ação salva com sucesso!');
     } else {
         alert('Erro ao adicionar ação.');
     }

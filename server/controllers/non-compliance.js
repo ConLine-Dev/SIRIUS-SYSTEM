@@ -35,10 +35,10 @@ const non_compliance = {
         SELECT 
             o.editing,
             o.id,
-            o.title,
+            LEFT(o.title, 100) as title,
             o.status,
             o.reference,
-            o.description AS description,
+            LEFT(o.description, 100) AS description,
             ot.name AS type,
             o.occurrence_date AS date_occurrence
         FROM 
@@ -77,7 +77,8 @@ const non_compliance = {
 
         return {
             ...item, // mantém todas as propriedades existentes
-            title:item.title,
+            title:`<span style="display: inline-block; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            ${item.title}</span>`,
             editing:item.editing,
             id:item.id,
             status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,
@@ -86,7 +87,8 @@ const non_compliance = {
             date_occurrence: `<span class="icon-text-align">
                 <i class="las la-calendar-alt fs-5"></i> ${non_compliance.formatDate(item.date_occurrence)}
             </span>`,
-            description: item.description,
+            description: `<span style="display: inline-block; max-width: 281px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            ${item.description}</span>`,
             type: item.type,
             action:actions
         };
@@ -110,10 +112,10 @@ const non_compliance = {
         SELECT 
             o.editing,
             o.id,
-            o.title,
+            LEFT(o.title, 100) as title,
             o.status,
             o.reference,
-            o.description AS description,
+            LEFT(o.description, 100) AS description,
             ot.name AS type,
             o.occurrence_date AS date_occurrence
         FROM 
@@ -134,7 +136,7 @@ const non_compliance = {
         let users = ``;
         for (let index = 0; index < responsibles.length; index++) {
             const element = responsibles[index];
-
+            
             users += `<span class="avatar avatar-rounded" title="${element.name} ${element.family_name}" > 
                             <img src="https://cdn.conlinebr.com.br/colaboradores/${element.id_headcargo}" alt="img"> 
                     </span>`
@@ -152,7 +154,8 @@ const non_compliance = {
 
         return {
             ...item, // mantém todas as propriedades existentes
-            title:item.title,
+            title:`<span style="display: inline-block; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            ${item.title}</span>`,
             editing:item.editing,
             id:item.id,
             status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,
@@ -161,7 +164,8 @@ const non_compliance = {
             date_occurrence: `<span class="icon-text-align">
                 <i class="las la-calendar-alt fs-5"></i> ${non_compliance.formatDate(item.date_occurrence)}
             </span>`,
-            description: item.description,
+            description: `<span style="display: inline-block; max-width: 281px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            ${item.description}</span>`,
             type: item.type,
             action:actions
         };
@@ -188,6 +192,7 @@ const non_compliance = {
                 o.id,
                 o.status,
                 o.reference,
+                o.ROMFN,
                 o.correction,
                 o.company_id,
                 o.origin_id,
@@ -206,7 +211,7 @@ const non_compliance = {
                 occurrences o
             JOIN 
                 occurrences_type ot ON o.type_id = ot.id
-            JOIN 
+            LEFT JOIN 
                 occurrences_ishikawa_analysis oia ON oia.occurrence_id = o.id
             WHERE o.id = ${id}`)
 
@@ -239,7 +244,6 @@ const non_compliance = {
         };
         }));
             
-
         return formtOccurrence[0]; 
     },
     generateReference: async function(occurrenceId){
@@ -332,7 +336,7 @@ const non_compliance = {
     },
     updateOccurrence: async function (body, status){
         const date = new Date();
-        let { occurrence_id, occurrence, company_id, origin_id, type_id, occurrence_date, description, correction, occurrence_responsible } = body;
+        let { occurrence_id, occurrence, company_id, origin_id, type_id, occurrence_date, description, correction, occurrence_responsible, ROMFN } = body;
        
          status = status == 2 ? 3 : status == 1 ? 0 : status == 4 ? 3 : status == 5 ? 5 : status
          // Se existir, faça um UPDATE
@@ -346,6 +350,7 @@ const non_compliance = {
              occurrence_date = ?,
              description = ?,
              correction = ?,
+             ROMFN = ?,
              updated_at = ?,
              status = ?
          WHERE
@@ -358,6 +363,7 @@ const non_compliance = {
             occurrence_date,
             description,
             correction,
+            ROMFN,
             date,
             status,
             occurrence_id
@@ -373,10 +379,10 @@ const non_compliance = {
 
     },
     saveOccurence: async function(body) {
-        const { occurrence_id, manpower, method, material, environment, machine, root_cause, occurrence_responsible } = body.formBody;
+        console.log(body)
+        const { occurrence_id, manpower, method, material, environment, machine, root_cause, occurrence_responsible, ROMFN } = body.formBody;
         const { occurrence, company_id, origin_id, type_id, occurrence_date, description, correction } = body.formBody;
-    
-        console.log(occurrence_id, manpower, method, material, environment, machine, root_cause, occurrence_responsible);
+
     
         // Verificar se já existe uma ocorrência com o occurrence_id
         const existingOccurrence = await executeQuery(`
@@ -384,7 +390,7 @@ const non_compliance = {
         `, [occurrence_id]);
      
 
-        const veryfiOcurrence = occurrence || company_id || origin_id || type_id || occurrence_date || description || correction
+        const veryfiOcurrence = occurrence || company_id || origin_id || type_id || occurrence_date || description || correction || ROMFN
 
         // Verificar se pelo menos um dos campos obrigatórios está presente e a occurrencia exista no banco.
         if (existingOccurrence.length > 0 && veryfiOcurrence) {
@@ -510,11 +516,9 @@ const non_compliance = {
     },
     editEffectiveness: async function(body, evidenceFiles) {
         const { effectivenes_id, effectiveness_responsible, effectiveness_expiration, effectiveness_description } = body;
-        console.log(body)
-        // console.log(effectivenes_id, effectiveness_responsible, effectiveness_expiration, effectiveness_description)
-
+ 
         // Recupera os dados atuais da eficácia
-        const currentEffectiveness = await getEffectivenes(effectivenes_id); // Suponha que você tenha uma função para buscar a eficácia pelo ID
+        const currentEffectiveness = await non_compliance.getEffectivenes(effectivenes_id); // Suponha que você tenha uma função para buscar a eficácia pelo ID
     
         // Verifica se há evidências atuais
         let currentEvidence = [];

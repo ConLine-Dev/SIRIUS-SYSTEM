@@ -20,6 +20,111 @@ const non_compliance = {
     
         return result;
     },
+    getOccurenceByColab:async function(id, type) {
+        const status = {
+            0: 'Pendente - Aprovação 1ª etapa',
+            1: 'Reprovado - Aguardando Ajuste 1ª etapa',
+            2: 'Aprovado - Liberado Preenchimento 2ª etapa',
+            3: 'Pendente - aprovação 2ª etapa',
+            4: 'Reprovado - Aguardando Ajuste 2ª etapa',
+            5: 'Finalizado'
+        };
+    
+        // Consulta otimizada para buscar todas as informações necessárias em uma única query
+        const occurrenceQuery = `
+        SELECT 
+            o.editing,
+            o.id AS occurrence_id,
+            LEFT(o.title, 100) as title,
+            o.status,
+            o.reference,
+            LEFT(o.description, 100) AS description,
+            ot.name AS type,
+            o.occurrence_date AS date_occurrence,
+            clt.id AS collaborator_id,
+            clt.name AS collaborator_name,
+            clt.family_name,
+            clt.id_headcargo
+        FROM 
+            occurrences o
+        LEFT JOIN 
+            occurrences_type ot ON o.type_id = ot.id
+        LEFT JOIN
+            occurrences_responsibles orb ON o.id = orb.occurrence_id
+        LEFT JOIN
+            collaborators clt ON orb.collaborator_id = clt.id
+        WHERE 
+            o.status IN (${type}) AND o.id IN (
+                SELECT occurrence_id FROM occurrences_responsibles WHERE collaborator_id = ${id}
+            )
+    `;
+    
+        const occurrence = await executeQuery(occurrenceQuery);
+    
+        // Organizar os dados das ocorrências e responsáveis
+        const occurrencesMap = new Map();
+    
+        occurrence.forEach(item => {
+            if (!occurrencesMap.has(item.occurrence_id)) {
+                occurrencesMap.set(item.occurrence_id, {
+                    editing: item.editing,
+                    id: item.occurrence_id,
+                    title: item.title,
+                    status: item.status,
+                    reference: item.reference,
+                    description: item.description,
+                    type: item.type,
+                    date_occurrence: item.date_occurrence,
+                    responsibles: []
+                });
+            }
+            const occurrenceItem = occurrencesMap.get(item.occurrence_id);
+            if (item.collaborator_id) {
+                occurrenceItem.responsibles.push({
+                    id: item.collaborator_id,
+                    name: item.collaborator_name,
+                    family_name: item.family_name,
+                    id_headcargo: item.id_headcargo
+                });
+            }
+        });
+    
+        const formattedOccurrences = Array.from(occurrencesMap.values()).map(item => {
+            let users = ``;
+    
+            item.responsibles.forEach(responsible => {
+                users += `<span class="avatar avatar-rounded" title="${responsible.name} ${responsible.family_name}"> 
+                            <img src="https://cdn.conlinebr.com.br/colaboradores/${responsible.id_headcargo}" alt="img"> 
+                          </span>`;
+            });
+    
+            const actions = `
+                <div class="btn-list"> 
+                    <a data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample" class="btn btn-sm btn-warning-light btn-icon"><i class="ri-eye-line"></i></a>
+                    <button class="btn btn-sm btn-info-light btn-icon"><i class="ri-pencil-line"></i></button>
+                    <button class="btn btn-sm btn-danger-light btn-icon contact-delete"><i class="ri-delete-bin-line"></i></button>
+                </div>`;
+    
+            return {
+                title: `<span style="display: inline-block; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            ${item.title}</span>`,
+                editing: item.editing,
+                id: item.id,
+                status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,
+                reference: `<b>${item.reference}</b>`,
+                responsibles: `<div class="avatar-list-stacked">${users}</div>`,
+                date_occurrence: `<span class="icon-text-align">
+                                    <i class="las la-calendar-alt fs-5"></i> ${non_compliance.formatDate(item.date_occurrence)}
+                                  </span>`,
+                description: `<span style="display: inline-block; max-width: 281px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                ${item.description}</span>`,
+                type: item.type,
+                action: actions
+            };
+        });
+    
+        return formattedOccurrences;
+    },
     getPendingOccurrences: async function(){
         const status = {
             0: 'Pendente - Aprovação 1ª etapa',

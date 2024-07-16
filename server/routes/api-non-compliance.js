@@ -93,6 +93,17 @@ module.exports = function(io) {
         }
     });
 
+    router.post('/getOccurence-collaborator', async (req, res, next) => {
+        const {id, type} = req.body
+        try {
+            const result = await non_compliance.getOccurenceByColab(id, type);
+            res.status(200).json(result)
+
+        } catch (error) {
+            res.status(404).json(error)   
+        }
+    });
+
     router.post('/getOcurrenceById', async (req, res, next) => {
         const {id} = req.body
         console.log(id)
@@ -101,7 +112,6 @@ module.exports = function(io) {
             res.status(200).json(result)
 
         } catch (error) {
-            console.log(error)
             res.status(404).json(error)   
         }
     });

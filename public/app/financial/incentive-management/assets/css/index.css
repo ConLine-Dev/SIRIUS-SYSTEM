@@ -10,3 +10,13 @@
     align-items: center;
     z-index: 9999;
 }
+
+
+#incentive_management_table_filter label {
+    font-size: 0;
+}
+
+#incentive_management_table_filter label input {
+    margin-bottom: 10px;
+    font-size: initial;
+}

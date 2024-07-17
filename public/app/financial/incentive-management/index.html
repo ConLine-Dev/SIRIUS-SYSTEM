@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Despesas Administrativas</title>
+    <title>Comparação de Incentivo, Comissão & Seguro</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
@@ -513,51 +513,69 @@
         <!-- /app-header -->
         <!-- End::app-sidebar -->
         <!-- Start::app-content -->
-        <div class="">
-            <div class="">
+        <div class="main-content">
+            <div class="container-fluid">
                 <div class="row">
-                    <div class="col-xl-12">
+                    <div class="col-xl-3">
+                        <br>
+                        <div class="card custom-card">
+                            <div class="card-header d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
+                                <div class="card-title"> Seguro </div>
+                                <button class="btn btn-sm btn-icon btn-primary-light btn-wave waves-light waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false"> 
+                                    <i class="ri-article-line"></i> 
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="file-upload-security"></div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="btn-list text-center">
+                                    <button style="width: 100%;" class="btn btn-primary-gradient" id="startComparison-security" style="width: 50%;" disabled>Comparar</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card custom-card">
+                            <div class="card-header d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
+                                <div class="card-title"> Incentivo & Comissão </div>
+                                <button class="btn btn-sm btn-icon btn-primary-light btn-wave waves-light waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false"> 
+                                    <i class="ri-article-line"></i> 
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="file-upload-comission"></div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="btn-list text-center">
+                                    <button style="width: 100%;" class="btn btn-primary-gradient" id="startComparison-comission" style="width: 50%;" disabled>Comparar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-9">
+                        <br>
                         <div class="card custom-card">
                             <div class="card-header">
-                                <div class="card-title"> Controle de Incentivo </div>
+                                <div class="card-title title-table"> controle de Incentivo & Comissão | Seguro</div>
                             </div>
                             <div class="card-body">
                                 <div class="row" style="padding-left: 10%;padding-right: 10%;">
                                     <div class="file-upload"></div>
                                 </div>
-                                <div class="row" style="padding: 22px;">
-                                   <center>
-                                    <button class="btn btn-primary-gradient" id="startComparison" style="width: 50%;">Inciar comparação</button>
-                                   </center>
-                                </div>
                                 <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="incentive_management_table" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Adquirente</th>
-                                                            <th>BL</th>
-                                                            <th>DI</th>
-                                                            <th>Referência Poly</th>
-                                                            <th>Qtd. Container</th>
-                                                            <th>Valor Comissão</th>
-                                                          </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                      
-                                                    </tbody>
-                                                
-                                                </table>
-                                            </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <table id="incentive_management_table" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                                <thead></thead>
+                                                <tbody></tbody>
+                                            </table>
                                         </div>
-                            
-                              
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                
             </div>
         </div>
  

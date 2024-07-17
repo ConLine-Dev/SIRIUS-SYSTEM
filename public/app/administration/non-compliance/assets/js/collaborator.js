@@ -38,18 +38,15 @@ async function listPendingOccurrences(){
 
     // Criar a nova tabela com os dados da API
     $('#pending_occurrences_table').DataTable({
-        dom: 'frtip',
+        dom: 'rtip',
         pageLength: 5,
         order: [[0, 'desc']],
         data: dados,
         pageInfo: false,
         bInfo: false,
         columns: [
-            { data: 'reference' },
             { data: 'title' },
-            { data: 'description' },
             { data: 'type' },
-            { data: 'responsibles' },
             { data: 'status' },
             { data: 'date_occurrence' },
             // { data: 'action' }

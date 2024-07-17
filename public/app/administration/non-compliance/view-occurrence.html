@@ -598,15 +598,19 @@
                             
                             <div class="card-body default">
                                 <div class="row">
-                                    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-12"> 
+                                    <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12"> 
                                         <label for="input-label" class="form-label">Ocorrência</label> 
                                         <input type="text" name="occurrence" class="form-control form-input"> 
                                         <input type="text" name="occurrence_id" style="display: none;" class="form-control form-input"> 
                                     </div>
                                   
-                                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
+                                    <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
                                         <label for="input-label" class="form-label">Data Ocorrência</label> 
                                         <input type="date" name="occurrence_date" class="form-control form-input" > 
+                                    </div>
+                                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
+                                        <label for="input-label" class="form-label">Data Abertura</label> 
+                                        <input type="datetime-local" name="create_at" class="form-control form-input" > 
                                     </div>
                                 </div>
                                 <br>
@@ -665,7 +669,7 @@
                        
                             <div class="card custom-card statusApproval inactive">
                                 <div class="card-header justify-content-between">
-                                    <div class="card-title"> Analise da causa Método ISHIKAWA (só irá aparecer após aprovação da qualidade)</div>
+                                    <div class="card-title"> Analise da causa Método ISHIKAWA</div>
                                     <div class="d-flex">
     
                                         <!-- Start::add task modal -->
@@ -730,9 +734,9 @@
                             </div>
 
                      
-                            <div class="card custom-card statusApproval inactive">
+                            <div class="card custom-card statusActions inactive">
                                 <div class="card-header justify-content-between">
-                                    <div class="card-title"> Ação corretiva (só irá aparecer após aprovação da qualidade)</div>
+                                    <div class="card-title"> Ação corretiva</div>
                                     <div class="d-flex">
                                         <button class="btn btn-sm btn-primary btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#modalActions"><i class="ri-add-line fw-semibold align-middle me-1"></i> Adicionar <b>ação corretiva</b></button>
                                         <!-- Start::add task modal -->
@@ -778,9 +782,9 @@
                             </div>
     
                       
-                            <div class="card custom-card statusApproval inactive">
+                            <div class="card custom-card statusEfficiency inactive">
                                 <div class="card-header justify-content-between">
-                                    <div class="card-title"> Avaliação De Eficácia (só irá aparecer após aprovação da qualidade)</div>
+                                    <div class="card-title"> Avaliação De Eficácia </div>
                                     <div class="d-flex">
                                         <button class="btn btn-sm btn-primary btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#modalEffectiveness"><i class="ri-add-line fw-semibold align-middle me-1"></i> Adicionar <b>avaliação de eficácia</b></button>
                                         <!-- Start::add task modal -->
@@ -956,7 +960,7 @@
                        
                             <div class="col-12">
                                 <br>
-                                <button style="width: 100%;" class="btn btn-primary" onclick="SaveAction(this)">Cadastrar</button>
+                                <button style="width: 100%;" class="btn btn-primary" onclick="SaveAction(this)">Salvar</button>
                             </div>
                        
                         </div>
@@ -971,7 +975,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         
-                            <h6 class="modal-title" id="exampleModalXlLabel">Ação Corretiva</h6>
+                            <h6 class="modal-title" id="exampleModalXlLabel">Avaliação De Eficácia</h6>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 
                        
@@ -1027,7 +1031,7 @@
                        
                             <div class="col-12">
                                 <br>
-                                <button style="width: 100%;" class="btn btn-primary" onclick="saveEffectiveness(this)">Cadastrar</button>
+                                <button style="width: 100%;" class="btn btn-primary" onclick="saveEffectiveness(this)">Salvar</button>
                             </div>
                        
                         </div>
@@ -1041,7 +1045,7 @@
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar Avaliação De Eficácia2</h6>
+                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar Avaliação De Eficácia</h6>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body"> 

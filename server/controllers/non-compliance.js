@@ -298,6 +298,7 @@ const non_compliance = {
                 o.status,
                 o.reference,
                 o.ROMFN,
+                o.create_at,
                 o.correction,
                 o.company_id,
                 o.origin_id,
@@ -330,23 +331,48 @@ const non_compliance = {
         WHERE ors.occurrence_id = ${item.id}`)
 
 
-        return {
-            ...item, // mantém todas as propriedades existentes
-            id:item.id,
-            second_part:item.second_part,
-            editing:item.editing,
-            statusName: status[item.status],
-            status: item.status,
-            correction:item.correction,
-            company_id:item.company_id,
-            origin_id:item.origin_id,
-            reference: item.reference,
-            responsibles: responsibles,
-            date_occurrence: item.date_occurrence,
-            description: item.description,
-            type: item.type,
-            typeId: item.typeId
-        };
+        const Actions = await non_compliance.getActionsByOccurrence(item.id)
+        let actionAllStatus = Actions.length > 0 ? true : false
+        
+        for (let index = 0; index < Actions.length; index++) {
+            const element = Actions[index];
+            if(element.statusID == 0){
+                actionAllStatus = false
+                break;
+            }
+        }
+
+
+        const Effectivenes = await non_compliance.getEffectivenessByOccurrence(item.id)
+        let EffectivenesAllStatus = Effectivenes.length > 0 ? true : false
+        for (let index = 0; index < Effectivenes.length; index++) {
+            const element = Effectivenes[index];
+            if(element.statusID == 0){
+                EffectivenesAllStatus = false
+                break;
+            }
+        }
+
+
+            return {
+                ...item, // mantém todas as propriedades existentes
+                id:item.id,
+                second_part:item.second_part,
+                editing:item.editing,
+                statusName: status[item.status],
+                status: item.status,
+                correction:item.correction,
+                company_id:item.company_id,
+                origin_id:item.origin_id,
+                reference: item.reference,
+                responsibles: responsibles,
+                date_occurrence: item.date_occurrence,
+                description: item.description,
+                type: item.type,
+                typeId: item.typeId,
+                actionAllStatus:actionAllStatus,
+                EffectivenesAllStatus:EffectivenesAllStatus
+            };
         }));
             
         return formtOccurrence[0]; 
@@ -682,7 +708,7 @@ const non_compliance = {
 
         const status = {
             0: 'Pendente',
-            1: 'Reprovado - Aguardando Ajuste 1ª etapa',
+            1: 'Finalizado',
         }
 
         const Actions = await Promise.all(result.map(async function(item) {
@@ -700,6 +726,7 @@ const non_compliance = {
                 action: item.action,
                 deadline: `<span class="badge bg-danger-transparent"><i class="bi bi-clock me-1"></i>${non_compliance.formatDate(item.deadline)}</span>`,
                 responsible:users,
+                statusID: item.status,
                 verifyEvidence: JSON.parse(item.evidence).length > 0 ? '<span class="badge bg-success-transparent">Sim</span>' : '<span class="badge bg-danger-transparent">Não</span>'
             };
         }));
@@ -715,7 +742,7 @@ const non_compliance = {
 
         const status = {
             0: 'Pendente',
-            1: 'Reprovado - Aguardando Ajuste 1ª etapa',
+            1: 'Finalizado',
         }
 
         const Effectiveness = await Promise.all(result.map(async function(item) {
@@ -733,6 +760,7 @@ const non_compliance = {
                 action: item.action,
                 deadline: `<span class="badge bg-danger-transparent"><i class="bi bi-clock me-1"></i>${non_compliance.formatDate(item.deadline)}</span>`,
                 responsible:users,
+                statusID: item.status,
                 verifyEvidence: JSON.parse(item.evidence).length > 0 ? '<span class="badge bg-success-transparent">Sim</span>' : '<span class="badge bg-danger-transparent">Não</span>'
             };
         }));

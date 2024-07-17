@@ -71,9 +71,16 @@ async function getAllStatus() {
         },
         {
             id: 5,
-            name: 'Finalizado'
+            name: 'Desenvolvimento - Ação Corretiva'
         },
-       
+        {
+            id: 6,
+            name: 'Desenvolvimento - Avaliação de Eficácia'
+        },
+        {
+            id: 7,
+            name: 'Finalizado'
+        }
     ]
 
     // Formata o array para ser usado com o Choices.js
@@ -364,6 +371,22 @@ async function loadOccurence(occurrence) {
     const day = ('0' + date_occurrence.getDate()).slice(-2);
     document.querySelector('input[name="occurrence_date"]').value = `${year}-${month}-${day}`;
 
+
+    // Formatação da abertura de ocorrência
+    const date_occurrence_open = new Date(occurrence.create_at);
+
+    const year_open = date_occurrence_open.getFullYear();
+    const month_open = ('0' + (date_occurrence_open.getMonth() + 1)).slice(-2);
+    const day_open = ('0' + date_occurrence_open.getDate()).slice(-2);
+    const hours_open = ('0' + date_occurrence_open.getHours()).slice(-2);
+    const minutes_open = ('0' + date_occurrence_open.getMinutes()).slice(-2);
+
+    document.querySelector('input[name="create_at"]').value = `${year_open}-${month_open}-${day_open}T${hours_open}:${minutes_open}`;
+
+
+
+
+
  
     await headerManagement(occurrence)
 
@@ -473,6 +496,8 @@ async function statusManagement(occurrence){
         });
     }
 
+
+
     if(occurrence.status == 2 || occurrence.status == 3 || occurrence.status == 4 || occurrence.status == 5) {
         // Desabilita campos durante a edição
         const InputDefault1 = document.querySelectorAll('.default input');
@@ -490,11 +515,25 @@ async function statusManagement(occurrence){
         sAllTypes.disable();
         sAllResponsible.disable();
 
-
-
        
         // document.querySelector('.btnReset').classList.remove('disabled')
     }
+
+    if(occurrence.status == 5 || occurrence.status == 6 || occurrence.status == 7){
+        const inputActions = document.querySelectorAll('.statusActions');
+        inputActions.forEach(element => {
+            element.classList.remove('inactive');
+        });
+    }
+
+    if((occurrence.status == 6 || occurrence.status == 7) && occurrence.actionAllStatus == true){
+        const inputActions = document.querySelectorAll('.statusEfficiency');
+        inputActions.forEach(element => {
+            element.classList.remove('inactive');
+        });
+    }
+
+
 
     
     if(occurrence.status != 4 && occurrence.status != 2) {
@@ -523,7 +562,7 @@ async function headerManagement(occurrence){
 
 
     const user = await getInfosLogin();
-    if(!user.department_ids.includes('8')){
+    if(!user.department_ids || !user.department_ids.includes('8')){
         // SE NÃO FIZER PARTE DO DEPARTAMENTO QUALIDADE 
 
         document.querySelector('.btnAprove').classList.add('d-none')
@@ -551,10 +590,10 @@ async function headerManagement(occurrence){
         }else if(occurrence.status == 1){
             // 1 = aprovado = Aguardando Preenchimento
             // document.querySelector('.btnReprove').classList.remove('disabled')
-            document.querySelector('.btnFinalize').classList.remove('disabled')
+            // document.querySelector('.btnFinalize').classList.remove('disabled')
         }else if(occurrence.status == 2){
             // 2 = reprovado = Aguardando Ajuste.
-            document.querySelector('.btnFinalize').classList.remove('disabled')
+            // document.querySelector('.btnFinalize').classList.remove('disabled')
         }else if(occurrence.status == 3){
             // 3 = Finalizar = Finalizado
             document.querySelector('.btnAprove').classList.remove('disabled')
@@ -562,9 +601,14 @@ async function headerManagement(occurrence){
         }else if(occurrence.status == 4){
             // 4 = Restaurado = Restaurado
             document.querySelector('.btnFinalize').classList.remove('disabled')
-        }else if(occurrence.status == 5){
-            // 4 = Restaurado = Restaurado
+        }else if(occurrence.status == 5 && occurrence.actionAllStatus == true){
+            // 5 = Desenvolvimento - Ação Corretiva só libera após todas as açõe finalizadas
+            document.querySelector('.btnAprove').classList.remove('disabled')
+            // document.querySelector('.btnReset').classList.add('disabled')
+        }else if(occurrence.status == 6 && occurrence.EffectivenesAllStatus == true){
+            // 5 = Desenvolvimento - Ação Corretiva só libera após todas as açõe finalizadas
             // document.querySelector('.btnAprove').classList.remove('disabled')
+            document.querySelector('.btnFinalize').classList.remove('disabled')
             // document.querySelector('.btnReset').classList.add('disabled')
         }
 
@@ -716,9 +760,23 @@ async function controlButtons(){
         
                 if(infoOccurence.status == 3){
                     numberType = 5
-                    obs = 'Aprovado 2ª etapa - Finalizado'
+                    obs = 'Desenvolvimento - Ação Corretiva'
                     await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
-                    await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Desbloqueado 2º etapa', userId:users.system_collaborator_id  });
+                    await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Bloqueado 2º etapa', userId:users.system_collaborator_id  });
+                }
+
+                if(infoOccurence.status == 5){
+                    numberType = 6
+                    obs = 'Desenvolvimento - Avaliação de Eficácia'
+                    await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
+                    await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Bloqueado 2º etapa', userId:users.system_collaborator_id  });
+                }
+
+                if(infoOccurence.status == 6){
+                    numberType = 7
+                    obs = 'Finalizado'
+                    await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
+                    await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Bloqueado 2º etapa', userId:users.system_collaborator_id  });
                 }
         
                 sAllStatus.setChoiceByValue(numberType.toString());
@@ -833,12 +891,12 @@ async function controlButtons(){
                 document.querySelector('.btnReset').classList.remove('disabled')
         
                
-                sAllStatus.setChoiceByValue('5');
-                infoOccurence.status = 5
+                sAllStatus.setChoiceByValue('7');
+                infoOccurence.status = 7
                 
                 await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
                 await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Bloqueado 2º etapa', userId:users.system_collaborator_id  });
-                await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:5, prop:'status', id:idOccurrence, obs:'Finalizado', userId:users.system_collaborator_id  });
+                await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:7, prop:'status', id:idOccurrence, obs:'Finalizado', userId:users.system_collaborator_id  });
                 await headerManagement(infoOccurence)
 
                 Swal.fire({
@@ -1005,15 +1063,21 @@ async function getValuesOccurrence(e) {
     // Itera sobre os elementos e adiciona os valores ao objeto formBody
     for (let index = 0; index < elements.length; index++) {
         const item = elements[index];
-        formBody[item.getAttribute('name')] = (item.getAttribute('name') == 'occurrence_responsible' || item.getAttribute('name') == 'types') ? sAllResponsible.getValue(true) : item.value;
+        const value = (item.getAttribute('name') == 'occurrence_responsible' || item.getAttribute('name') == 'types') ? sAllResponsible.getValue(true) : item.value;
+
+        // Verifica se o valor está vazio
+        // if (!value) {
+        //     alert('Todos os campos devem ser preenchidos.');
+        //     return; // Interrompe a execução se algum campo estiver vazio
+        // }
+
+        formBody[item.getAttribute('name')] = value;
     }
 
     // Faz a requisição para salvar a ocorrência
-    await makeRequest(`/api/non-compliance/saveOccurence`, 'POST', {
-        formBody
-    });
+    await makeRequest(`/api/non-compliance/saveOccurence`, 'POST', { formBody });
 
-    window.close()
+    window.close();
 }
 
 /**
@@ -1170,7 +1234,7 @@ async function table_corrective() {
     // Inicializa a tabela DataTable com os dados obtidos da API
     $('#ActionsByOccurrence_table').DataTable({
         // Configuração de layout da tabela
-        dom: 'frtip', // Define a estrutura da tabela: filter (f), length (l), table (t), info (i), pagination (p)
+        dom: 'rtip', // Define a estrutura da tabela: filter (f), length (l), table (t), info (i), pagination (p)
         pageLength: 5, // Define o número de registros por página
         order: [[0, 'desc']], // Define a ordenação inicial da tabela (pela primeira coluna, em ordem decrescente)
         data: dados, // Define os dados da tabela
@@ -1317,7 +1381,7 @@ async function table_effectiveness() {
 
     // Inicializa a tabela DataTable com os dados obtidos da API
     $('#EffectivenessByOccurrence_table').DataTable({
-        dom: 'frtip', // Define a estrutura da tabela
+        dom: 'rtip', // Define a estrutura da tabela
         pageLength: 5, // Define o número de registros por página
         order: [[0, 'desc']], // Define a ordenação inicial da tabela
         data: dados, // Define os dados da tabela

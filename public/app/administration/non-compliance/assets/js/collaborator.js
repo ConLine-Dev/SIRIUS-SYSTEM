@@ -1,3 +1,13 @@
+// Conecta-se ao servidor Socket.io
+const socket = io();
+
+ // Evento para receber mensagens do servidor
+ socket.on('att-non-compliance', async (msg) => {
+    document.querySelector('#loader2').classList.remove('d-none')
+    await listPendingOccurrences();
+    await listAllOccurrences();
+    document.querySelector('#loader2').classList.add('d-none')
+});
 
 const elements = {
     newOccurenceButton: document.querySelector('#newOccurenceButton'),

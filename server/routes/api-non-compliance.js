@@ -32,6 +32,7 @@ const upload = multer({ storage });
 
 
 module.exports = function(io) {
+   
   
     router.get('/AllResponsible', async (req, res, next) => {
         try {
@@ -130,8 +131,8 @@ module.exports = function(io) {
         const body = req.body
         try {
             const result = await non_compliance.saveOccurence(body);
+            io.emit('att-non-compliance', result);
             res.status(200).json(result)
-
         } catch (error) {
             res.status(404).json(error)   
         }
@@ -142,7 +143,7 @@ module.exports = function(io) {
         try {
             const result = await non_compliance.newOccurrence(body);
             res.status(200).json(result)
-
+            io.emit('att-non-compliance', result);
         } catch (error) {
             res.status(404).json(error)   
         }

@@ -892,7 +892,7 @@ async function controlButtons(){
         });
         
     })
-    
+
 }
 
 /**
@@ -937,7 +937,7 @@ async function addAction() {
 
         // Atualiza a tabela de ações e fecha o modal se a ação for adicionada com sucesso
         await table_corrective();
-        // $('#modalActions').modal('hide');
+        $('#modalActions').modal('hide');
     } else {
         // Mostra uma mensagem de erro se houver falha
         alert('Erro ao adicionar ação.');

@@ -1,4 +1,15 @@
 
+// Conecta-se ao servidor Socket.io
+const socket = io();
+
+ // Evento para receber mensagens do servidor
+ socket.on('att-non-compliance', async (msg) => {
+    document.querySelector('#loader2').classList.remove('d-none')
+    await listPendingOccurrences();
+    await listAllOccurrences();
+    document.querySelector('#loader2').classList.add('d-none')
+});
+
 const elements = {
     newOccurenceButton: document.querySelector('#newOccurenceButton'),
     rowTableOccurence: document.querySelectorAll('#occurrences_table tbody tr')
@@ -109,20 +120,22 @@ async function Events(){
     
 }
 
-async function clickNewOccurence(){
-    elements.newOccurenceButton.addEventListener('click', async function(e){
-        e.preventDefault()
+async function clickNewOccurence() {
+    // Remove o evento 'click' antes de adicionar novamente
+    elements.newOccurenceButton.removeEventListener('click', clickNewOccurence);
+
+    // Adiciona o evento 'click' atualizado
+    elements.newOccurenceButton.addEventListener('click', async function(e) {
+        e.preventDefault();
 
         const body = {
             url: '/app/administration/non-compliance/new-occurrence'
-        }
+        };
 
         window.ipcRenderer.invoke('open-exWindow', body);
-    })
-
-
-
+    });
 }
+
 
 async function dblClickOnOccurrence(tableId){
     const rowTableOccurence = document.querySelectorAll(`${tableId} tbody tr`);

@@ -484,7 +484,6 @@ const non_compliance = {
 
     },
     saveOccurence: async function(body) {
-        console.log(body)
         const { occurrence_id, manpower, method, material, environment, machine, root_cause, occurrence_responsible, ROMFN } = body.formBody;
         const { occurrence, company_id, origin_id, type_id, occurrence_date, description, correction } = body.formBody;
 
@@ -506,6 +505,9 @@ const non_compliance = {
         if (manpower || method || material || environment || machine || root_cause) {
             await non_compliance.setIshikawaAnalysis(body.formBody)
         }
+
+
+        return true
      
     },    
     getHistory: async function(id){

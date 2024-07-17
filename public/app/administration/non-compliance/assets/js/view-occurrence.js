@@ -681,104 +681,217 @@ async function controlBlock(){
  * Função assíncrona para eventos de botoes clicks
  */
 async function controlButtons(){
+
     const users = await getInfosLogin();
+
     const btnAprove = document.querySelector('.btnAprove');
     btnAprove.addEventListener('click', async function(e){
         e.preventDefault();
+        const my = this;
 
-        this.classList.add('disabled')
-        document.querySelector('.btnReprove').classList.remove('disabled')
-        document.querySelector('.btnFinalize').classList.remove('disabled')
+        Swal.fire({
+            title: 'Tem certeza?',
+            text: "Deseja realmente aprovar o status atual desta ocorrência?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Aprovar',
+            cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                my.classList.add('disabled')
 
-        let numberType = 0
-        let obs = ''
-        if(infoOccurence.status == 0){
-            numberType = 2
-            obs = 'Aprovado - Liberado Preenchimento 2ª etapa'
-            await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
-            await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'second_part', id:idOccurrence, obs:'Desbloqueado 2º etapa', userId:users.system_collaborator_id  });
-        }
+                document.querySelector('.btnReprove').classList.remove('disabled')
+                document.querySelector('.btnFinalize').classList.remove('disabled')
+        
+                let numberType = 0
+                let obs = ''
+                if(infoOccurence.status == 0){
+                    numberType = 2
+                    obs = 'Aprovado - Liberado Preenchimento 2ª etapa'
+                    await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
+                    await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'second_part', id:idOccurrence, obs:'Desbloqueado 2º etapa', userId:users.system_collaborator_id  });
+                }
+        
+                if(infoOccurence.status == 3){
+                    numberType = 5
+                    obs = 'Aprovado 2ª etapa - Finalizado'
+                    await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
+                    await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Desbloqueado 2º etapa', userId:users.system_collaborator_id  });
+                }
+        
+                sAllStatus.setChoiceByValue(numberType.toString());
+        
+                infoOccurence.status = numberType
+                await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:numberType, prop:'status', id:idOccurrence, obs:obs, userId:users.system_collaborator_id });
+        
+        
+                await headerManagement(infoOccurence)
 
-        if(infoOccurence.status == 3){
-            numberType = 5
-            obs = 'Aprovado 2ª etapa - Finalizado'
-            await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
-            await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Desbloqueado 2º etapa', userId:users.system_collaborator_id  });
-        }
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Aprovado!',
+                    text: 'A ocorrência foi aprovada com sucesso.'
+                });
+                // Aqui você pode colocar o código para aprovar a ocorrência
+            } else {
+              
+            }
+        });
 
-        sAllStatus.setChoiceByValue(numberType.toString());
-
-        infoOccurence.status = numberType
-        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:numberType, prop:'status', id:idOccurrence, obs:obs, userId:users.system_collaborator_id });
-
-
-        await headerManagement(infoOccurence)
+       
     })
-
 
     const btnReprove = document.querySelector('.btnReprove');
     btnReprove.addEventListener('click', async function(e){
         e.preventDefault();
-        this.classList.add('disabled')
-        document.querySelector('.btnAprove').classList.remove('disabled')
-        document.querySelector('.btnFinalize').classList.add('disabled')
+        const my = this;
+        Swal.fire({
+            title: 'Tem certeza?',
+            text: "Por favor, digite o motivo da reprovação:",
+            icon: 'warning',
+            input: 'textarea',
+            inputAttributes: {
+                maxlength: 250, // Define o tamanho máximo do texto para 100 caracteres
+            },
+            customClass: {
+                input: 'swal2-input-custom' // Aplica a classe de estilo personalizada ao input
+            },
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Confirmar',
+            cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const reason = result.value;
+                if (reason.trim() === '') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Entrada Inválida',
+                        text: 'Por favor, digite um motivo válido para a reprovação.'
+                    });
+                    my.classList.remove('disabled')
+                } else {
+                    my.classList.add('disabled')
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Reprovado!',
+                        text: `Motivo: ${reason}`
+                    });
 
-        let numberType = 0
-        let obs = ''
-        if(infoOccurence.status == 0){
-            numberType = 1
-            obs = 'Reprovado - Aguardando Ajuste 1ª etapa'
-            await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'editing', id:idOccurrence, obs:'Desbloqueado 1º etapa', userId:users.system_collaborator_id  });
-        }
 
-        if(infoOccurence.status == 3){
-            numberType = 4
-            obs = 'Reprovado - Aguardando Ajuste 2ª etapa'
-            await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'second_part', id:idOccurrence, obs:'Desbloqueado 2º etapa', userId:users.system_collaborator_id  });
-        }
-        
-        sAllStatus.setChoiceByValue(numberType.toString());
-        infoOccurence.status = numberType
-        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:numberType, prop:'status', id:idOccurrence, obs:obs, userId:users.system_collaborator_id  });
-        await headerManagement(infoOccurence)
+                    // Aqui você pode fazer o que desejar com a variável 'reason'
+                    console.log('Motivo de reprovação:', reason);
+                    document.querySelector('.btnAprove').classList.remove('disabled')
+                    document.querySelector('.btnFinalize').classList.add('disabled')
+
+                    let numberType = 0
+                    let obs = ''
+                    if(infoOccurence.status == 0){
+                        numberType = 1
+                        obs = 'Reprovado - Aguardando Ajuste 1ª etapa'
+                        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'editing', id:idOccurrence, obs:'Desbloqueado 1º etapa', userId:users.system_collaborator_id  });
+                    }
+
+                    if(infoOccurence.status == 3){
+                        numberType = 4
+                        obs = 'Reprovado - Aguardando Ajuste 2ª etapa'
+                        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'second_part', id:idOccurrence, obs:'Desbloqueado 2º etapa', userId:users.system_collaborator_id  });
+                    }
+                    
+                    sAllStatus.setChoiceByValue(numberType.toString());
+                    infoOccurence.status = numberType
+                    await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:numberType, prop:'status', id:idOccurrence, obs:obs+`<br>Motivo: ${reason}`, userId:users.system_collaborator_id  });
+                    await headerManagement(infoOccurence)
+                }
+            }
+        });
+
     })
 
     const btnFinalize = document.querySelector('.btnFinalize');
     btnFinalize.addEventListener('click', async function(e){
         e.preventDefault();
-        this.classList.add('disabled')
-        document.querySelector('.btnAprove').classList.add('disabled')
-        document.querySelector('.btnReprove').classList.add('disabled')
-        document.querySelector('.btnReset').classList.remove('disabled')
+        const my = this;
 
-       
-        sAllStatus.setChoiceByValue('5');
-        infoOccurence.status = 5
+        Swal.fire({
+            title: 'Tem certeza?',
+            text: "Deseja realmente finalizar esta ocorrência?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Finalizar',
+            cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                my.classList.add('disabled')
+                document.querySelector('.btnAprove').classList.add('disabled')
+                document.querySelector('.btnReprove').classList.add('disabled')
+                document.querySelector('.btnReset').classList.remove('disabled')
         
-        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
-        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Bloqueado 2º etapa', userId:users.system_collaborator_id  });
-        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:5, prop:'status', id:idOccurrence, obs:'Finalizado', userId:users.system_collaborator_id  });
-        await headerManagement(infoOccurence)
+               
+                sAllStatus.setChoiceByValue('5');
+                infoOccurence.status = 5
+                
+                await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
+                await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Bloqueado 2º etapa', userId:users.system_collaborator_id  });
+                await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:5, prop:'status', id:idOccurrence, obs:'Finalizado', userId:users.system_collaborator_id  });
+                await headerManagement(infoOccurence)
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Finalizado!',
+                    text: 'A ocorrência foi finalizada com sucesso.'
+                });
+                // Aqui você pode colocar o código para finalizar a ocorrência
+            } else {
+            }
+        });
+       
     })
 
     const btnReset = document.querySelector('.btnReset');
     btnReset.addEventListener('click', async function(e){
         e.preventDefault();
-        this.classList.add('disabled')
-        document.querySelector('.btnAprove').classList.add('disabled');
-        document.querySelector('.btnReprove').classList.add('disabled');
-        document.querySelector('.btnFinalize').classList.add('disabled');
+        const my = this;
+        Swal.fire({
+            title: 'Restaurar Status',
+            text: "Tem certeza que deseja restaurar o status para 'Pendente de Aprovação 1ª Etapa'?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Restaurar',
+            cancelButtonText: 'Cancelar'
+        }).then( async (result) => {
+            if (result.isConfirmed) {
+                my.classList.add('disabled')
+                document.querySelector('.btnAprove').classList.add('disabled');
+                document.querySelector('.btnReprove').classList.add('disabled');
+                document.querySelector('.btnFinalize').classList.add('disabled');
 
-        sAllStatus.setChoiceByValue('0');
-        infoOccurence.status = 0
+                sAllStatus.setChoiceByValue('0');
+                infoOccurence.status = 0
+                
+                await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'editing', id:idOccurrence, obs:'Desbloqueado 1º etapa', userId:users.system_collaborator_id  });
+                await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Bloqueado 2º etapa', userId:users.system_collaborator_id  });
+                await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'status', id:idOccurrence, obs:'Restaurado', userId:users.system_collaborator_id  });
+                await headerManagement(infoOccurence)
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Status Restaurado!',
+                    text: 'O status da ocorrência foi restaurado para Pendente de Aprovação 1ª Etapa.'
+                });
+                // Aqui você pode colocar o código para restaurar o status da ocorrência
+            } else {
+              
+            }
+        });
         
-        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'editing', id:idOccurrence, obs:'Desbloqueado 1º etapa', userId:users.system_collaborator_id  });
-        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Bloqueado 2º etapa', userId:users.system_collaborator_id  });
-        await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'status', id:idOccurrence, obs:'Restaurado', userId:users.system_collaborator_id  });
-        await headerManagement(infoOccurence)
     })
-
-
     
 }
 

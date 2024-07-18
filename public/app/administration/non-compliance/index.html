@@ -44,7 +44,7 @@
     <link rel="stylesheet" href="https://cdn.quilljs.com/2.0.0-dev.2/quill.snow.css">
     <link rel="stylesheet" href="https://cdn.quilljs.com/2.0.0-dev.2/quill.bubble.css">
     
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@latest/dist/apexcharts.css">
 
     <link rel="stylesheet" href="./assets/css/index.css">
     <meta http-equiv="imagetoolbar" content="no">
@@ -516,7 +516,7 @@
         <div class="main-content">
             <div class="container-fluid">
                 <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-                    <h1 class="page-title fw-semibold fs-18 mb-0">Gerenciamento de ocorrências  e não conformidades</h1>
+                    <h1 class="page-title fw-semibold fs-18 mb-0">Qualidade - Gerenciamento de ocorrências</h1>
                     <div class="ms-md-1 ms-0">
                         <nav>
                             <ol class="breadcrumb mb-0">
@@ -527,71 +527,267 @@
                     </div>
                 </div>
 
+              <div class="row">
                 <div class="row">
-                    <div class="col-xl-12">
-                        <div class="card custom-card">
-
-                             <!-- OCORRENCIAS PENDENTES -->
-                             <div class="card-header justify-content-between">
-                                <div class="card-title"> Ocorrências Pendêntes </div>
-                                <div class="d-flex">
-                                    <button class="btn btn-sm btn-primary" id="newOccurenceButton"><i class="ri-add-line fw-semibold align-middle me-1"></i> Nova ocorrência</button>
-                                    <!-- Start::add task modal -->
-                                    <!-- End::add task modal -->
-                                </div>
-                            </div>
-                            
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="pending_occurrences_table" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 350px;">Referência</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Título</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Descrição</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Tipo</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Envolvidos</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Status</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Data Ocorrência</th>
-                                                            <!-- <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Ação</th> -->
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td><b>RNC08/23</b></td>
-                                                            <td>Incluir informação nos procedimentos operacionais de cópia não controlada</td>
-                                                            <td>
-                                                                <div class="d-flex align-items-center"> <span class="avatar avatar-xs me-2 avatar-rounded"> <img src="https://cdn.conlinebr.com.br/colaboradores/48901" alt="img"> </span>Marcone Vidal </div>
-                                                            </td>
-                                                            <td> 
-                                                                <span class="icon-text-align">
-                                                                    <i class="las la-calendar-alt fs-5"></i> 27/03/2024
-                                                                </span>
-                                                            </td>
-                                                          </tr>
-                                                    </tbody>
-                                                
-                                                </table>
+                    <div class="col-6">
+                        <div class="row">
+                            <div class="col-xl-12">
+                                <div class="card custom-card">
+                                    <div class="card-header">
+                                        <div class="card-title">Ocorrências Por Unidade</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row gy-md-0 gy-3">
+                                            <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                                                <div class="d-flex align-items-top">
+                                                    <div class="me-3"> <span class="avatar text-primary"> <i class="ti ti-files fs-18"></i> </span> </div>
+                                                    <div> <span class="d-block mb-1 text-muted">Itajaí | Brasil</span>
+                                                        <h6 class="fw-semibold mb-0">0023</h6> </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                                                <div class="d-flex align-items-top">
+                                                    <div class="me-3"> <span class="avatar  text-secondary"> <i class="ti ti-file-check fs-18"></i> </span> </div>
+                                                    <div> <span class="d-block mb-1 text-muted">São Paulo | Brasil</span>
+                                                        <h6 class="fw-semibold mb-0">0007</h6> </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                                                <div class="d-flex align-items-top">
+                                                    <div class="me-3"> 
+                                                        <span class="avatar text-warning"> 
+                                                            <i class="ti ti-file-dislike fs-18"></i> </span> </div>
+                                                    <div> <span class="d-block mb-1 text-muted">Curitiba | Brasil</span>
+                                                        <h6 class="fw-semibold mb-0">0001</h6> </div>
+                                                </div>
                                             </div>
                                         </div>
-                            
-                              
+                                    </div>
                                 </div>
                             </div>
-
-
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6">
+                                    <div class="card custom-card hrm-main-card primary">
+                                        <div class="card-body p-1">
+                                            <div class="d-flex align-items-center flex-wrap">
+                                                <div id="analytics-views" style="min-height: 98.7px;">
+                                                </div>
+                                                <div class="p-2">
+                                                    <p class="mb-1 text-muted">Ocorrências Abertas no Mês</p>
+                                                    <h5 class="fw-semibold mb-0">04</h5> </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                               
+                               
+                            </div>
+                            <div class="col-6">
+                                <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6">
+                                    <div class="card custom-card hrm-main-card primary">
+                                        <div class="card-body p-1">
+                                            <div class="d-flex align-items-center flex-wrap">
+                                                <div id="analytics-views" style="min-height: 98.7px;">
+                                                </div>
+                                                <div class="p-2">
+                                                    <p class="mb-1 text-muted">Tempo Médio de Resolução</p>
+                                                    <h5 class="fw-semibold mb-0">17,5h</h5> </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6">
+                                    <div class="card custom-card hrm-main-card primary">
+                                        <div class="card-body p-1">
+                                            <div class="d-flex align-items-center flex-wrap">
+                                                <div id="analytics-views" style="min-height: 98.7px;">
+                                                </div>
+                                                <div class="p-2">
+                                                    <p class="mb-1 text-muted">Ações Tomadas</p>
+                                                    <h5 class="fw-semibold mb-0">35</h5> </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6">
+                                    <div class="card custom-card hrm-main-card primary">
+                                        <div class="card-body p-1">
+                                            <div class="d-flex align-items-center flex-wrap">
+                                                <div id="analytics-views" style="min-height: 98.7px;">
+                                                </div>
+                                                <div class="p-2">
+                                                    <p class="mb-1 text-muted">Tempo Médio de Resolução</p>
+                                                    <h5 class="fw-semibold mb-0">17,5h</h5> </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                           
+                           
                         </div>
                     </div>
-                    <div class="col-xl-12">
+                    <div class="col-3">
+                        <div class="card custom-card">
+                            <div class="card-header justify-content-between">
+                                <div class="card-title"> Ocorrências Andamento/Finalizadas </div>
+                            </div>
+                            <div class="card-body my-2 py-4">
+                                <div id="occurrencesStatusChart" style="min-height: 211px;">
+                                  
+                                </div>
+                            </div>
+                            <div class="card-footer p-0">
+                                <div class="row row-cols-12 justify-content-center">
+                                    <div class="col pe-0 text-center">
+                                        <div class="p-sm-3 p-2 "> <span class="text-muted fs-11">Andamento</span> <span class="d-block fs-16 fw-semibold">68.3%</span> </div>
+                                    </div>
+                                    <div class="col ps-0 text-center">
+                                        <div class="p-sm-3 p-2"> <span class="text-muted fs-11">Finalizadas</span> <span class="d-block fs-16 fw-semibold">5.16%</span> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="card custom-card">
+                            <div class="card-header justify-content-between">
+                                <div class="card-title"> Ocorrências por Tipo </div>
+                            </div>
+                            <div class="card-body my-2 py-4">
+                                <div id="occurrencesTypeChart" style="min-height: 211px;">
+                                  
+                                </div>
+                            </div>
+                            <div class="card-footer p-0">
+                                <div class="row row-cols-12 justify-content-center">
+                                    <div class="col pe-0 text-center">
+                                        <div class="p-sm-3 p-2 "> <span class="text-muted fs-11">Oportunidade de melhoria</span> <span class="d-block fs-16 fw-semibold">68.3%</span> </div>
+                                    </div>
+                                    <div class="col px-0 text-center">
+                                        <div class="p-sm-3 p-2 "> <span class="text-muted fs-11">Não conformidade</span> <span class="d-block fs-16 fw-semibold">17.68%</span> </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              </div>
+
+                <div class="row">
+                    <div class="col-12">
+                       <div class="row">
+                        <div class="col-8">
+                            <div class="card custom-card" style="height: 100%;">
+
+                                <!-- OCORRENCIAS PENDENTES -->
+                                <div class="card-header justify-content-between">
+                                   <div class="card-title"> Ocorrências Pendêntes </div>
+                                  
+                               </div>
+                               
+                               <div class="card-body">
+                             
+                                           <div class="row">
+                                               <div class="col-sm-12">
+                                                   <table id="pending_occurrences_table" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                                       <thead>
+                                                           <tr>
+                                                               <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Referência</th>
+                                                               <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Título</th>
+                                                               <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Tipo</th>
+                                                               <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Status</th>
+                                                               <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Data Ocorrência</th>
+                                                               <!-- <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Ação</th> -->
+                                                           </tr>
+                                                       </thead>
+                                                       <tbody>
+                                                           
+                                                       </tbody>
+                                                   
+                                                   </table>
+                                               </div>
+                                           </div>
+                               
+                           
+                               </div>
+   
+   
+                           </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card custom-card overflow-hidden" style="height: 100%;"> 
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title"> Ações Pendêntes </div>
+                                  
+                                </div>
+                                <div class="card-body p-0">
+                                    <ul class="list-group list-group-flush" id="recent-jobs" data-simplebar="init">
+                                        <div class="simplebar-wrapper" style="margin: 0px;">
+                                            <div class="simplebar-height-auto-observer-wrapper">
+                                                <div class="simplebar-height-auto-observer"></div>
+                                            </div>
+                                            <div class="simplebar-mask">
+                                                <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                                    <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
+                                                        <div class="simplebar-content" style="padding: 0px;">
+
+                                                            <li class="list-group-item border-top-0 border-start-0 border-end-0">
+                                                                <a href="javascript:void(0);">
+                                                                    <div class="d-flex align-items-center">
+                                                                        <div class="me-2 lh-1"> 
+                                                                            <span title="Petryck William" class="avatar avatar-md avatar-rounded bg-primary-transparent"> 
+                                                                                <img src="https://cdn.conlinebr.com.br/colaboradores/48900" alt=""> 
+                                                                            </span> 
+                                                                        </div>
+                                                                        <div class="flex-fill">
+                                                                            <p class="mb-0 fw-semibold">OC07010/24</p>
+                                                                            <p class="fs-12 text-muted mb-0">Ligar para cliente e entender a situação ...</p>
+                                                                        </div>
+                                                                        <div class="text-end">
+                                                                            <p class="mb-0 fs-12">Prazo</p>
+                                                                            <span class="badge bg-success-transparent">17/06/2024</span> 
+                                                                        </div>
+                                                                    </div>
+                                                                </a>
+                                                            </li>
+                                                       
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="simplebar-placeholder" style="width: auto; height: 389px;"></div>
+                                        </div>
+                                        <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                            <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                                        </div>
+                                        <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                                            <div class="simplebar-scrollbar" style="height: 333px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+                                        </div>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                       
+                       </div>
+                    </div>
+                 
+                    <div class="col-12">
+                        <br>
                         <div class="card custom-card">
                             
                             <!-- TODAS OCORRENCIAS -->
                             <div class="card-header justify-content-between">
                                 <div class="card-title"> Todas Ocorrências </div>
                                 <div class="d-flex">
-
+                                    <button class="btn btn-sm btn-primary" id="newOccurenceButton"><i class="ri-add-line fw-semibold align-middle me-1"></i> Nova ocorrência</button>
                                     <!-- Start::add task modal -->
                                     <!-- End::add task modal -->
                                 </div>
@@ -675,6 +871,7 @@
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
+
     <script src="../../assets/js/custom-switcher.min.js"></script>
  
     <!-- Filepond JS -->
@@ -774,7 +971,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@latest"></script>
 
 
     <script src="./assets/js/index.js"></script>

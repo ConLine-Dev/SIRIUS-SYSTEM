@@ -26,10 +26,8 @@ async function getInfosLogin() {
 async function listPendingOccurrences(){
 
     const user = await getInfosLogin();
-    console.log(user)
     // Fazer a requisição à API
     const dados = await makeRequest(`/api/non-compliance/getOccurence-collaborator`, 'POST', {id:user.system_collaborator_id, type:'1,2,4'});
-    console.log(dados)
 
     // Destruir a tabela existente, se houver
     if ($.fn.DataTable.isDataTable('#pending_occurrences_table')) {
@@ -39,12 +37,15 @@ async function listPendingOccurrences(){
     // Criar a nova tabela com os dados da API
     $('#pending_occurrences_table').DataTable({
         dom: 'rtip',
-        pageLength: 5,
+        scrollY: '270px',  // Altura fixa com rolagem
+        scrollCollapse: false, // Permite a tabela colapsar caso tenha menos dados
+        paging: false, // Desativar paginação para usar rolagem
         order: [[0, 'desc']],
         data: dados,
         pageInfo: false,
         bInfo: false,
         columns: [
+            { data: 'reference' },
             { data: 'title' },
             { data: 'type' },
             { data: 'status' },
@@ -71,12 +72,16 @@ async function listPendingOccurrences(){
     });
 
     
+
+    
 }
+
+
 
 async function listAllOccurrences(){
     const user = await getInfosLogin();
     // Fazer a requisição à API
-    const dados = await makeRequest(`/api/non-compliance/getOccurence-collaborator`, 'POST', {id:user.system_collaborator_id, type:'0,3,5'});
+    const dados = await makeRequest(`/api/non-compliance/getOccurence-collaborator`, 'POST', {id:user.system_collaborator_id, type:'0,1,3,4,5,6,7'});
     console.log(dados)
     // Destruir a tabela existente, se houver
     if ($.fn.DataTable.isDataTable('#all_occurrences_table')) {

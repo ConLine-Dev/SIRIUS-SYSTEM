@@ -28,7 +28,9 @@ async function listPendingOccurrences(){
     // Criar a nova tabela com os dados da API
     $('#pending_occurrences_table').DataTable({
         dom: 'frtip',
-        pageLength: 5,
+        scrollY: '270px',  // Altura fixa com rolagem
+        scrollCollapse: false, // Permite a tabela colapsar caso tenha menos dados
+        paging: false, // Desativar paginação para usar rolagem
         order: [[0, 'desc']],
         data: dados,
         pageInfo: false,
@@ -114,6 +116,153 @@ async function listAllOccurrences(){
     
 }
 
+async function occurrencesStatusChart(){
+/* Jobs Summary chart */
+var options = {
+    series: [1754, 544],
+    labels: ["Andamento", "Finalizadas"],
+    chart: {
+        height: 250,
+        type: 'donut',
+    },
+    dataLabels: {
+        enabled: false,
+    },
+
+    legend: {
+        show: false,
+    },
+    stroke: {
+        show: true,
+        curve: 'smooth',
+        lineCap: 'round',
+        colors: "#fff",
+        width: 0,
+        dashArray: 0,
+    },
+    plotOptions: {
+
+        pie: {
+            expandOnClick: false,
+            donut: {
+                size: '70%',
+                background: 'transparent',
+                labels: {
+                    show: true,
+                    name: {
+                        show: true,
+                        fontSize: '20px',
+                        color: '#495057',
+                        offsetY: -4
+                    },
+                    value: {
+                        show: true,
+                        fontSize: '18px',
+                        color: undefined,
+                        offsetY: 8,
+                        formatter: function (val) {
+                            return val + "%"
+                        }
+                    },
+                    total: {
+                        show: true,
+                        showAlways: true,
+                        label: 'Total',
+                        fontSize: '22px',
+                        fontWeight: 600,
+                        color: '#495057',
+                    }
+
+                }
+            }
+        }
+    },
+    colors: ["rgb(132, 90, 223)", "rgba(132, 90, 223, 0.7)", "rgba(132, 90, 223,0.4)", "rgb(243, 246, 248)"],
+};
+
+document.querySelector("#occurrencesStatusChart").innerHTML = " ";
+var chart = new ApexCharts(document.querySelector("#occurrencesStatusChart"), options);
+chart.render();
+
+/* Jobs Summary chart */
+}
+
+async function occurrencesTypeChart(){
+    /* Jobs Summary chart */
+    var options = {
+        series: [1754, 544],
+        labels: ["Andamento", "Finalizadas"],
+        chart: {
+            height: 250,
+            type: 'donut',
+        },
+        dataLabels: {
+            enabled: false,
+        },
+    
+        legend: {
+            show: false,
+        },
+        stroke: {
+            show: true,
+            curve: 'smooth',
+            lineCap: 'round',
+            colors: "#fff",
+            width: 0,
+            dashArray: 0,
+        },
+        plotOptions: {
+    
+            pie: {
+                expandOnClick: false,
+                donut: {
+                    size: '70%',
+                    background: 'transparent',
+                    labels: {
+                        show: true,
+                        name: {
+                            show: true,
+                            fontSize: '20px',
+                            color: '#495057',
+                            offsetY: -4
+                        },
+                        value: {
+                            show: true,
+                            fontSize: '18px',
+                            color: undefined,
+                            offsetY: 8,
+                            formatter: function (val) {
+                                return val + "%"
+                            }
+                        },
+                        total: {
+                            show: true,
+                            showAlways: true,
+                            label: 'Total',
+                            fontSize: '22px',
+                            fontWeight: 600,
+                            color: '#495057',
+                        }
+    
+                    }
+                }
+            }
+        },
+        colors: ["rgb(132, 90, 223)", "rgba(132, 90, 223, 0.7)", "rgba(132, 90, 223,0.4)", "rgb(243, 246, 248)"],
+    };
+    
+    document.querySelector("#occurrencesTypeChart").innerHTML = " ";
+    var chart = new ApexCharts(document.querySelector("#occurrencesTypeChart"), options);
+    chart.render();
+    
+    /* Jobs Summary chart */
+}
+    
+
+
+
+
+
 
 async function Events(){
     await clickNewOccurence()
@@ -166,6 +315,8 @@ window.addEventListener("load", async () => {
     await listPendingOccurrences();
     await listAllOccurrences();
     await Events()
+    // await occurrencesStatusChart()
+    // await occurrencesTypeChart()
 
 
     document.querySelector('#loader2').classList.add('d-none')

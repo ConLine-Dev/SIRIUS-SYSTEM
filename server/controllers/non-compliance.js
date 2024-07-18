@@ -58,6 +58,7 @@ const non_compliance = {
                 SELECT occurrence_id FROM occurrences_responsibles WHERE collaborator_id = ${id}
             )
     `;
+
     
         const occurrence = await executeQuery(occurrenceQuery);
     
@@ -111,7 +112,7 @@ const non_compliance = {
                 editing: item.editing,
                 id: item.id,
                 status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,
-                reference: `<b>${item.reference}</b>`,
+                reference: `<span class="text-success fw-semibold">#${item.reference}</span>`,
                 responsibles: `<div class="avatar-list-stacked">${users}</div>`,
                 date_occurrence: `<span class="icon-text-align">
                                     <i class="las la-calendar-alt fs-5"></i> ${non_compliance.formatDate(item.date_occurrence)}
@@ -187,7 +188,7 @@ const non_compliance = {
             editing:item.editing,
             id:item.id,
             status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,
-            reference: `<b>${item.reference}</b>`,
+            reference: `<span class="text-success fw-semibold">#${item.reference}</span>`,
             responsibles: `<div class="avatar-list-stacked">${users}</div>`,
             date_occurrence: `<span class="icon-text-align">
                 <i class="las la-calendar-alt fs-5"></i> ${non_compliance.formatDate(item.date_occurrence)}
@@ -264,7 +265,7 @@ const non_compliance = {
             editing:item.editing,
             id:item.id,
             status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,
-            reference: `<b>${item.reference}</b>`,
+            reference: `<span class="text-success fw-semibold">#${item.reference}</span>`,
             responsibles: `<div class="avatar-list-stacked">${users}</div>`,
             date_occurrence: `<span class="icon-text-align">
                 <i class="las la-calendar-alt fs-5"></i> ${non_compliance.formatDate(item.date_occurrence)}

@@ -46,7 +46,7 @@
     
     
 
-    <link rel="stylesheet" href="./assets/css/index.css">
+    <link rel="stylesheet" href="./assets/css/collaborator.css">
     <meta http-equiv="imagetoolbar" content="no">
 </head>
 
@@ -516,7 +516,7 @@
         <div class="main-content">
             <div class="container-fluid">
                 <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-                    <h1 class="page-title fw-semibold fs-18 mb-0">Gerenciamento de ocorrências  e não conformidades</h1>
+                    <h1 class="page-title fw-semibold fs-18 mb-0">Colaborador - Gerenciamento de ocorrências</h1>
                     <div class="ms-md-1 ms-0">
                         <nav>
                             <ol class="breadcrumb mb-0">
@@ -528,61 +528,10 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-xl-12">
+                    <div class="col-12">
                        <div class="row">
-                        <div class="col-4">
-                            <div class="card custom-card">
-
-                                <!-- OCORRENCIAS PENDENTES -->
-                                <div class="card-header justify-content-between">
-                                   <div class="card-title"> Ações Pendêntes </div>
-                               </div>
-                               
-                               <div class="card-body">
-                                   <div class="table-responsive">
-                                           <div class="row">
-                                               <div class="col-sm-12">
-                                                   <table id="pending_occurrences_table2" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                       <thead>
-                                                           <tr>
-                                                               <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 350px;">Referência</th>
-                                                               <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Título</th>
-                                                               <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Descrição</th>
-                                                               <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Tipo</th>
-                                                               <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Envolvidos</th>
-                                                               <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Status</th>
-                                                               <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Data Ocorrência</th>
-                                                               <!-- <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Ação</th> -->
-                                                           </tr>
-                                                       </thead>
-                                                       <tbody>
-                                                           <tr>
-                                                               <td><b>RNC08/23</b></td>
-                                                               <td>Incluir informação nos procedimentos operacionais de cópia não controlada</td>
-                                                               <td>
-                                                                   <div class="d-flex align-items-center"> <span class="avatar avatar-xs me-2 avatar-rounded"> <img src="https://cdn.conlinebr.com.br/colaboradores/48901" alt="img"> </span>Marcone Vidal </div>
-                                                               </td>
-                                                               <td> 
-                                                                   <span class="icon-text-align">
-                                                                       <i class="las la-calendar-alt fs-5"></i> 27/03/2024
-                                                                   </span>
-                                                               </td>
-                                                             </tr>
-                                                       </tbody>
-                                                   
-                                                   </table>
-                                               </div>
-                                           </div>
-                               
-                                 
-                                   </div>
-                               </div>
-   
-   
-                           </div>
-                        </div>
                         <div class="col-8">
-                            <div class="card custom-card">
+                            <div class="card custom-card" style="height: 100%;">
 
                                 <!-- OCORRENCIAS PENDENTES -->
                                 <div class="card-header justify-content-between">
@@ -591,12 +540,13 @@
                                </div>
                                
                                <div class="card-body">
-                                   <div class="table-responsive">
+                             
                                            <div class="row">
                                                <div class="col-sm-12">
                                                    <table id="pending_occurrences_table" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
                                                        <thead>
                                                            <tr>
+                                                               <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Referência</th>
                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Título</th>
                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Tipo</th>
                                                                <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Status</th>
@@ -605,34 +555,78 @@
                                                            </tr>
                                                        </thead>
                                                        <tbody>
-                                                           <tr>
-                                                               <td><b>RNC08/23</b></td>
-                                                               <td>Incluir informação nos procedimentos operacionais de cópia não controlada</td>
-                                                               <td>
-                                                                   <div class="d-flex align-items-center"> <span class="avatar avatar-xs me-2 avatar-rounded"> <img src="https://cdn.conlinebr.com.br/colaboradores/48901" alt="img"> </span>Marcone Vidal </div>
-                                                               </td>
-                                                               <td> 
-                                                                   <span class="icon-text-align">
-                                                                       <i class="las la-calendar-alt fs-5"></i> 27/03/2024
-                                                                   </span>
-                                                               </td>
-                                                             </tr>
+                                                           
                                                        </tbody>
                                                    
                                                    </table>
                                                </div>
                                            </div>
                                
-                                 
-                                   </div>
+                           
                                </div>
    
    
                            </div>
                         </div>
+                        <div class="col-4">
+                            <div class="card custom-card overflow-hidden" style="height: 100%;"> 
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title"> Ações Pendêntes </div>
+                                  
+                                </div>
+                                <div class="card-body p-0">
+                                    <ul class="list-group list-group-flush" id="recent-jobs" data-simplebar="init">
+                                        <div class="simplebar-wrapper" style="margin: 0px;">
+                                            <div class="simplebar-height-auto-observer-wrapper">
+                                                <div class="simplebar-height-auto-observer"></div>
+                                            </div>
+                                            <div class="simplebar-mask">
+                                                <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                                    <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
+                                                        <div class="simplebar-content" style="padding: 0px;">
+
+                                                            <li class="list-group-item border-top-0 border-start-0 border-end-0">
+                                                                <a href="javascript:void(0);">
+                                                                    <div class="d-flex align-items-center">
+                                                                        <div class="me-2 lh-1"> 
+                                                                            <span title="Petryck William" class="avatar avatar-md avatar-rounded bg-primary-transparent"> 
+                                                                                <img src="https://cdn.conlinebr.com.br/colaboradores/48900" alt=""> 
+                                                                            </span> 
+                                                                        </div>
+                                                                        <div class="flex-fill">
+                                                                            <p class="mb-0 fw-semibold">OC07010/24</p>
+                                                                            <p class="fs-12 text-muted mb-0">Ligar para cliente e entender a situação ...</p>
+                                                                        </div>
+                                                                        <div class="text-end">
+                                                                            <p class="mb-0 fs-12">Prazo</p>
+                                                                            <span class="badge bg-success-transparent">17/06/2024</span> 
+                                                                        </div>
+                                                                    </div>
+                                                                </a>
+                                                            </li>
+                                                       
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="simplebar-placeholder" style="width: auto; height: 389px;"></div>
+                                        </div>
+                                        <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                            <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                                        </div>
+                                        <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                                            <div class="simplebar-scrollbar" style="height: 333px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+                                        </div>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                       
                        </div>
                     </div>
-                    <div class="col-xl-12">
+                 
+                    <div class="col-12">
+                        <br>
                         <div class="card custom-card">
                             
                             <!-- TODAS OCORRENCIAS -->

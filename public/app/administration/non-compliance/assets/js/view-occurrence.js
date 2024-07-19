@@ -1056,29 +1056,56 @@ async function SaveAction() {
  * Função assíncrona para obter os valores da ocorrência.
  */
 async function getValuesOccurrence(e) {
-    // Seleciona todos os elementos de input do formulário
-    const elements = document.querySelectorAll('.form-input[name]');
-    const formBody = {};
-
-    // Itera sobre os elementos e adiciona os valores ao objeto formBody
-    for (let index = 0; index < elements.length; index++) {
-        const item = elements[index];
-        const value = (item.getAttribute('name') == 'occurrence_responsible' || item.getAttribute('name') == 'types') ? sAllResponsible.getValue(true) : item.value;
-
-        // Verifica se o valor está vazio
-        // if (!value) {
-        //     alert('Todos os campos devem ser preenchidos.');
-        //     return; // Interrompe a execução se algum campo estiver vazio
-        // }
-
-        formBody[item.getAttribute('name')] = value;
+    // Array com os names dos inputs que não devem ficar em branco e suas mensagens personalizadas
+    let requiredFields = [];
+    if (infoOccurence.status == 1) {
+        requiredFields = [
+            { name: 'occurrence', message: 'O campo Ocorrência é obrigatório.' },
+            { name: 'occurrence_date', message: 'O campo Data da Ocorrência é obrigatório.' },
+            { name: 'company_id', message: 'O campo Empresa é obrigatório.' },
+            { name: 'origin_id', message: 'O campo Origem é obrigatório.' },
+            { name: 'type_id', message: 'O campo Tipo é obrigatório.' },
+            { name: 'occurrence_responsible', message: 'O campo Responsável pela Ocorrência é obrigatório.' },
+            { name: 'correction', message: 'O campo Correção é obrigatório.' },
+            { name: 'description', message: 'O campo Descrição é obrigatório.' }
+        ];
+    } else if (infoOccurence.status == 2 || infoOccurence.status == 4) {
+        requiredFields = [
+            { name: 'manpower', message: 'O campo Mão-de-obra é obrigatório.' },
+            { name: 'method', message: 'O campo Método é obrigatório.' },
+            { name: 'material', message: 'O campo Material é obrigatório.' },
+            { name: 'environment', message: 'O campo Meio Ambiente é obrigatório.' },
+            { name: 'machine', message: 'O campo Máquina é obrigatório.' },
+            { name: 'root_cause', message: 'O campo Causa Raiz é obrigatório.' }
+        ];
     }
 
-    // Faz a requisição para salvar a ocorrência
-    await makeRequest(`/api/non-compliance/saveOccurence`, 'POST', { formBody });
+    const elements = document.querySelectorAll('.form-input[name]');
+
+    const formBody = {};
+
+    for (let index = 0; index < elements.length; index++) {
+        const item = elements[index];
+        const itemName = item.getAttribute('name');
+        
+        // Verificar se o campo está no array de campos obrigatórios e se está vazio
+        const requiredField = requiredFields.find(field => field.name === itemName);
+        if (requiredField && (item.value.trim() === '' || item.value.trim() === '0')) {
+            Swal.fire(requiredField.message);
+            return false;
+        }
+
+        // Adicionando dinamicamente o nome e o valor ao objeto
+        formBody[itemName] = (itemName === 'occurrence_responsible' || itemName === 'types') ? sAllResponsible.getValue(true) : item.value;
+    }
+
+    const sendToServer = await makeRequest(`/api/non-compliance/saveOccurence`, 'POST', { formBody });
 
     window.close();
 }
+
+
+
 
 /**
  * Função assíncrona para visualizar uma ação corretiva.

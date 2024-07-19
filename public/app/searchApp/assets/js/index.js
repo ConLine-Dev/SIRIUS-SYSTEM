@@ -155,16 +155,16 @@ document.addEventListener("DOMContentLoaded", async () => {
    searchInput.focus();
 
 
-   const teste = await window.ipcRenderer.invoke('check-for-updates');
+   // const teste = await window.ipcRenderer.invoke('check-for-updates');
 
-   // Exemplo de uso no lado do cliente
-   const electron = window.electron;
+   // // Exemplo de uso no lado do cliente
+   // const electron = window.electron;
 
-   // Ouvindo um evento chamado 'meu-evento'
-   electron.on('update-available', (arg) => {
-      console.log('Evento recebido no lado do cliente:', arg);
-      // Faça o que precisar com os dados recebidos
-   });
+   // // Ouvindo um evento chamado 'meu-evento'
+   // electron.on('update-available', (arg) => {
+   //    console.log('Evento recebido no lado do cliente:', arg);
+   //    // Faça o que precisar com os dados recebidos
+   // });
 
   
 

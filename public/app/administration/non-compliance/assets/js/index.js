@@ -38,7 +38,6 @@ async function listPendingOccurrences(){
         columns: [
             { data: 'reference' },
             { data: 'title' },
-            { data: 'description' },
             { data: 'type' },
             { data: 'responsibles' },
             { data: 'status' },

@@ -245,6 +245,7 @@ async function renderTableActions(){
 
     tableBody.innerHTML = row
 }
+
 async function renderTablePreventive(){
 
     const tableBody = document.querySelector('#table_preventive tbody')
@@ -372,37 +373,43 @@ async function addPreventive(e){
     await renderTablePreventive()
 }
 
-
 async function getValuesOccurrence(e) {
-    
+    // Array com os names dos inputs que não devem ficar em branco e suas mensagens personalizadas
+    const requiredFields = [
+        { name: 'occurrence', message: 'O campo Ocorrência é obrigatório.' },
+        { name: 'occurrence_date', message: 'O campo Data da Ocorrência é obrigatório.' },
+        { name: 'company_id', message: 'O campo Unidade é obrigatório.' },
+        { name: 'origin_id', message: 'O campo Origem é obrigatório.' },
+        { name: 'type_id', message: 'O campo Tipo é obrigatório.' },
+        { name: 'occurrence_responsible', message: 'O campo Responsável pela Ocorrência é obrigatório.' },
+        { name: 'correction', message: 'O campo Correção é obrigatório.' },
+        { name: 'description', message: 'O campo Descrição é obrigatório.' }
+    ];
+
     const elements = document.querySelectorAll('.form-input[name]');
 
     const formBody = {};
 
     for (let index = 0; index < elements.length; index++) {
         const item = elements[index];
-        // if(item.value.trim() == '' || item.value.trim() == 0){
-        //     console.log('campos invalidos')
-        //     return false;
-        // }
+        const itemName = item.getAttribute('name');
         
+        // Verificar se o campo está no array de campos obrigatórios e se está vazio
+        const requiredField = requiredFields.find(field => field.name === itemName);
+        if (requiredField && (item.value.trim() === '' || item.value.trim() === '0')) {
+            Swal.fire(requiredField.message);
+            return false;
+        }
+
         // Adicionando dinamicamente o nome e o valor ao objeto
-        // REVER AMANHA E REFAZER O IF
-        formBody[item.getAttribute('name')] = (item.getAttribute('name') == 'occurrence_responsible' || item.getAttribute('name') == 'types') ? sAllResponsible.getValue(true) : item.value
-        
+        formBody[itemName] = (itemName === 'occurrence_responsible' || itemName === 'types') ? sAllResponsible.getValue(true) : item.value;
     }
 
+    const sendToServer = await makeRequest(`/api/non-compliance/NewOccurrence`, 'POST', { formBody });
 
-    const sendToServer = await makeRequest(`/api/non-compliance/NewOccurrence`, 'POST', {
-        formBody
-    });
-    
-
-    
-    window.close()
-
-
+    window.close();
 }
+
 
 
 

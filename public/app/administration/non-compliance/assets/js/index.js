@@ -119,7 +119,7 @@ async function listAllOccurrences(){
 async function occurrencesStatusChart(){
 /* Jobs Summary chart */
 var options = {
-    series: [1754, 544],
+    series: [5, 24],
     labels: ["Andamento", "Finalizadas"],
     chart: {
         height: 250,
@@ -190,7 +190,7 @@ chart.render();
 async function occurrencesTypeChart(){
     /* Jobs Summary chart */
     var options = {
-        series: [1754, 544],
+        series: [4, 32],
         labels: ["Andamento", "Finalizadas"],
         chart: {
             height: 250,
@@ -315,8 +315,8 @@ window.addEventListener("load", async () => {
     await listPendingOccurrences();
     await listAllOccurrences();
     await Events()
-    // await occurrencesStatusChart()
-    // await occurrencesTypeChart()
+    await occurrencesStatusChart()
+    await occurrencesTypeChart()
 
 
     document.querySelector('#loader2').classList.add('d-none')

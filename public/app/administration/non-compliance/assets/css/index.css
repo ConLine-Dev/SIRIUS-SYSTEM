@@ -48,3 +48,7 @@
     margin-bottom: 10px;
     font-size: initial;
 }
+
+.apexcharts-pie text {
+    fill: var(--default-text-color) !important;
+}

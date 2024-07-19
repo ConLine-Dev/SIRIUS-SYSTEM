@@ -71,33 +71,47 @@ async function loadAllApps(user){
    let apps = '';
    for (let index = 0; index < AllApps.length; index++) {
       const element = AllApps[index];
-      apps += `<div class="col-xxl-3 col-xl-3 col-lg-3 col-md-3">
-                  <div class="card custom-card shadow-none bg-light">
-                     <div class="card-body p-3">
-                        <a href="${element.path}">
-                              <div class="d-flex justify-content-between flex-wrap">
-                                 <div class="file-format-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="svg-success" enable-background="new 0 0 24 24" viewBox="0 0 24 24">
-                                          <circle cx="12" cy="4" r="2" opacity="0.3"></circle>
-                                          <path fill="#b7d7fd" d="M12 6a1.98 1.98 0 0 1-1-.277V8a1 1 0 0 0 2 0V5.723A1.98 1.98 0 0 1 12 6z"></path>
-                                          <path opacity="0.3" d="M17 22H7a3.003 3.003 0 0 1-3-3v-9a3.003 3.003 0 0 1 3-3h10a3.003 3.003 0 0 1 3 3v9a3.003 3.003 0 0 1-3 3z"></path>
-                                          <path opacity="1" d="M14.97 12.243 16.28 7H7.72l1.31 5.243A1 1 0 0 0 10 13h4a1 1 0 0 0 .97-.757z"></path>
-                                          <path fill="#b7d7fd" d="M2 18a1 1 0 0 1-1-1v-2a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1zm20 0a1 1 0 0 1-1-1v-2a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1z"></path>
-                                          <circle cx="9" cy="16" r="1" opacity="1"></circle>
-                                          <circle cx="15" cy="16" r="1" opacity="1"></circle>
-                                    </svg>
-                                 </div>
-                                 <div> <span class="fw-semibold mb-1"> ${element.title} </span> <span class="fs-10 d-block text-muted text-end"> ${element.description} </span> </div>
-                              </div>
-                        </a>
-                     </div>
-                  </div>
-            </div>`
+      apps += ` <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4">
+                     <a href="${element.path}">
+                        <div class="text-center p-3 related-app"> 
+                           <span class="avatar avatar-sm avatar-rounded"> 
+                           ${element.icon}
+                           </span> 
+
+                           <span class="d-block fs-12 no-break"><strong>${element.title}</strong> </span> 
+                           <span class="d-block fs-10 no-break">${element.description} </span>
+                        
+                        </div>
+                     </a>
+               </div>`
    }
 
    document.querySelector('#listAllApp').innerHTML = apps
 
 
+}
+
+
+function normalizeString(str) {
+   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function searchItems() {
+   const input = document.querySelector('.inputSearch');
+   const filter = normalizeString(input.value);
+   const listAllApp = document.getElementById('listAllApp');
+   const items = listAllApp.getElementsByClassName('col-6');
+
+   for (let i = 0; i < items.length; i++) {
+       const item = items[i];
+       const textContent = item.textContent || item.innerText;
+
+       if (normalizeString(textContent).includes(filter)) {
+           item.style.display = "";
+       } else {
+           item.style.display = "none";
+       }
+   }
 }
 
 // Exemplo no código do frontend (renderer process)
@@ -137,6 +151,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
    // carrega aplicações que o usuario tem acesso
    await loadAllApps(StorageGoogle)
+   const searchInput = document.querySelector('.inputSearch');
+   searchInput.focus();
+
 
    const teste = await window.ipcRenderer.invoke('check-for-updates');
 
@@ -148,6 +165,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.log('Evento recebido no lado do cliente:', arg);
       // Faça o que precisar com os dados recebidos
    });
+
+  
 
    // fim da função verificar tempo de carregamento da pagina e suas consultas no banco
    console.timeEnd(`A página "${document.title}" carregou em`);

@@ -1,3 +1,13 @@
-.page {
-    /* justify-content: normal; */
+.file-folders-container{
+    height: 100%;
+}
+
+.no-break {
+    white-space: nowrap;       /* Impede a quebra de linha */
+    overflow: hidden;          /* Oculta o texto que não cabe */
+    text-overflow: ellipsis;   /* Adiciona as reticências (...) */
+    max-width: 100%;         /* Define a largura máxima do elemento */
+}
+.file-manager-container .file-folders-container, .file-manager-container .filemanager-file-details {
+    max-height: 100%
 }

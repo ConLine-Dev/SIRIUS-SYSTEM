@@ -301,9 +301,17 @@ async function getOccurenceInfo() {
     const urlParams = new URLSearchParams(queryString);
     const id = urlParams.get('id');
 
+
+    
+    
+
     const occurrence = await makeRequest(`/api/non-compliance/getOcurrenceById`, 'POST', { id });
     infoOccurence = occurrence
     await loadOccurence(occurrence);
+
+    if(urlParams.get('action')){
+        await viewActionCorrective(urlParams.get('action'))
+    }
 }
 
 /**
@@ -480,6 +488,8 @@ async function loadHistory(id){
     }
 
     document.querySelector('.bodyHistory').innerHTML = historyText
+
+
 }
 
 
@@ -756,6 +766,10 @@ async function controlButtons(){
                     obs = 'Aprovado - Liberado Preenchimento 2ª etapa'
                     await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
                     await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'second_part', id:idOccurrence, obs:'Desbloqueado 2º etapa', userId:users.system_collaborator_id  });
+                    makeRequest(`/api/non-compliance/sendEmailOccurrence`,'POST', {
+                        subject:`[INTERNO] ${infoOccurence.reference} ${obs}`, 
+                        template:'open', 
+                        occurrence_id:idOccurrence});
                 }
         
                 if(infoOccurence.status == 3){
@@ -763,6 +777,10 @@ async function controlButtons(){
                     obs = 'Desenvolvimento - Ação Corretiva'
                     await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
                     await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Bloqueado 2º etapa', userId:users.system_collaborator_id  });
+                    makeRequest(`/api/non-compliance/sendEmailOccurrence`,'POST', {
+                        subject:`[INTERNO] ${infoOccurence.reference} - Etapa de Ação Corretiva liberada`, 
+                        template:'complete', 
+                        occurrence_id:idOccurrence});
                 }
 
                 if(infoOccurence.status == 5){
@@ -770,6 +788,10 @@ async function controlButtons(){
                     obs = 'Desenvolvimento - Avaliação de Eficácia'
                     await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
                     await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Bloqueado 2º etapa', userId:users.system_collaborator_id  });
+                    makeRequest(`/api/non-compliance/sendEmailOccurrence`,'POST', {
+                        subject:`[INTERNO] ${infoOccurence.reference} - Etapa de Avaliação de Eficácia liberada`, 
+                        template:'complete', 
+                        occurrence_id:idOccurrence});
                 }
 
                 if(infoOccurence.status == 6){
@@ -777,6 +799,11 @@ async function controlButtons(){
                     obs = 'Finalizado'
                     await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'editing', id:idOccurrence, obs:'Bloqueado 1º etapa', userId:users.system_collaborator_id  });
                     await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Bloqueado 2º etapa', userId:users.system_collaborator_id  });
+                    makeRequest(`/api/non-compliance/sendEmailOccurrence`,'POST', {
+                        subject:`[INTERNO] ${infoOccurence.reference} - Ocorrência Finalizada`, 
+                        template:'complete', 
+                        occurrence_id:idOccurrence
+                    });
                 }
         
                 sAllStatus.setChoiceByValue(numberType.toString());
@@ -851,12 +878,20 @@ async function controlButtons(){
                         numberType = 1
                         obs = 'Reprovado - Aguardando Ajuste 1ª etapa'
                         await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'editing', id:idOccurrence, obs:'Desbloqueado 1º etapa', userId:users.system_collaborator_id  });
+                        makeRequest(`/api/non-compliance/sendEmailOccurrence`,'POST', {
+                            subject:`[INTERNO] ${infoOccurence.reference} - ${obs}`, 
+                            template:'open', 
+                            occurrence_id:idOccurrence});
                     }
 
                     if(infoOccurence.status == 3){
                         numberType = 4
                         obs = 'Reprovado - Aguardando Ajuste 2ª etapa'
                         await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'second_part', id:idOccurrence, obs:'Desbloqueado 2º etapa', userId:users.system_collaborator_id  });
+                        makeRequest(`/api/non-compliance/sendEmailOccurrence`,'POST', {
+                            subject:`[INTERNO] ${infoOccurence.reference} - ${obs}`, 
+                            template:'complete', 
+                            occurrence_id:idOccurrence});
                     }
                     
                     sAllStatus.setChoiceByValue(numberType.toString());
@@ -899,6 +934,11 @@ async function controlButtons(){
                 await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:7, prop:'status', id:idOccurrence, obs:'Finalizado', userId:users.system_collaborator_id  });
                 await headerManagement(infoOccurence)
 
+                makeRequest(`/api/non-compliance/sendEmailOccurrence`,'POST', {
+                    subject:`[INTERNO] ${infoOccurence.reference} - Ocorrência Finalizada com sucesso!`, 
+                    template:'complete', 
+                    occurrence_id:idOccurrence});
+
                 Swal.fire({
                     icon: 'success',
                     title: 'Finalizado!',
@@ -938,11 +978,17 @@ async function controlButtons(){
                 await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:1, prop:'second_part', id:idOccurrence, obs:'Bloqueado 2º etapa', userId:users.system_collaborator_id  });
                 await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:0, prop:'status', id:idOccurrence, obs:'Restaurado', userId:users.system_collaborator_id  });
                 await headerManagement(infoOccurence)
+                // makeRequest(`/api/non-compliance/sendEmailOccurrence`,'POST', {
+                //     subject:`[INTERNO] ${infoOccurence.reference} - Atenção do status da sua Ocorrência foi restaurado`, 
+                //     template:'complete', 
+                //     occurrence_id:idOccurrence});
+
                 Swal.fire({
                     icon: 'success',
                     title: 'Status Restaurado!',
                     text: 'O status da ocorrência foi restaurado para Pendente de Aprovação 1ª Etapa.'
                 });
+                
                 // Aqui você pode colocar o código para restaurar o status da ocorrência
             } else {
               
@@ -1101,10 +1147,21 @@ async function getValuesOccurrence(e) {
 
     const sendToServer = await makeRequest(`/api/non-compliance/saveOccurence`, 'POST', { formBody });
 
+    if (infoOccurence.status == 1) {
+        makeRequest(`/api/non-compliance/sendEmailOccurrence`,'POST', {
+            subject:`[INTERNO] ${infoOccurence.reference} - Pendente aprovação 1ª Etapa`, 
+            template:'open', 
+            occurrence_id:idOccurrence});
+    } else if (infoOccurence.status == 2) {
+        makeRequest(`/api/non-compliance/sendEmailOccurrence`,'POST', {
+            subject:`[INTERNO] ${infoOccurence.reference} - Pendente aprovação 2ª Etapa`, 
+            template:'complete', 
+            occurrence_id:idOccurrence});
+    }
+    
+
     window.close();
 }
-
-
 
 
 /**

@@ -185,7 +185,20 @@ module.exports = function(io) {
         }
     });
 
+    router.post('/sendEmailOccurrence', async (req, res, next) => {
+        const {subject, template, occurrence_id} = req.body
+        // body.reason, body.occurrences_id
+        try {
+            
+            const result = await non_compliance.sendEmail(subject, null, template, null, occurrence_id)
+            res.status(200).json(result)
 
+        } catch (error) {
+            res.status(404).json(error)   
+        }
+    });
+
+    // 
     // Actions - Ação Corretiva
     router.post('/NewActions', async (req, res, next) => {
         const body = req.body
@@ -287,6 +300,37 @@ module.exports = function(io) {
             res.status(500).json({ success: false, message: 'Erro ao obter ações.' });
         }
     });
+
+    router.get('/get-actions-pendents-byusers/:userID', async (req, res) => {
+        const userID = req.params.userID;
+        try {
+            const actions = await non_compliance.getActionsPendentsByUser(userID);
+            // Parse JSON string if needed
+            actions.forEach(action => {
+                action.evidence = JSON.parse(action.evidence);
+            });
+            res.json(actions);
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({ success: false, message: 'Erro ao obter ações.' });
+        }
+    });
+
+    router.get('/get-actions-pendents', async (req, res) => {
+        try {
+            const actions = await non_compliance.getAllActions();
+            // Parse JSON string if needed
+            actions.forEach(action => {
+                action.evidence = JSON.parse(action.evidence);
+            });
+            res.json(actions);
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({ success: false, message: 'Erro ao obter ações.' });
+        }
+    });
+
+    
     
 
     // Effectiveness - Avaliação De Eficácia 

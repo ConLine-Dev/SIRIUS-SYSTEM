@@ -571,8 +571,17 @@
                         <div class="col-4">
                             <div class="card custom-card overflow-hidden" style="height: 100%;"> 
                                 <div class="card-header justify-content-between">
-                                    <div class="card-title"> Ações Pendêntes </div>
-                                  
+                                    <div class="card-title"> Ações Tomadas </div>
+                                    <div class="dropdown"> <a href="javascript:void(0);" class="p-2 fs-12 text-muted dropdown-filterActions" data-bs-toggle="dropdown" aria-expanded="false"> Filtro de Status<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i> </a>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a class="dropdown-item filterActions" href="javascript:void(0);" data-type="0,1,2,3">Todas</a></li>
+                                            <li><a class="dropdown-item filterActions" href="javascript:void(0);" data-type="0">Pendente</a></li>
+                                            <li><a class="dropdown-item filterActions" href="javascript:void(0);" data-type="1">Ag. Aprovação</a></li>
+                                            <li><a class="dropdown-item filterActions" href="javascript:void(0);" data-type="2">Ag. Ajuste</a></li>
+                                            <li><a class="dropdown-item filterActions" href="javascript:void(0);" data-type="3">Finalizado</a></li>
+                                            
+                                        </ul>
+                                    </div>
                                 </div>
                                 <div class="card-body p-0">
                                     <ul class="list-group list-group-flush" id="recent-jobs" data-simplebar="init">
@@ -583,27 +592,9 @@
                                             <div class="simplebar-mask">
                                                 <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
                                                     <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
-                                                        <div class="simplebar-content" style="padding: 0px;">
+                                                        <div class="simplebar-content allactions" style="padding: 0px;">
 
-                                                            <li class="list-group-item border-top-0 border-start-0 border-end-0">
-                                                                <a href="javascript:void(0);">
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div class="me-2 lh-1"> 
-                                                                            <span title="Petryck William" class="avatar avatar-md avatar-rounded bg-primary-transparent"> 
-                                                                                <img src="https://cdn.conlinebr.com.br/colaboradores/48900" alt=""> 
-                                                                            </span> 
-                                                                        </div>
-                                                                        <div class="flex-fill">
-                                                                            <p class="mb-0 fw-semibold">OC07010/24</p>
-                                                                            <p class="fs-12 text-muted mb-0">Ligar para cliente e entender a situação ...</p>
-                                                                        </div>
-                                                                        <div class="text-end">
-                                                                            <p class="mb-0 fs-12">Prazo</p>
-                                                                            <span class="badge bg-success-transparent">17/06/2024</span> 
-                                                                        </div>
-                                                                    </div>
-                                                                </a>
-                                                            </li>
+                                                            
                                                        
                                                         </div>
                                                     </div>

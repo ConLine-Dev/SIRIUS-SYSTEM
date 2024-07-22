@@ -1,10 +1,49 @@
-
+require('dotenv').config();
+const nodemailer = require('nodemailer');
 const { executeQuery } = require('../connect/mysql');
-// Configuração do multer para armazenar arquivos em memória
-
-
+const {emailCustom} = require('../support/emails-template');
 
 const non_compliance = {
+    sendEmail: async function(subject, CustomHTML, templateName = 'complete', allFiles, occurenceID){
+        const transporter = nodemailer.createTransport({
+            name: 'ocorrencia@conlinebr.com.br',
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
+            secure: process.env.SMTP_SECURE === 'true', // true para 465, false para outras portas
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
+        const Ocurrence = await this.getOcurrenceById(occurenceID)
+        
+        // Verifica se há responsáveis e cria a lista de emails para CC
+        const ccEmails = Ocurrence.responsibles.map(responsible => responsible.email);
+
+        const mailOptions = {
+            from: 'ocorrencia@conlinebr.com.br',
+            to: 'ocorrencia@conlinebr.com.br',
+            cc: ccEmails,
+            subject: subject,
+            html: CustomHTML ? CustomHTML : await emailCustom[templateName](Ocurrence),
+            attachments: allFiles != null ? allFiles.map(dados => ({ filename: dados.filename, content: dados.content })) : false
+        };
+        
+
+        // Envia o e-mail para o destinatário atual
+        transporter.sendMail(mailOptions, async (error, info) => {
+            if (error) {
+                const { response } = error;
+                console.error('Erro ao enviar email:', response);
+            }else{
+                const { messageId, envelope, accepted, rejected, pending, response } = info;
+
+                console.log('Email enviado:', response);
+            }
+        })
+
+    },
     getAllCompanies: async function(){
         const result = await executeQuery(`SELECT * from companies`);
         
@@ -313,11 +352,18 @@ const non_compliance = {
                 oia.environment,
                 oia.machine,
                 oia.machine,
-                oia.root_cause
+                oia.root_cause,
+                oo.name as 'originName',
+                cmp.city as 'companycity',
+                cmp.country as 'companycountry'
             FROM 
                 occurrences o
             JOIN 
                 occurrences_type ot ON o.type_id = ot.id
+            JOIN 
+                occurrences_origin oo ON o.origin_id = oo.id    
+			JOIN 
+                companies cmp ON o.company_id = cmp.id 
             LEFT JOIN 
                 occurrences_ishikawa_analysis oia ON oia.occurrence_id = o.id
             WHERE o.id = ${id}`)
@@ -327,8 +373,9 @@ const non_compliance = {
         const formtOccurrence = await Promise.all(occurrence.map(async function(item) {
 
         const responsibles = await executeQuery(`
-        SELECT * FROM siriusDBO.occurrences_responsibles ors
+        SELECT usr.email, ors.*, clt.* FROM occurrences_responsibles ors
         join collaborators clt ON clt.id = ors.collaborator_id
+        join users usr ON usr.collaborator_id = ors.collaborator_id
         WHERE ors.occurrence_id = ${item.id}`)
 
 
@@ -424,6 +471,7 @@ const non_compliance = {
                     [insertOccurrence.insertId, element])
             }
 
+            this.sendEmail(`[INTERNO] ${reference} - Nova ocorrência aberta`, null, 'open', null, insertOccurrence.insertId)
         }
         
          
@@ -508,7 +556,6 @@ const non_compliance = {
           const element = occurrence_responsible[index];
           await executeQuery(`INSERT INTO occurrences_responsibles (occurrence_id, collaborator_id) VALUES (?, ?)`, [occurrence_id, element]);
       }
-
     },
     saveOccurence: async function(body) {
         const { occurrence_id, manpower, method, material, environment, machine, root_cause, occurrence_responsible, ROMFN } = body.formBody;
@@ -526,11 +573,14 @@ const non_compliance = {
         // Verificar se pelo menos um dos campos obrigatórios está presente e a occurrencia exista no banco.
         if (existingOccurrence.length > 0 && veryfiOcurrence) {
             await non_compliance.updateOccurrence(body.formBody, existingOccurrence[0].status);
+            
+            this.sendEmail(`[INTERNO] ${reference} - 1° Etapa da corrência foi alterada.`, null, 'open', null, occurrence_id)
         }
 
         // Verificar se pelo menos um dos campos obrigatórios está presente e não está vazio
         if (manpower || method || material || environment || machine || root_cause) {
             await non_compliance.setIshikawaAnalysis(body.formBody)
+            this.sendEmail(`[INTERNO] ${reference} - 2° Etapa da corrência foi alterada.`, null, 'open', null, occurrence_id)
         }
 
 
@@ -699,6 +749,89 @@ const non_compliance = {
         const sql = `UPDATE occurrences_corrective_actions SET evidence = ? WHERE id = ?`;
         await executeQuery(sql, [evidence, actionId]);
     },
+    getActionsPendentsByUser: async function(userID) {
+        const sql = `SELECT occ.reference, oca.*,clt.family_name, clt.name, clt.id_headcargo FROM occurrences_corrective_actions oca
+        JOIN collaborators clt ON clt.id = oca.responsible_id
+        JOIN occurrences occ ON occ.id = oca.occurrence_id
+        WHERE 
+        responsible_id = ?
+        ORDER BY oca.id desc`;
+
+        
+
+        const result = await executeQuery(sql, [userID]);
+
+
+        const status = {
+            0: 'Pendente',
+            1: 'Aguardando Aprovação',
+            2: 'Aguardando Ajuste',
+            3: 'Finalizado',
+        }
+
+
+        const Actions = await Promise.all(result.map(async function(item) {
+            const users = `<div class="d-flex align-items-center">
+                                <span class="avatar avatar-sm  me-1 bg-light avatar-rounded" title="${item.name} ${item.family_name}"> 
+                                    <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt=""> 
+                                </span>
+                                <a href="javascript:void(0);" class="fw-semibold mb-0">
+                                    ${item.name} ${item.family_name}
+                                </a>
+                            </div>`
+            return {
+                ...item, // mantém todas as propriedades existentes
+                status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,
+                action: item.action,
+                deadline: `<span class="badge bg-danger-transparent"><i class="bi bi-clock me-1"></i>${non_compliance.formatDate(item.deadline)}</span>`,
+                responsible:users,
+                statusID: item.status,
+                verifyEvidence: JSON.parse(item.evidence).length > 0 ? '<span class="badge bg-success-transparent">Sim</span>' : '<span class="badge bg-danger-transparent">Não</span>'
+            };
+        }));
+
+        return Actions;
+    },
+    getAllActions: async function() {
+        const sql = `SELECT occ.reference, oca.*,clt.family_name, clt.name, clt.id_headcargo FROM occurrences_corrective_actions oca
+        JOIN collaborators clt ON clt.id = oca.responsible_id
+        JOIN occurrences occ ON occ.id = oca.occurrence_id
+        ORDER BY oca.id desc`;
+
+        const result = await executeQuery(sql);
+
+
+        const status = {
+            0: 'Pendente',
+            1: 'Ag. Aprovação',
+            2: 'Ag. Ajuste',
+            3: 'Finalizado',
+        }
+
+        
+
+        const Actions = await Promise.all(result.map(async function(item) {
+            const users = `<div class="d-flex align-items-center">
+                                <span class="avatar avatar-sm  me-1 bg-light avatar-rounded" title="${item.name} ${item.family_name}"> 
+                                    <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt=""> 
+                                </span>
+                                <a href="javascript:void(0);" class="fw-semibold mb-0">
+                                    ${item.name} ${item.family_name}
+                                </a>
+                            </div>`
+            return {
+                ...item, // mantém todas as propriedades existentes
+                status: ` <span class="text-muted float-end fs-11 fw-normal"> ${status[item.status]}</span>`,
+                action: item.action,
+                deadline: `<span class="badge bg-danger-transparent"><i class="bi bi-clock me-1"></i>${non_compliance.formatDate(item.deadline)}</span>`,
+                responsible:users,
+                statusID: item.status,
+                verifyEvidence: JSON.parse(item.evidence).length > 0 ? '<span class="badge bg-success-transparent">Sim</span>' : '<span class="badge bg-danger-transparent">Não</span>'
+            };
+        }));
+
+        return Actions;
+    },
     getActionsByOccurrence: async function(occurrenceId) {
         const sql = `SELECT oca.*,clt.family_name, clt.name, clt.id_headcargo FROM occurrences_corrective_actions oca
         JOIN collaborators clt ON clt.id = oca.responsible_id
@@ -781,6 +914,7 @@ const non_compliance = {
         return `${day}/${month}/${year}`; // Retorna a data formatada
     },
 }
+
 
 
 

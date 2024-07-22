@@ -435,7 +435,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     await getAllTypes();
 
     
-
     // remover loader
     document.querySelector('#loader2').classList.add('d-none');
 

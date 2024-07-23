@@ -1,3 +1,5 @@
+let startDateGlobal, endDateGlobal;
+
 async function active_tooltip() {
     const tooltipTriggerList = document.querySelectorAll(
         '[data-bs-toggle="tooltip"]'
@@ -43,66 +45,6 @@ function formatCnpjCpfInput(value) {
         // Retorna o valor original se não tiver o comprimento esperado
         return value;
     }
-};
-
-// Função que cria o select para selecionar se a pessoa é PJ ou PF
-let selectPeopleType;
-async function createSelectPeopleType() {
-    const inputCnpjCpf = document.getElementById('input-cnpj-cpf');
-
-    // Permite que seja digitado somente numero
-    inputCnpjCpf.addEventListener('input', (event) => {
-        let value = event.target.value.replace(/\D/g, ''); // Remove todos os caracteres não numéricos
-        event.target.value = formatCnpjCpfInput(value);
-    });
-
-    inputCnpjCpf.addEventListener('keypress', (event) => {
-        // Permite apenas a entrada de números
-        const charCode = event.charCode || event.keyCode || event.which;
-        if (charCode < 48 || charCode > 57) {
-            event.preventDefault();
-        }
-    });
-
-    // Dados do select
-    const data = [
-        { value: 0, label: 'Pessoa Jurídica' },
-        { value: 1, label: 'Pessoa Física' }
-    ];
-
-    // Verifica se o select já existe, caso exista, destroi
-    if (selectPeopleType) {
-        selectPeopleType.destroy();
-    };
-
-    // Renderiza o select com as opções formatadas
-    selectPeopleType = new Choices('#typePeople', {
-        choices: data,
-        allowSearch: true,
-        removeItemButton: true,
-        noChoicesText: 'Não há opções disponíveis',
-        noResultsText: 'Não há opções disponíveis'
-    });
-
-    // Adiciona um evento para monitorar mudanças no seletor
-    document.querySelector('#typePeople').addEventListener('change', (event) => {
-        const selectedValue = event.detail.value;
-        if (selectedValue === 0) {
-            // Pessoa Jurídica
-            inputCnpjCpf.disabled = false;
-            inputCnpjCpf.maxLength = 18;
-            inputCnpjCpf.placeholder = '00.000.000/0000-00';
-        } else if (selectedValue === 1) {
-            // Pessoa Física
-            inputCnpjCpf.disabled = false;
-            inputCnpjCpf.maxLength = 11;
-            inputCnpjCpf.placeholder = '000.000.000-00';
-        } else if (selectedValue === '') {
-            inputCnpjCpf.disabled = true;
-            inputCnpjCpf.value = '';
-            inputCnpjCpf.placeholder = 'CPF/CNPJ';
-        };
-    });
 };
 
 // Função que cria o select para selecionar as categorias de pessoas
@@ -303,7 +245,7 @@ async function listPeople(data) {
 
         const cnpjCpfFormated = formatCnpjCpfString(item.people.cnpj_cpf);
 
-        html += `<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 shadow-sm list-group-item-action py-3" style="cursor: pointer;" data-people-id="${item.people.id}"> 
+        html += `<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 shadow-sm list-group-item-action py-3" style="cursor: pointer;" data-people-id="${item.people.id}" ondblclick="openPeople(${item.people.id})"> 
                         <div class="card-body">
                             ${prospectStatus}
                             <div class="d-flex mb-3 flex-wrap align-items-center"> 
@@ -353,9 +295,41 @@ async function eventClick() {
    // ========== FIM PESQUISA ========== // 
 
     // ========== BOTAO DE FILTRO ========== // 
+    const inputDateFilter = document.getElementById('inputDateFilter');
     const btn_filter = document.getElementById('btn-filter');
     btn_filter.addEventListener('click', async function (e) {
         e.preventDefault();
+        // Obtém o valor do input
+        const dateRange = inputDateFilter.value;
+        // Divide o valor em duas data separadas
+        const [startDateStr, endDateStr] = dateRange.split(' até ');
+        // Função para converter uma data "01 jan 2024" para "2024-01-01"
+        const formatDate = (dateStr) => {
+            if (!dateStr) {
+                return false
+            } else {
+            const [day, month, year] = dateStr.split(' ');
+            const month_map = {
+                    'Jan': '01',
+                    'Fev': '02',
+                    'Mar': '03',
+                    'Abr': '04',
+                    'Mai': '05',
+                    'Jun': '06',
+                    'Jul': '07',
+                    'Ago': '08',
+                    'Set': '09',
+                    'Out': '10',
+                    'Nov': '11',
+                    'Dez': '12',
+            };
+
+                return `${year}-${month_map[month]}-${day.padStart(2, 0)}`
+            }
+        };
+
+        startDateGlobal = formatDate(startDateStr);
+        endDateGlobal = formatDate(endDateStr);
 
         const peopleCategorySelected = await getSelectPeopleCategoryValues(); // Armazena todas as categorias Selecionadas
         const peopleStatusSelected = await getSelectPeopleStatusValues(); // Armazena todos os status Selecionadas
@@ -372,7 +346,7 @@ async function eventClick() {
         // Tela de carregando 'add=quando vc fecha algo/remove=quando vc abre algo'
         document.querySelector('#loader2').classList.remove('d-none')
 
-        const peopleFilter = await makeRequest(`/api/people/listAllPeople`, 'POST', {peopleCategorySelected: peopleCategorySelected, peopleAllType: peopleAllType, peopleStatusSelected: peopleStatusSelected, commercialValues: commercialValues, collaboratorResponsableValues: collaboratorResponsableValues});
+        const peopleFilter = await makeRequest(`/api/people/listAllPeople`, 'POST', {startDate: startDateGlobal, endDate: endDateGlobal, peopleCategorySelected: peopleCategorySelected, peopleAllType: peopleAllType, peopleStatusSelected: peopleStatusSelected, commercialValues: commercialValues, collaboratorResponsableValues: collaboratorResponsableValues});
 
         // CHAMA AS FUNÇÕES
         await listPeople(peopleFilter);
@@ -381,7 +355,23 @@ async function eventClick() {
         document.querySelector('#loader2').classList.add('d-none')
     });
     // ========== / BOTAO DE FILTRO ========== // 
-}
+};
+
+// Inicializa o seletor de data
+async function initializeDatePicker() {
+    flatpickr("#inputDateFilter", {
+        mode: "range",
+        dateFormat: "d M Y",
+    });
+};
+
+// Função que envia para a proxima janela o id da pessoa clicada
+async function openPeople(id) {
+    const body = {
+        url: `/app/people/get-people?id=${id}`
+    }
+    window.ipcRenderer.invoke('open-exWindow', body);
+};
 
 
 // Função executada após toda a página ser executada
@@ -397,10 +387,9 @@ window.addEventListener("load", async () => {
    await createSelectPeopleStatus(getAllPeopleStatus);
    await createSelectCommercial(getAllCommercial);
    await createSelectCollaboratorResponsable(getAllCollaboratorsResponsable);
-   await createSelectPeopleType();
    await eventClick();
+   await initializeDatePicker();
    await active_tooltip();
-
 
    // Tela de carregando 'add=quando vc fecha algo/remove=quando vc abre algo'
    document.querySelector('#loader2').classList.add('d-none')

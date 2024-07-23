@@ -2,9 +2,10 @@ const { executeQuery } = require('../connect/mysql');
 
 const People = {
    // Lista todas as pessoas;
-   getAllPeople: async function(peopleCategorySelected, peopleAllType, peopleStatusSelected, commercialValues, collaboratorResponsableValues){
-      console.log(collaboratorResponsableValues);
+   getAllPeople: async function(startDate, endDate, peopleCategorySelected, peopleAllType, peopleStatusSelected, commercialValues, collaboratorResponsableValues){
       const peopleType = peopleAllType ? `peo.type_people IN ${peopleAllType}` : 'peo.type_people IN (0,1)';
+      const filterCreatedDate = startDate && endDate ? `AND (peo.created_at BETWEEN '${startDate}' AND '${endDate}')` : '';
+      console.log(startDate, endDate);
       const peopleCategory = peopleCategorySelected ? `AND prl.people_category_id IN ${peopleCategorySelected}` : '';
       const peopleStatus = peopleStatusSelected ? `AND peo.people_status_id IN ${peopleStatusSelected}` : '';
       const commercialAndCollaboratorResponsable = commercialValues && collaboratorResponsableValues ? `AND ((com.id IN ${commercialValues}) OR (resp.id IN ${collaboratorResponsableValues}))` : commercialValues && !collaboratorResponsableValues ? `AND com.id IN ${commercialValues}` : !commercialValues && collaboratorResponsableValues ? `AND resp.id IN ${collaboratorResponsableValues}` : '';
@@ -19,13 +20,14 @@ const People = {
          LEFT OUTER JOIN
             people_status pst ON pst.id = peo.people_status_id
          LEFT OUTER JOIN
-            people_relations prl ON prl.people_id = peo.id
+            people_category_relations prl ON prl.people_id = peo.id
          LEFT OUTER JOIN
             collaborators com ON com.id = peo.collaborators_commercial_id
          LEFT OUTER JOIN
             collaborators resp ON resp.id = peo.collaborators_responsable_id
          WHERE
             ${peopleType}
+            ${filterCreatedDate}
             ${peopleCategory}
             ${peopleStatus}
             ${commercialAndCollaboratorResponsable}
@@ -42,7 +44,7 @@ const People = {
                   prl.people_category_id,
                   pct.name AS category
                FROM 
-                  people_relations prl
+                  people_category_relations prl
                LEFT OUTER JOIN
                   people_category pct ON pct.id = prl.people_category_id
                WHERE
@@ -110,9 +112,83 @@ const People = {
             clb.name ASC`)
       return result;
    },
+
+   // Lista todas as cidades do Brasil;
+   getCity: async function() {
+      let result = await executeQuery(
+         `SELECT 
+            * 
+         FROM 
+            city
+         ORDER BY
+            name ASC`)
+      return result;
+   },
+
+   // Lista todos os estados do Brasil;
+   getState: async function() {
+      let result = await executeQuery(
+         `SELECT 
+            * 
+         FROM 
+            states
+         ORDER BY
+            name ASC`)
+      return result;
+   },
+
+   // Lista todos os paises;
+   getCountry: async function() {
+      let result = await executeQuery(
+         `SELECT 
+            * 
+         FROM 
+            country
+         ORDER BY
+            name ASC`)
+      return result;
+   },
+
+   // Pega os dados da pessoa pessada por parametro
+   getPeopleById: async function(peopleSelectedId) {
+      let result = await executeQuery(
+         `SELECT 
+            pst.name AS status,
+            com.name AS commercial,
+            resp.name AS collaborator_responsable,
+            DATE_FORMAT(peo.opening_date, '%Y-%m-%d') AS opening_date_formated,
+            peo.*
+         FROM 
+            people peo
+         LEFT OUTER JOIN
+            people_status pst ON pst.id = peo.people_status_id
+         LEFT OUTER JOIN
+            collaborators com ON com.id = peo.collaborators_commercial_id
+         LEFT OUTER JOIN
+            collaborators resp ON resp.id = peo.collaborators_responsable_id
+         WHERE
+            peo.id = ?`, [peopleSelectedId])
+      return result;
+   },
+
+   // Pega os dados da pessoa pessada por parametro
+   getPeopleCategoryById: async function(peopleSelectedId) {
+      let result = await executeQuery(
+         `SELECT 
+            pcr.people_category_id,
+            pct.id AS category_id,
+            pct.name AS category
+         FROM 
+            people_category pct
+         LEFT OUTER JOIN
+            people_category_relations pcr ON pcr.people_category_id = pct.id
+         WHERE
+            people_id = ?`, [peopleSelectedId])
+      return result;
+   },
 }
 
 
-    module.exports = {
-      People,
-    };
+module.exports = {
+   People,
+};

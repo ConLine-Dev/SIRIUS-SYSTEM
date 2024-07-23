@@ -6,9 +6,9 @@ const { People } = require('../controllers/people');
 
 // Lista todas as pessoas;
 router.post('/listAllPeople', async (req, res, next) => {
-    const {peopleCategorySelected, peopleAllType, peopleStatusSelected, commercialValues, collaboratorResponsableValues} = req.body;
+    const {startDate, endDate, peopleCategorySelected, peopleAllType, peopleStatusSelected, commercialValues, collaboratorResponsableValues} = req.body;
     try {
-        const result = await People.getAllPeople(peopleCategorySelected, peopleAllType, peopleStatusSelected, commercialValues, collaboratorResponsableValues);
+        const result = await People.getAllPeople(startDate, endDate, peopleCategorySelected, peopleAllType, peopleStatusSelected, commercialValues, collaboratorResponsableValues);
 
         res.status(200).json(result)
     } catch (error) {
@@ -57,6 +57,68 @@ router.post('/getAllCommercial', async (req, res, next) => {
 router.post('/getAllCollaboratorsResponsable', async (req, res, next) => {
     try {
         const result = await People.getAllCollaboratorsResponsable();
+
+        res.status(200).json(result)
+    } catch (error) {
+
+        res.status(404).json('Erro')
+    }
+});
+
+// Lista todos os funcionarios responsáveis(inside sales);
+router.post('/getCity', async (req, res, next) => {
+    try {
+        const result = await People.getCity();
+
+        res.status(200).json(result)
+    } catch (error) {
+
+        res.status(404).json('Erro')
+    }
+});
+
+// Lista todos os funcionarios responsáveis(inside sales);
+router.post('/getState', async (req, res, next) => {
+    try {
+        const result = await People.getState();
+
+        res.status(200).json(result)
+    } catch (error) {
+
+        res.status(404).json('Erro')
+    }
+});
+
+// Lista todos os funcionarios responsáveis(inside sales);
+router.post('/getCountry', async (req, res, next) => {
+    try {
+        const result = await People.getCountry();
+
+        res.status(200).json(result)
+    } catch (error) {
+
+        res.status(404).json('Erro')
+    }
+});
+
+// Lista todas as pessoas;
+router.post('/getPeopleById', async (req, res, next) => {
+    const {peopleSelectedId} = req.body;
+    try {
+        const result = await People.getPeopleById(peopleSelectedId);
+
+        res.status(200).json(result)
+    } catch (error) {
+
+        res.status(404).json('Erro')
+    }
+});
+
+// Lista todas as pessoas;
+router.post('/getPeopleCategoryById', async (req, res, next) => {
+    const {peopleSelectedId} = req.body;
+    try {
+        const result = await People.getPeopleCategoryById(peopleSelectedId);
 
         res.status(200).json(result)
     } catch (error) {

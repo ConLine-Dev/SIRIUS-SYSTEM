@@ -12,12 +12,18 @@
 
     <!-- Favicon -->
     <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main JS -->
+    <!-- <script src="../../assets/js/main.js"></script> -->
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <!-- Style Css -->
     <link href="../../assets/css/styles.min.css" rel="stylesheet">
     <!-- Icons Css -->
     <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
     <!-- Simplebar Css -->
     <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
     <!-- Color Picker Css -->
@@ -26,7 +32,7 @@
     <!-- Choices Css -->
     <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
     <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
-
+    <!-- flatpickr -->
     <link rel="stylesheet" href="./assets/css/style.css">
     <meta http-equiv="imagetoolbar" content="no">
 </head>
@@ -34,7 +40,7 @@
 <body>
 
     <!-- LOADER -->
-    <div id="loader2" class="d-none">
+    <div id="loader2">
         <img src="../../assets/images/media/loader.svg" alt="">
     </div>
 
@@ -74,6 +80,20 @@
                                         </div>
                                     </li>
 
+                                    <li class="list-group-item" style="padding: 10px 20px !important;">
+                                        <div class="d-flex align-items-center" style="margin-bottom: 10px;">
+                                            <div class="flex-fill">
+                                                <p class="fw-bold mb-0">Data de Criação</p>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                                <input type="text" placeholder="Data de Criação" class="form-control dash-filter-picker flatpickr-input" id="inputDateFilter" data-provider="flatpickr" data-mode="range" data-date-format="d M Y">
+                                            </div>
+                                        </div>
+                                    </li>
+
                                     <li class="list-group-item">
                                         <div class="d-flex align-items-center" style="margin-bottom: 10px;">
                                             <div class="flex-fill">
@@ -83,6 +103,19 @@
                                         <div class="row gy-3" style="gap: 20px;">
                                             <select id="selectPeopleStatus" multiple>
                                                 <option value="" style="width: 100% !important;">Selecione o status</option>
+                                             </select>
+                                        </div>
+                                    </li>
+
+                                    <li class="list-group-item">
+                                        <div class="d-flex align-items-center" style="margin-bottom: 10px;">
+                                            <div class="flex-fill">
+                                                <p class="fw-bold mb-0">Categoria da Pessoa</p>
+                                            </div>
+                                        </div>
+                                        <div class="row gy-3" style="gap: 20px;">
+                                            <select id="selectPeopleCategory" multiple>
+                                                <option value="" style="width: 100% !important;">Selecione as empresas</option>
                                              </select>
                                         </div>
                                     </li>
@@ -109,19 +142,6 @@
                                         <div class="row gy-3" style="gap: 20px;">
                                             <select id="selectCollaboratorResponsable" multiple>
                                                 <option value="" style="width: 100% !important;">Selecione o funcionario responsável</option>
-                                             </select>
-                                        </div>
-                                    </li>
-
-                                    <li class="list-group-item">
-                                        <div class="d-flex align-items-center" style="margin-bottom: 10px;">
-                                            <div class="flex-fill">
-                                                <p class="fw-bold mb-0">Categoria da Pessoa</p>
-                                            </div>
-                                        </div>
-                                        <div class="row gy-3" style="gap: 20px;">
-                                            <select id="selectPeopleCategory" multiple>
-                                                <option value="" style="width: 100% !important;">Selecione as empresas</option>
                                              </select>
                                         </div>
                                     </li>
@@ -158,33 +178,6 @@
                                             <div class="row gy-3" id="listPeople" style="margin: 0 10px 0 10px;">
                                                 <!-- LISTA AS PESSOAS -->
                                             </div>
-
-                                            <!-- CAMPO PARA ADICIONAR AS INFORMAÇÕES DA PESSOA SELECIONADA -->
-                                            <div class="row gy-4 d-none" id="information" style="margin-left: 10px;">
-                                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
-                                                    <label for="input-razao-social" class="form-label">Razão Social</label> 
-                                                    <input type="text" class="form-control" id="input-razao-social" placeholder="Razão Social"> 
-                                                </div>
-                                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
-                                                    <label for="input-fantasia" class="form-label">Nome Fantasia</label> 
-                                                    <input type="text" class="form-control" id="input-fantasia" placeholder="Nome Fantasia"> 
-                                                </div>
-                                                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12"> 
-                                                    <label for="input-tipo-pessoa" class="form-label">Tipo Pessoa</label> 
-                                                    <br>
-                                                    <select id="typePeople">
-                                                        <option value="" style="width: 100% !important;">Selecione PF ou PJ</option>
-                                                     </select> 
-                                                </div>
-                                                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12"> 
-                                                    <label for="input-cnpj-cpf" class="form-label">CPF/CNPJ</label> 
-                                                    <input type="text" class="form-control" id="input-cnpj-cpf" placeholder="CPF/CNPJ" disabled="true"> 
-                                                </div>
-                                                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12"> 
-                                                    <label for="input-inscricao-estadual" class="form-label">Inscrição Estadual</label> 
-                                                    <input type="number" class="form-control" id="input-inscricao-estadual" placeholder="Inscrição Estadual"> 
-                                                </div>
-                                            </div>
                         
                                         </div>
                                     </div>
@@ -214,13 +207,14 @@
     <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- Choices JS -->
-    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Color Picker JS -->
+    <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+    <!-- Flat Picker JS -->
+    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
 
     <!-- Internal Task  JS -->
     <script src="../../assets/js/fetchAPI.js"></script>
     <script src="./assets/js/script.js"></script>
-
 </body>
 
 </html>

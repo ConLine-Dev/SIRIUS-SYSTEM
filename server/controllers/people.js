@@ -157,6 +157,10 @@ const People = {
             com.name AS commercial,
             resp.name AS collaborator_responsable,
             DATE_FORMAT(peo.opening_date, '%Y-%m-%d') AS opening_date_formated,
+            cit.name AS city,
+            sta.abbreviation AS state_sigla,
+            sta.name AS state,
+            cou.name AS country,
             peo.*
          FROM 
             people peo
@@ -166,6 +170,12 @@ const People = {
             collaborators com ON com.id = peo.collaborators_commercial_id
          LEFT OUTER JOIN
             collaborators resp ON resp.id = peo.collaborators_responsable_id
+         LEFT OUTER JOIN
+            city cit ON cit.id = peo.city_id
+         LEFT OUTER JOIN
+            states sta ON sta.id = peo.state_id
+         LEFT OUTER JOIN
+            country cou ON cou.id = peo.country_id
          WHERE
             peo.id = ?`, [peopleSelectedId])
       return result;
@@ -184,6 +194,22 @@ const People = {
             people_category_relations pcr ON pcr.people_category_id = pct.id
          WHERE
             people_id = ?`, [peopleSelectedId])
+      return result;
+   },
+
+   // Pega os dados da pessoa pessada por parametro
+   getCityOrStateById: async function(city) {
+      let result = await executeQuery(
+         `SELECT
+            cit.id AS city_id,
+            sta.id AS state_id,
+            sta.country_id AS country_id
+         FROM
+            city cit
+         LEFT OUTER JOIN
+            states sta ON sta.id = cit.states_id
+         WHERE
+            cit.name = ?`, [city])
       return result;
    },
 }

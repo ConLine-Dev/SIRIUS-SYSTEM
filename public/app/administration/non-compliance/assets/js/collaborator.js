@@ -118,7 +118,7 @@ async function listAllActions(){
 async function listAllOccurrences(){
     const user = await getInfosLogin();
     // Fazer a requisição à API
-    const dados = await makeRequest(`/api/non-compliance/getOccurence-collaborator`, 'POST', {id:user.system_collaborator_id, type:'0,1,3,4,5,6,7'});
+    const dados = await makeRequest(`/api/non-compliance/getOccurence-collaborator`, 'POST', {id:user.system_collaborator_id, type:'0,1,2,3,4,5,6,7'});
     console.log(dados)
     // Destruir a tabela existente, se houver
     if ($.fn.DataTable.isDataTable('#all_occurrences_table')) {

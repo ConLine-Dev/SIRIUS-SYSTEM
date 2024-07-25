@@ -535,8 +535,8 @@ async function statusManagement(occurrence){
             element.classList.remove('inactive');
         });
     }
-
-    if((occurrence.status == 6 || occurrence.status == 7) && occurrence.actionAllStatus == true){
+    console.log(occurrence.actionAllStatus)
+    if((occurrence.status == 6 || occurrence.status == 7 ) && occurrence.actionAllStatus == true){
         const inputActions = document.querySelectorAll('.statusEfficiency');
         inputActions.forEach(element => {
             element.classList.remove('inactive');
@@ -623,6 +623,14 @@ async function headerManagement(occurrence){
         }
 
     }
+
+
+    if(occurrence.status == 6 || occurrence.status == 7 || occurrence.status == 5){
+        document.querySelector('.btnSave').classList.add('disabled')
+    }else{
+        document.querySelector('.btnSave').classList.remove('disabled')
+    }
+
     
     await loadHistory(idOccurrence)
 }
@@ -678,6 +686,8 @@ async function controlBlock(){
             sAllTypes.enable();
             sAllResponsible.enable();
         }
+
+
 
         await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:type, prop:'editing', id:idOccurrence, obs:obs, userId:users.system_collaborator_id });
         
@@ -1258,6 +1268,27 @@ async function viewActionCorrective(id) {
             viewActionCorrective(id); // Atualiza a lista de evidências após a exclusão
         });
     });
+
+
+    if(evidence.length > 0){
+       const bloks = document.querySelectorAll('#modalActionsView input, #modalActionsView textarea');
+
+       for (let index = 0; index < bloks.length; index++) {
+        const element = bloks[index];
+        element.setAttribute('disabled', true)
+       }
+
+       choices['action_responsible_view'].disable()
+    }else{
+        const bloks = document.querySelectorAll('#modalActionsView input, #modalActionsView textarea');
+
+        for (let index = 0; index < bloks.length; index++) {
+         const element = bloks[index];
+         element.removeAttribute('disabled')
+         
+        }
+        choices['action_responsible_view'].enable()
+    }
 }
 
 /**

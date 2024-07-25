@@ -89,6 +89,27 @@ const Users = {
                                         `);
     
         return result;
+    },
+    getColabById: async function(id){
+ 
+        let result = await executeQuery(`SELECT
+                                        users.id AS 'system_userID',
+                                        users.email AS 'system_email',
+                                        users.email_password AS 'email_password',
+                                        users.collaborator_id AS 'system_collaborator_id',
+                                        colab.id_headcargo AS 'system_id_headcargo',
+                                        colab.name AS 'system_username',
+                                        colab.image AS 'system_image',
+                                        colab.family_name AS 'system_familyName'
+                                    FROM
+                                        users
+                                    join collaborators colab ON colab.id = users.collaborator_id
+                                    WHERE colab.id = '${id}'
+                                    ORDER BY
+                                        colab.name ASC
+                                        `);
+    
+        return result;
     }
 }
 

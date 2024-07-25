@@ -2,6 +2,7 @@ require('dotenv').config();
 const nodemailer = require('nodemailer');
 const { executeQuery } = require('../connect/mysql');
 const {emailCustom} = require('../support/emails-template');
+const {Users} = require('./users');
 
 const non_compliance = {
     sendEmail: async function(subject, CustomHTML, templateName = 'complete', allFiles, occurenceID){
@@ -44,6 +45,42 @@ const non_compliance = {
         })
 
     },
+    sendEmailToEmail: async function(to,subject, CustomHTML, templateName = 'complete', allFiles, occurenceID){
+        const transporter = nodemailer.createTransport({
+            name: 'ocorrencia@conlinebr.com.br',
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
+            secure: process.env.SMTP_SECURE === 'true', // true para 465, false para outras portas
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
+        const Ocurrence = await this.getOcurrenceById(occurenceID)
+
+        const mailOptions = {
+            from: 'ocorrencia@conlinebr.com.br',
+            to: to,
+            subject: subject,
+            html: CustomHTML ? CustomHTML : await emailCustom[templateName](Ocurrence),
+            attachments: allFiles != null ? allFiles.map(dados => ({ filename: dados.filename, content: dados.content })) : false
+        };
+        
+
+        // Envia o e-mail para o destinatário atual
+        transporter.sendMail(mailOptions, async (error, info) => {
+            if (error) {
+                const { response } = error;
+                console.error('Erro ao enviar email:', response);
+            }else{
+                const { messageId, envelope, accepted, rejected, pending, response } = info;
+
+                console.log('Email enviado:', response);
+            }
+        })
+
+    },
     getAllCompanies: async function(){
         const result = await executeQuery(`SELECT * from companies`);
         
@@ -66,8 +103,10 @@ const non_compliance = {
             2: 'Aprovado - Liberado Preenchimento 2ª etapa',
             3: 'Pendente - aprovação 2ª etapa',
             4: 'Reprovado - Aguardando Ajuste 2ª etapa',
-            5: 'Finalizado'
-        };
+            5: 'Desenvolvimento - Ação Corretiva',
+            6: 'Desenvolvimento - Avaliação de Eficácia',
+            7: 'Finalizado'
+        }
     
         // Consulta otimizada para buscar todas as informações necessárias em uma única query
         const occurrenceQuery = `
@@ -172,7 +211,9 @@ const non_compliance = {
             2: 'Aprovado - Liberado Preenchimento 2ª etapa',
             3: 'Pendente - aprovação 2ª etapa',
             4: 'Reprovado - Aguardando Ajuste 2ª etapa',
-            5: 'Finalizado'
+            5: 'Desenvolvimento - Ação Corretiva',
+            6: 'Desenvolvimento - Avaliação de Eficácia',
+            7: 'Finalizado'
         }
      
 
@@ -190,7 +231,7 @@ const non_compliance = {
             occurrences o
         JOIN 
             occurrences_type ot ON o.type_id = ot.id
-        WHERE o.status NOT IN (5, 4, 1)`)
+        WHERE o.status IN (0,3,5,6)`)
 
 
 
@@ -249,7 +290,9 @@ const non_compliance = {
             2: 'Aprovado - Liberado Preenchimento 2ª etapa',
             3: 'Pendente - aprovação 2ª etapa',
             4: 'Reprovado - Aguardando Ajuste 2ª etapa',
-            5: 'Finalizado'
+            5: 'Desenvolvimento - Ação Corretiva',
+            6: 'Desenvolvimento - Avaliação de Eficácia',
+            7: 'Finalizado'
         }
      
 
@@ -266,8 +309,7 @@ const non_compliance = {
         FROM 
             occurrences o
         JOIN 
-            occurrences_type ot ON o.type_id = ot.id
-        `)
+            occurrences_type ot ON o.type_id = ot.id`)
 
 
 
@@ -326,7 +368,9 @@ const non_compliance = {
             2: 'Aprovado - Liberado Preenchimento 2ª etapa',
             3: 'Pendente - aprovação 2ª etapa',
             4: 'Reprovado - Aguardando Ajuste 2ª etapa',
-            5: 'Finalizado'
+            5: 'Desenvolvimento - Ação Corretiva',
+            6: 'Desenvolvimento - Avaliação de Eficácia',
+            7: 'Finalizado'
         }
 
         const occurrence = await executeQuery(`
@@ -384,7 +428,8 @@ const non_compliance = {
         
         for (let index = 0; index < Actions.length; index++) {
             const element = Actions[index];
-            if(element.statusID == 0){
+            console.log(element)
+            if(element.evidence == '[]'){
                 actionAllStatus = false
                 break;
             }
@@ -556,6 +601,8 @@ const non_compliance = {
           const element = occurrence_responsible[index];
           await executeQuery(`INSERT INTO occurrences_responsibles (occurrence_id, collaborator_id) VALUES (?, ?)`, [occurrence_id, element]);
       }
+
+      return true
     },
     saveOccurence: async function(body) {
         const { occurrence_id, manpower, method, material, environment, machine, root_cause, occurrence_responsible, ROMFN } = body.formBody;
@@ -574,13 +621,14 @@ const non_compliance = {
         if (existingOccurrence.length > 0 && veryfiOcurrence) {
             await non_compliance.updateOccurrence(body.formBody, existingOccurrence[0].status);
             
-            this.sendEmail(`[INTERNO] ${reference} - 1° Etapa da corrência foi alterada.`, null, 'open', null, occurrence_id)
+            // this.sendEmail(`[INTERNO] ${reference} - 1° Etapa da corrência foi alterada.`, null, 'open', null, occurrence_id)
         }
-
+        console.log(manpower || method || material || environment || machine || root_cause)
         // Verificar se pelo menos um dos campos obrigatórios está presente e não está vazio
         if (manpower || method || material || environment || machine || root_cause) {
+            console.log('dsadsaentrou')
             await non_compliance.setIshikawaAnalysis(body.formBody)
-            this.sendEmail(`[INTERNO] ${reference} - 2° Etapa da corrência foi alterada.`, null, 'open', null, occurrence_id)
+            // this.sendEmail(`[INTERNO] ${reference} - 2° Etapa da corrência foi alterada.`, null, 'open', null, occurrence_id)
         }
 
 
@@ -609,6 +657,7 @@ const non_compliance = {
     addAction: async function(body, evidenceFiles){
         const { occurrence_id, action_responsible, action_expiration, action_description } = body;
         
+
     
         const evidenceData = evidenceFiles.map(file => ({
             filename: file.filename,
@@ -626,7 +675,18 @@ const non_compliance = {
             JSON.stringify(evidenceData)
         ];
 
+        const ocurrence = await this.getOcurrenceById(occurrence_id);
+        const colabId = await Users.getColabById(action_responsible)
+
+
+       try {
+        this.sendEmailToEmail(colabId[0].system_email, `[INTERNO] ${ocurrence.reference} - Ação Corretiva vinculada a você.`, null, 'action', null, occurrence_id)
         await executeQuery(sql, values);
+       } catch (error) {
+        console.log(error)
+       }
+
+        
     },
     editAction: async function(body, evidenceFiles) {
         const { action_id, action_responsible, action_expiration, action_description } = body;
@@ -771,6 +831,7 @@ const non_compliance = {
 
 
         const Actions = await Promise.all(result.map(async function(item) {
+            let statusTemp = item.evidence == '[]' ? 1 : 3
             const users = `<div class="d-flex align-items-center">
                                 <span class="avatar avatar-sm  me-1 bg-light avatar-rounded" title="${item.name} ${item.family_name}"> 
                                     <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt=""> 
@@ -781,11 +842,11 @@ const non_compliance = {
                             </div>`
             return {
                 ...item, // mantém todas as propriedades existentes
-                status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,
+                status: `<span class="badge bg-danger-transparent">${status[statusTemp]}</span>`,
                 action: item.action,
                 deadline: `<span class="badge bg-danger-transparent"><i class="bi bi-clock me-1"></i>${non_compliance.formatDate(item.deadline)}</span>`,
                 responsible:users,
-                statusID: item.status,
+                statusID: item.evidence == '[]' ? 1 : 3,
                 verifyEvidence: JSON.parse(item.evidence).length > 0 ? '<span class="badge bg-success-transparent">Sim</span>' : '<span class="badge bg-danger-transparent">Não</span>'
             };
         }));
@@ -809,8 +870,10 @@ const non_compliance = {
         }
 
         
-
+        
+        
         const Actions = await Promise.all(result.map(async function(item) {
+            let statusTemp = item.evidence == '[]' ? 1 : 3
             const users = `<div class="d-flex align-items-center">
                                 <span class="avatar avatar-sm  me-1 bg-light avatar-rounded" title="${item.name} ${item.family_name}"> 
                                     <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt=""> 
@@ -821,11 +884,11 @@ const non_compliance = {
                             </div>`
             return {
                 ...item, // mantém todas as propriedades existentes
-                status: ` <span class="text-muted float-end fs-11 fw-normal"> ${status[item.status]}</span>`,
+                status: ` <span class="text-muted float-end fs-11 fw-normal"> ${status[statusTemp]}</span>`,
                 action: item.action,
                 deadline: `<span class="badge bg-danger-transparent"><i class="bi bi-clock me-1"></i>${non_compliance.formatDate(item.deadline)}</span>`,
                 responsible:users,
-                statusID: item.status,
+                statusID: item.evidence == '[]' ? 1 : 3,
                 verifyEvidence: JSON.parse(item.evidence).length > 0 ? '<span class="badge bg-success-transparent">Sim</span>' : '<span class="badge bg-danger-transparent">Não</span>'
             };
         }));
@@ -840,12 +903,16 @@ const non_compliance = {
         const result = await executeQuery(sql, [occurrenceId]);
 
 
+      
         const status = {
             0: 'Pendente',
-            1: 'Finalizado',
+            1: 'Ag. Aprovação',
+            2: 'Ag. Ajuste',
+            3: 'Finalizado',
         }
 
         const Actions = await Promise.all(result.map(async function(item) {
+            let statusTemp = item.evidence == '[]' ? 1 : 3
             const users = `<div class="d-flex align-items-center">
                                 <span class="avatar avatar-sm  me-1 bg-light avatar-rounded" title="${item.name} ${item.family_name}"> 
                                     <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt=""> 
@@ -856,11 +923,11 @@ const non_compliance = {
                             </div>`
             return {
                 ...item, // mantém todas as propriedades existentes
-                status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,
+                status: `<span class="badge bg-danger-transparent">${status[statusTemp]}</span>`,
                 action: item.action,
                 deadline: `<span class="badge bg-danger-transparent"><i class="bi bi-clock me-1"></i>${non_compliance.formatDate(item.deadline)}</span>`,
                 responsible:users,
-                statusID: item.status,
+                statusID: item.evidence == '[]' ? 1 : 3,
                 verifyEvidence: JSON.parse(item.evidence).length > 0 ? '<span class="badge bg-success-transparent">Sim</span>' : '<span class="badge bg-danger-transparent">Não</span>'
             };
         }));

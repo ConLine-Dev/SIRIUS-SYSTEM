@@ -734,7 +734,7 @@
                             </div>
 
                      
-                            <div class="card custom-card statusActions inactive">
+                            <div class="card custom-card statusActions inactive" id="actionCorretive">
                                 <div class="card-header justify-content-between">
                                     <div class="card-title"> Ação corretiva</div>
                                     <div class="d-flex">
@@ -744,14 +744,14 @@
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <div class="table-responsive">
+                               
                                             <div class="row">
                                                 <div class="col-sm-12">
                                                     <table id="ActionsByOccurrence_table" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
                                                         <thead>
                                                             <tr>
                                                                 <th style="width: 508px;">id</th>
-                                                                <th style="width: 508px;">Ação</th>
+                                                                <th style="max-width: 508px;">Ação</th>
                                                                 <th style="width: 243px;">Responsável</th>
                                                                 <th style="width: 110px;">Prazo</th>
                                                                 <th style="width: 90px;">Status</th>
@@ -777,7 +777,7 @@
                                             </div>
                                 
                                   
-                                    </div>
+                                  
                                 </div>
                             </div>
     
@@ -883,7 +883,7 @@
                         <label for="input-label" class="form-label">Evidêncías</label> 
                         <div class="col-12"> 
                             
-                           <div class="multiple-filepond-evidence-action-Evidence" multiple></div>
+                           <div class="multiple-filepond-evidence-action-Evidence filepond" multiple></div>
                         </div> 
                       
                        </div>
@@ -1182,6 +1182,7 @@
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
+    
     <script src="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js"></script>
   
     <noscript>

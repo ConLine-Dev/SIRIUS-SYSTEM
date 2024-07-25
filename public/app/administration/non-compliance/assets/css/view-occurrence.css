@@ -62,6 +62,7 @@
     flex-direction: column;
     justify-content: normal;
     min-height: 100vh;
+    overflow: hidden;
 }
 .icon-text-align i,
 .icon-text-align span {
@@ -113,6 +114,20 @@
     font-size: 12px !important; /* Tamanho da fonte desejado */
 }
 
+.limitText{
+    display: inline-block; 
+    max-width: 350px; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap;
+}
+
+.no-break {
+    white-space: nowrap;       /* Impede a quebra de linha */
+    overflow: hidden;          /* Oculta o texto que não cabe */
+    text-overflow: ellipsis;   /* Adiciona as reticências (...) */
+    max-width: 100%;         /* Define a largura máxima do elemento */
+}
 
 
 

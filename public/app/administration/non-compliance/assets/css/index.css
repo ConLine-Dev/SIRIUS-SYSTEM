@@ -52,3 +52,11 @@
 .apexcharts-pie text {
     fill: var(--default-text-color) !important;
 }
+
+
+.no-break {
+    white-space: nowrap;       /* Impede a quebra de linha */
+    overflow: hidden;          /* Oculta o texto que não cabe */
+    text-overflow: ellipsis;   /* Adiciona as reticências (...) */
+    max-width: 100%;         /* Define a largura máxima do elemento */
+}

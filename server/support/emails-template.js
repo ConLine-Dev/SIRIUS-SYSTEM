@@ -137,12 +137,23 @@ const emailCustom = {
         </html>`
 
     },
-    action: async function(occurrence){
+    action: async function(occurrence, actions){
         let responsibles = occurrence.responsibles;
         let responsiblesHTML = ``;
         for (let index = 0; index < responsibles.length; index++) {
             const element = responsibles[index];
             responsiblesHTML += `<span style="display: inline-block; background-color: #dc3545; color: #ffffff; padding: 5px 10px; border-radius: 3px; margin-right: 5px; margin-bottom: 5px;">${element.name}</span>` 
+        }
+        console.log(actions)
+        let actionsHTML = ``;
+        for (let index = 0; index < actions.length; index++) {
+            const element = actions[index];
+            actionsHTML += `<tr>
+            <td style="border: 1px solid #ddd; padding: 8px;">${element.action}</td>
+            <td style="border: 1px solid #ddd; padding: 8px;">${element.name} ${element.family_name}</td>
+            <td style="border: 1px solid #ddd; padding: 8px;">${element.deadline}</td>
+            <td style="border: 1px solid #ddd; padding: 8px;">${element.status}</td>
+            </tr>`
         }
 
         return `<!DOCTYPE html>
@@ -225,18 +236,7 @@ const emailCustom = {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                <td style="border: 1px solid #ddd; padding: 8px;">dsadsadsadsa</td>
-                                <td style="border: 1px solid #ddd; padding: 8px;">Adriani Da Silveira</td>
-                                <td style="border: 1px solid #ddd; padding: 8px;">01/07/2024</td>
-                                <td style="border: 1px solid #ddd; padding: 8px;">Não</td>
-                                </tr>
-                                <tr>
-                                <td style="border: 1px solid #ddd; padding: 8px;">dsadsadsadsa</td>
-                                <td style="border: 1px solid #ddd; padding: 8px;">Adriani Da Silveira</td>
-                                <td style="border: 1px solid #ddd; padding: 8px;">10/07/2024</td>
-                                <td style="border: 1px solid #ddd; padding: 8px;">Não</td>
-                                </tr>
+                              ${actionsHTML}
                             </tbody>
                         </table>
                     </div>

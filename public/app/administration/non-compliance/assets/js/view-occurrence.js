@@ -301,10 +301,6 @@ async function getOccurenceInfo() {
     const urlParams = new URLSearchParams(queryString);
     const id = urlParams.get('id');
 
-
-    
-    
-
     const occurrence = await makeRequest(`/api/non-compliance/getOcurrenceById`, 'POST', { id });
     infoOccurence = occurrence
     await loadOccurence(occurrence);
@@ -604,11 +600,14 @@ async function headerManagement(occurrence){
         }else if(occurrence.status == 2){
             // 2 = reprovado = Aguardando Ajuste.
             // document.querySelector('.btnFinalize').classList.remove('disabled')
+            document.querySelector('.offcanvasRight').classList.add('show')
+            
         }else if(occurrence.status == 3){
             // 3 = Finalizar = Finalizado
             document.querySelector('.btnAprove').classList.remove('disabled')
             document.querySelector('.btnReprove').classList.remove('disabled')
         }else if(occurrence.status == 4){
+            document.querySelector('.offcanvasRight').classList.add('show')
             // 4 = Restaurado = Restaurado
             document.querySelector('.btnFinalize').classList.remove('disabled')
         }else if(occurrence.status == 5 && occurrence.actionAllStatus == true){
@@ -621,6 +620,16 @@ async function headerManagement(occurrence){
             document.querySelector('.btnFinalize').classList.remove('disabled')
             // document.querySelector('.btnReset').classList.add('disabled')
         }
+
+
+
+        if(occurrence.status == 5){
+            const element = document.getElementById('actionCorretive');
+            setTimeout(() => {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+        
 
     }
 
@@ -1013,11 +1022,21 @@ async function controlButtons(){
  * Função assíncrona para adicionar uma nova ação.
  */
 async function addAction() {
+
+    console.log(FilePond.FileStatus)
+    // return false;
+
     // Obtém os valores dos campos de input
     const actionResponsible = document.querySelector('[name=action_responsible]').value;
     const actionExpiration = document.querySelector('[name=action_expiration]').value;
     const actionDescription = document.querySelector('[name=action_description]').value;
     const occurrence_id = document.querySelector('[name=occurrence_id]').value;
+
+    // Verifica se algum campo está vazio
+    if (!actionResponsible || !actionExpiration || !actionDescription) {
+        alert('Por favor, preencha todos os campos.');
+        return false; // Retorna false para interromper a execução da função
+    }
 
     // Obtém os arquivos de evidências
     const evidenceFiles = ActionEvidence.getFiles();
@@ -1067,6 +1086,11 @@ async function SaveAction() {
     const actionExpiration = document.querySelector('#modalActionsView [name=action_expiration_view]').value;
     const actionDescription = document.querySelector('#modalActionsView [name=action_description_view]').value;
     const action_id = document.querySelector('#modalActionsView [name=action_id]').value;
+     // Verifica se algum campo está vazio
+     if (!actionResponsible || !actionExpiration || !actionDescription) {
+        alert('Por favor, preencha todos os campos.');
+        return false; // Retorna false para interromper a execução da função
+    }
 
     // Obtém os arquivos de evidências
     const evidenceFiles = ActionEvidence_view.getFiles();
@@ -1357,7 +1381,7 @@ async function table_corrective() {
         bInfo: false, // Oculta informações adicionais da tabela
         columns: [
             { data: 'id', visible: false }, // Coluna oculta para o ID
-            { data: 'action', orderable: false }, // Coluna para a ação (não ordenável)
+            { data: 'actionLimit', orderable: false }, // Coluna para a ação (não ordenável)
             { data: 'responsible', orderable: false }, // Coluna para o responsável (não ordenável)
             { data: 'deadline', orderable: false }, // Coluna para a data limite (não ordenável)
             { data: 'status' }, // Coluna para o status (ordenável por padrão)
@@ -1393,6 +1417,15 @@ async function addEffectiveness() {
     const actionExpiration = document.querySelector('[name=effectiveness_expiration]').value;
     const actionDescription = document.querySelector('[name=effectiveness_description]').value;
     const occurrence_id = document.querySelector('[name=occurrence_id]').value;
+
+     // Verifica se algum campo está vazio
+     if (!actionResponsible || !actionExpiration || !actionDescription) {
+        alert('Por favor, preencha todos os campos.');
+        return false; // Retorna false para interromper a execução da função
+    }
+
+    // Espera até que todos os arquivos sejam carregados
+    await effectivenessEvidence.processFiles();
 
     // Obtém os arquivos de evidência
     const evidenceFiles = effectivenessEvidence.getFiles();
@@ -1441,6 +1474,12 @@ async function saveEffectiveness() {
     const actionExpiration = document.querySelector('#modalEffectivenessView [name=expiration_view]').value;
     const actionDescription = document.querySelector('#modalEffectivenessView [name=description_view]').value;
     const effectivenes_id = document.querySelector('#modalEffectivenessView  [name=effectivenes_id]').value;
+
+     // Verifica se algum campo está vazio
+     if (!actionResponsible || !actionExpiration || !actionDescription) {
+        alert('Por favor, preencha todos os campos.');
+        return false; // Retorna false para interromper a execução da função
+    }
 
     // Obtém os arquivos de evidência
     const evidenceFiles = correctiveEvidence_view.getFiles();

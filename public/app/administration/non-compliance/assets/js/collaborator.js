@@ -237,7 +237,7 @@ async function filterActions() {
     });
 
     // Filtra e seleciona a opção "Todas" ao iniciar
-    const initialFilter = document.querySelector('.filterActions[data-type="0,1,2,3"]');
+    const initialFilter = document.querySelector('.filterActions[data-type="0"]');
     if (initialFilter) {
         initialFilter.click();
     }

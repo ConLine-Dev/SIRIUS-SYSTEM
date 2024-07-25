@@ -45,7 +45,7 @@ const non_compliance = {
         })
 
     },
-    sendEmailToEmail: async function(to,subject, CustomHTML, templateName = 'complete', allFiles, occurenceID){
+    sendEmailToEmail: async function(to,subject, CustomHTML, templateName = 'complete', allFiles, occurenceID, actions){
         const transporter = nodemailer.createTransport({
             name: 'ocorrencia@conlinebr.com.br',
             host: process.env.SMTP_HOST,
@@ -63,7 +63,7 @@ const non_compliance = {
             from: 'ocorrencia@conlinebr.com.br',
             to: to,
             subject: subject,
-            html: CustomHTML ? CustomHTML : await emailCustom[templateName](Ocurrence),
+            html: CustomHTML ? CustomHTML : await emailCustom[templateName](Ocurrence, actions ? actions : null),
             attachments: allFiles != null ? allFiles.map(dados => ({ filename: dados.filename, content: dados.content })) : false
         };
         
@@ -263,7 +263,7 @@ const non_compliance = {
 
         return {
             ...item, // mantém todas as propriedades existentes
-            title:`<span style="display: inline-block; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            title:`<span style="display: inline-block; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
             ${item.title}</span>`,
             editing:item.editing,
             id:item.id,
@@ -428,7 +428,6 @@ const non_compliance = {
         
         for (let index = 0; index < Actions.length; index++) {
             const element = Actions[index];
-            console.log(element)
             if(element.evidence == '[]'){
                 actionAllStatus = false
                 break;
@@ -680,7 +679,8 @@ const non_compliance = {
 
 
        try {
-        this.sendEmailToEmail(colabId[0].system_email, `[INTERNO] ${ocurrence.reference} - Ação Corretiva vinculada a você.`, null, 'action', null, occurrence_id)
+        const actions = await non_compliance.getActionsByOccurrence(occurrence_id)
+        this.sendEmailToEmail(colabId[0].system_email, `[INTERNO] ${ocurrence.reference} - Ação Corretiva vinculada a você.`, null, 'action', null, occurrence_id, actions)
         await executeQuery(sql, values);
        } catch (error) {
         console.log(error)
@@ -831,7 +831,7 @@ const non_compliance = {
 
 
         const Actions = await Promise.all(result.map(async function(item) {
-            let statusTemp = item.evidence == '[]' ? 1 : 3
+            let statusTemp = item.evidence == '[]' ? 0 : 3
             const users = `<div class="d-flex align-items-center">
                                 <span class="avatar avatar-sm  me-1 bg-light avatar-rounded" title="${item.name} ${item.family_name}"> 
                                     <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt=""> 
@@ -846,7 +846,7 @@ const non_compliance = {
                 action: item.action,
                 deadline: `<span class="badge bg-danger-transparent"><i class="bi bi-clock me-1"></i>${non_compliance.formatDate(item.deadline)}</span>`,
                 responsible:users,
-                statusID: item.evidence == '[]' ? 1 : 3,
+                statusID: item.evidence == '[]' ? 0 : 3,
                 verifyEvidence: JSON.parse(item.evidence).length > 0 ? '<span class="badge bg-success-transparent">Sim</span>' : '<span class="badge bg-danger-transparent">Não</span>'
             };
         }));
@@ -873,7 +873,7 @@ const non_compliance = {
         
         
         const Actions = await Promise.all(result.map(async function(item) {
-            let statusTemp = item.evidence == '[]' ? 1 : 3
+            let statusTemp = item.evidence == '[]' ? 0 : 3
             const users = `<div class="d-flex align-items-center">
                                 <span class="avatar avatar-sm  me-1 bg-light avatar-rounded" title="${item.name} ${item.family_name}"> 
                                     <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt=""> 
@@ -882,13 +882,15 @@ const non_compliance = {
                                     ${item.name} ${item.family_name}
                                 </a>
                             </div>`
+
+                            console.log(statusTemp)
             return {
                 ...item, // mantém todas as propriedades existentes
                 status: ` <span class="text-muted float-end fs-11 fw-normal"> ${status[statusTemp]}</span>`,
                 action: item.action,
                 deadline: `<span class="badge bg-danger-transparent"><i class="bi bi-clock me-1"></i>${non_compliance.formatDate(item.deadline)}</span>`,
                 responsible:users,
-                statusID: item.evidence == '[]' ? 1 : 3,
+                statusID: item.evidence == '[]' ? 0 : 3,
                 verifyEvidence: JSON.parse(item.evidence).length > 0 ? '<span class="badge bg-success-transparent">Sim</span>' : '<span class="badge bg-danger-transparent">Não</span>'
             };
         }));
@@ -912,7 +914,7 @@ const non_compliance = {
         }
 
         const Actions = await Promise.all(result.map(async function(item) {
-            let statusTemp = item.evidence == '[]' ? 1 : 3
+            let statusTemp = item.evidence == '[]' ? 0 : 3
             const users = `<div class="d-flex align-items-center">
                                 <span class="avatar avatar-sm  me-1 bg-light avatar-rounded" title="${item.name} ${item.family_name}"> 
                                     <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt=""> 
@@ -923,14 +925,16 @@ const non_compliance = {
                             </div>`
             return {
                 ...item, // mantém todas as propriedades existentes
+                actionLimit:`<span class="limitText">${item.action}</span>`,
                 status: `<span class="badge bg-danger-transparent">${status[statusTemp]}</span>`,
                 action: item.action,
                 deadline: `<span class="badge bg-danger-transparent"><i class="bi bi-clock me-1"></i>${non_compliance.formatDate(item.deadline)}</span>`,
                 responsible:users,
-                statusID: item.evidence == '[]' ? 1 : 3,
+                statusID: item.evidence == '[]' ? 0 : 3,
                 verifyEvidence: JSON.parse(item.evidence).length > 0 ? '<span class="badge bg-success-transparent">Sim</span>' : '<span class="badge bg-danger-transparent">Não</span>'
             };
         }));
+
 
         return Actions;
     },

@@ -99,7 +99,9 @@
    height: 33px;
 }
 
-
+.mandatory {
+   color: var(--primary-color) !important;
+}
 
 
 

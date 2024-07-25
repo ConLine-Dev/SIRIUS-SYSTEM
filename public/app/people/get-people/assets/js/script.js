@@ -57,7 +57,7 @@ async function createSelectPeopleType() {
       allowSearch: true,
       removeItemButton: true,
       noChoicesText: 'Não há opções disponíveis',
-      noResultsText: 'Não há opções disponíveis'
+      noResultsText: 'Não há opções disponíveis',
    });
 
    // Adiciona um evento para monitorar mudanças no seletor
@@ -419,7 +419,6 @@ async function insertDataOnInputs(data) {
    const input_razao_social = document.getElementById('input-razao-social');
    const input_fantasia = document.getElementById('input-fantasia');
    const input_inscricao_estadual = document.getElementById('input-inscricao-estadual');
-   const opening_company = document.getElementById('opening-company');
    const input_cep = document.getElementById('input-cep');
    const input_street = document.getElementById('input-street');
    const input_complement = document.getElementById('input-complement');
@@ -429,7 +428,6 @@ async function insertDataOnInputs(data) {
    input_razao_social.value = data.name;
    input_fantasia.value = data.fantasy_name;
    input_inscricao_estadual.value = data.state_registration;
-   opening_company.value = data.opening_date_formated;
    input_cep.value = formatCEP(data.cep);
    input_street.value = data.street;
    input_complement.value = data.complement;
@@ -483,8 +481,130 @@ async function getPeopleInfo() {
    return id;
 };
 
+// Função para verificar se os campos estão preenchidos
+async function getValuesFromInputs() {
+   // Array com os names dos inputs que não devem ficar em branco e suas mensagens personalizadas
+   const requiredInputFields = [
+      { name: 'input-cnpj-cpf', message: 'O campo CPF/CNPJ é obrigatório.' },
+      { name: 'input-razao-social', message: 'O campo Razão Social é obrigatório.' },
+      { name: 'input-fantasia', message: 'O campo Nome Fantasia é obrigatório.' },
+      { name: 'input-inscricao-estadual', message: 'O campo Inscrição Estadual é obrigatório.' },
+   ];
+
+   const elements = document.querySelectorAll('.form-control[name]');
+
+   const formBody = {};
+
+   for (let index = 0; index < elements.length; index++) {
+      const item = elements[index];
+      const itemName = item.getAttribute('name');
+      
+      // Verificar se o campo está no array de campos obrigatórios e se está vazio
+      const requiredField = requiredInputFields.find(field => field.name === itemName);
+      if (requiredField && (item.value.trim() === '' || item.value.trim() === '0')) {
+         Swal.fire(requiredField.message);
+         return false;
+      }
+
+      // Adicionando dinamicamente o nome e o valor ao objeto
+      formBody[itemName] = (itemName === 'occurrence_responsible' || itemName === 'types') ? sAllResponsible.getValue(true) : item.value;
+   }
+
+   // const sendToServer = await makeRequest(`/api/non-compliance/NewOccurrence`, 'POST', { formBody });
+
+   // window.close();
+};
+
+// Função para os valores de qualquer selected
+async function getSelectValues(selectName) {
+   const selectElement = document.querySelector(`select[name="${selectName}"]`);
+   if (selectElement) {
+      const selectedOptions = Array.from(selectElement.selectedOptions);
+      if (selectedOptions.length === 0) {
+         return undefined;
+      } else {
+         const selectedValues = selectedOptions.map(option => option.value);
+         return selectedValues;
+      }
+   } else {
+      return undefined;
+   }
+}
+
+// Função para verificar se os selects estão preenchidos
+async function getValuesFromSelects() {
+   // Array com os names dos inputs que não devem ficar em branco e suas mensagens personalizadas
+   const requiredInputFields = [
+      { name: 'typePeople', message: 'O campo Tipo Pessoa é obrigatório.', isSelect: true },
+      { name: 'selectPeopleCategory', message: 'O campo Categoria Pessoa é obrigatório.', isSelect: true },
+   ];
+
+   const elements = document.querySelectorAll('select[name]');
+
+   const formBody = {};
+
+   for (let index = 0; index < elements.length; index++) {
+      const item = elements[index];
+      const itemName = item.getAttribute('name');
+
+      // Verificar se o campo está no array de campos obrigatórios e se está vazio
+      const requiredField = requiredInputFields.find(field => field.name === itemName);
+      if (requiredField) {
+         if (requiredField.isSelect) {
+            const selectedValues = await getSelectValues(itemName);
+            if (!selectedValues) {
+               Swal.fire(requiredField.message);
+               return false;
+            }
+            formBody[itemName] = selectedValues;
+         }
+      } else {
+         formBody[itemName] = (itemName === 'occurrence_responsible' || itemName === 'types') ? sAllResponsible.getValue(true) : item.value;
+      }
+   }
+
+   // const sendToServer = await makeRequest(`/api/non-compliance/NewOccurrence`, 'POST', { formBody });
+
+   // window.close();
+}
+
 // Função que armazena todos os click na tela
 async function eventClick() {
+   // ========== BOTAO SALVAR ========== //
+   document.getElementById('input-cep').addEventListener('input', async function () {
+      const cep = this.value.replace(/\D/g, '');
+         
+      const input_street = document.getElementById('input-street');
+      const input_complement = document.getElementById('input-complement');
+      const input_neighborhood = document.getElementById('input-neighborhood');
+
+      // Verifica se cep tem 8 digitos
+      if (cep.length === 8) {
+         const api = await makeRequest(`https://viacep.com.br/ws/${cep}/json/`); // Consulta na api o cep
+         if (api && api.localidade) {
+            const getCityOrStateById = await makeRequest('/api/people/getCityOrStateById', 'POST', {city: api.localidade}); // Pega a cidade e o estado
+   
+            input_street.value = api.logradouro;
+            input_complement.value = api.complemento;
+            input_neighborhood.value = api.bairro;
+            await setSelectCityFromDB(getCityOrStateById[0].city_id);
+            await setSelectStateFromDB(getCityOrStateById[0].state_id)
+            await setSelectCountryFromDB(getCityOrStateById[0].country_id)
+         } else {
+            Swal.fire('CEP incorreto');
+            this.value = '';
+            input_street.value = '';
+            input_complement.value = '';
+            input_neighborhood.value = '';
+            await setSelectCityFromDB('');
+            await setSelectStateFromDB('');
+            await setSelectCountryFromDB('');
+         }
+      }
+   })
+   
+   // ========== / BOTAO SALVAR ========== //  
+
    // ========== BOTAO SALVAR ========== //
    const btn_save = document.getElementById('btn-save');
 
@@ -507,9 +627,10 @@ async function eventClick() {
       const value_select_city = await getSelectCity();
       const value_select_state = await getSelectState();
       const value_select_country = await getSelectCountry();
+
+      await getValuesFromInputs();
+      await getValuesFromSelects();
    })
-
-
    // ========== / BOTAO SALVAR ========== //
 }
 

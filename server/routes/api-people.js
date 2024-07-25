@@ -127,4 +127,17 @@ router.post('/getPeopleCategoryById', async (req, res, next) => {
     }
 });
 
+// Lista todas as pessoas;
+router.post('/getCityOrStateById', async (req, res, next) => {
+    const {city} = req.body;
+    try {
+        const result = await People.getCityOrStateById(city);
+
+        res.status(200).json(result)
+    } catch (error) {
+
+        res.status(404).json('Erro')
+    }
+});
+
 module.exports = router;

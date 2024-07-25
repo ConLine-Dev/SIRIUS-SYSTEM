@@ -6668,9 +6668,11 @@ fieldset:disabled .btn {
 }
 
 .form-control:disabled,
-.form-select:disabled {
-    background-color: rgb(var(--light-rgb));
-    color: var(--default-text-color)
+.form-select:disabled,
+.is-disabled .choices__inner {
+    background-color: rgb(var(--light-rgb)) !important;
+    color: var(--default-text-color) !important;
+    cursor: not-allowed;
 }
 
 .form-control-plaintext {

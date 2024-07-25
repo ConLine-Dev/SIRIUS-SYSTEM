@@ -62,6 +62,7 @@ const non_compliance = {
         const mailOptions = {
             from: 'ocorrencia@conlinebr.com.br',
             to: to,
+            cc: 'ocorrencia@conlinebr.com.br',
             subject: subject,
             html: CustomHTML ? CustomHTML : await emailCustom[templateName](Ocurrence, actions ? actions : null),
             attachments: allFiles != null ? allFiles.map(dados => ({ filename: dados.filename, content: dados.content })) : false

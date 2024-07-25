@@ -70,49 +70,51 @@
                      <div class="card-body default">
                         <div class="row">
                               <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
-                                 <label for="typePeople" class="form-label">Tipo Pessoa</label> 
+                                 <label for="typePeople" class="form-label">Tipo Pessoa</label>
+                                 <label for="typePeople" class="form-label mandatory">*</label>
                                  <br>
-                                 <select id="typePeople">
+                                 <select class="form-control" id="typePeople" disabled="true" name="typePeople">
                                     <option value="" style="width: 100% !important;">PF ou PJ</option>
                                  </select> 
                               </div>
                            
                               <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
                                  <label for="input-cnpj-cpf" class="form-label">CPF/CNPJ</label> 
-                                 <input type="text" class="form-control" id="input-cnpj-cpf" placeholder="CPF/CNPJ"> 
+                                 <label for="input-cnpj-cpf" class="form-label mandatory">*</label>
+                                 <input type="text" class="form-control" id="input-cnpj-cpf" placeholder="CPF/CNPJ" disabled="true" name="input-cnpj-cpf"> 
                               </div>
 
                               <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
                                  <label for="input-razao-social" class="form-label">Razão Social</label> 
-                                 <input type="text" class="form-control" id="input-razao-social" placeholder="Razão Social"> 
+                                 <label for="input-razao-social" class="form-label mandatory">*</label>
+                                 <input type="text" class="form-control" id="input-razao-social" placeholder="Razão Social" disabled="true" name="input-razao-social"> 
                               </div>
 
                               <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
                                  <label for="input-fantasia" class="form-label">Nome Fantasia</label> 
-                                 <input type="text" class="form-control" id="input-fantasia" placeholder="Nome Fantasia"> 
+                                 <label for="input-fantasia" class="form-label mandatory">*</label>
+                                 <input type="text" class="form-control" id="input-fantasia" placeholder="Nome Fantasia" name="input-fantasia"> 
                               </div>
                         </div>
                         <br>
                         <div class="row">
                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
                               <label for="input-inscricao-estadual" class="form-label">Inscrição Estadual</label> 
-                              <input type="number" class="form-control" id="input-inscricao-estadual" placeholder="Inscrição Estadual"> 
+                              <label for="input-inscricao-estadual" class="form-label mandatory">*</label>
+                              <input type="number" class="form-control" id="input-inscricao-estadual" placeholder="Inscrição Estadual" disabled="true" name="input-inscricao-estadual"> 
                            </div>
-                           <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
-                              <label for="opening-company" class="form-label">Abertura da Empresa</label> 
-                              <input type="date" class="form-control" id="opening-company"> 
-                           </div>
-                           <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
+                           <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12"> 
                               <label for="selectPeopleCategory" class="form-label">Categoria Pessoa</label> 
+                              <label for="selectPeopleCategory" class="form-label mandatory">*</label>
                               <br>
-                              <select id="selectPeopleCategory" multiple>
+                              <select class="form-control" id="selectPeopleCategory" multiple name="selectPeopleCategory">
                                  <option value="" style="width: 100% !important;">Selecione a Categoria</option>
                               </select> 
                            </div>
                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
                               <label for="selectPeopleStatus" class="form-label">Status da Pessoa</label> 
                               <br>
-                              <select id="selectPeopleStatus">
+                              <select class="form-control" id="selectPeopleStatus" name="selectPeopleStatus">
                                  <option value="" style="width: 100% !important;">Selecione o Status</option>
                               </select> 
                            </div>
@@ -122,14 +124,14 @@
                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
                               <label for="selectCommercial" class="form-label">Comercial Responsável</label> 
                               <br>
-                              <select id="selectCommercial">
+                              <select class="form-control" id="selectCommercial" name="selectCollaboratorResponsable">
                                  <option value="" style="width: 100% !important;">Selecione o Comercial</option>
                               </select> 
                            </div>
                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
                               <label for="selectCollaboratorResponsable" class="form-label">Funcionário Responsável</label> 
                               <br>
-                              <select id="selectCollaboratorResponsable">
+                              <select class="form-control" id="selectCollaboratorResponsable" name="selectCollaboratorResponsable">
                                  <option value="" style="width: 100% !important;">Selecione o Responsável</option>
                               </select> 
                            </div>
@@ -145,45 +147,48 @@
                         <div class="row">
                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
                               <label for="input-cep" class="form-label">CEP</label> 
+                              <label for="input-fantasia" class="form-label mandatory">*</label>
                               <br>
-                              <input type="text" class="form-control" id="input-cep" placeholder="Digite o CEP"> 
+                              <input type="text" class="form-control" id="input-cep" placeholder="Digite o CEP" name="input-cep"> 
                            </div>
                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
                               <label for="input-street" class="form-label">Logradouro</label> 
                               <br>
-                              <input type="text" class="form-control" id="input-street" placeholder="Digite a rua"> 
+                              <input type="text" class="form-control" id="input-street" placeholder="Digite a rua" name="input-street"> 
                            </div>
                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
                               <label for="input-complement" class="form-label">Complemento</label> 
                               <br>
-                              <input type="text" class="form-control" id="input-complement" placeholder="Digite o Complemento"> 
+                              <input type="text" class="form-control" id="input-complement" placeholder="Digite o Complemento" name="input-complement"> 
                            </div>
                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
                               <label for="input-neighborhood" class="form-label">Bairro</label> 
                               <br>
-                              <input type="text" class="form-control" id="input-neighborhood" placeholder="Digite o Bairro"> 
+                              <input type="text" class="form-control" id="input-neighborhood" placeholder="Digite o Bairro" name="input-neighborhood"> 
                            </div>
                         </div>
                         <br>
                         <div class="row">
                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
                               <label for="selectCity" class="form-label">Cidade</label> 
+                              <label for="selectCity" class="form-label mandatory">*</label>
                               <br>
-                              <select id="selectCity">
+                              <select class="form-control" id="selectCity" name="selectCity">
                                  <option value="" style="width: 100% !important;">Selecione uma Cidade</option>
                               </select> 
                            </div>
                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
                               <label for="selectState" class="form-label">Estado</label> 
                               <br>
-                              <select id="selectState">
+                              <select class="form-control" id="selectState" name="selectState">
                                  <option value="" style="width: 100% !important;">Selecione um Estado</option>
                               </select> 
                            </div>
                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
                               <label for="selectCountry" class="form-label">País</label> 
+                              <label for="selectCountry" class="form-label mandatory">*</label>
                               <br>
-                              <select id="selectCountry">
+                              <select class="form-control" id="selectCountry" name="selectCountry">
                                  <option value="" style="width: 100% !important;">Selecione um País</option>
                               </select> 
                            </div>
@@ -211,6 +216,8 @@
    <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
    <!-- Flat Picker JS -->
    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+   <!-- SweetAlert JS -->
+   <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
 
    <!-- Internal Task  JS -->
    <script src="../../assets/js/fetchAPI.js"></script>

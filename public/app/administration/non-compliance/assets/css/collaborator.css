@@ -49,3 +49,7 @@
     font-size: initial;
 }
 
+table tr{
+    cursor: pointer;
+}
+

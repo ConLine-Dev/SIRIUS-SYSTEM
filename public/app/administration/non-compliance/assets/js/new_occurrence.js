@@ -3,6 +3,16 @@
 let sAllUnits, sAllOrigins, sAllApproval, sAllResponsible, sAllResponsibleActions, sAllTypes, listPreventive = [], listReasons = [], listActions = []
 
 
+/**
+ * Verifica informações no localStorage do usuario logado
+ */
+async function getInfosLogin() {
+    const StorageGoogleData = localStorage.getItem('StorageGoogle');
+    const StorageGoogle = JSON.parse(StorageGoogleData);
+    return StorageGoogle;
+}
+
+
 async function getAllUnit(){
     // carrega as unidades cadastradas (filiais)
     const Units = await makeRequest(`/api/non-compliance/AllUnit`);
@@ -175,6 +185,9 @@ async function getAllResponsible(){
         noChoicesText: 'Não há opções disponíveis',
         
     });
+
+    const user = await getInfosLogin()
+    sAllResponsible.setChoiceByValue(user.system_collaborator_id.toString());
 
     sAllResponsibleActions = new Choices('select[name="action_responsible"]', {
         choices: listaDeOpcoes,

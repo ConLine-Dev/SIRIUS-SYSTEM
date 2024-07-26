@@ -166,6 +166,10 @@ module.exports = function(io) {
         // body.reason, body.occurrences_id
         try {
             const result = await non_compliance.changeBlock(body);
+
+            if(body.prop == 'status'){
+                io.emit('att-non-compliance', result);
+            }
             res.status(200).json(result)
 
         } catch (error) {
@@ -217,6 +221,7 @@ module.exports = function(io) {
         try {
             const evidenceFiles = req.files;
             const result = await non_compliance.addAction(body, evidenceFiles);
+            io.emit('att-non-compliance', result);
             res.status(200).json({ success: true, message: 'Ação adicionada com sucesso!' });
         } catch (error) {
             res.status(404).json({ success: false, message: 'Erro ao adicionar ação.' }); 
@@ -229,6 +234,7 @@ module.exports = function(io) {
         try {
             const evidenceFiles = req.files;
             const result = await non_compliance.editAction(body, evidenceFiles);
+            io.emit('att-non-compliance', result);
             res.status(200).json({ success: true, message: 'Ação adicionada com sucesso!' });
         } catch (error) {
             res.status(404).json({ success: false, message: 'Erro ao adicionar ação.' }); 

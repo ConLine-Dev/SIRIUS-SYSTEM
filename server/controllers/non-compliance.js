@@ -644,7 +644,6 @@ const non_compliance = {
     },
     changeBlock: async function(body){
         const {type,prop, id, obs, userId} = body
-        console.log(type,prop, id, obs, userId)
         const date = new Date()
         const occurrence = await executeQuery(`UPDATE occurrences SET ${prop} = ${type} WHERE (id = ${id})`)
 

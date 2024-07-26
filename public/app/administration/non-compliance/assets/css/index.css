@@ -60,3 +60,7 @@
     text-overflow: ellipsis;   /* Adiciona as reticências (...) */
     max-width: 100%;         /* Define a largura máxima do elemento */
 }
+
+table tr{
+    cursor: pointer;
+}

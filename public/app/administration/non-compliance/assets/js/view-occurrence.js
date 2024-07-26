@@ -461,7 +461,7 @@ async function loadHistory(id){
         const minutes = String(date.getMinutes()).padStart(2, '0'); // Obtém os minutos e adiciona um zero à esquerda se necessário
         const seconds = String(date.getSeconds()).padStart(2, '0'); // Obtém os segundos e adiciona um zero à esquerda se necessário
 
-        const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        const formattedDate = `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 
 
 
@@ -597,7 +597,7 @@ async function headerManagement(occurrence){
             // 1 = aprovado = Aguardando Preenchimento
             // document.querySelector('.btnReprove').classList.remove('disabled')
             // document.querySelector('.btnFinalize').classList.remove('disabled')
-            document.querySelector('#offcanvasRight').classList.add('show')
+            document.querySelector('#btnHistorico').click()
         }else if(occurrence.status == 2){
             // 2 = reprovado = Aguardando Ajuste.
             // document.querySelector('.btnFinalize').classList.remove('disabled')
@@ -606,7 +606,7 @@ async function headerManagement(occurrence){
             document.querySelector('.btnAprove').classList.remove('disabled')
             document.querySelector('.btnReprove').classList.remove('disabled')
         }else if(occurrence.status == 4){
-            document.querySelector('#offcanvasRight').classList.add('show')
+            document.querySelector('#btnHistorico').click()
             // 4 = Restaurado = Restaurado
             document.querySelector('.btnFinalize').classList.remove('disabled')
         }else if(occurrence.status == 5 && occurrence.actionAllStatus == true){

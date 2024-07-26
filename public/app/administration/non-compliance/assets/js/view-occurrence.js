@@ -597,17 +597,16 @@ async function headerManagement(occurrence){
             // 1 = aprovado = Aguardando Preenchimento
             // document.querySelector('.btnReprove').classList.remove('disabled')
             // document.querySelector('.btnFinalize').classList.remove('disabled')
+            document.querySelector('#offcanvasRight').classList.add('show')
         }else if(occurrence.status == 2){
             // 2 = reprovado = Aguardando Ajuste.
             // document.querySelector('.btnFinalize').classList.remove('disabled')
-            document.querySelector('.offcanvasRight').classList.add('show')
-            
         }else if(occurrence.status == 3){
             // 3 = Finalizar = Finalizado
             document.querySelector('.btnAprove').classList.remove('disabled')
             document.querySelector('.btnReprove').classList.remove('disabled')
         }else if(occurrence.status == 4){
-            document.querySelector('.offcanvasRight').classList.add('show')
+            document.querySelector('#offcanvasRight').classList.add('show')
             // 4 = Restaurado = Restaurado
             document.querySelector('.btnFinalize').classList.remove('disabled')
         }else if(occurrence.status == 5 && occurrence.actionAllStatus == true){

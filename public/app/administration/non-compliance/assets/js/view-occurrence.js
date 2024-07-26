@@ -577,6 +577,12 @@ async function headerManagement(occurrence){
         document.querySelector('.btnReset').classList.add('d-none')
         document.querySelector('.groupBlocks').classList.add('d-none')
 
+        if(occurrence.status == 1){
+            document.querySelector('#btnHistorico').click()
+        }else if(occurrence.status == 4){
+            document.querySelector('#btnHistorico').click()
+        }
+
         
     }else{
         

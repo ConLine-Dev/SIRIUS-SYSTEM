@@ -246,6 +246,99 @@ const emailCustom = {
         </html>`
 
     },
+    apresentation: async function(){
+        return `<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #333;">
+        <div style="width: 80%; margin: 20px auto; background-color: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); padding: 30px; border-radius: 10px;">
+            <h1 style="color: #4CAF50; text-align: center; margin-bottom: 20px; font-size: 28px;">Apresentação do Módulo de Não Conformidade</h1>
+            
+            <h2 style="color: #4CAF50; margin-top: 20px; font-size: 24px;">Introdução</h2>
+            <p style="line-height: 1.6;">Este manual tem como objetivo guiar o usuário no uso do módulo de gestão de ocorrências de não conformidade detalhando as funcionalidades das telas e as etapas de acompanhamento das ocorrências.</p>
+            
+            <h2 style="color: #4CAF50; margin-top: 20px; font-size: 24px;">Tela de Gerenciamento de Ocorrências</h2>
+            <p style="line-height: 1.6;">A tela de gerenciamento de ocorrências permite visualizar e acompanhar o status de diversas ocorrências dentro da organização. A seguir estão descritas as principais seções desta tela:</p>
+            <ul style="list-style-type: disc; padding-left: 20px; line-height: 1.6;">
+                <li><strong>Ocorrências Por Unidade:</strong> Esta seção mostra a quantidade de ocorrências registradas em cada unidade da organização. As unidades são:
+                    <ul style="list-style-type: circle; padding-left: 20px;">
+                        <li>Itajaí Brasil</li>
+                        <li>São Paulo Brasil</li>
+                        <li>Curitiba Brasil</li>
+                    </ul>
+                </li>
+                <li><strong>Ocorrências Abertas no Mês:</strong> Esta seção exibe o total de ocorrências que foram abertas no mês corrente.</li>
+                <li><strong>Tempo Médio de Resolução:</strong> Esta seção apresenta o tempo médio necessário para resolver as ocorrências registradas.</li>
+                <li><strong>Ações Tomadas:</strong> Esta seção informa o total de ações corretivas que foram tomadas em resposta às ocorrências registradas.</li>
+                <li><strong>Ações Pendentes:</strong> Esta seção mostra o número total de ações corretivas que ainda estão pendentes e aguardando resolução.</li>
+                <li><strong>Ocorrências Andamento/Finalizadas:</strong> Esta seção apresenta o total de ocorrências que estão em andamento e as que já foram finalizadas junto com suas respectivas porcentagens.</li>
+                <li><strong>Ocorrências Por Tipo:</strong> Esta seção exibe o total de ocorrências categorizadas por tipo como oportunidade de melhoria e não conformidade.</li>
+                <li><strong>Ocorrências Pendentes:</strong> Esta seção lista as ocorrências que ainda estão pendentes esperando ações corretivas ou outras intervenções.</li>
+                <li><strong>Ações Tomadas:</strong> Esta seção detalha todas as ações corretivas que foram tomadas em resposta às ocorrências registradas.</li>
+            </ul>
+            
+            <h2 style="color: #4CAF50; margin-top: 20px; font-size: 24px;">Tela de Cadastro de Ocorrência</h2>
+            <p style="line-height: 1.6;">A tela de cadastro de ocorrência é utilizada para registrar novas ocorrências e acompanhar o progresso das ações corretivas e avaliações de eficácia. Abaixo estão os campos e etapas envolvidas no cadastro de uma ocorrência:</p>
+            <ul style="list-style-type: disc; padding-left: 20px; line-height: 1.6;">
+                <li><strong>Detalhes da Ocorrência:</strong>
+                    <ul style="list-style-type: circle; padding-left: 20px;">
+                        <li>Ocorrência: Descrição breve da ocorrência (ex: Deixou a porta aberta do financeiro)</li>
+                        <li>Data da Ocorrência: Data em que a ocorrência aconteceu</li>
+                        <li>Unidade: Local onde a ocorrência foi registrada (ex: Itajaí Brasil)</li>
+                        <li>Origem: Fonte da ocorrência (ex: Auditoria interna)</li>
+                        <li>Tipo: Classificação da ocorrência (ex: Não conformidade)</li>
+                        <li>Envolvidos: Pessoas envolvidas na ocorrência (ex: Dayana Alves)</li>
+                    </ul>
+                </li>
+                <li><strong>Descrição da Ocorrência:</strong> Campo para descrever detalhadamente a ocorrência registrada.</li>
+                <li><strong>Correção (Ações já tomadas):</strong> Campo para descrever as ações corretivas que já foram realizadas em resposta à ocorrência.</li>
+                <li><strong>Análise da Causa (Método ISHIKAWA):</strong> Análise das causas da não conformidade utilizando o método Ishikawa:
+                    <ul style="list-style-type: circle; padding-left: 20px;">
+                        <li>Mão de obra: Descrever se a não conformidade está relacionada a treinamento qualificação etc.</li>
+                        <li>Método: Descrever se está relacionado a procedimentos instruções etc.</li>
+                        <li>Material: Descrever se está relacionado a dimensões especificações etc.</li>
+                        <li>Meio Ambiente: Descrever se está relacionado a espaço temperatura etc.</li>
+                        <li>Máquina: Descrever se está relacionado a equipamentos ferramentas etc.</li>
+                        <li>Causa Raiz: Identificar a causa raiz da não conformidade.</li>
+                    </ul>
+                </li>
+                <li><strong>Ação Corretiva:</strong>
+                    <ul style="list-style-type: circle; padding-left: 20px;">
+                        <li>Ação: Descrição da ação corretiva (ex: Nova ação corretiva)</li>
+                        <li>Responsável: Pessoa responsável pela ação corretiva (ex: Dayana Alves)</li>
+                        <li>Prazo: Data limite para a implementação da ação corretiva (ex: 26/07/2024)</li>
+                        <li>Status: Status atual da ação corretiva (ex: Finalizada)</li>
+                    </ul>
+                </li>
+                <li><strong>Avaliação de Eficácia:</strong>
+                    <ul style="list-style-type: circle; padding-left: 20px;">
+                        <li>Ação: Descrição da avaliação de eficácia (ex: Avaliação de eficácia)</li>
+                        <li>Responsável: Pessoa responsável pela avaliação (ex: Petryck William Silva Leite)</li>
+                        <li>Prazo (previsto): Data limite para a avaliação de eficácia (ex: 26/07/2024)</li>
+                        <li>Status: Status atual da avaliação de eficácia (ex: Finalizada)</li>
+                    </ul>
+                </li>
+                <li><strong>Riscos Oportunidade e Mudanças:</strong> Campo para descrever quaisquer riscos adicionais oportunidades de melhoria ou mudanças necessárias identificadas durante o processo.</li>
+            </ul>
+    
+            <h2 style="color: #4CAF50; margin-top: 20px; font-size: 24px;">Status das Ocorrências</h2>
+            <p style="line-height: 1.6;">O manual a seguir detalha os diferentes status que uma ocorrência pode ter no sistema:</p>
+            <ul style="list-style-type: disc; padding-left: 20px; line-height: 1.6;">
+                <li><strong>Pendente - Aprovação 1ª etapa (ID: 0):</strong> A ocorrência foi registrada e aguarda aprovação inicial. Revisão e aprovação ou reprovação para avançar para a próxima etapa.</li>
+                <li><strong>Reprovado - Aguardando Ajuste 1ª etapa (ID: 1):</strong> A ocorrência não foi aprovada na primeira etapa e necessita de ajustes. Correção e reenvio para nova avaliação.</li>
+                <li><strong>Aprovado - Liberado Preenchimento 2ª etapa (ID: 2):</strong> A ocorrência foi aprovada na primeira etapa e está liberada para o preenchimento da segunda etapa. Fornecimento de informações detalhadas no Método ISHIKAWA.</li>
+                <li><strong>Pendente - Aprovação 2ª etapa (ID: 3):</strong> A ocorrência aguarda a aprovação da segunda etapa. Revisão das ações corretivas propostas e aprovação ou reprovação.</li>
+                <li><strong>Reprovado - Aguardando Ajuste 2ª etapa (ID: 4):</strong> A ocorrência não foi aprovada na segunda etapa e necessita de ajustes. Correção e reenvio para nova avaliação.</li>
+                <li><strong>Desenvolvimento - Ação Corretiva (ID: 5):</strong> A ocorrência foi aprovada nas etapas anteriores e está na fase de desenvolvimento da ação corretiva. Implementação das ações corretivas e registro de progresso.</li>
+                <li><strong>Desenvolvimento - Avaliação de Eficácia (ID: 6):</strong> A eficácia das ações corretivas está sendo avaliada. Avaliação detalhada da eficácia e ajustes adicionais se necessário.</li>
+                <li><strong>Finalizado (ID: 7):</strong> A ocorrência foi completamente resolvida. Registro de todas as ações e avaliações realizadas e encerramento formal da ocorrência.</li>
+            </ul>
+            
+            <h2 style="color: #4CAF50; margin-top: 20px; font-size: 24px;">Requisitos para Finalização e Aprovação de Ocorrências</h2>
+            <p style="line-height: 1.6;"><strong>Ação Corretiva:</strong> A ação corretiva é finalizada ao anexar uma evidência deixando assim o status como "Finalizada".</p>
+            <p style="line-height: 1.6;"><strong>Avaliação de Eficácia:</strong> A avaliação de eficácia também é finalizada ao anexar uma evidência deixando o status como "Finalizada".</p>
+            <p style="line-height: 1.6;">É obrigatório a inserção da evidência para prosseguir para a próxima etapa de "Desenvolvimento - Avaliação de Eficácia".</p>
+            <p style="line-height: 1.6;">Só é possível aprovar a ocorrência com status de "Desenvolvimento - Ação Corretiva" quando todas as ações tiverem uma evidência anexada.</p>
+        </div>
+                </body>`
+    },
     formatDate: function (dateString) {
         const date = new Date(dateString); // Cria um objeto Date a partir da string de data
         const day = String(date.getDate()).padStart(2, '0'); // Garante que o dia tenha dois dígitos

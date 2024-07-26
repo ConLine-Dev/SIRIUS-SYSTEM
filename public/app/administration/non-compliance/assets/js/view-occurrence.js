@@ -581,6 +581,11 @@ async function headerManagement(occurrence){
             document.querySelector('#btnHistorico').click()
         }else if(occurrence.status == 4){
             document.querySelector('#btnHistorico').click()
+        }else if(occurrence.status == 4){
+            const element = document.getElementById('actionCorretive');
+            setTimeout(() => {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
         }
 
         

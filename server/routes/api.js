@@ -12,6 +12,7 @@ const api_called = require('./api-called');
 const api_collaborators = require('./api-collaborators');
 const api_product = require('./api-product');
 const api_people = require('./api-people');
+const api_moduleManagement = require('./api-module-management');
 
 
 const apiAppMonitor = require('./apiAppMonitor');
@@ -69,6 +70,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-people.js
   router.use('/people', api_people);
+
+   // Use as rotas do arquivo api-people.js
+   router.use('/module-management', api_moduleManagement(io));
 
   return router;
 };

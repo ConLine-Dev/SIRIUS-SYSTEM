@@ -6,6 +6,7 @@ const socket = io();
     document.querySelector('#loader2').classList.remove('d-none')
     await listPendingOccurrences();
     await listAllOccurrences();
+    await listAllActions()
     document.querySelector('#loader2').classList.add('d-none')
 });
 

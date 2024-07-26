@@ -1,0 +1,81 @@
+#loader2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--custom-white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+@media (min-width:576px) {
+    .file-manager-container .file-manager-navigation {
+        width: 100%;
+    }
+}
+
+.btn-table-custom{
+    padding-left: 40px !important;
+}
+
+.dt-search{
+    margin-bottom: 6px;
+}
+
+.file-manager-container {
+    margin: 0 -10px;
+}
+.file-manager-container .files-main-nav {
+    max-height: 100vh;
+}
+
+.file-manager-navigation{
+    margin-bottom: -75px;
+}
+
+
+.file-manager-container .file-manager-folders, .file-manager-container .file-manager-navigation, .file-manager-container .selected-file-details {
+    height: 100vh
+}
+
+.simplebar-wrapper{
+    margin-bottom: 41px;
+}
+
+.listHistory{
+    overflow: scroll;
+    max-height: 100%;
+}
+
+.listHistory li{
+    cursor: pointer;
+}
+
+.listHistory li:hover{
+    background-color: #f0f1f7;
+}
+
+.listHistory li.activeRef{
+    background-color: #dddee5;
+}
+
+.text-ellipsis .text {
+    display: inline-block;
+    width: 115px;
+    max-width: 115px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: top; /* opcional, alinha o texto com o ícone */
+}
+
+.text-ellipsis i{
+    margin-left: 0px !important;
+}
+
+
+
+  

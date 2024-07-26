@@ -69,10 +69,10 @@ const setIO = (io) => {
   router.use('/product', api_product);
 
   // Use as rotas do arquivo api-people.js
-  router.use('/people', api_people);
+  router.use('/people', api_people(io));
 
-   // Use as rotas do arquivo api-people.js
-   router.use('/module-management', api_moduleManagement(io));
+  // Use as rotas do arquivo api-people.js
+  router.use('/module-management', api_moduleManagement(io));
 
   return router;
 };

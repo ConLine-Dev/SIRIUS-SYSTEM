@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
-    await generateTable();
 
     document.querySelector('#loader2').classList.add('d-none')
 })
@@ -38,4 +37,13 @@ async function generateTable() {
             sSearch: '',
         },
     });
+}
+
+function registerPassword() {
+
+
+    const body = {
+        url: '/app/administration/control-password/create'
+    }
+    window.ipcRenderer.invoke('open-exWindow', body);
 }

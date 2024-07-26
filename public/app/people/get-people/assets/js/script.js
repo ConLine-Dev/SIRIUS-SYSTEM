@@ -143,6 +143,18 @@ async function getselectPeopleCategory() {
    }
 };
 
+// Função para pegar as opções selecionadas do select Categoria Pessoa para fazer update no banco de dados
+async function getselectPeopleCategoryFromUpdate() {
+   if (selectPeopleCategory && selectPeopleCategory.getValue(true).length === 0) {
+      return undefined;
+   } else {
+       // Usar o método getValue() para pegar os valores selecionados
+       const selectedValues = selectPeopleCategory.getValue(true);
+       // Transformar o array em uma string com os valores entre parênteses e separados por virgula
+       return selectedValues;
+   }
+};
+
 // Função que cria o select para selecionar as categorias de pessoas
 let selectPeopleStatus;
 async function createSelectPeopleStatus(data) {
@@ -176,7 +188,7 @@ async function setSelectPeopleStatusFromDB(value) {
    selectPeopleStatus.setChoiceByValue(value);
 };
 
-// Função para pegar a opção selecionada do Select Tipo de Pessoa
+// Função para pegar a opção selecionada do Select de status da pessoa
 async function getSelectPeopleStatus() {
    if (selectPeopleStatus && selectPeopleStatus.getValue(true).length === 0) {
       return undefined;
@@ -529,7 +541,7 @@ async function getSelectValues(selectName) {
    } else {
       return undefined;
    }
-}
+};
 
 // Função para verificar se os selects estão preenchidos
 async function getValuesFromSelects() {
@@ -566,11 +578,11 @@ async function getValuesFromSelects() {
    // const sendToServer = await makeRequest(`/api/non-compliance/NewOccurrence`, 'POST', { formBody });
 
    // window.close();
-}
+};
 
 // Função que armazena todos os click na tela
 async function eventClick() {
-   // ========== BOTAO SALVAR ========== //
+   // ========== INPUT CEP ========== //
    document.getElementById('input-cep').addEventListener('input', async function () {
       const cep = this.value.replace(/\D/g, '');
          
@@ -610,26 +622,32 @@ async function eventClick() {
 
    btn_save.addEventListener('click', async function(e) {
       e.preventDefault();
-      const value_select_people_type = await getSelectPeopleType();
-      const value_cpf_cnpj = document.getElementById('input-cnpj-cpf').value.replace(/\D/g, '');
-      const input_razao_social = document.getElementById('input-razao-social').value;
-      const input_fantasia = document.getElementById('input-fantasia').value;
-      const input_inscricao_estadual = document.getElementById('input-inscricao-estadual').value;
-      const opening_company = document.getElementById('opening-company').value;
-      const value_select_people_category = await getselectPeopleCategory();
-      const value_select_people_status = await getSelectPeopleStatus();
-      const value_select_comercial = await getSelectCommercial();
-      const value_select_collaborator_responsable = await getSelectCollaboratorResponsable();
-      const input_cep = document.getElementById('input-cep').value.replace(/\D/g, '');
-      const input_street = document.getElementById('input-street').value;
-      const input_complement = document.getElementById('input-complement').value;
-      const input_neighborhood = document.getElementById('input-neighborhood').value;
-      const value_select_city = await getSelectCity();
-      const value_select_state = await getSelectState();
-      const value_select_country = await getSelectCountry();
+      let formBody = {};
 
+      formBody.selectPeopleType = await getSelectPeopleType();
+      formBody.cnpjCpf = document.getElementById('input-cnpj-cpf').value.replace(/\D/g, '');
+      formBody.razaoSocial = document.getElementById('input-razao-social').value;
+      formBody.fantasia = document.getElementById('input-fantasia').value;
+      formBody.inscricaoEstadual = document.getElementById('input-inscricao-estadual').value;
+      formBody.peopleCategory = await getselectPeopleCategoryFromUpdate();
+      formBody.peopleStatus = await getSelectPeopleStatus();
+      formBody.commercial = await getSelectCommercial();
+      formBody.collaboratorResponsable = await getSelectCollaboratorResponsable();
+      formBody.cep = document.getElementById('input-cep').value.replace(/\D/g, '');
+      formBody.street = document.getElementById('input-street').value;
+      formBody.complement = document.getElementById('input-complement').value;
+      formBody.neighborhood = document.getElementById('input-neighborhood').value;
+      formBody.city = await getSelectCity();
+      formBody.state = await getSelectState();
+      formBody.country = await getSelectCountry();
+      formBody.peopleId = await getPeopleInfo();
+      
       await getValuesFromInputs();
       await getValuesFromSelects();
+
+      const sendToServer = await makeRequest(`/api/people/updateGetPeople`, 'POST', { formBody });
+
+      window.close();
    })
    // ========== / BOTAO SALVAR ========== //
 }

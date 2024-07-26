@@ -1,5 +1,24 @@
 let startDateGlobal, endDateGlobal;
 
+const socket = io();
+
+socket.on("updatePeople", async (data) => {
+    const people = data.people && data.people.length > 0 ? data.people[0] : data;
+    const categories = data.categories || [];
+    const categories_item = await listPeopleCategoryRelations(categories);
+    const status = await listPeopleStatus(people); // Passando o objeto people diretamente
+    const cardPeople = document.querySelector(`[data-people-id="${people.id}"]`);
+
+    if (cardPeople) {
+        cardPeople.querySelector('.io-people-fantasy-name').textContent = people.fantasy_name;
+        cardPeople.querySelector('.io-people-commercial').textContent = people.commercial;
+        cardPeople.querySelector('.io-people-responsable').textContent = people.collaborator_responsable;
+        cardPeople.querySelector('.io-people-categories').innerHTML = categories_item;
+        cardPeople.querySelector('.io-people-status').innerHTML = status;
+    }
+});
+
+
 async function active_tooltip() {
     const tooltipTriggerList = document.querySelectorAll(
         '[data-bs-toggle="tooltip"]'
@@ -222,6 +241,29 @@ async function listPeopleCategoryRelations(data) {
     return categoriesHtml;
 };
 
+async function listPeopleStatus(data) {
+    let status = '';
+    const peopleStatus = data.people ? data.people.people_status : data.people_status;
+    const peopleStatusId = data.people ? data.people.people_status_id : data.people_status_id;
+
+    if (peopleStatusId === 1) {
+        status = `<div class="btn-list float-end"> 
+                    <span class="badge bg-indigo rounded-pill" id="cart-icon-badge">${peopleStatus}</span>
+                  </div>`;
+    } else if (peopleStatusId === 3) {
+        status = `<div class="btn-list float-end"> 
+                    <span class="badge bg-primary rounded-pill" id="cart-icon-badge">${peopleStatus}</span>
+                  </div>`;
+    } else {
+        status = `<div class="btn-list float-end"> 
+                    <span class="badge bg-secondary rounded-pill" id="cart-icon-badge">${peopleStatus}</span>
+                  </div>`;
+    }
+
+    return status;
+}
+
+
 // Função lista todos os colaboradores 
 async function listPeople(data) {
     const people = document.getElementById('listPeople');
@@ -231,35 +273,25 @@ async function listPeople(data) {
     for (let i = 0; i < data.length; i++) {
         const item = data[i];
         const categories = await listPeopleCategoryRelations(item.categories);
-
-        let prospectStatus = '';
-        if (item.people.people_status_id === 1) {
-            prospectStatus = `<div class="btn-list float-end"> 
-                                <span class="badge bg-indigo rounded-pill" id="cart-icon-badge">${item.people.people_status}</span>
-                            </div>`
-        } else if (item.people.people_status_id === 3) {
-            prospectStatus = `<div class="btn-list float-end"> 
-                                <span class="badge bg-primary rounded-pill" id="cart-icon-badge">${item.people.people_status}</span>
-                            </div>`
-        }
+        const status = await listPeopleStatus(item);
 
         const cnpjCpfFormated = formatCnpjCpfString(item.people.cnpj_cpf);
 
         html += `<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 shadow-sm list-group-item-action py-3" style="cursor: pointer;" data-people-id="${item.people.id}" ondblclick="openPeople(${item.people.id})"> 
                         <div class="card-body">
-                            ${prospectStatus}
+                            <span class="io-people-status">${status}</span>
                             <div class="d-flex mb-3 flex-wrap align-items-center"> 
                                 <div>
                                     <h5 class="fw-semibold mb-0 d-flex align-items-center">
-                                        <a>${item.people.fantasy_name}</a>
+                                        <a class="io-people-fantasy-name">${item.people.fantasy_name}</a>
                                     </h5> 
-                                    <a>Comercial: ${item.people.commercial}</a>
+                                    <a>Comercial: <span class="io-people-commercial">${item.people.commercial}</span></a>
                                     <br>
-                                    <a>Funcionário Responsável: ${item.people.collaborator_responsable}</a>
+                                    <a>Funcionário Responsável: <span class="io-people-responsable">${item.people.collaborator_responsable}</span></a>
                                 </div>
                             </div>
                             <div class="popular-tags"> 
-                                ${categories}
+                                <span class="io-people-categories">${categories}</span>
                                 <div class="btn-list float-end"> 
                                     <span>${cnpjCpfFormated}</span>
                                     <span class="d-none">${item.people.cnpj_cpf}</span>
@@ -292,7 +324,7 @@ async function eventClick() {
             }
         });
     })
-   // ========== FIM PESQUISA ========== // 
+    // ========== FIM PESQUISA ========== // 
 
     // ========== BOTAO DE FILTRO ========== // 
     const inputDateFilter = document.getElementById('inputDateFilter');
@@ -355,6 +387,12 @@ async function eventClick() {
         document.querySelector('#loader2').classList.add('d-none')
     });
     // ========== / BOTAO DE FILTRO ========== // 
+
+    // ========== CRIAR PESSOA ========== // 
+    document.getElementById('createPeople').addEventListener('click', async function () {
+        await createPeople();
+    });
+    // ========== / CRIAR PESSOA ========== // 
 };
 
 // Inicializa o seletor de data
@@ -369,6 +407,14 @@ async function initializeDatePicker() {
 async function openPeople(id) {
     const body = {
         url: `/app/people/get-people?id=${id}`
+    }
+    window.ipcRenderer.invoke('open-exWindow', body);
+};
+
+// Função para criar uma nova pessoa!
+async function createPeople() {
+    const body = {
+        url: `/app/people/create-people`
     }
     window.ipcRenderer.invoke('open-exWindow', body);
 };

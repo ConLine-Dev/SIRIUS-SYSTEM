@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Editar Pessoa</title>
+    <title>Cadastro da Pessoa</title>
     <meta name="Description" content="Controle de chamados & projetos TI">
     <meta name="Author" content="ConLine">
 
@@ -32,7 +32,7 @@
     <!-- Choices Css -->
     <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
     <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
-    <!-- flatpickr -->
+
     <link rel="stylesheet" href="./assets/css/style.css">
     <meta http-equiv="imagetoolbar" content="no">
 </head>
@@ -65,34 +65,38 @@
                      <!-- DADOS PESSOAIS -->
                      <div class="card-header justify-content-between">
                         <div class="card-title"> Dados </div>
+                        <div style="display: flex; align-items: center;">
+                           <input type="checkbox" id="input-checkbox-international">
+                           <label for="input-checkbox-international" style="margin-left: 10px;">Internacional</label>
+                        </div>
                      </div>
                      
                      <div class="card-body default">
                         <div class="row">
                               <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
                                  <label for="typePeople" class="form-label">Tipo Pessoa</label>
-                                 <label for="typePeople" class="form-label mandatory">*</label>
+                                 <label for="typePeople" class="form-label mandatory" title="Campo Obrigatório">*</label>
                                  <br>
-                                 <select class="form-control" id="typePeople" disabled="true" name="typePeople">
+                                 <select class="form-control" id="typePeople" name="typePeople">
                                     <option value="" style="width: 100% !important;">PF ou PJ</option>
                                  </select> 
                               </div>
                            
                               <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
                                  <label for="input-cnpj-cpf" class="form-label">CPF/CNPJ</label> 
-                                 <label for="input-cnpj-cpf" class="form-label mandatory">*</label>
-                                 <input type="text" class="form-control" id="input-cnpj-cpf" placeholder="CPF/CNPJ" disabled="true" name="input-cnpj-cpf"> 
+                                 <label for="input-cnpj-cpf" class="form-label mandatory required" title="Campo Obrigatório">*</label>
+                                 <input type="text" class="form-control" id="input-cnpj-cpf" placeholder="CPF/CNPJ" name="input-cnpj-cpf" disabled="true"> 
                               </div>
 
                               <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
                                  <label for="input-razao-social" class="form-label">Razão Social</label> 
-                                 <label for="input-razao-social" class="form-label mandatory">*</label>
-                                 <input type="text" class="form-control" id="input-razao-social" placeholder="Razão Social" disabled="true" name="input-razao-social"> 
+                                 <label for="input-razao-social" class="form-label mandatory" title="Campo Obrigatório">*</label>
+                                 <input type="text" class="form-control" id="input-razao-social" placeholder="Razão Social" name="input-razao-social" disabled="true"> 
                               </div>
 
                               <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
                                  <label for="input-fantasia" class="form-label">Nome Fantasia</label> 
-                                 <label for="input-fantasia" class="form-label mandatory">*</label>
+                                 <label for="input-fantasia" class="form-label mandatory" title="Campo Obrigatório">*</label>
                                  <input type="text" class="form-control" id="input-fantasia" placeholder="Nome Fantasia" name="input-fantasia"> 
                               </div>
                         </div>
@@ -100,12 +104,12 @@
                         <div class="row">
                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
                               <label for="input-inscricao-estadual" class="form-label">Inscrição Estadual</label> 
-                              <label for="input-inscricao-estadual" class="form-label mandatory">*</label>
-                              <input type="number" class="form-control" id="input-inscricao-estadual" placeholder="Inscrição Estadual" disabled="true" name="input-inscricao-estadual"> 
+                              <label for="input-inscricao-estadual" class="form-label mandatory required" title="Campo Obrigatório">*</label>
+                              <input type="number" class="form-control" id="input-inscricao-estadual" placeholder="Inscrição Estadual" name="input-inscricao-estadual"> 
                            </div>
                            <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12"> 
                               <label for="selectPeopleCategory" class="form-label">Categoria Pessoa</label> 
-                              <label for="selectPeopleCategory" class="form-label mandatory">*</label>
+                              <label for="selectPeopleCategory" class="form-label mandatory" title="Campo Obrigatório">*</label>
                               <br>
                               <select class="form-control" id="selectPeopleCategory" multiple name="selectPeopleCategory">
                                  <option value="" style="width: 100% !important;">Selecione a Categoria</option>
@@ -147,7 +151,7 @@
                         <div class="row">
                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
                               <label for="input-cep" class="form-label">CEP</label> 
-                              <label for="input-fantasia" class="form-label mandatory">*</label>
+                              <label for="input-fantasia" class="form-label mandatory required" title="Campo Obrigatório">*</label>
                               <br>
                               <input type="text" class="form-control" id="input-cep" placeholder="Digite o CEP" name="input-cep"> 
                            </div>
@@ -171,7 +175,7 @@
                         <div class="row">
                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
                               <label for="selectCity" class="form-label">Cidade</label> 
-                              <label for="selectCity" class="form-label mandatory">*</label>
+                              <label for="selectCity" class="form-label mandatory" title="Campo Obrigatório">*</label>
                               <br>
                               <select class="form-control" id="selectCity" name="selectCity">
                                  <option value="" style="width: 100% !important;">Selecione uma Cidade</option>
@@ -186,7 +190,7 @@
                            </div>
                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
                               <label for="selectCountry" class="form-label">País</label> 
-                              <label for="selectCountry" class="form-label mandatory">*</label>
+                              <label for="selectCountry" class="form-label mandatory" title="Campo Obrigatório">*</label>
                               <br>
                               <select class="form-control" id="selectCountry" name="selectCountry">
                                  <option value="" style="width: 100% !important;">Selecione um País</option>

@@ -1,11 +1,11 @@
 const { executeQuery } = require('../connect/mysql');
+const { api } = require('../support/api-externa');
 
 const People = {
    // Lista todas as pessoas;
    getAllPeople: async function(startDate, endDate, peopleCategorySelected, peopleAllType, peopleStatusSelected, commercialValues, collaboratorResponsableValues){
       const peopleType = peopleAllType ? `peo.type_people IN ${peopleAllType}` : 'peo.type_people IN (0,1)';
       const filterCreatedDate = startDate && endDate ? `AND (peo.created_at BETWEEN '${startDate}' AND '${endDate}')` : '';
-      console.log(startDate, endDate);
       const peopleCategory = peopleCategorySelected ? `AND prl.people_category_id IN ${peopleCategorySelected}` : '';
       const peopleStatus = peopleStatusSelected ? `AND peo.people_status_id IN ${peopleStatusSelected}` : '';
       const commercialAndCollaboratorResponsable = commercialValues && collaboratorResponsableValues ? `AND ((com.id IN ${commercialValues}) OR (resp.id IN ${collaboratorResponsableValues}))` : commercialValues && !collaboratorResponsableValues ? `AND com.id IN ${commercialValues}` : !commercialValues && collaboratorResponsableValues ? `AND resp.id IN ${collaboratorResponsableValues}` : '';
@@ -153,9 +153,9 @@ const People = {
    getPeopleById: async function(peopleSelectedId) {
       let result = await executeQuery(
          `SELECT 
-            pst.name AS status,
-            com.name AS commercial,
-            resp.name AS collaborator_responsable,
+            pst.name AS people_status,
+            CONCAT(com.name, ' ', com.family_name) AS commercial,
+            CONCAT(resp.name, ' ', resp.family_name) AS collaborator_responsable,
             DATE_FORMAT(peo.opening_date, '%Y-%m-%d') AS opening_date_formated,
             cit.name AS city,
             sta.abbreviation AS state_sigla,
@@ -212,8 +212,100 @@ const People = {
             cit.name = ?`, [city])
       return result;
    },
-}
 
+   // Pega os dados da pessoa pessada por parametro
+   updateGetPeople: async function(body) {
+      const formBody = body;
+
+      // Função para atualizar os dados do usuario
+      let update = await executeQuery(
+         `UPDATE 
+            people
+         SET 
+            fantasy_name = ?,
+            people_status_id = ?,
+            collaborators_commercial_id = ?,
+            collaborators_responsable_id = ?,
+            cep = ?,
+            street = ?,
+            complement = ?,
+            neighborhood = ?,
+            city_id = ?,
+            state_id = ?,
+            country_id = ?
+         WHERE
+            id = ?`, 
+
+            [
+               formBody.fantasia,
+               formBody.peopleStatus,
+               formBody.commercial,
+               formBody.collaboratorResponsable,
+               formBody.cep,
+               formBody.street,
+               formBody.complement,
+               formBody.neighborhood,
+               formBody.city,
+               formBody.state,
+               formBody.country,
+               formBody.peopleId
+            ]
+      )
+
+      // Função para deletar as categorias
+      await executeQuery(`DELETE FROM people_category_relations WHERE (people_id = ?)`, [formBody.peopleId]);
+
+      // Função para inserir as categorias no banco
+      for (let categoryId of formBody.peopleCategory) {
+         await executeQuery(`INSERT INTO people_category_relations (people_id, people_category_id) VALUES (?, ?)`, [formBody.peopleId, categoryId]);
+      };
+
+      const people = await this.getPeopleById(formBody.peopleId);
+      const categories = await this.getPeopleCategoryById(formBody.peopleId);
+
+      return {people: people, categories: categories};
+   },
+
+   // Pega os dados da pessoa pessada por parametro
+   getPeopleByCNPJ: async function(cnpj) {
+      let result = await executeQuery(
+         `SELECT 
+            pst.name AS people_status,
+            CONCAT(com.name, ' ', com.family_name) AS commercial,
+            CONCAT(resp.name, ' ', resp.family_name) AS collaborator_responsable,
+            DATE_FORMAT(peo.opening_date, '%Y-%m-%d') AS opening_date_formated,
+            cit.name AS city,
+            sta.abbreviation AS state_sigla,
+            sta.name AS state,
+            cou.name AS country,
+            peo.*
+         FROM 
+            people peo
+         LEFT OUTER JOIN
+            people_status pst ON pst.id = peo.people_status_id
+         LEFT OUTER JOIN
+            collaborators com ON com.id = peo.collaborators_commercial_id
+         LEFT OUTER JOIN
+            collaborators resp ON resp.id = peo.collaborators_responsable_id
+         LEFT OUTER JOIN
+            city cit ON cit.id = peo.city_id
+         LEFT OUTER JOIN
+            states sta ON sta.id = peo.state_id
+         LEFT OUTER JOIN
+            country cou ON cou.id = peo.country_id
+         WHERE
+            peo.cnpj_cpf = ?`, [cnpj])
+
+      // Se não encontrar nada na consulta, vai retornar as informações da api
+      if (result.length === 0) {
+         const resultApi = await api.getCnpjInfoCompany(cnpj);
+         return { resultApi: resultApi}
+      }
+
+      // Se encontrar algo na consulta, vai informar que o CNPJ já está cadastrado
+      return {company_exist: result};
+   },
+}
 
 module.exports = {
    People,

@@ -147,7 +147,7 @@
                                     </li>
 
                                 </ul>
-                                <div class="d-flex align-items-center justify-content-center" style="margin-bottom: 20px;">
+                                <div class="d-flex align-items-center justify-content-center" style="margin-bottom: 40px;">
                                     <button class="btn btn-primary-gradient" id="btn-filter" style="width: 85%;">Filtrar</button>
                                 </div>
                             </div>
@@ -169,8 +169,9 @@
                                             <div class="card custom-card">
                                                 <div class="card-header py-1 pb-3 justify-content-between">
                                                     <div class="card-title fw-semibold fs-14">Pessoas</div>
-                                                    <div class="input-group" style="width: 300px;">
-                                                        <input type="text" class="form-control bg-light border-0" id="search" placeholder="Pesquisar" aria-describedby="button-addon2">
+                                                    <div class="input-group" style="width: 400px; gap: 20px;">
+                                                        <input type="text" class="form-control bg-light" style="border-radius: 5px;" id="search" placeholder="Pesquisar" aria-describedby="button-addon2">
+                                                        <a class="btn btn-primary" id="createPeople" style="width: 100px; border-radius: 5px;">Novo</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -214,6 +215,7 @@
 
     <!-- Internal Task  JS -->
     <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script src="./assets/js/script.js"></script>
 </body>
 

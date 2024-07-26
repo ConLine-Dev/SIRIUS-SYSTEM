@@ -26,29 +26,58 @@ async function fetchUserModules(userId) {
 function renderModules(modules) {
     const container = document.getElementById('modules-container');
 
-    Object.keys(modules).forEach(category => {
-        const categoryDiv = document.createElement('div');
-        categoryDiv.classList.add('category');
+    // Limpa o container antes de adicionar novos módulos
+    container.innerHTML = '';
 
-        const categoryTitle = document.createElement('h3');
-        categoryTitle.textContent = category;
-        categoryDiv.appendChild(categoryTitle);
+    Object.keys(modules).forEach(category => {
+        // Cria o elemento para a categoria
+        const categoryDiv = document.createElement('div');
+        categoryDiv.classList.add('col-xl-3', 'col-lg-3', 'col-md-6', 'col-sm-12');
+
+        // Cria o card
+        const cardDiv = document.createElement('div');
+        cardDiv.classList.add('card', 'custom-card');
+
+        // Cria o cabeçalho do card
+        const cardHeaderDiv = document.createElement('div');
+        cardHeaderDiv.classList.add('card-header', 'justify-content-between');
+
+        // Cria o título da categoria
+        const cardTitleDiv = document.createElement('div');
+        cardTitleDiv.classList.add('card-title');
+        cardTitleDiv.textContent = category;
+
+        cardHeaderDiv.appendChild(cardTitleDiv);
+        cardDiv.appendChild(cardHeaderDiv);
+
+        // Cria o corpo do card
+        const cardBodyDiv = document.createElement('div');
+        cardBodyDiv.classList.add('card-body');
 
         modules[category].forEach(module => {
-            const moduleDiv = document.createElement('div');
-            moduleDiv.classList.add('module');
+            // Cria o elemento de check
+            const formCheckDiv = document.createElement('div');
+            formCheckDiv.classList.add('form-check');
 
             const checkbox = document.createElement('input');
+            checkbox.classList.add('form-check-input');
             checkbox.type = 'checkbox';
             checkbox.checked = module.has_access;
+            checkbox.id = `checkbox-${module.module_title.replace(/\s+/g, '-')}`;
 
             const label = document.createElement('label');
+            label.classList.add('form-check-label');
             label.textContent = module.module_title;
+            label.htmlFor = checkbox.id;
 
-            moduleDiv.appendChild(checkbox);
-            moduleDiv.appendChild(label);
-            categoryDiv.appendChild(moduleDiv);
+            formCheckDiv.appendChild(checkbox);
+            formCheckDiv.appendChild(label);
+
+            cardBodyDiv.appendChild(formCheckDiv);
         });
+
+        cardDiv.appendChild(cardBodyDiv);
+        categoryDiv.appendChild(cardDiv);
 
         container.appendChild(categoryDiv);
     });

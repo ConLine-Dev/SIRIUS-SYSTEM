@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Controle de senha</title>
+    <title>Editar Cadastro</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
@@ -16,7 +16,7 @@
     <!-- Choices JS -->
     <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
     <!-- Main Theme Js -->
-    <script src="../../assets/js/main.js"></script>
+    <!-- <script src="../../assets/js/main.js"></script> -->
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <!-- Style Css -->
@@ -46,7 +46,7 @@
     
     
 
-    <link rel="stylesheet" href="./assets/css/index.css">
+    <link rel="stylesheet" href="./assets/css/edit.css">
     <meta http-equiv="imagetoolbar" content="no">
 </head>
 
@@ -498,88 +498,222 @@
         </div>
     </div>
     <!-- End Switcher -->
-    <!-- Loader -->
-    <div id="loader2">
+    <!-- <div id="loader" style="display: none;">
         <img src="../../assets/images/media/loader.svg" alt="">
-    </div>
+    </div> -->
+    <!-- Loader -->
+    <!-- <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div> -->
 
     <!-- <div id="loader" class="">
         <img src="../../assets/images/media/loader.svg" alt="">
     </div> -->
     <!-- Loader -->
+
     <div class="">
         <!-- app-header -->
 
         <!-- /app-header -->
         <!-- End::app-sidebar -->
         <!-- Start::app-content -->
-
-                 <!--LISTA CONTROLE DE SENHAS-->
+        <div class="">
+            <div class="">
+              
                 <div class="row">
                     <div class="col-xl-12">
-                        <div class="card custom-card">
-                            <div class="card-header">
-                                <div class="card-title fw-semibold fs-14"> Controle de senhas </div>
-                            </div>
-                            <div class="card-body">
+                        <div class="card custom-card bodyWindows">
 
-                                  <!--BOTAO CADASTRO NOVA SENHA-->
-                                <div class="justify-content-between headerButtons">
-                                    <ul class="nav nav-tabs border-0" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <a class="nav-link label-btn btn btn-primary-light btn-wave" onclick="registerPassword()">
-                                                <i class="ri-add-circle-line label-btn-icon me-3"></i>
-                                                Novo
-                                            </a>
-                                        </li>
-                                    </ul>
+                            <div class="justify-content-between headerButtons">
+                                <ul class="nav nav-tabs border-0" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link label-btn btn btn-success-light btn-wave" onclick="getValuesOccurrence(this)" data-bs-toggle="tab" role="tab" href="#hometab-dropdown" aria-selected="false" tabindex="-1">
+                                            <i class="ri-save-3-line label-btn-icon me-2"></i>
+                                            Salvar
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- VISUALIZAR/EDITAR CADASTRO -->
+                            <div class="card-header justify-content-between">
+                                <div class="card-title"> Editar Cadastro </div>
+                            </div>
+                            
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12"> 
+                                        <label for="input-label" class="form-label center-text">Título</label>
+                                        <input type="text" name="occurrence" class="form-control form-input"> 
+                                    </div>
                                 </div>
                                 <br>
-                                
-                                <div class="table-responsive">
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="table_despesasADM" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Título</th>
-                                                            <th>Login</th>
-                                                            <th>Responsável</th>
-                                                            <th>Departamento</th>
-                                                            <th>Ultima alteração</th>
-                                                            <th>Ação</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr class="product-list">
-                                                            <td>Kabum</td>
-                                                            <td>KAbum24</td>
-                                                            <td>Dayana</td>
-                                                            <td>TI</td>
-                                                            <td>24,Nov 2022 - 04:42PM</td>
-                                                            <td>
-                                                                <div class="hstack gap-2 fs-15"> <a href="edit-products.html" class="btn btn-icon btn-sm btn-info-light"><i class="ri-edit-line"></i></a> 
-                                                                    <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-danger-light product-btn"><i class="ri-delete-bin-line"></i></a> </div>
-                                                            </td>
-                                                        </tr>
-                                                      
-                                                    </tbody>
-                                                
-                                                </table>
-                                            </div>
-                                        </div>
-                            
-                              
+
+                                <div class="row">
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
+                                        <label for="input-label" class="form-label">Login</label> 
+                                        <input type="text" name="occurrence" class="form-control form-input"> 
+                                    </div>
+                                    <br>
+
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
+                                        <label for="input-label" class="form-label">Senha</label> 
+                                        <input type="text" name="occurrence" class="form-control form-input"> 
+                                    </div>
                                 </div>
+                                <br>
+
+                                <div class="row">
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                                        <label class="form-label">Responsável</label>
+                                        <select class="form-control" name="responsible"></select>
+                                    </div>
+                                    <br>
+
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                                        <label class="form-label">Departamento</label>
+                                        <select class="form-control" name="responsible"></select>
+                                    </div>
+                                </div>
+                                <br>
+
+                                <div class="row">
+                                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12"> 
+                                        <label for="input-label" class="form-label">Link</label>
+                                        <input type="text" name="occurrence" class="form-control form-input"> 
+                                    </div>
+                                </div>
+                                <br>
+
+                                <div class="row">
+                                    <div class="col-12"> 
+                                        <label for="input-label" class="form-label center-text">Observações</label> 
+                                        <textarea name="description" class="form-control form-input"cols="30" rows="5"></textarea>
+                                  
+                                    </div>
+                                </div>
+                                <br>
+
                             </div>
+                         
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
         
+        <!-- <div class="modal fade" id="modalActions" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar Ação Imediata</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body"> 
+                       <div class="row">
+                            <div class="col-6"> 
+                                <label for="input-label" class="form-label">Responsável</label> 
+                                <select name="action_responsible"></select>
+                            </div>  
+                            <div class="col-3"> 
+                               
+                            </div>  
+                            <div class="col-3"> 
+                                <label for="input-label" class="form-label">Prazo</label> 
+                                <input type="date" class="form-control" name="action_expiration"> 
+                            </div>  
+                       </div>  
+                       <br>
+                       <div class="row">
+                        <div class="col-12"> 
+                            <label for="input-label" class="form-label">Ação</label> 
+                            <textarea class="form-control" name="action_description" cols="30" rows="10"></textarea>
+                        </div> 
+                      
+                       </div>
+                       <br>
+                       <div class="row" >
+                        <div class="col-12">
+                            <button style="width: 100%;" class="btn btn-primary" onclick="addAction(this)">Cadastrar</button>
 
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+
+        <!-- <div class="modal fade" id="modalPreventive" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar Ação Preventiva</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body"> 
+                       <div class="row">
+                            <div class="col-6"> 
+                                <label for="input-label" class="form-label">Responsável</label> 
+                                <select name="Preventive_responsible"></select>
+                            </div>  
+                            <div class="col-3"> 
+                               
+                            </div>  
+                            <div class="col-3"> 
+                                <label for="input-label" class="form-label">Prazo</label> 
+                                <input type="date" class="form-control" name="Preventive_expiration"> 
+                            </div>  
+                       </div>  
+                       <br>
+                       <div class="row">
+                        <div class="col-12"> 
+                            <label for="input-label" class="form-label">Ação</label> 
+                            <textarea class="form-control" name="Preventive_description" cols="30" rows="10"></textarea>
+                        </div> 
+                      
+                       </div>
+                       <br>
+                       <div class="row" >
+                        <div class="col-12">
+                            <button style="width: 100%;" class="btn btn-primary" onclick="addPreventive(this)">Cadastrar</button>
+
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+
+        <!-- <div class="modal fade" id="modalCause" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
+
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar identificação de causas (5 Porquês)</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body"> 
+                       <div class="row">
+                        <div class="col-12"> 
+                            <label for="input-label" class="form-label">Causas</label> 
+                            <textarea class="form-control" name="reason" cols="30" rows="10"></textarea>
+                        </div> 
+                      
+                       </div>
+                       <br>
+                       <div class="row" >
+                        <div class="col-12">
+                            <button style="width: 100%;" class="btn btn-primary" onclick="addReason(this)">Cadastrar</button>
+
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+    
     </div>
-
-   
 
     <!-- Scroll To Top -->
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
@@ -722,8 +856,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script src="./assets/js/index.js"></script>
+    <script src="./assets/js/edit.js"></script>
 
 
 
@@ -731,7 +866,7 @@
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
-    <script src="../../assets/js/custom.js"></script>
+    <!-- <script src="../../assets/js/custom.js"></script> -->
 
 </body>
 

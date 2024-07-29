@@ -41,8 +41,6 @@ async function getAllResponsible() {
 
 
 
-
-
 // ESPERA A PAGINA SER COMPLETAMENTE CARREGADA
 document.addEventListener("DOMContentLoaded", async () => {
     // inicio da função verificar tempo de carregamento da pagina e suas consultas no banco

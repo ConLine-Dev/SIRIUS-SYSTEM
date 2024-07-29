@@ -66,7 +66,23 @@ async function getAllDepartments() {
 
 }
 
+async function getForm() {
+    const form = []
+    form['title'] = document.querySelector('input[name="title"]').value;
+    form['login'] = document.querySelector('input[name="login"]').value;
+    form['password'] = document.querySelector('input[name="password"]').value;
+    form['responsible']= document.querySelector('select[name="responsible"]').value;
+    form['departments'] = document.querySelector('select[name="departments"]').value;
+    form['link'] = document.querySelector('input[name="link"]').value;
+    form['observation'] = document.querySelector('textarea[name="observation"]').value;
+ 
+    // if(!form['login'] || !form['password']){
+    //     alert('Login não está preenchido')
+    //     return false
+    // }
+    console.log(form)
 
+}
 
 
 

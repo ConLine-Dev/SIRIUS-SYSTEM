@@ -116,6 +116,22 @@ const moduleManagement = {
         `);
         return result;
     },
+
+    // Função para adicionar ou remover o acesso de um usuário a um módulo
+    updateUserModuleAccess: async function(userId, moduleId, action) {
+        if (action === 'add') {
+            await executeQuery(`
+                INSERT INTO modules_acess (user_id, modules_id)
+                VALUES (${userId}, ${moduleId})
+                ON DUPLICATE KEY UPDATE user_id = user_id
+            `);
+        } else if (action === 'remove') {
+            await executeQuery(`
+                DELETE FROM modules_acess
+                WHERE user_id = ${userId} AND modules_id = ${moduleId}
+            `);
+        }
+    },
     
     // Função para obter módulos de um usuário agrupados por categoria
     getUserModulesByCategory: async function(userId) {

@@ -76,6 +76,21 @@
     margin-left: 0px !important;
 }
 
+#defaultEmailsSelecte img {
+    margin-top: 115px;
+    width: 28.5rem;
+    height: 28.5rem;
+}
+
+#defaultEmailsSelecte {
+    height: calc(100vh - 4.6rem);
+}
+
+
+
+/* Certifique-se de incluir este CSS no seu arquivo de estilos */
+
+
 
 
   

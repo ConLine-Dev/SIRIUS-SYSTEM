@@ -107,6 +107,7 @@
    width: 100%;
 } 
  
- 
- 
+.choices__inner {
+   min-height: 41px !important;
+}
  

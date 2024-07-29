@@ -110,6 +110,12 @@ const Users = {
                                         `);
     
         return result;
+    },
+    getAllDept: async function(){
+ 
+        let result = await executeQuery(`SELECT * FROM departments`);
+    
+        return result;
     }
 }
 

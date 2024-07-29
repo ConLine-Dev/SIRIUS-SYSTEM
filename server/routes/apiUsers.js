@@ -42,6 +42,17 @@ router.post('/ListUserByEmail', async (req, res, next) => {
     }
 });
 
+router.get('/getAllDept', async (req, res, next) => {
+    try {
+
+        const result = await Users.getAllDept();
+
+        res.status(200).json(result)
+    } catch (error) {
+
+        res.status(404).json('Erro')   
+    }
+});
 
 
 

@@ -3,7 +3,26 @@ const { executeQuery } = require('../connect/mysql'); // Importa a função para
 const moduleManagement = {
     // Função para obter todos os módulos
     getAll: async function() {
-        const result = await executeQuery(`SELECT * FROM modules`);
+        const result = await executeQuery(`
+        SELECT 
+            m.id, 
+            m.title, 
+            m.description, 
+            m.path, 
+            m.height, 
+            m.width, 
+            m.resizable, 
+            m.fixed, 
+            m.searchable, 
+            m.icon,
+            mc.name AS category_name,
+            mc.id AS category_id
+        FROM 
+            modules m
+        LEFT JOIN 
+            module_category_relations mcr ON m.id = mcr.module_id
+        LEFT JOIN 
+            module_categories mc ON mcr.category_id = mc.id`);
         return result;
     },
     
@@ -69,14 +88,13 @@ const moduleManagement = {
             SET title = '${title}', description = '${description}', path = '${path}', height = '${height}', width = '${width}', resizable = ${resizable}, fixed = ${fixed}, searchable = ${searchable}, icon = '${icon}'
             WHERE id = ${moduleId}
         `);
-        
+
+        // remove a categoria do módulo
+        await executeQuery(`DELETE FROM module_category_relations WHERE (module_id = ${moduleId})`);
+
         // Atualiza a categoria do módulo
-        const updateCategoryResult = await executeQuery(`
-            UPDATE module_category_relations
-            SET category_id = ${categoryId}
-            WHERE module_id = ${moduleId}
-        `);
-        
+        const updateCategoryResult = await executeQuery(`INSERT INTO module_category_relations (module_id, category_id) VALUES (${moduleId},${categoryId})`);
+
         return {
             updateModuleResult,
             updateCategoryResult

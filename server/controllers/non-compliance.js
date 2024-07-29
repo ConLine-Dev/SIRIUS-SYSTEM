@@ -440,7 +440,7 @@ const non_compliance = {
         let EffectivenesAllStatus = Effectivenes.length > 0 ? true : false
         for (let index = 0; index < Effectivenes.length; index++) {
             const element = Effectivenes[index];
-            if(element.statusID == 0){
+            if(element.evidence == '[]'){
                 EffectivenesAllStatus = false
                 break;
             }
@@ -947,10 +947,14 @@ const non_compliance = {
 
         const status = {
             0: 'Pendente',
-            1: 'Finalizado',
+            1: 'Ag. Aprovação',
+            2: 'Ag. Ajuste',
+            3: 'Finalizado',
         }
 
         const Effectiveness = await Promise.all(result.map(async function(item) {
+            let statusTemp = item.evidence == '[]' ? 0 : 3;
+      
             const users = `<div class="d-flex align-items-center">
                                 <span class="avatar avatar-sm  me-1 bg-light avatar-rounded" title="${item.name} ${item.family_name}"> 
                                     <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt=""> 
@@ -961,7 +965,7 @@ const non_compliance = {
                             </div>`
             return {
                 ...item, // mantém todas as propriedades existentes
-                status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,
+                status: `<span class="badge bg-danger-transparent">${status[statusTemp]}</span>`,
                 action: item.action,
                 deadline: `<span class="badge bg-danger-transparent"><i class="bi bi-clock me-1"></i>${non_compliance.formatDate(item.deadline)}</span>`,
                 responsible:users,

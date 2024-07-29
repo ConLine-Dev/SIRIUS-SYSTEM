@@ -598,7 +598,7 @@ async function headerManagement(occurrence){
         document.querySelector('.btnFinalize').classList.add('disabled')
         // document.querySelector('.btnReset').classList.add('disabled')
         
-        
+    
     
         if (occurrence.status == 0) {
             // 0 = aberto agora = Pendente de Aprovação
@@ -620,6 +620,7 @@ async function headerManagement(occurrence){
             document.querySelector('#btnHistorico').click()
             // 4 = Restaurado = Restaurado
             document.querySelector('.btnFinalize').classList.remove('disabled')
+
         }else if(occurrence.status == 5 && occurrence.actionAllStatus == true){
             // 5 = Desenvolvimento - Ação Corretiva só libera após todas as açõe finalizadas
             document.querySelector('.btnAprove').classList.remove('disabled')

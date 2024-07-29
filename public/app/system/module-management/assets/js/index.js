@@ -1,10 +1,3 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  
-
-    await init()
-    document.querySelector('#loader2').classList.add('d-none')
-})
-
 
 async function fetchUserModules(userId) {
     const response = await fetch(`/api/module-management/getUserModulesByCategory/${userId}`);
@@ -22,21 +15,26 @@ async function fetchUserModules(userId) {
     return categories;
 }
 
-
 function renderModules(modules) {
     const container = document.getElementById('modules-container');
 
     // Limpa o container antes de adicionar novos módulos
     container.innerHTML = '';
 
+    // Calcula a quantidade máxima de módulos em uma categoria
+    let maxModuleCount = 0;
+    Object.keys(modules).forEach(category => {
+        maxModuleCount = Math.max(maxModuleCount, modules[category].length);
+    });
+
     Object.keys(modules).forEach(category => {
         // Cria o elemento para a categoria
         const categoryDiv = document.createElement('div');
-        categoryDiv.classList.add('col-xl-3', 'col-lg-3', 'col-md-6', 'col-sm-12');
+        categoryDiv.classList.add('col-xl-3', 'col-lg-3', 'col-md-6', 'col-sm-12', 'd-flex');
 
         // Cria o card
         const cardDiv = document.createElement('div');
-        cardDiv.classList.add('card', 'custom-card');
+        cardDiv.classList.add('card', 'custom-card', 'flex-fill');
 
         // Cria o cabeçalho do card
         const cardHeaderDiv = document.createElement('div');
@@ -64,6 +62,9 @@ function renderModules(modules) {
             checkbox.type = 'checkbox';
             checkbox.checked = module.has_access;
             checkbox.id = `checkbox-${module.module_title.replace(/\s+/g, '-')}`;
+            checkbox.dataset.moduleId = module.module_id; // Adiciona o ID do módulo como data attribute
+
+            checkbox.addEventListener('change', handleModuleAccessChange); // Adiciona o event listener
 
             const label = document.createElement('label');
             label.classList.add('form-check-label');
@@ -83,42 +84,107 @@ function renderModules(modules) {
     });
 }
 
-async function init() {
-    const userId = 1; // Substitua pelo ID do usuário que você deseja obter os módulos
-    const modules = await fetchUserModules(userId);
-    renderModules(modules);
+async function handleModuleAccessChange(event) {
+    const checkbox = event.target;
+    const moduleId = checkbox.dataset.moduleId;
+    const userId = currentUserId; // Usa a variável global currentUserId
+
+    const action = checkbox.checked ? 'add' : 'remove';
+
+    try {
+        const response = await fetch('/api/module-management/userModuleAccess', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userId: userId,
+                moduleId: moduleId,
+                action: action
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update module access');
+        }
+
+        const result = await response.json();
+        console.log(result.message);
+    } catch (error) {
+        console.error(error);
+        // Reverte o estado do checkbox em caso de erro
+        checkbox.checked = !checkbox.checked;
+    }
 }
 
-async function generateTable() {
-    // Fazer a requisição à API
-    const dados = await makeRequest(`/api/launches_adm/getAllLaunches/`);
-
-    // Destruir a tabela existente, se houver
-    if ($.fn.DataTable.isDataTable('#table_despesasADM')) {
-        $('#table_despesasADM').DataTable().destroy();
+async function listAllUsers() {
+    const users = await makeRequest('/api/users/listAllUsers');
+    console.log(users);
+    let userHTML = ``;
+    for (let index = 0; index < users.length; index++) {
+        const element = users[index];
+        userHTML += `<li class="list-group-item" data-userid="${element.userID}">
+        <div class="d-flex align-items-center justify-content-between flex-wrap">
+            <div class="d-flex align-items-center gap-2">
+                <div> <span class="avatar bg-light"> <img src="https://cdn.conlinebr.com.br/colaboradores/${element.id_headcargo}" alt=""> </span> </div>
+                <div>
+                    <span class="d-block fw-semibold">${element.username} ${element.familyName}<i class="bi bi-patch-check-fill text-success ms-2"></i></span>
+                    <span class="d-block text-muted fs-12 fw-normal">-</span>
+                </div>
+            </div>
+        </div>
+    </li>`;
     }
 
-    // Criar a nova tabela com os dados da API
-    $('#table_despesasADM').DataTable({
-        dom: 'Bfrtip',
-        pageLength: 15,
-        order: [[0, 'desc']],
-        data: dados.data,
-        columns: [
-            { data: 'Data_Vencimento' },
-            { data: 'Situacao' },
-            { data: 'Historico_Resumo' },
-            { data: 'Pessoa' },
-            { data: 'Tipo_Transacao' },
-            { data: 'Valor' }
-            // Adicione mais colunas conforme necessário
-        ],
-        buttons: [
-            'excel', 'pdf', 'print'
-        ],
-        language: {
-            searchPlaceholder: 'Pesquisar...',
-            sSearch: '',
-        },
+    document.querySelector('.listHistory').innerHTML = userHTML;
+
+    const searchInput = document.querySelector('.searchInput');
+
+    // Remove todos os event listeners existentes substituindo o elemento por uma cópia
+    const newSearchInput = searchInput.cloneNode(true);
+    searchInput.parentNode.replaceChild(newSearchInput, searchInput);
+
+    // Adiciona um event listener ao novo elemento da lista
+    newSearchInput.addEventListener('input', function () {
+        var filter = this.value.toLowerCase();
+        var items = document.querySelectorAll('.listHistory li');
+
+        items.forEach(function (item) {
+            var text = item.textContent.toLowerCase();
+            if (text.includes(filter)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    // Adiciona event listeners aos itens da lista
+    const userItems = document.querySelectorAll('.listHistory li');
+    userItems.forEach(item => {
+        item.addEventListener('click', async () => {
+            // Remove a classe 'active' de todos os itens
+            userItems.forEach(i => i.classList.remove('active'));
+
+            // Adiciona a classe 'active' ao item clicado
+            item.classList.add('active');
+
+            const userId = item.getAttribute('data-userid');
+            currentUserId = userId; // Atualiza o userId global
+            const modules = await fetchUserModules(userId);
+            renderModules(modules);
+        });
     });
 }
+
+
+async function init() {
+    currentUserId = null; // Inicialize a variável global
+    await listAllUsers();
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    await init();
+    document.querySelector('#loader2').classList.add('d-none');
+});
+

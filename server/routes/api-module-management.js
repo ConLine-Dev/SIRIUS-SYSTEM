@@ -99,6 +99,17 @@ module.exports = function(io) {
         }
     });
 
+    // Rota para adicionar ou remover o acesso de um usuário a um módulo
+    router.post('/userModuleAccess', async (req, res, next) => {
+        try {
+            const { userId, moduleId, action } = req.body;
+            await moduleManagement.updateUserModuleAccess(userId, moduleId, action);
+            res.status(200).json({ message: 'Module access updated successfully' }); // 200 OK
+        } catch (error) {
+            res.status(400).json(error); // 400 Bad Request
+        }
+    });
+
     // Retorna o router configurado
     return router;
 };

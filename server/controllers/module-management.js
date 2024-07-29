@@ -3,7 +3,26 @@ const { executeQuery } = require('../connect/mysql'); // Importa a função para
 const moduleManagement = {
     // Função para obter todos os módulos
     getAll: async function() {
-        const result = await executeQuery(`SELECT * FROM modules`);
+        const result = await executeQuery(`
+        SELECT 
+            m.id, 
+            m.title, 
+            m.description, 
+            m.path, 
+            m.height, 
+            m.width, 
+            m.resizable, 
+            m.fixed, 
+            m.searchable, 
+            m.icon,
+            mc.name AS category_name,
+            mc.id AS category_id
+        FROM 
+            modules m
+        LEFT JOIN 
+            module_category_relations mcr ON m.id = mcr.module_id
+        LEFT JOIN 
+            module_categories mc ON mcr.category_id = mc.id`);
         return result;
     },
     
@@ -69,14 +88,13 @@ const moduleManagement = {
             SET title = '${title}', description = '${description}', path = '${path}', height = '${height}', width = '${width}', resizable = ${resizable}, fixed = ${fixed}, searchable = ${searchable}, icon = '${icon}'
             WHERE id = ${moduleId}
         `);
-        
+
+        // remove a categoria do módulo
+        await executeQuery(`DELETE FROM module_category_relations WHERE (module_id = ${moduleId})`);
+
         // Atualiza a categoria do módulo
-        const updateCategoryResult = await executeQuery(`
-            UPDATE module_category_relations
-            SET category_id = ${categoryId}
-            WHERE module_id = ${moduleId}
-        `);
-        
+        const updateCategoryResult = await executeQuery(`INSERT INTO module_category_relations (module_id, category_id) VALUES (${moduleId},${categoryId})`);
+
         return {
             updateModuleResult,
             updateCategoryResult
@@ -115,6 +133,22 @@ const moduleManagement = {
             WHERE user_id = ${userId} AND module_id = ${moduleId}
         `);
         return result;
+    },
+
+    // Função para adicionar ou remover o acesso de um usuário a um módulo
+    updateUserModuleAccess: async function(userId, moduleId, action) {
+        if (action === 'add') {
+            await executeQuery(`
+                INSERT INTO modules_acess (user_id, modules_id)
+                VALUES (${userId}, ${moduleId})
+                ON DUPLICATE KEY UPDATE user_id = user_id
+            `);
+        } else if (action === 'remove') {
+            await executeQuery(`
+                DELETE FROM modules_acess
+                WHERE user_id = ${userId} AND modules_id = ${moduleId}
+            `);
+        }
     },
     
     // Função para obter módulos de um usuário agrupados por categoria

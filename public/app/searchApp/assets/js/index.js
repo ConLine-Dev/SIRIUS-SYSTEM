@@ -74,7 +74,7 @@ async function loadAllApps(user){
       apps += ` <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4">
                      <a href="${element.path}">
                         <div class="text-center p-3 related-app"> 
-                           <span class="avatar avatar-sm avatar-rounded"> 
+                           <span class="avatar avatar-sm"> 
                            ${element.icon}
                            </span> 
 

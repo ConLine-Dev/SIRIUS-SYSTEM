@@ -848,6 +848,9 @@ async function controlButtons(){
                     title: 'Aprovado!',
                     text: 'A ocorrência foi aprovada com sucesso.'
                 });
+
+
+                window.close()
                 // Aqui você pode colocar o código para aprovar a ocorrência
             } else {
               
@@ -927,6 +930,8 @@ async function controlButtons(){
                     infoOccurence.status = numberType
                     await makeRequest(`/api/non-compliance/changeBlock`, 'POST', { type:numberType, prop:'status', id:idOccurrence, obs:obs+`<br>Motivo: ${reason}`, userId:users.system_collaborator_id  });
                     await headerManagement(infoOccurence)
+
+                    window.close()
                 }
             }
         });
@@ -973,6 +978,8 @@ async function controlButtons(){
                     title: 'Finalizado!',
                     text: 'A ocorrência foi finalizada com sucesso.'
                 });
+
+                window.close()
                 // Aqui você pode colocar o código para finalizar a ocorrência
             } else {
             }
@@ -1017,6 +1024,9 @@ async function controlButtons(){
                     title: 'Status Restaurado!',
                     text: 'O status da ocorrência foi restaurado para Pendente de Aprovação 1ª Etapa.'
                 });
+
+
+                window.close()
                 
                 // Aqui você pode colocar o código para restaurar o status da ocorrência
             } else {

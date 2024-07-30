@@ -21,6 +21,41 @@ function formatCnpjCpfInput(value) {
    }
 };
 
+// Função para transformar todo texto em camel case
+async function formatarNome(nome) {
+   const preposicoes = new Set(["de", "do", "da", "dos", "das"]); // Conjunto de preposições
+   const palavras = nome.split(" "); // Divide o nome em palavras
+   const palavrasFormatadas = palavras.map((palavra, index) => {
+       // Verifica se a palavra é uma preposição e não é a primeira palavra
+       if (preposicoes.has(palavra.toLowerCase()) && index !== 0) {
+           return palavra.toLowerCase(); // Retorna a palavra em minúsculas
+       } else {
+           return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase(); // Retorna a palavra com a primeira letra em maiúscula e o restante em minúsculas
+       }
+   });
+   return palavrasFormatadas.join(" "); // Junta as palavras formatadas em uma string
+};
+
+// Função para formatar o CNPJ e CPF do input
+function formatCEP(value) {
+   // Remove todos os caracteres não numéricos
+   value = value.replace(/\D/g, '');
+
+   // Limita o comprimento a 14 dígitos
+   if (value.length > 8) {
+       value = value.substring(0, 8);
+   }
+
+   // Verifica o comprimento para formatar para CEP
+   if (value.length === 8) {
+      // Formata como CEP: 00.000-000
+      return value.replace(/(\d{2})(\d{3})(\d{3})/, '$1.$2-$3');
+   }
+
+   // Retorna o valor sem formatação se não houver 8 dígitos
+   return value;
+};
+
 // Função que cria o select para selecionar se a pessoa é PJ ou PF
 let selectPeopleType;
 async function createSelectPeopleType() {
@@ -118,6 +153,18 @@ async function createSelectPeopleCategory(data) {
    });
 };
 
+// Função para pegar as opções selecionadas do select Categoria Pessoa para fazer update no banco de dados
+async function getselectPeopleCategoryFromUpdate() {
+   if (selectPeopleCategory && selectPeopleCategory.getValue(true).length === 0) {
+      return undefined;
+   } else {
+       // Usar o método getValue() para pegar os valores selecionados
+       const selectedValues = selectPeopleCategory.getValue(true);
+       // Transformar o array em uma string com os valores entre parênteses e separados por virgula
+       return selectedValues;
+   }
+};
+
 // Função que cria o select para selecionar as categorias de pessoas
 let selectPeopleStatus;
 async function createSelectPeopleStatus(data) {
@@ -144,6 +191,18 @@ async function createSelectPeopleStatus(data) {
       noChoicesText: 'Não há opções disponíveis',
       noResultsText: 'Não há opções disponíveis'
    });
+};
+
+// Função para pegar a opção selecionada do Select de status da pessoa
+async function getSelectPeopleStatus() {
+   if (selectPeopleStatus && selectPeopleStatus.getValue(true).length === 0) {
+      return undefined;
+   } else {
+       // Usar o método getValue() para pegar os valores selecionados
+       const selectedValues = selectPeopleStatus.getValue(true);
+       // Transformar o array em uma string com os valores entre parênteses e separados por virgula
+       return selectedValues;
+   }
 };
 
 // Função que cria o select para selecionar os comerciais
@@ -174,6 +233,18 @@ async function createSelectCommercial(data) {
    });
 };
 
+// Função para pegar a opção selecionada do Select Comercial
+async function getSelectCommercial() {
+   if (selectCommercial && selectCommercial.getValue(true).length === 0) {
+      return undefined;
+   } else {
+       // Usar o método getValue() para pegar os valores selecionados
+       const selectedValues = selectCommercial.getValue(true);
+       // Transformar o array em uma string com os valores entre parênteses e separados por virgula
+       return selectedValues;
+   }
+};
+
 // Função que cria o select para selecionar os funcionarios responsaveis(inside sales)
 let selectCollaboratorResponsable;
 async function createSelectCollaboratorResponsable(data) {
@@ -200,6 +271,18 @@ async function createSelectCollaboratorResponsable(data) {
       noChoicesText: 'Não há opções disponíveis',
       noResultsText: 'Não há opções disponíveis'
    });
+};
+
+// Função para pegar a opção selecionada do Select Colaborador resposavel
+async function getSelectCollaboratorResponsable() {
+   if (selectCollaboratorResponsable && selectCollaboratorResponsable.getValue(true).length === 0) {
+      return undefined;
+   } else {
+       // Usar o método getValue() para pegar os valores selecionados
+       const selectedValues = selectCollaboratorResponsable.getValue(true);
+       // Transformar o array em uma string com os valores entre parênteses e separados por virgula
+       return selectedValues;
+   }
 };
 
 // Função que cria o select para selecionar as cidades do Brasil
@@ -235,6 +318,18 @@ async function setSelectCityFromDB(value) {
    selectCity.setChoiceByValue(value);
 };
 
+// Função para pegar a opção selecionada do Select Cidade
+async function getSelectCity() {
+   if (selectCity && selectCity.getValue(true).length === 0) {
+      return undefined;
+   } else {
+       // Usar o método getValue() para pegar os valores selecionados
+       const selectedValues = selectCity.getValue(true);
+       // Transformar o array em uma string com os valores entre parênteses e separados por virgula
+       return selectedValues;
+   }
+};
+
 // Função que cria o select para selecionar os estados do Brasil
 let selectState;
 async function createSelectState(data) {
@@ -266,6 +361,18 @@ async function createSelectState(data) {
 // Função para selecionar o estado
 async function setSelectStateFromDB(value) {
    selectState.setChoiceByValue(value);
+};
+
+// Função para pegar a opção selecionada do Select Estado
+async function getSelectState() {
+   if (selectState && selectState.getValue(true).length === 0) {
+      return undefined;
+   } else {
+       // Usar o método getValue() para pegar os valores selecionados
+       const selectedValues = selectState.getValue(true);
+       // Transformar o array em uma string com os valores entre parênteses e separados por virgula
+       return selectedValues;
+   }
 };
 
 // Função que cria o select para selecionar os Países
@@ -301,24 +408,16 @@ async function setSelectCountryFromDB(value) {
    selectCountry.setChoiceByValue(value);
 };
 
-// Função para formatar o CNPJ e CPF do input
-function formatCEP(value) {
-   // Remove todos os caracteres não numéricos
-   value = value.replace(/\D/g, '');
-
-   // Limita o comprimento a 14 dígitos
-   if (value.length > 8) {
-       value = value.substring(0, 8);
+// Função para pegar a opção selecionada do Select País
+async function getSelectCountry() {
+   if (selectCountry && selectCountry.getValue(true).length === 0) {
+      return undefined;
+   } else {
+       // Usar o método getValue() para pegar os valores selecionados
+       const selectedValues = selectCountry.getValue(true);
+       // Transformar o array em uma string com os valores entre parênteses e separados por virgula
+       return selectedValues;
    }
-
-   // Verifica o comprimento para formatar para CEP
-   if (value.length === 8) {
-      // Formata como CEP: 00.000-000
-      return value.replace(/(\d{2})(\d{3})(\d{3})/, '$1.$2-$3');
-   }
-
-   // Retorna o valor sem formatação se não houver 8 dígitos
-   return value;
 };
 
 // Função para formatar o CEP
@@ -370,6 +469,8 @@ async function checkCompanyExistence(getPeopleByCNPJ) {
          await openPeople(getPeopleByCNPJ.company_exist[0].id);
       }
    } else {
+      // Se o cadastro ainda nao existir no banco de dados, pega o que retorna da API e preenche nos inputs e selects
+
       const getCityOrStateById = await makeRequest('/api/people/getCityOrStateById', 'POST', {city: getPeopleByCNPJ.resultApi.municipio}); // Pega a cidade e o estado
       
       const input_razao_social = document.getElementById('input-razao-social');
@@ -389,7 +490,77 @@ async function checkCompanyExistence(getPeopleByCNPJ) {
       await setSelectStateFromDB(getCityOrStateById[0].state_id)
       await setSelectCountryFromDB(getCityOrStateById[0].country_id)
    }
-}
+};
+
+// Função para verificar se os campos estão preenchidos
+async function getValuesFromInputs() {
+   // Array com os names dos inputs que não devem ficar em branco e suas mensagens personalizadas
+   const requiredInputFields = [
+      { name: 'input-cnpj-cpf', message: 'O campo CPF/CNPJ é obrigatório.' },
+      { name: 'input-razao-social', message: 'O campo TAZÃO SOCIAL é obrigatório.' },
+      { name: 'input-fantasia', message: 'O campo NOME FANTASIA é obrigatório.' },
+      { name: 'input-cep', message: 'O campo CEP é obrigatório.' },
+   ];
+
+   const elements = document.querySelectorAll('.form-control[name]');
+   let allValid = true;
+
+   for (let index = 0; index < elements.length; index++) {
+      const item = elements[index];
+      const itemName = item.getAttribute('name');
+      
+      // Verificar se o campo está no array de campos obrigatórios e se está vazio
+      const requiredField = requiredInputFields.find(field => field.name === itemName);
+      if (requiredField && (item.value.trim() === '' || item.value.trim() === '0')) {
+         Swal.fire(requiredField.message);
+         allValid = false;
+         break;
+      }
+   }
+
+   return allValid;
+};
+
+// Função para os valores de qualquer selected
+async function getSelectValues(selectName) {
+   const selectElement = document.querySelector(`select[name="${selectName}"]`);
+   if (selectElement) {
+      const selectedOptions = Array.from(selectElement.selectedOptions);
+      console.log(selectedOptions[0].value);
+      if (selectedOptions[0].value === '') {
+         return undefined;
+      } else {
+         const selectedValues = selectedOptions.map(option => option.value);
+         return selectedValues;
+      }
+   } else {
+      return undefined;
+   }
+};
+
+// Função para verificar se os selects estão preenchidos
+async function getValuesFromSelects() {
+   // Array com os names dos selects que não devem ficar em branco e suas mensagens personalizadas
+   const selectNames = [
+      { name: 'typePeople', message: 'O campo TIPO PESSOA é obrigatório.' },
+      { name: 'selectPeopleCategory', message: 'O campo CATEGORIA PESSOA é obrigatório.' },
+      { name: 'selectCity', message: 'O campo CIDADE é obrigatório.' },
+      { name: 'selectCountry', message: 'O campo PAÍS é obrigatório.' },
+   ];
+   let allValid = true;
+
+   for (let i = 0; i < selectNames.length; i++) {
+      const selectName = selectNames[i];
+      const values = await getSelectValues(selectName.name);
+      if (!values || values.length === 0) {
+         Swal.fire(`${selectName.message}`);
+         allValid = false;
+         break;
+      }
+   }
+
+   return allValid;
+};
 
 async function eventClick() {
    // ========== INPUT CHECKBOX INTERNACIONAL ========== //
@@ -440,7 +611,47 @@ async function eventClick() {
       }
    })
    // ========== / INPUT CPF CNPJ ========== //
-}
+
+   // ========== BOTAO SALVAR ========== //
+   const btn_save = document.getElementById('btn-save');
+
+   btn_save.addEventListener('click', async function(e) {
+      e.preventDefault();
+      let formBody = {};
+
+      const razaoSocial = await formatarNome(document.getElementById('input-razao-social').value)
+      const fantasia = await formatarNome(document.getElementById('input-fantasia').value)
+      const street = await formatarNome(document.getElementById('input-street').value)
+      const complement = await formatarNome(document.getElementById('input-complement').value)
+      const neighborhood = await formatarNome(document.getElementById('input-neighborhood').value)
+
+      formBody.selectPeopleType = await getSelectPeopleType();
+      formBody.cnpjCpf = document.getElementById('input-cnpj-cpf').value.replace(/\D/g, '');
+      formBody.razaoSocial = razaoSocial;
+      formBody.fantasia = fantasia;
+      formBody.inscricaoEstadual = document.getElementById('input-inscricao-estadual').value;
+      formBody.peopleCategory = await getselectPeopleCategoryFromUpdate();
+      formBody.peopleStatus = await getSelectPeopleStatus();
+      formBody.commercial = await getSelectCommercial();
+      formBody.collaboratorResponsable = await getSelectCollaboratorResponsable();
+      formBody.cep = document.getElementById('input-cep').value.replace(/\D/g, '');
+      formBody.street = street;
+      formBody.complement = complement;
+      formBody.neighborhood = neighborhood;
+      formBody.city = await getSelectCity();
+      formBody.state = await getSelectState();
+      formBody.country = await getSelectCountry();
+      
+      const inputsValid = await getValuesFromInputs();
+      const selectsValid = await getValuesFromSelects();
+   
+      if (inputsValid && selectsValid) {
+         const insertSever = await makeRequest(`/api/people/insertPeople`, 'POST', { formBody });
+         window.close();
+      }
+   })
+   // ========== / BOTAO SALVAR ========== //
+};
 
 // Função executada após toda a página ser executada
 window.addEventListener("load", async () => {

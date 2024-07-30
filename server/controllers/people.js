@@ -12,8 +12,8 @@ const People = {
       let result = await executeQuery(`
          SELECT DISTINCT
             pst.name AS people_status,
-            CONCAT(com.name, ' ', com.family_name) AS commercial,
-            CONCAT(resp.name, ' ', resp.family_name) AS collaborator_responsable,
+            COALESCE(CONCAT(com.name, ' ', com.family_name), '') AS commercial,
+            COALESCE(CONCAT(resp.name, ' ', resp.family_name), '') AS collaborator_responsable,
             peo.*
          FROM 
             people peo
@@ -154,9 +154,8 @@ const People = {
       let result = await executeQuery(
          `SELECT 
             pst.name AS people_status,
-            CONCAT(com.name, ' ', com.family_name) AS commercial,
-            CONCAT(resp.name, ' ', resp.family_name) AS collaborator_responsable,
-            DATE_FORMAT(peo.opening_date, '%Y-%m-%d') AS opening_date_formated,
+            COALESCE(CONCAT(com.name, ' ', com.family_name), '') AS commercial,
+            COALESCE(CONCAT(resp.name, ' ', resp.family_name), '') AS collaborator_responsable,
             cit.name AS city,
             sta.abbreviation AS state_sigla,
             sta.name AS state,
@@ -273,7 +272,6 @@ const People = {
             pst.name AS people_status,
             CONCAT(com.name, ' ', com.family_name) AS commercial,
             CONCAT(resp.name, ' ', resp.family_name) AS collaborator_responsable,
-            DATE_FORMAT(peo.opening_date, '%Y-%m-%d') AS opening_date_formated,
             cit.name AS city,
             sta.abbreviation AS state_sigla,
             sta.name AS state,
@@ -304,6 +302,60 @@ const People = {
 
       // Se encontrar algo na consulta, vai informar que o CNPJ já está cadastrado
       return {company_exist: result};
+   },
+
+   // Função para criar pessoas
+   insertPeople: async function(body) {
+      const formBody = body;
+
+      // Função para atualizar os dados do usuario
+      let insert = await executeQuery(
+         `INSERT INTO people (
+            people_status_id,
+            collaborators_commercial_id,
+            collaborators_responsable_id,
+            name,
+            fantasy_name,
+            type_people,
+            cnpj_cpf,
+            state_registration,
+            cep,
+            street,
+            complement,
+            neighborhood,
+            city_id,
+            state_id,
+            country_id
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+
+         [
+            formBody.peopleStatus,
+            formBody.commercial,
+            formBody.collaboratorResponsable,
+            formBody.razaoSocial,
+            formBody.fantasia,
+            formBody.selectPeopleType,
+            formBody.cnpjCpf,
+            formBody.inscricaoEstadual,
+            formBody.cep,
+            formBody.street,
+            formBody.complement,
+            formBody.neighborhood,
+            formBody.city,
+            formBody.state,
+            formBody.country
+         ]
+      )
+
+      // Função para inserir as categorias no banco
+      for (let categoryId of formBody.peopleCategory) {
+         await executeQuery(`INSERT INTO people_category_relations (people_id, people_category_id) VALUES (?, ?)`, [insert.insertId, categoryId]);
+      };
+
+      const people = await this.getPeopleById(insert.insertId);
+      const categories = await this.getPeopleCategoryById(insert.insertId);
+
+      return {people: people, categories: categories};
    },
 }
 

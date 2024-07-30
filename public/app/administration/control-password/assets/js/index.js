@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
+    //Chama a função
+    await generateTable()
 
     document.querySelector('#loader2').classList.add('d-none')
 })
@@ -7,26 +9,27 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function generateTable() {
     // Fazer a requisição à API
-    const dados = await makeRequest(`/api/launches_adm/getAllLaunches/`);
+    const dados = await makeRequest(`/api/control-password/getAll`);
+    console.log(dados)
 
     // Destruir a tabela existente, se houver
-    if ($.fn.DataTable.isDataTable('#table_despesasADM')) {
-        $('#table_despesasADM').DataTable().destroy();
+    if ($.fn.DataTable.isDataTable('#table_control_password')) {
+        $('#table_control_password').DataTable().destroy();
     }
 
     // Criar a nova tabela com os dados da API
-    $('#table_despesasADM').DataTable({
-        dom: 'Bfrtip',
+    $('#table_control_password').DataTable({
+        dom: 'frtip',
         pageLength: 15,
         order: [[0, 'desc']],
-        data: dados.data,
+        data: dados,
         columns: [
-            { data: 'Data_Vencimento' },
-            { data: 'Situacao' },
-            { data: 'Historico_Resumo' },
-            { data: 'Pessoa' },
-            { data: 'Tipo_Transacao' },
-            { data: 'Valor' }
+            { data: 'title' },
+            { data: 'login' },
+            { data: 'responsible' },
+            { data: 'id' },
+            { data: 'update_at' },
+            { data: 'id' }
             // Adicione mais colunas conforme necessário
         ],
         buttons: [

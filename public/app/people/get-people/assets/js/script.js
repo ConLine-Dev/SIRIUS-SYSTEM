@@ -21,6 +21,42 @@ function formatCnpjCpfInput(value) {
    }
 };
 
+// Função para transformar todo texto em camel case
+async function formatarNome(nome) {
+   const preposicoes = new Set(["de", "do", "da", "dos", "das"]); // Conjunto de preposições
+   const palavras = nome.split(" "); // Divide o nome em palavras
+   const palavrasFormatadas = palavras.map((palavra, index) => {
+       // Verifica se a palavra é uma preposição e não é a primeira palavra
+       if (preposicoes.has(palavra.toLowerCase()) && index !== 0) {
+           return palavra.toLowerCase(); // Retorna a palavra em minúsculas
+       } else {
+           return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase(); // Retorna a palavra com a primeira letra em maiúscula e o restante em minúsculas
+       }
+   });
+   return palavrasFormatadas.join(" "); // Junta as palavras formatadas em uma string
+};
+
+// Função para formatar o CNPJ e CPF do input
+function formatCEP(value) {
+   // Remove todos os caracteres não numéricos
+   value = value.replace(/\D/g, '');
+
+   // Limita o comprimento a 14 dígitos
+   if (value.length > 8) {
+       value = value.substring(0, 8);
+   }
+
+   // Verifica o comprimento para formatar para CEP
+   if (value.length === 8) {
+      // Formata como CEP: 00.000-000
+      return value.replace(/(\d{2})(\d{3})(\d{3})/, '$1.$2-$3');
+   }
+
+   // Retorna o valor sem formatação se não houver 8 dígitos
+   return value;
+};
+
+
 // Função que cria o select para selecionar se a pessoa é PJ ou PF
 let selectPeopleType;
 async function createSelectPeopleType() {
@@ -446,26 +482,6 @@ async function insertDataOnInputs(data) {
    input_neighborhood.value = data.neighborhood;
 };
 
-// Função para formatar o CNPJ e CPF do input
-function formatCEP(value) {
-   // Remove todos os caracteres não numéricos
-   value = value.replace(/\D/g, '');
-
-   // Limita o comprimento a 14 dígitos
-   if (value.length > 8) {
-       value = value.substring(0, 8);
-   }
-
-   // Verifica o comprimento para formatar para CEP
-   if (value.length === 8) {
-      // Formata como CEP: 00.000-000
-      return value.replace(/(\d{2})(\d{3})(\d{3})/, '$1.$2-$3');
-   }
-
-   // Retorna o valor sem formatação se não houver 8 dígitos
-   return value;
-};
-
 // Função para formatar o CEP
 async function inputCepVerification() {
    const inputCEP = document.getElementById('input-cep');
@@ -498,14 +514,13 @@ async function getValuesFromInputs() {
    // Array com os names dos inputs que não devem ficar em branco e suas mensagens personalizadas
    const requiredInputFields = [
       { name: 'input-cnpj-cpf', message: 'O campo CPF/CNPJ é obrigatório.' },
-      { name: 'input-razao-social', message: 'O campo Razão Social é obrigatório.' },
-      { name: 'input-fantasia', message: 'O campo Nome Fantasia é obrigatório.' },
-      { name: 'input-inscricao-estadual', message: 'O campo Inscrição Estadual é obrigatório.' },
+      { name: 'input-razao-social', message: 'O campo TAZÃO SOCIAL é obrigatório.' },
+      { name: 'input-fantasia', message: 'O campo NOME FANTASIA é obrigatório.' },
+      { name: 'input-cep', message: 'O campo CEP é obrigatório.' },
    ];
 
    const elements = document.querySelectorAll('.form-control[name]');
-
-   const formBody = {};
+   let allValid = true;
 
    for (let index = 0; index < elements.length; index++) {
       const item = elements[index];
@@ -515,16 +530,12 @@ async function getValuesFromInputs() {
       const requiredField = requiredInputFields.find(field => field.name === itemName);
       if (requiredField && (item.value.trim() === '' || item.value.trim() === '0')) {
          Swal.fire(requiredField.message);
-         return false;
+         allValid = false;
+         break;
       }
-
-      // Adicionando dinamicamente o nome e o valor ao objeto
-      formBody[itemName] = (itemName === 'occurrence_responsible' || itemName === 'types') ? sAllResponsible.getValue(true) : item.value;
    }
 
-   // const sendToServer = await makeRequest(`/api/non-compliance/NewOccurrence`, 'POST', { formBody });
-
-   // window.close();
+   return allValid;
 };
 
 // Função para os valores de qualquer selected
@@ -532,7 +543,8 @@ async function getSelectValues(selectName) {
    const selectElement = document.querySelector(`select[name="${selectName}"]`);
    if (selectElement) {
       const selectedOptions = Array.from(selectElement.selectedOptions);
-      if (selectedOptions.length === 0) {
+      console.log(selectedOptions[0].value);
+      if (selectedOptions[0].value === '') {
          return undefined;
       } else {
          const selectedValues = selectedOptions.map(option => option.value);
@@ -545,39 +557,26 @@ async function getSelectValues(selectName) {
 
 // Função para verificar se os selects estão preenchidos
 async function getValuesFromSelects() {
-   // Array com os names dos inputs que não devem ficar em branco e suas mensagens personalizadas
-   const requiredInputFields = [
-      { name: 'typePeople', message: 'O campo Tipo Pessoa é obrigatório.', isSelect: true },
-      { name: 'selectPeopleCategory', message: 'O campo Categoria Pessoa é obrigatório.', isSelect: true },
+   // Array com os names dos selects que não devem ficar em branco e suas mensagens personalizadas
+   const selectNames = [
+      { name: 'typePeople', message: 'O campo TIPO PESSOA é obrigatório.' },
+      { name: 'selectPeopleCategory', message: 'O campo CATEGORIA PESSOA é obrigatório.' },
+      { name: 'selectCity', message: 'O campo CIDADE é obrigatório.' },
+      { name: 'selectCountry', message: 'O campo PAÍS é obrigatório.' },
    ];
+   let allValid = true;
 
-   const elements = document.querySelectorAll('select[name]');
-
-   const formBody = {};
-
-   for (let index = 0; index < elements.length; index++) {
-      const item = elements[index];
-      const itemName = item.getAttribute('name');
-
-      // Verificar se o campo está no array de campos obrigatórios e se está vazio
-      const requiredField = requiredInputFields.find(field => field.name === itemName);
-      if (requiredField) {
-         if (requiredField.isSelect) {
-            const selectedValues = await getSelectValues(itemName);
-            if (!selectedValues) {
-               Swal.fire(requiredField.message);
-               return false;
-            }
-            formBody[itemName] = selectedValues;
-         }
-      } else {
-         formBody[itemName] = (itemName === 'occurrence_responsible' || itemName === 'types') ? sAllResponsible.getValue(true) : item.value;
+   for (let i = 0; i < selectNames.length; i++) {
+      const selectName = selectNames[i];
+      const values = await getSelectValues(selectName.name);
+      if (!values || values.length === 0) {
+         Swal.fire(`${selectName.message}`);
+         allValid = false;
+         break;
       }
    }
 
-   // const sendToServer = await makeRequest(`/api/non-compliance/NewOccurrence`, 'POST', { formBody });
-
-   // window.close();
+   return allValid;
 };
 
 // Função que armazena todos os click na tela
@@ -614,8 +613,7 @@ async function eventClick() {
          }
       }
    })
-   
-   // ========== / BOTAO SALVAR ========== //  
+   // ========== / INPUT CEP ========== //  
 
    // ========== BOTAO SALVAR ========== //
    const btn_save = document.getElementById('btn-save');
@@ -624,30 +622,37 @@ async function eventClick() {
       e.preventDefault();
       let formBody = {};
 
+      const razaoSocial = await formatarNome(document.getElementById('input-razao-social').value)
+      const fantasia = await formatarNome(document.getElementById('input-fantasia').value)
+      const street = await formatarNome(document.getElementById('input-street').value)
+      const complement = await formatarNome(document.getElementById('input-complement').value)
+      const neighborhood = await formatarNome(document.getElementById('input-neighborhood').value)
+
       formBody.selectPeopleType = await getSelectPeopleType();
       formBody.cnpjCpf = document.getElementById('input-cnpj-cpf').value.replace(/\D/g, '');
-      formBody.razaoSocial = document.getElementById('input-razao-social').value;
-      formBody.fantasia = document.getElementById('input-fantasia').value;
+      formBody.razaoSocial = razaoSocial;
+      formBody.fantasia = fantasia;
       formBody.inscricaoEstadual = document.getElementById('input-inscricao-estadual').value;
       formBody.peopleCategory = await getselectPeopleCategoryFromUpdate();
       formBody.peopleStatus = await getSelectPeopleStatus();
       formBody.commercial = await getSelectCommercial();
       formBody.collaboratorResponsable = await getSelectCollaboratorResponsable();
       formBody.cep = document.getElementById('input-cep').value.replace(/\D/g, '');
-      formBody.street = document.getElementById('input-street').value;
-      formBody.complement = document.getElementById('input-complement').value;
-      formBody.neighborhood = document.getElementById('input-neighborhood').value;
+      formBody.street = street;
+      formBody.complement = complement;
+      formBody.neighborhood = neighborhood;
       formBody.city = await getSelectCity();
       formBody.state = await getSelectState();
       formBody.country = await getSelectCountry();
       formBody.peopleId = await getPeopleInfo();
-      
-      await getValuesFromInputs();
-      await getValuesFromSelects();
 
-      const sendToServer = await makeRequest(`/api/people/updateGetPeople`, 'POST', { formBody });
-
-      window.close();
+      const inputsValid = await getValuesFromInputs();
+      const selectsValid = await getValuesFromSelects();
+   
+      if (inputsValid && selectsValid) {
+         const insertSever = await makeRequest(`/api/people/updateGetPeople`, 'POST', { formBody });
+         window.close();
+      }
    })
    // ========== / BOTAO SALVAR ========== //
 }

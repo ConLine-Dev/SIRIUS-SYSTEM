@@ -18,6 +18,46 @@ socket.on("updatePeople", async (data) => {
     }
 });
 
+socket.on("insertPeople", async (data) => {
+    await addNewPerson(data);
+});
+
+// Função para inserir novas pessoas pelo SOCKET IO
+async function addNewPerson(data) {
+    const people = document.getElementById('listPeople');
+    let html = '';
+
+    const item = data;
+    const categories = await listPeopleCategoryRelations(item.categories);
+    const status = await listPeopleStatus(item.people[0]);
+    const cnpjCpfFormated = formatCnpjCpfString(item.people[0].cnpj_cpf);
+
+
+    html += `<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 shadow-sm list-group-item-action py-3" style="cursor: pointer;" data-people-id="${item.people[0].id}" ondblclick="openPeople(${item.people[0].id})"> 
+                    <div class="card-body">
+                        <span class="io-people-status">${status}</span>
+                        <div class="d-flex mb-3 flex-wrap align-items-center"> 
+                            <div>
+                                <h5 class="fw-semibold mb-0 d-flex align-items-center">
+                                    <a class="io-people-fantasy-name">${item.people[0].fantasy_name}</a>
+                                </h5> 
+                                <a>Comercial: <span class="io-people-commercial">${item.people[0].commercial}</span></a>
+                                <br>
+                                <a>Funcionário Responsável: <span class="io-people-responsable">${item.people[0].collaborator_responsable}</span></a>
+                            </div>
+                        </div>
+                        <div class="popular-tags"> 
+                            <span class="io-people-categories">${categories}</span>
+                            <div class="btn-list float-end"> 
+                                <span>${cnpjCpfFormated}</span>
+                                <span class="d-none">${item.people[0].cnpj_cpf}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+    people.innerHTML += html;
+};
 
 async function active_tooltip() {
     const tooltipTriggerList = document.querySelectorAll(
@@ -246,23 +286,22 @@ async function listPeopleStatus(data) {
     const peopleStatus = data.people ? data.people.people_status : data.people_status;
     const peopleStatusId = data.people ? data.people.people_status_id : data.people_status_id;
 
-    if (peopleStatusId === 1) {
+    if (peopleStatusId === 1 && peopleStatus !== null) {
         status = `<div class="btn-list float-end"> 
                     <span class="badge bg-indigo rounded-pill" id="cart-icon-badge">${peopleStatus}</span>
                   </div>`;
-    } else if (peopleStatusId === 3) {
+    } else if (peopleStatusId === 3 && peopleStatus !== null) {
         status = `<div class="btn-list float-end"> 
                     <span class="badge bg-primary rounded-pill" id="cart-icon-badge">${peopleStatus}</span>
                   </div>`;
-    } else {
+    } else if (peopleStatusId !== 1 && peopleStatusId !== 3 && peopleStatus !== null) {
         status = `<div class="btn-list float-end"> 
                     <span class="badge bg-secondary rounded-pill" id="cart-icon-badge">${peopleStatus}</span>
                   </div>`;
     }
 
     return status;
-}
-
+};
 
 // Função lista todos os colaboradores 
 async function listPeople(data) {
@@ -318,7 +357,7 @@ async function eventClick() {
 
             // Verifica se o texto do item contém o termo de pesquisa
             if (textoItem.includes(term_search)) {
-                item.style.display = 'block'; // Mostra o item
+                item.style.display = 'flex'; // Mostra o item
             } else {
                 item.style.display = 'none'; // Oculta o item
             }

@@ -132,24 +132,10 @@ async function getSelectPeopleType() {
 };
 
 // Função que cria o select para selecionar as categorias de pessoas
-let selectPeopleCategory;
-async function createSelectPeopleCategory(data) {
-   // Formate o array para ser usado com o Choices.js
-   const options = data.map(function(element) {
-      return {
-         value: element.id,
-         label: element.name,
-      };
-   });
-
-   // verifica se o select ja existe, caso exista destroi
-   if (selectPeopleCategory) {
-      selectPeopleCategory.destroy();
-   }
-
-   // renderiza o select com as opções formatadas
+let selectPeopleCategory, selectPeopleStatus, selectCommercial, selectCollaboratorResponsable, selectCity, selectState, selectCountry;
+async function createSelectWithChoices() {
+   // Inicialize o select de categoria de pessoa
    selectPeopleCategory = new Choices('#selectPeopleCategory', {
-      choices: options,
       allowHTML: true,
       allowSearch: true,
       shouldSort: false,
@@ -157,6 +143,101 @@ async function createSelectPeopleCategory(data) {
       noChoicesText: 'Não há opções disponíveis',
       noResultsText: 'Não há opções disponíveis'
    });
+
+   // Inicialize o select de categoria de pessoa
+   selectPeopleStatus = new Choices('#selectPeopleStatus', {
+      allowHTML: true,
+      allowSearch: true,
+      shouldSort: false,
+      removeItemButton: true,
+      noChoicesText: 'Não há opções disponíveis',
+      noResultsText: 'Não há opções disponíveis'
+   });
+
+   // Inicialize o select de categoria de pessoa
+   selectCommercial = new Choices('#selectCommercial', {
+      allowHTML: true,
+      allowSearch: true,
+      shouldSort: false,
+      removeItemButton: true,
+      noChoicesText: 'Não há opções disponíveis',
+      noResultsText: 'Não há opções disponíveis'
+   });
+
+   // Inicialize o select de categoria de pessoa
+   selectCollaboratorResponsable = new Choices('#selectCollaboratorResponsable', {
+      allowHTML: true,
+      allowSearch: true,
+      shouldSort: false,
+      removeItemButton: true,
+      noChoicesText: 'Não há opções disponíveis',
+      noResultsText: 'Não há opções disponíveis'
+   });
+
+   // Inicialize o select de categoria de pessoa
+   selectCity = new Choices('#selectCity', {
+      allowHTML: true,
+      allowSearch: true,
+      shouldSort: false,
+      removeItemButton: true,
+      noChoicesText: 'Não há opções disponíveis',
+      noResultsText: 'Não há opções disponíveis'
+   });
+
+   // Inicialize o select de categoria de pessoa
+   selectState = new Choices('#selectState', {
+      allowHTML: true,
+      allowSearch: true,
+      shouldSort: false,
+      removeItemButton: true,
+      noChoicesText: 'Não há opções disponíveis',
+      noResultsText: 'Não há opções disponíveis'
+   });
+
+   // Inicialize o select de categoria de pessoa
+   selectCountry = new Choices('#selectCountry', {
+      allowHTML: true,
+      allowSearch: true,
+      shouldSort: false,
+      removeItemButton: true,
+      noChoicesText: 'Não há opções disponíveis',
+      noResultsText: 'Não há opções disponíveis'
+   });
+}
+
+// Função para carregar as opções do banco de dados
+async function loadSelectPeopleCategory() {
+   // Mostra o indicador de carregamento
+   selectPeopleCategory.setChoices([{
+      value: '',
+      label: 'Carregando...',
+      disabled: true
+   }], 'value', 'label', true);
+
+   try {
+      // Simula uma chamada para o banco de dados
+      const getAllPeopleCategory = await makeRequest('/api/people/getAllPeopleCategory', 'POST',);
+
+      // Formate o array para ser usado com o Choices.js
+      const options = getAllPeopleCategory.map(element => ({
+         value: element.id,
+         label: element.name
+      }));
+
+      // Atualiza as opções do Choices.js
+      selectPeopleCategory.clearChoices();
+      selectPeopleCategory.setChoices(options, 'value', 'label', true);    
+   } catch (error) {
+      // Lida com o erro se a chamada para o banco de dados falhar
+      console.error('Erro ao carregar opções:', error);
+      selectPeopleCategory.clearChoices();
+      selectPeopleCategory.setChoices([{
+         value: '',
+         label: 'Erro ao carregar opções',
+         disabled: true
+      }], 'value', 'label', true);
+   }
+
 };
 
 // Função para selecionar as categorias da pessoa
@@ -191,32 +272,46 @@ async function getselectPeopleCategoryFromUpdate() {
    }
 };
 
-// Função que cria o select para selecionar as categorias de pessoas
-let selectPeopleStatus;
-async function createSelectPeopleStatus(data) {
-   // Formate o array para ser usado com o Choices.js
-   const options = data.map(function(element) {
-      return {
-         value: element.id,
-         label: element.name,
-      };
-   });
+// Adiciona um evento para carregar as opções quando o dropdown do select é exibido
+document.querySelector('#selectPeopleCategory').addEventListener('showDropdown', async function() {
+   if (selectPeopleCategory.getValue(true).length === 0) {
+      await loadSelectPeopleCategory();
+   }
+});
 
-   // verifica se o select ja existe, caso exista destroi
-   if (selectPeopleStatus) {
-      selectPeopleStatus.destroy();
+// Função para carregar as opções do banco de dados
+async function loadSelectPeopleStatus() {
+   // Mostra o indicador de carregamento
+   selectPeopleStatus.setChoices([{
+      value: '',
+      label: 'Carregando...',
+      disabled: true
+   }], 'value', 'label', true);
+
+   try {
+      // Simula uma chamada para o banco de dados
+      const getAllPeopleStatus = await makeRequest('/api/people/getAllPeopleStatus', 'POST');
+
+      // Formate o array para ser usado com o Choices.js
+      const options = getAllPeopleStatus.map(element => ({
+         value: element.id,
+         label: element.name
+      }));
+
+      // Atualiza as opções do Choices.js
+      selectPeopleStatus.clearChoices();
+      selectPeopleStatus.setChoices(options, 'value', 'label', true);    
+   } catch (error) {
+      // Lida com o erro se a chamada para o banco de dados falhar
+      console.error('Erro ao carregar opções:', error);
+      selectPeopleStatus.clearChoices();
+      selectPeopleStatus.setChoices([{
+         value: '',
+         label: 'Erro ao carregar opções',
+         disabled: true
+      }], 'value', 'label', true);
    }
 
-   // renderiza o select com as opções formatadas
-   selectPeopleStatus = new Choices('#selectPeopleStatus', {
-      choices: options,
-      allowHTML: true,
-      allowSearch: true,
-      shouldSort: false,
-      removeItemButton: true,
-      noChoicesText: 'Não há opções disponíveis',
-      noResultsText: 'Não há opções disponíveis'
-   });
 };
 
 // Função para selecionar o status da pessoa
@@ -236,32 +331,45 @@ async function getSelectPeopleStatus() {
    }
 };
 
-// Função que cria o select para selecionar os comerciais
-let selectCommercial;
-async function createSelectCommercial(data) {
-   // Formate o array para ser usado com o Choices.js
-   const options = data.map(function(element) {
-      return {
-         value: element.commercial_id,
-         label: element.commercial,
-      };
-   });
-
-   // verifica se o select ja existe, caso exista destroi
-   if (selectCommercial) {
-      selectCommercial.destroy();
+// Adiciona um evento para carregar as opções quando o dropdown do select é exibido
+document.querySelector('#selectPeopleStatus').addEventListener('showDropdown', async function() {
+   if (selectPeopleStatus.getValue(true).length === 0) {
+      await loadselectPeopleStatus();
    }
+});
 
-   // renderiza o select com as opções formatadas
-   selectCommercial = new Choices('#selectCommercial', {
-      choices: options,
-      allowHTML: true,
-      allowSearch: true,
-      shouldSort: false,
-      removeItemButton: true,
-      noChoicesText: 'Não há opções disponíveis',
-      noResultsText: 'Não há opções disponíveis'
-   });
+// Função para carregar as opções do banco de dados
+async function loadSelectCommercial() {
+   // Mostra o indicador de carregamento
+   selectCommercial.setChoices([{
+      value: '',
+      label: 'Carregando...',
+      disabled: true
+   }], 'value', 'label', true);
+
+   try {
+      // Simula uma chamada para o banco de dados
+      const getAllCommercial = await makeRequest('/api/people/getAllCommercial', 'POST',);
+
+      // Formate o array para ser usado com o Choices.js
+      const options = getAllCommercial.map(element => ({
+         value: element.commercial_id,
+         label: element.commercial
+      }));
+
+      // Atualiza as opções do Choices.js
+      selectCommercial.clearChoices();
+      selectCommercial.setChoices(options, 'value', 'label', true);
+   } catch (error) {
+      // Lida com o erro se a chamada para o banco de dados falhar
+      console.error('Erro ao carregar opções:', error);
+      selectCommercial.clearChoices();
+      selectCommercial.setChoices([{
+         value: '',
+         label: 'Erro ao carregar opções',
+         disabled: true
+      }], 'value', 'label', true);
+   }
 };
 
 // Função para selecionar o comercial
@@ -281,32 +389,46 @@ async function getSelectCommercial() {
    }
 };
 
-// Função que cria o select para selecionar os funcionarios responsaveis(inside sales)
-let selectCollaboratorResponsable;
-async function createSelectCollaboratorResponsable(data) {
-   // Formate o array para ser usado com o Choices.js
-   const options = data.map(function(element) {
-      return {
-         value: element.collaborator_responsable_id,
-         label: element.collaborator_responsable,
-      };
-   });
+// Adiciona um evento para carregar as opções quando o dropdown do select é exibido
+document.querySelector('#selectCommercial').addEventListener('showDropdown', async function() {
+   if (selectCommercial.getValue(true).length === 0) {
+      await loadSelectCommercial();
+   }
+});
 
-   // verifica se o select ja existe, caso exista destroi
-   if (selectCollaboratorResponsable) {
-      selectCollaboratorResponsable.destroy();
+// Função para carregar as opções do banco de dados
+async function loadSelectCollaboratorResponsable() {
+   // Mostra o indicador de carregamento
+   selectCollaboratorResponsable.setChoices([{
+      value: '',
+      label: 'Carregando...',
+      disabled: true
+   }], 'value', 'label', true);
+
+   try {
+      // Simula uma chamada para o banco de dados
+      const getAllCollaboratorsResponsable = await makeRequest('/api/people/getAllCollaboratorsResponsable', 'POST',);
+
+      // Formate o array para ser usado com o Choices.js
+      const options = getAllCollaboratorsResponsable.map(element => ({
+         value: element.collaborator_responsable_id,
+         label: element.collaborator_responsable
+      }));
+
+      // Atualiza as opções do Choices.js
+      selectCollaboratorResponsable.clearChoices();
+      selectCollaboratorResponsable.setChoices(options, 'value', 'label', true);
+   } catch (error) {
+      // Lida com o erro se a chamada para o banco de dados falhar
+      console.error('Erro ao carregar opções:', error);
+      selectCollaboratorResponsable.clearChoices();
+      selectCollaboratorResponsable.setChoices([{
+         value: '',
+         label: 'Erro ao carregar opções',
+         disabled: true
+      }], 'value', 'label', true);
    }
 
-   // renderiza o select com as opções formatadas
-   selectCollaboratorResponsable = new Choices('#selectCollaboratorResponsable', {
-      choices: options,
-      allowHTML: true,
-      allowSearch: true,
-      shouldSort: false,
-      removeItemButton: true,
-      noChoicesText: 'Não há opções disponíveis',
-      noResultsText: 'Não há opções disponíveis'
-   });
 };
 
 // Função para selecionar o funcionario responsavel
@@ -326,32 +448,47 @@ async function getSelectCollaboratorResponsable() {
    }
 };
 
-// Função que cria o select para selecionar as cidades do Brasil
-let selectCity;
-async function createSelectCity(data) {
-   // Formate o array para ser usado com o Choices.js
-   const options = data.map(function(element) {
-      return {
-         value: element.id,
-         label: element.name,
-      };
-   });
+// Adiciona um evento para carregar as opções quando o dropdown do select é exibido
+document.querySelector('#selectCollaboratorResponsable').addEventListener('showDropdown', async function() {
+   if (selectCollaboratorResponsable.getValue(true).length === 0) {
+      await loadSelectCollaboratorResponsable();
+   }
+});
 
-   // verifica se o select ja existe, caso exista destroi
-   if (selectCity) {
-      selectCity.destroy();
+
+// Função para carregar as opções do banco de dados
+async function loadSelectCity() {
+   // Mostra o indicador de carregamento
+   selectCity.setChoices([{
+      value: '',
+      label: 'Carregando...',
+      disabled: true
+   }], 'value', 'label', true);
+
+   try {
+      // Simula uma chamada para o banco de dados
+      const getCity = await makeRequest('/api/people/getCity', 'POST',);
+
+      // Formate o array para ser usado com o Choices.js
+      const options = getCity.map(element => ({
+         value: element.id,
+         label: element.name
+      }));
+
+      // Atualiza as opções do Choices.js
+      selectCity.clearChoices();
+      selectCity.setChoices(options, 'value', 'label', true);
+   } catch (error) {
+      // Lida com o erro se a chamada para o banco de dados falhar
+      console.error('Erro ao carregar opções:', error);
+      selectCity.clearChoices();
+      selectCity.setChoices([{
+         value: '',
+         label: 'Erro ao carregar opções',
+         disabled: true
+      }], 'value', 'label', true);
    }
 
-   // renderiza o select com as opções formatadas
-   selectCity = new Choices('#selectCity', {
-      choices: options,
-      allowHTML: true,
-      allowSearch: true,
-      shouldSort: false,
-      removeItemButton: true,
-      noChoicesText: 'Não há opções disponíveis',
-      noResultsText: 'Não há opções disponíveis'
-   });
 };
 
 // Função para selecionar a cidade
@@ -361,42 +498,39 @@ async function setSelectCityFromDB(value) {
 
 // Função para pegar a opção selecionada do Select Cidade
 async function getSelectCity() {
-   if (selectCity && selectCity.getValue(true).length === 0) {
-      return undefined;
+   if (selectCity) {
+      const values = selectCity.getValue(true);
+      if (values && values.length === 0) {
+         return undefined;
+      } else {
+         return values;
+      }
    } else {
-       // Usar o método getValue() para pegar os valores selecionados
-       const selectedValues = selectCity.getValue(true);
-       // Transformar o array em uma string com os valores entre parênteses e separados por virgula
-       return selectedValues;
+      return undefined;
    }
 };
 
-// Função que cria o select para selecionar os estados do Brasil
-let selectState;
-async function createSelectState(data) {
-   // Formate o array para ser usado com o Choices.js
-   const options = data.map(function(element) {
-      return {
-         value: element.id,
-         label: element.name,
-      };
-   });
-
-   // verifica se o select ja existe, caso exista destroi
-   if (selectState) {
-      selectState.destroy();
+// Adiciona um evento para carregar as opções quando o dropdown do select é exibido
+document.querySelector('#selectCity').addEventListener('showDropdown', async function() {
+   if (selectCity.getValue(true).length === 0) {
+      await loadSelectCity();
    }
+});
 
-   // renderiza o select com as opções formatadas
-   selectState = new Choices('#selectState', {
-      choices: options,
-      allowHTML: true,
-      allowSearch: true,
-      shouldSort: false,
-      removeItemButton: true,
-      noChoicesText: 'Não há opções disponíveis',
-      noResultsText: 'Não há opções disponíveis'
-   });
+// Função para carregar as opções do banco de dados
+async function loadSelectState() {
+   // Simula uma chamada para o banco de dados
+   const getState = await makeRequest('/api/people/getState', 'POST',);
+
+   // Formate o array para ser usado com o Choices.js
+   const options = getState.map(element => ({
+      value: element.id,
+      label: element.name
+   }));
+
+   // Atualiza as opções do Choices.js
+   selectState.clearChoices();
+   selectState.setChoices(options, 'value', 'label', true);
 };
 
 // Função para selecionar o estado
@@ -406,42 +540,39 @@ async function setSelectStateFromDB(value) {
 
 // Função para pegar a opção selecionada do Select Estado
 async function getSelectState() {
-   if (selectState && selectState.getValue(true).length === 0) {
-      return undefined;
+   if (selectState) {
+      const values = selectState.getValue(true);
+      if (values && values.length === 0) {
+         return undefined;
+      } else {
+         return values;
+      }
    } else {
-       // Usar o método getValue() para pegar os valores selecionados
-       const selectedValues = selectState.getValue(true);
-       // Transformar o array em uma string com os valores entre parênteses e separados por virgula
-       return selectedValues;
+      return undefined;
    }
 };
 
-// Função que cria o select para selecionar os Países
-let selectCountry;
-async function createSelectCountry(data) {
-   // Formate o array para ser usado com o Choices.js
-   const options = data.map(function(element) {
-      return {
-         value: element.id,
-         label: element.name,
-      };
-   });
-
-   // verifica se o select ja existe, caso exista destroi
-   if (selectCountry) {
-      selectCountry.destroy();
+// Adiciona um evento para carregar as opções quando o dropdown do select é exibido
+document.querySelector('#selectState').addEventListener('showDropdown', async function() {
+   if (selectState.getValue(true).length === 0) {
+      await loadSelectState();
    }
+});
 
-   // renderiza o select com as opções formatadas
-   selectCountry = new Choices('#selectCountry', {
-      choices: options,
-      allowHTML: true,
-      allowSearch: true,
-      shouldSort: false,
-      removeItemButton: true,
-      noChoicesText: 'Não há opções disponíveis',
-      noResultsText: 'Não há opções disponíveis'
-   });
+// Função para carregar as opções do banco de dados
+async function loadSelectCountry() {
+   // Simula uma chamada para o banco de dados
+   const getCountry = await makeRequest('/api/people/getCountry', 'POST',);
+
+   // Formate o array para ser usado com o Choices.js
+   const options = getCountry.map(element => ({
+      value: element.id,
+      label: element.name
+   }));
+
+   // Atualiza as opções do Choices.js
+   selectCountry.clearChoices();
+   selectCountry.setChoices(options, 'value', 'label', true);
 };
 
 // Função para selecionar o País
@@ -451,15 +582,24 @@ async function setSelectCountryFromDB(value) {
 
 // Função para pegar a opção selecionada do Select País
 async function getSelectCountry() {
-   if (selectCountry && selectCountry.getValue(true).length === 0) {
-      return undefined;
+   if (selectCountry) {
+      const values = selectCountry.getValue(true);
+      if (values && values.length === 0) {
+         return undefined;
+      } else {
+         return values;
+      }
    } else {
-       // Usar o método getValue() para pegar os valores selecionados
-       const selectedValues = selectCountry.getValue(true);
-       // Transformar o array em uma string com os valores entre parênteses e separados por virgula
-       return selectedValues;
+      return undefined;
    }
 };
+
+// Adiciona um evento para carregar as opções quando o dropdown do select é exibido
+document.querySelector('#selectCountry').addEventListener('showDropdown', async function() {
+   if (selectCountry.getValue(true).length === 0) {
+      await loadSelectCountry();
+   }
+});
 
 // Função para inserir os dados nos inputs como: CPF/CNPJ, Razao social, logradouro etc.
 async function insertDataOnInputs(data) {
@@ -543,8 +683,7 @@ async function getSelectValues(selectName) {
    const selectElement = document.querySelector(`select[name="${selectName}"]`);
    if (selectElement) {
       const selectedOptions = Array.from(selectElement.selectedOptions);
-      console.log(selectedOptions[0].value);
-      if (selectedOptions[0].value === '') {
+      if (!selectedOptions || selectedOptions.length === 0 || selectedOptions[0].value === '') {
          return undefined;
       } else {
          const selectedValues = selectedOptions.map(option => option.value);
@@ -562,6 +701,7 @@ async function getValuesFromSelects() {
       { name: 'typePeople', message: 'O campo TIPO PESSOA é obrigatório.' },
       { name: 'selectPeopleCategory', message: 'O campo CATEGORIA PESSOA é obrigatório.' },
       { name: 'selectCity', message: 'O campo CIDADE é obrigatório.' },
+      { name: 'selectState', message: 'O campo ESTADO é obrigatório.' },
       { name: 'selectCountry', message: 'O campo PAÍS é obrigatório.' },
    ];
    let allValid = true;
@@ -655,48 +795,41 @@ async function eventClick() {
       }
    })
    // ========== / BOTAO SALVAR ========== //
-}
+};
 
-// Função executada após toda a página ser executada
+// Função executada após toda a página ser carregada
 window.addEventListener("load", async () => {
-   const getAllPeopleCategory = await makeRequest('/api/people/getAllPeopleCategory', 'POST',);
-   const getAllPeopleStatus = await makeRequest('/api/people/getAllPeopleStatus', 'POST',);
-   const getAllCommercial = await makeRequest('/api/people/getAllCommercial', 'POST',);
-   const getAllCollaboratorsResponsable = await makeRequest('/api/people/getAllCollaboratorsResponsable', 'POST',);
-   const getCity = await makeRequest('/api/people/getCity', 'POST',);
-   const getState = await makeRequest('/api/people/getState', 'POST',);
-   const getCountry = await makeRequest('/api/people/getCountry', 'POST',);
-
    await createSelectPeopleType();
-   await createSelectPeopleCategory(getAllPeopleCategory);
-   await createSelectPeopleStatus(getAllPeopleStatus);
-   await createSelectCommercial(getAllCommercial);
-   await createSelectCollaboratorResponsable(getAllCollaboratorsResponsable);
-   await createSelectCity(getCity);
-   await createSelectState(getState);
-   await createSelectCountry(getCountry);
+   await createSelectWithChoices();
    await inputCepVerification();
 
+   // Carrega as opções dos selects
+   await loadSelectPeopleCategory();
+   await loadSelectPeopleStatus();
+   await loadSelectCommercial();
+   await loadSelectCollaboratorResponsable();
+   await loadSelectCity();
+   await loadSelectState();
+   await loadSelectCountry();
 
-
-   // Consultas e função para preencher os campos com o que vem do banco de dados
+   // Consultas e função para preencher os campos com os dados do banco de dados
    const peopleSelectedId = await getPeopleInfo();
 
    const getPeopleById = await makeRequest('/api/people/getPeopleById', 'POST', {peopleSelectedId: peopleSelectedId});
    const getPeopleCategoryById = await makeRequest('/api/people/getPeopleCategoryById', 'POST', {peopleSelectedId: peopleSelectedId});
+
    await setSelectPeopleTypeFromDB(getPeopleById[0].type_people);
    await setSelectPeopleCategoryFromDB(getPeopleCategoryById);
-   await setSelectPeopleStatusFromDB(getPeopleById[0].people_status_id)
-   await setSelectCommercialFromDB(getPeopleById[0].collaborators_commercial_id)
-   await setSelectCollaboratorResponsableFromDB(getPeopleById[0].collaborators_responsable_id)
-   await setSelectCityFromDB(getPeopleById[0].city_id)
-   await setSelectStateFromDB(getPeopleById[0].state_id)
-   await setSelectCountryFromDB(getPeopleById[0].country_id)
-   await insertDataOnInputs(getPeopleById[0])
+   await setSelectPeopleStatusFromDB(getPeopleById[0].people_status_id);
+   await setSelectCommercialFromDB(getPeopleById[0].collaborators_commercial_id);
+   await setSelectCollaboratorResponsableFromDB(getPeopleById[0].collaborators_responsable_id);
+   await setSelectCityFromDB(getPeopleById[0].city_id);
+   await setSelectStateFromDB(getPeopleById[0].state_id);
+   await setSelectCountryFromDB(getPeopleById[0].country_id);
+   await insertDataOnInputs(getPeopleById[0]);
 
    await eventClick();
 
    // Tela de carregando 'add=quando vc fecha algo/remove=quando vc abre algo'
-   document.querySelector('#loader2').classList.add('d-none')
-
-})
+   document.querySelector('#loader2').classList.add('d-none');
+});

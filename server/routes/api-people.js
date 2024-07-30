@@ -141,7 +141,7 @@ module.exports = function(io) {
         }
     });
 
-    // Lista todas as pessoas;
+    // Atualiza a pessoa;
     router.post('/updateGetPeople', async (req, res, next) => {
         const { formBody } = req.body;
         try {
@@ -165,6 +165,20 @@ module.exports = function(io) {
         } catch (error) {
 
             res.status(404).json('error')
+        }
+    });
+
+    // Cria pessoa
+    router.post('/insertPeople', async (req, res, next) => {
+        const { formBody } = req.body;
+        try {
+            const result = await People.insertPeople(formBody);
+            io.emit('insertPeople', result);
+            res.status(200).json(result)
+        } catch (error) {
+            console.log(error);
+
+            res.status(404).json('Erro')
         }
     });
 

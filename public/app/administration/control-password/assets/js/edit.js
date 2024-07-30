@@ -69,9 +69,35 @@ async function getAllDepartments() {
 
 }
 
+async function getPassword(id) {
+    const Password = await makeRequest(`/api/control-password/getView`, 'POST', {id_password: id});
+    console.log(Password)
 
+    document.querySelector('input[name="title"]').value = Password.title
+    document.querySelector('input[name="login"]').value = Password.login
+    document.querySelector('input[name="password"]').value = Password.password
+    document.querySelector('input[name="link"]').value = Password.link
+    document.querySelector('textarea[name="description"]').value = Password.observation
+} 
 
+async function getForm() {
+    const form = {
+        title: document.querySelector('input[name="title"]').value,
+        login: document.querySelector('input[name="login"]').value,
+        password: document.querySelector('input[name="password"]').value,
+        responsible: document.querySelector('select[name="responsible"]').value,
+        departments: sAllDepartments.getValue(true),
+        link: document.querySelector('input[name="link"]').value,
+        observation: document.querySelector('textarea[name="observation"]').value,
+    }
+ 
+    // if(!form['login'] || !form['password']){
+    //     alert('Login não está preenchido')
+    //     return false
+    // }
 
+    console.log(form)
+}
 
 // ESPERA A PAGINA SER COMPLETAMENTE CARREGADA
 document.addEventListener("DOMContentLoaded", async () => {
@@ -84,6 +110,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // carrega os usuarios departamentos
     await getAllDepartments();
+
+    await getPassword(21);
 
     
     // remover loader

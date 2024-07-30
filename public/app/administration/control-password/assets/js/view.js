@@ -1,43 +1,14 @@
-// Variaveis globais para gerenciamento de selects com o Choices
-// s antes da variavel se refere a select
-let sAllResponsible;
 
 
-async function getAllResponsible() {
-    // carrega os usuarios responsaveis
-    const Responsible = await makeRequest(`/api/users/listAllUsers`);
-    console.log(Responsible)
+async function getPassword(id) {
+    const Password = await makeRequest(`/api/control-password/getView`, 'POST', {id_password: id});
+    console.log(Password)
 
-    // Formate o array para ser usado com o Choices.js
-    const listaDeOpcoes = Responsible.map(function (element) {
-        return {
-            value: `${element.id_colab}`,
-            label: `${element.username + ' ' + element.familyName}`,
-        };
-    });
-
-
-
-    // verifica se o select ja existe, caso exista destroi
-    if (sAllResponsible) {
-        sAllResponsible.destroy();
-    }
-
-
-    // renderiza o select com as opções formatadas
-    sAllResponsible = new Choices('select[name="responsible"]', {
-        choices: listaDeOpcoes,
-        // allowHTML: true,
-        // allowSearch: true,
-        shouldSort: false,
-        removeItemButton: true,
-        noChoicesText: 'Não há opções disponíveis',
-
-    });
-
-
-}
-
+    document.querySelector('div[name="title"]').textContent = Password.title
+    document.querySelector('input[name="login"]').value = Password.login
+    document.querySelector('input[name="password"]').value = Password.password
+    document.querySelector('input[name="link"]').value = Password.link
+} 
 
 
 
@@ -48,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
     // carrega os usuarios responsaveis
-    await getAllResponsible();
+    await getPassword(21);
 
     
     // remover loader

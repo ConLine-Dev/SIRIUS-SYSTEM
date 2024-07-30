@@ -23,6 +23,20 @@ module.exports = function(io) {
         }
     }); 
 
+    router.post('/getView', async (req, res, next) => {
+        const form = req.body
+        console.log(form)
+        try {
+            const result = await controlPassword.getView(form.id_password);
+            res.status(200).json(result);   
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    }); 
+
+
+
+
 
 
     // Retorna o router configurado

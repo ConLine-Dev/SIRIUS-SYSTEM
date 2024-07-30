@@ -73,7 +73,7 @@ async function getForm() {
         login: document.querySelector('input[name="login"]').value,
         password: document.querySelector('input[name="password"]').value,
         responsible: document.querySelector('select[name="responsible"]').value,
-        departments: document.querySelector('select[name="departments"]').value,
+        departments: sAllDepartments.getValue(true),
         link: document.querySelector('input[name="link"]').value,
         observation: document.querySelector('textarea[name="observation"]').value,
     }

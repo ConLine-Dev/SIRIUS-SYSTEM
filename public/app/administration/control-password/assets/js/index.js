@@ -26,10 +26,10 @@ async function generateTable() {
         columns: [
             { data: 'title' },
             { data: 'login' },
-            { data: 'responsible' },
-            { data: 'id' },
+            { data: 'responsibleName' },
+            { data: 'departmentNames' },
             { data: 'update_at' },
-            { data: 'id' }
+            { data: 'action' }
             // Adicione mais colunas conforme necessário
         ],
         buttons: [

@@ -7,7 +7,7 @@ async function getAllResponsible() {
     // carrega os usuarios responsaveis
     const Responsible = await makeRequest(`/api/users/listAllUsers`);
 
-    // Formate o array para ser usado com o Choices.js
+    // Formate o array para ser usado com o Choices.js (Biblioteca)
     const listaDeOpcoes = Responsible.map(function (element) {
         return {
             value: `${element.id_colab}`,
@@ -67,25 +67,28 @@ async function getAllDepartments() {
 }
 
 async function getForm() {
-    const form = []
-    form['title'] = document.querySelector('input[name="title"]').value;
-    form['login'] = document.querySelector('input[name="login"]').value;
-    form['password'] = document.querySelector('input[name="password"]').value;
-    form['responsible']= document.querySelector('select[name="responsible"]').value;
-    form['departments'] = document.querySelector('select[name="departments"]').value;
-    form['link'] = document.querySelector('input[name="link"]').value;
-    form['observation'] = document.querySelector('textarea[name="observation"]').value;
+
+    const form = {
+        title: document.querySelector('input[name="title"]').value,
+        login: document.querySelector('input[name="login"]').value,
+        password: document.querySelector('input[name="password"]').value,
+        responsible: document.querySelector('select[name="responsible"]').value,
+        departments: document.querySelector('select[name="departments"]').value,
+        link: document.querySelector('input[name="link"]').value,
+        observation: document.querySelector('textarea[name="observation"]').value,
+    }
  
     // if(!form['login'] || !form['password']){
     //     alert('Login não está preenchido')
     //     return false
     // }
+
     console.log(form)
+    
+    const Result = await makeRequest(`/api/control-password/create`, 'POST', form);
+    window.close()
 
 }
-
-
-
 
 // ESPERA A PAGINA SER COMPLETAMENTE CARREGADA
 document.addEventListener("DOMContentLoaded", async () => {
@@ -98,6 +101,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // carrega os usuarios departamentos
     await getAllDepartments();
+
 
     
     // remover loader

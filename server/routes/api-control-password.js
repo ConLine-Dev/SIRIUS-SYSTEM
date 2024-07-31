@@ -13,6 +13,7 @@ module.exports = function(io) {
         }
     });
 
+    // Rota para obter o cadastro
     router.post('/create', async (req, res, next) => {
         const form = req.body
         try {
@@ -23,6 +24,7 @@ module.exports = function(io) {
         }
     }); 
 
+    // Rota para obter a visualização
     router.post('/getView', async (req, res, next) => {
         const form = req.body
         console.log(form)
@@ -34,6 +36,17 @@ module.exports = function(io) {
         }
     }); 
 
+    // Rota para obter a edição
+    router.post('/update', async (req, res, next) => {
+        const form = req.body
+        try {
+            const result = await controlPassword.update(form);
+            res.status(200).json(result);   
+        } catch (error) {
+            res.status(404).json(error);
+        }
+        
+    });
 
 
 

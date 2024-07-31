@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Cadastro nova senha</title>
+    <title>Detalhes do Usuário</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
@@ -502,9 +502,9 @@
         <img src="../../assets/images/media/loader.svg" alt="">
     </div> -->
     <!-- Loader -->
-    <!-- <div id="loader2">
+    <div id="loader2">
         <img src="../../assets/images/media/loader.svg" alt="">
-    </div> -->
+    </div>
 
     <!-- <div id="loader" class="">
         <img src="../../assets/images/media/loader.svg" alt="">
@@ -530,7 +530,13 @@
                                     <li class="nav-item " role="presentation"> 
                                         <button type="submit" class="nav-link label-btn btn">
                                             <i class="ri-save-3-line label-btn-icon me-2"></i>
-                                            Cadastrar
+                                            Salvar
+                                        </button> 
+                                    </li>
+                                    <li class="nav-item " role="presentation"> 
+                                        <button type="button" id="delete-btn" class="nav-link label-btn btn">
+                                            <i class="ri-close label-btn-icon me-2"></i>
+                                            Remover
                                         </button> 
                                     </li>
                                 </ul>
@@ -549,20 +555,22 @@
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
                                         <br>
-                                        <label for="password">Senha</label>
+                                        <label for="password" class="form-label">Senha</label>
                                         <input type="password" class="form-control" id="password" name="password" required>
                                     </div>
                                 </div>
-                                <br>
+                          
 
                                 <div class="row">
+                                    
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
-                                        <label for="email">Email</label>
+                                        <br>
+                                        <label for="email" class="form-label">Email</label>
                                         <input type="email" class="form-control" id="email" name="email" required>
                                     </div>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
                                         <br>
-                                        <label for="password">Senha Email</label>
+                                        <label for="password" class="form-label">Senha Email</label>
                                         <input type="emailPassword" class="form-control" id="emailPassword" name="emailPassword" required>
                                     </div>
                                 </div>
@@ -570,8 +578,8 @@
 
                                 <div class="row">
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
-                                        <label for="collaborator_id">Vincular ao Colaborador</label>
-                                        <input type="number" class="form-control" id="collaborator" name="collaborator" required>
+                                        <label for="collaborator" class="form-label">Vincular ao Colaborador</label>
+                                        <select class="form-control" id="collaborator" name="collaborator" required>
                                     </div>
                                 </div>
                                 <br>

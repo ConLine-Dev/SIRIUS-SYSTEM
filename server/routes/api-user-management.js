@@ -25,6 +25,7 @@ module.exports = function(io) {
     router.post('/', async (req, res, next) => {
         try {
             const result = await userManagement.create(req.body);
+            io.emit('updateTableUsers', result);
             res.status(200).json(result);
         } catch (error) {
             res.status(404).json(error);
@@ -34,6 +35,7 @@ module.exports = function(io) {
     router.put('/:id', async (req, res, next) => {
         try {
             const result = await userManagement.update(req.params.id, req.body);
+            io.emit('updateTableUsers', result);
             res.status(200).json(result);
         } catch (error) {
             res.status(404).json(error);
@@ -43,6 +45,7 @@ module.exports = function(io) {
     router.delete('/:id', async (req, res, next) => {
         try {
             const result = await userManagement.delete(req.params.id);
+            io.emit('updateTableUsers', result);
             res.status(200).json(result);
         } catch (error) {
             res.status(404).json(error);

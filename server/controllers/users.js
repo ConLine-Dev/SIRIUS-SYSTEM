@@ -116,6 +116,11 @@ const Users = {
         let result = await executeQuery(`SELECT * FROM departments`);
     
         return result;
+    },
+    getAllColab: async function(){
+        let result = await executeQuery(`SELECT *, CONCAT(collaborators.name, ' ', collaborators.family_name) as ColabFullName  FROM collaborators`);
+
+        return result;
     }
 }
 

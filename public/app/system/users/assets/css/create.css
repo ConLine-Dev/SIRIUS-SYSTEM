@@ -110,4 +110,8 @@
 .choices__inner {
    min-height: 41px !important;
 }
+
+body{
+   overflow: hidden !important;
+}
  

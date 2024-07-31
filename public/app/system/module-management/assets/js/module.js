@@ -35,7 +35,13 @@ async function generateTable() {
                 dataSrc: ''
             },
             columns: [
-                { data: 'id' },
+                {
+                    data: 'icon',
+                    render: function (data, type, row) {
+                    const updatedImgTag = data.replace('../assets/', '../../assets/');
+                      return `<span class="avatar avatar-sm"> ${updatedImgTag} </span>`
+                    }
+                },
                 { data: 'title' },
                 { data: 'description' },
                 { data: 'path' },

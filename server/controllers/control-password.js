@@ -141,7 +141,40 @@ const controlPassword = {
         }));
 
         return formattedPassword[0];
-    }
+    },
+
+    update: async function(form) {
+        const update_at = new Date();
+        const formattedCreateAt = controlPassword.formatDateForDatabase(update_at);
+        console.log(form)
+
+        // Primeiro, insere na tabela password_control
+        // const passwordInsertQuery = `
+        //     INSERT INTO password_control (title, login, password, responsible, link, observation, update_at) 
+        //     VALUES ('${form.title}', '${form.login}', '${form.password}', '${form.responsible}', '${form.link}', '${form.observation}', '${formattedCreateAt}')
+        // `;
+
+        // // Executa a consulta e obtém o ID do password inserido
+        // const result = await executeQuery(passwordInsertQuery);
+        // const passwordId = result.insertId; // Supondo que executeQuery retorne um objeto com insertId
+
+        // // Agora, insere na tabela password_relation_department para cada departamento
+        // const departmentInsertQueries = form.departments.map(departmentId => {
+        //     return `
+        //         INSERT INTO password_relation_department (password_id, department_id) 
+        //         VALUES (${passwordId}, ${departmentId})
+        //     `;
+        // });
+
+        // // Executa todas as inserções de departamento
+        // for (const query of departmentInsertQueries) {
+        //     await executeQuery(query);
+        // }
+
+        // return result;
+
+
+    },
 
 
 }

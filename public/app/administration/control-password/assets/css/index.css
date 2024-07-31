@@ -10,3 +10,7 @@
     align-items: center;
     z-index: 9999;
 }
+
+#table_control_password {
+    cursor: pointer;
+}

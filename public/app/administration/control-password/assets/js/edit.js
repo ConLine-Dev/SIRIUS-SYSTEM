@@ -77,7 +77,7 @@ async function getPassword(id) {
     document.querySelector('input[name="login"]').value = Password.login
     document.querySelector('input[name="password"]').value = Password.password
     document.querySelector('input[name="link"]').value = Password.link
-    document.querySelector('textarea[name="description"]').value = Password.observation
+    document.querySelector('textarea[name="observation"]').value = Password.observation
 } 
 
 async function getForm() {
@@ -95,6 +95,9 @@ async function getForm() {
     //     alert('Login não está preenchido')
     //     return false
     // }
+
+    const Result = await makeRequest(`/api/control-password/update`, 'POST', form);
+    window.close()
 
     console.log(form)
 }

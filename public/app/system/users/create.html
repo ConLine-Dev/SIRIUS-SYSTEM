@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Usuários do sistema</title>
+    <title>Cadastro nova senha</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
@@ -16,7 +16,7 @@
     <!-- Choices JS -->
     <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
     <!-- Main Theme Js -->
-    <script src="../../assets/js/main.js"></script>
+    <!-- <script src="../../assets/js/main.js"></script> -->
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <!-- Style Css -->
@@ -46,16 +46,11 @@
     
     
 
-    <link rel="stylesheet" href="./assets/css/index.css">
+    <link rel="stylesheet" href="./assets/css/create.css">
     <meta http-equiv="imagetoolbar" content="no">
 </head>
 
 <body>
-    <style>
-    .team-member-card .teammember-cover-image:before {
-        background-color: transparent;
-    }
-    </style>
     <!-- Start Switcher -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="switcher-canvas" aria-labelledby="offcanvasRightLabel">
         <div class="offcanvas-header border-bottom">
@@ -503,92 +498,94 @@
         </div>
     </div>
     <!-- End Switcher -->
-    <!-- Loader -->
-    <div id="loader2">
+    <!-- <div id="loader" style="display: none;">
         <img src="../../assets/images/media/loader.svg" alt="">
-    </div>
+    </div> -->
+    <!-- Loader -->
+    <!-- <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div> -->
 
     <!-- <div id="loader" class="">
         <img src="../../assets/images/media/loader.svg" alt="">
     </div> -->
     <!-- Loader -->
+
     <div class="">
         <!-- app-header -->
 
         <!-- /app-header -->
         <!-- End::app-sidebar -->
         <!-- Start::app-content -->
-        <div class="main-content">
-            <div class="row mt-4">
-                <div class="col-12">
-                   <div class="team-members" id="team-members">
-                      <div class="row">
-                         <div class="col-xl-12">
-                            <div class="card custom-card">
-                               <div class="card-body">
-                                  <div class="team-header">
-                                     <div class="d-flex flex-wrap align-items-center justify-content-between">
-                                        <div class="h5 fw-semibold mb-0">Usuários do sistema</div>
-                                        <div class="d-flex align-items-center">
-                                           <div class="input-group"> <input type="text" class="form-control bg-light border-0" placeholder="Pesquisar usuário" aria-describedby="search-team-member"> <button class="btn btn-light" type="button" id="search-team-member"><i class="ri-search-line text-muted"></i></button> </div>
-                                           <button class="btn btn-sm btn-primary-light" id="newUserBtn" style="white-space: nowrap;height: 37px;padding-left: 15px;margin-left: 10px;">
-                                            Novo 
-                                            <i class="ri-add-line ms-1 align-middle"></i></button> 
-                                        </div>
-                                     </div>
-                                  </div>
-                               </div>
+        <div class="">
+            <div class="">
+              
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card custom-card bodyWindows">
+                            <form id="userForm">
+                            <!-- BOTAO SALVAR -->
+                            <div class=" justify-content-between headerButtons">
+                                <ul class="nav nav-tabs border-0" role="tablist">
+                                    <li class="nav-item " role="presentation"> 
+                                        <button type="submit" class="nav-link label-btn btn">
+                                            <i class="ri-save-3-line label-btn-icon me-2"></i>
+                                            Cadastrar
+                                        </button> 
+                                    </li>
+                                </ul>
                             </div>
-                         </div>
 
-                         <div class="card-body" style="padding: 0 13px 13px 13px;">
-                            <div class="table-responsive">
-                               <table id="table-user-management" class="table text-nowrap table-hover">
-                                  <thead>
-                                     <tr>
-                                        <th scope="col">Usuário</th>
-                                        <th scope="col">Colaborador</th>
-                                        <th scope="col">Criação</th>
-                                        <th scope="col">Status</th>
-                                     </tr>
-                                  </thead>
-                                  <tbody>
-                                     <tr>
-                                        <td>
-                                           <div class="d-flex align-items-center">
-                                              <div class="avatar avatar-sm me-2 avatar-rounded"> <img src="../assets/images/faces/10.jpg" alt="img"> </div>
-                                              <div>
-                                                 <div class="lh-1"> <span>Joanna Smith</span> </div>
-                                                 <div class="lh-1"> <span class="fs-11 text-muted">joannasmith14@gmail.com</span> </div>
-                                              </div>
-                                           </div>
-                                        </td>
-                                        <td><span class="badge bg-primary-transparent">Fashion</span></td>
-                                        <td>
-                                           <div class="avatar-list-stacked"> <span class="avatar avatar-sm avatar-rounded"> <img src="../assets/images/faces/2.jpg" alt="img"> </span> <span class="avatar avatar-sm avatar-rounded"> <img src="../assets/images/faces/8.jpg" alt="img"> </span> <span class="avatar avatar-sm avatar-rounded"> <img src="../assets/images/faces/2.jpg" alt="img"> </span> <a class="avatar avatar-sm bg-primary text-fixed-white avatar-rounded" href="javascript:void(0);"> +5 </a> </div>
-                                        </td>
-                                        <td>
-                                           <div class="progress progress-xs">
-                                              <div class="progress-bar bg-primary" role="progressbar" style="width: 52%" aria-valuenow="52" aria-valuemin="0" aria-valuemax="100"> </div>
-                                           </div>
-                                        </td>
-                                     </tr>
-                                 
-                                  </tbody>
-                               </table>
-                            </div>
-                         </div>
-                    
                       
-                      </div>
-                   </div>
-                </div>
-          
-             </div>
-        </div>
- 
+                            <div class="card-header justify-content-between">
+                                <div class="card-title" id="userModalLabel"> Cadastro nova senha </div>
+                            </div>
+                            
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
+                                        <label for="username" class="form-label">Nome de Usuário</label>
+                                        <input type="text" class="form-control" id="username" name="username" required>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
+                                        <label for="password" class="form-label">Senha</label>
+                                        <input type="password" class="form-control" id="password" name="password" required>
+                                    </div>
+                                </div>
+                          
 
+                                <div class="row">
+                                    
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
+                                        <br>
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                    </div>
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
+                                        <br>
+                                        <label for="password" class="form-label">Senha Email</label>
+                                        <input type="emailPassword" class="form-control" id="emailPassword" name="emailPassword" required>
+                                    </div>
+                                </div>
+                                <br>
+
+                                <div class="row">
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                                        <label for="collaborator" class="form-label">Vincular ao Colaborador</label>
+                                        <input type="number" class="form-control" id="collaborator" name="collaborator" required>
+                                    </div>
+                                </div>
+                                <br>
+
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
     <!-- Scroll To Top -->
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
     <div id="responsive-overlay"></div>
@@ -730,8 +727,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script src="./assets/js/index.js"></script>
+    <script src="./assets/js/create.js"></script>
 
 
 
@@ -739,7 +737,7 @@
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
-    <script src="../../assets/js/custom.js"></script>
+    <!-- <script src="../../assets/js/custom.js"></script> -->
 
 </body>
 

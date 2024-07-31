@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciamento de Usuários</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h2>Usuários do Sistema</h2>
+    <input type="text" id="search" class="form-control" placeholder="Pesquisar usuário...">
+    <table class="table table-bordered mt-3">
+      <thead>
+        <tr>
+          <th>Usuário</th>
+          <th>Colaborador</th>
+          <th>Criação</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody">
+        <!-- Dados dos usuários serão inseridos aqui -->
+      </tbody>
+    </table>
+    <button id="newUserBtn" class="btn btn-primary">Novo +</button>
+  </div>
+
+  <!-- Modal para visualização e edição de usuário -->
+  <div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="userModalLabel">Detalhes do Usuário</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="userForm">
+            <div class="form-group">
+              <label for="username">Nome de Usuário</label>
+              <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="password">Senha</label>
+              <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+              <label for="collaborator_id">ID do Colaborador</label>
+              <input type="number" class="form-control" id="collaborator_id" name="collaborator_id" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function() {
+  const apiUrl = '/api/user-management';
+
+  // Função para carregar os usuários
+  function loadUsers() {
+    $.get(apiUrl, function(users) {
+      let userRows = '';
+      users.forEach(user => {
+        userRows += `
+          <tr data-id="${user.id}">
+            <td>${user.username}</td>
+            <td>${user.collaborator_id}</td>
+            <td>${new Date(user.create).toLocaleDateString()}</td>
+            <td><button class="btn btn-danger btn-sm delete-btn">Deletar</button></td>
+          </tr>
+        `;
+      });
+      $('#userTableBody').html(userRows);
+    });
+  }
+
+  // Carregar usuários ao carregar a página
+  loadUsers();
+
+  // Mostrar modal para criar novo usuário
+  $('#newUserBtn').click(function() {
+    $('#userForm').trigger('reset');
+    $('#userModal').modal('show');
+  });
+
+  // Salvar novo usuário
+  $('#userForm').submit(function(event) {
+    event.preventDefault();
+    const userData = $(this).serialize();
+    $.post(apiUrl, userData, function() {
+      $('#userModal').modal('hide');
+      loadUsers();
+    });
+  });
+
+  // Deletar usuário
+  $('#userTableBody').on('click', '.delete-btn', function() {
+    const userId = $(this).closest('tr').data('id');
+    $.ajax({
+      url: `${apiUrl}/${userId}`,
+      type: 'DELETE',
+      success: function() {
+        loadUsers();
+      }
+    });
+  });
+
+  // Mostrar modal ao clicar duas vezes em um usuário
+  $('#userTableBody').on('dblclick', 'tr', function() {
+    const userId = $(this).data('id');
+    $.get(`${apiUrl}/${userId}`, function(user) {
+     
+      $('#username').val(user.username);
+      $('#email').val(user.email);
+      $('#password').val(user.password);
+      $('#collaborator_id').val(user.collaborator_id);
+      $('#userModal').modal('show');
+    });
+  });
+});
+
+  </script>
+</body>
+</html>

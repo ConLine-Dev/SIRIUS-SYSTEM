@@ -28,228 +28,270 @@ const headcargo = {
         
         
         const sql = `WITH CTE_Logistica AS (
-            SELECT
-                Lhs.IdLogistica_House,
-                
-                CASE
-                    WHEN Lms.Tipo_Operacao = 1 AND Lms.Modalidade_Processo = 1 THEN 'EA'
-                    WHEN Lms.Tipo_Operacao = 1 AND Lms.Modalidade_Processo = 2 THEN 'EM'
-                    WHEN Lms.Tipo_Operacao = 1 AND Lms.Modalidade_Processo = 3 THEN 'TE'
-                    WHEN Lms.Tipo_Operacao = 2 AND Lms.Modalidade_Processo = 1 THEN 'IA'
-                    WHEN Lms.Tipo_Operacao = 2 AND Lms.Modalidade_Processo = 2 THEN 'IM'
-                    WHEN Lms.Tipo_Operacao = 2 AND Lms.Modalidade_Processo = 3 THEN 'TI'
-                    WHEN Lms.Tipo_Operacao = 3 AND Lms.Modalidade_Processo = 1 THEN 'NA'
-                    WHEN Lms.Tipo_Operacao = 3 AND Lms.Modalidade_Processo = 2 THEN 'CB'
-                    WHEN Lms.Tipo_Operacao = 3 AND Lms.Modalidade_Processo = 3 THEN 'TN'
-                END AS Modalidade,
-                
-                CASE
-                    WHEN Lms.Tipo_Operacao = 1 AND Lms.Modalidade_Processo = 1 THEN 1
-                    WHEN Lms.Tipo_Operacao = 1 AND Lms.Modalidade_Processo = 2 THEN 2
-                    WHEN Lms.Tipo_Operacao = 1 AND Lms.Modalidade_Processo = 3 THEN 3
-                    WHEN Lms.Tipo_Operacao = 2 AND Lms.Modalidade_Processo = 1 THEN 4
-                    WHEN Lms.Tipo_Operacao = 2 AND Lms.Modalidade_Processo = 2 THEN 5
-                    WHEN Lms.Tipo_Operacao = 2 AND Lms.Modalidade_Processo = 3 THEN 6
-                    WHEN Lms.Tipo_Operacao = 3 AND Lms.Modalidade_Processo = 1 THEN 7
-                    WHEN Lms.Tipo_Operacao = 3 AND Lms.Modalidade_Processo = 2 THEN 8
-                    WHEN Lms.Tipo_Operacao = 3 AND Lms.Modalidade_Processo = 3 THEN 9
-                END AS ModalidadeCodigo,
-                
-                Lhs.Numero_Processo,
-                Lhs.Data_Abertura_Processo AS Abertura_Processo,
-                CONVERT(VARCHAR(10), Lhs.Data_Abertura_Processo, 23) AS Abertura_Processo_Convertida,
-                
-                CASE
-                    WHEN Lms.Tipo_Operacao = 1 THEN COALESCE(Lms.Data_Embarque, Lms.Data_Previsao_Embarque)
-                    WHEN Lms.Tipo_Operacao = 2 THEN COALESCE(Lms.Data_Desembarque, Lms.Data_Previsao_Desembarque)
-                    ELSE COALESCE(Lms.Data_Embarque, Lms.Data_Previsao_Embarque)
-                END AS Data_Compensacao,
-                
-                CASE
-                    WHEN Lms.Tipo_Operacao = 1 THEN COALESCE(CONVERT(VARCHAR, Lms.Data_Embarque, 23), CONVERT(VARCHAR, Lms.Data_Previsao_Embarque,23))
-                    WHEN Lms.Tipo_Operacao = 2 THEN COALESCE(CONVERT(VARCHAR, Lms.Data_Desembarque,23), CONVERT(VARCHAR,Lms.Data_Previsao_Desembarque,23))
-                    ELSE COALESCE(CONVERT(VARCHAR, Lms.Data_Embarque, 23), CONVERT(VARCHAR,Lms.Data_Previsao_Embarque,23))
-                END AS Data_Compensacao_Convertido,
-                
-                Urf.Data_Frete,
-                
-                COALESCE(Lms.Data_Embarque, Lms.Data_Previsao_Embarque) AS 'ETD/ATD',
-                
-                COALESCE(Lms.Data_Desembarque, Lms.Data_Previsao_Desembarque) AS 'ETA/ATA',
-                
-                CASE Lhs.Tipo_Carga
-                    WHEN 1 THEN 'Aéreo'
-                    WHEN 2 THEN 'Break-Bulk'
-                    WHEN 3 THEN 'FCL'
-                    WHEN 4 THEN 'LCL'
-                    WHEN 5 THEN 'RO-RO'
-                    WHEN 6 THEN 'Rodoviário'
-                END AS Tipo_Carga,
-                
-                CASE Lms.Situacao_Embarque
-                    WHEN 0 THEN 'Pré-processo'
-                    WHEN 1 THEN 'Aguardando embarque'
-                    WHEN 2 THEN 'Embarcado'
-                    WHEN 3 THEN 'Desembarque'
-                    WHEN 4 THEN 'Cancelado'
-                    WHEN 5 THEN 'Pendente'
-                    WHEN 6 THEN 'Autorizado' 
-                    WHEN 7 THEN 'Coletado'
-                    WHEN 8 THEN 'Entregue'
-                    WHEN 9 THEN 'Aguardando prontidão da mercadoria'
-                    WHEN 10 THEN 'Aguardando booking finalizado'
-                    WHEN 11 THEN 'Aguardando coleta'
-                    WHEN 12 THEN 'Aguardando entrega'
-                END AS Situacao_Embarque,
-                
-                Cli.Nome AS Cliente,
-                Ven.Nome AS Vendedor,
-                Ven.IdPessoa AS IdVendedor,
-                Ins.Nome AS Inside_Sales,
-                Ins.IdPessoa AS IdInside_Sales,
-                Exp.Nome AS Exportador,
-                Imp.Nome AS Importador,
-                
-                COALESCE(Lhs.Comissao_Vendedor_Pago, 0) AS Comissao_Vendedor_Pago,
-                COALESCE(Lhs.Comissao_Inside_Sales_Pago, 0) AS Comissao_Inside_Sales_Pago,
-                
-                CASE Lhs.Situacao_Agenciamento
-                    WHEN 1 THEN 'Em aberto'
-                    WHEN 2 THEN 'Em Andamento'
-                    WHEN 3 THEN 'Lib. Faturamento'
-                    WHEN 4 THEN 'Faturamento'
-                    WHEN 5 THEN 'Finalizado'
-                    WHEN 6 THEN 'Auditado'
-                    WHEN 7 THEN 'Cancelado'
-                END AS Situacao_Processo,
-                
-                CASE Lhs.Situacao_Recebimento
-                    WHEN 0 THEN 'Sem recebimento'
-                    WHEN 1 THEN 'Em aberto'
-                    WHEN 2 THEN 'Parcialmente recebido'
-                    WHEN 3 THEN 'Recebido'
-                END AS Recebimento,
-                
-                Lhs.Situacao_Recebimento AS RecebimentoCodigo,
-                Lhs.Data_Recebimento_Local AS Data_Recebimento,
-                
-                CASE Lhs.Situacao_Pagamento
-                    WHEN 0 THEN 'Sem pagamento'
-                    WHEN 1 THEN 'Em aberto'
-                    WHEN 2 THEN 'Parcialmente pago'
-                    WHEN 3 THEN 'Pago'
-                END AS Pagamento,
-                
-                Lhs.Situacao_Pagamento AS PagamentoCodigo,
-                Lhs.Data_Pagamento_Local AS Data_Pagamento,
-                
-                CASE Lhs.Situacao_Acerto_Agente
-                    WHEN 0 THEN 'Sem acerto agente'
-                    WHEN 1 THEN 'Em aberto'
-                    WHEN 2 THEN 'Parcialmente pago'
-                    WHEN 3 THEN 'Pago'
-                END AS Agente,
-                
-                Lhs.Situacao_Acerto_Agente AS AgenteCodigo,
-                Lhs.Data_Acerto_Agente AS Data_Agente,
-                Lmo.Lucro_Estimado AS Valor_Estimado,
-                Lmo.Lucro_Efetivo AS Valor_Efetivo,
-                
-                CASE 
-                    WHEN Lmo.Total_Recebimento = Lmo.Total_Recebido THEN 1
-                    ELSE 0
-                END AS Recebimento_Quitado,
-                
-                COALESCE(Qsc.Qtd_SContainer, 0) AS Cntr_Nao_Devolvidos,
-                COALESCE(Qft.Qtd_Fatura, 0) AS Faturas_Nao_Finalizadas,
-                COALESCE(Qsb.Qtd_SBaixa, 0) AS Faturas_Nao_Baixadas
-            
-            FROM
-                mov_Logistica_House Lhs 
-            LEFT OUTER JOIN 
-                mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
-            LEFT OUTER JOIN 
-                mov_Logistica_Moeda Lmo ON Lmo.IdLogistica_House = Lhs.IdLogistica_House
-            LEFT OUTER JOIN 
-                cad_Pessoa Cli ON Cli.IdPessoa = Lhs.IdCliente
-            LEFT OUTER JOIN 
-                cad_Pessoa Ven ON Ven.IdPessoa = Lhs.IdVendedor
-            LEFT OUTER JOIN 
-                mov_Projeto_Atividade_Responsavel Par ON Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND Par.IdPapel_Projeto = 12 --Inside Sales
-            LEFT OUTER JOIN  
-                cad_Pessoa Ins ON Ins.IdPessoa = Par.IdResponsavel
-            LEFT OUTER JOIN 
-                cad_Pessoa Exp ON Exp.IdPessoa = Lhs.IdExportador
-            LEFT OUTER JOIN 
-                cad_Pessoa Imp ON Imp.IdPessoa = Lhs.IdImportador
-                
-            LEFT OUTER JOIN (
-                SELECT 
-                    Ltx.IdLogistica_House,
-                    MIN(Rfn.Data_Referencia) AS Data_Frete
-                FROM 
-                    mov_Logistica_Taxa Ltx
-                LEFT OUTER JOIN
-                    mov_Logistica_Fatura Lft ON Lft.IdLogistica_House = Ltx.IdLogistica_House
-                LEFT OUTER JOIN
-                    mov_Registro_Financeiro Rfn ON Rfn.IdRegistro_Financeiro = Lft.IdRegistro_Financeiro  
-                WHERE
-                    Ltx.IdTaxa_Logistica_Exibicao IN (2,4,43,199,207,397,472) 
-                GROUP BY
-                    Ltx.IdLogistica_House
-            ) Urf ON Urf.IdLogistica_House = Lhs.IdLogistica_House
-                
-            LEFT OUTER JOIN (
-                SELECT
-                    Lmc.IdLogistica_House,
-                    Count(Lmc.IdLogistica_Maritima_Container) AS Qtd_SContainer
-                FROM
-                    mov_Logistica_Maritima_Container Lmc
-                WHERE
-                    Lmc.Data_Devolucao IS NULL
-                GROUP BY
-                    Lmc.IdLogistica_House
-            ) Qsc ON Qsc.IdLogistica_House = Lhs.IdLogistica_House
-                
-            LEFT OUTER JOIN(
-                SELECT 
-                    Lft.IdLogistica_House,
-                    COUNT(Fnc.IdRegistro_Financeiro) AS Qtd_Fatura
-                FROM
-                    mov_Logistica_Fatura Lft 
-                LEFT OUTER JOIN
-                    mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Lft.IdRegistro_Financeiro
-                WHERE
-                    Fnc.tipo = 1 --Fatura
-                GROUP BY
-                    Lft.IdLogistica_House
-            ) Qft ON Qft.IdLogistica_House = Lhs.IdLogistica_House
-                
-            LEFT OUTER JOIN (
-                SELECT
-                    Lft.IdLogistica_House,
-                    Count(Lft.IdRegistro_Financeiro) AS Qtd_SBaixa
-                FROM
-                    vis_Logistica_Fatura Lft
-                LEFT OUTER JOIN 
-                    mov_Fatura_Financeira Ffn ON Ffn.IdRegistro_Financeiro = Lft.IdRegistro_Financeiro
-                WHERE
-                    Lft.Situacao = 1
-                GROUP BY
-                    Lft.IdLogistica_House
-            ) Qsb ON Qsb.IdLogistica_House = Lhs.IdLogistica_House
-        
-            WHERE
-            Lhs.Situacao_Agenciamento NOT IN (7)
-                AND Lhs.Numero_Processo NOT LIKE '%test%'
-                AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
-                AND Lhs.Agenciamento_Carga = 1
-                AND YEAR(Lhs.Data_Abertura_Processo) >= 2022
-                AND Lmo.IdMoeda = 110
-        )
-        SELECT *
-        FROM CTE_Logistica
-        WHERE
+          SELECT
+              Lhs.IdLogistica_House,
+      
+              CASE
+                  WHEN Lms.Tipo_Operacao = 1 AND Lms.Modalidade_Processo = 1 THEN 'EA'
+                  WHEN Lms.Tipo_Operacao = 1 AND Lms.Modalidade_Processo = 2 THEN 'EM'
+                  WHEN Lms.Tipo_Operacao = 1 AND Lms.Modalidade_Processo = 3 THEN 'TE'
+                  WHEN Lms.Tipo_Operacao = 2 AND Lms.Modalidade_Processo = 1 THEN 'IA'
+                  WHEN Lms.Tipo_Operacao = 2 AND Lms.Modalidade_Processo = 2 THEN 'IM'
+                  WHEN Lms.Tipo_Operacao = 2 AND Lms.Modalidade_Processo = 3 THEN 'TI'
+                  WHEN Lms.Tipo_Operacao = 3 AND Lms.Modalidade_Processo = 1 THEN 'NA'
+                  WHEN Lms.Tipo_Operacao = 3 AND Lms.Modalidade_Processo = 2 THEN 'CB'
+                  WHEN Lms.Tipo_Operacao = 3 AND Lms.Modalidade_Processo = 3 THEN 'TN'
+              END AS Modalidade,
+      
+              CASE
+                  WHEN Lms.Tipo_Operacao = 1 AND Lms.Modalidade_Processo = 1 THEN 1
+                  WHEN Lms.Tipo_Operacao = 1 AND Lms.Modalidade_Processo = 2 THEN 2
+                  WHEN Lms.Tipo_Operacao = 1 AND Lms.Modalidade_Processo = 3 THEN 3
+                  WHEN Lms.Tipo_Operacao = 2 AND Lms.Modalidade_Processo = 1 THEN 4
+                  WHEN Lms.Tipo_Operacao = 2 AND Lms.Modalidade_Processo = 2 THEN 5
+                  WHEN Lms.Tipo_Operacao = 2 AND Lms.Modalidade_Processo = 3 THEN 6
+                  WHEN Lms.Tipo_Operacao = 3 AND Lms.Modalidade_Processo = 1 THEN 7
+                  WHEN Lms.Tipo_Operacao = 3 AND Lms.Modalidade_Processo = 2 THEN 8
+                  WHEN Lms.Tipo_Operacao = 3 AND Lms.Modalidade_Processo = 3 THEN 9
+              END AS ModalidadeCodigo,
+      
+              Lhs.Numero_Processo,
+              Lhs.Data_Abertura_Processo AS Abertura_Processo,
+              CONVERT(VARCHAR(10), Lhs.Data_Abertura_Processo, 23) AS Abertura_Processo_Convertida,
+      
+              CASE
+                  WHEN Lms.Tipo_Operacao = 1 THEN COALESCE(Lms.Data_Embarque, Lms.Data_Previsao_Embarque)
+                  WHEN Lms.Tipo_Operacao = 2 THEN COALESCE(Lms.Data_Desembarque, Lms.Data_Previsao_Desembarque)
+                  ELSE COALESCE(Lms.Data_Embarque, Lms.Data_Previsao_Embarque)
+              END AS Data_Compensacao,
+      
+              CASE
+                  WHEN Lms.Tipo_Operacao = 1 THEN COALESCE(CONVERT(VARCHAR, Lms.Data_Embarque, 23), CONVERT(VARCHAR, Lms.Data_Previsao_Embarque,23))
+                  WHEN Lms.Tipo_Operacao = 2 THEN COALESCE(CONVERT(VARCHAR, Lms.Data_Desembarque,23), CONVERT(VARCHAR,Lms.Data_Previsao_Desembarque,23))
+                  ELSE COALESCE(CONVERT(VARCHAR, Lms.Data_Embarque, 23), CONVERT(VARCHAR,Lms.Data_Previsao_Embarque,23))
+              END AS Data_Compensacao_Convertido,
+      
+              Urf.Data_Frete,
+      
+              COALESCE(Lms.Data_Embarque, Lms.Data_Previsao_Embarque) AS 'ETD/ATD',
+      
+              COALESCE(Lms.Data_Desembarque, Lms.Data_Previsao_Desembarque) AS 'ETA/ATA',        
+      
+              CASE Lhs.Tipo_Carga
+                  WHEN 1 THEN 'Aéreo'
+                  WHEN 2 THEN 'Break-Bulk'
+                  WHEN 3 THEN 'FCL'
+                  WHEN 4 THEN 'LCL'
+                  WHEN 5 THEN 'RO-RO'
+                  WHEN 6 THEN 'Rodoviário'
+              END AS Tipo_Carga,
+      
+              CASE Lms.Situacao_Embarque
+                  WHEN 0 THEN 'Pré-processo'
+                  WHEN 1 THEN 'Aguardando embarque'
+                  WHEN 2 THEN 'Embarcado'
+                  WHEN 3 THEN 'Desembarque'
+                  WHEN 4 THEN 'Cancelado'
+                  WHEN 5 THEN 'Pendente'
+                  WHEN 6 THEN 'Autorizado'
+                  WHEN 7 THEN 'Coletado'
+                  WHEN 8 THEN 'Entregue'
+                  WHEN 9 THEN 'Aguardando prontidão da mercadoria'
+                  WHEN 10 THEN 'Aguardando booking finalizado'
+                  WHEN 11 THEN 'Aguardando coleta'
+                  WHEN 12 THEN 'Aguardando entrega'
+              END AS Situacao_Embarque,
+      
+              Cli.Nome AS Cliente,
+              Ven.Nome AS Vendedor,
+              Ven.IdPessoa AS IdVendedor,
+              Ins.Nome AS Inside_Sales,
+              Ins.IdPessoa AS IdInside_Sales,
+              Exp.Nome AS Exportador,
+              Imp.Nome AS Importador,
+      
+              COALESCE(Lhs.Comissao_Vendedor_Pago, 0) AS Comissao_Vendedor_Pago,
+              COALESCE(Lhs.Comissao_Inside_Sales_Pago, 0) AS Comissao_Inside_Sales_Pago,
+      
+              CASE Lhs.Situacao_Agenciamento
+                  WHEN 1 THEN 'Em aberto'
+                  WHEN 2 THEN 'Em Andamento'
+                  WHEN 3 THEN 'Lib. Faturamento'
+                  WHEN 4 THEN 'Faturamento'
+                  WHEN 5 THEN 'Finalizado'
+                  WHEN 6 THEN 'Auditado'
+                  WHEN 7 THEN 'Cancelado'
+              END AS Situacao_Processo,
+      
+              CASE Lhs.Situacao_Recebimento
+                  WHEN 0 THEN 'Sem recebimento'
+                  WHEN 1 THEN 'Em aberto'
+                  WHEN 2 THEN 'Parcialmente recebido'
+                  WHEN 3 THEN 'Recebido'
+              END AS Recebimento,
+      
+              CASE 
+                  WHEN Lhs.Situacao_Recebimento = 0 THEN 0
+                  WHEN Lhs.Situacao_Recebimento = 1 THEN 1
+                  WHEN Lhs.Situacao_Recebimento = 2 THEN 2
+                  WHEN Lhs.Situacao_Recebimento = 3 AND Fcr.Status_Fatura = 'Quitado' THEN 3
+              END AS RecebimentoCodigo,
+      
+              Lhs.Data_Recebimento_Local AS Data_Recebimento,
+      
+              CASE Lhs.Situacao_Pagamento
+                  WHEN 0 THEN 'Sem pagamento'
+                  WHEN 1 THEN 'Em aberto'
+                  WHEN 2 THEN 'Parcialmente pago'
+                  WHEN 3 THEN 'Pago'
+              END AS Pagamento,
+      
+              CASE 
+                  WHEN Lhs.Situacao_Pagamento = 0 THEN 0
+                  WHEN Lhs.Situacao_Pagamento = 1 THEN 1
+                  WHEN Lhs.Situacao_Pagamento = 2 THEN 2
+                  WHEN Lhs.Situacao_Pagamento = 3 AND Fde.Status_Fatura = 'Quitado' THEN 3
+              END AS PagamentoCodigo,
+      
+              Lhs.Data_Pagamento_Local AS Data_Pagamento,
+      
+              CASE Lhs.Situacao_Acerto_Agente
+                  WHEN 0 THEN 'Sem acerto agente'
+                  WHEN 1 THEN 'Em aberto'
+                  WHEN 2 THEN 'Parcialmente pago'
+                  WHEN 3 THEN 'Pago'
+              END AS Agente,
+      
+              Lhs.Situacao_Acerto_Agente AS AgenteCodigo,
+              Lhs.Data_Acerto_Agente AS Data_Agente,
+              Lmo.Lucro_Estimado AS Valor_Estimado,
+              Lmo.Lucro_Efetivo AS Valor_Efetivo,
+      
+              CASE
+                  WHEN Lmo.Total_Recebimento = Lmo.Total_Recebido THEN 1
+                  ELSE 0
+              END AS Recebimento_Quitado,
+      
+              COALESCE(Qsc.Qtd_SContainer, 0) AS Cntr_Nao_Devolvidos,
+              COALESCE(Qft.Qtd_Fatura, 0) AS Faturas_Nao_Finalizadas,
+              COALESCE(Qsb.Qtd_SBaixa, 0) AS Faturas_Nao_Baixadas
+      
+          FROM
+              mov_Logistica_House Lhs
+          LEFT OUTER JOIN
+              mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master        
+          LEFT OUTER JOIN
+              mov_Logistica_Moeda Lmo ON Lmo.IdLogistica_House = Lhs.IdLogistica_House
+          LEFT OUTER JOIN
+              cad_Pessoa Cli ON Cli.IdPessoa = Lhs.IdCliente
+          LEFT OUTER JOIN
+              cad_Pessoa Ven ON Ven.IdPessoa = Lhs.IdVendedor
+          LEFT OUTER JOIN
+              mov_Projeto_Atividade_Responsavel Par ON Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND Par.IdPapel_Projeto = 12 --Inside Sales
+          LEFT OUTER JOIN
+              cad_Pessoa Ins ON Ins.IdPessoa = Par.IdResponsavel
+          LEFT OUTER JOIN
+              cad_Pessoa Exp ON Exp.IdPessoa = Lhs.IdExportador
+          LEFT OUTER JOIN
+              cad_Pessoa Imp ON Imp.IdPessoa = Lhs.IdImportador
+      
+          LEFT OUTER JOIN (
+              SELECT
+                  Ltx.IdLogistica_House,
+                  MIN(Rfn.Data_Referencia) AS Data_Frete
+              FROM
+                  mov_Logistica_Taxa Ltx
+              LEFT OUTER JOIN
+                  mov_Logistica_Fatura Lft ON Lft.IdLogistica_House = Ltx.IdLogistica_House      
+              LEFT OUTER JOIN
+                  mov_Registro_Financeiro Rfn ON Rfn.IdRegistro_Financeiro = Lft.IdRegistro_Financeiro
+              WHERE
+                  Ltx.IdTaxa_Logistica_Exibicao IN (2,4,43,199,207,397,472)
+              GROUP BY
+                  Ltx.IdLogistica_House
+          ) Urf ON Urf.IdLogistica_House = Lhs.IdLogistica_House
+      
+          LEFT OUTER JOIN (
+              SELECT
+                  Lmc.IdLogistica_House,
+                  Count(Lmc.IdLogistica_Maritima_Container) AS Qtd_SContainer
+              FROM
+                  mov_Logistica_Maritima_Container Lmc
+              WHERE
+                  Lmc.Data_Devolucao IS NULL
+              GROUP BY
+                  Lmc.IdLogistica_House
+          ) Qsc ON Qsc.IdLogistica_House = Lhs.IdLogistica_House
+      
+          LEFT OUTER JOIN(
+              SELECT
+                  Lft.IdLogistica_House,
+                  COUNT(Fnc.IdRegistro_Financeiro) AS Qtd_Fatura
+              FROM
+                  mov_Logistica_Fatura Lft
+              LEFT OUTER JOIN
+                  mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Lft.IdRegistro_Financeiro
+              WHERE
+                  Fnc.tipo = 1 --Fatura
+              GROUP BY
+                  Lft.IdLogistica_House
+          ) Qft ON Qft.IdLogistica_House = Lhs.IdLogistica_House
+      
+          LEFT OUTER JOIN (
+              SELECT
+                  Lft.IdLogistica_House,
+                  Count(Lft.IdRegistro_Financeiro) AS Qtd_SBaixa
+              FROM
+                  vis_Logistica_Fatura Lft
+              LEFT OUTER JOIN
+                  mov_Fatura_Financeira Ffn ON Ffn.IdRegistro_Financeiro = Lft.IdRegistro_Financeiro
+              WHERE
+                  Lft.Situacao = 1 -- EM ABERTO
+              GROUP BY
+                  Lft.IdLogistica_House
+          ) Qsb ON Qsb.IdLogistica_House = Lhs.IdLogistica_House
+      
+          -- Verifica se todas as faturas de PAGAMENTO estão quitadas ou não
+          LEFT OUTER JOIN (
+              SELECT
+                  Lft.IdLogistica_House,
+                  CASE
+                      WHEN COUNT(CASE WHEN Lft.Situacao = 1 /* FATURA ABERTAS */ AND Lft.Natureza = 0 /*DEBITO*/ THEN 1 END) > 0 THEN 'Fatura_Aberta'
+                      ELSE 'Quitado'
+                  END AS Status_Fatura
+              FROM
+                  vis_Logistica_Fatura Lft
+              GROUP BY
+                  Lft.IdLogistica_House
+          ) Fde ON Fde.IdLogistica_House = Lhs.IdLogistica_House
+      
+          -- Verifica se todas as faturas de RECEBIMENTO estão quitadas ou não
+          LEFT OUTER JOIN (
+              SELECT
+                  Lft.IdLogistica_House,
+                  CASE
+                      WHEN COUNT(CASE WHEN Lft.Situacao = 1 /* FATURA ABERTAS */ AND Lft.Natureza = 1 /*CREDITO*/ THEN 1 END) > 0 THEN 'Fatura_Aberta'
+                      ELSE 'Quitado'
+                  END AS Status_Fatura
+              FROM
+                  vis_Logistica_Fatura Lft
+              GROUP BY
+                  Lft.IdLogistica_House
+          ) Fcr ON Fcr.IdLogistica_House = Lhs.IdLogistica_House
+      
+          WHERE
+          Lhs.Situacao_Agenciamento NOT IN (7)
+              AND Lhs.Numero_Processo NOT LIKE '%test%'
+              AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
+              AND Lhs.Agenciamento_Carga = 1
+              AND YEAR(Lhs.Data_Abertura_Processo) >= 2022
+              AND Lmo.IdMoeda = 110
+      )
+      SELECT 
+          *
+      FROM 
+          CTE_Logistica
+      WHERE
         ModalidadeCodigo IN (${modalidade})
         ${comissaoVendedor}
         ${ComissaoInside}
@@ -260,6 +302,8 @@ const headcargo = {
         ${AgenteCodigo}
         ${Abertura_Processo}
         `
+
+        console.log(sql)
 
           
         const commissions = await executeQuerySQL(sql)
@@ -291,26 +335,45 @@ const headcargo = {
 
         let userComission = InsideID != "" ? value.InsideID : vendedorID != "" ? value.vendedorID : null
         let commissioned_type = InsideID != "" ? 2 : vendedorID != "" ? 1 : null
-        for (let index = 0; index < commissions.length; index++) {
-          const element = commissions[index];
-          const percentagemResult = await headcargo.getPercentagemComissionByHeadID(userComission, commissioned_type, element.Valor_Efetivo);
+
+        // comissão por processo 
+        // for (let index = 0; index < commissions.length; index++) {
+        //   const element = commissions[index];
+        //   const percentagemResult = await headcargo.getPercentagemComissionByHeadID(userComission, commissioned_type, element.Valor_Efetivo);
           
-          let percentagem = 0;
-          if (percentagemResult.status) {
-              percentagem = percentagemResult.percentage;
-          }
+        //   let percentagem = 0;
+        //   if (percentagemResult.status) {
+        //       percentagem = percentagemResult.percentage;
+        //   }
 
         
 
             
+        //     valor_Estimado_total += element.Valor_Estimado
+        //     valor_Comissao_total += element.Valor_Efetivo * (percentagem / 100)
+        //     valor_Efetivo_total += element.Valor_Efetivo
+        // }
+        // end comissão por processo 
+
+        // comissão por lucro total 
+        for (let index = 0; index < commissions.length; index++) {
+          const element = commissions[index];
+          
             valor_Estimado_total += element.Valor_Estimado
-            valor_Comissao_total += element.Valor_Efetivo * (percentagem / 100)
             valor_Efetivo_total += element.Valor_Efetivo
         }
 
+        const percentagemResult = await headcargo.getPercentagemComissionByHeadID(userComission, commissioned_type, valor_Efetivo_total);
+        let percentagem = 0;
+          if (percentagemResult.status) {
+              percentagem = percentagemResult.percentage;
+        }
+        valor_Comissao_total = valor_Efetivo_total * (percentagem / 100)
+      // end comissão por lucro total 
 
         const format = {
             "data": resultadosFormatados,
+            percentagem:percentagem,
             valor_Efetivo_total:(valor_Efetivo_total).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
             valor_Estimado_total:(valor_Estimado_total).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
             valor_Comissao_total:(valor_Comissao_total).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
@@ -495,7 +558,7 @@ const headcargo = {
         const responsiblesGenarate = await executeQuery(`SELECT users.*, 
         cllt.name as 'name', cllt.family_name as 'family_name' FROM users 
         JOIN collaborators cllt ON users.collaborator_id = cllt.id
-        WHERE users.id = ${user.userLog}`)
+        WHERE users.id = ${user.userLog}`);
    
         const nameGenerated = headcargo.formatarNome(responsiblesGenarate[0].name+' '+responsiblesGenarate[0].family_name)
         const createBody = await headcargo.createBodyHTMLComission(register.reference, templateHTML.title, templateHTML.html, nameGenerated, templateHTML.filterDates, templateHTML)
@@ -752,7 +815,7 @@ const headcargo = {
     
       const commissioned_type = type == 0 ? 1 : 2
         // assunto do email
-        const assunto = `[ConLine]- Pagamento Comissões`;
+        const assunto = `[DEV][ConLine]- Pagamento Comissões`;
 
         // formata a data apresentada no email
         const new_data_de = headcargo.formatDate(dateFilter.de)
@@ -876,8 +939,8 @@ const headcargo = {
 
         const mailOptions = {
             from: `Sirius OS <sirius@conline-news.com>`,
-            // to: `comissao-adm@conlinebr.com.br`,
-            to: `petryck.leite@conlinebr.com.br`,
+            to: `comissao-adm@conlinebr.com.br`,
+            // to: `petryck.leite@conlinebr.com.br`,
             subject: subject,
             html: CustomHTML
         };

@@ -206,8 +206,12 @@ async function submitCommission() {
 
     await selectUserComission(selectedValue, selectedText, typeSales); // Seleciona a comissão do usuário
 
+    
+    
+    document.querySelector('.percentagem_processo').textContent = dados.percentagem +'%';
+    document.querySelector('.total_profit_estimado').textContent = dados.valor_Estimado_total;
     document.querySelector('.total_profit').textContent = dados.valor_Efetivo_total; // Atualiza o total de lucro
-    document.querySelector('.quantidade_processo').textContent = dados.quantidade_processo; // Atualiza a quantidade de processos
+    // document.querySelector('.quantidade_processo').textContent = dados.quantidade_processo; // Atualiza a quantidade de processos
     document.querySelector('.valor_Comissao_total').textContent = dados.valor_Comissao_total; // Atualiza o valor total da comissão
 
     if ($.fn.DataTable.isDataTable('#table_commission_commercial')) {

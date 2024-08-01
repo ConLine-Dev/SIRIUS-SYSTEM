@@ -53,6 +53,9 @@ function renderModules(modules) {
         cardBodyDiv.classList.add('card-body');
 
         modules[category].forEach(module => {
+            if(!module.module_id){
+                return false
+            }
             // Cria o elemento de check
             const formCheckDiv = document.createElement('div');
             formCheckDiv.classList.add('form-check');
@@ -61,6 +64,7 @@ function renderModules(modules) {
             checkbox.classList.add('form-check-input');
             checkbox.type = 'checkbox';
             checkbox.checked = module.has_access;
+            console.log(module.module_title, module)
             checkbox.id = `checkbox-${module.module_title.replace(/\s+/g, '-')}`;
             checkbox.dataset.moduleId = module.module_id; // Adiciona o ID do módulo como data attribute
 

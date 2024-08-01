@@ -114,6 +114,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // carrega os usuarios departamentos
     await getAllDepartments();
 
+    // carrega a view 
     await getPassword(21);
 
     

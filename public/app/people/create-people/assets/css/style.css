@@ -102,3 +102,7 @@
 .mandatory {
    color: var(--primary-color) !important;
 }
+
+.choices__inner {
+   min-height: 41px !important;
+}

@@ -15,6 +15,7 @@ const api_people = require('./api-people');
 const api_moduleManagement = require('./api-module-management');
 const api_controlPassword = require('./api-control-password');
 const api_userManagement = require('./api-user-management');
+const api_collaboratorsRoutes = require('./collaborators-routes');
 
 
 
@@ -80,7 +81,10 @@ const setIO = (io) => {
   router.use('/control-password', api_controlPassword(io));
 
   // Use as rotas do arquivo api-user-management.js
-  router.use('/user-management', api_userManagement(io));
+  router.use('/collaborators-management', api_collaboratorsRoutes(io));
+
+
+  
  
 
   return router;

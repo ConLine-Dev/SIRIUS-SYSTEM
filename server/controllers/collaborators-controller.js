@@ -2,6 +2,16 @@
 const { executeQuery } = require('../connect/mysql');
 
 const collaboratorsController = {
+    getAllDepartments: async function(){
+        const query = `SELECT * FROM departments`;
+        const result = await executeQuery(query);
+        return result;
+    },
+    getAllContractType: async function(){
+        const query = `SELECT * FROM collaborators_contract_type`;
+        const result = await executeQuery(query);
+        return result;
+    },
     // CRUD para 'collaborators'
     createCollaborator: async function(collaborator) {
         const query = `INSERT INTO collaborators 
@@ -52,7 +62,23 @@ const collaboratorsController = {
     },
 
     getAllCollaborators: async function() {
-        const query = `SELECT * FROM collaborators`;
+        const query = `SELECT 
+        clt.*,
+        DATE_FORMAT(clt.admission_date, '%d/%m') AS admission_day_month,
+        CASE
+            WHEN TIMESTAMPDIFF(YEAR, clt.admission_date, CURDATE()) > 0 THEN 
+                CONCAT(TIMESTAMPDIFF(YEAR, clt.admission_date, CURDATE()), ' Anos')
+            WHEN TIMESTAMPDIFF(MONTH, clt.admission_date, CURDATE()) > 0 THEN 
+                CONCAT(TIMESTAMPDIFF(MONTH, clt.admission_date, CURDATE()), ' Meses')
+            ELSE 
+                CONCAT(TIMESTAMPDIFF(DAY, clt.admission_date, CURDATE()), ' Dias')
+        END AS time_with_company,
+        CONCAT(cmp.city, ' | ', cmp.country) as companie_name,
+        cnt.name as contract_name
+    FROM 
+        collaborators clt
+    LEFT JOIN companies cmp ON cmp.id = clt.companie_id
+    LEFT JOIN collaborators_contract_type cnt ON cnt.id = clt.contract_type`;
         const result = await executeQuery(query);
         return result;
     },

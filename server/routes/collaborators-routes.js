@@ -6,6 +6,26 @@ const collaboratorsController = require('../controllers/collaborators-controller
 
 module.exports = function (io) {
 
+ 
+    router.get('/getAllContractType', async (req, res) => {
+        try {
+            const ContractType = await collaboratorsController.getAllContractType();
+            res.status(200).json(ContractType);
+        } catch (error) {
+            res.status(500).json({ message: 'Erro ao buscar colaborador' });
+        }
+    });
+
+    
+    router.get('/getAllDepartments', async (req, res) => {
+        try {
+            const ContractType = await collaboratorsController.getAllDepartments();
+            res.status(200).json(ContractType);
+        } catch (error) {
+            res.status(500).json({ message: 'Erro ao buscar colaborador' });
+        }
+    });
+
     // CRUD para 'collaborators'
     router.post('/collaborators', async (req, res) => {
         try {

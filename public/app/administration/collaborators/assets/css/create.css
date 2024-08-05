@@ -1,0 +1,135 @@
+.headerButtons{
+    padding-bottom: 8px !important;
+    z-index: 100;
+    position: fixed !important;
+    top: -10px !important;
+    width: 100%;
+    color: var(--default-text-color);
+    background-color: var(--custom-white) !important;
+    padding: 1rem 1.25rem;
+    border-block-end: 3px solid var(--default-border);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .25rem;
+ }
+ 
+ .disabled{
+    background-color: light-dark(rgba(239, 239, 239, 0.3), rgba(19, 1, 1, 0.3)) !important;
+    color: light-dark(rgba(16, 16, 16, 0.3), rgba(255, 255, 255, 0.3)) !important;
+    border-color: transparent !important;
+    /* border-color: light-dark(rgba(118, 118, 118, 0.3), rgba(195, 195, 195, 0.3)) !important; */
+ }
+ 
+ .listFiles{
+    max-height: 347px;
+    min-height: 347px;
+    overflow-y: scroll !important;
+ }
+ 
+ 
+ .nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link.active {
+    /* color: auto !important; */
+    background-color: transparent !important;
+    /* border-color: auto !important; */
+ }
+ /* .active:hover {
+    border-color: var(--default-border) !important;
+ } */
+ 
+ 
+ 
+ .dropdown-menu{
+    width: 172px !important;
+ }
+ 
+ #loader2{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--custom-white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+ }
+ .page {
+    display: flex;
+    flex-direction: column;
+    justify-content: normal;
+    min-height: 100vh;
+ }
+ .icon-text-align i,
+ .icon-text-align span {
+        display: inline-block;
+        vertical-align: middle;
+ }
+ 
+ 
+ .inactive{
+    display: none;
+ }
+ 
+ .bodyWindows{
+    margin-top: 60px;
+    margin-bottom: -21px !important;
+ }
+ 
+ .block1Etapa, .block2Etapa{
+    cursor: pointer;
+ }
+ 
+ #loader2{
+    z-index: 9999999999;
+ }
+ 
+ .selectStatus select{
+    width: 100%;
+ }
+ .selectStatus .choices__list{
+    min-width: 221px;
+ }
+ 
+ .avatar {
+    width: auto;
+    height: 33px;
+ }
+ 
+ .mandatory {
+    color: var(--primary-color) !important;
+ }
+ 
+.center-text {
+   text-align: center;
+   display: block;
+   width: 100%;
+} 
+ 
+.choices__inner {
+   min-height: 41px !important;
+}
+
+.section {
+   margin-bottom: 2rem;
+   padding-bottom: 1rem;
+   border-bottom: 1px solid #ddd;
+}
+.section h3 {
+   margin-bottom: 1rem;
+   font-size: 1rem;
+   font-weight: 600;
+   color: #333;
+}
+
+
+.avatarProfile{
+   outline: .25rem solid rgba(0, 0, 0, .075);
+}
+
+
+
+.main-profile-cover {
+   background-image: none !important;
+}

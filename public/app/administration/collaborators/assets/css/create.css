@@ -73,7 +73,7 @@
  }
  
  .bodyWindows{
-    margin-top: 60px;
+    margin-top: 188px;
     margin-bottom: -21px !important;
  }
  
@@ -132,4 +132,17 @@
 
 .main-profile-cover {
    background-image: none !important;
+}
+
+.headProfiles{
+   position: fixed;
+   z-index: 18;
+   width: 102%;
+   top: 50px;
+   left: 0;
+}
+
+.headProfiles div {
+   
+   background-color: var(--primary-color);
 }

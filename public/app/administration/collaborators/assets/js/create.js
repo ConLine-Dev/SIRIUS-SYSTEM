@@ -156,7 +156,7 @@ async function eventInputProfile(){
      let fullName = document.querySelector('input[name="fullName"]');
      fullName.addEventListener("input", function (event) {
         if(this.value.trim() == ''){
-            document.querySelector('.textFullName').textContent = '-'
+            document.querySelector('.textFullName').innerHTML = '<br>'
         }else{
             document.querySelector('.textFullName').textContent = this.value
         }

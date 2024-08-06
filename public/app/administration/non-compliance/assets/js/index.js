@@ -69,9 +69,72 @@ async function listPendingOccurrences(){
     
 }
 
+async function generateCharts(data){
+    // carrega as unidades cadastradas (filiais)
+    const Units = await makeRequest(`/api/non-compliance/AllUnit`);
+    console.log(Units,data)
+   
+     // Dados para preencher os elementos
+     const occurrencesByUnit = await Promise.all(Units.map(async (unit) => {
+        // Filtra as ocorrências para a unidade atual
+        const unitOccurrences = data.filter(item => item.company_id === unit.id);
+        const total = unitOccurrences.length.toString().padStart(4, '0');
+        
+        // Retorna um objeto com os dados da unidade
+        return {
+            city: unit.city,
+            country: unit.country,
+            total: total
+        };
+    }));
+
+    // Preenche os elementos de ocorrências por unidade
+    const occurrencesContainer = document.querySelector('.bodyOccurrencePerUnit');
+    occurrencesContainer.innerHTML = '';
+    occurrencesByUnit.forEach(unit => {
+        const unitElement = `
+            <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                <div class="d-flex align-items-top">
+                    <div class="me-3"> <span class="avatar text-primary"> <i class="ti ti-files fs-18"></i> </span> </div>
+                    <div> <span class="d-block mb-1 text-muted">${unit.city} | ${unit.country}</span>
+                        <h6 class="fw-semibold mb-0">${unit.total}</h6> </div>
+                </div>
+            </div>
+        `;
+        occurrencesContainer.insertAdjacentHTML('beforeend', unitElement);
+    });
+
+      // Filtra ocorrências abertas neste mês
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+  
+      const openOccurrences = data.filter(item => {
+          const occurrenceDate = new Date(item.date_occurrence_noformat);
+          return occurrenceDate.getMonth() === currentMonth && 
+                 occurrenceDate.getFullYear() === currentYear;
+      }).length;
+
+
+      document.querySelector('.open-occurrences').textContent = openOccurrences.toString().padStart(openOccurrences.length >= 2 ? 4 : 2, '0');
+      
+
+     await occurrencesStatusChart(data)
+     await occurrencesTypeChart(data)
+
+   
+}   
+
+// Função fictícia para calcular o tempo médio de resolução
+function calculateAverageResolutionTime(data) {
+    // Calcule o tempo médio de resolução com base nos dados
+    return (data.reduce((acc, item) => acc + item.resolutionTime, 0) / data.length).toFixed(1);
+}
+
 async function listAllOccurrences(){
     // Fazer a requisição à API
     const dados = await makeRequest(`/api/non-compliance/AllOccurrence`);
+
+    await generateCharts(dados)
 
     // Destruir a tabela existente, se houver
     if ($.fn.DataTable.isDataTable('#all_occurrences_table')) {
@@ -114,85 +177,26 @@ async function listAllOccurrences(){
             });
         },
     });
-
     
 }
 
-async function occurrencesStatusChart(){
-/* Jobs Summary chart */
-var options = {
-    series: [5, 24],
-    labels: ["Andamento", "Finalizadas"],
-    chart: {
-        height: 250,
-        type: 'donut',
-    },
-    dataLabels: {
-        enabled: false,
-    },
+async function occurrencesStatusChart(data) {
+    // Calcula a quantidade de ocorrências finalizadas e em andamento
+    const finishOccurrences = data.filter(item => item.statusID === 7).length;
+    const progressOccurrences = data.filter(item => item.statusID !== 7).length;
 
-    legend: {
-        show: false,
-    },
-    stroke: {
-        show: true,
-        curve: 'smooth',
-        lineCap: 'round',
-        colors: "#fff",
-        width: 0,
-        dashArray: 0,
-    },
-    plotOptions: {
+    // Calcula o total de ocorrências para obter as porcentagens
+    const totalOccurrences = finishOccurrences + progressOccurrences;
 
-        pie: {
-            expandOnClick: false,
-            donut: {
-                size: '70%',
-                background: 'transparent',
-                labels: {
-                    show: true,
-                    name: {
-                        show: true,
-                        fontSize: '20px',
-                        color: '#495057',
-                        offsetY: -4
-                    },
-                    value: {
-                        show: true,
-                        fontSize: '18px',
-                        color: undefined,
-                        offsetY: 8,
-                        formatter: function (val) {
-                            return val + "%"
-                        }
-                    },
-                    total: {
-                        show: true,
-                        showAlways: true,
-                        label: 'Total',
-                        fontSize: '22px',
-                        fontWeight: 600,
-                        color: '#495057',
-                    }
+    // Verifica se o total de ocorrências não é zero para evitar divisão por zero
+    const finishedPercentage = totalOccurrences ? (finishOccurrences / totalOccurrences * 100) : 0;
+    const progressPercentage = totalOccurrences ? (progressOccurrences / totalOccurrences * 100) : 0;
 
-                }
-            }
-        }
-    },
-    colors: ["rgb(132, 90, 223)", "rgba(132, 90, 223, 0.7)", "rgba(132, 90, 223,0.4)", "rgb(243, 246, 248)"],
-};
+    document.querySelector('.finishedPercentage').textContent = finishedPercentage+'%'
+    document.querySelector('.progressPercentage').textContent = progressPercentage+'%'
 
-document.querySelector("#occurrencesStatusChart").innerHTML = " ";
-var chart = new ApexCharts(document.querySelector("#occurrencesStatusChart"), options);
-chart.render();
-
-/* Jobs Summary chart */
-}
-
-async function occurrencesTypeChart(){
-    /* Jobs Summary chart */
     var options = {
-        series: [4, 32],
+        series: [progressOccurrences, finishOccurrences],
         labels: ["Andamento", "Finalizadas"],
         chart: {
             height: 250,
@@ -201,7 +205,6 @@ async function occurrencesTypeChart(){
         dataLabels: {
             enabled: false,
         },
-    
         legend: {
             show: false,
         },
@@ -214,7 +217,90 @@ async function occurrencesTypeChart(){
             dashArray: 0,
         },
         plotOptions: {
-    
+            pie: {
+                expandOnClick: false,
+                donut: {
+                    size: '70%',
+                    background: 'transparent',
+                    labels: {
+                        show: true,
+                        name: {
+                            show: true,
+                            fontSize: '20px',
+                            color: '#495057',
+                            offsetY: -4
+                        },
+                        value: {
+                            show: true,
+                            fontSize: '18px',
+                            color: '#495080',
+                            offsetY: 8,
+                            formatter: function (val) {
+                                return val + "%"
+                            }
+                        },
+                        total: {
+                            show: true,
+                            showAlways: true,
+                            label: 'Total',
+                            fontSize: '22px',
+                            fontWeight: 600,
+                            color: '#495057',
+                            formatter: function (w) {
+                                return totalOccurrences.toString();
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        colors: ["rgb(132, 90, 223)", "rgba(132, 90, 223, 0.7)", "rgba(132, 90, 223,0.4)", "rgb(243, 246, 248)"],
+    };
+
+    document.querySelector("#occurrencesStatusChart").innerHTML = " ";
+    var chart = new ApexCharts(document.querySelector("#occurrencesStatusChart"), options);
+    chart.render();
+}
+
+async function occurrencesTypeChart(data) {
+    const AllTypes = await makeRequest(`/api/non-compliance/AllTypes`);
+
+    // Contagem de tipos
+    const typeCounts = AllTypes.reduce((acc, type) => {
+        acc[type.name] = data.filter(occurrence => occurrence.typeID === type.id).length;
+        return acc;
+    }, {});
+
+    // Calcular porcentagens
+    const totalOccurrences = data.length;
+    const typePercentages = Object.entries(typeCounts).map(([name, count]) => ({
+        name,
+        percentage: ((count / totalOccurrences) * 100)
+    }));
+
+    // Configurações do gráfico
+    const options = {
+        series: typePercentages.map(type => parseFloat(type.percentage)),
+        labels: typePercentages.map(type => type.name),
+        chart: {
+            height: 250,
+            type: 'donut',
+        },
+        dataLabels: {
+            enabled: false,
+        },
+        legend: {
+            show: false,
+        },
+        stroke: {
+            show: true,
+            curve: 'smooth',
+            lineCap: 'round',
+            colors: "#fff",
+            width: 0,
+            dashArray: 0,
+        },
+        plotOptions: {
             pie: {
                 expandOnClick: false,
                 donut: {
@@ -245,26 +331,55 @@ async function occurrencesTypeChart(){
                             fontWeight: 600,
                             color: '#495057',
                         }
-    
                     }
                 }
             }
         },
         colors: ["rgb(132, 90, 223)", "rgba(132, 90, 223, 0.7)", "rgba(132, 90, 223,0.4)", "rgb(243, 246, 248)"],
     };
-    
-    document.querySelector("#occurrencesTypeChart").innerHTML = " ";
+
+    // Renderizar gráfico
+    document.querySelector("#occurrencesTypeChart").innerHTML = "";
     var chart = new ApexCharts(document.querySelector("#occurrencesTypeChart"), options);
     chart.render();
-    
-    /* Jobs Summary chart */
+
+    // Atualizar HTML com tipos e porcentagens
+    const footerContainer = document.querySelector(".footerOccurencePerType");
+    footerContainer.innerHTML = typePercentages.map(type => `
+        <div class="col pe-0 text-center">
+            <div class="p-sm-3 p-2">
+                <span class="text-muted fs-11">${type.name}</span>
+                <span class="d-block fs-16 fw-semibold">${type.percentage}%</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Chamar a função occurrencesTypeChart com os dados necessários
+// occurrencesTypeChart(data);
+
+async function generateActionsMetrics(data){
+    console.log(data)
+    document.querySelector('.ActionsMetrics').textContent = (data.length).toString().padStart(2, '0');
+
+    let actionsPendents = 0
+    for (let index = 0; index < data.length; index++) {
+        const element = data[index];
+
+        if(element.statusID != 3){
+            actionsPendents++
+        }
+        
+    }
+
+    document.querySelector('.ActionsPendents').textContent = actionsPendents.toString().padStart(2, '0');
 }
     
 
 async function listAllActions(){
     // Fazer a requisição à API
     const dados = await makeRequest(`/api/non-compliance/get-actions-pendents`);
-
+    await generateActionsMetrics(dados)
     let actonsHTML = '';
     for (let index = 0; index < dados.length; index++) {
         const element = dados[index];
@@ -405,16 +520,18 @@ async function dblClickOnAction(){
 }
 
 window.addEventListener("load", async () => {
-  
+    // inicio da função verificar tempo de carregamento da pagina e suas consultas no banco
+    console.time(`A página "${document.title}" carregou em`)
+
     await listPendingOccurrences();
     await listAllOccurrences();
     await Events()
     await listAllActions()
-    await occurrencesStatusChart()
-    await occurrencesTypeChart()
     
 
 
     document.querySelector('#loader2').classList.add('d-none')
+    // fim da função verificar tempo de carregamento da pagina e suas consultas no banco
+    console.timeEnd(`A página "${document.title}" carregou em`);
 })
 

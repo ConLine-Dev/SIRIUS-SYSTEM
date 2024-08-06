@@ -303,9 +303,11 @@ const non_compliance = {
             o.id,
             LEFT(o.title, 100) as title,
             o.status,
+            o.company_id,
             o.reference,
             LEFT(o.description, 100) AS description,
             ot.name AS type,
+            ot.id AS typeID,
             o.occurrence_date AS date_occurrence
         FROM 
             occurrences o
@@ -341,22 +343,26 @@ const non_compliance = {
 
 
         return {
-            ...item, // mantém todas as propriedades existentes
-            title:`<span style="display: inline-block; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-            ${item.title}</span>`,
-            editing:item.editing,
-            id:item.id,
-            status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,
-            reference: `<span class="text-success fw-semibold">#${item.reference}</span>`,
-            responsibles: `<div class="avatar-list-stacked">${users}</div>`,
-            date_occurrence: `<span class="icon-text-align">
-                <i class="las la-calendar-alt fs-5"></i> ${non_compliance.formatDate(item.date_occurrence)}
-            </span>`,
-            description: `<span style="display: inline-block; max-width: 281px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-            ${item.description}</span>`,
-            type: item.type,
-            action:actions
-        };
+                ...item, // mantém todas as propriedades existentes
+                title:`<span style="display: inline-block; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                ${item.title}</span>`,
+                editing:item.editing,
+                company_id:item.company_id,
+                id:item.id,
+                statusID:parseInt(item.status),
+                status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,
+                reference: `<span class="text-success fw-semibold">#${item.reference}</span>`,
+                responsibles: `<div class="avatar-list-stacked">${users}</div>`,
+                date_occurrence_noformat:item.date_occurrence,
+                date_occurrence: `<span class="icon-text-align">
+                    <i class="las la-calendar-alt fs-5"></i> ${non_compliance.formatDate(item.date_occurrence)}
+                </span>`,
+                description: `<span style="display: inline-block; max-width: 281px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                ${item.description}</span>`,
+                type: item.type,
+                typeID:item.typeID,
+                action:actions
+            };
         }));
             
 

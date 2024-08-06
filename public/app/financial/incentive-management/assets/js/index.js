@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const worksheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
         await resetAndChangeHeaderTable(changeHeaderTableSecurity);
-        populateTableSecurity(json);
+        await populateTableSecurity(json);
       };
       reader.readAsArrayBuffer(file.file);
     } else {
@@ -149,10 +149,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       <th>Documento</th>
       <th>Data Embarque</th>
       <th>Valor TI</th>
+      <th>Valor Sistema</th>
+      <th>Status Valor</th>
+      <th>Status</th>
+      <th>Status Fatura</th>
       <th>Observação</th>
     </tr>`;
     document.querySelector('#incentive_management_table thead').innerHTML = header;
   }
+
   
   /**
    * Muda o cabeçalho da tabela de comissão.
@@ -177,6 +182,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
   }
   
+
+    /**
+   * Formata um valor numérico para o formato de moeda brasileira.
+   * @param {number} value - Valor numérico a ser formatado.
+   * @returns {string} Valor formatado em moeda brasileira (R$).
+   */
+    function formatToUSD(value) {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'USD' }).format(value);
+    }
+
+
   /**
    * Preenche a tabela de comissão com os dados fornecidos.
    * @param {Array<Array<string|number>>} data - Dados a serem populados na tabela.
@@ -209,12 +225,65 @@ document.addEventListener("DOMContentLoaded", async () => {
    * Preenche a tabela de segurança com os dados fornecidos.
    * @param {Array<Array<string|number>>} data - Dados a serem populados na tabela.
    */
-  function populateTableSecurity(data) {
+  async function populateTableSecurity(data) {
+
+    const securityData = await makeRequest('/api/incentive-management/getAllSecurity');
+    console.log(securityData)
+    // Array para armazenar os novos dados
+    const newData = [];
+    
+    data.slice(7).forEach(row => {
+      if (row.some(cell => cell !== undefined && cell !== '')) {
+        if (row[10] !== undefined && row[10] !== '') {
+
+      
+          const matchingSecurity = securityData.find(security => security.Numero_Processo == row[1] || security.Conhecimentos == row[1]); // Substitua `someProperty` pela propriedade que deseja comparar
+          
+          
+          if (matchingSecurity) {
+            newData.push({
+              document: row[1] || '',
+              data_embarque: excelDateToJSDate(row[5]) || '',
+              valor_ti: formatToUSD(parseFloat(row[10])) || '',
+              observation: row[16] || '',
+              status: '<span class="text-success">Processo encontrado</span>',
+              Status_Fatura:'<span class="badge bg-success-transparent">'+matchingSecurity.Status_Fatura+'</span>',
+              statusValor: row[10] == matchingSecurity.Valor_Pagamento_Total ? '<span class="text-success">Valores Iguais</span>' : '<span class="text-danger">Valores divergentes</span>',
+              valorSistema: formatToUSD(parseFloat(matchingSecurity.Valor_Pagamento_Total)),
+            });
+          }else{
+            newData.push({
+              document: row[1] || '',
+              data_embarque: excelDateToJSDate(row[5]) || '',
+              valor_ti: formatToUSD(parseFloat(row[10])) || '',
+              observation: row[16] || '',
+              status: '<span class="text-danger">Processo não encontrado</span>',
+              Status_Fatura:'<span class="badge bg-danger-transparent">-</span>',
+              statusValor: '<span class="text-danger">Valor não encontrado</span>',
+              valorSistema: '-',
+            });
+          }
+        }
+      }
+    });
+ 
+
     const table = $('#incentive_management_table').DataTable({
       dom: 'Bfrtip',
       pageInfo: false,
-      pageLength: 10,
+      pageLength: 15,
+      data: newData,
       bInfo: false,
+      columns: [
+        { data: 'document' },
+        { data: 'data_embarque' },
+        { data: 'valor_ti' },
+        { data: 'valorSistema' },
+        { data: 'statusValor' },
+        { data: 'status' },
+        { data: 'Status_Fatura' },
+        { data: 'observation' }, 
+    ],
       buttons: [
         'excel', 'pdf'
       ],
@@ -223,19 +292,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         searchPlaceholder: 'Pesquisar...',
       },
     });
-    table.clear().draw();
-  
-    data.slice(7).forEach(row => {
-      if (row.some(cell => cell !== undefined && cell !== '')) {
-        if (row[10] !== undefined && row[10] !== '') {
-          table.row.add([
-            row[1] || '',
-            excelDateToJSDate(row[5]) || '',
-            formatToBRL(parseFloat(row[10])) || '',
-            row[16] || ''
-          ]).draw(false);
-        }
-      }
-    });
+
   }
   

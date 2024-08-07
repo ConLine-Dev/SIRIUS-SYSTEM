@@ -147,7 +147,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function changeHeaderTableSecurity() {
     const header = `<tr>
       <th>Documento</th>
-      <th>Data Embarque</th>
       <th>Valor TI</th>
       <th>Valor Sistema</th>
       <th>Status Valor</th>
@@ -193,6 +192,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 
+        /**
+   * Formata um valor numérico para o formato de moeda brasileira.
+   * @param {number} value - Valor numérico a ser formatado.
+   * @returns {string} Valor formatado em moeda brasileira (R$).
+   */
+    function formatToMoney(value, money) {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: money }).format(value);
+    }
+
+
   /**
    * Preenche a tabela de comissão com os dados fornecidos.
    * @param {Array<Array<string|number>>} data - Dados a serem populados na tabela.
@@ -235,30 +244,45 @@ document.addEventListener("DOMContentLoaded", async () => {
     data.slice(7).forEach(row => {
       if (row.some(cell => cell !== undefined && cell !== '')) {
         if (row[10] !== undefined && row[10] !== '') {
-
-      
-          const matchingSecurity = securityData.find(security => security.Numero_Processo == row[1] || security.Conhecimentos == row[1]); // Substitua `someProperty` pela propriedade que deseja comparar
-          
-          
+    
+          const rowObservation = row[17] || '';
+    
+          const matchingSecurity = securityData.find(security => 
+            security.Numero_Processo == row[1] || 
+            security.Conhecimentos == row[1] || 
+            (rowObservation && rowObservation.includes(security.Conhecimentos)) || 
+            (rowObservation && rowObservation.includes(security.Numero_Processo))
+          );
+    
           if (matchingSecurity) {
+            let statusValor = '-';
+            if (row[10] == matchingSecurity.Valor_Pagamento_Total) {
+              statusValor = '<span class="text-success">Valores Iguais</span>';
+              if (matchingSecurity.IdMoeda_Pagamento != 31) {
+                statusValor = '<span class="text-danger">Moeda divergentes</span>';
+              }
+            } else {
+              statusValor = '<span class="text-danger">Valores divergentes</span>';
+            }
+    
             newData.push({
               document: row[1] || '',
               data_embarque: excelDateToJSDate(row[5]) || '',
               valor_ti: formatToUSD(parseFloat(row[10])) || '',
-              observation: row[16] || '',
+              observation: rowObservation,
               status: '<span class="text-success">Processo encontrado</span>',
-              Status_Fatura:'<span class="badge bg-success-transparent">'+matchingSecurity.Status_Fatura+'</span>',
-              statusValor: row[10] == matchingSecurity.Valor_Pagamento_Total ? '<span class="text-success">Valores Iguais</span>' : '<span class="text-danger">Valores divergentes</span>',
-              valorSistema: formatToUSD(parseFloat(matchingSecurity.Valor_Pagamento_Total)),
+              Status_Fatura: '<span class="badge bg-success-transparent">' + matchingSecurity.Status_Fatura + '</span>',
+              statusValor: statusValor,
+              valorSistema: formatToMoney(parseFloat(matchingSecurity.Valor_Pagamento_Total), matchingSecurity.Sigla),
             });
-          }else{
+          } else {
             newData.push({
               document: row[1] || '',
               data_embarque: excelDateToJSDate(row[5]) || '',
               valor_ti: formatToUSD(parseFloat(row[10])) || '',
-              observation: row[16] || '',
+              observation: rowObservation,
               status: '<span class="text-danger">Processo não encontrado</span>',
-              Status_Fatura:'<span class="badge bg-danger-transparent">-</span>',
+              Status_Fatura: '<span class="badge bg-danger-transparent">-</span>',
               statusValor: '<span class="text-danger">Valor não encontrado</span>',
               valorSistema: '-',
             });
@@ -276,7 +300,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       bInfo: false,
       columns: [
         { data: 'document' },
-        { data: 'data_embarque' },
         { data: 'valor_ti' },
         { data: 'valorSistema' },
         { data: 'statusValor' },

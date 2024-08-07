@@ -18,6 +18,7 @@ const incentiveManagement = {
         Lhs.Numero_Processo,
         CAST(Lhs.Conhecimentos AS VARCHAR(MAX)) AS Conhecimentos,
         Fts.IdMoeda_Pagamento,
+        Moe.Sigla,
         Fts.Valor_Pagamento_Total,
         CASE 
             WHEN COUNT(Ltx.IdLogistica_Taxa) > 1 THEN 'FATURA COM MAIS DE UMA TAXA'
@@ -34,12 +35,15 @@ const incentiveManagement = {
         mov_Logistica_Taxa Ltx ON Ltx.IdRegistro_Pagamento = Reg.IdRegistro_Financeiro
     JOIN
         FaturasComTaxaSeguro Fts ON Fts.IdRegistro_Financeiro = Reg.IdRegistro_Financeiro
+    JOIN
+        cad_Moeda Moe ON Moe.IdMoeda = Ltx.IdMoeda_Pagamento
     WHERE
         YEAR(Lhs.Data_Abertura_Processo) >= 2024
     GROUP BY
         Lhs.Numero_Processo,
         CAST(Lhs.Conhecimentos AS VARCHAR(MAX)),
         Fts.IdMoeda_Pagamento,
+        Moe.Sigla,
         Fts.Valor_Pagamento_Total`);
 
 

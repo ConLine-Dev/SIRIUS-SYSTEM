@@ -42,11 +42,22 @@ async function generateTable() {
     });
 }
 
+// Funçao para cadastrar nova senha no botao 'Novo'
 function registerPassword() {
 
 
     const body = {
         url: '/app/administration/control-password/create'
+    }
+    window.ipcRenderer.invoke('open-exWindow', body);
+}
+
+// Funçao para cadastrar nova senha no botao 'Novo'
+function viewPassword() {
+
+
+    const body = {
+        url: '/app/administration/control-password/view'
     }
     window.ipcRenderer.invoke('open-exWindow', body);
 }

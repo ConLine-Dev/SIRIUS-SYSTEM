@@ -4,11 +4,13 @@
  */
 document.addEventListener("DOMContentLoaded", async () => {
     await createElements(); // Inicializa os elementos do FilePond
-    document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
+
     
     // Configura os eventos de clique nos botões de comparação
     document.querySelector('#startComparison-security').addEventListener('click', handleFileSecurity);
     document.querySelector('#startComparison-comission').addEventListener('click', handleFileComission);
+
+    document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
   });
   
   /**
@@ -153,6 +155,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       <th>Status</th>
       <th>Status Fatura</th>
       <th>Observação</th>
+      <th>Ações</th>
     </tr>`;
     document.querySelector('#incentive_management_table thead').innerHTML = header;
   }
@@ -274,6 +277,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               Status_Fatura: '<span class="badge bg-success-transparent">' + matchingSecurity.Status_Fatura + '</span>',
               statusValor: statusValor,
               valorSistema: formatToMoney(parseFloat(matchingSecurity.Valor_Pagamento_Total), matchingSecurity.Sigla),
+              actions: '<button class="btn btn-primary-light btn-icon ms-1 btn-sm task-delete-btn" title="Finalizar Fatura" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Finalizar Fatura"><i class="ri-lock-2-line"></i></button>'
             });
           } else {
             newData.push({
@@ -285,6 +289,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               Status_Fatura: '<span class="badge bg-danger-transparent">-</span>',
               statusValor: '<span class="text-danger">Valor não encontrado</span>',
               valorSistema: '-',
+              actions: '<button disabled class="btn btn-primary-light btn-icon ms-1 btn-sm task-delete-btn" title="Processo não encontrado" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Finalizar Fatura"><i class="ri-lock-2-line"></i></button>'
             });
           }
         }
@@ -306,6 +311,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         { data: 'status' },
         { data: 'Status_Fatura' },
         { data: 'observation' }, 
+        { data: 'actions' }, 
     ],
       buttons: [
         'excel', 'pdf'
@@ -315,6 +321,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         searchPlaceholder: 'Pesquisar...',
       },
     });
+
+
+
 
   }
   

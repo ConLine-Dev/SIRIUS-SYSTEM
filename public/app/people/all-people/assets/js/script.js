@@ -316,6 +316,10 @@ async function listPeople(data) {
 
         const cnpjCpfFormated = formatCnpjCpfString(item.people.cnpj_cpf);
 
+        const haveCommertial = item.people.commercial === '' || null ? `<a style="opacity: 0;">Comercial: <span class="io-people-commercial"></span></a>` : `<a>Comercial: <span class="io-people-commercial">${item.people.commercial}</span></a>`
+
+        const haveResponsable = item.people.collaborator_responsable === '' || null ? `<a style="opacity: 0;">Funcionário Responsável: <span class="io-people-responsable">${item.people.collaborator_responsable}</span></a>` : `<a>Funcionário Responsável: <span class="io-people-responsable">${item.people.collaborator_responsable}</span></a>`
+
         html += `<div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 shadow-sm list-group-item-action py-3" style="cursor: pointer;" data-people-id="${item.people.id}" ondblclick="openPeople(${item.people.id})"> 
                         <div class="card-body">
                             <span class="io-people-status">${status}</span>
@@ -324,9 +328,9 @@ async function listPeople(data) {
                                     <h5 class="fw-semibold mb-0 d-flex align-items-center">
                                         <a class="io-people-fantasy-name">${item.people.fantasy_name}</a>
                                     </h5> 
-                                    <a>Comercial: <span class="io-people-commercial">${item.people.commercial}</span></a>
+                                    ${haveCommertial}
                                     <br>
-                                    <a>Funcionário Responsável: <span class="io-people-responsable">${item.people.collaborator_responsable}</span></a>
+                                    ${haveResponsable}
                                 </div>
                             </div>
                             <div class="popular-tags"> 

@@ -216,11 +216,14 @@ const People = {
    updateGetPeople: async function(body) {
       const formBody = body;
 
+      let cpf_cnpj = formBody.cnpjCpf === '' ? null : formBody.cnpjCpf
+
       // Função para atualizar os dados do usuario
       let update = await executeQuery(
          `UPDATE 
             people
          SET 
+            cnpj_cpf = ?,
             fantasy_name = ?,
             people_status_id = ?,
             collaborators_commercial_id = ?,
@@ -231,11 +234,13 @@ const People = {
             neighborhood = ?,
             city_id = ?,
             state_id = ?,
-            country_id = ?
+            country_id = ?,
+            international = ?
          WHERE
             id = ?`, 
 
             [
+               cpf_cnpj,
                formBody.fantasia,
                formBody.peopleStatus,
                formBody.commercial,
@@ -247,6 +252,7 @@ const People = {
                formBody.city,
                formBody.state,
                formBody.country,
+               formBody.international,
                formBody.peopleId
             ]
       )
@@ -325,8 +331,9 @@ const People = {
             neighborhood,
             city_id,
             state_id,
-            country_id
-         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
+            country_id,
+            international
+         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
 
          [
             formBody.peopleStatus,
@@ -343,7 +350,8 @@ const People = {
             formBody.neighborhood,
             formBody.city,
             formBody.state,
-            formBody.country
+            formBody.country,
+            formBody.international
          ]
       )
 

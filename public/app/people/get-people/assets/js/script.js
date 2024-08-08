@@ -611,8 +611,9 @@ async function insertDataOnInputs(data) {
    const input_street = document.getElementById('input-street');
    const input_complement = document.getElementById('input-complement');
    const input_neighborhood = document.getElementById('input-neighborhood');
+   const checkbox_international = document.getElementById('input-checkbox-international');
 
-   input_cnpj_cpf.value = formatCnpjCpfInput(data.cnpj_cpf);
+   input_cnpj_cpf.value = data.cnpj_cpf === null ? '' : formatCnpjCpfInput(data.cnpj_cpf);
    input_razao_social.value = data.name;
    input_fantasia.value = data.fantasy_name;
    input_inscricao_estadual.value = data.state_registration;
@@ -620,6 +621,7 @@ async function insertDataOnInputs(data) {
    input_street.value = data.street;
    input_complement.value = data.complement;
    input_neighborhood.value = data.neighborhood;
+   checkbox_international.checked = data.international === 1 ? true : false;
 };
 
 // Função para formatar o CEP
@@ -651,13 +653,19 @@ async function getPeopleInfo() {
 
 // Função para verificar se os campos estão preenchidos
 async function getValuesFromInputs() {
+   const isInternation = document.getElementById('input-checkbox-international').checked;
+
    // Array com os names dos inputs que não devem ficar em branco e suas mensagens personalizadas
-   const requiredInputFields = [
+   let requiredInputFields = [
       { name: 'input-cnpj-cpf', message: 'O campo CPF/CNPJ é obrigatório.' },
       { name: 'input-razao-social', message: 'O campo TAZÃO SOCIAL é obrigatório.' },
       { name: 'input-fantasia', message: 'O campo NOME FANTASIA é obrigatório.' },
       { name: 'input-cep', message: 'O campo CEP é obrigatório.' },
    ];
+
+   if (isInternation) {
+      requiredInputFields = requiredInputFields.filter(field => field.name !== 'input-cnpj-cpf' && field.name !== 'input-cep');
+   }
 
    const elements = document.querySelectorAll('.form-control[name]');
    let allValid = true;
@@ -696,14 +704,20 @@ async function getSelectValues(selectName) {
 
 // Função para verificar se os selects estão preenchidos
 async function getValuesFromSelects() {
+   const isInternation = document.getElementById('input-checkbox-international').checked;
    // Array com os names dos selects que não devem ficar em branco e suas mensagens personalizadas
-   const selectNames = [
+   let selectNames = [
       { name: 'typePeople', message: 'O campo TIPO PESSOA é obrigatório.' },
       { name: 'selectPeopleCategory', message: 'O campo CATEGORIA PESSOA é obrigatório.' },
       { name: 'selectCity', message: 'O campo CIDADE é obrigatório.' },
       { name: 'selectState', message: 'O campo ESTADO é obrigatório.' },
       { name: 'selectCountry', message: 'O campo PAÍS é obrigatório.' },
    ];
+
+   if (isInternation) {
+      selectNames = selectNames.filter(field => field.name !== 'selectState');
+   }
+
    let allValid = true;
 
    for (let i = 0; i < selectNames.length; i++) {
@@ -721,6 +735,31 @@ async function getValuesFromSelects() {
 
 // Função que armazena todos os click na tela
 async function eventClick() {
+   // ========== INPUT CHECKBOX INTERNACIONAL ========== //
+   const checkbox_international = document.getElementById('input-checkbox-international');
+   const cpf_cnpj = document.getElementById('input-cnpj-cpf');
+   const input_razao_social = document.getElementById('input-razao-social');
+   const fields_required = document.querySelectorAll('.required')
+
+   checkbox_international.addEventListener('change', function() {
+      if (checkbox_international && checkbox_international.checked) {
+         cpf_cnpj.disabled = true;
+         cpf_cnpj.value = '';
+         input_razao_social.disabled = false;
+
+         fields_required.forEach(item => {
+            item.classList.add('d-none')
+         });
+      } else {
+         cpf_cnpj.disabled = false;
+         input_razao_social.disabled = true;
+         fields_required.forEach(item => {
+            item.classList.remove('d-none')
+         });
+      }
+   })
+   // ========== / INPUT CHECKBOX INTERNACIONAL ========== //
+
    // ========== INPUT CEP ========== //
    document.getElementById('input-cep').addEventListener('input', async function () {
       const cep = this.value.replace(/\D/g, '');
@@ -767,6 +806,7 @@ async function eventClick() {
       const street = await formatarNome(document.getElementById('input-street').value)
       const complement = await formatarNome(document.getElementById('input-complement').value)
       const neighborhood = await formatarNome(document.getElementById('input-neighborhood').value)
+      const inputCheckbox = await document.getElementById('input-checkbox-international').checked;
 
       formBody.selectPeopleType = await getSelectPeopleType();
       formBody.cnpjCpf = document.getElementById('input-cnpj-cpf').value.replace(/\D/g, '');
@@ -784,6 +824,7 @@ async function eventClick() {
       formBody.city = await getSelectCity();
       formBody.state = await getSelectState();
       formBody.country = await getSelectCountry();
+      formBody.international = inputCheckbox === true ? 1 : 0;
       formBody.peopleId = await getPeopleInfo();
 
       const inputsValid = await getValuesFromInputs();

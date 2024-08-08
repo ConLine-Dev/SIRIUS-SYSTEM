@@ -638,13 +638,19 @@ async function checkCompanyExistence(getPeopleByCNPJ) {
 
 // Função para verificar se os campos estão preenchidos
 async function getValuesFromInputs() {
+   const isInternation = document.getElementById('input-checkbox-international').checked;
+
    // Array com os names dos inputs que não devem ficar em branco e suas mensagens personalizadas
-   const requiredInputFields = [
+   let requiredInputFields = [
       { name: 'input-cnpj-cpf', message: 'O campo CPF/CNPJ é obrigatório.' },
       { name: 'input-razao-social', message: 'O campo TAZÃO SOCIAL é obrigatório.' },
       { name: 'input-fantasia', message: 'O campo NOME FANTASIA é obrigatório.' },
       { name: 'input-cep', message: 'O campo CEP é obrigatório.' },
    ];
+
+   if (isInternation) {
+      requiredInputFields = requiredInputFields.filter(field => field.name !== 'input-cnpj-cpf' && field.name !== 'input-cep');
+   }
 
    const elements = document.querySelectorAll('.form-control[name]');
    let allValid = true;
@@ -683,14 +689,20 @@ async function getSelectValues(selectName) {
 
 // Função para verificar se os selects estão preenchidos
 async function getValuesFromSelects() {
+   const isInternation = document.getElementById('input-checkbox-international').checked;
    // Array com os names dos selects que não devem ficar em branco e suas mensagens personalizadas
-   const selectNames = [
+   let selectNames = [
       { name: 'typePeople', message: 'O campo TIPO PESSOA é obrigatório.' },
       { name: 'selectPeopleCategory', message: 'O campo CATEGORIA PESSOA é obrigatório.' },
       { name: 'selectCity', message: 'O campo CIDADE é obrigatório.' },
       { name: 'selectState', message: 'O campo ESTADO é obrigatório.' },
       { name: 'selectCountry', message: 'O campo PAÍS é obrigatório.' },
    ];
+
+   if (isInternation) {
+      selectNames = selectNames.filter(field => field.name !== 'selectState');
+   }
+
    let allValid = true;
 
    for (let i = 0; i < selectNames.length; i++) {
@@ -768,6 +780,7 @@ async function eventClick() {
       const street = await formatarNome(document.getElementById('input-street').value)
       const complement = await formatarNome(document.getElementById('input-complement').value)
       const neighborhood = await formatarNome(document.getElementById('input-neighborhood').value)
+      const inputCheckbox = await document.getElementById('input-checkbox-international').checked;
 
       formBody.selectPeopleType = await getSelectPeopleType();
       formBody.cnpjCpf = document.getElementById('input-cnpj-cpf').value.replace(/\D/g, '');
@@ -785,6 +798,7 @@ async function eventClick() {
       formBody.city = await getSelectCity();
       formBody.state = await getSelectState();
       formBody.country = await getSelectCountry();
+      formBody.international = inputCheckbox === true ? 1 : 0;
       
       const inputsValid = await getValuesFromInputs();
       const selectsValid = await getValuesFromSelects();

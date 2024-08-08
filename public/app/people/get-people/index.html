@@ -65,6 +65,10 @@
                      <!-- DADOS PESSOAIS -->
                      <div class="card-header justify-content-between">
                         <div class="card-title"> Dados </div>
+                        <div style="display: flex; align-items: center;">
+                           <input type="checkbox" id="input-checkbox-international">
+                           <label for="input-checkbox-international" style="margin-left: 10px;">Internacional</label>
+                        </div>
                      </div>
                      
                      <div class="card-body default">
@@ -80,7 +84,7 @@
                            
                               <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
                                  <label for="input-cnpj-cpf" class="form-label">CPF/CNPJ</label> 
-                                 <label for="input-cnpj-cpf" class="form-label mandatory">*</label>
+                                 <label for="input-cnpj-cpf" class="form-label mandatory required">*</label>
                                  <input type="text" class="form-control" id="input-cnpj-cpf" placeholder="CPF/CNPJ" disabled="true" name="input-cnpj-cpf"> 
                               </div>
 
@@ -146,7 +150,7 @@
                         <div class="row">
                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
                               <label for="input-cep" class="form-label">CEP</label> 
-                              <label for="input-fantasia" class="form-label mandatory">*</label>
+                              <label for="input-fantasia" class="form-label mandatory required">*</label>
                               <br>
                               <input type="text" class="form-control" id="input-cep" placeholder="Digite o CEP" name="input-cep"> 
                            </div>

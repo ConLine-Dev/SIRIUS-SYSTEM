@@ -45,19 +45,17 @@ async function generateTable() {
 // Funçao para cadastrar nova senha no botao 'Novo'
 function registerPassword() {
 
-
     const body = {
         url: '/app/administration/control-password/create'
     }
     window.ipcRenderer.invoke('open-exWindow', body);
 }
 
-// Funçao para cadastrar nova senha no botao 'Novo'
-function viewPassword() {
-
+// Funçao para editar senha no botao 'Editar'
+function EditPassword() {
 
     const body = {
-        url: '/app/administration/control-password/view'
+        url: '/app/administration/control-password/edit'
     }
     window.ipcRenderer.invoke('open-exWindow', body);
 }

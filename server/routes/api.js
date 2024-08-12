@@ -18,6 +18,7 @@ const api_userManagement = require('./api-user-management');
 const api_collaboratorsRoutes = require('./collaborators-routes');
 const api_incentive_management = require('./api-incentive-management');
 const api_stock = require('./api-stock');
+const api_executive_analytics_dashboard = require('./api-executive-analytics-dashboard');
 
 
 const apiAppMonitor = require('./apiAppMonitor');
@@ -89,6 +90,9 @@ const setIO = (io) => {
   
   // Use as rotas do arquivo api_incentive_management.js
   router.use('/stock', api_stock(io)); 
+
+  // Use as rotas do arquivo api_incentive_management.js
+  router.use('/executive-analytics-dashboard', api_executive_analytics_dashboard(io)); 
 
   return router;
 };

@@ -1,0 +1,817 @@
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Controle de Comissões</title>
+    <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
+    <meta name="Author" content="Spruko Technologies Private Limited">
+    <meta name="keywords"
+        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    <!-- Color Picker Css -->
+    <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
+    <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.min.css">
+
+    <!-- <link rel="stylesheet" href="../../assets/libs/quill/quill.snow.css">
+    <link rel="stylesheet" href="../../assets/libs/quill/quill.bubble.css"> -->
+    <link rel="stylesheet" href="https://cdn.quilljs.com/2.0.0-dev.2/quill.snow.css">
+    <link rel="stylesheet" href="https://cdn.quilljs.com/2.0.0-dev.2/quill.bubble.css">
+
+
+    <link rel="stylesheet" href="../../assets/libs/sweetalert2/sweetalert2.min.css">
+    
+    
+
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+    <!-- Start Switcher -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="switcher-canvas" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title text-default" id="offcanvasRightLabel">Switcher</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <nav class="border-bottom border-block-end-dashed">
+                <div class="nav nav-tabs nav-justified" id="switcher-main-tab" role="tablist">
+                    <button class="nav-link active" id="switcher-home-tab" data-bs-toggle="tab"
+                        data-bs-target="#switcher-home" type="button" role="tab" aria-controls="switcher-home"
+                        aria-selected="true">Theme Styles</button>
+                    <button class="nav-link" id="switcher-profile-tab" data-bs-toggle="tab"
+                        data-bs-target="#switcher-profile" type="button" role="tab" aria-controls="switcher-profile"
+                        aria-selected="false" tabindex="-1">Theme Colors</button>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active border-0" id="switcher-home" role="tabpanel"
+                    aria-labelledby="switcher-home-tab" tabindex="0">
+                    <div class="">
+                        <p class="switcher-style-head">Theme Color Mode:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-light-theme"> Light </label>
+                                    <input class="form-check-input" type="radio" name="theme-style"
+                                        id="switcher-light-theme" checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-dark-theme"> Dark </label>
+                                    <input class="form-check-input" type="radio" name="theme-style"
+                                        id="switcher-dark-theme">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <p class="switcher-style-head">Directions:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-ltr"> LTR </label>
+                                    <input class="form-check-input" type="radio" name="direction" id="switcher-ltr"
+                                        checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-rtl"> RTL </label>
+                                    <input class="form-check-input" type="radio" name="direction" id="switcher-rtl">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <p class="switcher-style-head">Navigation Styles:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-vertical"> Vertical </label>
+                                    <input class="form-check-input" type="radio" name="navigation-style"
+                                        id="switcher-vertical" checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-horizontal"> Horizontal </label>
+                                    <input class="form-check-input" type="radio" name="navigation-style"
+                                        id="switcher-horizontal">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="navigation-menu-styles">
+                        <p class="switcher-style-head">Vertical &amp; Horizontal Menu Styles:</p>
+                        <div class="row switcher-style gx-0 pb-2 gy-2">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-menu-click"> Menu Click </label>
+                                    <input class="form-check-input" type="radio" name="navigation-menu-styles"
+                                        id="switcher-menu-click">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-menu-hover"> Menu Hover </label>
+                                    <input class="form-check-input" type="radio" name="navigation-menu-styles"
+                                        id="switcher-menu-hover">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-icon-click"> Icon Click </label>
+                                    <input class="form-check-input" type="radio" name="navigation-menu-styles"
+                                        id="switcher-icon-click">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-icon-hover"> Icon Hover </label>
+                                    <input class="form-check-input" type="radio" name="navigation-menu-styles"
+                                        id="switcher-icon-hover">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sidemenu-layout-styles">
+                        <p class="switcher-style-head">Sidemenu Layout Styles:</p>
+                        <div class="row switcher-style gx-0 pb-2 gy-2">
+                            <div class="col-sm-6">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-default-menu"> Default Menu </label>
+                                    <input class="form-check-input" type="radio" name="sidemenu-layout-styles"
+                                        id="switcher-default-menu" checked="">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-closed-menu"> Closed Menu </label>
+                                    <input class="form-check-input" type="radio" name="sidemenu-layout-styles"
+                                        id="switcher-closed-menu">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-icontext-menu"> Icon Text </label>
+                                    <input class="form-check-input" type="radio" name="sidemenu-layout-styles"
+                                        id="switcher-icontext-menu">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-icon-overlay"> Icon Overlay </label>
+                                    <input class="form-check-input" type="radio" name="sidemenu-layout-styles"
+                                        id="switcher-icon-overlay">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-detached"> Detached </label>
+                                    <input class="form-check-input" type="radio" name="sidemenu-layout-styles"
+                                        id="switcher-detached">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-double-menu"> Double Menu </label>
+                                    <input class="form-check-input" type="radio" name="sidemenu-layout-styles"
+                                        id="switcher-double-menu">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <p class="switcher-style-head">Page Styles:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-regular"> Regular </label>
+                                    <input class="form-check-input" type="radio" name="page-styles"
+                                        id="switcher-regular" checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-classic"> Classic </label>
+                                    <input class="form-check-input" type="radio" name="page-styles"
+                                        id="switcher-classic">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-modern"> Modern </label>
+                                    <input class="form-check-input" type="radio" name="page-styles"
+                                        id="switcher-modern">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <p class="switcher-style-head">Layout Width Styles:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-full-width"> Full Width </label>
+                                    <input class="form-check-input" type="radio" name="layout-width"
+                                        id="switcher-full-width" checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-boxed"> Boxed </label>
+                                    <input class="form-check-input" type="radio" name="layout-width"
+                                        id="switcher-boxed">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <p class="switcher-style-head">Menu Positions:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-menu-fixed"> Fixed </label>
+                                    <input class="form-check-input" type="radio" name="menu-positions"
+                                        id="switcher-menu-fixed" checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-menu-scroll"> Scrollable </label>
+                                    <input class="form-check-input" type="radio" name="menu-positions"
+                                        id="switcher-menu-scroll">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <p class="switcher-style-head">Header Positions:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-header-fixed"> Fixed </label>
+                                    <input class="form-check-input" type="radio" name="header-positions"
+                                        id="switcher-header-fixed" checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-header-scroll"> Scrollable </label>
+                                    <input class="form-check-input" type="radio" name="header-positions"
+                                        id="switcher-header-scroll">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <p class="switcher-style-head">Loader:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-loader-enable"> Enable </label>
+                                    <input class="form-check-input" type="radio" name="page-loader"
+                                        id="switcher-loader-enable">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-loader-disable"> Disable </label>
+                                    <input class="form-check-input" type="radio" name="page-loader"
+                                        id="switcher-loader-disable" checked="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade border-0" id="switcher-profile" role="tabpanel"
+                    aria-labelledby="switcher-profile-tab" tabindex="0">
+                    <div>
+                        <div class="theme-colors">
+                            <p class="switcher-style-head">Menu Colors:</p>
+                            <div class="d-flex switcher-style pb-2">
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-white" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="menu-colors" id="switcher-menu-light"
+                                        aria-label="Light Menu" data-bs-original-title="Light Menu">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-dark" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="menu-colors" id="switcher-menu-dark"
+                                        checked="" aria-label="Dark Menu" data-bs-original-title="Dark Menu">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-primary" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="menu-colors"
+                                        id="switcher-menu-primary" aria-label="Color Menu"
+                                        data-bs-original-title="Color Menu">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-gradient" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="menu-colors"
+                                        id="switcher-menu-gradient" aria-label="Gradient Menu"
+                                        data-bs-original-title="Gradient Menu">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-transparent"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" type="radio" name="menu-colors"
+                                        id="switcher-menu-transparent" aria-label="Transparent Menu"
+                                        data-bs-original-title="Transparent Menu">
+                                </div>
+                            </div>
+                            <div class="px-4 pb-3 text-muted fs-11">Note:If you want to change color Menu dynamically
+                                change from below Theme Primary color picker</div>
+                        </div>
+                        <div class="theme-colors">
+                            <p class="switcher-style-head">Header Colors:</p>
+                            <div class="d-flex switcher-style pb-2">
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-white" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="header-colors"
+                                        id="switcher-header-light" checked="" aria-label="Light Header"
+                                        data-bs-original-title="Light Header">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-dark" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="header-colors"
+                                        id="switcher-header-dark" aria-label="Dark Header"
+                                        data-bs-original-title="Dark Header">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-primary" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="header-colors"
+                                        id="switcher-header-primary" aria-label="Color Header"
+                                        data-bs-original-title="Color Header">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-gradient" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="header-colors"
+                                        id="switcher-header-gradient" aria-label="Gradient Header"
+                                        data-bs-original-title="Gradient Header">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-transparent"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" type="radio"
+                                        name="header-colors" id="switcher-header-transparent"
+                                        aria-label="Transparent Header" data-bs-original-title="Transparent Header">
+                                </div>
+                            </div>
+                            <div class="px-4 pb-3 text-muted fs-11">Note:If you want to change color Header dynamically
+                                change from below Theme Primary color picker</div>
+                        </div>
+                        <div class="theme-colors">
+                            <p class="switcher-style-head">Theme Primary:</p>
+                            <div class="d-flex flex-wrap align-items-center switcher-style">
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-primary-1" type="radio"
+                                        name="theme-primary" id="switcher-primary">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-primary-2" type="radio"
+                                        name="theme-primary" id="switcher-primary1">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-primary-3" type="radio"
+                                        name="theme-primary" id="switcher-primary2">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-primary-4" type="radio"
+                                        name="theme-primary" id="switcher-primary3">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-primary-5" type="radio"
+                                        name="theme-primary" id="switcher-primary4">
+                                </div>
+                                <div class="form-check switch-select ps-0 mt-1 color-primary-light">
+                                    <div class="theme-container-primary">
+                                        <button class="">nano</button>
+                                    </div>
+                                    <div class="pickr-container-primary">
+                                        <div class="pickr">
+                                            <button type="button" class="pcr-button" role="button"
+                                                aria-label="toggle color picker dialog"
+                                                style="--pcr-color: rgba(132, 90, 223, 1);"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="theme-colors">
+                            <p class="switcher-style-head">Theme Background:</p>
+                            <div class="d-flex flex-wrap align-items-center switcher-style">
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-bg-1" type="radio"
+                                        name="theme-background" id="switcher-background">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-bg-2" type="radio"
+                                        name="theme-background" id="switcher-background1">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-bg-3" type="radio"
+                                        name="theme-background" id="switcher-background2">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-bg-4" type="radio"
+                                        name="theme-background" id="switcher-background3">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-bg-5" type="radio"
+                                        name="theme-background" id="switcher-background4">
+                                </div>
+                                <div
+                                    class="form-check switch-select ps-0 mt-1 tooltip-static-demo color-bg-transparent">
+                                    <div class="theme-container-background">
+                                        <button>nano</button>
+                                    </div>
+                                    <div class="pickr-container-background">
+                                        <div class="pickr">
+                                            <button type="button" class="pcr-button" role="button"
+                                                aria-label="toggle color picker dialog"
+                                                style="--pcr-color: rgba(132, 90, 223, 1);"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="menu-image mb-3">
+                            <p class="switcher-style-head">Menu With Background Image:</p>
+                            <div class="d-flex flex-wrap align-items-center switcher-style">
+                                <div class="form-check switch-select m-2">
+                                    <input class="form-check-input bgimage-input bg-img1" type="radio"
+                                        name="theme-background" id="switcher-bg-img">
+                                </div>
+                                <div class="form-check switch-select m-2">
+                                    <input class="form-check-input bgimage-input bg-img2" type="radio"
+                                        name="theme-background" id="switcher-bg-img1">
+                                </div>
+                                <div class="form-check switch-select m-2">
+                                    <input class="form-check-input bgimage-input bg-img3" type="radio"
+                                        name="theme-background" id="switcher-bg-img2">
+                                </div>
+                                <div class="form-check switch-select m-2">
+                                    <input class="form-check-input bgimage-input bg-img4" type="radio"
+                                        name="theme-background" id="switcher-bg-img3">
+                                </div>
+                                <div class="form-check switch-select m-2">
+                                    <input class="form-check-input bgimage-input bg-img5" type="radio"
+                                        name="theme-background" id="switcher-bg-img4">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between canvas-footer flex-wrap">
+                    <a href="https://themeforest.net/item/ynex-bootstrap-admin-dashboard-template/45551445"
+                        class="btn btn-primary m-1">Buy Now</a>
+                    <a href="https://themeforest.net/user/spruko/portfolio" class="btn btn-secondary m-1">Our
+                        Portfolio</a>
+                    <a href="javascript:void(0);" id="reset-all" class="btn btn-danger m-1">Reset</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Switcher -->
+    <!-- Loader -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <!-- <div id="loader" class="">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div> -->
+    <!-- Loader -->
+    <div class="">
+        <!-- app-header -->
+
+        <!-- /app-header -->
+        <!-- End::app-sidebar -->
+        <!-- Start::app-content -->
+        <div class="main-content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-2">
+                       <div class="file-manager-container">
+                        <div class="file-manager-navigation">
+                            <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
+                                <div>
+                                    <h6 class="fw-semibold mb-0">Controle de Comissões</h6> </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-icon btn-primary-light btn-wave waves-light waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="ri-settings-3-line"></i> </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="/app/financial/commission_history/">Todos Registros</a></li>
+                                        <!-- <li><a class="dropdown-item" href="javascript:void(0);">Another action</a></li>
+                                        <li><a class="dropdown-item" href="javascript:void(0);">Something else here</a></li> -->
+                                    </ul>
+                                </div>
+                            </div>
+                       
+                      
+                                <ul class="list-unstyled files-main-nav" id="files-main-nav" data-simplebar="init">
+                                    <div class="simplebar-wrapper" >
+                                        <div class="simplebar-height-auto-observer-wrapper">
+                                            <div class="simplebar-height-auto-observer"></div>
+                                        </div>
+                                        <div class="simplebar-mask">
+                                            <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                                <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
+                                                    <div class="simplebar-content" style="padding: 16px;padding-bottom: 81px;">
+                                                        <li class="files-type">
+                                                          
+                                                                <label for="input-date" class="form-label">De:</label> 
+                                                                <input type="date" class="form-control" id="dataDe"> 
+
+                                                              
+                                                          
+                                                        </li>
+                                                        <li class="files-type">
+                                                            <label for="input-date" class="form-label">Até:</label> 
+                                                            <input type="date" class="form-control" id="dataAte"> 
+                                                        </li>
+                                                        <li class="files-type">
+                                                            <label for="input-date" class="form-label">Tabela:</label> 
+                                                            <input type="text" class="form-control" id="tabela"> 
+                                                        </li>
+                                                        <li class="files-type">
+                                                            <label for="input-date" class="form-label">Nome da coluna:</label> 
+                                                            <input type="text" class="form-control" id="coluna"> 
+                                                        </li>
+                                                        <li class="files-type">
+                                                            <label for="input-date" class="form-label">Valor:</label> 
+                                                            <input type="text" class="form-control" id="valor"> 
+                                                        </li>
+
+                                                        <li class="d-flex align-items-center justify-content-center">
+                                                          
+                                                                <button onclick="submitCommission()" class="btn btn-primary-gradient" style="width: 100%;">Filtrar</button>
+                                                        
+                                                        </li>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="simplebar-placeholder" style="width: auto; height: 809px;"></div>
+                                    </div>
+                                    <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                        <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                                    </div>
+                                    <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                                        <div class="simplebar-scrollbar" style="height: 546px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+                                    </div>
+                                </ul>
+                           
+                        </div>
+                       </div>
+                    </div>
+                  
+                    <div class="col-10">
+                        <br>
+                      
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <div class="card-title"> Pesquisa de Logs HeadCargo </div>
+                            </div>
+                            <div class="card-body">
+                       
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <table id="table_commission_commercial" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Usuario</th>
+                                                            <th>Data Inicio Transacao</th>
+                                                            <th>Data Termino Transacao</th>
+                                                            <th>Tempo Transacao</th>
+                                                            <th>Usuario Windows</th>
+                                                            <th>Computador</th>
+                                                            <th>Tabela</th>
+                                                            <th>Tipo</th>
+                                                            <th>Data</th>
+                                                            <th>Indice</th>
+                                                            <th>Campos</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                      
+                                                    </tbody>
+                                                
+                                                </table>
+                                            </div>
+                                        </div>
+                            
+                              
+                          
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+ 
+
+    </div>
+
+    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 11">
+       
+      </div>
+    
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+    <!-- Scroll To Top -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <!-- Popper JS -->
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Defaultmenu JS -->
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <!-- <script src="../../assets/js/defaultmenu.min.js"></script> -->
+  
+    <!-- Node Waves JS-->
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/libs/node-waves/waves.min.js"></script>
+  
+
+ 
+   
+    <!-- Color Picker JS -->
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+    <!-- Custom-Switcher JS -->
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/js/custom-switcher.min.js"></script>
+ 
+    <!-- Filepond JS -->
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/libs/filepond/filepond.min.js"></script>
+  
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js"></script>
+  
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script
+        src="../../assets/libs/filepond-plugin-image-exif-orientation/filepond-plugin-image-exif-orientation.min.js"></script>
+
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script
+        src="../../assets/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js"></script>
+  
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/libs/filepond-plugin-file-encode/filepond-plugin-file-encode.min.js"></script>
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.js"></script>
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script
+        src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
+  
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script
+        src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
+
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/libs/filepond-plugin-image-crop/filepond-plugin-image-crop.min.js"></script>
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/libs/filepond-plugin-image-resize/filepond-plugin-image-resize.min.js"></script>
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/libs/filepond-plugin-image-transform/filepond-plugin-image-transform.min.js"></script>
+    <!-- Flat Picker JS -->
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+
+    <!-- Dragula JS -->
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/libs/dragula/dragula.min.js"></script>
+
+
+   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Internal Task  JS -->
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+
+    
+    <script src="https://cdn.quilljs.com/2.0.0-dev.2/quill.js"></script>
+
+    <script src="../../assets/js/task-kanban-board.js"></script>
+
+    <script src="../../assets/libs/cleave/cleave.min.js"></script>
+
+    <script src="../../assets/js/fetchAPI.js"></script>
+
+
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+
+
+    <script src="https://cdn.datatables.net/2.0.7/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.min.js"></script>
+
+    <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
+
+    <!-- <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script> -->
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.dataTables.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+    <!-- <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.dataTables.js"></script> -->
+
+
+
+    <script src="../../assets/js/real-time.js"></script>
+
+    <script src="./assets/js/index.js"></script>
+
+
+
+    <!-- Custom JS -->
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <script src="../../assets/js/custom.js"></script>
+
+</body>
+
+</html>

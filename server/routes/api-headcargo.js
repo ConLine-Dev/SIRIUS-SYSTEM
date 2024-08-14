@@ -21,6 +21,21 @@ router.post('/createRegister', async (req, res, next) => {
     }
 });
 
+// INICIO API CONTROLE DE COMISSÃO
+router.post('/filter', async (req, res, next) => {
+    const {filters} = req.body;
+
+    try {
+        const result = await headcargo.filterLog(filters);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+
+        res.status(404).json('Erro')   
+    }
+});
+
 router.post('/getRegisterById', async (req, res, next) => {
     const {id} = req.body;
 

@@ -13,6 +13,18 @@ module.exports = function(io) {
         }
     });
 
+    // Rota para obter todos os módulos
+    router.get('/getAllComission', async (req, res, next) => {
+        try {
+            const result = await incentiveManagement.getAllComission();
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    });
+
+    
+
     // Retorna o router configurado
     return router;
 };

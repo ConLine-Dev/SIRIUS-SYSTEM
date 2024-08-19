@@ -166,11 +166,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function changeHeaderTableComission() {
     const header = `<tr>
       <th>Adquirente</th>
-      <th>Data Saída</th>
       <th>BL</th>
       <th>Status</th>
-      <th>DI</th>
-      <th>Referência Poly</th>
+      <th>Referencia</th>
       <th>Valor Comissão</th>
       <th>Valor Encontrado</th>
       <th>Status Valor</th>
@@ -178,6 +176,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       
       
     </tr>`;
+
+
+
     document.querySelector('#incentive_management_table thead').innerHTML = header;
   }
   
@@ -288,6 +289,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 data_saida: row[2] || '',
                 bl: row[5] || '',
                 di: row[6] || '',
+                referencia_interna: row[3] || '',
                 referenci_poly: row[7] || '',
                 valor_comission: formatToBRL(parseFloat(row[9])) || '',
                 status: '<span class="text-success">Processo encontrado</span>',
@@ -302,6 +304,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 data_saida: row[2] || '',
                 bl: row[5] || '',
                 di: row[6] || '',
+                referencia_interna: row[3] || '',
                 referenci_poly: row[7] || '',
                 valor_comission: formatToBRL(parseFloat(row[9])) || '',
                 status: '<span class="text-danger">Processo não encontrado</span>',
@@ -314,6 +317,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
         }
       });
+
+      
    
   
       const table = $('#incentive_management_table').DataTable({
@@ -324,15 +329,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         bInfo: false,
         columns: [
           { data: 'adquirente' },
-          { data: 'data_saida' },
           { data: 'bl' },
-          { data: 'di' },
-          { data: 'referenci_poly' },
-          { data: 'valor_comission' },
           { data: 'status' },
-          { data: 'Status_Fatura' },
-          { data: 'statusValor' },
+          { data: 'referencia_interna' },
+          { data: 'valor_comission' },
           { data: 'valorSistema' },
+          { data: 'statusValor' },
+          { data: 'Status_Fatura' }
       ],
         buttons: [
           'excel', 'pdf'

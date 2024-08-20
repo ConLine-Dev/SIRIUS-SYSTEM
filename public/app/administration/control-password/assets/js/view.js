@@ -52,7 +52,7 @@ function eventClick() {
         const element = link[index];
         element.addEventListener('click', function(){
             const navigator = document.querySelector('input[name="link"]').value
-            window.ipcRenderer.invoke('external-link', 'https://www.google.com.br');
+            window.ipcRenderer.invoke('external-link', navigator);
 
         
         })

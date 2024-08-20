@@ -155,7 +155,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       <th>Status</th>
       <th>Status Fatura</th>
       <th>Observação</th>
-      <th>Ações</th>
     </tr>`;
     document.querySelector('#incentive_management_table thead').innerHTML = header;
   }
@@ -168,10 +167,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     const header = `<tr>
       <th>Adquirente</th>
       <th>BL</th>
-      <th>DI</th>
-      <th>Referência Poly</th>
+      <th>Status</th>
+      <th>Referencia</th>
       <th>Valor Comissão</th>
+      <th>Valor Encontrado</th>
+      <th>Status Valor</th>
+      <th>Status da Fatura</th>
+      
+      
     </tr>`;
+
+
+
     document.querySelector('#incentive_management_table thead').innerHTML = header;
   }
   
@@ -185,7 +192,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   
 
-    /**
+  /**
    * Formata um valor numérico para o formato de moeda brasileira.
    * @param {number} value - Valor numérico a ser formatado.
    * @returns {string} Valor formatado em moeda brasileira (R$).
@@ -195,7 +202,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
 
-        /**
+
+  /**
    * Formata um valor numérico para o formato de moeda brasileira.
    * @param {number} value - Valor numérico a ser formatado.
    * @returns {string} Valor formatado em moeda brasileira (R$).
@@ -209,7 +217,9 @@ document.addEventListener("DOMContentLoaded", async () => {
    * Preenche a tabela de comissão com os dados fornecidos.
    * @param {Array<Array<string|number>>} data - Dados a serem populados na tabela.
    */
-  function populateTableComission(data) {
+  function populateTableComission2(data) {
+
+    
     const table = $('#incentive_management_table').DataTable({
       language: {
         url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
@@ -232,6 +242,114 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
   }
+
+    /**
+   * Preenche a tabela de segurança com os dados fornecidos.
+   * @param {Array<Array<string|number>>} data - Dados a serem populados na tabela.
+   */
+    async function populateTableComission(data) {
+
+    
+      const securityData = await makeRequest('/api/incentive-management/getAllComission');
+  
+
+      // Array para armazenar os novos dados
+      const newData = [];
+      
+      data.slice(2).forEach(row => {
+        if (row.some(cell => cell !== undefined && cell !== '')) {
+          if (row[1] !== undefined && row[1] !== '') {
+      
+            const rowObservation = row[3] || '';
+      
+            const matchingSecurity = securityData.find(security => 
+              (security.Numero_Processo == row[3] || 
+              security.Conhecimentos == row[5]) || 
+              (rowObservation && rowObservation.includes(security.Conhecimentos)) || 
+              (rowObservation && rowObservation.includes(security.Numero_Processo))
+            );
+
+            console.log(matchingSecurity)
+      
+            if (matchingSecurity) {
+              let statusValor = '-';
+          
+              if (row[9] == matchingSecurity.Valor_Recebimento_Total) {
+                statusValor = '<span class="text-success">Valores Iguais</span>';
+                if (matchingSecurity.IdMoeda_Recebimento != 110) {
+                  statusValor = '<span class="text-danger">Moeda divergentes</span>';
+                }
+              } else {
+                statusValor = '<span class="text-danger">Valores divergentes</span>';
+              }
+         
+      
+              newData.push({
+                adquirente: row[4] || '',
+                data_saida: row[2] || '',
+                bl: row[5] || '',
+                di: row[6] || '',
+                referencia_interna: row[3] || '',
+                referenci_poly: row[7] || '',
+                valor_comission: formatToBRL(parseFloat(row[9])) || '',
+                status: '<span class="text-success">Processo encontrado</span>',
+                Status_Fatura: '<span class="badge bg-success-transparent">' + matchingSecurity.Status_Fatura + '</span>',
+                statusValor: statusValor,
+                valorSistema: formatToMoney(parseFloat(matchingSecurity.Valor_Recebimento_Total), matchingSecurity.Sigla),
+                actions: '<button class="btn btn-primary-light btn-icon ms-1 btn-sm task-delete-btn" title="Finalizar Fatura" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Finalizar Fatura"><i class="ri-lock-2-line"></i></button>'
+              });
+            } else {
+              newData.push({
+                adquirente: row[4] || '',
+                data_saida: row[2] || '',
+                bl: row[5] || '',
+                di: row[6] || '',
+                referencia_interna: row[3] || '',
+                referenci_poly: row[7] || '',
+                valor_comission: formatToBRL(parseFloat(row[9])) || '',
+                status: '<span class="text-danger">Processo não encontrado</span>',
+                Status_Fatura: '<span class="badge bg-danger-transparent">-</span>',
+                statusValor: '<span class="text-danger">Valor não encontrado</span>',
+                valorSistema: '-',
+                actions: '<button disabled class="btn btn-primary-light btn-icon ms-1 btn-sm task-delete-btn" title="Processo não encontrado" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Finalizar Fatura"><i class="ri-lock-2-line"></i></button>'
+              });
+            }
+          }
+        }
+      });
+
+      
+   
+  
+      const table = $('#incentive_management_table').DataTable({
+        dom: 'Bfrtip',
+        pageInfo: false,
+        pageLength: 15,
+        data: newData,
+        bInfo: false,
+        columns: [
+          { data: 'adquirente' },
+          { data: 'bl' },
+          { data: 'status' },
+          { data: 'referencia_interna' },
+          { data: 'valor_comission' },
+          { data: 'valorSistema' },
+          { data: 'statusValor' },
+          { data: 'Status_Fatura' }
+      ],
+        buttons: [
+          'excel', 'pdf'
+        ],
+        language: {
+          url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
+          searchPlaceholder: 'Pesquisar...',
+        },
+      });
+  
+  
+  
+  
+    }
   
   /**
    * Preenche a tabela de segurança com os dados fornecidos.
@@ -240,7 +358,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function populateTableSecurity(data) {
 
     const securityData = await makeRequest('/api/incentive-management/getAllSecurity');
-    console.log(securityData)
+
     // Array para armazenar os novos dados
     const newData = [];
     
@@ -310,8 +428,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         { data: 'statusValor' },
         { data: 'status' },
         { data: 'Status_Fatura' },
-        { data: 'observation' }, 
-        { data: 'actions' }, 
+        { data: 'observation' }
     ],
       buttons: [
         'excel', 'pdf'

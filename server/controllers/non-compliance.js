@@ -687,7 +687,18 @@ const non_compliance = {
        try {
         const actions = await non_compliance.getActionsByOccurrence(occurrence_id)
         this.sendEmailToEmail(colabId[0].system_email, `[INTERNO] ${ocurrence.reference} - Ação Corretiva vinculada a você.`, null, 'action', null, occurrence_id, actions)
-        await executeQuery(sql, values);
+
+        const result = await executeQuery(sql, values);
+
+        const verifyResponsible = await executeQuery(`SELECT * FROM occurrences_responsibles WHERE occurrence_id = ? AND collaborator_id = ?`, [occurrence_id, action_responsible]);
+
+        if(verifyResponsible.length == 0){
+            await executeQuery(`INSERT INTO occurrences_responsibles (occurrence_id, collaborator_id) VALUES (?, ?)`,
+            [occurrence_id, action_responsible])
+        }
+
+        
+        return result
        } catch (error) {
         console.log(error)
        }

@@ -110,33 +110,33 @@ const non_compliance = {
         }
     
         // Consulta otimizada para buscar todas as informações necessárias em uma única query
-        const occurrenceQuery = `
-        SELECT 
-            o.editing,
-            o.id AS occurrence_id,
-            LEFT(o.title, 100) as title,
-            o.status,
-            o.reference,
-            LEFT(o.description, 100) AS description,
-            ot.name AS type,
-            o.occurrence_date AS date_occurrence,
-            clt.id AS collaborator_id,
-            clt.name AS collaborator_name,
-            clt.family_name,
-            clt.id_headcargo
-        FROM 
-            occurrences o
-        LEFT JOIN 
-            occurrences_type ot ON o.type_id = ot.id
-        LEFT JOIN
-            occurrences_responsibles orb ON o.id = orb.occurrence_id
-        LEFT JOIN
-            collaborators clt ON orb.collaborator_id = clt.id
-        WHERE 
-            o.status IN (${type}) AND o.id IN (
-                SELECT occurrence_id FROM occurrences_responsibles WHERE collaborator_id = ${id}
-            )
-    `;
+        const occurrenceQuery = `SELECT DISTINCT
+                        o.editing,
+                        o.id AS occurrence_id,
+                        LEFT(o.title, 100) as title,
+                        o.status,
+                        o.reference,
+                        LEFT(o.description, 100) AS description,
+                        ot.name AS type,
+                        o.occurrence_date AS date_occurrence,
+                        clt.id AS collaborator_id,
+                        clt.name AS collaborator_name,
+                        clt.family_name,
+                        clt.id_headcargo
+                    FROM 
+                        occurrences o
+                    LEFT JOIN 
+                        occurrences_type ot ON o.type_id = ot.id
+                    LEFT JOIN
+                        occurrences_responsibles orb ON o.id = orb.occurrence_id
+                    LEFT JOIN
+                        collaborators clt ON orb.collaborator_id = clt.id
+                    LEFT JOIN 
+                        occurrences_corrective_actions oca ON oca.occurrence_id = o.id AND oca.responsible_id = clt.id
+                    WHERE 
+                        (o.status IN (${type}) AND o.id IN (SELECT occurrence_id FROM occurrences_responsibles WHERE collaborator_id = ${id}))
+                    OR 
+                        o.id IN (SELECT occurrence_id FROM occurrences_corrective_actions WHERE responsible_id = ${id})`;
 
     
         const occurrence = await executeQuery(occurrenceQuery);

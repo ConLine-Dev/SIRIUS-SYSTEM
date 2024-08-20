@@ -27,7 +27,6 @@ module.exports = function(io) {
     // Rota para obter a visualização
     router.post('/getView', async (req, res, next) => {
         const form = req.body
-        console.log(form)
         try {
             const result = await controlPassword.getView(form.id_password);
             res.status(200).json(result);   
@@ -39,8 +38,22 @@ module.exports = function(io) {
     // Rota para obter a edição
     router.post('/update', async (req, res, next) => {
         const form = req.body
+        console.log(form, 'form');
+        
         try {
             const result = await controlPassword.update(form);
+            res.status(200).json(result);   
+        } catch (error) {
+            res.status(404).json(error);
+        }
+        
+    });
+
+    // Rota para deletar
+    router.post('/delete', async (req, res, next) => {
+        const {id} = req.body
+        try {
+            const result = await controlPassword.delete(id);
             res.status(200).json(result);   
         } catch (error) {
             res.status(404).json(error);

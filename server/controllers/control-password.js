@@ -148,32 +148,37 @@ const controlPassword = {
         const formattedCreateAt = controlPassword.formatDateForDatabase(update_at);
         console.log(form)
 
-        // Primeiro, insere na tabela password_control
-        // const passwordInsertQuery = `
-        //     INSERT INTO password_control (title, login, password, responsible, link, observation, update_at) 
-        //     VALUES ('${form.title}', '${form.login}', '${form.password}', '${form.responsible}', '${form.link}', '${form.observation}', '${formattedCreateAt}')
-        // `;
+        let update = await executeQuery(
+            `UPDATE password_control SET 
+                title = ?, 
+                login = ?, 
+                password = ?, 
+                responsible = ?, 
+                link = ?, 
+                observation = ?, 
+                update_at = ? 
+                WHERE (id = ?)`,
+                [
+                    form.title,
+                    form.login,
+                    form.password,
+                    form.responsible,
+                    form.link,
+                    form.observation,
+                    formattedCreateAt,
+                    form.id
+                ]
+        )
 
-        // // Executa a consulta e obtém o ID do password inserido
-        // const result = await executeQuery(passwordInsertQuery);
-        // const passwordId = result.insertId; // Supondo que executeQuery retorne um objeto com insertId
+        return update
 
-        // // Agora, insere na tabela password_relation_department para cada departamento
-        // const departmentInsertQueries = form.departments.map(departmentId => {
-        //     return `
-        //         INSERT INTO password_relation_department (password_id, department_id) 
-        //         VALUES (${passwordId}, ${departmentId})
-        //     `;
-        // });
+    },
 
-        // // Executa todas as inserções de departamento
-        // for (const query of departmentInsertQueries) {
-        //     await executeQuery(query);
-        // }
-
-        // return result;
-
-
+       // Deletar
+    delete: async function(id) {
+        let delete_relation = await executeQuery(`DELETE FROM password_relation_department WHERE (password_id = ?)`, [id])
+        let delete_password = await executeQuery(`DELETE FROM password_control WHERE (id = ?)`, [id])
+        return {delete_relation, delete_password};
     },
 
 

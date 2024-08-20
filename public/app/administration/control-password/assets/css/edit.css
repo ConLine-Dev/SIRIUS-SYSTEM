@@ -114,5 +114,8 @@
    min-height: 41px !important;
 }
  
+.headerButtons {
+   cursor: pointer;
+}
  
  

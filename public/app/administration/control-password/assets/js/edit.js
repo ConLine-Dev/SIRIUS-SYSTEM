@@ -40,7 +40,6 @@ async function getAllResponsible() {
 async function getAllDepartments() {
     // carrega os usuarios responsaveis
     const Departments = await makeRequest(`/api/users/getAllDept`);
-    console.log(Departments)
 
     // Formate o array para ser usado com o Choices.js
     const listaDeOpcoes = Departments.map(function (element) {
@@ -71,7 +70,6 @@ async function getAllDepartments() {
 
 async function getPassword(id) {
     const Password = await makeRequest(`/api/control-password/getView`, 'POST', {id_password: id});
-    console.log(Password)
 
     document.querySelector('input[name="title"]').value = Password.title
     document.querySelector('input[name="login"]').value = Password.login
@@ -82,6 +80,7 @@ async function getPassword(id) {
 
 async function getForm() {
     const form = {
+        id: await getPasswordInfo(),
         title: document.querySelector('input[name="title"]').value,
         login: document.querySelector('input[name="login"]').value,
         password: document.querySelector('input[name="password"]').value,
@@ -90,23 +89,104 @@ async function getForm() {
         link: document.querySelector('input[name="link"]').value,
         observation: document.querySelector('textarea[name="observation"]').value,
     }
- 
-    // if(!form['login'] || !form['password']){
-    //     alert('Login não está preenchido')
-    //     return false
-    // }
 
     const Result = await makeRequest(`/api/control-password/update`, 'POST', form);
     window.close()
+}
 
-    console.log(form)
+// Função para verificar se os campos estão preenchidos
+async function getValuesFromInputs() {
+    // Array com os names dos inputs que não devem ficar em branco e suas mensagens personalizadas
+    let requiredInputFields = [
+       { name: 'title', message: 'O campo TÍTULO é obrigatório.' },
+       { name: 'login', message: 'O campo LOGIN é obrigatório.' },
+       { name: 'password', message: 'O campo SENHA é obrigatório.' },
+       { name: 'link', message: 'O campo LINK é obrigatório.' },
+    ];
+ 
+    const elements = document.querySelectorAll('.form-control[name]');
+    let allValid = true;
+ 
+    for (let index = 0; index < elements.length; index++) {
+       const item = elements[index];
+       const itemName = item.getAttribute('name');
+       
+       // Verificar se o campo está no array de campos obrigatórios e se está vazio
+       const requiredField = requiredInputFields.find(field => field.name === itemName);
+       if (requiredField && (item.value.trim() === '' || item.value.trim() === '0')) {
+          Swal.fire(requiredField.message);
+          allValid = false;
+          break;
+       }
+    }
+ 
+    return allValid;
+};
+
+// Função para os valores de qualquer selected
+async function getSelectValues(selectName) {
+    const selectElement = document.querySelector(`select[name="${selectName}"]`);
+    if (selectElement) {
+       const selectedOptions = Array.from(selectElement.selectedOptions);
+       if (!selectedOptions || selectedOptions.length === 0 || selectedOptions[0].value === '') {
+          return undefined;
+       } else {
+          const selectedValues = selectedOptions.map(option => option.value);
+          return selectedValues;
+       }
+    } else {
+       return undefined;
+    }
+};
+
+// Função para verificar se os selects estão preenchidos
+async function getValuesFromSelects() {
+    // Array com os names dos selects que não devem ficar em branco e suas mensagens personalizadas
+    let selectNames = [
+       { name: 'responsible', message: 'O campo RESPONSÁVEL é obrigatório.' },
+       { name: 'departments', message: 'O campo DEPARTAMENTO é obrigatório.' },
+    ];
+ 
+    let allValid = true;
+ 
+    for (let i = 0; i < selectNames.length; i++) {
+       const selectName = selectNames[i];
+       const values = await getSelectValues(selectName.name);
+       if (!values || values.length === 0) {
+          Swal.fire(`${selectName.message}`);
+          allValid = false;
+          break;
+       }
+    }
+ 
+    return allValid;
+};
+
+// Função para receber o id da pessoa que esta sendo aberta nesta janela
+async function getPasswordInfo() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const id = urlParams.get('id');
+    return id;
+ };
+
+async function eventClick() {
+    // ==== Salvar ==== //
+    document.getElementById('btn-save').addEventListener('click', async function (){
+        const inputsValid = await getValuesFromInputs();
+        const selectsValid = await getValuesFromSelects();
+        
+        if (inputsValid && selectsValid) {
+            await getForm();
+        }
+        
+    })
+    // ==== /Salvar ==== //
 }
 
 // ESPERA A PAGINA SER COMPLETAMENTE CARREGADA
 document.addEventListener("DOMContentLoaded", async () => {
-    // inicio da função verificar tempo de carregamento da pagina e suas consultas no banco
-    console.time(`A página "${document.title}" carregou em`)
-
+    const password_id = await getPasswordInfo()
 
     // carrega os usuarios responsaveis
     await getAllResponsible();
@@ -115,14 +195,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     await getAllDepartments();
 
     // carrega a view 
-    await getPassword(21);
+    await getPassword(password_id);
+
+    await eventClick();
 
     
     // remover loader
     document.querySelector('#loader2').classList.add('d-none');
 
-
-    // fim da função verificar tempo de carregamento da pagina e suas consultas no banco
-    console.timeEnd(`A página "${document.title}" carregou em`);
 })
 

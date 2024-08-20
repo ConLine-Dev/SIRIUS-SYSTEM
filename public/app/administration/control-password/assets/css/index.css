@@ -15,4 +15,24 @@
     cursor: pointer;
 }
 
+/* Definir altura total do contêiner pai */
+.container-fluid {
+    height: 100vh; /* Define a altura da tela inteira para o contêiner principal */
+    display: flex;
+    flex-direction: column;
+}
+
+/* O elemento que contém a tabela */
+.dataTables_wrapper {
+    flex: 1; /* Permite que a tabela se expanda para preencher o espaço */
+    overflow: hidden; /* Esconde rolagens extras */
+}
+
+body {
+    overflow: hidden !important;
+}
+
+td {
+    user-select: none !important;
+}
 

@@ -114,3 +114,7 @@
 .headerButtons {
    cursor: pointer;
 }
+
+body {
+   overflow: hidden !important;
+}

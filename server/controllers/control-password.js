@@ -21,7 +21,7 @@ const controlPassword = {
                             </div>`;   
                             
             const departments = await controlPassword.getDepartmentsByIdPassword(item.id);
-            const departmentNames = departments.map(department => `<span class="badge bg-primary px-1 py-2 fs-10">${department.name}</span>`).join(', ');
+            const departmentNames = departments.map(department => `<span class="badge bg-primary px-1 py-2 fs-10">${department.name}</span>`).join(' ');
             const users = `${item.ResponsibleName} ${item.ResponsibleFamilyName}`
             console.log(item)
                 

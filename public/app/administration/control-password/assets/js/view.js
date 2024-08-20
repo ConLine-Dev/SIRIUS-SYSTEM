@@ -13,6 +13,7 @@ async function getPassword(id) {
     document.querySelector('textarea[name="observation"]').value = Password.observation
 } 
 
+//Função para quando clicar nos botoes ao lado (copiar/visualizar/abrir navegador)
 function eventClick() {
     const copy = document.querySelectorAll('.copy')
     for (let index = 0; index < copy.length; index++) {
@@ -45,7 +46,20 @@ function eventClick() {
             }
         })
     }
+
+    const link = document.querySelectorAll('.link')
+    for (let index = 0; index < link.length; index++) {
+        const element = link[index];
+        element.addEventListener('click', function(){
+            const navigator = document.querySelector('input[name="link"]').value
+            window.ipcRenderer.invoke('external-link', 'https://www.google.com.br');
+
+        
+        })
+        
+    }
 }
+
 
 // Função para receber o id da pessoa que esta sendo aberta nesta janela
 async function getPasswordInfo() {

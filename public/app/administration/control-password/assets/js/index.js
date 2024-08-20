@@ -38,10 +38,10 @@ async function generateTable() {
                 data: null, // Esta coluna não vai buscar dados diretamente
                 render: function (data, type, row) {
                     return `
-                        <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-secondary-light product-btn" onclick="openPasswordEdit(${row.id})">
+                        <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-secondary-light product-btn" title="Editar" onclick="openPasswordEdit(${row.id})">
                             <i class="ri-edit-line"></i>
                         </a>
-                        <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-danger-light product-btn" onclick="confirmarDelecao(${row.id})">
+                        <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-danger-light product-btn" title="Deletar" onclick="confirmarDelecao(${row.id})">
                             <i class="ri-delete-bin-line"></i>
                         </a>
                     `;

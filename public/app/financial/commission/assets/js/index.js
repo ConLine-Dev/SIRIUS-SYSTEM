@@ -60,6 +60,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Esconder o loader
     document.querySelector('#loader2').classList.add('d-none');
+
+
 });
 
 /**

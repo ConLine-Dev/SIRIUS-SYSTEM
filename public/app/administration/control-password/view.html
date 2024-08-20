@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Visualizar Senha</title>
+    <title name="title">Visualizar Senha</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <!-- Favicon -->
@@ -41,32 +41,42 @@
             <div class="col-xl-12">
                 <div class="card custom-card">
 
-                    <!-- VISUALIZAR CADASTRO -->
-                    <div class="card-header justify-content-between">
-                        <div class="card-title" name="title"> Título </div>
-                    </div>
-                    
+                   
                     <div class="card-body">
-                        
-
                         <div class="row">
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
-                                <label for="input-label" class="form-label">Login</label> 
-                                <input type="text" name="login" class="form-control form-input"> 
-                            </div>
-                            <br>
-
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
-                                <label for="input-label" class="form-label">Senha</label> 
-                                <input type="text" name="password" class="form-control form-input"> 
+                            <label for="input-label" class="form-label">Login</label> 
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" name="login" disabled>
+                                <button class="btn btn-light copy" type="button" title="Copiar" id="button-addon2">
+                                    <i class="ri-file-copy-line"></i>
+                                </button>
                             </div>
                         </div>
-                        <br>
 
                         <div class="row">
-                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12"> 
-                                <label for="input-label" class="form-label">Link</label>
-                                <input type="text" name="link" class="form-control form-input"> 
+                            <label for="input-label" class="form-label">Senha</label> 
+                            <div class="input-group mb-3">
+                                <input type="password" class="form-control" name="password" disabled>
+                                <button class="btn btn-light view" type="button" title="Visualizar" id="button-addon2">
+                                    <i class="ri-eye-off-line align-middle"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <label for="input-label" class="form-label">Link</label> 
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" name="link" disabled>
+                                <button class="btn btn-light" type="button" title="Abrir navegador" id="button-addon2">
+                                    <i class="ri-global-line"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12"> 
+                                <label for="input-label" class="form-label center-text">Observações</label> 
+                                <textarea name="observation" class="form-control form-input"cols="30" rows="3" placeholder="Insira uma observação" disabled></textarea>
+                            
                             </div>
                         </div>
                     </div>
@@ -74,6 +84,10 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="toast-container" class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index: 11">
+       
     </div>
 
     <!-- Scroll To Top -->

@@ -17,10 +17,15 @@ async function generateTable() {
         $('#table_control_password').DataTable().destroy();
     }
 
+    // Calcular a altura disponível dinamicamente
+    const alturaDisponivel = window.innerHeight - document.querySelector('.card-header').offsetHeight
+
     // Criar a nova tabela com os dados da API
     $('#table_control_password').DataTable({
         dom: 'frtip',
-        pageLength: 15,
+        paging: false,  // Desativa a paginação
+        scrollY: '50vh',  // Define a altura dinamicamente
+        scrollCollapse: true,  // Permite que a rolagem seja usada somente quando necessário
         order: [[0, 'asc']],
         data: dados,
         columns: [
@@ -44,14 +49,14 @@ async function generateTable() {
                 orderable: false, // Impede que a coluna seja ordenável
             },
         ],
-        createdRow: function(row,data,dataIndex){
+        createdRow: function(row, data, dataIndex) {
             // Adiciona o atributo com o id da senha 
             $(row).attr('password-id', data.id);
             // Adicionar evento click na linha 
             $(row).on('dblclick', async function() {
                 const password_id = $(this).attr('password-id'); // Captura o id do password
-                await openPassword(password_id)
-            })
+                await openPassword(password_id);
+            });
         },
         buttons: [
             'excel', 'pdf', 'print'
@@ -62,6 +67,8 @@ async function generateTable() {
         },
     });
 }
+
+
 
 // Função para editar uma linha (pode ser implementada conforme sua lógica)
 function editarLinha(id) {
@@ -104,8 +111,8 @@ function registerPassword() {
 async function openPassword(id) {
     const body = {
         url: `/app/administration/control-password/view?id=${id}`,
-        width: 810,
-        height: 270,
+        width: 500,
+        height: 420,
         resizable: false
     }
     window.ipcRenderer.invoke('open-exWindow', body);

@@ -109,4 +109,15 @@
   width: 100%;
 } 
 
+body {
+   overflow: hidden !important;
+}
 
+#button-addon2 {
+   /* width: 90px; */
+   border-left: solid 1px rgb(145, 139, 139) ;
+}
+
+.tittle-notification {
+   border-radius: 5px;
+}

@@ -13,11 +13,23 @@ module.exports = function(io) {
         }
     });
 
+    // Rota para obter todas as senhas associadas a um usuário específico.
+    router.get('/getAllByUser', async (req, res, next) => {
+        const form = req.query
+        try {
+            const result = await controlPassword.getAllByUser(form.id_collaborator);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    });
+
     // Rota para obter o cadastro
     router.post('/create', async (req, res, next) => {
         const form = req.body
         try {
             const result = await controlPassword.create(form);
+            io.emit('updateControlPassword', '')
             res.status(200).json(result);   
         } catch (error) {
             res.status(404).json(error);
@@ -42,6 +54,7 @@ module.exports = function(io) {
         
         try {
             const result = await controlPassword.update(form);
+            io.emit('updateControlPassword', '')
             res.status(200).json(result);   
         } catch (error) {
             res.status(404).json(error);
@@ -54,15 +67,13 @@ module.exports = function(io) {
         const {id} = req.body
         try {
             const result = await controlPassword.delete(id);
+            io.emit('updateControlPassword', '')
             res.status(200).json(result);   
         } catch (error) {
             res.status(404).json(error);
         }
         
     });
-
-
-
 
 
     // Retorna o router configurado

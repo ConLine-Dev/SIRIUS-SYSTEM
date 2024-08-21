@@ -1,16 +1,31 @@
+const table = [];
+// table['table_control_password'].ajax.reload(null, false)
+
+// Esta função é executada quando o documento HTML é completamente carregado e analisado
 document.addEventListener("DOMContentLoaded", async () => {
 
     //Chama a função
     await generateTable()
 
+    const socket = io();
+
+    socket.on('updateControlPassword', (data) => {
+        table['table_control_password'].ajax.reload(null, false)
+    })
+
     document.querySelector('#loader2').classList.add('d-none')
 })
 
+// Verifica informações no localStorage do usuario logado
+// Esta função recupera e retorna os dados armazenados localmente relacionados ao login do Google.
+async function getInfosLogin() {
+    const StorageGoogleData = localStorage.getItem('StorageGoogle');
+    const StorageGoogle = JSON.parse(StorageGoogleData);
+    return StorageGoogle;
+}
 
+// Esta função cria ou recria a tabela de controle de senhas na página
 async function generateTable() {
-    // Fazer a requisição à API
-    const dados = await makeRequest(`/api/control-password/getAll`);
-    console.log(dados);
 
     // Destruir a tabela existente, se houver
     if ($.fn.DataTable.isDataTable('#table_control_password')) {
@@ -20,14 +35,20 @@ async function generateTable() {
     // Calcular a altura disponível dinamicamente
     const alturaDisponivel = window.innerHeight - document.querySelector('.card-header').offsetHeight
 
+    const userLogged = await getInfosLogin()
+    console.log(userLogged)
+
     // Criar a nova tabela com os dados da API
-    $('#table_control_password').DataTable({
+    table['table_control_password'] =  $('#table_control_password').DataTable({
         dom: 'frtip',
         paging: false,  // Desativa a paginação
         scrollY: '50vh',  // Define a altura dinamicamente
         scrollCollapse: true,  // Permite que a rolagem seja usada somente quando necessário
         order: [[0, 'asc']],
-        data: dados,
+        ajax: {
+            url: `/api/control-password/getAllByUser?id_collaborator=${userLogged.system_collaborator_id}`,
+            dataSrc: ''
+          },
         columns: [
             { data: 'title' },
             { data: 'login' },
@@ -67,8 +88,6 @@ async function generateTable() {
         },
     });
 }
-
-
 
 // Função para editar uma linha (pode ser implementada conforme sua lógica)
 function editarLinha(id) {

@@ -2,7 +2,7 @@
 // s antes da variavel se refere a select
 let sAllResponsible, sAllDepartments;
 
-
+// Esta função busca todos os usuários responsáveis via uma requisição à API
 async function getAllResponsible() {
     // carrega os usuarios responsaveis
     const Responsible = await makeRequest(`/api/users/listAllUsers`);
@@ -37,6 +37,7 @@ async function getAllResponsible() {
 
 }
 
+// Esta função busca todos os departamentos disponíveis via uma requisição à API
 async function getAllDepartments() {
     // carrega os usuarios responsaveis
     const Departments = await makeRequest(`/api/users/getAllDept`);
@@ -63,11 +64,10 @@ async function getAllDepartments() {
 
     });
 
-
 }
 
+// Esta função coleta dados de um formulário HTML, realiza validações no campo de link, e faz uma requisição para criar uma nova entrada no sistema de controle de senhas
 async function getForm() {
-
     const form = {
         title: document.querySelector('input[name="title"]').value,
         login: document.querySelector('input[name="login"]').value,
@@ -78,9 +78,19 @@ async function getForm() {
         observation: document.querySelector('textarea[name="observation"]').value,
     }
 
-    const Result = await makeRequest(`/api/control-password/create`, 'POST', form);
-    window.close()
+    // Verifica se o campo link não está vazio
+    if (form.link) {
+        const validLinkPattern = /^(http:\/\/|https:\/\/)/;
 
+        // Verifica se o link começa com http:// ou https://
+        if (!validLinkPattern.test(form.link)) {
+            Swal.fire("Por favor, insira um link válido que comece com 'http://' ou 'https://'");
+            return; // Interrompe a execução se o link não for válido
+        }
+    }
+
+    const Result = await makeRequest(`/api/control-password/create`, 'POST', form);
+    window.close();
 }
 
 // Função para verificar se os campos estão preenchidos
@@ -90,7 +100,6 @@ async function getValuesFromInputs() {
        { name: 'title', message: 'O campo TÍTULO é obrigatório.' },
        { name: 'login', message: 'O campo LOGIN é obrigatório.' },
        { name: 'password', message: 'O campo SENHA é obrigatório.' },
-       { name: 'link', message: 'O campo LINK é obrigatório.' },
     ];
  
     const elements = document.querySelectorAll('.form-control[name]');
@@ -151,6 +160,7 @@ async function getValuesFromSelects() {
     return allValid;
 };
 
+// Esta função adiciona um evento de clique ao botão de salvar
 async function eventClick() {
     // ==== Salvar ==== //
     document.getElementById('btn-save').addEventListener('click', async function (){

@@ -60,7 +60,6 @@ function eventClick() {
     }
 }
 
-
 // Função para receber o id da pessoa que esta sendo aberta nesta janela
 async function getPasswordInfo() {
     const queryString = window.location.search;
@@ -68,7 +67,6 @@ async function getPasswordInfo() {
     const id = urlParams.get('id');
     return id;
  };
-
 
 /**
  * Função para criar um toast.

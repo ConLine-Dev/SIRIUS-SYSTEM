@@ -2,24 +2,34 @@ const { executeQuery } = require('../connect/mysql');
 const { api } = require('../support/api-externa');
 
 const Stock = {
+   // Função para criar pessoas
+   insertProduct: async function(body) {
+      const formBody = body;
+
+      // Função para atualizar os dados do usuario
+      let insert = await executeQuery(
+         `INSERT INTO product (name, ncm) VALUES (?, ?);`, 
+
+         [
+            formBody.inputProduct,
+            formBody.inputNcm
+         ]
+      )
+
+      return insert;
+   },
+
+   // Lista todos comerciais;
+   getTop5Products: async function(productName) {
+      let result = await executeQuery(
+         `SELECT * FROM product WHERE name LIKE ? ORDER BY name LIMIT 5`, [`%${productName}%`])
+      return result;
+   },
+
    // Lista todos comerciais;
    getAllCollaborator: async function() {
       let result = await executeQuery(
-         `SELECT
-            clb.id AS commercial_id,
-            CONCAT(clb.name, ' ', clb.family_name) AS commercial,
-            dpt.id AS department_id,
-            dpt.name AS department
-         FROM
-            collaborators clb
-         LEFT OUTER JOIN
-            departments_relations drl ON drl.collaborator_id = clb.id
-         LEFT OUTER JOIN
-            departments dpt ON dpt.id = drl.department_id
-         WHERE
-            drl.department_id = 1 /*COMERCIAL*/
-         ORDER BY
-            clb.name ASC`)
+         `SELECT * FROM collaborators ORDER BY name`)
       return result;
    },
 }

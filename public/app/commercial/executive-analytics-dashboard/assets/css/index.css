@@ -10,3 +10,10 @@
     align-items: center;
     z-index: 9999;
 }
+
+:root{
+    --main-color: #F9423A;
+    --fcl-color: #ddbd08;
+    --lcl-color: #0aff84;
+    --air-color: #8bf2ff;
+}

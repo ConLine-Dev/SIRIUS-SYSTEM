@@ -1,3 +1,4 @@
+const socket = io();
 
 // Função para verificar se o tempo de login expirou
 async function checkLoginExpiration() {
@@ -140,6 +141,9 @@ document.addEventListener("DOMContentLoaded", async () => {
    // inicio da função verificar tempo de carregamento da pagina e suas consultas no banco
    console.time(`A página "${document.title}" carregou em`)
 
+   
+
+   
 
 
    await checkLoginExpiration()
@@ -167,7 +171,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
   /* header theme toggle */
-  function toggleTheme() {
+  async function toggleTheme() {
+   const user = await getInfosLogin()
+
    let html = document.querySelector("html");
    if (html.getAttribute("data-theme-mode") === "dark") {
      html.setAttribute("data-theme-mode", "light");
@@ -204,6 +210,10 @@ document.addEventListener("DOMContentLoaded", async () => {
        html.setAttribute("data-menu-styles", "dark");
      }
      html.setAttribute("data-header-styles", "light");
+
+   
+     window.electron.sendMessage('theme-changed', 'light');
+
    } else {
      html.setAttribute("data-theme-mode", "dark");
      html.setAttribute("data-header-styles", "dark");
@@ -228,6 +238,9 @@ document.addEventListener("DOMContentLoaded", async () => {
      localStorage.setItem("ynexHeader", "dark");
      localStorage.removeItem("bodylightRGB");
      localStorage.removeItem("bodyBgRGB");
+
+
+     window.electron.sendMessage('theme-changed', 'dark');
    }
  }
 

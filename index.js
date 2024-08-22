@@ -7,7 +7,7 @@ const socketIO = require('socket.io');
 // Import routes pages
 const listApp = require('./server/routes/app');
 const listApi = require('./server/routes/api');
-
+const ControllerSocket = require('./server/routes/socketIO');
 
 
 
@@ -30,11 +30,12 @@ const apiRoutes = listApi(io);
 app.use('/api', apiRoutes);
 app.use('/app', listApp);
 
+ControllerSocket(io)
 
 // Socket.io events handling
-io.on('connection', (socket) => {
+// io.on('connection', (socket) => {
 
-});
+// });
 
 // connection
 const port = process.env.PORT || 5000;

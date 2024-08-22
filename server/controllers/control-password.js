@@ -23,6 +23,8 @@ const controlPassword = {
                                         WHERE 
                                             c.id = ${collaborator_id}
                                             OR dr.collaborator_id = ${collaborator_id}
+                                        GROUP BY
+                                            p.id
                                         `);
 
         const formattedPassword = await Promise.all(result.map(async item => {
@@ -192,7 +194,9 @@ const controlPassword = {
                 update_at: controlPassword.formatDateToPtBr(item.update_at),
                 departmentNames: departmentNames,
                 responsibleName: `<div class="d-flex align-items-center"> <div class="me-2 lh-1"> <span class="avatar avatar-sm"> <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt=""> </span> </div> <div class="fs-14">${users}</div> </div>`,
-                action: buttons
+                action: buttons,
+                departments_id: departments
+                
             };
 
         }));
@@ -200,7 +204,7 @@ const controlPassword = {
         return formattedPassword[0];
     },
 
-    // Esta função atualiza os detalhes de uma senha existente no banco de dados com base nas informações fornecidas
+    // Esta função atualiza/Edita os detalhes de uma senha existente no banco de dados com base nas informações fornecidas
     update: async function(form) {
         const update_at = new Date();
         const formattedCreateAt = controlPassword.formatDateForDatabase(update_at);
@@ -228,6 +232,21 @@ const controlPassword = {
                 ]
         )
 
+        let delete_relation = await executeQuery(`DELETE FROM password_relation_department WHERE (password_id = ?)`, [form.id])
+
+        // Agora, insere na tabela password_relation_department para cada departamento
+        const departmentInsertQueries = form.departments.map(departmentId => {
+            return `
+                INSERT INTO password_relation_department (password_id, department_id) 
+                VALUES (${form.id}, ${departmentId})
+            `;
+        });
+
+        // Executa todas as inserções de departamento
+        for (const query of departmentInsertQueries) {
+            await executeQuery(query);
+        }
+
         return update
 
     },
@@ -235,7 +254,7 @@ const controlPassword = {
        // Deletar
     delete: async function(id) {
         let delete_relation = await executeQuery(`DELETE FROM password_relation_department WHERE (password_id = ?)`, [id])
-        // let delete_password = await executeQuery(`DELETE FROM password_control WHERE (id = ?)`, [id])
+        let delete_password = await executeQuery(`DELETE FROM password_control WHERE (id = ?)`, [id])
         return {delete_relation};
     },
 

@@ -79,10 +79,18 @@ async function getPassword(id) {
     document.querySelector('input[name="password"]').value = Password.password
     document.querySelector('input[name="link"]').value = Password.link
     document.querySelector('textarea[name="observation"]').value = Password.observation
+
+    sAllResponsible.setChoiceByValue(Password.responsible.toString())
+
+    // Marcando os departamentos
+    const departments = Password.departments_id.map(department => department.department_id.toString());
+    sAllDepartments.setChoiceByValue(departments);
+
 } 
 
 // Esta função coleta os dados de um formulário HTML, realiza validações no campo de link
 async function getForm() {
+
     const form = {
         id: await getPasswordInfo(),
         title: document.querySelector('input[name="title"]').value,

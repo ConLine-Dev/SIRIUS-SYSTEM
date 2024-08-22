@@ -36,19 +36,19 @@ async function generateTable() {
     const alturaDisponivel = window.innerHeight - document.querySelector('.card-header').offsetHeight
 
     const userLogged = await getInfosLogin()
-    console.log(userLogged)
 
     // Criar a nova tabela com os dados da API
     table['table_control_password'] =  $('#table_control_password').DataTable({
         dom: 'frtip',
         paging: false,  // Desativa a paginação
-        scrollY: '50vh',  // Define a altura dinamicamente
+        scrollY: '80%',  // Define a altura dinamicamente
         scrollCollapse: true,  // Permite que a rolagem seja usada somente quando necessário
         order: [[0, 'asc']],
         ajax: {
             url: `/api/control-password/getAllByUser?id_collaborator=${userLogged.system_collaborator_id}`,
             dataSrc: ''
           },
+
         columns: [
             { data: 'title' },
             { data: 'login' },
@@ -85,6 +85,7 @@ async function generateTable() {
         language: {
             searchPlaceholder: 'Pesquisar...',
             sSearch: '',
+            url: '../../assets/libs/datatables/pt-br.json'
         },
     });
 }

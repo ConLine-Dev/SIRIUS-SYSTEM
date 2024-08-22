@@ -49,12 +49,18 @@
 }
 
 /* CSS para ocultar apenas o texto "Pesquisar" */
-#table-inactive-clients_filter label {
+#table-estoque_filter label {
    font-size: 0;
 }
 
-#table-inactive-clients_filter label input {
+#table-estoque_filter label input {
    font-size: initial;
+}
+
+/* Estilização personalizada para garantir que o dropdown tenha a mesma largura do select */
+.choices__list--dropdown {
+   width: auto;
+   min-width: 95%;
 }
 
 .choices__inner {

@@ -1,4 +1,5 @@
-<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light" data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
 
 <head>
    <!-- Meta Data -->
@@ -14,7 +15,7 @@
    <!-- Choices JS -->
    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
    <!-- Main Theme Js -->
-   <script src="../../assets/js/main.js"></script>
+   <!-- <script src="../../assets/js/main.js"></script> -->
    <!-- Bootstrap Css -->
    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
    <!-- Style Css -->
@@ -31,9 +32,6 @@
    <!-- Choices Css -->
    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
-   <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
-   <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
-   <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
 
    <link rel="stylesheet" href="./assets/css/index.css">
    <meta http-equiv="imagetoolbar" content="no">
@@ -51,83 +49,83 @@
                 <div class="row">
                     <div class="col-2">
                         <div class="file-manager-container">
-                         <div class="file-manager-navigation">
-                             <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
-                                 <div>
-                                    <h6 class="fw-semibold mb-0">Filtros</h6>
-                                 </div>
-                             </div>
+                            <div class="file-manager-navigation">
+                                <div class="d-flex align-items-center justify-content-between w-100" style="padding: 1rem 1rem 0 1rem;">
+                                    <div class="card custom-card">
+                                        <div class="card-header py-1 pb-2">
+                                            <div class="card-title fw-semibold fs-14">Filtros</div>
+                                        </div>
+            
+                                    </div>
+                                </div>
 
-                              <ul class="list-unstyled files-main-nav" id="files-main-nav" data-simplebar="init">
-                                    <div class="simplebar-wrapper" >
-                                       <div class="simplebar-height-auto-observer-wrapper">
-                                          <div class="simplebar-height-auto-observer"></div>
-                                       </div>
-                                       <div class="simplebar-mask">
-                                          <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
-                                                <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
-                                                   <div class="simplebar-content" style="padding: 16px;padding-bottom: 81px;">
-                                                      <li class="list-group-item">
-                                                         <div class="d-flex align-items-center" style="margin-bottom: 10px;">
-                                                             <div class="flex-fill">
-                                                                 <p class="fw-bold mb-0">Colaboradores</p>
-                                                             </div>
-                                                         </div>
-                                                         <div class="row gy-3" style="gap: 20px;">
-                                                            <select id="selectCollaborator" multiple>
-                                                               <option value="" style="width: 100% !important;">Selecione os Colaboradores</option>
-                                                            </select>
-                                                         </div>
-                                                      </li>
-                                                      
-                                                      <li class="d-flex align-items-center justify-content-center">
-                                                         <button onclick="submitFilter()" class="btn btn-primary-gradient" style="width: 100%;">Filtrar</button>
-                                                      </li>
-                                                   </div>
+                                <div class="d-flex flex-column justify-content-between" style="height: 90vh; overflow-y: auto;">
+                                    <ul class="list-group list-group-flush mb-0">
+                                        <!-- <li class="list-group-item">
+                                            <div class="d-flex align-items-center" style="margin-bottom: 10px;">
+                                                <div class="flex-fill">
+                                                    <p class="fw-bold mb-0">Colaboradores</p>
                                                 </div>
-                                          </div>
-                                       </div>
-                                       <div class="simplebar-placeholder" style="width: auto; height: 809px;"></div>
+                                            </div>
+                                            <div class="row gy-3" style="gap: 20px;">
+                                                <select id="selectCollaborator" multiple>
+                                                <option value="" style="width: 100% !important;">Selecione os Colaboradores</option>
+                                                </select>
+                                            </div>
+                                        </li> -->
+                                    </ul>
+
+                                    <div class="d-flex align-items-center justify-content-center" style="margin-bottom: 40px;">
+                                        <button class="btn btn-primary-gradient" id="btn-filter" style="width: 85%;">Filtrar</button>
                                     </div>
-                                    <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
-                                       <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
-                                    </div>
-                                    <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
-                                       <div class="simplebar-scrollbar" style="height: 546px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
-                                    </div>
-                              </ul>
-                         </div>
+                                </div>
+                            </div>
                         </div>
                      </div>
                     <div class="col-xl-10">
                         <div class="card custom-card">
-                            <div class="card-header">
-                                <div class="card-title"> Gestão de Inatividade Comercial </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
+                            <div class="simplebar-content" style="padding: 16px;">
+                                <div class="card-header py-1 pb-3 justify-content-between">
+                                    <div class="card-title"> Controle de Estoque </div>
+                                    <div class="input-group" style="width: 400px; gap: 20px;">
+                                        <input type="text" class="form-control bg-light" style="border-radius: 5px;" id="search" placeholder="Pesquisar" aria-describedby="button-addon2">
+                                        <div class="dropdown"> 
+                                            <a class="btn btn-primary btn-sm btn-wave waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false" style="height: 100%; width: 40px; display: flex; align-items: center; justify-content: center;">
+                                                <i class="ri-arrow-down-s-line align-middle d-inline-block"></i> 
+                                            </a> 
+                                            <ul class="dropdown-menu" role="menu" style="width: 100px; border-radius: 5px; cursor: pointer;">
+                                                <li><a class="dropdown-item" id="create-product">Novo Produto</a></li> 
+                                                <li><a class="dropdown-item">Entr. Estoque</a></li> 
+                                                <li><a class="dropdown-item">Entr. Estoque XML</a></li> 
+                                            </ul> 
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
                                         <div class="row">
                                             <div class="col-sm-12">
-                                                <table id="table-inactive-clients" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                                <table id="table-estoque" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
                                                     <thead>
                                                         <tr>
-                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 350px;">Cliente</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Func. Responsável</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Vend. Responsável</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Última Cotação</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Último Processo</th>
+                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 350px;">Produto</th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 243px;">Quant. Estoque</th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 243px;">Valor Estoque</th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Total Entrada</th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Data Última Retirada</th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Data Última Entrada</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                      
+                                                    
                                                     </tbody>
                                                 
                                                 </table>
                                             </div>
                                         </div>
-                            
-                              
+                                    </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -147,25 +145,9 @@
    <!-- Bootstrap JS -->
    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
   
-    <!-- Node Waves JS-->
-   <script src="../../assets/libs/node-waves/waves.min.js"></script>
-
    <!-- Color Picker JS -->
    <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
  
-   <!-- Filepond JS -->
-   <script src="../../assets/libs/filepond/filepond.min.js"></script>
-   <script src="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js"></script>
-   <script src="../../assets/libs/filepond-plugin-image-exif-orientation/filepond-plugin-image-exif-orientation.min.js"></script>
-   <script src="../../assets/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js"></script>
-   <script src="../../assets/libs/filepond-plugin-file-encode/filepond-plugin-file-encode.min.js"></script>
-   <script src="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.js"></script>
-   <script src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
-   <script src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
-
-   <script src="../../assets/libs/filepond-plugin-image-crop/filepond-plugin-image-crop.min.js"></script>
-   <script src="../../assets/libs/filepond-plugin-image-resize/filepond-plugin-image-resize.min.js"></script>
-   <script src="../../assets/libs/filepond-plugin-image-transform/filepond-plugin-image-transform.min.js"></script>
    <!-- Flat Picker JS -->
    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
 

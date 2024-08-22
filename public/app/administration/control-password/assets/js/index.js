@@ -41,8 +41,9 @@ async function generateTable() {
     table['table_control_password'] =  $('#table_control_password').DataTable({
         dom: 'frtip',
         paging: false,  // Desativa a paginação
-        scrollY: '80%',  // Define a altura dinamicamente
-        scrollCollapse: true,  // Permite que a rolagem seja usada somente quando necessário
+        fixedHeader: true, // Cabeçalho fixo
+        scrollY: 'calc(100vh - 260px)',  // Define a altura dinamicamente
+        scrollCollapse: false,  // Permite que a rolagem seja usada somente quando necessário
         order: [[0, 'asc']],
         ajax: {
             url: `/api/control-password/getAllByUser?id_collaborator=${userLogged.system_collaborator_id}`,
@@ -88,6 +89,8 @@ async function generateTable() {
             url: '../../assets/libs/datatables/pt-br.json'
         },
     });
+
+   
 }
 
 // Função para editar uma linha (pode ser implementada conforme sua lógica)

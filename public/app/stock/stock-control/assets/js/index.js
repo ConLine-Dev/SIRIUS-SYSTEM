@@ -7,40 +7,31 @@ async function active_tooltip() {
     );
 };
 
-// Função que cria o select para selecionar os comerciais
-let selectCollaborator;
-async function createSelectCollaborator(data) {
-    // Formate o array para ser usado com o Choices.js
-    const options = data.map(function(element) {
-        return {
-            value: `${element.commercial_id}`,
-            label: `${element.commercial}`,
-        };
-    });
-
-    // verifica se o select ja existe, caso exista destroi
-    if (selectCollaborator) {
-        selectCollaborator.destroy();
+// Função para criar um novo produto!
+async function createProduct() {
+    const body = {
+        url: `/app/stock/new-product`,
+        width: 900, 
+        height: 200,
+        resizable:false
     }
-
-    // renderiza o select com as opções formatadas
-    selectCollaborator = new Choices('#selectCollaborator', {
-        choices: options,
-        allowHTML: true,
-        allowSearch: true,
-        shouldSort: false,
-        removeItemButton: true,
-        noChoicesText: 'Não há opções disponíveis',
-        noResultsText: 'Não há opções disponíveis'
-    });
+    window.ipcRenderer.invoke('open-exWindow', body);
 };
+
+async function eventClick() {
+    // ========== CRIAR PRODUTO ========== // 
+    document.getElementById('create-product').addEventListener('click', async function () {
+        await createProduct();
+    });
+    // ========== / CRIAR PRODUTO ========== // 
+}
+
 
 // Função executada após toda a página ser executada
 window.addEventListener("load", async () => {
-    // const getAllCollaborator = await makeRequest('/api/stock/getAllCollaborator', 'POST',);
 
     await active_tooltip();
-    // await createSelectCommercial(getAllCollaborator);
+    await eventClick();
 
     // Tela de carregando 'add=quando vc fecha algo/remove=quando vc abre algo'
     document.querySelector('#loader2').classList.add('d-none')

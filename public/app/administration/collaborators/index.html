@@ -528,10 +528,14 @@
                                                     <div class="d-flex align-items-center">
                                                         <div class="input-group">
                                                             <input type="text" id="searchInput" class="form-control bg-light border-0" placeholder="Pesquisar colaborador" aria-describedby="search-team-member">
-                                                            <button class="btn btn-light" type="button" id="search-team-member"><i class="ri-search-line text-muted"></i></button>
+                                                            <button class="btn btn-light" type="button" id="search-team-member">
+                                                                <i class="ri-search-line text-muted"></i>
+                                                            </button>
                                                         </div>
                                                         <div class="dropdown ms-2"> 
-                                                            <button class="btn btn-icon btn-primary-light ms-2" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Adicionar Colaborador"><i class="ri-add-line"></i></button>
+                                                            <button class="btn btn-icon btn-primary-light ms-2" onclick="OpenNewCollaborator()" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Adicionar Colaborador">
+                                                                <i class="ri-add-line"></i>
+                                                            </button>
                                                             
                                                         </div>
                                                     </div>

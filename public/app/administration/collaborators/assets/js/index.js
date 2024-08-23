@@ -111,6 +111,16 @@ async function searchInputCollaborators(){
     });
 }
 
+function OpenNewCollaborator(){
+    const body = {
+        url: '/app/administration/collaborators/create',
+        width: 1100,
+        height: 840,
+        resizable: true
+    }
+    window.ipcRenderer.invoke('open-exWindow', body);
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
 
     await ListCollaborators()

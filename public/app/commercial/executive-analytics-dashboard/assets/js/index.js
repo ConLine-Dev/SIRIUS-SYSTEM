@@ -1,8 +1,8 @@
 async function printOffers() {
-    const totalOffers = await makeRequest(`/api/executive-analytics-dashboard/totalOffers`, 'POST', {day: 0, week: null, month: null});
+    const totalOffers = await makeRequest(`/api/executive-analytics-dashboard/totalOffers`, 'POST', { day: 0, week: null, month: null });
     const countOffers = await makeRequest('/api/executive-analytics-dashboard/countOffers');
     const countProcesses = await makeRequest('/api/executive-analytics-dashboard/countProcesses');
-    const totalProcesses = await makeRequest(`/api/executive-analytics-dashboard/totalProcesses`, 'POST', {day: 0, week: null, month: null});
+    const totalProcesses = await makeRequest(`/api/executive-analytics-dashboard/totalProcesses`, 'POST', { day: 0, week: null, month: null });
 
     const divApprovedOffers = document.getElementById('approvedOffers');
     let printApprovedOffers = '';
@@ -145,7 +145,7 @@ async function printOffers() {
         if (totalProcesses[index].Situação == 'Auditado' || totalProcesses[index].Situação == 'Finalizado') {
 
             const date = await formattedDateTime(totalProcesses[index]['Data Abertura']);
-            if(!totalProcesses[index].Cliente){
+            if (!totalProcesses[index].Cliente) {
                 totalProcesses[index].Cliente = '[SEM CLIENTE LANÇADO]'
             }
             const clientName = await limitByCharacter(totalProcesses[index].Cliente, 27);
@@ -200,9 +200,205 @@ async function printOffers() {
 
 }
 
+async function reprintCompleteReceipts(day, week, month) {
+
+    const totalInvoices = await makeRequest(`/api/executive-analytics-dashboard/totalInvoices`, 'POST', { day: day, week: week, month: month });
+    const divCompletedReceipts = document.getElementById('completedReceipts');
+    let printCompletedReceipts = '';
+
+    for (let index = 0; index < totalInvoices.length; index++) {
+
+        let color = ''
+        if (totalInvoices[index].Modal == 'LCL') {
+            color = 'var(--lcl-color)';
+        }
+        if (totalInvoices[index].Modal == 'FCL') {
+            color = 'var(--fcl-color)';
+        }
+        if (totalInvoices[index].Modal == 'Aéreo') {
+            color = 'var(--air-color)';
+        }
+        
+        if (totalInvoices[index].Natureza == 'Recebimento') {
+            if (totalInvoices[index].Situacao_Fatura == 'Quitada') {
+
+                const date = await formattedDateTime(totalInvoices[index].Data);
+                const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
+
+                printCompletedReceipts += `
+                <a href="javascript:void(0);" class="border-0">
+                    <div class="list-group-item border-0">
+                        <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
+                            <div class="w-100">
+                                <div class="d-flex align-items-top justify-content-between">
+                                    <div class="mt-0">
+                                        <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
+                                    <div class="text-muted fs-12 text-center"></div>
+                                    <span class="ms-auto">
+                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-muted d-block fs-12">${date}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>`
+            }
+        }
+    }
+    divCompletedReceipts.innerHTML = printCompletedReceipts;
+}
+
+async function reprintCompletePayments(day, week, month) {
+
+    const totalInvoices = await makeRequest(`/api/executive-analytics-dashboard/totalInvoices`, 'POST', { day: day, week: week, month: month });
+    const divCompletedPayments = document.getElementById('completedPayments');
+    let printCompletedPayments = '';
+
+    for (let index = 0; index < totalInvoices.length; index++) {
+
+        let color = ''
+        if (totalInvoices[index].Modal == 'LCL') {
+            color = 'var(--lcl-color)';
+        }
+        if (totalInvoices[index].Modal == 'FCL') {
+            color = 'var(--fcl-color)';
+        }
+        if (totalInvoices[index].Modal == 'Aéreo') {
+            color = 'var(--air-color)';
+        }
+
+        if (totalInvoices[index].Natureza == 'Pagamento') {
+            if (totalInvoices[index].Situacao_Fatura == 'Quitada') {
+
+                const date = await formattedDateTime(totalInvoices[index].Data);
+                const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
+
+                printCompletedPayments += `
+                <a href="javascript:void(0);" class="border-0">
+                    <div class="list-group-item border-0">
+                        <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
+                            <div class="w-100">
+                                <div class="d-flex align-items-top justify-content-between">
+                                    <div class="mt-0">
+                                        <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
+                                    <div class="text-muted fs-12 text-center"></div>
+                                    <span class="ms-auto">
+                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-muted d-block fs-12">${date}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>`
+            }
+        }
+    }
+    divCompletedPayments.innerHTML = printCompletedPayments;
+}
+
+async function reprintPendingReceipts(day, week, month) {
+
+    const totalInvoices = await makeRequest(`/api/executive-analytics-dashboard/totalInvoices`, 'POST', { day: day, week: week, month: month });
+    const divPendingReceipts = document.getElementById('pendingReceipts');
+    let printPendingReceipts = '';
+
+    for (let index = 0; index < totalInvoices.length; index++) {
+
+        let color = ''
+        if (totalInvoices[index].Modal == 'LCL') {
+            color = 'var(--lcl-color)';
+        }
+        if (totalInvoices[index].Modal == 'FCL') {
+            color = 'var(--fcl-color)';
+        }
+        if (totalInvoices[index].Modal == 'Aéreo') {
+            color = 'var(--air-color)';
+        }
+
+        if (totalInvoices[index].Natureza == 'Recebimento') {
+            if (totalInvoices[index].Situacao_Fatura != 'Quitada') {
+
+                const date = await formattedDateTime(totalInvoices[index].Data);
+                const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
+
+                printPendingReceipts += `
+                <a href="javascript:void(0);" class="border-0">
+                    <div class="list-group-item border-0">
+                        <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
+                            <div class="w-100">
+                                <div class="d-flex align-items-top justify-content-between">
+                                    <div class="mt-0">
+                                        <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
+                                    <div class="text-muted fs-12 text-center"></div>
+                                    <span class="ms-auto">
+                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-muted d-block fs-12">${date}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>`
+            }
+        }
+    }
+    divPendingReceipts.innerHTML = printPendingReceipts;
+}
+
+async function reprintPendingPayments(day, week, month) {
+
+    const totalInvoices = await makeRequest(`/api/executive-analytics-dashboard/totalInvoices`, 'POST', { day: day, week: week, month: month });
+    const divPendingPayments = document.getElementById('pendingPayments');
+    let printPendingPayments = '';
+
+    for (let index = 0; index < totalInvoices.length; index++) {
+
+        let color = ''
+        if (totalInvoices[index].Modal == 'LCL') {
+            color = 'var(--lcl-color)';
+        }
+        if (totalInvoices[index].Modal == 'FCL') {
+            color = 'var(--fcl-color)';
+        }
+        if (totalInvoices[index].Modal == 'Aéreo') {
+            color = 'var(--air-color)';
+        }
+
+        if (totalInvoices[index].Natureza == 'Pagamento') {
+            if (totalInvoices[index].Situacao_Fatura != 'Quitada') {
+
+                const date = await formattedDateTime(totalInvoices[index].Data);
+                const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
+
+                printPendingPayments += `
+                <a href="javascript:void(0);" class="border-0">
+                    <div class="list-group-item border-0">
+                        <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
+                            <div class="w-100">
+                                <div class="d-flex align-items-top justify-content-between">
+                                    <div class="mt-0">
+                                        <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
+                                    <div class="text-muted fs-12 text-center"></div>
+                                    <span class="ms-auto">
+                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-muted d-block fs-12">${date}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>`
+            }
+        }
+    }
+    divPendingPayments.innerHTML = printPendingPayments;
+}
+
 async function reprintApprovedOffers(day, week, month) {
 
-    const totalOffers = await makeRequest(`/api/executive-analytics-dashboard/totalOffers`, 'POST', {day: day, week: week, month: month});
+    const totalOffers = await makeRequest(`/api/executive-analytics-dashboard/totalOffers`, 'POST', { day: day, week: week, month: month });
     const divApprovedOffers = document.getElementById('approvedOffers');
     let printApprovedOffers = '';
 
@@ -219,7 +415,7 @@ async function reprintApprovedOffers(day, week, month) {
         if (totalOffers[index].Situação == 'Aprovada') {
 
             const date = await formattedDateTime(totalOffers[index]['Data Abertura']);
-            if(!totalOffers[index].Cliente){
+            if (!totalOffers[index].Cliente) {
                 totalOffers[index].Cliente = '[SEM CLIENTE LANÇADO]'
             }
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
@@ -246,9 +442,10 @@ async function reprintApprovedOffers(day, week, month) {
     }
     divApprovedOffers.innerHTML = printApprovedOffers;
 }
+
 async function reprintPendingOffers(day, week, month) {
 
-    const totalOffers = await makeRequest(`/api/executive-analytics-dashboard/totalOffers`, 'POST', {day: day, week: week, month: month});
+    const totalOffers = await makeRequest(`/api/executive-analytics-dashboard/totalOffers`, 'POST', { day: day, week: week, month: month });
     const divPendingOffers = document.getElementById('pendingOffers');
     let printPendingOffers = '';
 
@@ -265,7 +462,7 @@ async function reprintPendingOffers(day, week, month) {
         if (totalOffers[index].Situação == 'Aguardando Aprovação') {
 
             const date = await formattedDateTime(totalOffers[index]['Data Abertura']);
-            if(!totalOffers[index].Cliente){
+            if (!totalOffers[index].Cliente) {
                 totalOffers[index].Cliente = '[SEM CLIENTE LANÇADO]'
             }
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
@@ -295,7 +492,7 @@ async function reprintPendingOffers(day, week, month) {
 
 async function reprintRejectedOffers(day, week, month) {
 
-    const totalOffers = await makeRequest(`/api/executive-analytics-dashboard/totalOffers`, 'POST', {day: day, week: week, month: month});
+    const totalOffers = await makeRequest(`/api/executive-analytics-dashboard/totalOffers`, 'POST', { day: day, week: week, month: month });
     const divRejectedOffers = document.getElementById('rejectedOffers');
     let printRejectedOffers = '';
 
@@ -312,7 +509,7 @@ async function reprintRejectedOffers(day, week, month) {
         if (totalOffers[index].Situação == 'Reprovada') {
 
             const date = await formattedDateTime(totalOffers[index]['Data Abertura']);
-            if(!totalOffers[index].Cliente){
+            if (!totalOffers[index].Cliente) {
                 totalOffers[index].Cliente = '[SEM CLIENTE LANÇADO]'
             }
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
@@ -342,7 +539,7 @@ async function reprintRejectedOffers(day, week, month) {
 
 async function reprintCompleteProcesses(day, week, month) {
 
-    const totalProcesses = await makeRequest(`/api/executive-analytics-dashboard/totalProcesses`, 'POST', {day: day, week: week, month: month});
+    const totalProcesses = await makeRequest(`/api/executive-analytics-dashboard/totalProcesses`, 'POST', { day: day, week: week, month: month });
     const divCompletedProcesses = document.getElementById('completedProcesses');
     let printCompletedProcesses = '';
 
@@ -359,7 +556,7 @@ async function reprintCompleteProcesses(day, week, month) {
         if (totalProcesses[index].Situação == 'Auditado' || totalProcesses[index].Situação == 'Finalizado') {
 
             const date = await formattedDateTime(totalProcesses[index]['Data Abertura']);
-            if(!totalProcesses[index].Cliente){
+            if (!totalProcesses[index].Cliente) {
                 totalProcesses[index].Cliente = '[SEM CLIENTE LANÇADO]'
             }
             const clientName = await limitByCharacter(totalProcesses[index].Cliente, 27);
@@ -388,17 +585,199 @@ async function reprintCompleteProcesses(day, week, month) {
     divCompletedProcesses.innerHTML = printCompletedProcesses;
 }
 
-async function setDateFilter(range) {
+async function printValues() {
+    totalInvoices = await makeRequest(`/api/executive-analytics-dashboard/totalInvoices`, 'POST', { day: 0, week: null, month: null });
+    conversionRates = await makeRequest(`/api/executive-analytics-dashboard/conversionRates`)
+    const divCompletedReceiptsTitle = document.getElementById('completedReceiptsTitle');
+    let printCompletedReceiptsTitle = '';
+    const divcompletedPaymentsTitle = document.getElementById('completedPaymentsTitle');
+    let printcompletedPaymentsTitle = '';
+    const divPendingReceiptsTitle = document.getElementById('pendingReceiptsTitle');
+    let printPendingReceiptsTitle = '';
+    const divPendingPaymentsTitle = document.getElementById('pendingPaymentsTitle');
+    let printPendingPaymentsTitle = '';
+    const divCompletedReceipts = document.getElementById('completedReceipts');
+    let printCompletedReceipts = '';
+    const divcompletedPayments = document.getElementById('completedPayments');
+    let printCompletedPayments = '';
+    const divPendingReceipts = document.getElementById('pendingReceipts');
+    let printPendingReceipts = '';
+    const divPendingPayments = document.getElementById('pendingPayments');
+    let printPendingPayments = '';
+    let totalCompletedReceipts = 0;
+    let totalCompletedPayments = 0;
+    let totalPendingReceipts = 0;
+    let totalPendingPayments = 0;
+    let dollarRate = 0;
 
-    let today = new Date();
-    let filterDate = new Date(today);
-    filterDate.setUTCDate(today.getUTCDate() - range);
+    for (let index = 0; index < conversionRates.length; index++) {
+        if (conversionRates[index].IdMoeda_Origem == 31) {
+            dollarRate = conversionRates[index].Fator
+        }
+    }
 
-    const year = filterDate.getUTCFullYear();
-    const month = String(filterDate.getUTCMonth() + 1).padStart(2, '0'); // meses começam de 0 a 11, então adicionamos 1
-    const day = String(filterDate.getUTCDate()).padStart(2, '0');
+    for (let index = 0; index < totalInvoices.length; index++) {
 
-    return `'${year}-${month}-${day}'`;
+        let color = ''
+        if (totalInvoices[index].Modal == 'LCL') {
+            color = 'var(--lcl-color)';
+        }
+        if (totalInvoices[index].Modal == 'FCL') {
+            color = 'var(--fcl-color)';
+        }
+        if (totalInvoices[index].Modal == 'Aéreo') {
+            color = 'var(--air-color)';
+        }
+
+        if (totalInvoices[index].Natureza == 'Recebimento') {
+            if (totalInvoices[index].Situacao_Fatura == 'Quitada') {
+
+                const date = await formattedDateTime(totalInvoices[index].Data);
+                const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
+
+                printCompletedReceipts += `
+                <a href="javascript:void(0);" class="border-0">
+                    <div class="list-group-item border-0">
+                        <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
+                            <div class="w-100">
+                                <div class="d-flex align-items-top justify-content-between">
+                                    <div class="mt-0">
+                                        <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
+                                    <div class="text-muted fs-12 text-center"></div>
+                                    <span class="ms-auto">
+                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-muted d-block fs-12">${date}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>`
+
+                if (totalInvoices[index].Moeda == 'USD') {
+                    totalInvoices[index].Valor = totalInvoices[index].Valor * dollarRate;
+                }
+                totalCompletedReceipts = totalCompletedReceipts + totalInvoices[index].Valor;
+            }
+            else {
+
+                const date = await formattedDateTime(totalInvoices[index].Data);
+                const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
+
+                printPendingReceipts += `
+                <a href="javascript:void(0);" class="border-0">
+                    <div class="list-group-item border-0">
+                        <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
+                            <div class="w-100">
+                                <div class="d-flex align-items-top justify-content-between">
+                                    <div class="mt-0">
+                                        <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
+                                    <div class="text-muted fs-12 text-center"></div>
+                                    <span class="ms-auto">
+                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-muted d-block fs-12">${date}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>`
+
+                if (totalInvoices[index].Moeda == 'USD') {
+                    totalInvoices[index].Valor = totalInvoices[index].Valor * dollarRate;
+                }
+                totalPendingReceipts = totalPendingReceipts + totalInvoices[index].Valor;
+            }
+        }
+        if (totalInvoices[index].Natureza == 'Pagamento') {
+            if (totalInvoices[index].Situacao_Fatura == 'Quitada') {
+
+                const date = await formattedDateTime(totalInvoices[index].Data);
+                const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
+
+                printCompletedPayments += `
+                <a href="javascript:void(0);" class="border-0">
+                    <div class="list-group-item border-0">
+                        <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
+                            <div class="w-100">
+                                <div class="d-flex align-items-top justify-content-between">
+                                    <div class="mt-0">
+                                        <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
+                                    <div class="text-muted fs-12 text-center"></div>
+                                    <span class="ms-auto">
+                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-muted d-block fs-12">${date}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>`
+
+                if (totalInvoices[index].Moeda == 'USD') {
+                    totalInvoices[index].Valor = totalInvoices[index].Valor * dollarRate;
+                }
+                totalCompletedPayments = totalCompletedPayments + totalInvoices[index].Valor;
+            } else {
+
+                const date = await formattedDateTime(totalInvoices[index].Data);
+                const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
+
+                printPendingPayments += `
+                <a href="javascript:void(0);" class="border-0">
+                    <div class="list-group-item border-0">
+                        <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
+                            <div class="w-100">
+                                <div class="d-flex align-items-top justify-content-between">
+                                    <div class="mt-0">
+                                        <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
+                                    <div class="text-muted fs-12 text-center"></div>
+                                    <span class="ms-auto">
+                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-muted d-block fs-12">${date}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>`
+
+                if (totalInvoices[index].Moeda == 'USD') {
+                    totalInvoices[index].Valor = totalInvoices[index].Valor * dollarRate;
+                }
+                totalPendingPayments = totalPendingPayments + totalInvoices[index].Valor;
+            }
+        }
+    }
+
+    totalCompletedReceipts = totalCompletedReceipts.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    totalCompletedPayments = totalCompletedPayments.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    totalPendingReceipts = totalPendingReceipts.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    totalPendingPayments = totalPendingPayments.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    printCompletedReceiptsTitle = `
+        <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
+        <div> <span class="d-block text-muted">Recebimento Total Baixado</span> <span class="fs-16 fw-semibold">BRL ${totalCompletedReceipts}</span> </div>`
+
+    printcompletedPaymentsTitle = `
+        <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
+        <div> <span class="d-block text-muted">Pagamento Total Baixado</span> <span class="fs-16 fw-semibold">BRL ${totalCompletedPayments}</span> </div>`
+
+    printPendingReceiptsTitle = `
+        <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
+        <div> <span class="d-block text-muted">Recebimento Total Pendente</span> <span class="fs-16 fw-semibold">BRL ${totalPendingReceipts}</span> </div>`
+    printPendingPaymentsTitle = `
+        <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
+        <div> <span class="d-block text-muted">Pagamento Total Pendente</span> <span class="fs-16 fw-semibold">BRL ${totalPendingPayments}</span> </div>`
+
+    divCompletedReceiptsTitle.innerHTML = printCompletedReceiptsTitle;
+    divcompletedPaymentsTitle.innerHTML = printcompletedPaymentsTitle;
+    divPendingReceiptsTitle.innerHTML = printPendingReceiptsTitle;
+    divPendingPaymentsTitle.innerHTML = printPendingPaymentsTitle;
+    divCompletedReceipts.innerHTML = printCompletedReceipts;
+    divPendingReceipts.innerHTML = printPendingReceipts;
+    divcompletedPayments.innerHTML = printCompletedPayments;
+    divPendingPayments.innerHTML = printPendingPayments;
 }
 
 async function formattedDateTime(time) {
@@ -429,6 +808,7 @@ async function limitByWord(text, limit) {
 document.addEventListener("DOMContentLoaded", async () => {
 
     await printOffers();
+    await printValues();
 
     document.querySelector('#loader2').classList.add('d-none')
 })

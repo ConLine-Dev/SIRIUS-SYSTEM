@@ -52,5 +52,28 @@ module.exports = function(io) {
       }
    });
 
+   router.post('/totalInvoices', async (req, res, next) => {
+      const data = req.body;
+      try {
+         const result = await executiveAnalytics.totalInvoices(data);
+
+         res.status(200).json(result)
+      } catch (error) {
+
+         res.status(404).json('Erro')
+      }
+   });
+
+   router.get('/conversionRates', async (req, res, next) => {
+      try {
+         const result = await executiveAnalytics.conversionRates();
+
+         res.status(200).json(result)
+      } catch (error) {
+
+         res.status(404).json('Erro')
+      }
+   });
+
    return router;
 }

@@ -40,7 +40,6 @@ const controlPassword = {
         const departments = await controlPassword.getDepartmentsByIdPassword(item.id);
         const departmentNames = departments.map(department => `<span class="badge bg-primary px-1 py-2 fs-10">${department.name}</span>`).join(' ');
         const users = `${item.ResponsibleName} ${item.ResponsibleFamilyName}`
-        console.log(item)
 
         return {
             ...item,
@@ -207,7 +206,6 @@ const controlPassword = {
     update: async function(form) {
         const update_at = new Date();
         const formattedCreateAt = controlPassword.formatDateForDatabase(update_at);
-        console.log(form)
 
         let update = await executeQuery(
             `UPDATE password_control SET 

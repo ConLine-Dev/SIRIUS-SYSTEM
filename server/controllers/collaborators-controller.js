@@ -61,6 +61,92 @@ const collaboratorsController = {
         return result[0];
     },
 
+    getCollaboratorBirthDate: async function(){
+        const result = await executeQuery(`SELECT 
+        id, 
+        name,
+        family_name,
+        id_headcargo,
+        birth_date, 
+        DATE_FORMAT(birth_date, '%d/%m') AS birthday, 
+        DATE_FORMAT(birth_date, '%d/%m') AS birthday_formated, 
+        DATE_FORMAT(CONCAT(YEAR(CURDATE()), '-', MONTH(birth_date), '-', DAY(birth_date)), '%Y-%m-%d') AS next_birthday
+      FROM 
+        collaborators
+      WHERE 
+        birth_date IS NOT NULL
+      ORDER BY 
+        CASE
+          -- Se o aniversário ainda não aconteceu este ano, ordena pela data de aniversário
+          WHEN DATE_FORMAT(birth_date, '%m-%d') >= DATE_FORMAT(CURDATE(), '%m-%d') THEN 
+            DATE_FORMAT(CONCAT(YEAR(CURDATE()), '-', MONTH(birth_date), '-', DAY(birth_date)), '%Y-%m-%d')
+          -- Caso contrário, ordena pelo próximo aniversário no próximo ano
+          ELSE 
+            DATE_FORMAT(CONCAT(YEAR(CURDATE()) + 1, '-', MONTH(birth_date), '-', DAY(birth_date)), '%Y-%m-%d')
+        END ASC;
+      `)
+
+      return result;
+    },
+
+    getCollaboratorAdmissionDate: async function(){
+        const result = await executeQuery(`SELECT 
+        id, 
+        name,
+        family_name,
+        id_headcargo,
+        admission_date, 
+        DATE_FORMAT(admission_date, '%d/%m') AS admission_anniversary, 
+        DATE_FORMAT(CONCAT(YEAR(CURDATE()), '-', MONTH(admission_date), '-', DAY(admission_date)), '%Y-%m-%d') AS next_admission_anniversary,
+      
+        -- Cálculo do tempo de empresa em anos, meses e dias
+        CONCAT(
+          CASE 
+            -- Anos completos
+            WHEN TIMESTAMPDIFF(YEAR, admission_date, CURDATE()) > 0 
+            THEN CONCAT(TIMESTAMPDIFF(YEAR, admission_date, CURDATE()), ' ano(s) ') 
+            ELSE '' 
+          END,
+          CASE 
+            -- Meses completos, sem contar os anos já considerados
+            WHEN TIMESTAMPDIFF(MONTH, DATE_ADD(admission_date, INTERVAL TIMESTAMPDIFF(YEAR, admission_date, CURDATE()) YEAR), CURDATE()) > 0
+            THEN CONCAT(TIMESTAMPDIFF(MONTH, DATE_ADD(admission_date, INTERVAL TIMESTAMPDIFF(YEAR, admission_date, CURDATE()) YEAR), CURDATE()), ' mês(es) ')
+            ELSE '' 
+          END,
+          CASE 
+            -- Dias restantes, após anos e meses terem sido contabilizados
+            WHEN DATEDIFF(CURDATE(), 
+                          DATE_ADD(
+                            DATE_ADD(admission_date, INTERVAL TIMESTAMPDIFF(YEAR, admission_date, CURDATE()) YEAR),
+                            INTERVAL TIMESTAMPDIFF(MONTH, DATE_ADD(admission_date, INTERVAL TIMESTAMPDIFF(YEAR, admission_date, CURDATE()) YEAR), CURDATE()) MONTH
+                          )) > 0 
+            THEN CONCAT(DATEDIFF(CURDATE(), 
+                          DATE_ADD(
+                            DATE_ADD(admission_date, INTERVAL TIMESTAMPDIFF(YEAR, admission_date, CURDATE()) YEAR),
+                            INTERVAL TIMESTAMPDIFF(MONTH, DATE_ADD(admission_date, INTERVAL TIMESTAMPDIFF(YEAR, admission_date, CURDATE()) YEAR), CURDATE()) MONTH
+                          )), ' dia(s)')
+            ELSE '' 
+          END
+        ) AS tempo_de_empresa
+        
+      FROM 
+        collaborators
+      WHERE 
+        admission_date IS NOT NULL
+      ORDER BY 
+        CASE
+          -- Se o aniversário de admissão ainda não aconteceu este ano, ordena pela data de admissão
+          WHEN DATE_FORMAT(admission_date, '%m-%d') >= DATE_FORMAT(CURDATE(), '%m-%d') THEN 
+            DATE_FORMAT(CONCAT(YEAR(CURDATE()), '-', MONTH(admission_date), '-', DAY(admission_date)), '%Y-%m-%d')
+          -- Caso contrário, ordena pelo próximo aniversário de admissão no próximo ano
+          ELSE 
+            DATE_FORMAT(CONCAT(YEAR(CURDATE()) + 1, '-', MONTH(admission_date), '-', DAY(admission_date)), '%Y-%m-%d')
+        END ASC;
+      `)
+
+      return result;
+    },
+
     getAllCollaborators: async function() {
         const query = `SELECT 
         clt.*,
@@ -72,13 +158,104 @@ const collaboratorsController = {
                 CONCAT(TIMESTAMPDIFF(MONTH, clt.admission_date, CURDATE()), ' Meses')
             ELSE 
                 CONCAT(TIMESTAMPDIFF(DAY, clt.admission_date, CURDATE()), ' Dias')
-        END AS time_with_company,
-        CONCAT(cmp.city, ' | ', cmp.country) as companie_name,
-        cnt.name as contract_name
+            END AS time_with_company,
+            CONCAT(cmp.city, ' | ', cmp.country) as companie_name,
+            cnt.name as contract_name
+        FROM 
+            collaborators clt
+        LEFT JOIN companies cmp ON cmp.id = clt.companie_id
+        LEFT JOIN collaborators_contract_type cnt ON cnt.id = clt.contract_type`;
+        const result = await executeQuery(query);
+        return result;
+    },
+
+    turnoverGeneral: async function(){
+        const result = await executeQuery(`
+        SELECT 
+            ((admissoes.total_admissoes + desligamentos.total_desligamentos) / 2) / total_colaboradores.total_colaboradores * 100 AS turnover
+        FROM
+            (SELECT COUNT(*) AS total_admissoes
+             FROM collaborators
+             WHERE admission_date BETWEEN '2024-08-01' AND '2024-08-31') AS admissoes,
+            (SELECT COUNT(*) AS total_desligamentos
+             FROM collaborators
+             WHERE resignation_date BETWEEN '2024-08-01' AND '2024-08-01') AS desligamentos,
+            (SELECT COUNT(*) AS total_colaboradores
+             FROM collaborators
+             WHERE admission_date <= '2024-08-01'
+               AND (resignation_date is null OR resignation_date > '2024-08-01')) AS total_colaboradores;`);
+               
+        return result[0].turnover;
+    },
+
+    turnoverMonth: async function(){
+        const result = await executeQuery(`SELECT 
+        DATE_FORMAT(STR_TO_DATE(CONCAT('2024-', month_table.month, '-01'), '%Y-%m-%d'), '%M') AS month,
+        COALESCE(admissoes.total_admissoes, 0) AS total_admissoes,
+        COALESCE(desligamentos.total_desligamentos, 0) AS total_desligamentos,
+        CONCAT(
+            FORMAT(
+                (
+                    (COALESCE(admissoes.total_admissoes, 0) + COALESCE(desligamentos.total_desligamentos, 0)) / 2
+                ) / 
+                COALESCE(total_colaboradores.total_colaboradores, 1) * 100
+            , 2), '%'
+        ) AS turnover
+    FROM
+        (SELECT 1 AS month UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION
+         SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION
+         SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12) AS month_table
+    LEFT JOIN
+        (SELECT 
+             MONTH(admission_date) AS month,
+             COUNT(*) AS total_admissoes
+         FROM collaborators
+         WHERE YEAR(admission_date) = 2024
+         GROUP BY MONTH(admission_date)) AS admissoes
+    ON month_table.month = admissoes.month
+    LEFT JOIN
+        (SELECT 
+             MONTH(resignation_date) AS month,
+             COUNT(*) AS total_desligamentos
+         FROM collaborators
+         WHERE YEAR(resignation_date) = 2024
+         GROUP BY MONTH(resignation_date)) AS desligamentos
+    ON month_table.month = desligamentos.month
+    LEFT JOIN
+        (SELECT 
+             month_table.month,
+             COUNT(*) AS total_colaboradores
+         FROM collaborators, (SELECT 1 AS month UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION
+                              SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION
+                              SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12) AS month_table
+         WHERE admission_date <= STR_TO_DATE(CONCAT('2024-', month_table.month, '-01'), '%Y-%m-%d')
+           AND (resignation_date IS NULL OR resignation_date > STR_TO_DATE(CONCAT('2024-', month_table.month, '-01'), '%Y-%m-%d'))
+         GROUP BY month_table.month) AS total_colaboradores
+    ON month_table.month = total_colaboradores.month
+    ORDER BY month_table.month;
+
+    `);
+               
+        return result;
+    },
+
+    getAllCollaboratorsActive: async function() {
+        const query = `SELECT 
+        c.*,
+        GROUP_CONCAT(d.name ORDER BY d.name ASC SEPARATOR ', ') AS departments_names
     FROM 
-        collaborators clt
-    LEFT JOIN companies cmp ON cmp.id = clt.companie_id
-    LEFT JOIN collaborators_contract_type cnt ON cnt.id = clt.contract_type`;
+        collaborators c
+    JOIN 
+        departments_relations dr ON c.id = dr.collaborator_id
+    JOIN 
+        departments d ON dr.department_id = d.id
+    WHERE 
+        c.resignation_date IS NULL -- Somente colaboradores ativos
+    GROUP BY 
+        c.id, c.full_name
+    ORDER BY 
+        c.full_name ASC
+        `;
         const result = await executeQuery(query);
         return result;
     },

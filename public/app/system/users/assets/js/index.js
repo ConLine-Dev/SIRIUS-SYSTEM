@@ -3,18 +3,22 @@ let table = [];
 
 const socket = io();
 
+
 socket.on("updateTableUsers", async (data) => {
   table['table-user-management'].ajax.reload(null, false);
 });
 
 // Função para carregar os usuários
 async function loadUsers() {
+
   table['table-user-management'] = $('#table-user-management').DataTable({
     dom: 'frtip',
-    scrollCollapse: true,
-    pageLength: 15,
-    paging: true,
-    order: [[0, 'desc']],
+    info: false,
+    paging: false,  // Desativa a paginação
+    fixedHeader: true, // Cabeçalho fixo
+    scrollY: 'calc(100vh - 180px)',  // Define a altura dinamicamente
+    scrollCollapse: false,  // Permite que a rolagem seja usada somente quando necessário
+    order: [[0, 'asc']],
     ajax: {
       url: apiUrl,
       dataSrc: ''

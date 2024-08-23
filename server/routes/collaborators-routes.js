@@ -45,9 +45,54 @@ module.exports = function (io) {
         }
     });
 
+    router.get('/collaborators-birth-date', async (req, res) => {
+        try {
+            const collaborator = await collaboratorsController.getCollaboratorBirthDate(req.params.id);
+            res.status(200).json(collaborator);
+        } catch (error) {
+            res.status(500).json({ message: 'Erro ao buscar colaborador' });
+        }
+    });
+
+    router.get('/collaborators-admission-date', async (req, res) => {
+        try {
+            const collaborator = await collaboratorsController.getCollaboratorAdmissionDate(req.params.id);
+            res.status(200).json(collaborator);
+        } catch (error) {
+            res.status(500).json({ message: 'Erro ao buscar colaborador' });
+        }
+    });
+
+    router.get('/turnoverGeneral', async (req, res) => {
+        try {
+            const collaborators = await collaboratorsController.turnoverGeneral();
+            res.status(200).json(collaborators);
+        } catch (error) {
+            res.status(500).json({ message: 'Erro ao listar colaboradores' });
+        }
+    });
+
+    router.get('/turnover-month', async (req, res) => {
+        try {
+            const collaborators = await collaboratorsController.turnoverMonth();
+            res.status(200).json(collaborators);
+        } catch (error) {
+            res.status(500).json({ message: 'Erro ao listar colaboradores' });
+        }
+    });
+
     router.get('/collaborators', async (req, res) => {
         try {
             const collaborators = await collaboratorsController.getAllCollaborators();
+            res.status(200).json(collaborators);
+        } catch (error) {
+            res.status(500).json({ message: 'Erro ao listar colaboradores' });
+        }
+    });
+
+    router.get('/collaborators-active', async (req, res) => {
+        try {
+            const collaborators = await collaboratorsController.getAllCollaboratorsActive();
             res.status(200).json(collaborators);
         } catch (error) {
             res.status(500).json({ message: 'Erro ao listar colaboradores' });

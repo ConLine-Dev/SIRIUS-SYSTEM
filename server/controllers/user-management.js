@@ -7,7 +7,6 @@ const userManagement = {
                                         CONCAT(clt.name, ' ', clt.family_name) as ColabFullName 
                                 FROM users us
                                 JOIN collaborators clt ON clt.id = us.collaborator_id ORDER BY id desc`);
-        
 
         return result
     },

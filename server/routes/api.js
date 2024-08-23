@@ -56,14 +56,14 @@ const setIO = (io) => {
   // Use as rotas do arquivo apiAppMonitor.js
   router.use('/headcargo/commission', api_headcargo);
 
-   // Use as rotas do arquivo apiAppMonitor.js
-   router.use('/headcargo/searchLog', api_headcargo);
-
-    // Use as rotas do arquivo apiAppMonitor.js
-    router.use('/headcargo/inactive-clients-report', api_headcargo);
+  // Use as rotas do arquivo apiAppMonitor.js
+  router.use('/headcargo/searchLog', api_headcargo);
 
   // Use as rotas do arquivo apiAppMonitor.js
-  //  router.use('/called/projects', api_called_projects);
+  router.use('/headcargo/inactive-clients-report', api_headcargo);
+
+  // Use as rotas do arquivo apiAppMonitor.js
+  // router.use('/called/projects', api_called_projects);
 
   // Use as rotas do arquivo apiAppMonitor.js
   router.use('/called/tickets', api_called_tickets);
@@ -84,6 +84,9 @@ const setIO = (io) => {
   router.use('/module-management', api_moduleManagement(io));
 
   router.use('/control-password', api_controlPassword(io));
+
+  // Use as rotas do arquivo api-user-management.js
+  router.use('/user-management', api_userManagement(io));
 
   // Use as rotas do arquivo api-user-management.js
   router.use('/collaborators-management', api_collaboratorsRoutes(io));

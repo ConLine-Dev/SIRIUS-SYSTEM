@@ -11,7 +11,7 @@
     z-index: 9999;
 }
 body{
-    /* overflow: hidden !important; */
+    overflow: hidden !important;
  }
 
 .dataTables_filter{

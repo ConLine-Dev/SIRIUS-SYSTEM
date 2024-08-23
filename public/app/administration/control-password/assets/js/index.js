@@ -42,7 +42,8 @@ async function generateTable() {
         dom: 'frtip',
         paging: false,  // Desativa a paginação
         fixedHeader: true, // Cabeçalho fixo
-        scrollY: 'calc(100vh - 260px)',  // Define a altura dinamicamente
+        info: false,
+        scrollY: 'calc(100vh - 240px)',  // Define a altura dinamicamente
         scrollCollapse: false,  // Permite que a rolagem seja usada somente quando necessário
         order: [[0, 'asc']],
         ajax: {

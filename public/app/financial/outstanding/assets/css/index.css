@@ -11,3 +11,7 @@
     z-index: 9999;
 }
 
+.listInvoices {
+    overflow-y: scroll;
+    max-height: 379px;
+}

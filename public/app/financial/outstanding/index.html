@@ -16,7 +16,7 @@
     <!-- Choices JS -->
     <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
     <!-- Main Theme Js -->
-    <script src="../../assets/js/main.js"></script>
+    <!-- <script src="../../assets/js/main.js"></script> -->
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <!-- Style Css -->
@@ -46,7 +46,7 @@
     
     
 
-    <!-- <link rel="stylesheet" href="./assets/css/index.css"> -->
+    <link rel="stylesheet" href="./assets/css/index.css">
     <meta http-equiv="imagetoolbar" content="no">
 </head>
 
@@ -1323,14 +1323,15 @@
                                     <div class="dropdown">
                                         <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon btn-sm btn-light" data-bs-toggle="dropdown"> <i class="fe fe-more-vertical"></i> </a>
                                         <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="javascript:void(0);">Faturado</a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);">Lib. Faturamento</a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);">Vencidos</a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);">Total Recebido</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);" onclick="invoicesTable(1)" id="filter_Invoiced">Em aberto</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);" onclick="invoicesTable(2)" id="filter_Invoicing">Quitada</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);" onclick="invoicesTable(3)" id="filter_Losers">Parcialmente quitada</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);" onclick="invoicesTable(4)" id="filter_TotalReceived">Total Recebido</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);" onclick="invoicesTable('1,2,3,4,5,6')" id="filter_TotalReceived">Todes</a></li>
                                         </ul>
                                     </div>
                                 </div>
-                                <div class="card-body">
+                                <div class="card-body listInvoices">
                                     <div class="list-group" id="listInvoices">
                                         <!-- INFOS ADD PELO JS -->
                                     </div>
@@ -1559,7 +1560,7 @@
 
 
 
-    <!-- <script src="./assets/js/index.js"></script> -->
+    <script src="./assets/js/index.js"></script>
 
 
 

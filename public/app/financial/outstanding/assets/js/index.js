@@ -1,7 +1,8 @@
 // Função que gera a tabela de faturas a partir dos dados recebidos de uma API.
-async function invoicesTable() {
+async function invoicesTable(situacao = 1) {
     // Fazer a requisição à API
-    const totalInvoices = await makeRequest(`/api/financial-indicators/totalInvoices`, 'POST');
+    const totalInvoices = await makeRequest(`/api/financial-indicators/totalInvoices`, 'POST', {situacao: situacao});
+    console.log(totalInvoices)
     const divlistInvoices = document.getElementById('listInvoices');
     let printlistInvoices = '';
 
@@ -18,11 +19,11 @@ async function invoicesTable() {
             color = 'var(--air-color)';
         }
         
-        if (totalInvoices[index].Natureza == '') {
-            if (totalInvoices[index].Situacao_Fatura == '') {
+    
+      
 
                 const date = await formattedDateTime(totalInvoices[index].Data);
-                const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
+                const clientName = totalInvoices[index].Pessoa
 
         printlistInvoices += `
             <a href="javascript:void(0);" class="border-0">
@@ -45,18 +46,36 @@ async function invoicesTable() {
                 </div>
             </a>`
 
-            }
-        }
+      
     }
 
     divlistInvoices.innerHTML = printlistInvoices
     
 }
 
+async function formattedDateTime(time) {
+    const date = new Date(time);
+
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // meses começam de 0 a 11, então adicionamos 1
+    const day = String(date.getUTCDate()).padStart(2, '0');
+
+    return `${day}/${month}/${year}`;
+}
+
+async function limitByCharacter(text, limit) {
+    if (text.length > limit) {
+        return text.substring(0, limit) + "...";
+    }
+    return text;
+}
+
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    await invoicesTable();
+    // Inicia a lista das faturas com a situação em aberta
+    await invoicesTable(1);
 
-    document.querySelector('#loader2').classList.add('d-none')
+
+    // document.querySelector('#loader2').classList.add('d-none')
 })

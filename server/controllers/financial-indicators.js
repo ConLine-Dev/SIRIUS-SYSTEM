@@ -3,7 +3,13 @@ const { executeQuery } = require('../connect/mysql');
 
 const financialIndicators = {
     //Lista todas as faturas
-    totalInvoices: async function () {
+    totalInvoices: async function (situacao) {
+
+        let where = '';
+        if(situacao){
+            where = `AND Fnc.Situacao IN (${situacao})`
+        }
+
         let result = await executeQuerySQL(`
             SELECT
                Lhs.Numero_Processo,
@@ -61,7 +67,8 @@ const financialIndicators = {
             WHERE
                DATEPART(YEAR, Lhs.Data_Abertura_Processo) = 2024
                AND Lhs.Numero_Processo NOT LIKE ('%test%')
-               AND Lhs.Situacao_Agenciamento NOT IN (7/*Cancelado*/)`)
+               AND Lhs.Situacao_Agenciamento NOT IN (7/*Cancelado*/)
+            ${where}`)
          return result;
     },
 

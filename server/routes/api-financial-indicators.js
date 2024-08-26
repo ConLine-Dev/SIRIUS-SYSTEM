@@ -7,9 +7,10 @@ const { financialIndicators } = require('../controllers/financial-indicators.js'
 module.exports = function(io) {
     //Lista todas as faturas
     router.post('/totalInvoices', async (req, res, next) => {
-        const data = req.body;
+        const {situacao} = req.body;
+        console.log(situacao)
         try {
-           const result = await financialIndicators.totalInvoices(data);
+           const result = await financialIndicators.totalInvoices(situacao);
   
            res.status(200).json(result)
         } catch (error) {

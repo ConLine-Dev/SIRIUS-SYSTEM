@@ -19,6 +19,7 @@ const api_collaboratorsRoutes = require('./collaborators-routes');
 const api_incentive_management = require('./api-incentive-management');
 const api_stock = require('./api-stock');
 const api_executive_analytics_dashboard = require('./api-executive-analytics-dashboard');
+const api_financial_indicators = require('./api-financial-indicators');
 
 
 const apiAppMonitor = require('./apiAppMonitor');
@@ -83,12 +84,13 @@ const setIO = (io) => {
   // Use as rotas do arquivo api-people.js
   router.use('/module-management', api_moduleManagement(io));
 
+  // Use as rotas do arquivo control-password.js
   router.use('/control-password', api_controlPassword(io));
 
   // Use as rotas do arquivo api-user-management.js
   router.use('/user-management', api_userManagement(io));
 
-  // Use as rotas do arquivo api-user-management.js
+  // Use as rotas do arquivo collaborators-management.js
   router.use('/collaborators-management', api_collaboratorsRoutes(io));
 
   // Use as rotas do arquivo api_incentive_management.js
@@ -99,6 +101,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api_incentive_management.js
   router.use('/executive-analytics-dashboard', api_executive_analytics_dashboard(io)); 
+
+  // Use as rotas do arquivo api_incentive_management.js
+  router.use('/financial-indicators', api_financial_indicators(io)); 
 
   return router;
 };

@@ -137,7 +137,8 @@ async function openPassword(id) {
         url: `/app/administration/control-password/view?id=${id}`,
         width: 500,
         height: 420,
-        resizable: false
+        resizable: false,
+        alwaysOnTop: true
     }
     window.ipcRenderer.invoke('open-exWindow', body);
  };

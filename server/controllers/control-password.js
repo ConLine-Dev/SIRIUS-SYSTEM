@@ -42,7 +42,8 @@ const controlPassword = {
         const users = `${item.ResponsibleName} ${item.ResponsibleFamilyName}`
 
         return {
-            ...item,
+            ...item, 
+                title: `${item.title}  <span style="display: none;">${item.observation}</span>`,
                 update_at: controlPassword.formatDateToPtBr(item.update_at),
                 departmentNames: departmentNames,
                 responsibleName: `<div class="d-flex align-items-center"> <div class="me-2 lh-1"> <span class="avatar avatar-sm"> <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt=""> </span> </div> <div class="fs-14">${users}</div> </div>`,

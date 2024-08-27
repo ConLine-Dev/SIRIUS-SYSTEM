@@ -531,6 +531,43 @@
                 <!-- Page Header Close -->
                 <!-- Start::row-1 -->
                 <div class="row">
+                    <div class="modal" tabindex="-1" id="exampleModalToggle1">
+                        <div class="modal-dialog modal-dialog-centered modal-lg" style="--bs-modal-width: 715px"> <!-- Use modal-lg para um modal maior -->
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <div class="col-xl-12">
+                                        <div class="card custom-card">
+                                            <div class="card-header row">
+                                                <div class="card-title col-6">
+                                                    <label>Divergências CE Mercante</label>
+                                                </div>
+                                                <div class="card-search col-5">
+                                                    <input type="text" id="searchBox3" placeholder="Pesquisar..." style="width: 180px;">
+                                                </div>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="table-responsive">
+                                                    <table class="table text-nowrap table-bordered" id="tabelaDivCE">
+                                                        <thead>
+                                                            <tr>
+                                                                <th scope="col">Número Processo</th>
+                                                                <th scope="col">Tipo</th>
+                                                                <th scope="col">Setor</th>
+                                                                <th scope="col">Inconsistência</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <!-- Aqui você pode adicionar os dados da tabela -->
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6">
                         <div class="card custom-card">
                             <div class="card-body">
@@ -630,6 +667,117 @@
                 <!--End::row-1 -->
                 <!-- Start::row-2 -->
                 <div class="row">
+                    <div class="modal" tabindex="-1" id="exampleModalToggle2">
+                        <div class="modal-dialog modal-dialog-centered modal-lg" style="--bs-modal-width: 715px"> <!-- Use modal-lg para um modal maior -->
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <div class="col-xl-12">
+                                        <div class="card custom-card">
+                                            <div class="card-header row">
+                                                <div class="card-title col-12">
+                                                    <label>Detalhes do Processo - MMMMMMM</label>
+                                                </div>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row text-start">
+                                                    <div class="col-12 col-md-6 ms-auto mt-3 text-start" id="clientName">
+                                                        <div>
+                                                            <label class="form-label mb-0 ms-0">Cliente</label>
+                                                            <label class="form-label mb-0 ms-0">MARCONE VIDAL SERVICOS DE LOGISTICA</label>
+                                                          </div>
+                                                      </div>
+                                                    <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                                                        <div>
+                                                            <label class="form-label mb-0 ms-0">Vendedor</label>
+                                                            <input class="multisteps-form__input form-control" type="text" id="salesExecutive"/>
+                                                          </div>
+                                                      </div>
+                                                    <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                                                        <div>
+                                                            <label class="form-label mb-0 ms-0">Importador</label>
+                                                            <input class="multisteps-form__input form-control" type="text" id="consignee"/>
+                                                          </div>
+                                                      </div>
+                                                      <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                                                        <div>
+                                                          <label class="form-label mb-0 ms-0">Exportador</label>
+                                                          <input class="multisteps-form__input form-control" type="text" id="shipper"/>
+                                                        </div>
+                                                      </div>
+                                                  <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                                                    <div>
+                                                        <label class="form-label mb-0 ms-0">Origem</label>
+                                                        <input class="multisteps-form__input form-control" type="text" id="departure"/>
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                                                    <div>
+                                                      <label class="form-label mb-0 ms-0">Destino</label>
+                                                      <input class="multisteps-form__input form-control" type="text" id="destination"/>
+                                                    </div>
+                                                  </div>
+                                                  <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                                                    <div>
+                                                        <label class="form-label mb-0 ms-0">Tipo</label>
+                                                        <input class="multisteps-form__input form-control" type="text" id="impoExpo"/>
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                                                    <div>
+                                                      <label class="form-label mb-0 ms-0">Modal</label>
+                                                      <input class="multisteps-form__input form-control" type="text" id="modal"/>
+                                                    </div>
+                                                  </div>
+                                                  <div class="col-12 col-md-12 ms-auto mt-3 text-start">
+                                                    <div>
+                                                        <label class="form-label mb-0 ms-0">Container</label>
+                                                        <input class="multisteps-form__input form-control" type="text" id="container"/>
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                                                    <div>
+                                                        <label class="form-label mb-0 ms-0">Pagamento Estimado</label>
+                                                        <input class="multisteps-form__input form-control" type="text" id="container"/>
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                                                    <div>
+                                                        <label class="form-label mb-0 ms-0">Pagamento Efetivo</label>
+                                                        <input class="multisteps-form__input form-control" type="text" id="container"/>
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                                                    <div>
+                                                        <label class="form-label mb-0 ms-0">Recebimento Estimado</label>
+                                                        <input class="multisteps-form__input form-control" type="text" id="container"/>
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                                                    <div>
+                                                        <label class="form-label mb-0 ms-0">Recebimento Efetivo</label>
+                                                        <input class="multisteps-form__input form-control" type="text" id="container"/>
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                                                    <div>
+                                                        <label class="form-label mb-0 ms-0">Lucro Estimado</label>
+                                                        <input class="multisteps-form__input form-control" type="text" id="container"/>
+                                                      </div>
+                                                  </div>
+                                                  <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                                                    <div>
+                                                        <label class="form-label mb-0 ms-0">Lucro Efetivo</label>
+                                                        <input class="multisteps-form__input form-control" type="text" id="container"/>
+                                                      </div>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-xxl-3 col-xl-12">
                         <div class="card custom-card recent-transactions-card overflow-hidden">
                             <div class="card-header justify-content-between">

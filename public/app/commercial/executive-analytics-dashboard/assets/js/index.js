@@ -61,7 +61,7 @@ async function printOffers() {
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
 
             printApprovedOffers += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -86,7 +86,7 @@ async function printOffers() {
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
 
             printRejectedOffers += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -111,7 +111,7 @@ async function printOffers() {
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
 
             printPendingOffers += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -151,7 +151,7 @@ async function printOffers() {
             const clientName = await limitByCharacter(totalProcesses[index].Cliente, 27);
 
             printCompletedProcesses += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalProcesses[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -202,9 +202,14 @@ async function printOffers() {
 
 async function reprintCompleteReceipts(day, week, month) {
 
+    printModalData();
+
     const totalInvoices = await makeRequest(`/api/executive-analytics-dashboard/totalInvoices`, 'POST', { day: day, week: week, month: month });
     const divCompletedReceipts = document.getElementById('completedReceipts');
     let printCompletedReceipts = '';
+    const divCompletedReceiptsTitle = document.getElementById('completedReceiptsTitle');
+    let printCompletedReceiptsTitle = '';
+    let totalCompletedReceipts = 0;
 
     for (let index = 0; index < totalInvoices.length; index++) {
 
@@ -226,7 +231,7 @@ async function reprintCompleteReceipts(day, week, month) {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printCompletedReceipts += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -243,9 +248,23 @@ async function reprintCompleteReceipts(day, week, month) {
                         </div>
                     </div>
                 </a>`
+
+                if (totalInvoices[index].Valor_Total < 1) {
+                    totalCompletedReceipts = totalCompletedReceipts + totalInvoices[index].Valor;
+                } else {
+                    totalCompletedReceipts = totalCompletedReceipts + totalInvoices[index].Valor_Total;
+                }
             }
         }
     }
+
+    totalCompletedReceipts = totalCompletedReceipts.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    printCompletedReceiptsTitle = `
+        <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
+        <div> <span class="d-block text-muted">Recebimento Total Baixado</span> <span class="fs-16 fw-semibold">BRL ${totalCompletedReceipts}</span> </div>`
+
+    divCompletedReceiptsTitle.innerHTML = printCompletedReceiptsTitle;
     divCompletedReceipts.innerHTML = printCompletedReceipts;
 }
 
@@ -254,6 +273,9 @@ async function reprintCompletePayments(day, week, month) {
     const totalInvoices = await makeRequest(`/api/executive-analytics-dashboard/totalInvoices`, 'POST', { day: day, week: week, month: month });
     const divCompletedPayments = document.getElementById('completedPayments');
     let printCompletedPayments = '';
+    const divCompletedPaymentsTitle = document.getElementById('completedPaymentsTitle');
+    let printCompletedPaymentsTitle = '';
+    let totalCompletedPayments = 0;
 
     for (let index = 0; index < totalInvoices.length; index++) {
 
@@ -275,7 +297,7 @@ async function reprintCompletePayments(day, week, month) {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printCompletedPayments += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -292,9 +314,23 @@ async function reprintCompletePayments(day, week, month) {
                         </div>
                     </div>
                 </a>`
+
+                if (totalInvoices[index].Valor_Total < 1) {
+                    totalCompletedPayments = totalCompletedPayments + totalInvoices[index].Valor;
+                } else {
+                    totalCompletedPayments = totalCompletedPayments + totalInvoices[index].Valor_Total;
+                }
             }
         }
     }
+
+    totalCompletedPayments = totalCompletedPayments.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    printCompletedPaymentsTitle = `
+        <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
+        <div> <span class="d-block text-muted">Pagamento Total Baixado</span> <span class="fs-16 fw-semibold">BRL ${totalCompletedPayments}</span> </div>`
+
+    divCompletedPaymentsTitle.innerHTML = printCompletedPaymentsTitle;
     divCompletedPayments.innerHTML = printCompletedPayments;
 }
 
@@ -303,6 +339,9 @@ async function reprintPendingReceipts(day, week, month) {
     const totalInvoices = await makeRequest(`/api/executive-analytics-dashboard/totalInvoices`, 'POST', { day: day, week: week, month: month });
     const divPendingReceipts = document.getElementById('pendingReceipts');
     let printPendingReceipts = '';
+    const divPendingReceiptsTitle = document.getElementById('pendingReceiptsTitle');
+    let printPendingReceiptsTitle = '';
+    let totalPendingReceipts = 0;
 
     for (let index = 0; index < totalInvoices.length; index++) {
 
@@ -324,7 +363,7 @@ async function reprintPendingReceipts(day, week, month) {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printPendingReceipts += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -341,9 +380,23 @@ async function reprintPendingReceipts(day, week, month) {
                         </div>
                     </div>
                 </a>`
+
+                if (totalInvoices[index].Valor_Total < 1) {
+                    totalPendingReceipts = totalPendingReceipts + totalInvoices[index].Valor;
+                } else {
+                    totalPendingReceipts = totalPendingReceipts + totalInvoices[index].Valor_Total;
+                }
             }
         }
     }
+
+    totalPendingReceipts = totalPendingReceipts.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    printPendingReceiptsTitle = `
+        <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
+        <div> <span class="d-block text-muted">Recebimento Total Pendente</span> <span class="fs-16 fw-semibold">BRL ${totalPendingReceipts}</span> </div>`
+
+    divPendingReceiptsTitle.innerHTML = printPendingReceiptsTitle;
     divPendingReceipts.innerHTML = printPendingReceipts;
 }
 
@@ -352,6 +405,9 @@ async function reprintPendingPayments(day, week, month) {
     const totalInvoices = await makeRequest(`/api/executive-analytics-dashboard/totalInvoices`, 'POST', { day: day, week: week, month: month });
     const divPendingPayments = document.getElementById('pendingPayments');
     let printPendingPayments = '';
+    const divPendingPaymentsTitle = document.getElementById('pendingPaymentsTitle');
+    let printPendingPaymentsTitle = '';
+    let totalPendingPayments = 0;
 
     for (let index = 0; index < totalInvoices.length; index++) {
 
@@ -373,7 +429,7 @@ async function reprintPendingPayments(day, week, month) {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printPendingPayments += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -390,9 +446,23 @@ async function reprintPendingPayments(day, week, month) {
                         </div>
                     </div>
                 </a>`
+
+                if (totalInvoices[index].Valor_Total < 1) {
+                    totalPendingPayments = totalPendingPayments + totalInvoices[index].Valor;
+                } else {
+                    totalPendingPayments = totalPendingPayments + totalInvoices[index].Valor_Total;
+                }
             }
         }
     }
+
+    totalPendingPayments = totalPendingPayments.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    printPendingPaymentsTitle = `
+        <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
+        <div> <span class="d-block text-muted">Pagamento Total Pendente</span> <span class="fs-16 fw-semibold">BRL ${totalPendingPayments}</span> </div>`
+
+    divPendingPaymentsTitle.innerHTML = printPendingPaymentsTitle;
     divPendingPayments.innerHTML = printPendingPayments;
 }
 
@@ -421,7 +491,7 @@ async function reprintApprovedOffers(day, week, month) {
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
 
             printApprovedOffers += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -468,7 +538,7 @@ async function reprintPendingOffers(day, week, month) {
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
 
             printPendingOffers += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -515,7 +585,7 @@ async function reprintRejectedOffers(day, week, month) {
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
 
             printRejectedOffers += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -562,7 +632,7 @@ async function reprintCompleteProcesses(day, week, month) {
             const clientName = await limitByCharacter(totalProcesses[index].Cliente, 27);
 
             printCompletedProcesses += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -636,7 +706,7 @@ async function printValues() {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printCompletedReceipts += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -665,7 +735,7 @@ async function printValues() {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printPendingReceipts += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -696,7 +766,7 @@ async function printValues() {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printCompletedPayments += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -724,7 +794,7 @@ async function printValues() {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printPendingPayments += `
-                <a href="javascript:void(0);" class="border-0">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -780,6 +850,14 @@ async function printValues() {
     divPendingPayments.innerHTML = printPendingPayments;
 }
 
+async function printModalData() {
+    document.querySelectorAll('a.border-0').forEach(function(element) {
+        element.addEventListener('click', function() {
+            console.log(this.id);
+        });
+    });
+}
+
 async function formattedDateTime(time) {
     const date = new Date(time);
 
@@ -809,6 +887,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await printOffers();
     await printValues();
+    await printModalData();
 
     document.querySelector('#loader2').classList.add('d-none')
 })

@@ -299,6 +299,13 @@ const executiveAnalytics = {
                ELSE Mda.Sigla
             END AS Moeda,
 
+            Mda.IdMoeda,
+
+            CASE
+                WHEN Vlf.IdMoeda != 110 /*Real*/ THEN Fnc.Valor_Residual * Cmf.Fator
+                ELSE Fnc.Valor_Residual
+            END AS Valor_Total,
+
             CASE
                WHEN Fnc.Situacao = 2 /*Quitada*/ THEN Fnc.Total_Pago_Corrente
                ELSE Vlf.Valor_Total
@@ -313,6 +320,17 @@ const executiveAnalytics = {
             cad_Pessoa Psa ON Psa.IdPessoa = Vlf.IdPessoa
          LEFT OUTER JOIN
             cad_Moeda Mda ON Mda.IdMoeda = Vlf.IdMoeda
+         LEFT OUTER JOIN(
+               SELECT
+                  Cmf.IdConversao_Moeda,
+                  Cmf.Data,
+                  Cmf.IdMoeda_Origem,
+                  Cmf.Fator
+               From
+                  cad_Conversao_Moeda_Fator Cmf
+               Where
+                  Cmf.IdConversao_Moeda = 2 /*Abertura*/
+               ) Cmf ON Cmf.IdMoeda_Origem = Vlf.IdMoeda AND CONVERT(VARCHAR, Cmf.Data, 103) = CONVERT(VARCHAR, Vlf.Data_Conversao, 103)
          WHERE
             DATEPART(YEAR, Lhs.Data_Abertura_Processo) = 2024
             ${whereFilter}

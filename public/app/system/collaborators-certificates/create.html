@@ -1,0 +1,121 @@
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Vinculo de Certificado Digital</title>
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
+    <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
+    
+    <link rel="stylesheet" href="./assets/css/create.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+    <div class="">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card custom-card bodyWindows">
+
+                    <!-- BOTAO SALVAR -->
+                    <div class=" justify-content-between headerButtons" id="btn-save">
+                        <ul class="nav nav-tabs border-0" role="tablist">
+                            <li class="nav-item " role="presentation"> 
+                                <a class="nav-link label-btn">
+                                    <i class="ri-save-3-line label-btn-icon me-2"></i>
+                                    Salvar
+                                </a> 
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- CADASTRO NOVA SENHA -->
+                    <!-- <div class="card-header justify-content-between">
+                        <div class="card-title"> Cadastro Nova Senha </div>
+                    </div> -->
+                    
+                    <div class="card-body">
+                      
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label">Colaborador</label>
+                                <select class="form-control" name="responsible">
+                                    <option value="" selected disabled>Selecione um colaborador</option>
+                                </select>
+                            </div>
+
+                            <div class="col-6">
+                                <label class="form-label">Certificado</label>
+                                <select class="form-control" name="certiticate">
+                                    <option value="" selected disabled >Selecione um certificado</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <br>
+
+                        <div class="row">
+                            <div class="col-12"> 
+                                <label for="input-label" class="form-label center-text">Descrição de uso (motivo)</label> 
+                                <textarea name="observation" class="form-control form-input"cols="30" rows="5" placeholder="Insira uma descrição de uso (motivo)"></textarea>
+                            
+                            </div>
+                        </div>
+                        <br>
+
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+    <!-- Scroll To Top -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../../assets/js/fetchAPI.js"></script>
+
+
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+
+    <script src="./assets/js/create.js"></script>
+
+
+
+    <!-- Custom JS -->
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <!-- <script src="../../assets/js/custom.js"></script> -->
+
+</body>
+
+</html>

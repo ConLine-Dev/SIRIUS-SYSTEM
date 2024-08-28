@@ -20,6 +20,7 @@ const api_incentive_management = require('./api-incentive-management');
 const api_stock = require('./api-stock');
 const api_executive_analytics_dashboard = require('./api-executive-analytics-dashboard');
 const api_financial_indicators = require('./api-financial-indicators');
+const api_collaborators_certificates = require('./api-collaborators-certificates');
 
 
 const apiAppMonitor = require('./apiAppMonitor');
@@ -104,6 +105,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api_incentive_management.js
   router.use('/financial-indicators', api_financial_indicators(io)); 
+
+  // Use as rotas do arquivo api_collaborators_by_certificates.js
+  router.use('/collaborators-certificates', api_collaborators_certificates(io)); 
 
   return router;
 };

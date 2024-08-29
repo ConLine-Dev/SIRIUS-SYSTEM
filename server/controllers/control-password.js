@@ -43,7 +43,7 @@ const controlPassword = {
 
         return {
             ...item, 
-                title: `${item.title}  <span style="display: none;">${item.observation}</span>`,
+                title: `${(item.title).toUpperCase()}  <span style="display: none;">${item.observation}</span>`,
                 update_at: controlPassword.formatDateToPtBr(item.update_at),
                 departmentNames: departmentNames,
                 responsibleName: `<div class="d-flex align-items-center"> <div class="me-2 lh-1"> <span class="avatar avatar-sm"> <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt=""> </span> </div> <div class="fs-14">${users}</div> </div>`,
@@ -105,10 +105,12 @@ const controlPassword = {
         const create_at = new Date();
         const formattedCreateAt = controlPassword.formatDateForDatabase(create_at);
 
+        const title = (form.title).toUpperCase();
+
         // Primeiro, insere na tabela password_control
         const passwordInsertQuery = `
             INSERT INTO password_control (title, login, password, responsible, link, observation, create_at, update_at) 
-            VALUES ('${form.title}', '${form.login}', '${form.password}', '${form.responsible}', '${form.link}', '${form.observation}', '${formattedCreateAt}', '${formattedCreateAt}')
+            VALUES ('${title}', '${form.login}', '${form.password}', '${form.responsible}', '${form.link}', '${form.observation}', '${formattedCreateAt}', '${formattedCreateAt}')
         `;
 
         // Executa a consulta e obtém o ID do password inserido
@@ -190,6 +192,7 @@ const controlPassword = {
 
             return {
                 ...item,
+                title: (item.title).toUpperCase(),
                 update_at: controlPassword.formatDateToPtBr(item.update_at),
                 departmentNames: departmentNames,
                 responsibleName: `<div class="d-flex align-items-center"> <div class="me-2 lh-1"> <span class="avatar avatar-sm"> <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt=""> </span> </div> <div class="fs-14">${users}</div> </div>`,
@@ -208,6 +211,8 @@ const controlPassword = {
         const update_at = new Date();
         const formattedCreateAt = controlPassword.formatDateForDatabase(update_at);
 
+        const title = (form.title).toUpperCase();
+
         let update = await executeQuery(
             `UPDATE password_control SET 
                 title = ?, 
@@ -219,7 +224,7 @@ const controlPassword = {
                 update_at = ? 
                 WHERE (id = ?)`,
                 [
-                    form.title,
+                    title,
                     form.login,
                     form.password,
                     form.responsible,

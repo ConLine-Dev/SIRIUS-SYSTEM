@@ -61,7 +61,7 @@ async function printOffers() {
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
 
             printApprovedOffers += `
-                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
+                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -86,7 +86,7 @@ async function printOffers() {
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
 
             printRejectedOffers += `
-                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
+                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -111,7 +111,7 @@ async function printOffers() {
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
 
             printPendingOffers += `
-                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
+                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -151,7 +151,7 @@ async function printOffers() {
             const clientName = await limitByCharacter(totalProcesses[index].Cliente, 27);
 
             printCompletedProcesses += `
-                <a href="javascript:void(0);" class="border-0" id="${totalProcesses[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
+                <a href="javascript:void(0);" class="border-0" id="${totalProcesses[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -202,8 +202,6 @@ async function printOffers() {
 
 async function reprintCompleteReceipts(day, week, month) {
 
-    printModalData();
-
     const totalInvoices = await makeRequest(`/api/executive-analytics-dashboard/totalInvoices`, 'POST', { day: day, week: week, month: month });
     const divCompletedReceipts = document.getElementById('completedReceipts');
     let printCompletedReceipts = '';
@@ -231,7 +229,7 @@ async function reprintCompleteReceipts(day, week, month) {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printCompletedReceipts += `
-                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -297,7 +295,7 @@ async function reprintCompletePayments(day, week, month) {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printCompletedPayments += `
-                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -363,7 +361,7 @@ async function reprintPendingReceipts(day, week, month) {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printPendingReceipts += `
-                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -429,7 +427,7 @@ async function reprintPendingPayments(day, week, month) {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printPendingPayments += `
-                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -491,7 +489,7 @@ async function reprintApprovedOffers(day, week, month) {
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
 
             printApprovedOffers += `
-                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
+                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -538,7 +536,7 @@ async function reprintPendingOffers(day, week, month) {
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
 
             printPendingOffers += `
-                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
+                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -585,7 +583,7 @@ async function reprintRejectedOffers(day, week, month) {
             const clientName = await limitByCharacter(totalOffers[index].Cliente, 27);
 
             printRejectedOffers += `
-                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
+                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -632,7 +630,7 @@ async function reprintCompleteProcesses(day, week, month) {
             const clientName = await limitByCharacter(totalProcesses[index].Cliente, 27);
 
             printCompletedProcesses += `
-                <a href="javascript:void(0);" class="border-0" id="${totalOffers[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle1">
+                <a href="javascript:void(0);" class="border-0" id="${totalProcesses[index].Referência}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -653,11 +651,11 @@ async function reprintCompleteProcesses(day, week, month) {
         }
     }
     divCompletedProcesses.innerHTML = printCompletedProcesses;
+
 }
 
 async function printValues() {
     totalInvoices = await makeRequest(`/api/executive-analytics-dashboard/totalInvoices`, 'POST', { day: 0, week: null, month: null });
-    conversionRates = await makeRequest(`/api/executive-analytics-dashboard/conversionRates`)
     const divCompletedReceiptsTitle = document.getElementById('completedReceiptsTitle');
     let printCompletedReceiptsTitle = '';
     const divcompletedPaymentsTitle = document.getElementById('completedPaymentsTitle');
@@ -680,12 +678,6 @@ async function printValues() {
     let totalPendingPayments = 0;
     let dollarRate = 0;
 
-    for (let index = 0; index < conversionRates.length; index++) {
-        if (conversionRates[index].IdMoeda_Origem == 31) {
-            dollarRate = conversionRates[index].Fator
-        }
-    }
-
     for (let index = 0; index < totalInvoices.length; index++) {
 
         let color = ''
@@ -706,7 +698,7 @@ async function printValues() {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printCompletedReceipts += `
-                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -735,7 +727,7 @@ async function printValues() {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printPendingReceipts += `
-                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -766,7 +758,7 @@ async function printValues() {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printCompletedPayments += `
-                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -794,7 +786,7 @@ async function printValues() {
                 const clientName = await limitByCharacter(totalInvoices[index].Pessoa, 27);
 
                 printPendingPayments += `
-                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2">
+                <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}" data-bs-toggle="modal" data-bs-target="#exampleModalToggle2" onclick="printModalData.call(this)">
                     <div class="list-group-item border-0">
                         <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
                             <div class="w-100">
@@ -851,11 +843,177 @@ async function printValues() {
 }
 
 async function printModalData() {
-    document.querySelectorAll('a.border-0').forEach(function(element) {
-        element.addEventListener('click', function() {
-            console.log(this.id);
-        });
-    });
+
+    const id = this.id;
+    const divProcessesModal = document.getElementById('detailsModal');
+    let printProcessesModal = '';
+    const divDetailsModalTitle = document.getElementById('detailsModalTitle');
+    let printDetailsModalTitle = '';
+    const divValuesModal = document.getElementById('valuesModal');
+    let printValuesModal = '';
+    var modalDetails = '';
+
+    if (id.includes('PF')){
+        modalDetails = await makeRequest(`/api/executive-analytics-dashboard/offerDetails?reference=${id}`);
+
+        let totalPayment = modalDetails[0].Total_Pagamento;
+        totalPayment = totalPayment.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        let totalReceipt = modalDetails[0].Total_Recebimento;
+        totalReceipt = totalReceipt.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        let totalProfit = modalDetails[0].Lucro_Estimado;
+        totalProfit = totalProfit.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+
+        printValuesModal = `
+        <div class="col-12 col-md-4 ms-auto mt-3 text-start">
+            <div class="row">
+                <label class="form-label mb-0 ms-0" style="font-size: 15px; color: var(--bs-danger)">Pagamento Estimado</label>
+                <label class="mb-0 ms-0" style="color: var(--bs-danger)">${totalPayment}</label>
+            </div>
+        </div>
+        <div class="col-12 col-md-4 ms-auto mt-3 text-start">
+            <div class="row">
+                <label class="form-label mb-0 ms-0" style="font-size: 15px; color: var(--bs-success)">Recebimento Estimado</label>
+                <label class="mb-0 ms-0" style="color: var(--bs-success)">${totalReceipt}</label>
+            </div>
+        </div>
+        <div class="col-12 col-md-4 ms-auto mt-3 text-start">
+            <div class="row">
+                <label class="form-label mb-0 ms-0" style="font-size: 15px; color: var(--bs-primary)">Lucro Estimado</label>
+                <label class="mb-0 ms-0" style="color: var(--bs-primary)">${totalProfit}</label>
+            </div>
+        </div>`
+        
+        printDetailsModalTitle = `
+            <label>Detalhes do Processo - ${modalDetails[0].Referência}</label>`
+
+    } else {
+        modalDetails = await makeRequest(`/api/executive-analytics-dashboard/processDetails?reference=${id}`);
+
+        let totalPayment = modalDetails[0].Total_Pagamento;
+        totalPayment = totalPayment.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        let totalReceipt = modalDetails[0].Total_Recebimento;
+        totalReceipt = totalReceipt.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        let actualPayment = modalDetails[0].Total_Pago;
+        actualPayment = actualPayment.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        let actualReceipt = modalDetails[0].Total_Recebido;
+        actualReceipt = actualReceipt.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        let totalProfit = modalDetails[0].Lucro_Estimado;
+        totalProfit = totalProfit.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        let actualProfit = modalDetails[0].Lucro_Efetivo;
+        actualProfit = actualProfit.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+        
+        printDetailsModalTitle = `
+            <label>Detalhes do Processo - ${modalDetails[0].Processo}</label>`
+
+        printValuesModal = `
+            <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                <div class="row">
+                    <label class="form-label mb-0 ms-0" style="font-size: 15px; color: var(--bs-danger)">Pagamento Estimado</label>
+                    <label class="mb-0 ms-0" style="color: var(--bs-danger)">${totalPayment}</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                <div class="row">
+                    <label class="form-label mb-0 ms-0" style="font-size: 15px; color: var(--bs-danger)">Pagamento Efetivo</label>
+                    <label class="mb-0 ms-0" style="color: var(--bs-danger)">${actualPayment}</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                <div class="row">
+                    <label class="form-label mb-0 ms-0" style="font-size: 15px; color: var(--bs-success)">Recebimento Estimado</label>
+                    <label class="mb-0 ms-0" style="color: var(--bs-success)">${totalReceipt}</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                <div class="row">
+                    <label class="form-label mb-0 ms-0" style="font-size: 15px; color: var(--bs-success)">Recebimento Efetivo</label>
+                    <label class="mb-0 ms-0" style="color: var(--bs-success)">${actualReceipt}</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                <div class="row">
+                    <label class="form-label mb-0 ms-0" style="font-size: 15px; color: var(--bs-primary)">Lucro Estimado</label>
+                    <label class="mb-0 ms-0" style="color: var(--bs-primary)">${totalProfit}</label>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+                <div class="row">
+                    <label class="form-label mb-0 ms-0" style="font-size: 15px; color: var(--bs-primary)">Lucro Efetivo</label>
+                    <label class="mb-0 ms-0" style="color: var(--bs-primary)">${actualProfit}</label>
+                </div>
+            </div>`
+    }
+
+    if (modalDetails[0].Cliente == null) {
+        modalDetails[0].Cliente = '';
+    }
+    if (modalDetails[0].Consignee == null) {
+        modalDetails[0].Consignee = '';
+    }
+    if (modalDetails[0].Shipper == null) {
+        modalDetails[0].Shipper = '';
+    }
+    if (modalDetails[0].Armador == null) {
+        modalDetails[0].Armador = '';
+    }
+    let clientName = await limitByCharacter(modalDetails[0].Cliente, 30);
+    let consigneeName = await limitByCharacter(modalDetails[0].Consignee, 30);
+    let shipperName = await limitByCharacter(modalDetails[0].Shipper, 30);
+    let carrierName = await limitByCharacter(modalDetails[0].Armador, 30);
+
+    printProcessesModal = `
+        <div class="col-12 col-md-6 ms-auto mt-3 text-start" id="clientName">
+            <div class="row">
+                <label class="form-label mb-0 ms-0" style="font-size: 15px;">Cliente</label>
+                <label class="mb-0 ms-0">${clientName}</label>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+            <div class="row">
+                <label class="form-label mb-0 ms-0" style="font-size: 15px;">Vendedor</label>
+                <label class="mb-0 ms-0">${modalDetails[0].Vendedor}</label>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+            <div class="row">
+                <label class="form-label mb-0 ms-0" style="font-size: 15px;">Importador</label>
+                <label class="mb-0 ms-0">${consigneeName}</label>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+            <div class="row">
+                <label class="form-label mb-0 ms-0" style="font-size: 15px;">Exportador</label>
+                <label class="mb-0 ms-0">${shipperName}</label>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+            <div class="row">
+                <label class="form-label mb-0 ms-0" style="font-size: 15px;">Origem</label>
+                <label class="mb-0 ms-0">${modalDetails[0].Origem}</label>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+            <div class="row">
+                <label class="form-label mb-0 ms-0" style="font-size: 15px;">Destino</label>
+                <label class="mb-0 ms-0">${modalDetails[0].Destino}</label>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+            <div class="row">
+                <label class="form-label mb-0 ms-0" style="font-size: 15px;">Cia. Transporte</label>
+                <label class="mb-0 ms-0">${carrierName}</label>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 ms-auto mt-3 text-start">
+            <div class="row">
+                <label class="form-label mb-0 ms-0" style="font-size: 15px;">Container</label>
+                <label class="mb-0 ms-0">${modalDetails[0].Equipamentos}</label>
+            </div>
+        </div>`
+
+    divDetailsModalTitle.innerHTML = printDetailsModalTitle
+    divProcessesModal.innerHTML = printProcessesModal
+    divValuesModal.innerHTML = printValuesModal
 }
 
 async function formattedDateTime(time) {
@@ -887,7 +1045,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await printOffers();
     await printValues();
-    await printModalData();
 
     document.querySelector('#loader2').classList.add('d-none')
 })

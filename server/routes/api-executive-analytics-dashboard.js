@@ -64,6 +64,30 @@ module.exports = function(io) {
       }
    });
 
+   router.get('/processDetails', async (req, res, next) => {
+      const { reference } = req.query;
+      try {
+         const result = await executiveAnalytics.processDetails(reference);
+
+         res.status(200).json(result)
+      } catch (error) {
+
+         res.status(404).json('Erro')
+      }
+   });
+
+   router.get('/offerDetails', async (req, res, next) => {
+      const { reference } = req.query;
+      try {
+         const result = await executiveAnalytics.offerDetails(reference);
+
+         res.status(200).json(result)
+      } catch (error) {
+
+         res.status(404).json('Erro')
+      }
+   });
+
    router.get('/conversionRates', async (req, res, next) => {
       try {
          const result = await executiveAnalytics.conversionRates();

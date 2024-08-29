@@ -173,6 +173,28 @@ async function eventClick() {
         
     })
     // ==== /Salvar ==== //
+};
+
+// Esta função define os valores resp e depart para preenchimento automatico
+async function setDefaultValues() {
+    const user = await getInfosLogin()
+    const idCollaborator = (user.system_collaborator_id).toString();
+    const department = [user.department_ids];
+
+    sAllResponsible.setChoiceByValue(idCollaborator)
+
+    // Marcando os departamentos
+    const departments = department.map(department => department.toString());
+    sAllDepartments.setChoiceByValue(departments);
+};
+
+/**
+ * Verifica informações no localStorage do usuario logado
+ */
+async function getInfosLogin() {
+    const StorageGoogleData = localStorage.getItem('StorageGoogle');
+    const StorageGoogle = JSON.parse(StorageGoogleData);
+    return StorageGoogle;
 }
 
 // ESPERA A PAGINA SER COMPLETAMENTE CARREGADA
@@ -185,6 +207,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     await getAllDepartments();
 
     await eventClick();
+
+    await setDefaultValues();
 
 })
 

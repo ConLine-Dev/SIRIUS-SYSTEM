@@ -154,4 +154,4 @@ async function openPasswordEdit(id) {
     window.ipcRenderer.invoke('open-exWindow', body);
  };
 
-await introMain();
+introMain();

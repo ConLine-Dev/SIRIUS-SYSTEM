@@ -1,7 +1,22 @@
 [
     {
-      "title": "Bem vindo as Metas!",
+      "title": "Bem vindo ao módulo Controle de senhas!",
       "intro": "Este é um tutorial explicando o funcionamento delas."
+    },
+    {
+      "element": "#intro-bottom-new",
+      "title": "Novo",
+      "intro": "Aqui você irá criar uma nova senha"
+    },
+    {
+      "element": "#table_control_password",
+      "title": "Lista de senhas",
+      "intro": "Aqui mostrará todas as senhas criadas"
+    },
+    {
+      "element": "#intro-bottom-new",
+      "title": "Novo",
+      "intro": "Aqui você irá criar uma nova senha"
     }
    
   ]

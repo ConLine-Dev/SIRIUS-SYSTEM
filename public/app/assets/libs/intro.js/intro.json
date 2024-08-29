@@ -11,13 +11,14 @@
     {
       "element": "#table_control_password",
       "title": "Lista de senhas",
-      "intro": "Aqui mostrará todas as senhas criadas"
+      "intro": "Aqui mostrará todas as senhas criadas",
+      "position": "middle"
     },
     {
-      "element": "#intro-bottom-new",
-      "title": "Novo",
-      "intro": "Aqui você irá criar uma nova senha"
+      "element": "#table_control_password tr td:last-child",
+      "title": "Ação",
+      "intro": "Aqui poderá editar e deletar a senha",
+      "position": "right"
     }
    
   ]
- 

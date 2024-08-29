@@ -149,6 +149,7 @@
   }
   .introjs-tooltiptext {
     padding: 20px;
+    color: #000;
   }
   .introjs-dontShowAgain {
     padding-left: 20px;
@@ -169,7 +170,7 @@
     font-weight: 400;
     margin: 0 0 0 5px;
     padding: 0;
-    background-color: #fff;
+    /* background-color: #fff; */
     color: #616161;
     -webkit-user-select: none;
     user-select: none;
@@ -344,7 +345,7 @@
     height: 10px;
     margin: 10px;
     border-radius: 4px;
-    background-color: #e0e0e0;
+    background-color: #716f6f;
   }
   .introjs-progressbar {
     box-sizing: content-box;

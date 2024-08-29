@@ -28,7 +28,7 @@ const controlPassword = {
                                         `);
 
         const formattedPassword = await Promise.all(result.map(async item => {
-            const buttons = `<div class="hstack gap-2 fs-15"> 
+            const buttons = `<div class="hstack gap-2 fs-15" id="intro-btn-action"> 
                                 <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-info-light edit-password" data-id="${item.id}">
                                     <i class="ri-edit-line"></i>
                                 </a> 

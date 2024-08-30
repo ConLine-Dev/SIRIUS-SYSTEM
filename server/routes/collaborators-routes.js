@@ -1,8 +1,27 @@
 // routes/collaborators-routes.js
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const fs = require('fs');
 const collaboratorsController = require('../controllers/collaborators-controller');
 
+// Configuração do multer para armazenar arquivos no sistema de arquivos
+const storage = multer.diskStorage({
+    destination: async (req, file, cb) => {
+        const uploadDir = 'storageService/administration/collaborators/perfil-image';
+        try {
+            await fs.promises.mkdir(uploadDir, { recursive: true });
+            cb(null, uploadDir);
+        } catch (err) {
+            cb(err);
+        }
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + '-' + file.originalname);
+    }
+});
+const upload = multer({ storage });
 
 module.exports = function (io) {
 
@@ -27,13 +46,27 @@ module.exports = function (io) {
     });
 
     // CRUD para 'collaborators'
-    router.post('/collaborators', async (req, res) => {
+    router.post('/collaborators', upload.single('photo'), async (req, res) => {
         try {
-            const collaboratorId = await collaboratorsController.createCollaborator(req.body);
-            res.status(201).json({ message: 'Colaborador criado com sucesso', id: collaboratorId });
+            console.log(req.file);
         } catch (error) {
-            res.status(500).json({ message: 'Erro ao criar colaborador' });
+            console.log(error)
         }
+        // try {
+        //     // A imagem estará disponível em req.file
+        //     console.log(req.file);
+    
+        //     // Os demais dados estarão disponíveis em req.body
+        //     const collaboratorData = {
+        //         ...req.body,
+        //         photo: req.file ? req.file.filename : null  // Salve o nome do arquivo ou o caminho no banco de dados
+        //     };
+    
+        //     const collaboratorId = await collaboratorsController.createCollaborator(collaboratorData);
+        //     res.status(201).json({ message: 'Colaborador criado com sucesso', id: collaboratorId });
+        // } catch (error) {
+        //     res.status(500).json({ message: 'Erro ao criar colaborador' });
+        // }
     });
 
     router.get('/collaborators/:id', async (req, res) => {

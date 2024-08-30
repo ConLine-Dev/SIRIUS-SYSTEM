@@ -19,6 +19,8 @@
     <script src="../../assets/js/main.js"></script>
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
     <!-- Style Css -->
     <link href="../../assets/css/styles.min.css" rel="stylesheet">
     <!-- Icons Css -->
@@ -51,6 +53,12 @@
 </head>
 
 <body>
+
+    <!-- Tutorial -->
+    <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: absolute; top: 50%; right: 20px; z-index: 100;"> 
+        <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+     </span>
+
     <!-- Start Switcher -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="switcher-canvas" aria-labelledby="offcanvasRightLabel">
         <div class="offcanvas-header border-bottom">
@@ -530,7 +538,7 @@
 
                 <!-- Page Header Close -->
                 <!-- Start::row-1 -->
-                <div class="row">
+                <div class="row" id="intro-cards-offers">
                     <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6">
                         <div class="card custom-card">
                             <div class="card-body">
@@ -671,11 +679,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xxl-3 col-xl-12">
+                    <div class="col-xxl-3 col-xl-12" id="intro-cards-one">
                         <div class="card custom-card recent-transactions-card overflow-hidden">
                             <div class="card-header justify-content-between">
                                 <div class="card-title">Propostas Aprovadas</div>
-                                <div class="dropdown">
+                                <div class="dropdown" id="intro-btn-filter">
                                     <a aria-label="anchor" href="javascript:void(0);"
                                         class="btn btn-icon btn-sm btn-light" data-bs-toggle="dropdown"> <i
                                             class="fe fe-more-vertical"></i> </a>
@@ -722,7 +730,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xxl-3 col-xl-12">
+                    <div class="col-xxl-3 col-xl-12" id="intro-cards-two">
                         <div class="card custom-card recent-transactions-card overflow-hidden">
                             <div class="card-header justify-content-between">
                                 <div class="card-title">Propostas Reprovadas</div>
@@ -773,7 +781,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xxl-3 col-xl-12">
+                    <div class="col-xxl-3 col-xl-12" id="intro-cards-three">
                         <div class="card custom-card recent-transactions-card overflow-hidden">
                             <div class="card-header justify-content-between">
                                 <div class="card-title">Propostas Aguardando Aprovação</div>
@@ -824,7 +832,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xxl-3 col-xl-12">
+                    <div class="col-xxl-3 col-xl-12" id="intro-cards-for">
                         <div class="card custom-card recent-transactions-card overflow-hidden">
                             <div class="card-header justify-content-between">
                                 <div class="card-title">Processos Auditados</div>
@@ -1311,6 +1319,8 @@
     <script src="../../assets/libs/cleave/cleave.min.js"></script>
 
     <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="../../assets/libs/intro.js/intro.min.js"></script>
+    <script src="../../assets/libs/intro.js/intro.js"></script>
 
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>

@@ -15,6 +15,12 @@
       "position": "middle"
     },
     {
+      "element": ".odd",
+      "title": "Visualizar senha",
+      "intro": "Ao clicar, poderá visualizar a senha",
+      "position": "middle"
+    },
+    {
       "element": "#table_control_password tr td:last-child",
       "title": "Ação",
       "intro": "Aqui poderá editar e deletar a senha",
@@ -64,7 +70,7 @@
     {
       "element": "#intro-cards-list",
       "title": "Recebimento / Pagamento",
-      "intro": "Aqui listará todas as faturas dos processos de Recebimento e Pagamento Baixados e Pendentes",
+      "intro": "Aqui listará todas as faturas dos processos de Recebimento e Pagamento Baixados e Pendentes.<br><br>Ao clicar na fatura, abrirá os detalhes do processo",
       "position": "left"
     }
   ]

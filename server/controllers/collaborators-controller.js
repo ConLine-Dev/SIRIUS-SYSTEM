@@ -14,43 +14,55 @@ const collaboratorsController = {
     },
     // CRUD para 'collaborators'
     createCollaborator: async function(collaborator) {
-        const query = `INSERT INTO collaborators 
-        (full_name, birth_date, gender, marital_status, nationality, cpf, rg, rg_issuer, rg_issue_date, 
-        voter_title, passport_number, birth_city, birth_state, mother_name, father_name, job_position, department, 
-        admission_date, resignation_date, employee_id, salary, contract_type, weekly_hours, immediate_supervisor, 
-        pis_pasep_number, work_card_number, work_card_series, education) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        console.log(collaborator)
         
-        const result = await executeQuery(query, [
-            collaborator.full_name,
-            collaborator.birth_date,
-            collaborator.gender,
-            collaborator.marital_status,
-            collaborator.nationality,
-            collaborator.cpf,
-            collaborator.rg,
-            collaborator.rg_issuer,
-            collaborator.rg_issue_date,
-            collaborator.voter_title,
-            collaborator.passport_number,
-            collaborator.birth_city,
-            collaborator.birth_state,
-            collaborator.mother_name,
-            collaborator.father_name,
-            collaborator.job_position,
-            collaborator.department,
-            collaborator.admission_date,
-            collaborator.resignation_date,
-            collaborator.employee_id,
-            collaborator.salary,
-            collaborator.contract_type,
-            collaborator.weekly_hours,
-            collaborator.immediate_supervisor,
-            collaborator.pis_pasep_number,
-            collaborator.work_card_number,
-            collaborator.work_card_series,
-            collaborator.education
-        ]);
+        const query = `INSERT INTO collaborators 
+        (name, family_name,id_headcargo, birth_date, gender, marital_status, nationality, cpf, rg, rg_issuer, rg_issue_date, 
+        voter_title, passport_number, birth_city, mother_name, father_name, job_position, department, 
+        admission_date, resignation_date, employee_id, salary, contract_type, weekly_hours, immediate_supervisor, 
+        pis_pasep_number, work_card_number, work_card_series, education, email_personal, email_business, cnpj, pix, work_card_issue_date, additional_observations, companie_id, id_headcargo, languages) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    
+    const result = await executeQuery(query, [
+        collaborator.name,
+        collaborator.family_name,
+        collaborator.id_headcargo || null,
+        collaborator.birthdate || null,
+        collaborator.gender,
+        collaborator.maritalStatus,
+        collaborator.nationality,
+        collaborator.cpf,
+        collaborator.rg,
+        collaborator.rgIssuer,
+        collaborator.rgIssueDate || null,
+        collaborator.voterTitle,
+        collaborator.passportNumber,
+        collaborator.birthCity,
+        collaborator.motherName,
+        collaborator.fatherName,
+        collaborator.jobTitle,
+        collaborator.department,
+        collaborator.admissionDate || null,
+        collaborator.terminationDate || null,
+        collaborator.registrationNumber || null, // Ajuste se 'employee_id' for correto ou se precisa ser outro campo
+        collaborator.salary || null,
+        collaborator.contractType,
+        collaborator.workload || null, // Ajuste se 'weekly_hours' for o nome correto da coluna
+        collaborator.immediateSupervisor,
+        collaborator.pisNumber,
+        collaborator.workCardNumber,
+        collaborator.workCardSeries,
+        collaborator.educationLevel, // Verifique se 'educationLevel' corresponde à coluna 'education' na tabela
+        collaborator.personalEmail,
+        collaborator.emailBusiness,
+        collaborator.cnpj,
+        collaborator.pix,
+        collaborator.workCardIssueDate,
+        collaborator.additionalObservations,
+        collaborator.companie,
+        collaborator.id_headcargo,
+        collaborator.languages,
+    ]);
 
         return result.insertId;
     },

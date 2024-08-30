@@ -14,13 +14,13 @@ const collaboratorsController = {
     },
     // CRUD para 'collaborators'
     createCollaborator: async function(collaborator) {
-        console.log(collaborator)
+        // console.log(collaborator)
         
         const query = `INSERT INTO collaborators 
         (name, family_name,id_headcargo, birth_date, gender, marital_status, nationality, cpf, rg, rg_issuer, rg_issue_date, 
         voter_title, passport_number, birth_city, mother_name, father_name, job_position, department, 
         admission_date, resignation_date, employee_id, salary, contract_type, weekly_hours, immediate_supervisor, 
-        pis_pasep_number, work_card_number, work_card_series, education, email_personal, email_business, cnpj, pix, work_card_issue_date, additional_observations, companie_id, id_headcargo, languages) 
+        pis_pasep_number, work_card_number, work_card_series, education, email_personal, email_business, cnpj, pix, work_card_issue_date, additional_observations, companie_id, languages, image) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     
     const result = await executeQuery(query, [
@@ -60,8 +60,8 @@ const collaboratorsController = {
         collaborator.workCardIssueDate,
         collaborator.additionalObservations,
         collaborator.companie,
-        collaborator.id_headcargo,
         collaborator.languages,
+        collaborator.photo,
     ]);
 
         return result.insertId;

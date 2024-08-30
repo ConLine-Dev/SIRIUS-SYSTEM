@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const fs = require('fs');
+const path = require('path');
 const collaboratorsController = require('../controllers/collaborators-controller');
 
 // Configuração do multer para armazenar arquivos no sistema de arquivos
@@ -48,25 +49,40 @@ module.exports = function (io) {
     // CRUD para 'collaborators'
     router.post('/collaborators', upload.single('photo'), async (req, res) => {
         try {
-            console.log(req.file);
+            // Dados do colaborador
+            const collaboratorData = {
+                ...req.body,
+                photo: req.file ? req.file.filename : null  // Salve o nome do arquivo ou o caminho no banco de dados
+            };
+    
+            // Cria o colaborador no banco e obtém o ID
+            const collaboratorId = await collaboratorsController.createCollaborator(collaboratorData);
+    
+            if (req.file) {
+                // Caminho para a nova pasta com o ID do colaborador
+                const folderPath = path.join('storageService/administration/collaborators', `${collaboratorId}`);
+                
+                // Cria a pasta se não existir
+                if (!fs.existsSync(folderPath)) {
+                    fs.mkdirSync(folderPath, { recursive: true });
+                }
+    
+                // Define o novo caminho para a imagem com o nome "perfil-image"
+                const newFileName = `perfil-image${path.extname(req.file.originalname)}`;
+                const newPath = path.join(folderPath, newFileName);
+    
+                // Move e renomeia o arquivo para o novo caminho
+                fs.rename(req.file.path, newPath, function(err) {
+                    if (err) throw err;
+                    console.log('Imagem renomeada e movida com sucesso');
+                });
+            }
+    
+            res.status(201).json({ message: 'Colaborador criado com sucesso', id: collaboratorId });
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            res.status(500).json({ message: error.message });
         }
-        // try {
-        //     // A imagem estará disponível em req.file
-        //     console.log(req.file);
-    
-        //     // Os demais dados estarão disponíveis em req.body
-        //     const collaboratorData = {
-        //         ...req.body,
-        //         photo: req.file ? req.file.filename : null  // Salve o nome do arquivo ou o caminho no banco de dados
-        //     };
-    
-        //     const collaboratorId = await collaboratorsController.createCollaborator(collaboratorData);
-        //     res.status(201).json({ message: 'Colaborador criado com sucesso', id: collaboratorId });
-        // } catch (error) {
-        //     res.status(500).json({ message: 'Erro ao criar colaborador' });
-        // }
     });
 
     router.get('/collaborators/:id', async (req, res) => {

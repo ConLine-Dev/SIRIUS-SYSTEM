@@ -30,6 +30,8 @@ const apiRoutes = listApi(io);
 app.use('/api', apiRoutes);
 app.use('/app', listApp);
 
+app.use('/storageService/collaborators', express.static('storageService/administration/collaborators'));
+
 ControllerSocket(io)
 
 // Socket.io events handling

@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     })
 
     document.querySelector('#loader2').classList.add('d-none')
+
 })
 
 // Verifica informações no localStorage do usuario logado
@@ -91,6 +92,19 @@ async function generateTable() {
         },
     });
 
+    // Espera o carregamento completo dos dados via AJAX
+    table['table_control_password'].on('xhr.dt', function() {
+        // Coloque aqui o código que precisa ser executado após os dados serem carregados
+
+        introMain()
+    });
+
+    // Evento disparado quando a tabela é redesenhada
+    table['table_control_password'].on('draw.dt', function() {
+        // Coloque aqui o código que precisa ser executado após o redesenho da tabela
+    });
+
+
    
 }
 
@@ -98,6 +112,7 @@ async function generateTable() {
 function editarLinha(id) {
     console.log("Editar item com ID: " + id);
     // Implementar a lógica de edição aqui
+
 }
 
 // Função que confirma a deleção
@@ -153,3 +168,4 @@ async function openPasswordEdit(id) {
     }
     window.ipcRenderer.invoke('open-exWindow', body);
  };
+

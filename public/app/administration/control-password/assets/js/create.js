@@ -188,14 +188,13 @@ async function setDefaultValues() {
     sAllDepartments.setChoiceByValue(departments);
 };
 
-/**
- * Verifica informações no localStorage do usuario logado
- */
+
+// Verifica informações no localStorage do usuario logado
 async function getInfosLogin() {
     const StorageGoogleData = localStorage.getItem('StorageGoogle');
     const StorageGoogle = JSON.parse(StorageGoogleData);
     return StorageGoogle;
-}
+};
 
 // ESPERA A PAGINA SER COMPLETAMENTE CARREGADA
 document.addEventListener("DOMContentLoaded", async () => {

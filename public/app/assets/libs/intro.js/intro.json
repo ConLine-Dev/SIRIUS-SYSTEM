@@ -1,0 +1,24 @@
+[
+    {
+      "title": "Bem vindo ao módulo Controle de senhas!",
+      "intro": "Este é um tutorial explicando o funcionamento delas."
+    },
+    {
+      "element": "#intro-bottom-new",
+      "title": "Novo",
+      "intro": "Aqui você irá criar uma nova senha"
+    },
+    {
+      "element": "#table_control_password",
+      "title": "Lista de senhas",
+      "intro": "Aqui mostrará todas as senhas criadas",
+      "position": "middle"
+    },
+    {
+      "element": "#table_control_password tr td:last-child",
+      "title": "Ação",
+      "intro": "Aqui poderá editar e deletar a senha",
+      "position": "right"
+    }
+   
+  ]

@@ -17,8 +17,12 @@
     <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
     <!-- Main Theme Js -->
     <script src="../../assets/js/main.js"></script>
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
     <!-- Style Css -->
     <link href="../../assets/css/styles.min.css" rel="stylesheet">
     <!-- Icons Css -->
@@ -51,6 +55,12 @@
 </head>
 
 <body>
+
+    <!-- Tutorial -->
+    <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: absolute; top: 50%; right: 20px; z-index: 100;"> 
+        <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+     </span>
+
     <!-- Start Switcher -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="switcher-canvas" aria-labelledby="offcanvasRightLabel">
         <div class="offcanvas-header border-bottom">
@@ -532,7 +542,7 @@
                     <div class="col-5">
                         <div class="row">
                             <div class="col-xl-12">
-                                <div class="card custom-card">
+                                <div class="card custom-card" id="intro-ocurrence">
                                     <div class="card-header">
                                         <div class="card-title">Ocorrências e não conformidades Por Unidade</div>
                                     </div>
@@ -568,7 +578,7 @@
                         </div>
                         <div class="row">
                             <div class="col-xl-12">
-                                <div class="card custom-card">
+                                <div class="card custom-card" id="intro-collaborators">
                                     <div class="card-header">
                                         <div class="card-title">Colaboradores ativos Por Unidade</div>
                                     </div>
@@ -602,7 +612,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row" id="intro-total-collaborators">
                             <div class="col-4">
                                 <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6">
                                     <div class="card custom-card hrm-main-card primary">
@@ -658,7 +668,7 @@
                         </div>
                     </div>
                     <div class="col-7">
-                        <div class="card custom-card">
+                        <div class="card custom-card" id="intro-turnover-index">
                             <div class="card-header justify-content-between">
                                 <div class="card-title"> Índice de Turnover por Mês</div>
                             </div>
@@ -677,7 +687,7 @@
                     <div class="col-12">
                         <div class="row">
                             <div class="col-4">
-                                <div class="card custom-card overflow-hidden" style="height: 100%;"> 
+                                <div class="card custom-card overflow-hidden" style="height: 100%;" id="intro-happy-birthday"> 
                                     <div class="card-header justify-content-between">
                                         <div class="card-title"> Proximos Aniversariantes </div>
                                       
@@ -712,7 +722,7 @@
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="card custom-card overflow-hidden" style="height: 100%;"> 
+                                <div class="card custom-card overflow-hidden" style="height: 100%;" id="intro-time-office"> 
                                     <div class="card-header justify-content-between">
                                         <div class="card-title"> Tempo de Empresa </div>
                                         
@@ -747,7 +757,7 @@
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="card custom-card overflow-hidden" style="height: 100%;"> 
+                                <div class="card custom-card overflow-hidden" style="height: 100%;" id="intro-collaborators-actives"> 
                                     <div class="card-header justify-content-between">
                                         <div class="card-title"> Colaboradores Ativos </div>
                                        
@@ -786,7 +796,7 @@
                        <div class="row">
                         
                         <div class="col-12">
-                            <div class="card custom-card" style="height: 100%;">
+                            <div class="card custom-card" style="height: 100%;" id="intro-administrative-expenses">
 
                                 <!-- OCORRENCIAS PENDENTES -->
                                 <div class="card-header justify-content-between">
@@ -966,6 +976,8 @@
     <script src="../../assets/js/main.js"></script>
     
     <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="../../assets/libs/intro.js/intro.min.js"></script>
+    <script src="../../assets/libs/intro.js/intro.js"></script>
 
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>

@@ -1,6 +1,6 @@
 .introjs-tooltip.introjs-floating {
     top: 50%;
-    min-width: 445px;
+    min-width: 500px;
     left: 50%;
     transform: translate(-50%, -50%);
     margin: 0 !important;
@@ -141,8 +141,8 @@
     position: absolute;
     visibility: visible;
     background-color: #fffffff3;
-    min-width: 300px;
-    max-width: 300px;
+    min-width: 400px;
+    max-width: 400px;
     border-radius: 5px;
     box-shadow: 0 3px 30px rgba(33, 33, 33, 0.3);
     transition: opacity 0.1s ease-out;
@@ -183,6 +183,7 @@
     padding: 0;
     font-weight: 700;
     line-height: 1.5;
+    text-align: center;
     color: rgb(249, 66, 58);
   }
   .introjs-tooltip-header {

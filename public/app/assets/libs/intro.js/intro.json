@@ -1,7 +1,7 @@
 [
     {
-      "title": "Bem vindo ao Tutorial! 😊",
-      "intro": "Este é um tutorial explicando o funcionamento delas."
+      "title": "Bem vindo!",
+      "intro": "Este tutorial explica o funcionamento do módulo do sistema"
     },
     {
       "element": "#intro-bottom-new",
@@ -11,13 +11,7 @@
     {
       "element": "#table_control_password",
       "title": "Lista de senhas",
-      "intro": "Aqui mostrará todas as senhas criadas",
-      "position": "middle"
-    },
-    {
-      "element": ".odd",
-      "title": "Visualizar senha",
-      "intro": "Ao clicar, poderá visualizar a senha",
+      "intro": "Aqui listará todas as senhas criadas.<br><br>Ao clicar, abrirá os detalhes da senha",
       "position": "middle"
     },
     {
@@ -72,5 +66,48 @@
       "title": "Recebimento / Pagamento",
       "intro": "Aqui listará todas as faturas dos processos de Recebimento e Pagamento Baixados e Pendentes.<br><br>Ao clicar na fatura, abrirá os detalhes do processo",
       "position": "left"
+    },
+    {
+      "element": "#intro-ocurrence",
+      "title": "Ocorrências e não conformidades Por Unidade",
+      "intro": "Aqui mostra a quantidade de orcorrencia e não conformidade por filiais"
+    },
+    {
+      "element": "#intro-collaborators",
+      "title": "Colaboradores ativos Por Unidade",
+      "intro": "Aqui mostra a quantidade de colaboradores ativos por filiais"
+    },
+    {
+      "element": "#intro-total-collaborators",
+      "title": "Total de contratações e colaboradores / Turnover Geral",
+      "intro": "Aqui mostra o total de contratações e colaboradores ativos.<br>O Turnover representa a porcentagem total de rotatividade, incluindo entradas e saídas de colaboradores"
+    },
+    {
+      "element": "#intro-turnover-index",
+      "title": "Índice de Turnover por Mês",
+      "intro": "Aqui mostra o total de admissões, demissões e porcentagem do turnover por mês"
+    },
+    {
+      "element": "#intro-happy-birthday",
+      "title": "Próximos Aniversariantes",
+      "intro": "Esta é a lista dos colaboradores que serão os próximos a fazer aniversário",
+      "position": "right"
+    },
+    {
+      "element": "#intro-time-office",
+      "title": "Tempo de Empresa",
+      "intro": "Esta é a lista com o tempo de empresa dos colaboradores",
+      "position": "right"
+    },
+    {
+      "element": "#intro-collaborators-actives",
+      "title": "Colaboradores Ativos",
+      "intro": "Esta é a lista dos colaboradores ativos",
+      "position": "left"
+    },
+    {
+      "element": "#intro-administrative-expenses",
+      "title": "Despesas administrativas",
+      "intro": "Esta é a lista das despesas administrativas"
     }
   ]

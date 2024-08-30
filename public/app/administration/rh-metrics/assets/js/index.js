@@ -186,6 +186,8 @@ async function table_despesasADM() {
             sSearch: '',
         },
     });
+
+    introMain()
 }
 
 async function CollaboratorBirthDate(){

@@ -1,4 +1,4 @@
-let sAllcompanie, sAllLanguages, sAllResponsible;
+let sAllcompanie, sAllLanguages, sAllResponsible, BankingInformation = [], Documents = [], Certifications = [];
 
 /**
  * @function getAllCompanie
@@ -244,23 +244,6 @@ async function eventInputProfile() {
 }
 
 
-// Função para os valores de qualquer selected
-async function getSelectValues() {
-    const selectElement = document.querySelector(`form select[name]`);
-    if (selectElement) {
-       const selectedOptions = Array.from(selectElement.selectedOptions);
-       if (!selectedOptions || selectedOptions.length === 0 || selectedOptions[0].value === '') {
-          return undefined;
-       } else {
-          const selectedValues = selectedOptions.map(option => option.value);
-          return selectedValues;
-       }
-    } else {
-       return undefined;
-    }
-};
-
-
 /**
  * @function getAllValuesInForm
  * @description Percorre o formulário e coleta todos os valores dos inputs, selects e textareas.
@@ -277,7 +260,7 @@ async function getAllValuesInForm() {
 
     // Array de campos obrigatórios com mensagens de erro personalizadas
     let requiredInputFields = [
-        { name: 'cpf', message: 'O campo CPF é obrigatório.' },
+        { name: 'cpf2', message: 'O campo CPF é obrigatório.' },
         { name: 'login', message: 'O campo LOGIN é obrigatório.' },
         { name: 'password', message: 'O campo SENHA é obrigatório.' },
     ];
@@ -303,29 +286,538 @@ async function getAllValuesInForm() {
 
     // Verifica se há uma imagem no campo de upload
     const photoInput = document.querySelector('input[name="photo"]');
-    console.log(photoInput)
     if (photoInput && photoInput.files.length > 0) {
         formData.append('photo', photoInput.files[0]);  // Adiciona a imagem ao FormData
     }
+
+
     
-
-    // Exibe os dados no console para verificação (opcional)
-    for (let [key, value] of formData.entries()) { 
-        // console.log(key, value);
-    }
-
-    // Faz a requisição para adicionar a ação
-    // const response = await fetch('/api/collaborators-management/collaborators', {
-    //     method: 'POST',
-    //     body: formData
-    // });
+     // Adiciona os documentos ao formData
+     Documents.forEach(doc => {
+        formData.append('documents[]', JSON.stringify(doc)); // Adiciona o documento ao FormData
+        if (doc.file) {
+            formData.append('files[]', doc.file); // Adiciona o arquivo ao FormData
+        }
+    });
 
 
+ 
     // Envia os dados para o servidor
     await makeRequest(`/api/collaborators-management/collaborators`, 'POST', formData);
 
     window.close();
 }
+
+
+/**
+ * Renderiza as informações bancárias na tabela HTML.
+ * Esta função percorre o array `BankingInformation` e gera linhas de tabela
+ * para exibir os dados. Cada linha inclui links para editar e remover informações.
+ */
+function renderBankingInformation() {
+    // Inicializa uma string para armazenar o conteúdo HTML das linhas da tabela
+    let rowBankingInformation = '';
+
+    // Itera sobre o array `BankingInformation` para gerar as linhas da tabela
+    for (let index = 0; index < BankingInformation.length; index++) {
+        const element = BankingInformation[index];
+
+        // Adiciona uma linha com os dados do item atual e os botões de ação
+        rowBankingInformation += `<tr>
+                                     <td>${element.bank}</td>
+                                     <td>${element.agency}</td>
+                                     <td>${element.account}</td>
+                                     <td>${element.type}</td>
+                                     <td>
+                                      <div class="hstack gap-2 flex-wrap"> 
+                                        <a href="javascript:void(0);" onclick="fillBankingInformation(${element.id})" class="text-info fs-14 lh-1">
+                                            <i class="ri-edit-line"></i>
+                                        </a> 
+                                        <a href="javascript:void(0);" onclick="removeBankingInformation(${element.id})" class="text-danger fs-14 lh-1">
+                                            <i class="ri-delete-bin-5-line"></i>
+                                        </a> 
+                                      </div>
+                                     </td>
+                                 </tr>`;
+    }
+
+    // Atualiza o conteúdo da tabela no HTML com as novas linhas geradas
+    document.querySelector('#BankingInformation tbody').innerHTML = rowBankingInformation;
+}
+
+/**
+ * Adiciona uma nova informação bancária ao array `BankingInformation` e atualiza a tabela.
+ * Obtém os valores dos campos do formulário, adiciona um novo objeto ao array e
+ * chama as funções para limpar o formulário e renderizar a tabela.
+ * @param {Event} e - O evento do clique no botão de adicionar.
+ */
+function addBankingInformation(e) {
+    // Obtém os elementos do formulário e os seus valores
+    const [bank_bank, bank_agencie, bank_account, bank_type] = Array.from(document.querySelectorAll('#bank_type, #bank_account, #bank_agencie, #bank_bank'));
+  
+    // Adiciona um novo objeto ao array `BankingInformation` com os valores do formulário
+    BankingInformation.push({
+        id: BankingInformation.length + 1,
+        bank: bank_bank.value,
+        account: bank_account.value,
+        agency: bank_agencie.value,
+        type: bank_type.value
+    });
+
+    // Limpa o formulário e renderiza a tabela atualizada
+    clearFormBankingInformation();
+    renderBankingInformation();
+}
+
+/**
+ * Preenche os campos do formulário com as informações bancárias do item selecionado.
+ * Ajusta a visibilidade dos botões do formulário para permitir a edição.
+ * @param {number} id - O ID da informação bancária a ser editada.
+ */
+function fillBankingInformation(id) {
+    // Localiza o item no array `BankingInformation` usando o ID
+    const bankingInfo = BankingInformation.find(info => info.id === id);
+
+    // Se o item for encontrado, preenche os campos do formulário e ajusta os botões
+    if (bankingInfo) {
+        document.querySelector('#bank_type').value = bankingInfo.type;
+        document.querySelector('#bank_account').value = bankingInfo.account;
+        document.querySelector('#bank_agencie').value = bankingInfo.agency;
+        document.querySelector('#bank_bank').value = bankingInfo.bank;
+
+        // Esconde o botão "Adicionar" e mostra os botões "Salvar" e "Cancelar"
+        document.querySelector('#BankingInformation .btn_add').style.display = 'none';
+        document.querySelector('#BankingInformation .btn_save').style.display = 'inline-block';
+        document.querySelector('#BankingInformation .btn_cancel').style.display = 'inline-block';
+
+        // Armazena o ID do item sendo editado em um atributo data para uso posterior
+        document.querySelector('#BankingInformation .btn_save').dataset.editId = id;
+    }
+}
+
+/**
+ * Limpa os campos do formulário e ajusta a visibilidade dos botões.
+ * Exibe o botão "Adicionar" e oculta os botões "Salvar" e "Cancelar".
+ */
+function clearFormBankingInformation() {
+    // Limpa os valores dos campos do formulário
+    document.querySelector('#bank_type').value = '';
+    document.querySelector('#bank_account').value = '';
+    document.querySelector('#bank_agencie').value = '';
+    document.querySelector('#bank_bank').value = '';
+
+    // Mostra o botão "Adicionar" e esconde os botões "Salvar" e "Cancelar"
+    document.querySelector('#BankingInformation .btn_add').style.display = 'inline-block';
+    document.querySelector('#BankingInformation .btn_save').style.display = 'none';
+    document.querySelector('#BankingInformation .btn_cancel').style.display = 'none';
+}
+
+/**
+ * Cancela a edição atual, limpando o formulário e ajustando a visibilidade dos botões.
+ */
+function cancelBankingInformation() {
+    // Limpa o formulário e ajusta os botões
+    clearFormBankingInformation();
+}
+
+/**
+ * Salva as alterações feitas na informação bancária editada.
+ * Atualiza o item correspondente no array `BankingInformation` e re-renderiza a tabela.
+ */
+function saveBankingInformation() {
+    // Recupera o ID do item sendo editado a partir do botão "Salvar"
+    const id = parseInt(document.querySelector('#BankingInformation .btn_save').dataset.editId, 10);
+
+    // Localiza o item no array e atualiza suas informações
+    const index = BankingInformation.findIndex(info => info.id === id);
+    if (index !== -1) {
+        BankingInformation[index] = {
+            id: id,
+            bank: document.querySelector('#bank_bank').value,
+            account: document.querySelector('#bank_account').value,
+            agency: document.querySelector('#bank_agencie').value,
+            type: document.querySelector('#bank_type').value
+        };
+
+        // Renderiza novamente as informações bancárias
+        renderBankingInformation();
+
+        // Limpa o formulário e ajusta os botões
+        clearFormBankingInformation();
+    }
+}
+
+/**
+ * Remove uma informação bancária do array `BankingInformation` com base no ID fornecido.
+ * Atualiza a tabela após a remoção do item.
+ * @param {number} id - O ID da informação bancária a ser removida.
+ */
+function removeBankingInformation(id) {
+    // Filtra o array para remover o item com o ID correspondente
+    BankingInformation = BankingInformation.filter(info => info.id !== id);
+
+    // Atualiza a exibição das informações bancárias
+    renderBankingInformation();
+}
+
+/**
+ * Função para renderizar a lista de documentos na tabela.
+ * 
+ * Esta função percorre o array de documentos e cria uma linha HTML para cada documento,
+ * exibindo informações como nome, data e um link para visualizar o arquivo.
+ * Também adiciona botões para editar e remover documentos.
+ */
+function renderDocuments() {
+    let rowDocuments = ''; // Armazena o HTML das linhas da tabela
+    
+    // Itera sobre todos os documentos
+    for (let index = 0; index < Documents.length; index++) {
+        const element = Documents[index];
+        rowDocuments += `<tr>
+                             <td>${element.name}</td>
+                             <td>${element.date}</td>
+                             <td><a href="${element.fileURL}" target="_blank">
+                                 <div class="d-flex align-items-center">
+                                     <div class="me-2">
+                                         <span class="avatar avatar-xs">
+                                             <img src="../../assets/images/media/files/file.png" alt="">
+                                         </span>
+                                     </div>
+                                     <div> Visualizar </div>
+                                 </div>
+                             </a></td>
+                             <td>
+                              <div class="hstack gap-2 flex-wrap"> 
+                                <a href="javascript:void(0);" onclick="fillDocument(${element.id})" class="text-info fs-14 lh-1">
+                                    <i class="ri-edit-line"></i>
+                                </a> 
+                                <a href="javascript:void(0);" onclick="removeDocument(${element.id})" class="text-danger fs-14 lh-1">
+                                    <i class="ri-delete-bin-5-line"></i>
+                                </a> 
+                              </div>
+                             </td>
+                         </tr>`;
+    }
+    
+    // Atualiza o conteúdo da tabela com as linhas geradas
+    document.querySelector('#documents tbody').innerHTML = rowDocuments;
+}
+
+/**
+ * Função para adicionar um novo documento.
+ * 
+ * Coleta os dados do formulário, cria um novo objeto de documento e o adiciona ao array de documentos.
+ * Se um arquivo for selecionado, gera um URL temporário para visualização.
+ */
+function addDocument() {
+    const docName = document.querySelector('#documents #doc_name').value;
+    const docDate = document.querySelector('#documents #doc_date').value;
+    const docFile = document.querySelector('#documents #doc_file').files[0]; // Captura o arquivo selecionado
+
+    let fileURL = '';
+    if (docFile) {
+        fileURL = URL.createObjectURL(docFile); // Gera URL temporário para visualização
+    }
+
+    Documents.push({
+        id: Documents.length + 1, // Gera um novo ID sequencial
+        name: docName,
+        date: docDate,
+        file: docFile,
+        fileURL
+    });
+
+    clearFormDocument(); // Limpa o formulário após a adição
+    renderDocuments(); // Atualiza a tabela com o novo documento
+}
+
+/**
+ * Função para preencher os campos do formulário com as informações de um documento existente.
+ * 
+ * Recebe o ID do documento, busca no array e preenche os campos do formulário com os dados do documento.
+ * Ajusta a visibilidade dos botões para edição.
+ * 
+ * @param {number} id - O ID do documento a ser editado.
+ */
+function fillDocument(id) {
+    const documentInfo = Documents.find(doc => doc.id === id);
+
+    if (documentInfo) {
+        document.querySelector('#documents #doc_name').value = documentInfo.name;
+        document.querySelector('#documents #doc_date').value = documentInfo.date;
+        document.querySelector('#documents #doc_file').value = ''; // Não podemos definir o valor de um input type=file por segurança
+
+        // Ajusta a visibilidade dos botões
+        document.querySelector('#documents .btn_add').style.display = 'none';
+        document.querySelector('#documents .btn_save').style.display = 'inline-block';
+        document.querySelector('#documents .btn_cancel').style.display = 'inline-block';
+
+        // Armazena o ID do documento sendo editado para uso posterior
+        document.querySelector('#documents .btn_save').dataset.editId = id;
+    }
+}
+
+/**
+ * Função para limpar os campos do formulário e ajustar a visibilidade dos botões.
+ * 
+ * Reseta os campos de entrada e ajusta a visibilidade dos botões para retornar ao estado inicial.
+ */
+function clearFormDocument() {
+    document.querySelector('#documents #doc_name').value = '';
+    document.querySelector('#documents #doc_date').value = '';
+    document.querySelector('#documents #doc_file').value = '';
+
+    // Ajusta a visibilidade dos botões
+    document.querySelector('#documents .btn_add').style.display = 'inline-block';
+    document.querySelector('#documents .btn_save').style.display = 'none';
+    document.querySelector('#documents .btn_cancel').style.display = 'none';
+}
+
+/**
+ * Função para cancelar a edição de um documento.
+ * 
+ * Limpa os campos do formulário e ajusta a visibilidade dos botões para o estado inicial.
+ */
+function cancelDocuments() {
+    clearFormDocument(); // Limpa o formulário e ajusta os botões
+}
+
+/**
+ * Função para salvar as alterações de um documento existente.
+ * 
+ * Atualiza um documento existente com novos dados, incluindo um novo arquivo, se selecionado.
+ * 
+ * Atualiza a tabela de documentos e limpa o formulário após salvar.
+ */
+function saveDocument() {
+    const id = parseInt(document.querySelector('#documents .btn_save').dataset.editId, 10);
+    const index = Documents.findIndex(doc => doc.id === id);
+
+    if (index !== -1) {
+        const docName = document.querySelector('#documents #doc_name').value;
+        const docDate = document.querySelector('#documents #doc_date').value;
+        const docFile = document.querySelector('#documents #doc_file').files[0]; // Novo arquivo (se houver)
+
+        let fileURL = Documents[index].fileURL; // Mantém o URL do arquivo antigo por padrão
+
+        // Atualiza o URL se um novo arquivo for selecionado
+        if (docFile) {
+            fileURL = URL.createObjectURL(docFile); // Gera URL temporário para visualização
+        }
+
+        Documents[index] = {
+            id: id,
+            name: docName,
+            date: docDate,
+            fileURL
+        };
+
+        renderDocuments(); // Atualiza a tabela com as alterações
+        clearFormDocument(); // Limpa o formulário após salvar
+    }
+}
+
+/**
+ * Função para remover um documento do array com base no ID.
+ * 
+ * Filtra o array de documentos para remover o documento com o ID especificado.
+ * Atualiza a tabela após a remoção.
+ * 
+ * @param {number} id - O ID do documento a ser removido.
+ */
+function removeDocument(id) {
+    Documents = Documents.filter(doc => doc.id !== id); // Filtra o array para remover o documento
+    renderDocuments(); // Atualiza a tabela com a lista de documentos atualizada
+}
+
+
+/**
+ * Função para renderizar a tabela de certificações.
+ * 
+ * Esta função gera o HTML para a tabela de certificações, preenchendo 
+ * as linhas da tabela com informações sobre cada certificação armazenada 
+ * no array `Certifications`. Ela também inclui links para visualizar e 
+ * ações para editar e remover certificações.
+ */
+function renderCertifications() {
+    let rowCertifications = '';
+    
+    // Itera sobre cada certificação no array `Certifications`
+    for (let index = 0; index < Certifications.length; index++) {
+        const element = Certifications[index];
+        rowCertifications += `<tr>
+            <td>${element.qualification}</td>
+            <td>${element.institution}</td>
+            <td>${element.completionDate}</td>
+            <td><a href="${element.certificateURL}" target="_blank">
+            <div class="d-flex align-items-center">
+            <div class="me-2">
+              <span class="avatar avatar-xs">
+                <img src="../../assets/images/media/files/file.png" alt="">
+              </span>
+            </div>
+            <div> Visualizar </div>
+          </div>
+          </a></td>
+            <td>
+                <div class="hstack gap-2 flex-wrap">
+                    <a href="javascript:void(0);" onclick="fillCertification(${element.id})" class="text-info fs-14 lh-1">
+                        <i class="ri-edit-line"></i>
+                    </a>
+                    <a href="javascript:void(0);" onclick="removeCertification(${element.id})" class="text-danger fs-14 lh-1">
+                        <i class="ri-delete-bin-5-line"></i>
+                    </a>
+                </div>
+            </td>
+        </tr>`;
+    }
+
+    // Atualiza o conteúdo da tabela com o HTML gerado
+    document.querySelector('#Certifications tbody').innerHTML = rowCertifications;
+}
+
+/**
+ * Função para adicionar uma nova certificação.
+ * 
+ * Esta função coleta os dados do formulário, cria um novo objeto de certificação
+ * e o adiciona ao array `Certifications`. Após adicionar a certificação, 
+ * a função limpa o formulário e re-renderiza a tabela de certificações.
+ */
+function addCertification() {
+    const qualification = document.querySelector('#Certifications #qualification').value;
+    const institution = document.querySelector('#Certifications #institution').value;
+    const completionDate = document.querySelector('#Certifications #completionDate').value;
+    const certificateFile = document.querySelector('#Certifications #certificate').files[0];
+    
+    let certificateURL = '';
+    if (certificateFile) {
+        certificateURL = URL.createObjectURL(certificateFile); // Gera URL para visualização do arquivo
+    }
+
+    Certifications.push({
+        id: Certifications.length + 1, // Gera um novo ID para a certificação
+        qualification,
+        institution,
+        completionDate,
+        certificateURL
+    });
+
+    clearFormCertification(); // Limpa o formulário após adicionar
+    renderCertifications(); // Atualiza a tabela com a nova certificação
+}
+
+/**
+ * Função para preencher os campos do formulário para edição.
+ * 
+ * Esta função localiza a certificação com o ID fornecido, preenche os campos
+ * do formulário com os dados da certificação e ajusta a visibilidade dos botões
+ * para permitir a edição. O botão "Adicionar" é escondido e os botões "Salvar"
+ * e "Cancelar" são mostrados.
+ * 
+ * @param {number} id - O ID da certificação a ser editada.
+ */
+function fillCertification(id) {
+    const certification = Certifications.find(cert => cert.id === id);
+
+    if (certification) {
+        document.querySelector('#Certifications #qualification').value = certification.qualification;
+        document.querySelector('#Certifications #institution').value = certification.institution;
+        document.querySelector('#Certifications #completionDate').value = certification.completionDate;
+        document.querySelector('#Certifications #certificate').value = ''; // Não é possível definir o valor do input file
+
+        // Ajusta a visibilidade dos botões do formulário
+        document.querySelector('#Certifications .btn_add').style.display = 'none';
+        document.querySelector('#Certifications .btn_save').style.display = 'inline-block';
+        document.querySelector('#Certifications .btn_cancel').style.display = 'inline-block';
+
+        // Armazena o ID da certificação no botão "Salvar"
+        document.querySelector('#Certifications .btn_save').dataset.editId = id;
+    }
+}
+
+/**
+ * Função para limpar o formulário e ajustar a visibilidade dos botões.
+ * 
+ * Esta função reseta os campos do formulário e ajusta os botões para o estado
+ * padrão, escondendo os botões de "Salvar" e "Cancelar" e mostrando o botão 
+ * "Adicionar".
+ */
+function clearFormCertification() {
+    document.querySelector('#Certifications #qualification').value = '';
+    document.querySelector('#Certifications #institution').value = '';
+    document.querySelector('#Certifications #completionDate').value = '';
+    document.querySelector('#Certifications #certificate').value = '';
+
+    // Ajusta a visibilidade dos botões do formulário
+    document.querySelector('#Certifications .btn_add').style.display = 'inline-block';
+    document.querySelector('#Certifications .btn_save').style.display = 'none';
+    document.querySelector('#Certifications .btn_cancel').style.display = 'none';
+}
+
+/**
+ * Função para cancelar a edição de uma certificação.
+ * 
+ * Esta função limpa o formulário e retorna os botões do formulário para o estado
+ * padrão, sem aplicar alterações.
+ */
+function cancelCertification() {
+    clearFormCertification(); // Limpa o formulário
+}
+
+/**
+ * Função para salvar as alterações no array de certificações.
+ * 
+ * Esta função localiza a certificação com o ID armazenado no botão "Salvar",
+ * atualiza os dados da certificação com os valores do formulário e re-renderiza
+ * a tabela de certificações. Se um novo arquivo de certificado for selecionado,
+ * o URL é atualizado.
+ */
+function saveCertification() {
+    const id = parseInt(document.querySelector('.btn_save').dataset.editId, 10);
+
+    const index = Certifications.findIndex(cert => cert.id === id);
+    if (index !== -1) {
+        const qualification = document.querySelector('#qualification').value;
+        const institution = document.querySelector('#institution').value;
+        const completionDate = document.querySelector('#completionDate').value;
+        const certificateFile = document.querySelector('#certificate').files[0];
+
+        let certificateURL = Certifications[index].certificateURL; // Mantém o URL antigo por padrão
+
+        // Atualiza o URL se um novo arquivo for selecionado
+        if (certificateFile) {
+            certificateURL = URL.createObjectURL(certificateFile); // Gera URL para visualização do novo arquivo
+        }
+
+        Certifications[index] = {
+            id: id,
+            qualification,
+            institution,
+            completionDate,
+            certificateURL
+        };
+
+        renderCertifications(); // Atualiza a tabela com as alterações
+        clearFormCertification(); // Limpa o formulário após salvar
+    }
+}
+
+/**
+ * Função para remover uma certificação do array com base no ID.
+ * 
+ * Esta função filtra o array `Certifications` para remover a certificação com
+ * o ID fornecido e, em seguida, re-renderiza a tabela de certificações.
+ * 
+ * @param {number} id - O ID da certificação a ser removida.
+ */
+function removeCertification(id) {
+    Certifications = Certifications.filter(cert => cert.id !== id);
+    renderCertifications(); // Atualiza a tabela após remoção
+}
+
+
+
+
 
 /**
  * @description Aguarda a página ser completamente carregada e inicializa todas as funções necessárias.
@@ -347,6 +839,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Inicializa os eventos de input e mudança de imagem de perfil
     await eventChangeImgProfile();
     await eventInputProfile();
+
 
     // Fim da medição do tempo de carregamento da página
     console.timeEnd(`A página "${document.title}" carregou em`);

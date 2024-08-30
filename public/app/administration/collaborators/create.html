@@ -746,7 +746,7 @@
                                     <h3 class="text-default">Certificações</h3>
                                     <div class="row">
                                         <div class="table-responsive">
-                                            <table class="table text-nowrap table-bordered">
+                                            <table id="Certifications" class="table text-nowrap table-bordered">
                                                 <thead>
                                                     
                                                     <tr>
@@ -766,32 +766,22 @@
                                                             <input type="date" class="form-control" id="completionDate" placeholder="Digite a qualificação">
                                                         </th>
                                                         <th scope="col">
-                                                            <input type="text" class="form-control" id="certificate" placeholder="Certificado">
+                                                            <input type="file" class="form-control" id="certificate" placeholder="Certificado">
                                                         </th>
-                                                        <th scope="col">
-                                                            <button class="btn btn-icon btn-primary-light">
+                                                        <th scope="col" class="cardButtonsCertifications">
+                                                            <button type="button" onclick="addCertification()" class="btn btn-icon btn-primary-light btn_add">
                                                                 <i class="ri-add-line"></i>
+                                                            </button>
+                                                            <button type="button" style="display: none;" onclick="saveCertification()" class="btn btn-icon btn-primary-light btn_save">
+                                                                <i class="ri-save-line"></i>
+                                                            </button>
+                                                            <button type="button" style="display: none;" onclick="cancelCertification()" class="btn btn-icon btn-primary-light btn_cancel">
+                                                                <i class="ri-close-line"></i>
                                                             </button>
                                                         </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
-                                                        <td>Exemplo</td>
-                                                        <td>Exemplo</td>
-                                                        <td>23/04/2023</td>
-                                                        <td>Certiticado</td>
-                                                        <td>
-                                                            <div class="hstack gap-2 flex-wrap"> 
-                                                                <a href="javascript:void(0);" class="text-info fs-14 lh-1">
-                                                                    <i class="ri-edit-line"></i>
-                                                                </a> 
-                                                                <a href="javascript:void(0);" class="text-danger fs-14 lh-1">
-                                                                    <i class="ri-delete-bin-5-line"></i>
-                                                                </a> 
-                                                            </div>
-                                                        </td>
-                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -872,7 +862,7 @@
                                     <h3 class="text-default">Informações Bancária</h3>
                                     <div class="row">
                                         <div class="table-responsive">
-                                            <table class="table text-nowrap table-bordered">
+                                            <table id="BankingInformation" class="table text-nowrap table-bordered">
                                                 <thead>
                                                     <tr>
                                                         <th scope="col">Banco</th>
@@ -883,35 +873,32 @@
                                                     </tr>
                                                     <tr>
                                                         <th scope="col">
-                                                            <input type="text" class="form-control" id="bank" placeholder="Digite a bank">
+                                                            <input type="text" class="form-control" id="bank_bank" placeholder="Digite a bank">
                                                         </th>
                                                         <th scope="col">
-                                                            <input type="text" class="form-control" id="agencie" placeholder="Digite a agencie">
+                                                            <input type="text" class="form-control" id="bank_agencie" placeholder="Digite a agência">
                                                         </th>
                                                         <th scope="col">
-                                                            <input type="date" class="form-control" id="account" placeholder="Digite a account">
+                                                            <input type="text" class="form-control" id="bank_account" placeholder="Digite a conta">
                                                         </th>
                                                         <th scope="col">
-                                                            <input type="text" class="form-control" id="type" placeholder="Tipo">
+                                                            <input type="text" class="form-control" id="bank_type" placeholder="Tipo">
                                                         </th>
-                                                        <th scope="col">
-                                                            <button class="btn btn-icon btn-primary-light">
+                                                        <th scope="col" class="cardButtonsBankingInformation">
+                                                            <button type="button" onclick="addBankingInformation()" class="btn btn-icon btn-primary-light btn_add">
                                                                 <i class="ri-add-line"></i>
+                                                            </button>
+                                                            <button type="button" onclick="saveBankingInformation()" style="display: none;" class="btn btn-icon btn-primary-light btn_save">
+                                                                <i class="ri-save-line"></i>
+                                                            </button>
+                                                            <button type="button" onclick="cancelBankingInformation()" style="display: none;" class="btn btn-icon btn-primary-light btn_cancel">
+                                                                <i class="ri-close-line"></i>
                                                             </button>
                                                         </th>
                                                     </tr>
                                                     
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
-                                                        <td>Caixa Econômica Federal</td>
-                                                        <td>00024/1</td>
-                                                        <td>2132</td>
-                                                        <td>Corrente</td>
-                                                        <td>
-                                                            <div class="hstack gap-2 flex-wrap"> <a href="javascript:void(0);" class="text-info fs-14 lh-1"><i class="ri-edit-line"></i></a> <a href="javascript:void(0);" class="text-danger fs-14 lh-1"><i class="ri-delete-bin-5-line"></i></a> </div>
-                                                        </td>
-                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -923,7 +910,7 @@
                                     <h3 class="text-default">Documentos</h3>
                                     <div class="row">
                                         <div class="table-responsive">
-                                            <table class="table text-nowrap table-bordered">
+                                            <table id="documents" class="table text-nowrap table-bordered">
                                                 <thead>
                                                     <tr>
                                                         <th scope="col">Nome</th>
@@ -932,24 +919,23 @@
                                                         <th scope="col">Ação</th>
                                                     </tr>
                                                     <tr>
-                                                        <th scope="col"><input type="text" class="form-control" id="account" placeholder="Digite o nome do documento"></th>
-                                                        <th scope="col">Data atual</th>
-                                                        <th scope="col">
-                                                            <button class="btn btn-icon btn-primary-light">
+                                                        <th scope="col"><input type="text" class="form-control" id="doc_name" placeholder="Digite o nome do documento"></th>
+                                                        <th scope="col"><input type="date" class="form-control" id="doc_date" placeholder="data do documeneto enviado"></th>
+                                                        <th scope="col"><input type="file" class="form-control" id="doc_file"></th>
+                                                        <th scope="col" class="cardButtonsDocs">
+                                                            <button type="button" onclick="addDocument()" class="btn btn-icon btn-primary-light btn_add">
                                                                 <i class="ri-add-line"></i>
+                                                            </button>
+                                                            <button type="button" style="display: none;" onclick="saveDocument()" class="btn btn-icon btn-primary-light btn_save">
+                                                                <i class="ri-save-line"></i>
+                                                            </button>
+                                                            <button type="button" style="display: none;" onclick="cancelDocuments()" class="btn btn-icon btn-primary-light btn_cancel">
+                                                                <i class="ri-close-line"></i>
                                                             </button>
                                                         </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
-                                                        <td>Comprovante de Residencia</td>
-                                                        <td>05/04/2024 13:35</td>
-                                                        <td>05/04/2024 13:35</td>
-                                                        <td>
-                                                            <div class="hstack gap-2 flex-wrap"> <a href="javascript:void(0);" class="text-info fs-14 lh-1"><i class="ri-edit-line"></i></a> <a href="javascript:void(0);" class="text-danger fs-14 lh-1"><i class="ri-delete-bin-5-line"></i></a> </div>
-                                                        </td>
-                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>

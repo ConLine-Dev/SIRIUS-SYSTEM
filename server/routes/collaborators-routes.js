@@ -47,26 +47,40 @@ module.exports = function (io) {
     });
 
     // CRUD para 'collaborators'
-    router.post('/collaborators', upload.single('photo'), async (req, res) => {
+    router.post('/collaborators', upload.fields([{ name: 'photo', maxCount: 1 }, { name: 'files[]', maxCount: 10 }]), async (req, res) => {
         try {
+            const { body, files } = req;
             // Dados do colaborador
             const collaboratorData = {
-                ...req.body,
-                photo: req.file ? req.file.filename : null  // Salve o nome do arquivo ou o caminho no banco de dados
+                ...body,
+                photo: files['photo'] ? files['photo'][0].filename : null, // Nome do arquivo da foto
+                documents: [] // Inicializa o array de documentos
             };
+
+            // Processa os arquivos de documentos
+            if (files['files[]']) {
+                files['files[]'].forEach(file => {
+                    collaboratorData.documents.push({
+                        name: file.originalname,
+                        path: file.path,
+                        mimetype: file.mimetype
+                    });
+                });
+            }
     
             // Cria o colaborador no banco e obtém o ID
             const collaboratorId = await collaboratorsController.createCollaborator(collaboratorData);
     
+            const folderPath = path.join('storageService/administration/collaborators', `${collaboratorId}`);
+
+             // Cria a pasta se não existir
+             if (!fs.existsSync(folderPath)) {
+                fs.mkdirSync(folderPath, { recursive: true });
+            }
+
             if (req.file) {
                 // Caminho para a nova pasta com o ID do colaborador
-                const folderPath = path.join('storageService/administration/collaborators', `${collaboratorId}`);
                 
-                // Cria a pasta se não existir
-                if (!fs.existsSync(folderPath)) {
-                    fs.mkdirSync(folderPath, { recursive: true });
-                }
-    
                 // Define o novo caminho para a imagem com o nome "perfil-image"
                 const newFileName = `perfil-image${path.extname(req.file.originalname)}`;
                 const newPath = path.join(folderPath, newFileName);
@@ -75,6 +89,27 @@ module.exports = function (io) {
                 fs.rename(req.file.path, newPath, function(err) {
                     if (err) throw err;
                     console.log('Imagem renomeada e movida com sucesso');
+                });
+            }
+
+
+             // Move e renomeia os arquivos para o novo caminho
+            if (files['files[]']) {
+                files['files[]'].forEach( (file) => {
+                    const newFileName = `${path.basename(file.originalname, path.extname(file.originalname))}-${Date.now()}${path.extname(file.originalname)}`;
+                    
+
+                    const folderPath2 = path.join(`storageService/administration/collaborators/${collaboratorId}`, `documents`);
+                    const newPath = path.join(folderPath2, newFileName);
+                        // Cria a pasta se não existir
+                        if (!fs.existsSync(folderPath2)) {
+                            fs.mkdirSync(folderPath2, { recursive: true });
+                        }
+
+                    // Move e renomeia o arquivo para o novo caminho
+                    fs.rename(file.path, newPath, function(err) {
+                        if (err) throw err;
+                    });
                 });
             }
     

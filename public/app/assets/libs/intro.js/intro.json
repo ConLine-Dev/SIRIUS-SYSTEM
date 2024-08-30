@@ -23,7 +23,7 @@
     {
       "element": "#intro-cards-offers",
       "title": "Propostas / Processos",
-      "intro": "Aqui mostrará Propostas Aprovadas e Pendentes. Processos em Andamento e Auditados do ano atual. "
+      "intro": "Aqui mostrará Propostas Aprovadas e Pendentes. Processos em Andamento e Auditados do ano atual"
     },
     {
       "element": "#intro-cards-one",
@@ -53,6 +53,18 @@
       "element": "#intro-cards-for",
       "title": "Processos Auditados",
       "intro": "Aqui mostrará todos os Processos Auditados",
+      "position": "left"
+    },
+    {
+      "element": "#intro-total-finances",
+      "title": "Recebimento / Pagamento",
+      "intro": "Aqui mostrará os totais dos Recebimentos e Pagamentos Baixados e Pendentes",
+      "position": "left"
+    },
+    {
+      "element": "#intro-cards-list",
+      "title": "Recebimento / Pagamento",
+      "intro": "Aqui listará todas as faturas dos processos de Recebimento e Pagamento Baixados e Pendentes",
       "position": "left"
     }
   ]

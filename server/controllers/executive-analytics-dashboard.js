@@ -363,8 +363,8 @@ const executiveAnalytics = {
          OR (Fnc.Situacao != 2 AND DATEPART(week, Vlf.Data_Referencia) = DATEPART(week, DATEADD(day, -${data.week}, GETDATE()))))`;
       }
       if (data.month != null) {
-         whereFilter = `AND ((Fnc.Situacao = 2 AND DATEPART(week, Fnc.Data_Pagamento) = ${data.month})
-         OR (Fnc.Situacao != 2 AND DATEPART(week, Vlf.Data_Referencia) = ${data.month}))`;
+         whereFilter = `AND ((Fnc.Situacao = 2 AND DATEPART(month, Fnc.Data_Pagamento) = ${data.month})
+         OR (Fnc.Situacao != 2 AND DATEPART(month, Vlf.Data_Referencia) = ${data.month}))`;
       }
 
       let result = await executeQuerySQL(`

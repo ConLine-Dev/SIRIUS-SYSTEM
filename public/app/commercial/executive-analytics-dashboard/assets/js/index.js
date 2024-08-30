@@ -208,6 +208,7 @@ async function reprintCompleteReceipts(day, week, month) {
     const divCompletedReceiptsTitle = document.getElementById('completedReceiptsTitle');
     let printCompletedReceiptsTitle = '';
     let totalCompletedReceipts = 0;
+    let formattedValue = 0;
 
     for (let index = 0; index < totalInvoices.length; index++) {
 
@@ -220,6 +221,12 @@ async function reprintCompleteReceipts(day, week, month) {
         }
         if (totalInvoices[index].Modal == 'Aéreo') {
             color = 'var(--air-color)';
+        }
+
+        if (totalInvoices[index].Moeda == 'USD') {
+            formattedValue = totalInvoices[index].Valor.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        } else if (totalInvoices[index].Moeda == 'BRL') {
+            formattedValue = totalInvoices[index].Valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
         
         if (totalInvoices[index].Natureza == 'Recebimento') {
@@ -238,7 +245,7 @@ async function reprintCompleteReceipts(day, week, month) {
                                         <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
                                     <div class="text-muted fs-12 text-center"></div>
                                     <span class="ms-auto">
-                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-danger d-block"> ${formattedValue} </span>
                                         <span class="text-end text-muted d-block fs-12">${date}</span>
                                     </span>
                                 </div>
@@ -256,11 +263,11 @@ async function reprintCompleteReceipts(day, week, month) {
         }
     }
 
-    totalCompletedReceipts = totalCompletedReceipts.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    totalCompletedReceipts = totalCompletedReceipts.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     printCompletedReceiptsTitle = `
         <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
-        <div> <span class="d-block text-muted">Recebimento Total Baixado</span> <span class="fs-16 fw-semibold">BRL ${totalCompletedReceipts}</span> </div>`
+        <div> <span class="d-block text-muted">Recebimento Total Baixado</span> <span class="fs-16 fw-semibold">${totalCompletedReceipts}</span> </div>`
 
     divCompletedReceiptsTitle.innerHTML = printCompletedReceiptsTitle;
     divCompletedReceipts.innerHTML = printCompletedReceipts;
@@ -274,6 +281,7 @@ async function reprintCompletePayments(day, week, month) {
     const divCompletedPaymentsTitle = document.getElementById('completedPaymentsTitle');
     let printCompletedPaymentsTitle = '';
     let totalCompletedPayments = 0;
+    let formattedValue = 0;
 
     for (let index = 0; index < totalInvoices.length; index++) {
 
@@ -288,6 +296,12 @@ async function reprintCompletePayments(day, week, month) {
             color = 'var(--air-color)';
         }
 
+        if (totalInvoices[index].Moeda == 'USD') {
+            formattedValue = totalInvoices[index].Valor.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        } else if (totalInvoices[index].Moeda == 'BRL') {
+            formattedValue = totalInvoices[index].Valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+        
         if (totalInvoices[index].Natureza == 'Pagamento') {
             if (totalInvoices[index].Situacao_Fatura == 'Quitada') {
 
@@ -304,7 +318,7 @@ async function reprintCompletePayments(day, week, month) {
                                         <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
                                     <div class="text-muted fs-12 text-center"></div>
                                     <span class="ms-auto">
-                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-danger d-block"> ${formattedValue} </span>
                                         <span class="text-end text-muted d-block fs-12">${date}</span>
                                     </span>
                                 </div>
@@ -322,11 +336,11 @@ async function reprintCompletePayments(day, week, month) {
         }
     }
 
-    totalCompletedPayments = totalCompletedPayments.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    totalCompletedPayments = totalCompletedPayments.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     printCompletedPaymentsTitle = `
         <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
-        <div> <span class="d-block text-muted">Pagamento Total Baixado</span> <span class="fs-16 fw-semibold">BRL ${totalCompletedPayments}</span> </div>`
+        <div> <span class="d-block text-muted">Pagamento Total Baixado</span> <span class="fs-16 fw-semibold">${totalCompletedPayments}</span> </div>`
 
     divCompletedPaymentsTitle.innerHTML = printCompletedPaymentsTitle;
     divCompletedPayments.innerHTML = printCompletedPayments;
@@ -340,6 +354,7 @@ async function reprintPendingReceipts(day, week, month) {
     const divPendingReceiptsTitle = document.getElementById('pendingReceiptsTitle');
     let printPendingReceiptsTitle = '';
     let totalPendingReceipts = 0;
+    let formattedValue = 0;
 
     for (let index = 0; index < totalInvoices.length; index++) {
 
@@ -354,6 +369,12 @@ async function reprintPendingReceipts(day, week, month) {
             color = 'var(--air-color)';
         }
 
+        if (totalInvoices[index].Moeda == 'USD') {
+            formattedValue = totalInvoices[index].Valor.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        } else if (totalInvoices[index].Moeda == 'BRL') {
+            formattedValue = totalInvoices[index].Valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+        
         if (totalInvoices[index].Natureza == 'Recebimento') {
             if (totalInvoices[index].Situacao_Fatura != 'Quitada') {
 
@@ -370,7 +391,7 @@ async function reprintPendingReceipts(day, week, month) {
                                         <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
                                     <div class="text-muted fs-12 text-center"></div>
                                     <span class="ms-auto">
-                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-danger d-block"> ${formattedValue} </span>
                                         <span class="text-end text-muted d-block fs-12">${date}</span>
                                     </span>
                                 </div>
@@ -388,11 +409,11 @@ async function reprintPendingReceipts(day, week, month) {
         }
     }
 
-    totalPendingReceipts = totalPendingReceipts.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    totalPendingReceipts = totalPendingReceipts.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     printPendingReceiptsTitle = `
         <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
-        <div> <span class="d-block text-muted">Recebimento Total Pendente</span> <span class="fs-16 fw-semibold">BRL ${totalPendingReceipts}</span> </div>`
+        <div> <span class="d-block text-muted">Recebimento Total Pendente</span> <span class="fs-16 fw-semibold">${totalPendingReceipts}</span> </div>`
 
     divPendingReceiptsTitle.innerHTML = printPendingReceiptsTitle;
     divPendingReceipts.innerHTML = printPendingReceipts;
@@ -406,6 +427,7 @@ async function reprintPendingPayments(day, week, month) {
     const divPendingPaymentsTitle = document.getElementById('pendingPaymentsTitle');
     let printPendingPaymentsTitle = '';
     let totalPendingPayments = 0;
+    let formattedValue = 0;
 
     for (let index = 0; index < totalInvoices.length; index++) {
 
@@ -420,6 +442,12 @@ async function reprintPendingPayments(day, week, month) {
             color = 'var(--air-color)';
         }
 
+        if (totalInvoices[index].Moeda == 'USD') {
+            formattedValue = totalInvoices[index].Valor.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        } else if (totalInvoices[index].Moeda == 'BRL') {
+            formattedValue = totalInvoices[index].Valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+        
         if (totalInvoices[index].Natureza == 'Pagamento') {
             if (totalInvoices[index].Situacao_Fatura != 'Quitada') {
 
@@ -436,7 +464,7 @@ async function reprintPendingPayments(day, week, month) {
                                         <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
                                     <div class="text-muted fs-12 text-center"></div>
                                     <span class="ms-auto">
-                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-danger d-block"> ${formattedValue} </span>
                                         <span class="text-end text-muted d-block fs-12">${date}</span>
                                     </span>
                                 </div>
@@ -454,11 +482,11 @@ async function reprintPendingPayments(day, week, month) {
         }
     }
 
-    totalPendingPayments = totalPendingPayments.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    totalPendingPayments = totalPendingPayments.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     printPendingPaymentsTitle = `
         <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
-        <div> <span class="d-block text-muted">Pagamento Total Pendente</span> <span class="fs-16 fw-semibold">BRL ${totalPendingPayments}</span> </div>`
+        <div> <span class="d-block text-muted">Pagamento Total Pendente</span> <span class="fs-16 fw-semibold">${totalPendingPayments}</span> </div>`
 
     divPendingPaymentsTitle.innerHTML = printPendingPaymentsTitle;
     divPendingPayments.innerHTML = printPendingPayments;
@@ -656,6 +684,7 @@ async function reprintCompleteProcesses(day, week, month) {
 
 async function printValues() {
     totalInvoices = await makeRequest(`/api/executive-analytics-dashboard/totalInvoices`, 'POST', { day: 0, week: null, month: null });
+
     const divCompletedReceiptsTitle = document.getElementById('completedReceiptsTitle');
     let printCompletedReceiptsTitle = '';
     const divcompletedPaymentsTitle = document.getElementById('completedPaymentsTitle');
@@ -676,7 +705,7 @@ async function printValues() {
     let totalCompletedPayments = 0;
     let totalPendingReceipts = 0;
     let totalPendingPayments = 0;
-    let dollarRate = 0;
+    let formattedValue = 0;
 
     for (let index = 0; index < totalInvoices.length; index++) {
 
@@ -689,6 +718,12 @@ async function printValues() {
         }
         if (totalInvoices[index].Modal == 'Aéreo') {
             color = 'var(--air-color)';
+        }
+
+        if (totalInvoices[index].Moeda == 'USD') {
+            formattedValue = totalInvoices[index].Valor.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        } else if (totalInvoices[index].Moeda == 'BRL') {
+            formattedValue = totalInvoices[index].Valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
 
         if (totalInvoices[index].Natureza == 'Recebimento') {
@@ -707,7 +742,7 @@ async function printValues() {
                                         <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
                                     <div class="text-muted fs-12 text-center"></div>
                                     <span class="ms-auto">
-                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-danger d-block"> ${formattedValue} </span>
                                         <span class="text-end text-muted d-block fs-12">${date}</span>
                                     </span>
                                 </div>
@@ -716,10 +751,11 @@ async function printValues() {
                     </div>
                 </a>`
 
-                if (totalInvoices[index].Moeda == 'USD') {
-                    totalInvoices[index].Valor = totalInvoices[index].Valor * dollarRate;
+                if (totalInvoices[index].Valor_Total < 1) {
+                    totalCompletedReceipts = totalCompletedReceipts + totalInvoices[index].Valor;
+                } else {
+                    totalCompletedReceipts = totalCompletedReceipts + totalInvoices[index].Valor_Total;
                 }
-                totalCompletedReceipts = totalCompletedReceipts + totalInvoices[index].Valor;
             }
             else {
 
@@ -736,7 +772,7 @@ async function printValues() {
                                         <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
                                     <div class="text-muted fs-12 text-center"></div>
                                     <span class="ms-auto">
-                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-danger d-block"> ${formattedValue} </span>
                                         <span class="text-end text-muted d-block fs-12">${date}</span>
                                     </span>
                                 </div>
@@ -745,10 +781,11 @@ async function printValues() {
                     </div>
                 </a>`
 
-                if (totalInvoices[index].Moeda == 'USD') {
-                    totalInvoices[index].Valor = totalInvoices[index].Valor * dollarRate;
+                if (totalInvoices[index].Valor_Total < 1) {
+                    totalPendingReceipts = totalPendingReceipts + totalInvoices[index].Valor;
+                } else {
+                    totalPendingReceipts = totalPendingReceipts + totalInvoices[index].Valor_Total;
                 }
-                totalPendingReceipts = totalPendingReceipts + totalInvoices[index].Valor;
             }
         }
         if (totalInvoices[index].Natureza == 'Pagamento') {
@@ -767,7 +804,7 @@ async function printValues() {
                                         <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
                                     <div class="text-muted fs-12 text-center"></div>
                                     <span class="ms-auto">
-                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-danger d-block">${formattedValue} </span>
                                         <span class="text-end text-muted d-block fs-12">${date}</span>
                                     </span>
                                 </div>
@@ -776,10 +813,11 @@ async function printValues() {
                     </div>
                 </a>`
 
-                if (totalInvoices[index].Moeda == 'USD') {
-                    totalInvoices[index].Valor = totalInvoices[index].Valor * dollarRate;
+                if (totalInvoices[index].Valor_Total < 1) {
+                    totalCompletedPayments = totalCompletedPayments + totalInvoices[index].Valor;
+                } else {
+                    totalCompletedPayments = totalCompletedPayments + totalInvoices[index].Valor_Total;
                 }
-                totalCompletedPayments = totalCompletedPayments + totalInvoices[index].Valor;
             } else {
 
                 const date = await formattedDateTime(totalInvoices[index].Data);
@@ -795,7 +833,7 @@ async function printValues() {
                                         <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
                                     <div class="text-muted fs-12 text-center"></div>
                                     <span class="ms-auto">
-                                        <span class="text-end text-danger d-block"> ${totalInvoices[index].Moeda} ${totalInvoices[index].Valor} </span>
+                                        <span class="text-end text-danger d-block"> ${formattedValue} </span>
                                         <span class="text-end text-muted d-block fs-12">${date}</span>
                                     </span>
                                 </div>
@@ -804,33 +842,33 @@ async function printValues() {
                     </div>
                 </a>`
 
-                if (totalInvoices[index].Moeda == 'USD') {
-                    totalInvoices[index].Valor = totalInvoices[index].Valor * dollarRate;
+                if (totalInvoices[index].Valor_Total < 1) {
+                    totalPendingPayments = totalPendingPayments + totalInvoices[index].Valor;
+                } else {
+                    totalPendingPayments = totalPendingPayments + totalInvoices[index].Valor_Total;
                 }
-                totalPendingPayments = totalPendingPayments + totalInvoices[index].Valor;
             }
         }
     }
-
-    totalCompletedReceipts = totalCompletedReceipts.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    totalCompletedPayments = totalCompletedPayments.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    totalPendingReceipts = totalPendingReceipts.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    totalPendingPayments = totalPendingPayments.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    totalCompletedReceipts = totalCompletedReceipts.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    totalCompletedPayments = totalCompletedPayments.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    totalPendingReceipts = totalPendingReceipts.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    totalPendingPayments = totalPendingPayments.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     printCompletedReceiptsTitle = `
         <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
-        <div> <span class="d-block text-muted">Recebimento Total Baixado</span> <span class="fs-16 fw-semibold">BRL ${totalCompletedReceipts}</span> </div>`
+        <div> <span class="d-block text-muted">Recebimento Total Baixado</span> <span class="fs-16 fw-semibold">${totalCompletedReceipts}</span> </div>`
 
     printcompletedPaymentsTitle = `
         <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
-        <div> <span class="d-block text-muted">Pagamento Total Baixado</span> <span class="fs-16 fw-semibold">BRL ${totalCompletedPayments}</span> </div>`
+        <div> <span class="d-block text-muted">Pagamento Total Baixado</span> <span class="fs-16 fw-semibold">${totalCompletedPayments}</span> </div>`
 
     printPendingReceiptsTitle = `
         <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
-        <div> <span class="d-block text-muted">Recebimento Total Pendente</span> <span class="fs-16 fw-semibold">BRL ${totalPendingReceipts}</span> </div>`
+        <div> <span class="d-block text-muted">Recebimento Total Pendente</span> <span class="fs-16 fw-semibold">${totalPendingReceipts}</span> </div>`
     printPendingPaymentsTitle = `
         <div class="me-3"> <span class="avatar avatar-rounded bg-secondary"> <i class="ti ti-arrow-big-up-line fs-16"></i> </span> </div>
-        <div> <span class="d-block text-muted">Pagamento Total Pendente</span> <span class="fs-16 fw-semibold">BRL ${totalPendingPayments}</span> </div>`
+        <div> <span class="d-block text-muted">Pagamento Total Pendente</span> <span class="fs-16 fw-semibold">${totalPendingPayments}</span> </div>`
 
     divCompletedReceiptsTitle.innerHTML = printCompletedReceiptsTitle;
     divcompletedPaymentsTitle.innerHTML = printcompletedPaymentsTitle;

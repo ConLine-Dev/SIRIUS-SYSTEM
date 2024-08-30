@@ -198,6 +198,8 @@ async function printOffers() {
     divPendingProcessesTitle.innerHTML = printPendingProcessesTitle;
     divCompletedProcessesTitle.innerHTML = printCompletedProcessesTitle;
 
+    introMain()
+
 }
 
 async function reprintCompleteReceipts(day, week, month) {

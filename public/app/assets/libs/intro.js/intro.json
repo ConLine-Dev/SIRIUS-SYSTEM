@@ -1,6 +1,6 @@
 [
     {
-      "title": "Bem vindo ao módulo Controle de senhas!",
+      "title": "Bem vindo ao Tutorial! 😊",
       "intro": "Este é um tutorial explicando o funcionamento delas."
     },
     {
@@ -19,6 +19,52 @@
       "title": "Ação",
       "intro": "Aqui poderá editar e deletar a senha",
       "position": "right"
+    },
+    {
+      "element": "#intro-cards-offers",
+      "title": "Propostas / Processos",
+      "intro": "Aqui mostrará Propostas Aprovadas e Pendentes. Processos em Andamento e Auditados do ano atual"
+    },
+    {
+      "element": "#intro-cards-one",
+      "title": "Propostas Aprovadas",
+      "intro": "Aqui mostrará todas as propostas aprovadas",
+      "position": "right"
+    },
+    {
+      "element": "#intro-btn-filter",
+      "title": "Filtro",
+      "intro": "Aqui e em todos os outros cards poderá filtrar por dias, semanas e meses",
+      "position": "right"
+    },
+    {
+      "element": "#intro-cards-two",
+      "title": "Propostas Reprovadas",
+      "intro": "Aqui mostrará todas as propostas reprovadas",
+      "position": "left"
+    },
+    {
+      "element": "#intro-cards-three",
+      "title": "Propostas Aguardando Aprovação",
+      "intro": "Aqui mostrará todas as propostas que estão aguardando aprovação",
+      "position": "right"
+    },
+    {
+      "element": "#intro-cards-for",
+      "title": "Processos Auditados",
+      "intro": "Aqui mostrará todos os Processos Auditados",
+      "position": "left"
+    },
+    {
+      "element": "#intro-total-finances",
+      "title": "Recebimento / Pagamento",
+      "intro": "Aqui mostrará os totais dos Recebimentos e Pagamentos Baixados e Pendentes",
+      "position": "left"
+    },
+    {
+      "element": "#intro-cards-list",
+      "title": "Recebimento / Pagamento",
+      "intro": "Aqui listará todas as faturas dos processos de Recebimento e Pagamento Baixados e Pendentes",
+      "position": "left"
     }
-   
   ]

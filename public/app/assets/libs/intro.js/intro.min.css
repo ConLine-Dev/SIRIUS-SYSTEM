@@ -141,7 +141,7 @@
     position: absolute;
     visibility: visible;
     background-color: #fffffff3;
-    min-width: 250px;
+    min-width: 300px;
     max-width: 300px;
     border-radius: 5px;
     box-shadow: 0 3px 30px rgba(33, 33, 33, 0.3);

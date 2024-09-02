@@ -19,6 +19,8 @@
     <script src="../../assets/js/main.js"></script>
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
     <!-- Style Css -->
     <link href="../../assets/css/styles.min.css" rel="stylesheet">
     <!-- Icons Css -->
@@ -508,6 +510,12 @@
     </div> -->
     <!-- Loader -->
     <div class="page">
+
+        <!-- Tutorial -->
+    <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 20px; z-index: 100;"> 
+        <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+     </span>
+     
         <!-- app-header -->
 
         <!-- /app-header -->
@@ -532,7 +540,7 @@
                     <div class="col-6">
                         <div class="row">
                             <div class="col-xl-12">
-                                <div class="card custom-card">
+                                <div class="card custom-card" id="intro-ocurrence-per-unit">
                                     <div class="card-header">
                                         <div class="card-title">Ocorrências Por Unidade</div>
                                     </div>
@@ -569,7 +577,7 @@
                         <div class="row">
                             <div class="col-6">
                                 <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6">
-                                    <div class="card custom-card hrm-main-card primary">
+                                    <div class="card custom-card hrm-main-card primary" id="intro-ocurrence-per-month">
                                         <div class="card-body p-1">
                                             <div class="d-flex align-items-center flex-wrap">
                                                 <div id="analytics-views" style="min-height: 98.7px;">
@@ -586,7 +594,7 @@
                             </div>
                             <div class="col-6">
                                 <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6">
-                                    <div class="card custom-card hrm-main-card primary">
+                                    <div class="card custom-card hrm-main-card primary" id="intro-ocurrence-time">
                                         <div class="card-body p-1">
                                             <div class="d-flex align-items-center flex-wrap">
                                                 <div id="analytics-views" style="min-height: 98.7px;">
@@ -601,7 +609,7 @@
                             </div>
                             <div class="col-6">
                                 <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6">
-                                    <div class="card custom-card hrm-main-card primary">
+                                    <div class="card custom-card hrm-main-card primary" id="intro-total-actions">
                                         <div class="card-body p-1">
                                             <div class="d-flex align-items-center flex-wrap">
                                                 <div id="analytics-views" style="min-height: 98.7px;">
@@ -616,13 +624,13 @@
                             </div>
                             <div class="col-6">
                                 <div class="col-xl-12 col-lg-6 col-md-6 col-sm-6">
-                                    <div class="card custom-card hrm-main-card primary">
+                                    <div class="card custom-card hrm-main-card primary" id="intro-actions-pending">
                                         <div class="card-body p-1">
                                             <div class="d-flex align-items-center flex-wrap">
                                                 <div id="analytics-views" style="min-height: 98.7px;">
                                                 </div>
                                                 <div class="p-2">
-                                                    <p class="mb-1 text-muted">Ações Pentente</p>
+                                                    <p class="mb-1 text-muted">Ações Pendente</p>
                                                     <h5 class="fw-semibold mb-0 ActionsPendents">05</h5> </div>
                                             </div>
                                         </div>
@@ -635,7 +643,7 @@
                         </div>
                     </div>
                     <div class="col-3">
-                        <div class="card custom-card">
+                        <div class="card custom-card" id="intro-ocurrence-progress-finished">
                             <div class="card-header justify-content-between">
                                 <div class="card-title"> Ocorrências Andamento/Finalizadas </div>
                             </div>
@@ -657,7 +665,7 @@
                         </div>
                     </div>
                     <div class="col-3">
-                        <div class="card custom-card">
+                        <div class="card custom-card" id="intro-ocurrence-per-type">
                             <div class="card-header justify-content-between">
                                 <div class="card-title"> Ocorrências por Tipo </div>
                             </div>
@@ -685,11 +693,11 @@
                     <div class="col-12">
                        <div class="row">
                         <div class="col-8">
-                            <div class="card custom-card" style="height: 100%;">
+                            <div class="card custom-card" style="height: 100%;" id="intro-ocurrence-pending">
 
                                 <!-- OCORRENCIAS PENDENTES -->
                                 <div class="card-header justify-content-between">
-                                   <div class="card-title"> Ocorrências Pendêntes </div>
+                                   <div class="card-title"> Ocorrências Pendentes </div>
                                   
                                </div>
                                
@@ -725,10 +733,10 @@
                     
                         </div>
                         <div class="col-4">
-                            <div class="card custom-card overflow-hidden" style="height: 100%;"> 
+                            <div class="card custom-card overflow-hidden" style="height: 100%;" id="intro-actions-taken"> 
                                 <div class="card-header justify-content-between">
                                     <div class="card-title"> Ações Tomadas </div>
-                                    <div class="dropdown"> <a href="javascript:void(0);" class="p-2 fs-12 text-muted dropdown-filterActions" data-bs-toggle="dropdown" aria-expanded="false"> Filtro de Status<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i> </a>
+                                    <div class="dropdown" id="intro-filter-actions"> <a href="javascript:void(0);" class="p-2 fs-12 text-muted dropdown-filterActions" data-bs-toggle="dropdown" aria-expanded="false"> Filtro de Status<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i> </a>
                                         <ul class="dropdown-menu" role="menu">
                                             <li><a class="dropdown-item filterActions" href="javascript:void(0);" data-type="0,1,2,3">Todas</a></li>
                                             <li><a class="dropdown-item filterActions" href="javascript:void(0);" data-type="0">Pendente</a></li>
@@ -772,12 +780,12 @@
                  
                     <div class="col-12">
                         <br>
-                        <div class="card custom-card">
+                        <div class="card custom-card" id="intro-all-occurrences">
                             
                             <!-- TODAS OCORRENCIAS -->
                             <div class="card-header justify-content-between">
                                 <div class="card-title"> Todas Ocorrências </div>
-                                <div class="d-flex">
+                                <div class="d-flex" id="intro-new-ocurrence">
                                     <button class="btn btn-sm btn-primary" id="newOccurenceButton"><i class="ri-add-line fw-semibold align-middle me-1"></i> Nova ocorrência</button>
                                     <!-- Start::add task modal -->
                                     <!-- End::add task modal -->
@@ -950,6 +958,8 @@
     <script src="../../assets/js/main.js"></script>
     
     <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="../../assets/libs/intro.js/intro.min.js"></script>
+    <script src="../../assets/libs/intro.js/intro.js"></script>
 
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>

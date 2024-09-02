@@ -1,113 +1,198 @@
 [
-    {
-      "title": "Bem vindo!",
-      "intro": "Este tutorial explica o funcionamento do módulo do sistema"
-    },
-    {
-      "element": "#intro-bottom-new",
-      "title": "Novo",
-      "intro": "Aqui você irá criar uma nova senha"
-    },
-    {
-      "element": "#table_control_password",
-      "title": "Lista de senhas",
-      "intro": "Aqui listará todas as senhas criadas.<br><br>Ao clicar, abrirá os detalhes da senha",
-      "position": "middle"
-    },
-    {
-      "element": "#table_control_password tr td:last-child",
-      "title": "Ação",
-      "intro": "Aqui poderá editar e deletar a senha",
-      "position": "right"
-    },
-    {
-      "element": "#intro-cards-offers",
-      "title": "Propostas / Processos",
-      "intro": "Aqui mostrará Propostas Aprovadas e Pendentes. Processos em Andamento e Auditados do ano atual"
-    },
-    {
-      "element": "#intro-cards-one",
-      "title": "Propostas Aprovadas",
-      "intro": "Aqui mostrará todas as propostas aprovadas",
-      "position": "right"
-    },
-    {
-      "element": "#intro-btn-filter",
-      "title": "Filtro",
-      "intro": "Aqui e em todos os outros cards poderá filtrar por dias, semanas e meses",
-      "position": "right"
-    },
-    {
-      "element": "#intro-cards-two",
-      "title": "Propostas Reprovadas",
-      "intro": "Aqui mostrará todas as propostas reprovadas",
-      "position": "left"
-    },
-    {
-      "element": "#intro-cards-three",
-      "title": "Propostas Aguardando Aprovação",
-      "intro": "Aqui mostrará todas as propostas que estão aguardando aprovação",
-      "position": "right"
-    },
-    {
-      "element": "#intro-cards-for",
-      "title": "Processos Auditados",
-      "intro": "Aqui mostrará todos os Processos Auditados",
-      "position": "left"
-    },
-    {
-      "element": "#intro-total-finances",
-      "title": "Recebimento / Pagamento",
-      "intro": "Aqui mostrará os totais dos Recebimentos e Pagamentos Baixados e Pendentes",
-      "position": "left"
-    },
-    {
-      "element": "#intro-cards-list",
-      "title": "Recebimento / Pagamento",
-      "intro": "Aqui listará todas as faturas dos processos de Recebimento e Pagamento Baixados e Pendentes.<br><br>Ao clicar na fatura, abrirá os detalhes do processo",
-      "position": "left"
-    },
-    {
-      "element": "#intro-ocurrence",
-      "title": "Ocorrências e não conformidades Por Unidade",
-      "intro": "Aqui mostra a quantidade de orcorrencia e não conformidade por filiais"
-    },
-    {
-      "element": "#intro-collaborators",
-      "title": "Colaboradores ativos Por Unidade",
-      "intro": "Aqui mostra a quantidade de colaboradores ativos por filiais"
-    },
-    {
-      "element": "#intro-total-collaborators",
-      "title": "Total de contratações e colaboradores / Turnover Geral",
-      "intro": "Aqui mostra o total de contratações e colaboradores ativos.<br>O Turnover representa a porcentagem total de rotatividade, incluindo entradas e saídas de colaboradores"
-    },
-    {
-      "element": "#intro-turnover-index",
-      "title": "Índice de Turnover por Mês",
-      "intro": "Aqui mostra o total de admissões, demissões e porcentagem do turnover por mês"
-    },
-    {
-      "element": "#intro-happy-birthday",
-      "title": "Próximos Aniversariantes",
-      "intro": "Esta é a lista dos colaboradores que serão os próximos a fazer aniversário",
-      "position": "right"
-    },
-    {
-      "element": "#intro-time-office",
-      "title": "Tempo de Empresa",
-      "intro": "Esta é a lista com o tempo de empresa dos colaboradores",
-      "position": "right"
-    },
-    {
-      "element": "#intro-collaborators-actives",
-      "title": "Colaboradores Ativos",
-      "intro": "Esta é a lista dos colaboradores ativos",
-      "position": "left"
-    },
-    {
-      "element": "#intro-administrative-expenses",
-      "title": "Despesas administrativas",
-      "intro": "Esta é a lista das despesas administrativas"
-    }
-  ]
+  {
+    "title": "Bem-vindo!",
+    "intro": "Este tutorial guiará você pelo funcionamento do módulo do sistema, destacando suas principais funcionalidades."
+  },
+  {
+    "element": "#intro-bottom-new",
+    "title": "Novo",
+    "intro": "Aqui você pode criar sua nova senha de forma simples e rápida."
+  },
+  {
+    "element": "#table_control_password",
+    "title": "Lista de Senhas",
+    "intro": "Este campo exibe todas as senhas criadas. Clique em uma senha para ver mais detalhes.",
+    "position": "middle"
+  },
+  {
+    "element": "#table_control_password tr td:last-child",
+    "title": "Ações",
+    "intro": "Aqui você pode editar ou excluir suas senhas conforme necessário.",
+    "position": "right"
+  },
+  {
+    "element": "#intro-cards-offers",
+    "title": "Propostas / Processos",
+    "intro": "Aqui você verá as propostas aprovadas e pendentes, além dos processos em andamento e auditados deste ano."
+  },
+  {
+    "element": "#intro-cards-one",
+    "title": "Propostas Aprovadas",
+    "intro": "Esta seção mostra todas as propostas que foram aprovadas.",
+    "position": "right"
+  },
+  {
+    "element": "#intro-btn-filter",
+    "title": "Filtro",
+    "intro": "Você pode filtrar as informações por dias, semanas ou meses aqui e em outros cards.",
+    "position": "right"
+  },
+  {
+    "element": "#intro-cards-two",
+    "title": "Propostas Reprovadas",
+    "intro": "Aqui estão listadas todas as propostas que foram reprovadas.",
+    "position": "left"
+  },
+  {
+    "element": "#intro-cards-three",
+    "title": "Propostas Aguardando Aprovação",
+    "intro": "Esta seção mostra as propostas que estão aguardando aprovação.",
+    "position": "right"
+  },
+  {
+    "element": "#intro-cards-for",
+    "title": "Processos Auditados",
+    "intro": "Aqui estão listados todos os processos que já foram auditados.",
+    "position": "left"
+  },
+  {
+    "element": "#intro-total-finances",
+    "title": "Recebimento / Pagamento",
+    "intro": "Aqui você verá o total de recebimentos e pagamentos baixados e pendentes.",
+    "position": "left"
+  },
+  {
+    "element": "#intro-cards-list",
+    "title": "Recebimento / Pagamento",
+    "intro": "Esta seção lista todas as faturas relacionadas aos processos de recebimento e pagamento, sejam baixados ou pendentes. Clique em uma fatura para ver mais detalhes.",
+    "position": "left"
+  },
+  {
+    "element": "#intro-ocurrence",
+    "title": "Ocorrências e Não Conformidades por Unidade",
+    "intro": "Aqui você verá a quantidade de ocorrências e não conformidades por filial."
+  },
+  {
+    "element": "#intro-collaborators",
+    "title": "Colaboradores Ativos por Unidade",
+    "intro": "Este campo exibe a quantidade de colaboradores ativos em cada filial."
+  },
+  {
+    "element": "#intro-total-collaborators",
+    "title": "Total de Contratações e Colaboradores / Turnover Geral",
+    "intro": "Aqui você verá o total de contratações e colaboradores ativos. O índice de turnover representa a porcentagem total de rotatividade, incluindo admissões e desligamentos."
+  },
+  {
+    "element": "#intro-turnover-index",
+    "title": "Índice de Turnover por Mês",
+    "intro": "Aqui é exibido o total de admissões, demissões e o percentual de turnover por mês."
+  },
+  {
+    "element": "#intro-happy-birthday",
+    "title": "Próximos Aniversariantes",
+    "intro": "Aqui está a lista dos colaboradores que farão aniversário em breve.",
+    "position": "right"
+  },
+  {
+    "element": "#intro-time-office",
+    "title": "Tempo de Empresa",
+    "intro": "Aqui você verá uma lista com o tempo de empresa de cada colaborador.",
+    "position": "right"
+  },
+  {
+    "element": "#intro-collaborators-actives",
+    "title": "Colaboradores Ativos",
+    "intro": "Esta seção exibe a lista de colaboradores ativos na empresa.",
+    "position": "left"
+  },
+  {
+    "element": "#intro-administrative-expenses",
+    "title": "Despesas Administrativas",
+    "intro": "Aqui estão listadas todas as despesas administrativas."
+  },
+  {
+    "element": "#intro-ocurrence-per-unit",
+    "title": "Ocorrências Por Unidade",
+    "intro": "Este campo exibe a quantidade total de ocorrências abertas em cada filial."
+  },
+  {
+    "element": "#intro-ocurrence-per-month",
+    "title": "Ocorrências Abertas no Mês",
+    "intro": "Este campo exibe a quantidade de ocorrências abertas no mês atual."
+  },
+  {
+    "element": "#intro-ocurrence-time",
+    "title": "Tempo Médio de Resolução",
+    "intro": "Este campo mostra o tempo médio que leva para resolver as ocorrências registradas."
+  },
+  {
+    "element": "#intro-total-actions",
+    "title": "Ações Tomadas",
+    "intro": "Aqui você pode visualizar o total de ações que já foram realizadas."
+  },
+  {
+    "element": "#intro-actions-pending",
+    "title": "Ações Pendente",
+    "intro": "Este campo exibe o número total de ações que ainda estão pendentes."
+  },
+  {
+    "element": "#intro-ocurrence-progress-finished",
+    "title": "Ocorrências Andamento/Finalizadas",
+    "intro": "Aqui você pode visualizar o total e a porcentagem de ocorrências que estão em andamento ou já foram finalizadas."
+  },
+  {
+    "element": "#intro-ocurrence-per-type",
+    "title": "Ocorrências por Tipo",
+    "intro": "Aqui você pode visualizar o total e a porcentagem de ocorrências classificadas como Não Conformidades e Oportunidades de Melhoria."
+  },
+  {
+    "element": "#intro-ocurrence-pending",
+    "title": "Ocorrências Pendentes",
+    "intro": "Aqui você pode visualizar a lista completa de ocorrências que ainda estão pendentes."
+  },
+  {
+    "element": "#intro-actions-taken",
+    "title": "Ações Tomadas",
+    "intro": "Este campo exibe todas as ações que já foram tomadas."
+  },
+  {
+    "element": "#intro-filter-actions",
+    "title": "Filtro",
+    "intro": "Use este filtro para visualizar diferentes tipos de ações: todas, pendentes ou finalizadas."
+  },
+  {
+    "element": "#intro-new-ocurrence",
+    "title": "Nova ocorrência",
+    "intro": "Use este campo para registrar uma nova ocorrência."
+  },
+  {
+    "element": "#intro-all-occurrences",
+    "title": "Todas Ocorrências",
+    "intro": "Aqui você pode visualizar o histórico completo de todas as ocorrências registradas."
+  },
+  {
+    "element": "#intro-total-ocurrence-pending",
+    "title": "Ocorrências Pendentes",
+    "intro": "Aqui você pode visualizar a lista completa de ocorrências que ainda estão pendentes."
+  },
+  {
+    "element": "#intro-total-actions-taken",
+    "title": "Ações Tomadas",
+    "intro": "Este campo exibe todas as ações que já foram tomadas."
+  },
+  {
+    "element": "#intro-filter-total-actions",
+    "title": "Filtro",
+    "intro": "Use este filtro para visualizar diferentes tipos de ações: todas, pendentes ou finalizadas."
+  },
+  {
+    "element": "#intro-new-ocurrence-collaborators",
+    "title": "Nova ocorrência",
+    "intro": "Use este campo para registrar uma nova ocorrência."
+  },
+  {
+    "element": "#intro-all-occurrences-collaborators",
+    "title": "Todas Ocorrências",
+    "intro": "Aqui você pode visualizar o histórico completo de todas as ocorrências registradas."
+  }
+]

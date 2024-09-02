@@ -19,6 +19,8 @@
     <script src="../../assets/js/main.js"></script>
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
     <!-- Style Css -->
     <link href="../../assets/css/styles.min.css" rel="stylesheet">
     <!-- Icons Css -->
@@ -498,6 +500,12 @@
         </div>
     </div>
     <!-- End Switcher -->
+
+    <!-- Tutorial -->
+    <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 20px; z-index: 100;"> 
+        <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+     </span>
+
     <!-- Loader -->
     <div id="loader2">
         <img src="../../assets/images/media/loader.svg" alt="">
@@ -531,11 +539,11 @@
                     <div class="col-12">
                        <div class="row">
                         <div class="col-8">
-                            <div class="card custom-card" style="height: 100%;">
+                            <div class="card custom-card" style="height: 100%;" id="intro-total-ocurrence-pending">
 
                                 <!-- OCORRENCIAS PENDENTES -->
                                 <div class="card-header justify-content-between">
-                                   <div class="card-title"> Ocorrências Pendêntes </div>
+                                   <div class="card-title"> Ocorrências Pendentes </div>
                                   
                                </div>
                                
@@ -569,10 +577,10 @@
                            </div>
                         </div>
                         <div class="col-4">
-                            <div class="card custom-card overflow-hidden" style="height: 100%;"> 
+                            <div class="card custom-card overflow-hidden" style="height: 100%;" id="intro-total-actions-taken"> 
                                 <div class="card-header justify-content-between">
                                     <div class="card-title"> Ações Tomadas </div>
-                                    <div class="dropdown"> <a href="javascript:void(0);" class="p-2 fs-12 text-muted dropdown-filterActions" data-bs-toggle="dropdown" aria-expanded="false"> Filtro de Status<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i> </a>
+                                    <div class="dropdown" id="intro-filter-total-actions"> <a href="javascript:void(0);" class="p-2 fs-12 text-muted dropdown-filterActions" data-bs-toggle="dropdown" aria-expanded="false"> Filtro de Status<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i> </a>
                                         <ul class="dropdown-menu" role="menu">
                                             <li><a class="dropdown-item filterActions" href="javascript:void(0);" data-type="0,1,2,3">Todas</a></li>
                                             <li><a class="dropdown-item filterActions" href="javascript:void(0);" data-type="0">Pendente</a></li>
@@ -616,12 +624,12 @@
                  
                     <div class="col-12">
                         <br>
-                        <div class="card custom-card">
+                        <div class="card custom-card" id="intro-all-occurrences-collaborators">
                             
                             <!-- TODAS OCORRENCIAS -->
                             <div class="card-header justify-content-between">
                                 <div class="card-title"> Todas Ocorrências </div>
-                                <div class="d-flex">
+                                <div class="d-flex" id="intro-new-ocurrence-collaborators">
                                     <button class="btn btn-sm btn-primary" id="newOccurenceButton"><i class="ri-add-line fw-semibold align-middle me-1"></i> Nova ocorrência</button>
                                     <!-- Start::add task modal -->
                                     <!-- End::add task modal -->
@@ -791,6 +799,8 @@
     <script src="../../assets/libs/cleave/cleave.min.js"></script>
 
     <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="../../assets/libs/intro.js/intro.min.js"></script>
+    <script src="../../assets/libs/intro.js/intro.js"></script>
 
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>

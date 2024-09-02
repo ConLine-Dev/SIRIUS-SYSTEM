@@ -175,19 +175,19 @@ async function printOffers() {
 
     printApprovedOffersTitle = `
         <p class="mb-2"> <span class="fs-16">Propostas Aprovadas</span> </p>
-        <p class="mb-2 fs-12"> <span class="fs-25 fw-semibold lh-1 vertical-bottom mb-0">${totalApprovedOffers}</span> <span class="d-block fs-10 fw-semibold text-muted">ANO ATUAL</span> </p><a href="javascript:void(0);" class="fs-12 mb-0 text-primary">Ver completa<i class="ti ti-chevron-right ms-1"></i></a>`
+        <p class="mb-2 fs-12"> <span class="fs-25 fw-semibold lh-1 vertical-bottom mb-0">${totalApprovedOffers}</span> <span class="d-block fs-10 fw-semibold text-muted">ANO ATUAL</span> </p><a href="javascript:void(0);" class="fs-12 mb-0 text-primary" onclick="redirectToTable('Offers', 'Aprovada')">Ver completa<i class="ti ti-chevron-right ms-1"></i></a>`
 
     printPendingOffersTitle = `
         <p class="mb-2"> <span class="fs-16">Propostas Pendentes</span> </p>
-        <p class="mb-2 fs-12"> <span class="fs-25 fw-semibold lh-1 vertical-bottom mb-0">${totalPendingOffers}</span> <span class="d-block fs-10 fw-semibold text-muted">ANO ATUAL</span> </p><a href="javascript:void(0);" class="fs-12 mb-0 text-primary">Ver completa<i class="ti ti-chevron-right ms-1"></i></a>`
+        <p class="mb-2 fs-12"> <span class="fs-25 fw-semibold lh-1 vertical-bottom mb-0">${totalPendingOffers}</span> <span class="d-block fs-10 fw-semibold text-muted">ANO ATUAL</span> </p><a href="javascript:void(0);" class="fs-12 mb-0 text-primary" onclick="redirectToTable('Offers', 'Outros')">Ver completa<i class="ti ti-chevron-right ms-1"></i></a>`
 
     printPendingProcessesTitle = `
         <p class="mb-2"> <span class="fs-16">Processos em Andamento</span> </p>
-        <p class="mb-2 fs-12"> <span class="fs-25 fw-semibold lh-1 vertical-bottom mb-0">${totalPendingProcesses}</span> <span class="d-block fs-10 fw-semibold text-muted">ANO ATUAL</span> </p><a href="javascript:void(0);" class="fs-12 mb-0 text-primary">Ver completa<i class="ti ti-chevron-right ms-1"></i></a>`
+        <p class="mb-2 fs-12"> <span class="fs-25 fw-semibold lh-1 vertical-bottom mb-0">${totalPendingProcesses}</span> <span class="d-block fs-10 fw-semibold text-muted">ANO ATUAL</span> </p><a href="javascript:void(0);" class="fs-12 mb-0 text-primary" onclick="redirectToTable('Processes', 'Outros')">Ver completa<i class="ti ti-chevron-right ms-1"></i></a>`
 
     printCompletedProcessesTitle = `
         <p class="mb-2"> <span class="fs-16">Processos Auditados</span> </p>
-        <p class="mb-2 fs-12"> <span class="fs-25 fw-semibold lh-1 vertical-bottom mb-0">${totalCompletedProcesses}</span> <span class="d-block fs-10 fw-semibold text-muted">ANO ATUAL</span> </p><a href="javascript:void(0);" class="fs-12 mb-0 text-primary">Ver completa<i class="ti ti-chevron-right ms-1"></i></a>`
+        <p class="mb-2 fs-12"> <span class="fs-25 fw-semibold lh-1 vertical-bottom mb-0">${totalCompletedProcesses}</span> <span class="d-block fs-10 fw-semibold text-muted">ANO ATUAL</span> </p><a href="javascript:void(0);" class="fs-12 mb-0 text-primary" onclick="redirectToTable('Processes', 'Auditado')">Ver completa<i class="ti ti-chevron-right ms-1"></i></a>`
 
     divApprovedOffers.innerHTML = printApprovedOffers;
     divRejectedOffers.innerHTML = printRejectedOffers;
@@ -1054,6 +1054,17 @@ async function printModalData() {
     divDetailsModalTitle.innerHTML = printDetailsModalTitle
     divProcessesModal.innerHTML = printProcessesModal
     divValuesModal.innerHTML = printValuesModal
+}
+
+async function redirectToTable(type, status){
+
+    const body = {
+        url: `/app/commercial/executive-analytics-dashboard/tables?type=${type}&status=${status}`,
+        width: 1000,
+        height: 640,
+        resizable: true
+    }
+    window.ipcRenderer.invoke('open-exWindow', body);
 }
 
 async function formattedDateTime(time) {

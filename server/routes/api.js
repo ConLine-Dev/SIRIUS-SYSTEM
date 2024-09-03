@@ -21,7 +21,7 @@ const api_stock = require('./api-stock');
 const api_executive_analytics_dashboard = require('./api-executive-analytics-dashboard');
 const api_financial_indicators = require('./api-financial-indicators');
 const api_collaborators_certificates = require('./api-collaborators-certificates');
-
+const api_meeting_control = require('./api-meeting-control');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -108,6 +108,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api_collaborators_by_certificates.js
   router.use('/collaborators-certificates', api_collaborators_certificates(io)); 
+
+  // Use as rotas do arquivo api_meeting_control .js
+  router.use('/meeting-control', api_meeting_control(io)); 
 
   return router;
 };

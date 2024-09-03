@@ -17,7 +17,7 @@ const executeQuery = async (query, params = []) => {
   let attempts = 0;
   const maxAttempts = 5;
 
-  while (!connection && attempts < maxAttempts) {
+
     try {
       connection = await pool.getConnection();
       const [results] = await connection.query(query, params);
@@ -25,12 +25,11 @@ const executeQuery = async (query, params = []) => {
       return results;
     } catch (error) {
       console.log(error);
-      attempts += 1;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      throw new Error(error);
     }
-  }
 
-  throw new Error(`Failed to connect to database after ${attempts} attempts.`);
+
+  
 };
 
 module.exports = {

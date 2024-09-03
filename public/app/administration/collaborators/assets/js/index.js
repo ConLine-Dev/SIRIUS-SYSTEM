@@ -116,6 +116,7 @@ function OpenNewCollaborator(){
         url: '/app/administration/collaborators/create',
         width: 1100,
         height: 840,
+        max:true,
         resizable: true
     }
     window.ipcRenderer.invoke('open-exWindow', body);

@@ -21,10 +21,18 @@ async function makeRequest(url, method = 'GET', body = null) {
 
   try {
     const response = await fetch(url, options);
+
+    // Verifica se a resposta é um status de sucesso (2xx)
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Erro na solicitação ao servidor.');
+    }
+
+    // Se a resposta for bem-sucedida, retorna os dados
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error:', error);
+    console.error(error);
     throw error;
   }
 }

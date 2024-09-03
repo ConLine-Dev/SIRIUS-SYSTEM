@@ -260,9 +260,14 @@ async function getAllValuesInForm() {
 
     // Array de campos obrigatórios com mensagens de erro personalizadas
     let requiredInputFields = [
-        { name: 'cpf2', message: 'O campo CPF é obrigatório.' },
-        { name: 'login', message: 'O campo LOGIN é obrigatório.' },
-        { name: 'password', message: 'O campo SENHA é obrigatório.' },
+        { name: 'name', message: 'O campo Nome é obrigatório.' },
+        { name: 'family_name', message: 'O campo Sobrenome é obrigatório.' },
+        { name: 'birthdate', message: 'O campo Data de Nascimento é obrigatório.' },
+        { name: 'admissionDate', message: 'O campo Data de Admissão é obrigatório.' },
+        { name: 'workload', message: 'O campo Carga Horária Semanal é obrigatório.' },
+        { name: 'emailBusiness', message: 'O campo Email Corporativo é obrigatório.' },
+        { name: 'cpf', message: 'O campo CPF é obrigatório.' },
+        { name: 'rg', message: 'O campo RG é obrigatório.' }
     ];
 
     // Percorre todos os elementos do formulário
@@ -292,21 +297,51 @@ async function getAllValuesInForm() {
 
 
     
+
      // Adiciona os documentos ao formData
      Documents.forEach(doc => {
-        formData.append('documents[]', JSON.stringify(doc)); // Adiciona o documento ao FormData
+        console.log(doc)
+        // Adiciona os dados do documento como JSON
+        formData.append('documentsData[]', JSON.stringify({ name: doc.name, date: doc.date }));
+        // Adiciona o arquivo do documento
         if (doc.file) {
-            formData.append('files[]', doc.file); // Adiciona o arquivo ao FormData
+            formData.append('files[]', doc.file);
         }
     });
 
 
- 
-    // Envia os dados para o servidor
-    await makeRequest(`/api/collaborators-management/collaborators`, 'POST', formData);
+      // Adiciona as certificações ao formData
+      Certifications.forEach(cert => {
+        // Adiciona os dados da certificação como JSON
+        formData.append('certificationsData[]', JSON.stringify({qualification:cert.qualification, institution:cert.institution,completionDate:cert.completionDate }));
+        // Adiciona o arquivo da certificação
+        if (cert.file) {
+            formData.append('certifications-files[]', cert.file);
+        }
+    });
 
-    window.close();
+    
+
+
+    try {
+        await makeRequest(`/api/collaborators-management/collaborators`, 'POST', formData);
+        window.close();
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro',
+            text: error.message || 'Ocorreu um erro ao cadastrar o colaborador.',
+        });
+    }
+
+
+    // Envia os dados para o servidor
+    
+
+    
 }
+
+
 
 
 /**
@@ -609,7 +644,8 @@ function saveDocument() {
             id: id,
             name: docName,
             date: docDate,
-            fileURL
+            fileURL,
+            file: docFile ? docFile : Documents[index].file
         };
 
         renderDocuments(); // Atualiza a tabela com as alterações
@@ -699,7 +735,8 @@ function addCertification() {
         qualification,
         institution,
         completionDate,
-        certificateURL
+        certificateURL,
+        file: certificateFile
     });
 
     clearFormCertification(); // Limpa o formulário após adicionar
@@ -783,7 +820,7 @@ function saveCertification() {
         const certificateFile = document.querySelector('#certificate').files[0];
 
         let certificateURL = Certifications[index].certificateURL; // Mantém o URL antigo por padrão
-
+  
         // Atualiza o URL se um novo arquivo for selecionado
         if (certificateFile) {
             certificateURL = URL.createObjectURL(certificateFile); // Gera URL para visualização do novo arquivo
@@ -794,7 +831,8 @@ function saveCertification() {
             qualification,
             institution,
             completionDate,
-            certificateURL
+            certificateURL,
+            file: certificateFile ? certificateFile : Certifications[index].file
         };
 
         renderCertifications(); // Atualiza a tabela com as alterações
@@ -815,6 +853,45 @@ function removeCertification(id) {
     renderCertifications(); // Atualiza a tabela após remoção
 }
 
+
+async function formatInputs(){
+     // CPF
+     new Cleave('[name="cpf"]', {
+        delimiters: ['.', '.', '-'],
+        blocks: [3, 3, 3, 2],
+        numericOnly: true
+    });
+
+    // // CNPJ
+    new Cleave('[name="cnpj"]', {
+        delimiters: ['.', '.', '/', '-'],
+        blocks: [2, 3, 3, 4, 2],
+        numericOnly: true
+    });
+
+    // // CEP
+    new Cleave('[name="cep"]', {
+        delimiters: ['-'],
+        blocks: [5, 3],
+        numericOnly: true
+    });
+
+    // // Salário
+    new Cleave('[name="salary"]', {
+        numeral: true,
+        numeralThousandsGroupStyle: 'thousand',
+        delimiter: '.',
+        numeralDecimalMark: ','
+    });
+
+      // CPF
+      new Cleave('[name="workload"]', {
+        numeral: true,
+        delimiter: '',
+        numeralDecimalMark: '',
+        numericOnly: true
+    });
+}
 
 
 
@@ -839,6 +916,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Inicializa os eventos de input e mudança de imagem de perfil
     await eventChangeImgProfile();
     await eventInputProfile();
+    await formatInputs();
 
 
     // Fim da medição do tempo de carregamento da página

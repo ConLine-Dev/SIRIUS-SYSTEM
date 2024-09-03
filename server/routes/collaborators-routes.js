@@ -9,7 +9,7 @@ const collaboratorsController = require('../controllers/collaborators-controller
 // Configuração do multer para armazenar arquivos no sistema de arquivos
 const storage = multer.diskStorage({
     destination: async (req, file, cb) => {
-        const uploadDir = 'storageService/administration/collaborators/perfil-image';
+        const uploadDir = 'storageService/administration/collaborators/temp';
         try {
             await fs.promises.mkdir(uploadDir, { recursive: true });
             cb(null, uploadDir);
@@ -47,75 +47,128 @@ module.exports = function (io) {
     });
 
     // CRUD para 'collaborators'
-    router.post('/collaborators', upload.fields([{ name: 'photo', maxCount: 1 }, { name: 'files[]', maxCount: 10 }]), async (req, res) => {
+    router.post('/collaborators', upload.fields([{ name: 'photo', maxCount: 1 }, { name: 'files[]', maxCount: 10 }, { name: 'certifications-files[]', maxCount: 10 }]), async (req, res) => {
         try {
             const { body, files } = req;
+            
+            // Parse dos dados JSON enviados no formulário
+            const documentsData = body.documentsData
+            const certificationsData = body.certificationsData
+
+
             // Dados do colaborador
             const collaboratorData = {
                 ...body,
                 photo: files['photo'] ? files['photo'][0].filename : null, // Nome do arquivo da foto
-                documents: [] // Inicializa o array de documentos
             };
 
-            // Processa os arquivos de documentos
-            if (files['files[]']) {
-                files['files[]'].forEach(file => {
-                    collaboratorData.documents.push({
-                        name: file.originalname,
-                        path: file.path,
-                        mimetype: file.mimetype
-                    });
-                });
-            }
+
     
             // Cria o colaborador no banco e obtém o ID
             const collaboratorId = await collaboratorsController.createCollaborator(collaboratorData);
-    
-            const folderPath = path.join('storageService/administration/collaborators', `${collaboratorId}`);
 
-             // Cria a pasta se não existir
-             if (!fs.existsSync(folderPath)) {
-                fs.mkdirSync(folderPath, { recursive: true });
-            }
+            // Define o caminho base para armazenar os arquivos do colaborador
+            const baseFolderPath = path.join('storageService', 'administration', 'collaborators', `${collaboratorId}`);
+            
+            // Cria a pasta base para o colaborador
+            fs.mkdirSync(baseFolderPath, { recursive: true });
 
-            if (req.file) {
-                // Caminho para a nova pasta com o ID do colaborador
-                
-                // Define o novo caminho para a imagem com o nome "perfil-image"
-                const newFileName = `perfil-image${path.extname(req.file.originalname)}`;
-                const newPath = path.join(folderPath, newFileName);
-    
-                // Move e renomeia o arquivo para o novo caminho
-                fs.rename(req.file.path, newPath, function(err) {
+            // Processa a foto do colaborador, se fornecida
+            if (files['photo'] && files['photo'][0]) {
+                const photo = files['photo'][0];
+                const newFileName = `perfil-image${path.extname(photo.originalname)}`;
+                const newPath = path.join(baseFolderPath, newFileName);
+                fs.rename(photo.path, newPath, function(err) {
                     if (err) throw err;
-                    console.log('Imagem renomeada e movida com sucesso');
                 });
+
+                // Atualiza o caminho da foto no registro do colaborador
+                const photoRelativePath = path.relative('storageService', newPath);
+                
+                console.log('UPDATE collaborators SET photo', photoRelativePath, collaboratorId)
+
             }
 
+               // Processa os documentos
+            if (files['files[]'] && files['files[]'].length > 0) {
+                const documentsFolderPath = path.join(baseFolderPath, 'documents');
+                fs.mkdirSync(documentsFolderPath, { recursive: true });
 
-             // Move e renomeia os arquivos para o novo caminho
-            if (files['files[]']) {
-                files['files[]'].forEach( (file) => {
-                    const newFileName = `${path.basename(file.originalname, path.extname(file.originalname))}-${Date.now()}${path.extname(file.originalname)}`;
+                const documentsInsertPromises = files['files[]'].map(async (file, index) => {
                     
+                    const docData = JSON.parse(documentsData[index]);
 
-                    const folderPath2 = path.join(`storageService/administration/collaborators/${collaboratorId}`, `documents`);
-                    const newPath = path.join(folderPath2, newFileName);
-                        // Cria a pasta se não existir
-                        if (!fs.existsSync(folderPath2)) {
-                            fs.mkdirSync(folderPath2, { recursive: true });
-                        }
+                    if (!docData) {
+                        throw new Error(`Dados do documento ausentes para o arquivo ${file.originalname}`);
+                    }
 
-                    // Move e renomeia o arquivo para o novo caminho
+                    const timestamp = Date.now();
+                    const newFileName = `${path.basename(file.originalname, path.extname(file.originalname))}-${timestamp}${path.extname(file.originalname)}`;
+                    const newPath = path.join(documentsFolderPath, newFileName);
                     fs.rename(file.path, newPath, function(err) {
                         if (err) throw err;
                     });
+
+                    const pathRelative = path.relative('storageService', newPath);
+                    // console.log('INSERT INTO documents', collaboratorId, docData.name, docData.date, pathRelative, file.mimetype)
+               
+                    const documentns = {
+                        collaborator_id:collaboratorId,
+                        document_date:docData.date,
+                        document_name:docData.name,
+                        document_path:newFileName,
+                        document_type:file.mimetype,
+                    }
+
+                    return await collaboratorsController.createCollaboratorDocument(documentns)
                 });
+
+                await Promise.all(documentsInsertPromises);
             }
+
+           
+            
+             // Processa as certificações
+             if (files['certifications-files[]'] && files['certifications-files[]'].length > 0) {
+                const certificationsFolderPath = path.join(baseFolderPath, 'certifications');
+                fs.mkdirSync(certificationsFolderPath, { recursive: true });
+
+                const certificationsInsertPromises = files['certifications-files[]'].map(async (file, index) => {
+                    const certData = JSON.parse(certificationsData[index]);
+                    
+                    if (!certData) {
+                        throw new Error(`Dados da certificação ausentes para o arquivo ${file.originalname}`);
+                    }
+
+                    const timestamp = Date.now();
+                    const newFileName = `${path.basename(file.originalname, path.extname(file.originalname))}-${timestamp}${path.extname(file.originalname)}`;
+                    const newPath = path.join(certificationsFolderPath, newFileName);
+                    fs.rename(file.path, newPath, function(err) {
+                        if (err) throw err;
+                    });
+
+                    const pathRelative = path.relative('storageService', newPath);
+
+
+                    const certifications = {
+                        collaborator_id:collaboratorId,
+                        qualification:certData.qualification,
+                        institution:certData.institution,
+                        date:certData.completionDate,
+                        path:newFileName,
+                        type:file.mimetype,
+                    }
+                   
+                    return await collaboratorsController.createCollaboratorQualification(certifications)
+                });
+
+                await Promise.all(certificationsInsertPromises);
+            }
+
     
             res.status(201).json({ message: 'Colaborador criado com sucesso', id: collaboratorId });
         } catch (error) {
-            console.log(error);
+            console.error(error);
             res.status(500).json({ message: error.message });
         }
     });

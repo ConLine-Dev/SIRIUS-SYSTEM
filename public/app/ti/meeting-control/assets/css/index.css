@@ -10,3 +10,9 @@
     align-items: center;
     z-index: 9999;
 }
+
+#calendar {
+    /* width: 1450px !important; */
+    max-width: 1450px !important;
+    min-width: 500px !important;
+}

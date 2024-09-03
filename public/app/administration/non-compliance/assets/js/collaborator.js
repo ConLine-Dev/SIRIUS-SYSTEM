@@ -163,6 +163,7 @@ async function listAllOccurrences(){
         },
     });
 
+    introMain()
     
 }
 

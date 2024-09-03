@@ -175,6 +175,8 @@ async function listAllOccurrences(){
             });
         },
     });
+
+    introMain()
     
 }
 

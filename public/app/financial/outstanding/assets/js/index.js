@@ -4,6 +4,7 @@ async function invoicesTable(situacao = 1) {
     const totalInvoices = await makeRequest(`/api/financial-indicators/totalInvoices`, 'POST', {situacao: situacao});
     console.log(totalInvoices)
     const divlistInvoices = document.getElementById('listInvoices');
+    
     let printlistInvoices = '';
 
     for (let index = 0; index < totalInvoices.length; index++) {

@@ -99,5 +99,29 @@ module.exports = function(io) {
       }
    });
 
+   router.get('/tableOffers', async (req, res, next) => {
+      const { status } = req.query;
+      try {
+         const result = await executiveAnalytics.tableOffers(status);
+
+         res.status(200).json(result)
+      } catch (error) {
+
+         res.status(404).json('Erro')
+      }
+   });
+
+   router.get('/tableProcesses', async (req, res, next) => {
+      const { status } = req.query;
+      try {
+         const result = await executiveAnalytics.tableProcesses(status);
+
+         res.status(200).json(result)
+      } catch (error) {
+
+         res.status(404).json('Erro')
+      }
+   });
+
    return router;
 }

@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
+    let calendarEl = document.getElementById('calendar');
   
-    var calendar = new FullCalendar.Calendar(calendarEl, {
+    let calendar = new FullCalendar.Calendar(calendarEl, {
       initialView: 'dayGridMonth', // Exibição inicial
       locale: 'pt-br',
 
@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
       selectable: true, // Permite selecionar datas
       dateClick: function(info) {
         alert('Data clicada: ' + info.dateStr);
-      }
+      },
+      // height: '100%',
     });
   
     calendar.render();

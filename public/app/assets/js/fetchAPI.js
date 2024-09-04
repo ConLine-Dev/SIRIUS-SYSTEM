@@ -4,6 +4,15 @@ async function makeRequest(url, method = 'GET', body = null) {
     headers: {}
   };
 
+  // Obtendo os dados do usuário do localStorage
+  const StorageGoogleData = localStorage.getItem('StorageGoogle');
+  const StorageGoogle = StorageGoogleData ? JSON.parse(StorageGoogleData) : null;
+
+  // Se existir, adicione os dados do usuário no cabeçalho
+  if (StorageGoogle) {
+    options.headers['x-user'] = JSON.stringify(StorageGoogle);
+  }
+
   if (body) {
     if (method === 'GET') {
       console.warn('GET request does not support a request body.');

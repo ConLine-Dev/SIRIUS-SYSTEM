@@ -164,8 +164,8 @@ const headcargo = {
        
              Lhs.Situacao_Acerto_Agente AS AgenteCodigo,
              Lhs.Data_Acerto_Agente AS Data_Agente,
-             (Lmo.Lucro_Estimado - Inc.Valor_Recebimento_Total) AS Valor_Estimado,
-             (Lmo.Lucro_Efetivo - Incbai.Valor_Recebimento_Total) AS Valor_Efetivo,
+             (Lmo.Lucro_Estimado - COALESCE(Inc.Valor_Recebimento_Total, 0)) AS Valor_Estimado,
+             (Lmo.Lucro_Efetivo - COALESCE(Incbai.Valor_Recebimento_Total, 0)) AS Valor_Efetivo,
        
              CASE
                 WHEN Lmo.Total_Recebimento = Lmo.Total_Recebido THEN 1
@@ -338,25 +338,7 @@ const headcargo = {
         const commissions = await executeQuerySQL(sql)
 
 
-        // Mapear os resultados e formatar a data
-        const resultadosFormatados = commissions.map(item => ({
-            'check': `<input class="form-check-input me-2 selectCheckbox" data-id="${item.IdLogistica_House}" type="checkbox" checked="">`,
-            'modal': item.Modalidade,
-            'processo': item.Numero_Processo,
-            'abertura': '<span style="display:none">'+item.Abertura_Processo_Convertida+'</span>'+new Date(item.Abertura_Processo).toLocaleDateString('pt-BR', { timeZone: 'UTC' }),
-            'data_compensacao': '<span style="display:none">'+item.Data_Compensacao_Convertido+'</span>'+ item.Data_Compensacao_Convertido ? new Date(item.Data_Compensacao_Convertido).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '',
-            'tipo': item.Tipo_Carga,
-            'cliente': headcargo.formatarNome(item.Cliente),
-            'vendedor': headcargo.formatarNome(item.Vendedor),
-            'inside': headcargo.formatarNome(item.Inside_Sales),
-            'importador': headcargo.formatarNome(item.Importador),
-            'exportador': headcargo.formatarNome(item.Exportador),
-            'comissao_vendedor': item.Comissao_Vendedor_Pago == 0 ? 'Pendente' : 'Pago',
-            'comissao_inside': item.Comissao_Inside_Sales_Pago == 0 ? 'Pendente' : 'Pago',
-            'estimado': (item.Valor_Estimado || 0).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
-            'efetivo': (item.Valor_Efetivo || 0).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
-            'restante': ((item.Valor_Efetivo || 0) - (item.Valor_Estimado || 0)).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
-        }));
+      
 
         let valor_Estimado_total = 0
         let valor_Comissao_total = 0
@@ -398,6 +380,28 @@ const headcargo = {
               percentagem = percentagemResult.percentage;
         }
         valor_Comissao_total = valor_Efetivo_total * (percentagem / 100)
+
+        // Mapear os resultados e formatar a data
+        const resultadosFormatados = commissions.map(item => ({
+          'check': `<input class="form-check-input me-2 selectCheckbox" data-id="${item.IdLogistica_House}" type="checkbox" checked="">`,
+          'modal': item.Modalidade,
+          'processo': item.Numero_Processo,
+          'abertura': '<span style="display:none">'+item.Abertura_Processo_Convertida+'</span>'+new Date(item.Abertura_Processo).toLocaleDateString('pt-BR', { timeZone: 'UTC' }),
+          'data_compensacao': '<span style="display:none">'+item.Data_Compensacao_Convertido+'</span>'+ item.Data_Compensacao_Convertido ? new Date(item.Data_Compensacao_Convertido).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : '',
+          'tipo': item.Tipo_Carga,
+          'cliente': headcargo.formatarNome(item.Cliente),
+          'vendedor': headcargo.formatarNome(item.Vendedor),
+          'inside': headcargo.formatarNome(item.Inside_Sales),
+          'importador': headcargo.formatarNome(item.Importador),
+          'exportador': headcargo.formatarNome(item.Exportador),
+          'valorComissao': (item.Valor_Efetivo ? (item.Valor_Efetivo * (percentagem / 100) ).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) : 0),
+          'comissao_vendedor': item.Comissao_Vendedor_Pago == 0 ? 'Pendente' : 'Pago',
+          'comissao_inside': item.Comissao_Inside_Sales_Pago == 0 ? 'Pendente' : 'Pago',
+          'estimado': (item.Valor_Estimado || 0).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
+          'efetivo': (item.Valor_Efetivo || 0).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
+          'restante': ((item.Valor_Efetivo || 0) - (item.Valor_Estimado || 0)).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+      }));
+
       // end comissão por lucro total 
 
         const format = {

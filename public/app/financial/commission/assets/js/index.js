@@ -220,6 +220,8 @@ async function submitCommission() {
         $('#table_commission_commercial').DataTable().destroy(); // Destrói a tabela DataTable existente
     }
 
+
+
   
     const verifyPercentageComission = await makeRequest(`/api/headcargo/commission/verifyPercentageComission`, 'POST', { id:selectedValue });
 
@@ -284,6 +286,7 @@ async function submitCommission() {
             { data: 'estimado' }, // Coluna de valor estimado
             { data: 'efetivo' }, // Coluna de valor efetivo
             { data: 'restante' }, // Coluna de valor restante
+            { data: 'valorComissao' }, // Coluna de valor valorComissao
         ],
         language: {
             url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",

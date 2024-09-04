@@ -11,8 +11,18 @@ async function createTable(type, status) {
     const tableData = await makeRequest(`/api/executive-analytics-dashboard/table${type}?status=${status}`);
     const divFullTable = document.getElementById('fullTable');
     let printFullTable = '';
+    const divCardTitle = document.getElementById('cardTitle');
+    let printCardTitle = '';
 
     if (type == 'Offers'){
+
+        if (status == 'Aprovada'){
+            printCardTitle = `
+                <div class="card-title">Tabela de Propostas Aprovadas</div>`
+        } else {
+            printCardTitle = `
+                <div class="card-title">Tabela de Propostas Em Aberto</div>`
+        }
         printFullTable = `
             <thead>
                 <tr>
@@ -60,6 +70,14 @@ async function createTable(type, status) {
         }
 
     } else if (type == 'Processes'){
+        if (status == 'Auditado'){
+            printCardTitle = `
+                <div class="card-title">Tabela de Processos Auditados</div>`
+        } else {
+            printCardTitle = `
+                <div class="card-title">Tabela de Processos Em Andamento</div>`
+
+        }
         printFullTable = `
             <thead>
                 <tr>
@@ -112,6 +130,7 @@ async function createTable(type, status) {
     }
 
     divFullTable.innerHTML = printFullTable;
+    divCardTitle.innerHTML = printCardTitle;
 
     if (type == 'Offers'){
         currentTable = $('#fullTable').DataTable({

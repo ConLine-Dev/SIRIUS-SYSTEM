@@ -260,14 +260,14 @@ async function getAllValuesInForm() {
 
     // Array de campos obrigatórios com mensagens de erro personalizadas
     let requiredInputFields = [
-        { name: 'name', message: 'O campo Nome é obrigatório.' },
-        { name: 'family_name', message: 'O campo Sobrenome é obrigatório.' },
-        { name: 'birthdate', message: 'O campo Data de Nascimento é obrigatório.' },
-        { name: 'admissionDate', message: 'O campo Data de Admissão é obrigatório.' },
-        { name: 'workload', message: 'O campo Carga Horária Semanal é obrigatório.' },
-        { name: 'emailBusiness', message: 'O campo Email Corporativo é obrigatório.' },
-        { name: 'cpf', message: 'O campo CPF é obrigatório.' },
-        { name: 'rg', message: 'O campo RG é obrigatório.' }
+        // { name: 'name', message: 'O campo Nome é obrigatório.' },
+        // { name: 'family_name', message: 'O campo Sobrenome é obrigatório.' },
+        // { name: 'birthdate', message: 'O campo Data de Nascimento é obrigatório.' },
+        // { name: 'admissionDate', message: 'O campo Data de Admissão é obrigatório.' },
+        // { name: 'workload', message: 'O campo Carga Horária Semanal é obrigatório.' },
+        // { name: 'emailBusiness', message: 'O campo Email Corporativo é obrigatório.' },
+        // { name: 'cpf', message: 'O campo CPF é obrigatório.' },
+        // { name: 'rg', message: 'O campo RG é obrigatório.' }
     ];
 
     // Percorre todos os elementos do formulário
@@ -309,6 +309,8 @@ async function getAllValuesInForm() {
         }
     });
 
+    
+    formData.append('bankingInformation[]', JSON.stringify(BankingInformation));
 
       // Adiciona as certificações ao formData
       Certifications.forEach(cert => {

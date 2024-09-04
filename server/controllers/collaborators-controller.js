@@ -13,7 +13,7 @@ const collaboratorsController = {
         return result;
     },
     // CRUD para 'collaborators'
-    createCollaborator: async function(collaborator) {
+    createCollaborator: async function(collaborator, requestUser) {
         try {
             const query = `INSERT INTO collaborators 
             (name, family_name,id_headcargo, birth_date, gender, marital_status, nationality, cpf, rg, rg_issuer, rg_issue_date, 
@@ -61,7 +61,7 @@ const collaboratorsController = {
                 collaborator.companie,
                 collaborator.languages,
                 collaborator.photo,
-            ]);
+            ], requestUser);
     
             return result.insertId;
 
@@ -473,17 +473,20 @@ const collaboratorsController = {
     },
 
     // CRUD para 'collaborators_bank_info'
-    createCollaboratorBankInfo: async function(bankInfo) {
+    createCollaboratorBankInfo: async function(collaborator_id, bankInfo) {
         const query = `INSERT INTO collaborators_bank_info 
-        (collaborator_id, bank_name, agency, account_number, account_type) VALUES (?, ?, ?, ?, ?)`;
+        (collaborator_id, bank_name, agency, account_number, account_type) VALUES ?`;
         
-        const result = await executeQuery(query, [
-            bankInfo.collaborator_id,
-            bankInfo.bank_name,
-            bankInfo.agency,
-            bankInfo.account_number,
-            bankInfo.account_type
-        ]);
+            // Cria um array de arrays para os valores
+            const values = bankInfo.map(info => [
+                collaborator_id,
+                info.bank,
+                info.agency,
+                info.account,
+                info.type
+            ]);
+
+        const result = await executeQuery(query, [values]);
 
         return result.insertId;
     },

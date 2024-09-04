@@ -12,26 +12,39 @@ const pool = mysql.createPool({
   connectionLimit: 10, // número máximo de conexões permitidas
 });
 
-const executeQuery = async (query, params = []) => {
+const logQuery = async (connection, userId, query, params, success, errorMessage = null) => {
+  try {
+    await connection.query(
+      `INSERT INTO query_logs (user_id, query, params, success, error_message) VALUES (?, ?, ?, ?, ?)`,
+      [userId, query, JSON.stringify(params), success, errorMessage]
+    );
+  } catch (error) {
+    console.error('Erro ao registrar o log da query:', error);
+  }
+};
+
+const executeQuery = async (query, params = [], userId = null) => {
   let connection;
-  let attempts = 0;
-  const maxAttempts = 5;
-
-
-    try {
-      connection = await pool.getConnection();
-      const [results] = await connection.query(query, params);
-      connection.release();
-      return results;
-    } catch (error) {
-      console.log(error);
-      throw new Error(error);
-    }
-
-
   
+  try {
+    connection = await pool.getConnection();
+    const [results] = await connection.query(query, params);
+
+    // Log assíncrono para não bloquear o retorno dos resultados
+    logQuery(connection, userId, query, params, true).catch(err => console.error(err));
+
+    return results;
+  } catch (error) {
+    // Log de falha, também assíncrono
+    logQuery(connection, userId, query, params, false, error.message).catch(err => console.error(err));
+    
+    console.log(error);
+    throw new Error(error);
+  } finally {
+    if (connection) connection.release();
+  }
 };
 
 module.exports = {
-  executeQuery: executeQuery
+  executeQuery
 };

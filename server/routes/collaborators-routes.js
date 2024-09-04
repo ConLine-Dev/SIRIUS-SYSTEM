@@ -50,10 +50,14 @@ module.exports = function (io) {
     router.post('/collaborators', upload.fields([{ name: 'photo', maxCount: 1 }, { name: 'files[]', maxCount: 10 }, { name: 'certifications-files[]', maxCount: 10 }]), async (req, res) => {
         try {
             const { body, files } = req;
-            
+
+            const requestUser = req.headers['x-user'] ? JSON.parse(req.headers['x-user']) : null
+          
+   
             // Parse dos dados JSON enviados no formulário
             const documentsData = body.documentsData
             const certificationsData = body.certificationsData
+            const bankingInformation = JSON.parse(body.bankingInformation);
 
 
             // Dados do colaborador
@@ -65,8 +69,8 @@ module.exports = function (io) {
 
     
             // Cria o colaborador no banco e obtém o ID
-            const collaboratorId = await collaboratorsController.createCollaborator(collaboratorData);
-
+            const collaboratorId = await collaboratorsController.createCollaborator(collaboratorData, requestUser);
+            await collaboratorsController.createCollaboratorBankInfo(collaboratorId, bankingInformation);
             // Define o caminho base para armazenar os arquivos do colaborador
             const baseFolderPath = path.join('storageService', 'administration', 'collaborators', `${collaboratorId}`);
             

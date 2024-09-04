@@ -19,6 +19,11 @@ async function invoicesTable(situacao = 1) {
         if (totalInvoices[index].Modal == 'Aéreo') {
             color = 'var(--air-color)';
         }
+        if (totalInvoices[index].Moeda == 'USD') {
+            formattedValue = totalInvoices[index].Valor.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        } else if (totalInvoices[index].Moeda == 'BRL') {
+            formattedValue = totalInvoices[index].Valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
         
     
       
@@ -29,7 +34,7 @@ async function invoicesTable(situacao = 1) {
         printlistInvoices += `
             <a href="javascript:void(0);" class="border-0">
                 <div class="list-group-item border-0">
-                   <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" style="background-color: ${color}!important"> <svg xmlns="http://www.w3.org/2000/svg" class="svg-white" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12zM10 9h8v2h-8zm0 3h4v2h-4zm0-6h8v2h-8z"></path></svg> </span>
+                   <div class="d-flex align-items-start"> <span class="bg-primary" style="background-color: ${color}!important"></span>
                         <div class="w-100">
                             <div class="d-flex align-items-top justify-content-between">
                                 <div class="mt-0">
@@ -38,7 +43,7 @@ async function invoicesTable(situacao = 1) {
                                 </div>
                                 <div class="text-muted fs-20 text-center"></div> 
                                 <span class="ms-auto"> 
-                                    <span class="text-end text-danger d-block fs-15">${totalInvoices[index].Moeda} ${totalInvoices[index].Valor}</span> 
+                                    <span class="text-end text-danger d-block fs-15">${formattedValue}</span> 
                                     <span class="text-end text-muted d-block fs-13">${date}</span> 
                                 </span>
                             </div>

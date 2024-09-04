@@ -267,7 +267,9 @@ async function reprintCompleteReceipts(day, week, month) {
                             <div class="w-100">
                                 <div class="d-flex align-items-top justify-content-between">
                                     <div class="mt-0">
-                                        <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span></p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span> </div>
+                                        <p class="mb-0 fw-semibold"><span class="me-3">${clientName}</span>
+                                        </p><span class="mb-0 fs-12 text-muted">${totalInvoices[index].Numero_Processo}</span>
+                                    </div>
                                     <div class="text-muted fs-12 text-center"></div>
                                     <span class="ms-auto">
                                         <span class="text-end text-danger d-block"> ${formattedValue} </span>

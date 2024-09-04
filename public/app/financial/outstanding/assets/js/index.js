@@ -28,8 +28,8 @@ async function invoicesTable(situacao = 1) {
     
       
 
-                const date = await formattedDateTime(totalInvoices[index].Data);
-                const clientName = totalInvoices[index].Pessoa
+        const date = await formattedDateTime(totalInvoices[index].Data);
+        const clientName = totalInvoices[index].Pessoa
 
         printlistInvoices += `
             <a href="javascript:void(0);" class="border-0">

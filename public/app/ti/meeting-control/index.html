@@ -67,7 +67,10 @@
             <div class="col-xl-3">
                 <div class="card custom-card">
                     <div class="card-header d-grid">
-                        <button class="btn btn-primary btn-wave waves-effect waves-light"><i class="ri-add-line align-middle me-1 fw-semibold d-inline-block"></i>Criar nova reunião</button>
+                        <button class="btn btn-primary btn-wave waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#add-task">
+                            <i class="ri-add-line align-middle me-1 fw-semibold d-inline-block"></i>
+                            Criar novo evento
+                        </button>
                     </div>
                     <div class="card-body p-0">
                         <div id="external-events" class="border-bottom p-3 calendar-categories">
@@ -75,6 +78,82 @@
                                 <div class="fc-event-main">Aniversariantes</div>
                             </div> -->
                         </div>
+
+                        <!-- MODAL NOVO EVWNTO-->
+                <div class="modal fade" id="add-task" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg" style="--bs-modal-width: 800px">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title">Novo Evento</h6>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body px-4">
+                                <div class="row gy-2">
+                                    <div class="col-xl-12">
+                                        <label for="input-label" class="form-label center-text">Título</label>
+                                        <input type="text" name="title" class="form-control form-input" placeholder="Insira um título">
+                                    </div>
+                                   
+                                    <div class="col-xl-6">
+                                        <label class="form-label">Responsável</label>
+                                        <select class="form-control" name="responsible">
+                                            <option value="">Selecione um responsável</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label">Tipo de envento</label>
+                                        <select class="form-control" name="TypeEvent">
+                                            <option placeholder>Insira um evento</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        <label for="text-area" class="form-label">Descrição</label>
+                                        <textarea class="form-control" name="description" rows="4" placeholder="Escreva uma descrição"></textarea>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        <label class="form-label">Departamento</label>
+                                        <select class="form-control" multiple name="departments">
+                                            <option value="">Insira um departamento</option>
+                                        </select>    
+                                    </div>
+                                    
+                                    <div class="col-xl-6">
+                                        <label class="form-label">Inicio</label>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                                <input type="text" class="form-control flatpickr-input targetDate" name="timeInit" id="targetDate" placeholder="Escolha a data e hora" readonly="readonly" >
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label">Término</label>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                                <input type="text" class="form-control flatpickr-input targetDate" name="finished_at"  id="targetDate" placeholder="Escolha a data e hora" readonly="readonly" >
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-12" style="display: none;">
+                                        <label for="text-area" class="form-label">Arquivos/Imagem</label>
+                                
+                                        <input type="file" class="multiple-filepond" name="filepond" multiple data-allow-reorder="true"
+                                            data-max-file-size="3MB" data-max-files="3">
+                                    
+                                    </div>
+                                
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                               
+                                    <button type="button" id="ButtonAddTicket" class="btn btn-primary">Adicionar</button></div>
+                        </div>
+                    </div>
+                </div>
+
+                    
                         <div class="p-3">
                             <div class="d-flex align-items-center justify-content-between">
                                 <h6 class="fw-semibold">Atividades:</h6>

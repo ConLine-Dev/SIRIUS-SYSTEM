@@ -2,7 +2,7 @@ const { executeQuerySQL } = require('../connect/sqlServer');
 
 const incentiveManagement = {
     getAllSecurity: async function(){
-    const result = await executeQuerySQL(`WITH FaturasComTaxaSeguro AS (
+    const result = await executeQuerySQL(`
         WITH FaturasComTaxaSeguro AS (
             SELECT
                Reg.IdRegistro_Financeiro,

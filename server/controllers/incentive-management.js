@@ -24,14 +24,14 @@ const incentiveManagement = {
      SELECT
         Lhs.Numero_Processo,
         CAST(Lhs.Conhecimentos AS VARCHAR(MAX)) AS Conhecimentos,
-        COALESCE(Fts.IdMoeda_Pagamento, NULL) AS IdMoeda_Pagamento,
-        COALESCE(Moe.Sigla, NULL) AS Sigla,
-        COALESCE(Fts.Valor_Pagamento_Total, NULL) AS Valor_Pagamento_Total,
+        MAX(COALESCE(Fts.IdMoeda_Pagamento, NULL)) AS IdMoeda_Pagamento,
+        MAX(COALESCE(Moe.Sigla, NULL)) AS Sigla,
+        MAX(COALESCE(Fts.Valor_Pagamento_Total, NULL)) AS Valor_Pagamento_Total,
      
         CASE 
-           WHEN COUNT(Fts.IdRegistro_Financeiro) > 1 THEN 'FATURA COM MAIS DE UMA TAXA'
-           WHEN COUNT(Fts.IdRegistro_Financeiro) = 1 THEN 'FATURA OK'
-           WHEN COUNT(Fts.IdRegistro_Financeiro) = 0 THEN 'TAXA NÃO LOCALIZADA'
+           WHEN COUNT(DISTINCT Fts.IdRegistro_Financeiro) > 1 THEN 'FATURA COM MAIS DE UMA TAXA'
+           WHEN COUNT(DISTINCT Fts.IdRegistro_Financeiro) = 1 THEN 'FATURA OK'
+           ELSE 'TAXA NÃO LOCALIZADA'
         END AS Status_Fatura
      
      FROM
@@ -46,16 +46,11 @@ const incentiveManagement = {
         FaturasComTaxaSeguro Fts ON Fts.IdRegistro_Financeiro = Reg.IdRegistro_Financeiro
      LEFT OUTER JOIN
         cad_Moeda Moe ON Moe.IdMoeda = Fts.IdMoeda_Pagamento
-     AND
-        YEAR(Lhs.Data_Abertura_Processo) >= 2024
+     WHERE YEAR(Lhs.Data_Abertura_Processo) >= 2024
+     
      GROUP BY
         Lhs.Numero_Processo,
-        CAST(Lhs.Conhecimentos AS VARCHAR(MAX)),
-        Fts.IdMoeda_Pagamento,
-        Moe.Sigla,
-        Fts.Valor_Pagamento_Total
-        HAVING
-        COUNT(Fts.IdRegistro_Financeiro) = 1`);
+        CAST(Lhs.Conhecimentos AS VARCHAR(MAX))`);
 
 
         return result

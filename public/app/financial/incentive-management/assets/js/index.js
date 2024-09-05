@@ -381,25 +381,33 @@ document.addEventListener("DOMContentLoaded", async () => {
           const rowObservation = row[17] || null;
 
           const matchingSecurity = securityData.find(security => {
-            if (row[1].includes(security.Numero_Processo)) {
-              console.log('Matching by Numero_Processo:', security.Numero_Processo);
+            if (row[1] == security.Numero_Processo) {
+              // console.log('Matching by Numero_Processo:', security.Numero_Processo);
               return true;
             }
             
-            if (row[1].includes(security.Conhecimentos)) {
-              console.log('Matching by Conhecimentos:', security.Conhecimentos);
+            if (row[1] == security.Conhecimentos) {
+              // console.log('Matching by Conhecimentos:', security.Conhecimentos);
               return true;
             }
             
-            if (rowObservation && rowObservation.includes(security.Conhecimentos)) {
-              console.log('Matching by rowObservation includes Conhecimentos:', security.Conhecimentos);
+            // if (rowObservation && rowObservation.includes(security.Conhecimentos)) {
+            //   // console.log('Matching by rowObservation includes Conhecimentos:', security.Conhecimentos);
+            //   return true;
+            // }
+
+            if (rowObservation && new RegExp(`\\b${security.Conhecimentos}\\b`).test(rowObservation)) {
+              return true;
+            }
+
+            if (rowObservation && new RegExp(`\\b${security.Numero_Processo}\\b`).test(rowObservation)) {
               return true;
             }
             
-            if (rowObservation && rowObservation.includes(security.Numero_Processo)) {
-              console.log('Matching by rowObservation includes Numero_Processo:', security.Numero_Processo);
-              return true;
-            }
+            // if (rowObservation && rowObservation.includes(security.Numero_Processo)) {
+            //   // console.log('Matching by rowObservation includes Numero_Processo:', security.Numero_Processo);
+            //   return true;
+            // }
             
             return false;
           });
@@ -410,6 +418,10 @@ document.addEventListener("DOMContentLoaded", async () => {
  
 
           if (matchingSecurity) {
+  
+            if(row[1] == 'IM2777-24'){
+              console.log(matchingSecurity)
+            }
             
             let statusValor = '-';
             if (row[10] == matchingSecurity.Valor_Pagamento_Total) {

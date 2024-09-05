@@ -148,6 +148,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    */
   async function changeHeaderTableSecurity() {
     const header = `<tr>
+      <th>Check</th>
       <th>Documento</th>
       <th>Valor TI</th>
       <th>Valor Sistema</th>
@@ -165,6 +166,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    */
   async function changeHeaderTableComission() {
     const header = `<tr>
+      <th>Check</th>
       <th>Adquirente</th>
       <th>BL</th>
       <th>Status</th>
@@ -268,8 +270,6 @@ document.addEventListener("DOMContentLoaded", async () => {
               (rowObservation && rowObservation.includes(security.Conhecimentos)) || 
               (rowObservation && rowObservation.includes(security.Numero_Processo))
             );
-
-            console.log(matchingSecurity)
       
             if (matchingSecurity) {
               let statusValor = '-';
@@ -285,6 +285,7 @@ document.addEventListener("DOMContentLoaded", async () => {
          
       
               newData.push({
+                check: '<input class="form-check-input me-2 " type="checkbox">',
                 adquirente: row[4] || '',
                 data_saida: row[2] || '',
                 bl: row[5] || '',
@@ -300,6 +301,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               });
             } else {
               newData.push({
+                check: '<input class="form-check-input me-2 " type="checkbox">',
                 adquirente: row[4] || '',
                 data_saida: row[2] || '',
                 bl: row[5] || '',
@@ -319,6 +321,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
 
       
+      $.fn.dataTable.ext.type.order['currency-pre'] = function(data) {
+        // Remove tudo exceto números, pontos e vírgulas
+        return parseFloat(data.replace(/[^0-9.,-]/g, '').replace(',', '.')) || 0;
+      };
    
   
       const table = $('#incentive_management_table').DataTable({
@@ -328,12 +334,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         data: newData,
         bInfo: false,
         columns: [
+          { data: 'check' },
           { data: 'adquirente' },
           { data: 'bl' },
           { data: 'status' },
           { data: 'referencia_interna' },
-          { data: 'valor_comission' },
-          { data: 'valorSistema' },
+          { data: 'valor_comission', type: 'currency' },
+          { data: 'valorSistema', type: 'currency'},
           { data: 'statusValor' },
           { data: 'Status_Fatura' }
       ],
@@ -358,24 +365,51 @@ document.addEventListener("DOMContentLoaded", async () => {
   async function populateTableSecurity(data) {
 
     const securityData = await makeRequest('/api/incentive-management/getAllSecurity');
-
+  
     // Array para armazenar os novos dados
     const newData = [];
     
     data.slice(7).forEach(row => {
       if (row.some(cell => cell !== undefined && cell !== '')) {
         if (row[10] !== undefined && row[10] !== '') {
+          
+
+          row[1] = row[1].replace(/\s+/g, '');
+     
     
-          const rowObservation = row[17] || '';
-    
-          const matchingSecurity = securityData.find(security => 
-            security.Numero_Processo == row[1] || 
-            security.Conhecimentos == row[1] || 
-            (rowObservation && rowObservation.includes(security.Conhecimentos)) || 
-            (rowObservation && rowObservation.includes(security.Numero_Processo))
-          );
-    
+          const rowObservation = row[17] || null;
+
+          const matchingSecurity = securityData.find(security => {
+            if (row[1].includes(security.Numero_Processo)) {
+              console.log('Matching by Numero_Processo:', security.Numero_Processo);
+              return true;
+            }
+            
+            if (row[1].includes(security.Conhecimentos)) {
+              console.log('Matching by Conhecimentos:', security.Conhecimentos);
+              return true;
+            }
+            
+            if (rowObservation && rowObservation.includes(security.Conhecimentos)) {
+              console.log('Matching by rowObservation includes Conhecimentos:', security.Conhecimentos);
+              return true;
+            }
+            
+            if (rowObservation && rowObservation.includes(security.Numero_Processo)) {
+              console.log('Matching by rowObservation includes Numero_Processo:', security.Numero_Processo);
+              return true;
+            }
+            
+            return false;
+          });
+
+   
+      
+             let valorSemFormat = (row[10]).toString().replace('.', '');
+ 
+
           if (matchingSecurity) {
+            
             let statusValor = '-';
             if (row[10] == matchingSecurity.Valor_Pagamento_Total) {
               statusValor = '<span class="text-success">Valores Iguais</span>';
@@ -387,6 +421,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
     
             newData.push({
+              check: '<input class="form-check-input me-2 " type="checkbox">',
               document: row[1] || '',
               data_embarque: excelDateToJSDate(row[5]) || '',
               valor_ti: formatToUSD(parseFloat(row[10])) || '',
@@ -399,6 +434,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
           } else {
             newData.push({
+              check: '<input class="form-check-input me-2 " type="checkbox">',
               document: row[1] || '',
               data_embarque: excelDateToJSDate(row[5]) || '',
               valor_ti: formatToUSD(parseFloat(row[10])) || '',
@@ -413,6 +449,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       }
     });
+
+    // Função customizada para ordenar valores monetários no DataTable
+    $.fn.dataTable.ext.type.order['currency-pre'] = function(data) {
+      // Remove tudo exceto números, pontos e vírgulas
+      return parseFloat(data.replace(/[^0-9.,-]/g, '').replace(',', '.')) || 0;
+    };
  
 
     const table = $('#incentive_management_table').DataTable({
@@ -422,9 +464,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       data: newData,
       bInfo: false,
       columns: [
+        { data: 'check' },
         { data: 'document' },
-        { data: 'valor_ti' },
-        { data: 'valorSistema' },
+        { data: 'valor_ti', type: 'currency'},
+        { data: 'valorSistema', type: 'currency'  },
         { data: 'statusValor' },
         { data: 'status' },
         { data: 'Status_Fatura' },

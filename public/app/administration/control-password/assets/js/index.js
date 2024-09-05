@@ -12,7 +12,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     socket.on('updateControlPassword', (data) => {
         table['table_control_password'].ajax.reload(null, false)
     })
-
     document.querySelector('#loader2').classList.add('d-none')
 
 })
@@ -97,6 +96,8 @@ async function generateTable() {
         // Coloque aqui o código que precisa ser executado após os dados serem carregados
 
         introMain()
+
+        document.querySelector('#table_control_password_filter input').focus()
     });
 
     // Evento disparado quando a tabela é redesenhada

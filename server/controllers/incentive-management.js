@@ -53,7 +53,9 @@ const incentiveManagement = {
         CAST(Lhs.Conhecimentos AS VARCHAR(MAX)),
         Fts.IdMoeda_Pagamento,
         Moe.Sigla,
-        Fts.Valor_Pagamento_Total`);
+        Fts.Valor_Pagamento_Total
+        HAVING
+        COUNT(Fts.IdRegistro_Financeiro) = 1`);
 
 
         return result

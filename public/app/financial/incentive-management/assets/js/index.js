@@ -211,7 +211,8 @@ document.addEventListener("DOMContentLoaded", async () => {
    * @returns {string} Valor formatado em moeda brasileira (R$).
    */
     function formatToMoney(value, money) {
-      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: money }).format(value);
+     
+      return value && money ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: money }).format(value) : 'NÃO DEFINIDO';
     }
 
 

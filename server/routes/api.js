@@ -23,6 +23,7 @@ const api_financial_indicators = require('./api-financial-indicators');
 const api_collaborators_certificates = require('./api-collaborators-certificates');
 const api_meeting_control = require('./api-meeting-control');
 const api_user_tickets = require('./api-user-tickets');
+const api_performance_products = require('./api-performance-product');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -115,6 +116,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api_user_tickets .js
   router.use('/user-tickets', api_user_tickets(io)); 
+
+  // Use as rotas do arquivo api-perfomance-product .js
+  router.use('/performance-products', api_performance_products(io)); 
 
   return router;
 };

@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function getInfosLogin() {
     const StorageGoogleData = localStorage.getItem('StorageGoogle');
     const StorageGoogle = JSON.parse(StorageGoogleData);
-    return StorageGoogle;
+    return StorageGoogle;   
 }
 
 // Esta função cria ou recria a tabela de controle de senhas na página

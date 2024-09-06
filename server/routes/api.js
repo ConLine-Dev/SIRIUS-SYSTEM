@@ -118,7 +118,7 @@ const setIO = (io) => {
   router.use('/user-tickets', api_user_tickets(io)); 
 
   // Use as rotas do arquivo api-perfomance-product .js
-  router.use('/api_perfomance_products', api_perfomance_products(io)); 
+  router.use('/api-perfomance-products', api_perfomance_products(io)); 
 
   return router;
 };

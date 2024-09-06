@@ -1,0 +1,311 @@
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Perfomance por Produto</title>
+    <meta name="Description" content="Controle de chamados & projetos TI">
+    <meta name="Author" content="ConLine">
+
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main JS -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    <!-- Color Picker Css -->
+    <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <!-- ApexCharts -->
+    <link rel="stylesheet" href="../../assets/libs/apexCharts/apexcharts.css">
+    <!-- flatpickr -->
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+
+    <!-- LOADER -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <!-- BODY -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="file-manager-container p-2 gap-2 d-sm-flex">
+                <div class="file-manager-navigation" style="min-height: 98vh !important; width: 25rem !important;">
+                    <div class="d-flex align-items-center justify-content-between w-100" style="padding: 1rem 1rem 0 1rem;">
+                        <div class="card custom-card">
+                            <div class="card-header py-1 pb-3">
+                                <div class="card-title fw-semibold fs-14">Filtros</div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between" style="padding: 0 1rem 1rem 1rem">
+                        <div class="card-body p-0" style="width: 100% !important;">
+                            <div class="d-flex flex-column justify-content-between" style="height: 90vh; overflow-y: auto;">
+                                <ul class="list-group list-group-flush mb-0">
+
+                                    <li class="list-group-item">
+                                        <div class="d-flex align-items-center" style="margin-bottom: 10px;">
+                                            <div class="flex-fill">
+                                                <p class="fw-bold mb-0">Processo Courier</p>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-left" style="gap: 20px;">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" value="" id="yesCourier">
+                                                <label for="yesCourier" class="form-check-label">Sim</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" value="" id="noCourier">
+                                                <label for="noCourier" class="form-check-label">Não</label>
+                                            </div>
+                                        </div>
+                                    </li>
+
+                                    <li class="list-group-item" style="padding: 10px 20px !important;">
+                                        <div class="d-flex align-items-center" style="margin-bottom: 10px;">
+                                            <div class="flex-fill">
+                                                <p class="fw-bold mb-0">Data Abertura Processo</p>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                                <input type="text" placeholder="Data Abertura Processo" class="form-control dash-filter-picker flatpickr-input" id="inputDateFilter" data-provider="flatpickr" data-mode="range" data-date-format="d M Y">
+                                            </div>
+                                        </div>
+                                    </li>
+
+                                    <li class="list-group-item">
+                                        <div class="d-flex align-items-center" style="margin-bottom: 10px;">
+                                            <div class="flex-fill">
+                                                <p class="fw-bold mb-0">Situação Agenciamento</p>
+                                            </div>
+                                        </div>
+                                        <div class="row gy-3" style="gap: 20px;">
+                                            <select id="selectAgencySituation" multiple>
+                                                <option value="" style="width: 100% !important;">Selecione a Situação do Agenciamento</option>
+                                             </select>
+                                        </div>
+                                    </li>
+
+                                    <li class="list-group-item">
+                                        <div class="d-flex align-items-center" style="margin-bottom: 10px;">
+                                            <div class="flex-fill">
+                                                <p class="fw-bold mb-0">Modalidade</p>
+                                            </div>
+                                        </div>
+                                        <div class="row gy-3" style="gap: 20px;">
+                                            <select id="selectModal" multiple>
+                                                <option value="" style="width: 100% !important;">Selecione a Modalidade</option>
+                                             </select>
+                                        </div>
+                                    </li>
+
+                                    <li class="list-group-item">
+                                        <div class="d-flex align-items-center" style="margin-bottom: 10px;">
+                                            <div class="flex-fill">
+                                                <p class="fw-bold mb-0">Tipo de Carga</p>
+                                            </div>
+                                        </div>
+                                        <div class="row gy-3" style="gap: 20px;">
+                                            <select id="selectTypeLoad" multiple>
+                                                <option value="" style="width: 100% !important;">Selecione o Tipo de Carga</option>
+                                             </select>
+                                        </div>
+                                    </li>
+
+                                </ul>
+                                <div class="d-flex align-items-center justify-content-center" style="margin-bottom: 40px;">
+                                    <button class="btn btn-primary-gradient" id="btn-filter" style="width: 85%;">Filtrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="file-manager-folders" style="min-height: 98vh !important; background-color: transparent;">
+                    <div class="p-3 file-folders-container" id="file-folders-container" data-simplebar="init">
+                        <div class="simplebar-wrapper" style="margin: -16px;">
+                            <!-- <div class="simplebar-height-auto-observer-wrapper">
+                                <div class="simplebar-height-auto-observer"></div>
+                            </div> -->
+                            <div class="simplebar-mask">
+                                <!-- <div class="simplebar-offset" style="right: 0px; bottom: 0px;"> -->
+
+                                    <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: auto;">
+                                        <div class="simplebar-content" style="padding: 0 16px 16px 16px;">
+                                            <div class="card custom-card">
+                                                <div class="card-header justify-content-between">
+                                                   <div class="card-title fw-semibold fs-14">Perfomance por Produto</div>
+                                                </div>
+                                            </div>
+                                    
+                                          <div class="row">
+                                             <div class="col-xl-12">
+                                                <div class="row">
+                                                   <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12">
+                                                      <div class="card custom-card">
+                                                         <div class="card-body">
+                                                            <div class="d-flex flex-wrap align-items-center justify-content-between">
+                                                               <div>
+                                                                  <h6 class="fw-semibold mb-3">Lucro</h6> <span class="fs-18 fw-semibold" id="text-profit"></span>
+                                                               </div>
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                   <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12">
+                                                      <div class="card custom-card">
+                                                         <div class="card-body">
+                                                            <div class="d-flex flex-wrap align-items-center justify-content-between">
+                                                               <div>
+                                                                  <h6 class="fw-semibold mb-3">Teus</h6> <span class="fs-18 fw-semibold" id="text-total-teus"></span>
+                                                               </div>
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                   <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12">
+                                                      <div class="card custom-card">
+                                                         <div class="card-body">
+                                                            <div class="d-flex flex-wrap align-items-center justify-content-between">
+                                                               <div>
+                                                                  <h6 class="fw-semibold mb-3">Toneladas</h6> <span class="fs-18 fw-semibold" id="text-total-tons"></span>
+                                                               </div>
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                   <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12">
+                                                      <div class="card custom-card">
+                                                         <div class="card-body">
+                                                            <div class="d-flex flex-wrap align-items-center justify-content-between">
+                                                               <div>
+                                                                  <h6 class="fw-semibold mb-3">Processos</h6> <span class="fs-18 fw-semibold" id="text-total-process"></span>
+                                                               </div>
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                   <div class="col-xl-12">
+                                                      <div class="card custom-card">
+                                                         <div class="card-header justify-content-between">
+                                                            <div class="card-title"> Lucro por Modal</div>
+                                                            <button type="button" class="btn btn-primary btn-sm" id="exportButton" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Exportar a tabela abaixo para Excel" aria-describedby="tooltip74454">Excel</button>
+                                                         </div>
+                                                         <div class="card-body">
+                                                            <div id="profit-month-by-month" style="min-height: 265px;">
+
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                             <div class="col-xl-12">
+                                                <div class="row">
+                                                   <div class="col-xxl-4 col-xl-4 col-sm-12">
+                                                      <div class="card custom-card">
+                                                         <div class="card-header justify-content-between">
+                                                            <div class="card-title"> Lucro Total por Modal </div>
+                                                         </div>
+                                                         <div class="card-body my-2 py-4" style="display: flex; justify-content: center;">
+                                                            <div id="profit-by-modal" style="min-height: 265px;">
+
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                   <div class="col-xxl-4 col-xl-4 col-sm-12">
+                                                      <div class="card custom-card">
+                                                         <div class="card-header justify-content-between">
+                                                            <div class="card-title"> Lucro por Produto </div>
+                                                         </div>
+                                                         <div class="card-body my-2 py-4" style="display: flex; justify-content: center;">
+                                                            <div id="profit-by-type_load" style="min-height: 265px;">
+
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                   <div class="col-xxl-4 col-xl-4 col-sm-12">
+                                                      <div class="card custom-card">
+                                                         <div class="card-header justify-content-between">
+                                                            <div class="card-title"> Lucro Médio por Processo/Modal </div>
+                                                         </div>
+                                                         <div class="card-body my-2 py-4" style="display: flex; justify-content: center;">
+                                                            <div id="average-profit-by-modal" style="min-height: 265px;">
+
+                                                            </div>
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </div>
+                                          </div>
+                                        </div>
+                                    </div>           
+                                                             
+                                </div>
+                            <!-- </div> -->
+                        <div div class="simplebar-placeholder" style="width: auto; height: 928px;"></div>
+                    </div>
+                    <!-- <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;"> -->
+                    <!-- <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div> -->
+                </div>
+                <!-- <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                    <div class="simplebar-scrollbar" style="height: 560px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+                </div> -->
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+
+    <!-- Jquery -->
+    <script src="../../assets/libs/jQuery/jquery-3.6.1.min.js"></script>
+    <!-- Popper JS -->
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Color Picker JS -->
+    <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+    <!-- Flat Picker JS -->
+    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+    <!-- ApexCharts JS -->
+    <script src="../../assets/libs/apexCharts/apexCharts.js"></script>
+    <!-- Xlsx -->
+    <script src="../../assets/libs/xlsx/xlsx.full.min.js"></script>
+
+    <!-- Internal Task  JS -->
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="./assets/js/script.js"></script>
+</body>
+
+</html>

@@ -263,14 +263,46 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (row.some(cell => cell !== undefined && cell !== '')) {
           if (row[1] !== undefined && row[1] !== '') {
       
-            const rowObservation = row[3] || '';
+            const rowObservation = row[3] || null;
       
-            const matchingSecurity = securityData.find(security => 
-              (security.Numero_Processo == row[3] || 
-              security.Conhecimentos == row[5]) || 
-              (rowObservation && rowObservation.includes(security.Conhecimentos)) || 
-              (rowObservation && rowObservation.includes(security.Numero_Processo))
-            );
+            // const matchingSecurity = securityData.find(security => 
+            //   (security.Numero_Processo == row[3] || 
+            //   security.Conhecimentos == row[5]) || 
+            //   (rowObservation && rowObservation.includes(security.Conhecimentos)) || 
+            //   (rowObservation && rowObservation.includes(security.Numero_Processo))
+            // );
+
+          const matchingSecurity = securityData.find(security => {
+            if (row[3] == security.Numero_Processo) {
+              // console.log('Matching by Numero_Processo:', security.Numero_Processo);
+              return true;
+            }
+            
+            if (row[5] == security.Conhecimentos) {
+              // console.log('Matching by Conhecimentos:', security.Conhecimentos);
+              return true;
+            }
+          
+
+            if (rowObservation && new RegExp(`\\b${security.Conhecimentos}\\b`).test(rowObservation)) {
+               // console.log('Matching by Conhecimentos rowObservation:', security.Conhecimentos);
+              return true;
+            }
+
+            if (rowObservation && new RegExp(`\\b${security.Numero_Processo}\\b`).test(rowObservation)) {
+               // console.log('Matching by rowObservation Numero_Processo:', security.Conhecimentos);
+              return true;
+            }
+            
+      
+            return false;
+          });
+
+
+
+
+
+
       
             if (matchingSecurity) {
               let statusValor = '-';
@@ -390,25 +422,19 @@ document.addEventListener("DOMContentLoaded", async () => {
               // console.log('Matching by Conhecimentos:', security.Conhecimentos);
               return true;
             }
-            
-            // if (rowObservation && rowObservation.includes(security.Conhecimentos)) {
-            //   // console.log('Matching by rowObservation includes Conhecimentos:', security.Conhecimentos);
-            //   return true;
-            // }
+          
 
             if (rowObservation && new RegExp(`\\b${security.Conhecimentos}\\b`).test(rowObservation)) {
+               // console.log('Matching by Conhecimentos rowObservation:', security.Conhecimentos);
               return true;
             }
 
             if (rowObservation && new RegExp(`\\b${security.Numero_Processo}\\b`).test(rowObservation)) {
+               // console.log('Matching by rowObservation Numero_Processo:', security.Conhecimentos);
               return true;
             }
             
-            // if (rowObservation && rowObservation.includes(security.Numero_Processo)) {
-            //   // console.log('Matching by rowObservation includes Numero_Processo:', security.Numero_Processo);
-            //   return true;
-            // }
-            
+      
             return false;
           });
 

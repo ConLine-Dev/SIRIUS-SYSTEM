@@ -9,8 +9,6 @@ async function checkLoginExpiration() {
 
    if (!localStorage.getItem('StorageGoogle')) {
       window.location.href = '/app/login';
-   } else {
-      document.querySelector('body').style.display = 'block'
    }
 
 
@@ -141,11 +139,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    // inicio da função verificar tempo de carregamento da pagina e suas consultas no banco
    console.time(`A página "${document.title}" carregou em`)
 
-   
-
-   
-
-
+   initLoaderMessages()
    await checkLoginExpiration()
 
    setInterval(async () => {
@@ -167,7 +161,42 @@ document.addEventListener("DOMContentLoaded", async () => {
 
    // fim da função verificar tempo de carregamento da pagina e suas consultas no banco
    console.timeEnd(`A página "${document.title}" carregou em`);
+
+   document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
+
+
+
 })
+
+
+function initLoaderMessages(){
+   const messages = [
+      "Carregando recursos",
+      "Verificando dados",
+      "Quase lá",
+      "Preparando a experiência",
+      "Finalizando"
+    ];
+
+    let messageIndex = 0;
+   const messageElement = document.getElementById('loader-message');
+   
+   // Função para atualizar a mensagem a cada 2 segundos
+   function updateMessage() {
+      if(!document.querySelector('#loader2').classList.contains('d-none')){
+         if (messageIndex < messages.length) {
+            messageElement.textContent = messages[messageIndex];
+            messageIndex++;
+            }
+      }
+     
+   }
+
+   // Atualiza a mensagem a cada 2 segundos
+   setInterval(updateMessage, 1500);
+
+
+}
 
 
   /* header theme toggle */

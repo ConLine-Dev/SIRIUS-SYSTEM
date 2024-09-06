@@ -166,6 +166,22 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 
+   function showNotification() {
+      const notification = new Notification("Atenção", {
+        body: "Você tem uma nova notificação",
+        icon: __dirname + '/logo/tray.png',
+        tag: 'soManyNotification',
+        hasReply: true
+      })
+    }
+    console.log(Notification.permission)
+    if (Notification.permission === "granted") {
+      showNotification()
+      //alert('we have permission');
+    } else if (Notification.permission === "denied") {
+      Notification.requestPermission()
+    };
+
 })
 
 

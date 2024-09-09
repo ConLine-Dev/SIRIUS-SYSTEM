@@ -365,7 +365,7 @@ function exportToXLS(data) {
          const cell_address = { c: C, r: R };
          const cell_ref = XLSX.utils.encode_cell(cell_address);
          if (!worksheet[cell_ref]) continue;
-         worksheet[cell_ref].z = '"R$ "#,##0.00';
+         worksheet[cell_ref].z = '#,##0.00';
       }
    }
 
@@ -381,7 +381,7 @@ function exportToXLS(data) {
    // Faz o download do arquivo
    const link = document.createElement('a');
    link.href = URL.createObjectURL(blob);
-   link.download = 'Fluxo de Caixa.xlsx';
+   link.download = 'Performance por Produto.xlsx';
    link.click();
 };
 // Função auxiliar para converter a string binária em array buffer
@@ -415,6 +415,7 @@ function prepareAndExportData(received, paid, profit) {
 
 // Função para criar o gráfico
 let chart = null;
+let exportButtonHandler = null;
 async function graphic_months(data) {
    const received = await received_for_month(data);
    const paid = await paid_for_month(data);
@@ -519,10 +520,20 @@ async function graphic_months(data) {
       chart.render();
    }
 
-   // Adiciona o evento de clique ao botão de exportação
-   document.getElementById('exportButton').addEventListener('click', function () {
+   // Adiciona o novo ouvinte de evento ao botão de exportação
+   const export_button = document.getElementById('exportButton');
+   
+   // Remove o ouvinte de evento anterior, se existir
+   if (exportButtonHandler) {
+      export_button.removeEventListener('click', exportButtonHandler);
+   }
+
+   // Define um novo manipulador de eventos para o botão de exportação
+   exportButtonHandler = function () {
       prepareAndExportData(array_received, array_paid, array_profit);
-   });
+   };
+
+   export_button.addEventListener('click', exportButtonHandler);
 };
 
 // Função que soma o lucro por modal

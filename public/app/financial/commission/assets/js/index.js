@@ -107,7 +107,7 @@ async function getFilters() {
     const ComissaoAgenteList = getCheckedValues('.ComissaoAgente');
     const pagamentoList = getCheckedValues('.pagamento');
     const comissao_vendedorList = getCheckedValues('.comissao_vendedor');
-    const comissao_insideList = getCheckedValues('.comissao_vendedor');
+    const comissao_insideList = getCheckedValues('.comissao_inside');
     const modalidadeList = getCheckedValues('.modalidade');
 
     // Valida se ao menos uma opção de cada categoria foi selecionada

@@ -10,9 +10,11 @@ const headcargo = {
      
 
         const modalidade = (value.modalidade).join(',');
-        const comissaoVendedor = `AND Comissao_Vendedor_Pago IN (${(value.comissaoVendedor).join(',')})`;
 
-        const ComissaoInside = `AND Comissao_Inside_Sales_Pago IN (${(value.ComissaoInside).join(',')})`;
+       
+        const comissaoVendedor = value.vendedorID != '000' ? `AND Comissao_Vendedor_Pago IN (${(value.comissaoVendedor).join(',')})` : ''
+
+        const ComissaoInside = value.InsideID != '000' ? `AND Comissao_Inside_Sales_Pago IN (${(value.ComissaoInside).join(',')})` : '';
     
         const vendedorID = value.vendedorID != '000' ? `AND IdVendedor = ${value.vendedorID}` : '';
         const InsideID = value.InsideID != '000' ? `AND IdInside_Sales = ${value.InsideID}` : '';

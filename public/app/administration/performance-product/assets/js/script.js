@@ -275,6 +275,21 @@ async function total_process(data) {
    return text_total_process;
 };
 
+async function average_profit_process(data) {
+   const total_received = data.reduce((acumulator, element) => {
+      return acumulator + element.Lucro_Estimado
+   }, 0);
+
+   const total_process = data.length;
+
+   const average_profit = total_received / total_process;
+
+   const text_average_profit = document.getElementById('text-profit-process');
+   text_average_profit.textContent = `${average_profit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`;
+
+   return average_profit;
+}
+
 // Retornar um array com o recebimento de cada mês e ano
 async function received_for_month(data) {
    const sum_for_month = [];
@@ -813,6 +828,7 @@ async function eventClick() {
       await total_teus(getResults);
       await total_tons(getResults);
       await total_process(getResults);
+      await average_profit_process(getResults);
       await graphic_months(getResults);
       await profitModalChart(getResults);
       await profitTypeLoadChart(getResults);
@@ -853,6 +869,7 @@ window.addEventListener("load", async () => {
    await total_teus(getResults);
    await total_tons(getResults);
    await total_process(getResults);
+   await average_profit_process(getResults);
    await graphic_months(getResults);
    await profitModalChart(getResults);
    await profitTypeLoadChart(getResults);

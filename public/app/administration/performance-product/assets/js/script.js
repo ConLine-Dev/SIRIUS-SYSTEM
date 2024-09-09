@@ -1,7 +1,72 @@
+// Função para verificar se o tempo de login expirou
+async function checkLoginExpiration() {
+   // Verifica o localStorage para alterar a mensagem de boas vindas
+   const StorageGoogleData = localStorage.getItem('StorageGoogle');
+   const StorageGoogle = JSON.parse(StorageGoogleData);
+
+   if (!localStorage.getItem('StorageGoogle')) {
+       window.location.href = '/app/login';
+   } else {
+       document.querySelector('body').style.display = 'block'
+   }
+
+
+
+   const loginTime = localStorage.getItem('loginTime');
+
+   if (loginTime) {
+       const currentTime = new Date().getTime();
+       const elapsedTime = currentTime - parseInt(loginTime);
+   
+       // 24 horas em milissegundos
+       const twentyFourHours = 1000;
+
+       if (elapsedTime >= twentyFourHours) {
+           // Limpa os dados do usuário e redireciona para a página de login
+           localStorage.removeItem('StorageGoogle');
+           localStorage.removeItem('loginTime');
+           window.location.href = '/app/login';
+       }
+   }
+}
+
+// Verifica o localStorage para setar informações
+async function getInfosLogin() {
+   const StorageGoogleData = localStorage.getItem('StorageGoogle');
+   const StorageGoogle = JSON.parse(StorageGoogleData);
+
+   return StorageGoogle;
+}
+
+async function setInfosLogin(StorageGoogle) {
+   document.querySelectorAll('.imgUser').forEach(element => {
+       element.src = StorageGoogle.picture ? StorageGoogle.picture : StorageGoogle.system_image
+   });
+
+   document.querySelectorAll('.UserName').forEach(element => {
+       element.textContent = StorageGoogle.given_name.replace(/[^a-zA-Z\s]/g, '');
+   });
+
+   document.querySelectorAll('.buttonLogout').forEach(element => {
+       element.addEventListener('click', function (e) {
+               e.preventDefault()
+       
+               localStorage.removeItem('StorageGoogle');
+               localStorage.removeItem('loginTime');
+       
+               window.location.href = '/app/login'
+       })
+
+   });
+
+
+}
+
+
 // Variaveis globais para receber as datas do filtro de datas
 let startDateGlobal, endDateGlobal, filterType;
 
-// Função que cria o select para selecionar a situacao do agenciamento de pessoas
+// Função que cria o select para selecionar a situacao do agenciamento
 let selectAgencySituation;
 async function createSelectAgencySituation() {
    // Defina os dados manualmente
@@ -53,16 +118,16 @@ async function getSelectAgencySituation() {
    }
 };
 
-// Função que cria o select para selecionar a O modal de pessoas
+// Função que cria o select para selecionar a modalidade
 let selectModal;
 async function createSelectModal() {
    // Defina os dados manualmente
    const data = [
-      { id: 1, name: 'Importação Marítima' },
-      { id: 2, name: 'Exportação Marítima' },
-      { id: 3, name: 'Importação Aérea' },
-      { id: 4, name: 'Exportação Aérea' },
-      { id: 5, name: 'Outros' },
+      { id: "'IM'", name: 'Importação Marítima' },
+      { id: "'EM'", name: 'Exportação Marítima' },
+      { id: "'IA'", name: 'Importação Aérea' },
+      { id: "'EA'", name: 'Exportação Aérea' },
+      { id: "'OUTROS'", name: 'Outros' },
    ];
 
    // Formate o array para ser usado com o Choices.js
@@ -90,7 +155,7 @@ async function createSelectModal() {
    });
 };
 
-// Função para pegar as opções selecionadas do Select modal de pessoas
+// Função para pegar as opções selecionadas do Select modal
 async function getSelectModal() {
    if (selectModal && selectModal.getValue(true).length === 0) {
       return undefined;
@@ -103,7 +168,7 @@ async function getSelectModal() {
    }
 };
 
-// Função que cria o select para selecionar o tipo de carga de pessoas
+// Função que cria o select para selecionar o tipo de carga
 let selectTypeLoad;
 async function createSelectTypeLoad() {
    // Defina os dados manualmente
@@ -142,7 +207,7 @@ async function createSelectTypeLoad() {
    });
 };
 
-// Função para pegar as opções selecionadas do Select tipo de carga de pessoas
+// Função para pegar as opções selecionadas do Select tipo de carga
 async function getSelectTypeLoad() {
    if (selectTypeLoad && selectTypeLoad.getValue(true).length === 0) {
       return undefined;
@@ -489,7 +554,7 @@ async function sumProfitByModal(data) {
    return chart_data;
 };
 
-let update_profit_modal_chart = null;
+let update_profit_modal_chart;
 async function profitModalChart(data) {
    const profit_by_modal = await sumProfitByModal(data);
 
@@ -523,13 +588,10 @@ async function profitModalChart(data) {
    // Verifique se o gráfico já existe
    if (update_profit_modal_chart) {
       // Se existir, atualize os dados e renderize novamente
-      update_profit_modal_chart.updateSeries(series);
+      update_profit_modal_chart.updateOptions(options);
    } else {
       // Se não existir, crie um novo gráfico
-      update_profit_modal_chart = new ApexCharts(
-         document.querySelector("#profit-by-modal"),
-         options
-      );
+      update_profit_modal_chart = new ApexCharts(document.querySelector("#profit-by-modal"), options);
       update_profit_modal_chart.render();
    }
 }
@@ -563,24 +625,24 @@ async function sumProfitByTypeLoad(data) {
    return chart_data;
 };
 
-let update_profit_type_load_chart = null;
+let update_profit_type_load_chart;
 async function profitTypeLoadChart(data) {
    const profit_by_type_load = await sumProfitByTypeLoad(data);
 
    let series = profit_by_type_load.map(item => item.y); // valores
-   let labels = profit_by_type_load.map(item => item.name); // modalidades
+   let legenda = profit_by_type_load.map(item => item.name); // modalidades
 
    let options = {
       chart: {
-         type: 'pie',
          width: "123%",
+         type: 'pie',
       },
+      series: series,
+      labels: legenda,
       legend: {
          show: true,
          position: "bottom",
       },
-      series: series,
-      labels: labels,
 
       tooltip: {
          shared: true,
@@ -597,13 +659,10 @@ async function profitTypeLoadChart(data) {
    // Verifique se o gráfico já existe
    if (update_profit_type_load_chart) {
       // Se existir, atualize os dados e renderize novamente
-      update_profit_type_load_chart.updateSeries(series);
+      update_profit_type_load_chart.updateOptions(options);
    } else {
       // Se não existir, crie um novo gráfico
-      update_profit_type_load_chart = new ApexCharts(
-         document.querySelector("#profit-by-type_load"),
-         options
-      );
+      update_profit_type_load_chart = new ApexCharts(document.querySelector("#profit-by-type_load"), options);
       update_profit_type_load_chart.render();
    }
 };
@@ -640,7 +699,7 @@ async function averageProfitByModal(data) {
    return chart_data;
 };
 
-let update_average_by_modal = null;
+let update_average_by_modal;
 async function avaregaProfitModalChart(data) {
    const profit_by_modal = await averageProfitByModal(data);
 
@@ -674,18 +733,15 @@ async function avaregaProfitModalChart(data) {
    // Verifique se o gráfico já existe
    if (update_average_by_modal) {
       // Se existir, atualize os dados e renderize novamente
-      update_average_by_modal.updateSeries(series);
+      update_average_by_modal.updateOptions(options);
    } else {
       // Se não existir, crie um novo gráfico
-      update_average_by_modal = new ApexCharts(
-         document.querySelector("#average-profit-by-modal"),
-         options
-      );
+      update_average_by_modal = new ApexCharts(document.querySelector("#average-profit-by-modal"), options);
       update_average_by_modal.render();
    }
 };
 
-// Função é executada quando for pesquisar e selecionar um colaborador  
+// Função onde vai conter todos os cliques da
 async function eventClick() {
    // ========== BOTAO DE FILTRO ========== // 
    const inputDateFilter = document.getElementById('inputDateFilter');
@@ -765,9 +821,17 @@ async function initializeDatePicker() {
    });
 };
 
-
 // Função executada após toda a página ser executada
 window.addEventListener("load", async () => {
+   await checkLoginExpiration()
+
+   setInterval(async () => {
+       await checkLoginExpiration()
+   }, 1000);
+
+   const StorageGoogle = await getInfosLogin();
+   await setInfosLogin(StorageGoogle)
+   
    const getResults = await makeRequest('/api/performance-products/listResults', 'POST');
 
    await createSelectAgencySituation();

@@ -113,27 +113,6 @@ function searchItems() {
    }
 }
 
-// Exemplo no código do frontend (renderer process)
-// const { ipcRenderer } = window;
-
-// console.log(ipcRenderer)
-// ipcRenderer.on('update-available', () => {
-//   // Lidar com uma atualização disponível
-//   console.log('Atualização disponível. Baixando...');
-// });
-
-// ipcRenderer.on('update-downloaded', () => {
-//   // Lidar com uma atualização baixada e pronta para instalação
-//   console.log('Atualização baixada. Reiniciando aplicativo para instalar...');
-//   ipcRenderer.invoke('quit-and-install');
-// });
-
-// // Exemplo para verificar atualizações manualmente
-// ipcRenderer.invoke('check-for-updates');
-
-// localStorage.removeItem('StorageGoogle');
-// localStorage.removeItem('loginTime');
-
 // ESPERA A PAGINA SER COMPLETAMENTE CARREGADA
 document.addEventListener("DOMContentLoaded", async () => {
    // inicio da função verificar tempo de carregamento da pagina e suas consultas no banco
@@ -164,23 +143,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
    document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
 
-
+   
 
    function showNotification() {
-      const notification = new Notification("Atenção", {
+      const notification = new Notification("Edinho", {
         body: "Você tem uma nova notificação",
-        icon: __dirname + '/logo/tray.png',
+        icon: __dirname + '/logo/icone-sirius.ico',
         tag: 'soManyNotification',
         hasReply: true
       })
     }
-    console.log(Notification.permission)
-    if (Notification.permission === "granted") {
-      showNotification()
-      //alert('we have permission');
-    } else if (Notification.permission === "denied") {
-      Notification.requestPermission()
-    };
+   //  showNotification()
+
+   //  console.log(Notification.permission)
+   //  if (Notification.permission === "granted") {
+   //    showNotification()
+   //    //alert('we have permission');
+   //  } else if (Notification.permission === "denied") {
+   //    Notification.requestPermission()
+   //  };
 
 })
 

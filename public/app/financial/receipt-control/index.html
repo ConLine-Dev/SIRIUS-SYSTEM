@@ -33,7 +33,7 @@
     <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
     
 
-    <link rel="stylesheet" href="./assets/css/index.css">
+    <!-- <link rel="stylesheet" href="./assets/css/index.css"> -->
     <meta http-equiv="imagetoolbar" content="no">
 </head>
 
@@ -62,37 +62,47 @@
                     <thead>
                         
                         <tr>
-                            
+                            <th scope="col">Nome</th>
                             <th scope="col">Valor$</th>
-                            <th scope="col">Data Pagamento</th>
+                            <th scope="col">Data de Conclusão</th>
+                            <th scope="col">Cidade</th>
                             <th scope="col">Nome do emissor</th>
                             <th scope="col">CPF/CNPJ</th>
                             <th scope="col">Recibo referente a</th>
+                            <th scope="col">Tipo</th>
                             <th scope="col">Ação</th>
                         </tr>
                         <tr>
-                            
+                            <th scope="col">
+                                <input type="text" class="form-control" id="name" placeholder="Digite o nome">
+                            </th>
                             <th scope="col">
                                 <input type="text" class="form-control" id="value" placeholder="Digite o valor">
                             </th>
                             <th scope="col">
-                                <input type="text" class="form-control" id="City" placeholder="Digite o nome do emissor">
+                                <input type="date" class="form-control" id="completionDate" placeholder="Digite a qualificação">
                             </th>
                             <th scope="col">
-                                <input type="text" class="form-control" id="nameIssuer" placeholder="Digite o CPF/CNPJ">
+                                <input type="text" class="form-control" id="City" placeholder="Digite a qualificação">
                             </th>
                             <th scope="col">
-                                <input type="text" class="form-control" id="number" placeholder="Digite um nome">
+                                <input type="text" class="form-control" id="nameIssuer" placeholder="Digite a qualificação">
                             </th>
                             <th scope="col">
-                                <input type="text" class="form-control" id="type">
+                                <input type="text" class="form-control" id="number" placeholder="Digite a qualificação">
                             </th>
                             <th scope="col">
-                                <input type="file" class="form-control" id="certificate" placeholder="">
+                                <input type="text" class="form-control" id="receipt" placeholder="Digite a qualificação">
+                            </th>
+                            <th scope="col">
+                                <input type="text" class="form-control" id="type" placeholder="Digite a Instituição">
+                            </th>
+                            <th scope="col">
+                                <input type="file" class="form-control" id="certificate" placeholder="Certificado">
                             </th>
                             <th scope="col" class="cardButtonsCertifications">
-                                <button type="button" onclick="addCertification()" class="btn btn-icon btn-primary-light btn_add" title="Adicionar">
-                                    <i class="ri-add-line">ADD</i>
+                                <button type="button" onclick="addCertification()" class="btn btn-icon btn-primary-light btn_add">
+                                    <i class="ri-add-line"></i>
                                 </button>
                                 <button type="button" style="display: none;" onclick="saveCertification()" class="btn btn-icon btn-primary-light btn_save">
                                     <i class="ri-save-line"></i>
@@ -105,41 +115,47 @@
                     </thead>
                     <tbody>
                         <tr>
-                            
+                            <th class="">Laryssa</th>
                             <th class="">R$ 500,00</th>
                             <td><span class="badge bg-purple-transparent"><i class="bi bi-clock me-1"></i>06/09/2024</span></td>
+                            <th class="">Itajaí</th>
                             <th class="">Magalu</th>
                             <th class="">47.960.950/0001-21</th>
                             <th class="">Compras de notbook</th>
+                            <td> <span class="badge rounded-pill bg-warning-transparent">Recibo</span> </td>
                             <td>
                                 <div class="hstack gap-2 fs-15"> 
-                                    <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon waves-effect waves-light btn-sm btn-success-light" title="Download"><i class="ri-download-2-line"></i></a>
+                                    <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon waves-effect waves-light btn-sm btn-success-light"><i class="ri-download-2-line"></i></a>
                                 </div>
                             </td>
                         </tr>
                         <tr>
-                            
+                            <th class="">Laryssa</th>
                             <th class="">R$ 500,00</th>
                             <td><span class="badge bg-purple-transparent"><i class="bi bi-clock me-1"></i>06/09/2024</span></td>
+                            <th class="">Itajaí</th>
                             <th class="">Magalu</th>
                             <th class="">47.960.950/0001-21</th>
-                            <th class="">Compras de periféricos</th>
+                            <th class="">Compras de notbook</th>
+                            <td> <span class="badge rounded-pill bg-warning-transparent">Recibo</span> </td>
                             <td>
                                 <div class="hstack gap-2 fs-15"> 
-                                    <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon waves-effect waves-light btn-sm btn-success-light" title="Download"><i class="ri-download-2-line"></i></a>
+                                    <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon waves-effect waves-light btn-sm btn-success-light"><i class="ri-download-2-line"></i></a>
                                 </div>
                             </td>
                         </tr>
                         <tr>
-                            
+                            <th class="">Laryssa</th>
                             <th class="">R$ 500,00</th>
                             <td><span class="badge bg-purple-transparent"><i class="bi bi-clock me-1"></i>06/09/2024</span></td>
+                            <th class="">Itajaí</th>
                             <th class="">Magalu</th>
                             <th class="">47.960.950/0001-21</th>
                             <th class="">Compras de notbook</th>
+                            <td> <span class="badge rounded-pill bg-warning-transparent">Recibo</span> </td>
                             <td>
                                 <div class="hstack gap-2 fs-15"> 
-                                    <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon waves-effect waves-light btn-sm btn-success-light" title="Download"><i class="ri-download-2-line"></i></a>
+                                    <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon waves-effect waves-light btn-sm btn-success-light"><i class="ri-download-2-line"></i></a>
                                 </div>
                             </td>
                         </tr>
@@ -185,7 +201,7 @@
     <!-- SweetAlert JS -->
    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
 
-    <script src="./assets/js/index.js"></script>
+    <!-- <script src="./assets/js/index.js"></script> -->
 
 </body>
 

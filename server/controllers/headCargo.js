@@ -850,7 +850,7 @@ const headcargo = {
     
       const commissioned_type = type == 0 ? 1 : 2
         // assunto do email
-        const assunto = `[Sirius][ConLine] - Pagamento Comissões | ${user.name} | ${type == 0 ? 'Vendedor' : 'Inside'} | ${new_data_de} até ${new_data_ate} `;
+        const assunto = `[Sirius][ConLine] - Pagamento Comissões | ${user.name} | ${type == 0 ? 'Vendedor' : 'Inside'}`;
 
         // formata a data apresentada no email
         const new_data_de = headcargo.formatDate(dateFilter.de)

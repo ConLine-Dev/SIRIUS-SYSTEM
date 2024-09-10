@@ -20,7 +20,7 @@ const headcargo = {
         const InsideID = value.InsideID != '000' ? `AND IdInside_Sales = ${value.InsideID}` : '';
 
         const recebimento = `AND RecebimentoCodigo IN (${(value.recebimento).join(',')})`;
-        const pagamento = `AND PagamentoCodigo IN (${(value.recebimento).join(',')})`;
+        const pagamento = `AND PagamentoCodigo IN (${(value.pagamento).join(',')})`;
 
         
         const AgenteCodigo = `AND AgenteCodigo IN (${(value.ComissaoAgente).join(',')})`;

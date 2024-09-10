@@ -59,7 +59,7 @@ const headcargo = {
        
              Lhs.Numero_Processo,
              Lhs.Data_Abertura_Processo AS Abertura_Processo,
-             CONVERT(VARCHAR(10), Lhs.Data_Abertura_Processo, 23) AS Abertura_Processo_Convertida,
+             CONVERT(VARCHAR(10), Lhs.Data_Abertura_Processo, 23) AS Abertura_Processo_Convertida,    
        
              CASE
                 WHEN Lms.Tipo_Operacao = 1 THEN COALESCE(Lms.Data_Embarque, Lms.Data_Previsao_Embarque)
@@ -70,7 +70,7 @@ const headcargo = {
              CASE
                 WHEN Lms.Tipo_Operacao = 1 THEN COALESCE(CONVERT(VARCHAR, Lms.Data_Embarque, 23), CONVERT(VARCHAR, Lms.Data_Previsao_Embarque,23))
                 WHEN Lms.Tipo_Operacao = 2 THEN COALESCE(CONVERT(VARCHAR, Lms.Data_Desembarque,23), CONVERT(VARCHAR,Lms.Data_Previsao_Desembarque,23))
-                ELSE COALESCE(CONVERT(VARCHAR, Lms.Data_Embarque, 23), CONVERT(VARCHAR,Lms.Data_Previsao_Embarque,23))      
+                ELSE COALESCE(CONVERT(VARCHAR, Lms.Data_Embarque, 23), CONVERT(VARCHAR,Lms.Data_Previsao_Embarque,23))
              END AS Data_Compensacao_Convertido,
        
              Urf.Data_Frete,
@@ -136,7 +136,8 @@ const headcargo = {
                 WHEN Lhs.Situacao_Recebimento = 0 THEN 0
                 WHEN Lhs.Situacao_Recebimento = 1 THEN 1
                 WHEN Lhs.Situacao_Recebimento = 2 THEN 2
-                WHEN Lhs.Situacao_Recebimento = 3 AND Fcr.Status_Fatura = 'Quitado' THEN 3
+                WHEN Lhs.Situacao_Recebimento = 3 THEN 3
+                WHEN Lhs.Situacao_Recebimento = 3 AND Fcr.Status_Fatura = 'Quitado' AND Inc.Qtd_Fatura > 0 THEN 3
              END AS RecebimentoCodigo,
        
              Lhs.Data_Recebimento_Local AS Data_Recebimento,
@@ -166,8 +167,8 @@ const headcargo = {
        
              Lhs.Situacao_Acerto_Agente AS AgenteCodigo,
              Lhs.Data_Acerto_Agente AS Data_Agente,
-             (Lmo.Lucro_Estimado - COALESCE(Inc.Valor_Recebimento_Total, 0)) AS Valor_Estimado,
-             (Lmo.Lucro_Efetivo - COALESCE(Incbai.Valor_Recebimento_Total, 0)) AS Valor_Efetivo,
+             (Lmo.Lucro_Estimado - COALESCE(Inc.Valor_Recebimento_Total, 0)) AS Valor_Estimado,       
+             (Lmo.Lucro_Efetivo - COALESCE(Incbai.Valor_Recebimento_Total, 0)) AS Valor_Efetivo,      
        
              CASE
                 WHEN Lmo.Total_Recebimento = Lmo.Total_Recebido THEN 1
@@ -206,7 +207,7 @@ const headcargo = {
              LEFT OUTER JOIN
                 mov_Logistica_Fatura Lft ON Lft.IdLogistica_House = Ltx.IdLogistica_House
              LEFT OUTER JOIN
-                mov_Registro_Financeiro Rfn ON Rfn.IdRegistro_Financeiro = Lft.IdRegistro_Financeiro
+                mov_Registro_Financeiro Rfn ON Rfn.IdRegistro_Financeiro = Lft.IdRegistro_Financeiro  
              WHERE
                 Ltx.IdTaxa_Logistica_Exibicao IN (2,4,43,199,207,397,472)
              GROUP BY
@@ -232,7 +233,7 @@ const headcargo = {
              FROM
                 mov_Logistica_Fatura Lft
              LEFT OUTER JOIN
-                mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Lft.IdRegistro_Financeiro
+                mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Lft.IdRegistro_Financeiro    
              WHERE
                 Fnc.tipo = 1 --Fatura
              GROUP BY
@@ -246,7 +247,7 @@ const headcargo = {
              FROM
                 vis_Logistica_Fatura Lft
              LEFT OUTER JOIN
-                mov_Fatura_Financeira Ffn ON Ffn.IdRegistro_Financeiro = Lft.IdRegistro_Financeiro
+                mov_Fatura_Financeira Ffn ON Ffn.IdRegistro_Financeiro = Lft.IdRegistro_Financeiro    
              WHERE
                 Lft.Situacao = 1 -- EM ABERTO
              GROUP BY
@@ -272,8 +273,8 @@ const headcargo = {
              SELECT
                 Lft.IdLogistica_House,
                 CASE
-                      WHEN COUNT(CASE WHEN Lft.Situacao = 1 /* FATURA ABERTAS */ AND Lft.Natureza = 1 /*CREDITO*/ THEN 1 END) > 0 THEN 'Fatura_Aberta'
-                      ELSE 'Quitado'
+                   WHEN COUNT(CASE WHEN Lft.Situacao = 1 /* FATURA ABERTAS */ AND Lft.Natureza = 1 /*CREDITO*/ THEN 1 END) > 0 THEN 'Fatura_Aberta'
+                   ELSE 'Quitado'
                 END AS Status_Fatura
              FROM
                 vis_Logistica_Fatura Lft
@@ -285,29 +286,43 @@ const headcargo = {
           LEFT OUTER JOIN (
              SELECT
                 Ltx.IdLogistica_House,
-                SUM(Ltx.Valor_Recebimento_Total) AS Valor_Recebimento_Total
+                COUNT(Ltx.IdRegistro_Recebimento) AS Qtd_Fatura,
+                CASE
+                   WHEN Ltx.IdMoeda_Recebimento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Recebimento_Total * Lfc.Fator_Conversao), 2)
+                   ELSE Ltx.Valor_Recebimento_Total
+                END AS Valor_Recebimento_Total
              FROM
                 mov_Logistica_Taxa Ltx
+             LEFT OUTER JOIN
+                vis_Logistica_Fatura Vlf ON Vlf.IdRegistro_Financeiro = Ltx.IdRegistro_Recebimento
+             LEFT OUTER JOIN
+                mov_Logistica_Fatura_Conversao Lfc ON Lfc.IdLogistica_Fatura = Vlf.IdRegistro_Financeiro AND Ltx.IdMoeda_Recebimento = Lfc.IdMoeda_Origem
              WHERE
                 Ltx.IdTaxa_Logistica_Exibicao IN (245 /*INCENTIVO ASIA*/, 441/*INCENTIVO TERMINAL*/, 517/*INCENTIVO ASIA MARITIMO*/)
              GROUP BY
-                Ltx.IdLogistica_House
+                Ltx.IdLogistica_House,
+                Ltx.IdMoeda_Recebimento,
+                Ltx.Valor_Recebimento_Total,
+                Lfc.Fator_Conversao
           ) Inc ON Inc.IdLogistica_House = Lhs.IdLogistica_House
        
           -- Soma o valor das taxas de incentivo que estejam em faturas baixadas
           LEFT OUTER JOIN (
              SELECT
                 Ltx.IdLogistica_House,
-                SUM(Ltx.Valor_Recebimento_Total) AS Valor_Recebimento_Total
+                CASE
+                   WHEN Ltx.IdMoeda_Recebimento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Recebimento_Total * Lfc.Fator_Conversao), 2)
+                   ELSE Ltx.Valor_Recebimento_Total
+                END AS Valor_Recebimento_Total
              FROM
                 mov_Logistica_Taxa Ltx
              LEFT OUTER JOIN
-                mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Ltx.IdRegistro_Recebimento
+                vis_Logistica_Fatura Vlf ON Vlf.IdRegistro_Financeiro = Ltx.IdRegistro_Recebimento
+             LEFT OUTER JOIN
+                mov_Logistica_Fatura_Conversao Lfc ON Lfc.IdLogistica_Fatura = Vlf.IdRegistro_Financeiro AND Ltx.IdMoeda_Recebimento = Lfc.IdMoeda_Origem
              WHERE
                 Ltx.IdTaxa_Logistica_Exibicao IN (245 /*INCENTIVO ASIA*/, 441/*INCENTIVO TERMINAL*/, 517/*INCENTIVO ASIA MARITIMO*/)
-                AND Fnc.Situacao = 2 /*QUITADA*/
-             GROUP BY
-                Ltx.IdLogistica_House
+                AND Vlf.Situacao = 2 /*QUITADA*/
           ) Incbai ON Incbai.IdLogistica_House = Lhs.IdLogistica_House
        
           WHERE
@@ -318,11 +333,11 @@ const headcargo = {
              AND YEAR(Lhs.Data_Abertura_Processo) >= 2022
              AND Lmo.IdMoeda = 110
        )
-      SELECT 
+       SELECT
           *
-      FROM 
+       FROM
           CTE_Logistica
-      WHERE
+       WHERE
         ModalidadeCodigo IN (${modalidade})
         ${comissaoVendedor}
         ${ComissaoInside}

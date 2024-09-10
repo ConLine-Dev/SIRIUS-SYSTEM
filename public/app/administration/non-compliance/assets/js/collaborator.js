@@ -129,7 +129,9 @@ async function listAllOccurrences(){
     // Criar a nova tabela com os dados da API
     $('#all_occurrences_table').DataTable({
         dom: 'frtip',
-        pageLength: 5,
+        scrollY: '270px',  // Altura fixa com rolagem
+        scrollCollapse: false, // Permite a tabela colapsar caso tenha menos dados
+        paging: false, // Desativar paginação para usar rolagem
         order: [[0, 'desc']],
         data: dados,
         pageInfo: false,

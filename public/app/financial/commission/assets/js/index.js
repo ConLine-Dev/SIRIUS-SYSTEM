@@ -62,6 +62,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelector('#loader2').classList.add('d-none');
 
 
+    $('#staticBackdrop').modal('show')
+
+
 });
 
 /**
@@ -354,7 +357,7 @@ function createToast(title, text) {
  * Função para carregar os dados de vendas.
  */
 async function loadSales() {
-    const getSales = await makeRequest(`/api/headcargo/user/ByDep/62`); // Faz uma requisição para obter os dados de vendas
+    const getSales = await makeRequest(`/api/headcargo/user/ByDep/89`); // Faz uma requisição para obter os dados de vendas
 
     const options = getSales.map(sales => `<option value="${sales.IdFuncionario}">${formatarNome(sales.Nome)}</option>`); // Cria opções para cada venda
     const optionDefault = `<option value="000" selected>Sem seleção</option>`; // Cria uma opção padrão
@@ -380,7 +383,7 @@ async function loadSales() {
  * Função para carregar os dados de vendas internas.
  */
 async function loadInsideSales() {
-    const getSales = await makeRequest(`/api/headcargo/user/ByDep/75`); // Faz uma requisição para obter os dados de vendas internas
+    const getSales = await makeRequest(`/api/headcargo/user/ByDep/89`); // Faz uma requisição para obter os dados de vendas internas
     const options = getSales.map(sales => `<option value="${sales.IdFuncionario}">${formatarNome(sales.Nome)}</option>`); // Cria opções para cada venda interna
     const optionDefault = `<option value="000" selected>Sem seleção</option>`; // Cria uma opção padrão
     const listOfInside = document.getElementById('listOfInside'); // Seleciona o elemento de lista de vendas internas

@@ -125,16 +125,33 @@ const tickets = {
             'INSERT INTO called_ticket_categories (ticket_id, category_id) VALUES (?, ?)',
             [result.insertId, value.categories.id]
           );
-
-        const atribuido = value.atribuido;
-        for (let index = 0; index < atribuido.length; index++) {
-            const element = atribuido[index];
-
-           await executeQuery(
+        
+        if (value.atribuido > 0) {
+            const atribuido = value.atribuido;
+            for (let index = 0; index < atribuido.length; index++) {
+                const element = atribuido[index];
+                await executeQuery(
+                    'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
+                    [result.insertId, element.id]
+                );
+            }
+        } else {
+            await executeQuery(
                 'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
-                [result.insertId, element.id]
-              );
-            
+                [result.insertId, 1]
+             );
+             await executeQuery(
+                'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
+                [result.insertId, 2]
+             );
+             await executeQuery(
+                'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
+                [result.insertId, 3]
+             );
+             await executeQuery(
+                'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
+                [result.insertId, 35]
+             );
         }
 
 

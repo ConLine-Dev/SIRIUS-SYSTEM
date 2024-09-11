@@ -2,44 +2,60 @@ const express = require('express');
 const router = express.Router();
 const path = require("path");
 const fs = require('fs');
-const { user_tickets } = require('../controllers/user-tickets.js');
+const { userTickets } = require('../controllers/user-tickets.js');
 
 module.exports = function(io) {
-   // Cria Produto
-   router.post('/insertProduct', async (req, res, next) => {
-   const { formBody } = req.body;
+
+   router.get('/simplifiedTicketCategories', async (req, res, next) => {
       try {
-            const result = await Stock.insertProduct(formBody);
+            const result = await userTickets.simplifiedTicketCategories();
             res.status(200).json(result)
       } catch (error) {
-            console.log(error);
 
             res.status(404).json('Erro')
       }
    });
 
-   // Verifica se o produto já esta cadastrado
-   router.post('/getTop5Products', async (req, res, next) => {
-   const { productName } = req.body;
+   router.get('/simplifiedTicketSubcategories', async (req, res, next) => {
       try {
-            const result = await Stock.getTop5Products(productName);
+            const result = await userTickets.simplifiedTicketSubcategories();
             res.status(200).json(result)
       } catch (error) {
-            console.log(error);
 
             res.status(404).json('Erro')
       }
    });
 
    // Lista todos os colaboradores;
-   router.post('/getAllCollaborator', async (req, res, next) => {
+   router.get('/getAllCollaborator', async (req, res, next) => {
       try {
-         const result = await Stock.getAllCollaborator();
+         const result = await userTickets.getAllCollaborator();
 
          res.status(200).json(result)
       } catch (error) {
 
          res.status(404).json('Erro')
+      }
+   });
+
+   router.get('/getById', async (req, res, next) => {
+      const { id } = req.query
+      try {
+          const result = await userTickets.getById(id);
+  
+          res.status(200).json(result)
+      } catch (error) {
+          res.status(500).json(error);
+      }
+  });
+
+   router.post('/create', async (req, res, next) => {
+      try {
+         const result = await userTickets.create(req.body);
+
+         res.status(200).json(result)
+      } catch (error) {
+         res.status(500).json(error);
       }
    });
 

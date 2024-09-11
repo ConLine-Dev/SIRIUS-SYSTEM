@@ -1,0 +1,1093 @@
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Aba de Chamados</title>
+    <meta name="Description" content="Aba de chamados">
+    <meta name="Author" content="ConLine">
+
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    <!-- Color Picker Css -->
+    <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
+    <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+    <!-- Start Switcher -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="switcher-canvas" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title text-default" id="offcanvasRightLabel">Switcher</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <nav class="border-bottom border-block-end-dashed">
+                <div class="nav nav-tabs nav-justified" id="switcher-main-tab" role="tablist">
+                    <button class="nav-link active" id="switcher-home-tab" data-bs-toggle="tab"
+                        data-bs-target="#switcher-home" type="button" role="tab" aria-controls="switcher-home"
+                        aria-selected="true">Theme Styles</button>
+                    <button class="nav-link" id="switcher-profile-tab" data-bs-toggle="tab"
+                        data-bs-target="#switcher-profile" type="button" role="tab" aria-controls="switcher-profile"
+                        aria-selected="false" tabindex="-1">Theme Colors</button>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active border-0" id="switcher-home" role="tabpanel"
+                    aria-labelledby="switcher-home-tab" tabindex="0">
+                    <div class="">
+                        <p class="switcher-style-head">Theme Color Mode:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-light-theme"> Light </label>
+                                    <input class="form-check-input" type="radio" name="theme-style"
+                                        id="switcher-light-theme" checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-dark-theme"> Dark </label>
+                                    <input class="form-check-input" type="radio" name="theme-style"
+                                        id="switcher-dark-theme">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <p class="switcher-style-head">Directions:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-ltr"> LTR </label>
+                                    <input class="form-check-input" type="radio" name="direction" id="switcher-ltr"
+                                        checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-rtl"> RTL </label>
+                                    <input class="form-check-input" type="radio" name="direction" id="switcher-rtl">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <p class="switcher-style-head">Navigation Styles:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-vertical"> Vertical </label>
+                                    <input class="form-check-input" type="radio" name="navigation-style"
+                                        id="switcher-vertical" checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-horizontal"> Horizontal </label>
+                                    <input class="form-check-input" type="radio" name="navigation-style"
+                                        id="switcher-horizontal">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="navigation-menu-styles">
+                        <p class="switcher-style-head">Vertical &amp; Horizontal Menu Styles:</p>
+                        <div class="row switcher-style gx-0 pb-2 gy-2">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-menu-click"> Menu Click </label>
+                                    <input class="form-check-input" type="radio" name="navigation-menu-styles"
+                                        id="switcher-menu-click">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-menu-hover"> Menu Hover </label>
+                                    <input class="form-check-input" type="radio" name="navigation-menu-styles"
+                                        id="switcher-menu-hover">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-icon-click"> Icon Click </label>
+                                    <input class="form-check-input" type="radio" name="navigation-menu-styles"
+                                        id="switcher-icon-click">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-icon-hover"> Icon Hover </label>
+                                    <input class="form-check-input" type="radio" name="navigation-menu-styles"
+                                        id="switcher-icon-hover">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sidemenu-layout-styles">
+                        <p class="switcher-style-head">Sidemenu Layout Styles:</p>
+                        <div class="row switcher-style gx-0 pb-2 gy-2">
+                            <div class="col-sm-6">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-default-menu"> Default Menu </label>
+                                    <input class="form-check-input" type="radio" name="sidemenu-layout-styles"
+                                        id="switcher-default-menu" checked="">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-closed-menu"> Closed Menu </label>
+                                    <input class="form-check-input" type="radio" name="sidemenu-layout-styles"
+                                        id="switcher-closed-menu">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-icontext-menu"> Icon Text </label>
+                                    <input class="form-check-input" type="radio" name="sidemenu-layout-styles"
+                                        id="switcher-icontext-menu">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-icon-overlay"> Icon Overlay </label>
+                                    <input class="form-check-input" type="radio" name="sidemenu-layout-styles"
+                                        id="switcher-icon-overlay">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-detached"> Detached </label>
+                                    <input class="form-check-input" type="radio" name="sidemenu-layout-styles"
+                                        id="switcher-detached">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-double-menu"> Double Menu </label>
+                                    <input class="form-check-input" type="radio" name="sidemenu-layout-styles"
+                                        id="switcher-double-menu">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <p class="switcher-style-head">Page Styles:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-regular"> Regular </label>
+                                    <input class="form-check-input" type="radio" name="page-styles"
+                                        id="switcher-regular" checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-classic"> Classic </label>
+                                    <input class="form-check-input" type="radio" name="page-styles"
+                                        id="switcher-classic">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-modern"> Modern </label>
+                                    <input class="form-check-input" type="radio" name="page-styles"
+                                        id="switcher-modern">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <p class="switcher-style-head">Layout Width Styles:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-full-width"> Full Width </label>
+                                    <input class="form-check-input" type="radio" name="layout-width"
+                                        id="switcher-full-width" checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-boxed"> Boxed </label>
+                                    <input class="form-check-input" type="radio" name="layout-width"
+                                        id="switcher-boxed">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <p class="switcher-style-head">Menu Positions:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-menu-fixed"> Fixed </label>
+                                    <input class="form-check-input" type="radio" name="menu-positions"
+                                        id="switcher-menu-fixed" checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-menu-scroll"> Scrollable </label>
+                                    <input class="form-check-input" type="radio" name="menu-positions"
+                                        id="switcher-menu-scroll">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <p class="switcher-style-head">Header Positions:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-header-fixed"> Fixed </label>
+                                    <input class="form-check-input" type="radio" name="header-positions"
+                                        id="switcher-header-fixed" checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-header-scroll"> Scrollable </label>
+                                    <input class="form-check-input" type="radio" name="header-positions"
+                                        id="switcher-header-scroll">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <p class="switcher-style-head">Loader:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-loader-enable"> Enable </label>
+                                    <input class="form-check-input" type="radio" name="page-loader"
+                                        id="switcher-loader-enable">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-loader-disable"> Disable </label>
+                                    <input class="form-check-input" type="radio" name="page-loader"
+                                        id="switcher-loader-disable" checked="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade border-0" id="switcher-profile" role="tabpanel"
+                    aria-labelledby="switcher-profile-tab" tabindex="0">
+                    <div>
+                        <div class="theme-colors">
+                            <p class="switcher-style-head">Menu Colors:</p>
+                            <div class="d-flex switcher-style pb-2">
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-white" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="menu-colors" id="switcher-menu-light"
+                                        aria-label="Light Menu" data-bs-original-title="Light Menu">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-dark" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="menu-colors" id="switcher-menu-dark"
+                                        checked="" aria-label="Dark Menu" data-bs-original-title="Dark Menu">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-primary" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="menu-colors"
+                                        id="switcher-menu-primary" aria-label="Color Menu"
+                                        data-bs-original-title="Color Menu">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-gradient" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="menu-colors"
+                                        id="switcher-menu-gradient" aria-label="Gradient Menu"
+                                        data-bs-original-title="Gradient Menu">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-transparent"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" type="radio" name="menu-colors"
+                                        id="switcher-menu-transparent" aria-label="Transparent Menu"
+                                        data-bs-original-title="Transparent Menu">
+                                </div>
+                            </div>
+                            <div class="px-4 pb-3 text-muted fs-11">Note:If you want to change color Menu dynamically
+                                change from below Theme Primary color picker</div>
+                        </div>
+                        <div class="theme-colors">
+                            <p class="switcher-style-head">Header Colors:</p>
+                            <div class="d-flex switcher-style pb-2">
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-white" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="header-colors"
+                                        id="switcher-header-light" checked="" aria-label="Light Header"
+                                        data-bs-original-title="Light Header">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-dark" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="header-colors"
+                                        id="switcher-header-dark" aria-label="Dark Header"
+                                        data-bs-original-title="Dark Header">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-primary" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="header-colors"
+                                        id="switcher-header-primary" aria-label="Color Header"
+                                        data-bs-original-title="Color Header">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-gradient" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" type="radio" name="header-colors"
+                                        id="switcher-header-gradient" aria-label="Gradient Header"
+                                        data-bs-original-title="Gradient Header">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-transparent"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" type="radio"
+                                        name="header-colors" id="switcher-header-transparent"
+                                        aria-label="Transparent Header" data-bs-original-title="Transparent Header">
+                                </div>
+                            </div>
+                            <div class="px-4 pb-3 text-muted fs-11">Note:If you want to change color Header dynamically
+                                change from below Theme Primary color picker</div>
+                        </div>
+                        <div class="theme-colors">
+                            <p class="switcher-style-head">Theme Primary:</p>
+                            <div class="d-flex flex-wrap align-items-center switcher-style">
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-primary-1" type="radio"
+                                        name="theme-primary" id="switcher-primary">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-primary-2" type="radio"
+                                        name="theme-primary" id="switcher-primary1">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-primary-3" type="radio"
+                                        name="theme-primary" id="switcher-primary2">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-primary-4" type="radio"
+                                        name="theme-primary" id="switcher-primary3">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-primary-5" type="radio"
+                                        name="theme-primary" id="switcher-primary4">
+                                </div>
+                                <div class="form-check switch-select ps-0 mt-1 color-primary-light">
+                                    <div class="theme-container-primary">
+                                        <button class="">nano</button>
+                                    </div>
+                                    <div class="pickr-container-primary">
+                                        <div class="pickr">
+                                            <button type="button" class="pcr-button" role="button"
+                                                aria-label="toggle color picker dialog"
+                                                style="--pcr-color: rgba(132, 90, 223, 1);"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="theme-colors">
+                            <p class="switcher-style-head">Theme Background:</p>
+                            <div class="d-flex flex-wrap align-items-center switcher-style">
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-bg-1" type="radio"
+                                        name="theme-background" id="switcher-background">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-bg-2" type="radio"
+                                        name="theme-background" id="switcher-background1">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-bg-3" type="radio"
+                                        name="theme-background" id="switcher-background2">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-bg-4" type="radio"
+                                        name="theme-background" id="switcher-background3">
+                                </div>
+                                <div class="form-check switch-select me-3">
+                                    <input class="form-check-input color-input color-bg-5" type="radio"
+                                        name="theme-background" id="switcher-background4">
+                                </div>
+                                <div
+                                    class="form-check switch-select ps-0 mt-1 tooltip-static-demo color-bg-transparent">
+                                    <div class="theme-container-background">
+                                        <button>nano</button>
+                                    </div>
+                                    <div class="pickr-container-background">
+                                        <div class="pickr">
+                                            <button type="button" class="pcr-button" role="button"
+                                                aria-label="toggle color picker dialog"
+                                                style="--pcr-color: rgba(132, 90, 223, 1);"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="menu-image mb-3">
+                            <p class="switcher-style-head">Menu With Background Image:</p>
+                            <div class="d-flex flex-wrap align-items-center switcher-style">
+                                <div class="form-check switch-select m-2">
+                                    <input class="form-check-input bgimage-input bg-img1" type="radio"
+                                        name="theme-background" id="switcher-bg-img">
+                                </div>
+                                <div class="form-check switch-select m-2">
+                                    <input class="form-check-input bgimage-input bg-img2" type="radio"
+                                        name="theme-background" id="switcher-bg-img1">
+                                </div>
+                                <div class="form-check switch-select m-2">
+                                    <input class="form-check-input bgimage-input bg-img3" type="radio"
+                                        name="theme-background" id="switcher-bg-img2">
+                                </div>
+                                <div class="form-check switch-select m-2">
+                                    <input class="form-check-input bgimage-input bg-img4" type="radio"
+                                        name="theme-background" id="switcher-bg-img3">
+                                </div>
+                                <div class="form-check switch-select m-2">
+                                    <input class="form-check-input bgimage-input bg-img5" type="radio"
+                                        name="theme-background" id="switcher-bg-img4">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between canvas-footer flex-wrap">
+                    <a href="https://themeforest.net/item/ynex-bootstrap-admin-dashboard-template/45551445"
+                        class="btn btn-primary m-1">Buy Now</a>
+                    <a href="https://themeforest.net/user/spruko/portfolio" class="btn btn-secondary m-1">Our
+                        Portfolio</a>
+                    <a href="javascript:void(0);" id="reset-all" class="btn btn-danger m-1">Reset</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Switcher -->
+
+    <!-- Loader -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <!-- Loader -->
+    <div class="page">
+        <div class="main-content">
+            <div class="container-fluid">
+                <!-- BOTAO NOVO CHAMADO -->
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card custom-card">
+                            <div class="card-body p-3">
+                                <div class="row" style="display: flex !important; justify-content: space-between;">
+                                    <div class="col-6">
+                                        <div class="row">
+                                            <div class="col-3" style="width: 20% !important;margin-right: -20px;">
+                                                <button class="btn btn-primary me-2" data-bs-toggle="modal"
+                                                    data-bs-target="#add-task">
+                                                    <i class="ri-add-line me-1 fw-semibold align-middle"></i>
+                                                    Novo Chamado
+                                                </button>
+                                            </div>
+                                            <div class="col-4">
+                                                <button class="btn btn-primary me-2" data-bs-toggle="modal"
+                                                    data-bs-target="#add-simplified-task">
+                                                    <i class="ri-add-line me-1 fw-semibold align-middle"></i>
+                                                    Novo Chamado Simplificado
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="d-flex" role="search">
+                                            <input class="form-control me-2" id="btnPesquisa" type="search"
+                                                placeholder="Pesquisar" aria-label="Search">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUNAS -->
+                <div class="ynex-kanban-board">
+                    <div class="kanban-tasks-type new">
+                        <div class="pe-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="d-block fw-semibold fs-15">NOVOS</span>
+                                <div></div>
+                            </div>
+                        </div>
+                        <div class="kanban-tasks" id="new-tasks" data-simplebar="init">
+                            <div class="simplebar-wrapper" style="margin: 0px;">
+                                <div class="simplebar-height-auto-observer-wrapper">
+                                    <div class="simplebar-height-auto-observer"></div>
+                                </div>
+                                <div class="simplebar-mask">
+                                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                        <div class="simplebar-content-wrapper" tabindex="0" role="region"
+                                            aria-label="scrollable content"
+                                            style="height: auto; overflow: hidden scroll;">
+                                            <div class="simplebar-content" style="padding: 0px;">
+                                                <div class="defaultBodyTicket" id="new-tasks-draggable"
+                                                    data-view-btn="new-tasks">
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="simplebar-placeholder" style="width: auto; height: 832px;"></div>
+                            </div>
+                            <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                            </div>
+                            <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                                <div class="simplebar-scrollbar"
+                                    style="height: 376px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="kanban-tasks-type todo">
+                        <div class="pe-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="d-block fw-semibold fs-15">EM ANÁLISE</span>
+                                <div></div>
+                            </div>
+                        </div>
+                        <div class="kanban-tasks" id="todo-tasks" data-simplebar="init">
+                            <div class="simplebar-wrapper" style="margin: 0px;">
+                                <div class="simplebar-height-auto-observer-wrapper">
+                                    <div class="simplebar-height-auto-observer"></div>
+                                </div>
+                                <div class="simplebar-mask">
+                                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                        <div class="simplebar-content-wrapper" tabindex="0" role="region"
+                                            aria-label="scrollable content"
+                                            style="height: auto; overflow: hidden scroll;">
+                                            <div class="simplebar-content" style="padding: 0px;">
+                                                <div class="defaultBodyTicket" id="todo-tasks-draggable"
+                                                    data-view-btn="todo-tasks">
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="simplebar-placeholder" style="width: auto; height: 572px;"></div>
+                            </div>
+                            <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                            </div>
+                            <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                                <div class="simplebar-scrollbar"
+                                    style="height: 548px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="kanban-tasks-type in-progress">
+                        <div class="pe-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="d-block fw-semibold fs-15">EM ANDAMENTO</span>
+                                <div></div>
+                            </div>
+                        </div>
+                        <div class="kanban-tasks" id="inprogress-tasks" data-simplebar="init">
+                            <div class="simplebar-wrapper" style="margin: 0px;">
+                                <div class="simplebar-height-auto-observer-wrapper">
+                                    <div class="simplebar-height-auto-observer"></div>
+                                </div>
+                                <div class="simplebar-mask">
+                                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                        <div class="simplebar-content-wrapper" tabindex="0" role="region"
+                                            aria-label="scrollable content" style="height: auto;">
+                                            <div class="simplebar-content" style="padding: 0px;">
+                                                <div class="defaultBodyTicket" id="inprogress-tasks-draggable"
+                                                    data-view-btn="inprogress-tasks">
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="simplebar-placeholder" style="width: auto; height: 456px;"></div>
+                            </div>
+                            <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                            </div>
+                            <div class="simplebar-track simplebar-vertical" style="visibility: hidden;">
+                                <div class="simplebar-scrollbar" style="height: 0px; display: none;"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="kanban-tasks-type inreview">
+                        <div class="pe-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="d-block fw-semibold fs-15">EM REVISÃO</span>
+                                <div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="kanban-tasks" id="inreview-tasks" data-simplebar="init">
+                            <div class="simplebar-wrapper" style="margin: 0px;">
+                                <div class="simplebar-height-auto-observer-wrapper">
+                                    <div class="simplebar-height-auto-observer"></div>
+                                </div>
+                                <div class="simplebar-mask">
+                                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                        <div class="simplebar-content-wrapper" tabindex="0" role="region"
+                                            aria-label="scrollable content" style="height: auto;  overflow: auto;">
+                                            <div class="simplebar-content" style="padding: 0px;">
+                                                <div class="defaultBodyTicket" id="inreview-tasks-draggable"
+                                                    data-view-btn="inreview-tasks">
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="simplebar-placeholder" style="width: auto; height: 332px;"></div>
+                            </div>
+                            <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                            </div>
+                            <div class="simplebar-track simplebar-vertical" style="visibility: hidden;">
+                                <div class="simplebar-scrollbar" style="height: 0px; display: none;"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="kanban-tasks-type completed">
+                        <div class="pe-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="d-block fw-semibold fs-15">CONCLUÍDO</span>
+                                <div></div>
+                            </div>
+                        </div>
+                        <div class="kanban-tasks" id="completed-tasks" data-simplebar="init">
+                            <div class="simplebar-wrapper" style="margin: 0px;">
+                                <div class="simplebar-height-auto-observer-wrapper">
+                                    <div class="simplebar-height-auto-observer"></div>
+                                </div>
+                                <div class="simplebar-mask">
+                                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                        <div class="simplebar-content-wrapper" tabindex="0" role="region"
+                                            aria-label="scrollable content"
+                                            style="height: auto; overflow: hidden scroll;">
+                                            <div class="simplebar-content" style="padding: 0px;">
+                                                <div class="defaultBodyTicket" id="completed-tasks-draggable"
+                                                    data-view-btn="completed-tasks">
+
+
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="simplebar-placeholder" style="width: auto; height: 812px;"></div>
+                            </div>
+                            <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                            </div>
+                            <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                                <div class="simplebar-scrollbar"
+                                    style="height: 386px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- MODAL NOVO CHAMADO-->
+                <div class="modal fade" id="add-task" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title">Novo Chamado ou Projeto</h6>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body px-4">
+                                <div class="row gy-2">
+                                    <div class="col-xl-12">
+                                        <label for="task-name" class="form-label">Título</label>
+                                        <input type="text" class="form-control" name="title" placeholder="Título">
+                                    </div>
+
+                                    <div class="col-xl-12">
+                                        <label class="form-label">Responsável</label>
+                                        <select class="form-control" name="responsible" id="selectResponsible" disabled></select>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        <label for="text-area" class="form-label">Descrição</label>
+                                        <textarea class="form-control" name="description" rows="2"
+                                            placeholder="Escreva uma descrição"></textarea>
+                                    </div>
+
+                                    <div class="col-xl-12">
+                                        <label class="form-label">Categoria</label>
+                                        <select class="form-control" name="categories">
+                                            <option placeholder>Selecione uma categoria</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-xl-12" style="display: none">
+                                        <label class="form-label">Atribuído a</label>
+                                        <select class="form-control choices__input" multiple name="atribuido">
+                                            <option placeholder>Selecione a quem atribuir</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-xl-6" style="display: none">
+                                        <label class="form-label">Previsão de Inicio</label>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-text text-muted"><i
+                                                        class="ri-calendar-line"></i></div>
+                                                <input type="text" class="form-control flatpickr-input targetDate"
+                                                    name="timeInit" id="targetDate" placeholder="Escolha a data e hora"
+                                                    readonly="readonly">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6" style="display: none">
+                                        <label class="form-label">Previsão de Fim</label>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-text text-muted"><i
+                                                        class="ri-calendar-line"></i></div>
+                                                <input type="text" class="form-control flatpickr-input targetDate"
+                                                    name="timeEnd" id="targetDate" placeholder="Escolha a data e hora"
+                                                    readonly="readonly">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-6" style="display: none">
+                                        <label class="form-label">Finalizado em</label>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-text text-muted"><i
+                                                        class="ri-calendar-line"></i></div>
+                                                <input type="text" class="form-control flatpickr-input targetDate"
+                                                    name="finished_at" id="targetDate"
+                                                    placeholder="Escolha a data e hora" readonly="readonly">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-12" style="display: none;">
+                                        <label for="text-area" class="form-label">Arquivos/Imagem</label>
+
+                                        <input type="file" class="multiple-filepond" name="filepond" multiple
+                                            data-allow-reorder="true" data-max-file-size="3MB" data-max-files="3">
+
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+
+                                <button type="button" id="ButtonAddTicket" class="btn btn-primary">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODAL NOVO CHAMADO SIMPLIFICADO-->
+                <div class="modal fade" id="add-simplified-task" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title">Novo Chamado Simplificado</h6>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body px-4">
+                                <div class="row gy-2">
+                                    <div class="col-xl-12">
+                                        <label for="task-name" class="form-label">Estou com problema em um</label>
+                                        <div class="row" style="justify-content: space-around;" id="simplifiedCategories">
+                                            <!-- ADD PELO JS -->
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        <label for="task-name" class="form-label">Preciso de suporte com</label>
+                                        <div class="row" style="justify-content: space-around;" id="simplifiedSubcategories">
+                                            <!-- ADD PELO JS -->
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        <label for="text-area" class="form-label">Descrição (Opcional)</label>
+                                        <textarea class="form-control" name="description" rows="2" id="simplifiedDescription"
+                                            placeholder="Escreva uma descrição"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+
+                                <button type="button" id="ButtonAddSimplifiedTicket" class="btn btn-primary">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODAL EDITAR CHAMADO -->
+                <div class="modal fade" id="edit-task" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" style="max-width: 50%;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title">Novo Chamado ou Projeto</h6>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body px-4">
+                                <div class="row" style="margin-right: -37px;">
+                                    <div class="col-7">
+                                        <div class="row gy-2">
+
+                                            <div class="col-xl-12">
+                                                <label for="task-name" class="form-label">Título</label>
+                                                <input type="text" class="form-control" name="edit_title"
+                                                    placeholder="Título" disabled>
+                                            </div>
+
+                                            <div class="col-xl-12">
+                                                <label class="form-label">Responsável</label>
+                                                <select class="form-control" name="edit_responsible" disabled>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-xl-12">
+                                                <label for="text-area" class="form-label">Descrição</label>
+                                                <textarea class="form-control" name="edit_description" rows="2"
+                                                    placeholder="Escreva uma descrição" disabled></textarea>
+                                            </div>
+
+                                            <div class="col-xl-12">
+                                                <label class="form-label">Categoria</label>
+                                                <select class="form-control" name="edit_categories" disabled>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-xl-12">
+                                                <label class="form-label">Atribuído a</label>
+                                                <select class="form-control choices__input" multiple
+                                                    name="edit_atribuido" disabled>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-xl-6">
+                                                <label class="form-label">Previsão de Inicio</label>
+                                                <input type="text" class="form-control" name="edit_timeInit" disabled>
+                                            </div>
+                                        
+                                            <div class="col-xl-6">
+                                                <label class="form-label">Previsão de Fim</label>
+                                                <input type="text" class="form-control" name="edit_timeEnd" disabled>
+                                            </div>
+                                        
+                                            <div class="col-xl-6">
+                                                <label class="form-label">Finalizado em</label>
+                                                <input type="text" class="form-control" name="edit_finished_at" disabled>
+                                            </div>
+
+                                            <div class="col-xl-12" style="display: none;">
+                                                <label for="text-area" class="form-label">Arquivos/Imagem</label>
+
+                                                <input type="file" class="multiple-filepond" name="filepond" multiple
+                                                    data-allow-reorder="true" data-max-file-size="3MB"
+                                                    data-max-files="3">
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-5 main-chart-wrapper p-2 gap-2 d-lg-flex">
+                                        <div class="main-chat-area border" style="height: auto;margin-left: 11px;">
+
+                                            <div class="chat-content" id="main-chat-content" data-simplebar="init">
+                                                <div class="simplebar-wrapper">
+                                                    <div class="simplebar-height-auto-observer-wrapper">
+                                                        <div class="simplebar-height-auto-observer"></div>
+                                                    </div>
+                                                    <div class="simplebar-mask">
+                                                        <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                                            <div class="simplebar-content-wrapper cardScrollMessage"
+                                                                tabindex="0" role="region"
+                                                                aria-label="scrollable content"
+                                                                style="height: auto; overflow: hidden;">
+                                                                <div class="simplebar-content" style="padding: 10px;">
+                                                                    <ul class="list-unstyled chat-ticket">
+                                                                        <!-- <li class="chat-item-start">
+                                                                        <div class="chat-list-inner">
+              
+                                                                            <div class="ms-3"> <span class="chatting-user-info"> <span class="chatnameperson">Emiley Jackson</span> <span class="msg-sent-time">11:48PM</span> </span>
+                                                                                <div class="main-chat-msg">
+                                                                                    <div>
+                                                                                        <p class="mb-0">Nice to meet you 😀</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </li> -->
+                                                                        <!-- <li class="chat-item-start">
+                                                                        <div class="chat-list-inner">
+                                                
+                                                                            <div class="ms-3"> <span class="chatting-user-info chatnameperson"> Emiley Jackson <span class="msg-sent-time">11:45PM</span> </span>
+                                                                                <div class="main-chat-msg">
+                                                                                    <div>
+                                                                                        <p class="mb-0">Happy to talk with you,chat you later 👋</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </li> -->
+                                                                        <!-- <li class="chat-item-end">
+                                                                        <div class="chat-list-inner">
+                                
+                                                                            <div class="ms-3"> <span class="chatting-user-info chatnameperson"> Petryck William <span class="msg-sent-time">11:45PM</span> </span>
+                                                                                <div class="main-chat-msg">
+                                                                                    <div>
+                                                                                        <p class="mb-0">Entrei em contato com o responsavel e o mesmo solicitou que o aguardasse quando estivesse no escritório 👋</p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </li> -->
+                                                                    </ul>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="simplebar-placeholder"
+                                                        style="width: auto; height: 251px;"></div>
+                                                </div>
+                                                <div class="simplebar-track simplebar-horizontal"
+                                                    style="visibility: hidden;">
+                                                    <div class="simplebar-scrollbar" style="width: 0px; display: none;">
+                                                    </div>
+                                                </div>
+                                                <div class="simplebar-track simplebar-vertical"
+                                                    style="visibility: hidden;">
+                                                    <div class="simplebar-scrollbar"
+                                                        style="height: 0px; transform: translate3d(0px, 9px, 0px); display: none;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="chat-footer">
+                                                <input class="form-control inputMessage"
+                                                    placeholder="Digite sua mensagem aqui..." type="text">
+
+                                                <a style="margin-left: 5px;" aria-label="anchor"
+                                                    class="btn btn-primary btn-icon btn-send" id="ButtonAddMessage"
+                                                    href="javascript:void(0)"> <i class="ri-send-plane-2-line"></i> </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" id="ButtonRemoveTicket"
+                                    style="float: left;left: 20px;position: absolute;"
+                                    class="btn btn-primary">Remover</button>
+                                <button type="button" id="ButtonSaveTicket" class="btn btn-primary">Salvar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+
+    <!-- Scroll To Top -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"
+        integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <!-- Popper JS -->
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Defaultmenu JS -->
+    <!-- <script src="../../assets/js/defaultmenu.min.js"></script> -->
+
+    <!-- Node Waves JS-->
+    <script src="../../assets/libs/node-waves/waves.min.js"></script>
+
+    <!-- Color Picker JS -->
+    <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+    <!-- Custom-Switcher JS -->
+    <script src="../../assets/js/custom-switcher.min.js"></script>
+
+    <!-- Filepond JS -->
+    <script src="../../assets/libs/filepond/filepond.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js"></script>
+    <script
+        src="../../assets/libs/filepond-plugin-image-exif-orientation/filepond-plugin-image-exif-orientation.min.js"></script>
+    <script
+        src="../../assets/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-file-encode/filepond-plugin-file-encode.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.js"></script>
+    <script
+        src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
+
+    <script
+        src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
+
+    <script src="../../assets/libs/filepond-plugin-image-crop/filepond-plugin-image-crop.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-resize/filepond-plugin-image-resize.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-transform/filepond-plugin-image-transform.min.js"></script>
+    <!-- Flat Picker JS -->
+    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+    <script src="../../assets/libs/flatpickr/pt.js"></script>
+
+    <!-- Dragula JS -->
+    <script src="../../assets/libs/dragula/dragula.min.js"></script>
+
+    <script src="../../assets/libs/select2/select2.min.js"></script>
+
+    <!-- Internal Task  JS -->
+    <script src="../../assets/js/task-kanban-board.js"></script>
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="./assets/js/index.js"></script>
+
+    <!-- Custom JS -->
+    <script src="../../assets/js/custom.js"></script>
+</body>
+
+</html>

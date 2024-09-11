@@ -57,80 +57,78 @@
                     <div class="card-header">
                         <div class="card-title fw-semibold fs-14"> Controle Extratos </div>
                     </div>
-                    <div class="card-body">
-                <table id="Certifications" class="table text-nowrap table-bordered">
-                    <thead>
-                        
-                        <tr>
-                            <th scope="col">CPF/CNPJ
-                                <label for="cnpj-cpf" class="form-label mandatory required" id="cpfCnpj"  title="Campo Obrigatório">*</label>
-                            </th>
-                            <th scope="col">Nome do emissor</th>
-                            <th scope="col">Valor R$</th>
-                            <th scope="col">Data pagamento</th>
-                            <th scope="col">Extrato referente a</th>
-                            <th scope="col">Ação</th>
-                        </tr>
-                        <tr>
-                            <th scope="col">
-                                <input type="cnpj-cpf" class="form-control" id="cpfCnpj" placeholder="Digite o CPF/CNPJ">
-                            </th>
-                            <th scope="col">
-                                <input type="name" class="form-control" id="name" placeholder="Razão social" disabled="true">
-                            </th>
-                            <th scope="col">
-                                <input type="value" class="form-control" id="value" placeholder="Digite o valor">
-                            </th>
-                            <th scope="col">
-                                <input type="date" class="form-control" id="date" placeholder="Digite a data">
-                            </th>
-                            <th scope="col">
-                                <input type="text" class="form-control" id="receipt" placeholder="Digite um nome">
-                            </th>
-                            <th scope="col">
-                                <input type="file" class="form-control" id="action" placeholder="anexo">
-                            </th>
-                            <th scope="col" class="cardButtonsCertifications">
-                                <button type="button" class="btn btn-primary" onclick="addCertification()"  id="intro-bottom-new">
-                                    <i class="ri-add-line me-1 fw-semibold align-middle"></i>Adicionar
-                                </button>
-                                <button type="button" style="display: none;" onclick="saveCertification()" class="btn btn-icon btn-primary-light btn_save">
-                                    <i class="ri-save-line"></i>
-                                </button>
-                                <button type="button" style="display: none;" onclick="cancelCertification()" class="btn btn-icon btn-primary-light btn_cancel">
-                                    <i class="ri-close-line"></i>
-                                </button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th class="">47.960.950/0001-21</th>
-                            <th class="">Magazine Luiza S.A.</th>
-                            <th class="">R$ 500,00</th>
-                            <td><span class="badge bg-purple-transparent"><i class="bi bi-clock me-1"></i>06/09/2024</span></td>
-                            <th class="">Compras de notbook</th>
-                            <td>
-                                <div class="hstack gap-2 fs-15"> 
-                                    <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon waves-effect waves-light btn-sm btn-success-light" title="Download"><i class="ri-download-2-line"></i></a>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="">59.291.534/0843-28</th>
-                            <th class="">CASA BAHIA COMERCIAL LTDA.</th>
-                            <th class="">R$ 500,00</th>
-                            <td><span class="badge bg-purple-transparent"><i class="bi bi-clock me-1"></i>09/09/2024</span></td>
-                            <th class="">Compras de celular</th>
-                            <td>
-                                <div class="hstack gap-2 fs-15"> 
-                                    <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon waves-effect waves-light btn-sm btn-success-light" title="Download"><i class="ri-download-2-line"></i></a>
-                                </div>
-                            </td>
-                        </tr>
-                        
-                    </tbody>
-                </table>
+                        <div class="card-body">
+                            <table id="Certifications" class="table text-nowrap table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">CPF/CNPJ
+                                            <label for="cnpj-cpf" class="form-label mandatory required" id="cpfCnpj"  title="Campo Obrigatório">*</label>
+                                        </th>
+                                        <th scope="col">Nome do emissor</th>
+                                        <th scope="col">Valor R$</th>
+                                        <th scope="col">Data pagamento</th>
+                                        <th scope="col">Extrato referente a</th>
+                                        <th scope="col">Ação</th>
+                                    </tr>
+                                    <tr>
+                                        <th scope="col">
+                                            <input type="cnpj-cpf" class="form-control" id="cpfCnpj" placeholder="Digite o CPF/CNPJ">
+                                        </th>
+                                        <th scope="col">
+                                            <input type="name" class="form-control" id="name" placeholder="Razão social" disabled="true">
+                                        </th>
+                                        <th scope="col">
+                                            <input type="value" class="form-control" id="value" placeholder="Digite o valor">
+                                        </th>
+                                        <th scope="col">
+                                            <input type="date" class="form-control" id="date" placeholder="Digite a data">
+                                        </th>
+                                        <th scope="col">
+                                            <input type="text" class="form-control" id="receipt" placeholder="Digite um nome">
+                                        </th>
+                                        <th scope="col">
+                                            <input type="file" class="form-control" id="action" placeholder="anexo">
+                                        </th>
+                                        <th scope="col" class="cardButtonsCertifications">
+                                            <button type="button" class="btn btn-primary" onclick="addCertification()"  id="intro-bottom-new">
+                                                <i class="ri-add-line me-1 fw-semibold align-middle"></i>Adicionar
+                                            </button>
+                                            <button type="button" style="display: none;" onclick="saveCertification()" class="btn btn-icon btn-primary-light btn_save">
+                                                <i class="ri-save-line"></i>
+                                            </button>
+                                            <button type="button" style="display: none;" onclick="cancelCertification()" class="btn btn-icon btn-primary-light btn_cancel">
+                                                <i class="ri-close-line"></i>
+                                            </button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th class="">47.960.950/0001-21</th>
+                                            <th class="">Magazine Luiza S.A.</th>
+                                            <th class="">R$ 500,00</th>
+                                            <td><span class="badge bg-purple-transparent"><i class="bi bi-clock me-1"></i>06/09/2024</span></td>
+                                            <th class="">Compras de notbook</th>
+                                            <td>
+                                                <div class="hstack gap-2 fs-15"> 
+                                                    <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon waves-effect waves-light btn-sm btn-success-light" title="Download"><i class="ri-download-2-line"></i></a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="">59.291.534/0843-28</th>
+                                            <th class="">CASA BAHIA COMERCIAL LTDA.</th>
+                                            <th class="">R$ 500,00</th>
+                                            <td><span class="badge bg-purple-transparent"><i class="bi bi-clock me-1"></i>09/09/2024</span></td>
+                                            <th class="">Compras de celular</th>
+                                            <td>
+                                                <div class="hstack gap-2 fs-15"> 
+                                                    <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon waves-effect waves-light btn-sm btn-success-light" title="Download"><i class="ri-download-2-line"></i></a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                            </table>
                     </div>
                 </div>
             </div>

@@ -1,4 +1,5 @@
 body{
+  overflow: hidden !important;
   user-select: none;
 }
 
@@ -79,3 +80,45 @@ textarea {
   border-color: transparent !important;
   /* border-color: light-dark(rgba(118, 118, 118, 0.3), rgba(195, 195, 195, 0.3)) !important; */
 }
+
+.table-responsive {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px;
+  padding-bottom: 0;
+}
+
+.file-manager-container {
+  width: 101vw; /* 100% da largura da viewport */
+  height: 100vh; /* 100% da altura da viewport */
+  display: flex; /* Flexbox para alinhar o conteúdo (se necessário) */
+  justify-content: center; /* Centraliza o conteúdo horizontalmente */
+}
+
+.table td, .table th {
+  padding: 6px;
+}
+
+.simplebar-content-wrapper {
+  height: calc(100% - 385px);
+}
+
+
+
+.btn-create-folder {
+  font-size: 30px;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.documents-recent {
+  margin-bottom: 0 !important;
+}
+
+

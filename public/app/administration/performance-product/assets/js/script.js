@@ -66,6 +66,47 @@ async function setInfosLogin(StorageGoogle) {
 // Variaveis globais para receber as datas do filtro de datas
 let startDateGlobal, endDateGlobal, filterType;
 
+// Função que cria o select para selecionar o tipo de carga
+let selectClient;
+async function createSelectClient(data) {
+   // Formate o array para ser usado com o Choices.js
+   const options = data.map(function(element) {
+      return {
+         value: `${element.IdPessoa}`,
+         label: `${element.Nome}`,
+      };
+   });
+
+   // verifica se o select ja existe, caso exista destroi
+   if (selectClient) {
+      selectClient.destroy();
+   }
+
+   // renderiza o select com as opções formatadas
+   selectClient = new Choices('#selectClient', {
+      choices: options,
+      allowHTML: true,
+      allowSearch: true,
+      shouldSort: false,
+      removeItemButton: true,
+      noChoicesText: 'Não há opções disponíveis',
+      noResultsText: 'Não há opções disponíveis'
+   });
+};
+
+// Função para pegar as opções selecionadas do Select Situacao Agenciamento
+async function getSelectClient() {
+   if (selectClient && selectClient.getValue(true).length === 0) {
+      return undefined;
+   } else {
+      // Usar o método getValue() para pegar os valores selecionados
+      const selectedValues = selectClient.getValue(true);
+      // Transformar o array em uma string com os valores entre parênteses e separados por virgula
+      const formattedValues = `(${selectedValues.map(value => `${value}`).join(', ')})`
+      return formattedValues;
+   }
+};
+
 // Função que cria o select para selecionar a situacao do agenciamento
 let selectAgencySituation;
 async function createSelectAgencySituation() {
@@ -279,10 +320,10 @@ async function average_profit_process(data) {
    const total_received = data.reduce((acumulator, element) => {
       return acumulator + element.Lucro_Estimado
    }, 0);
+   
+   const total_process = data.length || 0;
 
-   const total_process = data.length;
-
-   const average_profit = total_received / total_process;
+   const average_profit = total_process > 0 ? (total_received / total_process) : 0;
 
    const text_average_profit = document.getElementById('text-profit-process');
    text_average_profit.textContent = `${average_profit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})}`;
@@ -810,6 +851,7 @@ async function eventClick() {
       const selectAgencySituation = await getSelectAgencySituation(); // Armazena todas as situacao de agenciamento Selecionadas
       const selectModal = await getSelectModal(); // Armazena todos os modais Selecionadas
       const selectTypeLoad = await getSelectTypeLoad(); // Armazena todos os tipos de carga Selecionadas
+      const selectClients = await getSelectClient(); // Armazena todos os tipos de carga Selecionadas
 
       // Pegar o filtro de tipo pessoa, se é PJ ou PF
       const yesCourier = document.getElementById('yesCourier').checked ? 1 : 0;
@@ -821,7 +863,7 @@ async function eventClick() {
       // Tela de carregando 'add=quando vc fecha algo/remove=quando vc abre algo'
       document.querySelector('#loader2').classList.remove('d-none')
 
-      const getResults = await makeRequest('/api/performance-products/listResults', 'POST', {startDate: startDateGlobal, endDate: endDateGlobal, selectAgencySituation: selectAgencySituation, selectModal: selectModal, selectTypeLoad: selectTypeLoad, courier: courier});
+      const getResults = await makeRequest('/api/performance-products/listResults', 'POST', {startDate: startDateGlobal, endDate: endDateGlobal, selectAgencySituation: selectAgencySituation, selectModal: selectModal, selectTypeLoad: selectTypeLoad, courier: courier, selectClients: selectClients});
 
       // CHAMA AS FUNÇÕES
       await profit(getResults);
@@ -859,6 +901,7 @@ window.addEventListener("load", async () => {
    const StorageGoogle = await getInfosLogin();
    await setInfosLogin(StorageGoogle)
    
+   const getClients = await makeRequest('/api/performance-products/listClients', 'POST');
    const getResults = await makeRequest('/api/performance-products/listResults', 'POST');
 
    await createSelectAgencySituation();
@@ -874,6 +917,7 @@ window.addEventListener("load", async () => {
    await profitModalChart(getResults);
    await profitTypeLoadChart(getResults);
    await avaregaProfitModalChart(getResults);
+   await createSelectClient(getClients);
 
    await eventClick();
    await initializeDatePicker();

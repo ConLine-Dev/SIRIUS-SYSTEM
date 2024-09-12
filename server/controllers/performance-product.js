@@ -4,12 +4,13 @@ const currentYear = new Date().getFullYear();
 
 const PerformanceProducts = {
    // Lista todos os processos e lucros;
-   listResults: async function(startDate, endDate, selectAgencySituation, selectModal, selectTypeLoad, courier){
+   listResults: async function(startDate, endDate, selectAgencySituation, selectModal, selectTypeLoad, courier, selectClients){
       const couriers = courier === '(1,0)' ? 'AND Lms.IdCompanhia_Transporte IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/)' : courier === '(0,1)' ? 'AND Lms.IdCompanhia_Transporte NOT IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/)' : courier === '(1,1)' ? '' : '';
       const filterDate = startDate && endDate ? `AND (Lhs.Data_Abertura_Processo BETWEEN '${startDate}' AND '${endDate}')` : `AND DATEPART(YEAR, Lhs.Data_Abertura_Processo) = ${currentYear}`;
       const agencySituation = selectAgencySituation ? `AND Lhs.Situacao_Agenciamento IN ${selectAgencySituation}` : '';
       const typeLoad = selectTypeLoad ? `AND Lhs.Tipo_Carga IN ${selectTypeLoad}` : '';
       const modal = selectModal ? `AND Mdl.Modalidade IN ${selectModal}` : ''
+      const clients = selectClients ? `AND Lhs.IdCliente IN ${selectClients}` : '';
       
       let result = await executeQuerySQL(`
          WITH modalidade AS (
@@ -35,6 +36,8 @@ const PerformanceProducts = {
             FORMAT(Lhs.Data_Abertura_Processo, 'yyyy-MM-dd') AS Data_Abertura_Processo,
             Cia.Nome AS Cia_Transporte,
             Lhs.Numero_Processo,
+
+            Cli.Nome AS Cliente,
             
             COALESCE(
                CASE
@@ -94,6 +97,8 @@ const PerformanceProducts = {
             mov_Logistica_Maritima_House Lmh on Lmh.IdLogistica_House = Lhs.IdLogistica_House
          LEFT OUTER JOIN
             mov_Logistica_Moeda Lmd ON Lmd.IdLogistica_House = Lhs.IdLogistica_House
+         LEFT OUTER JOIN
+            cad_Pessoa Cli ON Cli.IdPessoa = Lhs.IdCliente
          WHERE
             Lhs.Numero_Processo NOT LIKE ('%DEMU%')
             AND Lhs.Numero_Processo NOT LIKE ('%test%')
@@ -103,10 +108,32 @@ const PerformanceProducts = {
             ${agencySituation}
             ${typeLoad}
             ${modal}
+            ${clients}
             `);
    
          // Retornar um objeto contendo os dois resultados
          return result
+   },
+
+   // Lista todos os processos e lucros;
+   listClients: async function(){
+      let result = await executeQuerySQL(`
+         SELECT
+            Psa.IdPessoa,
+            Psa.Nome
+         FROM
+            cad_Cliente Cli
+         JOIN
+            cad_Pessoa Psa ON Psa.IdPessoa = Cli.IdPessoa
+         WHERE
+            Psa.Ativo = 1
+            AND Psa.Nome NOT LIKE '%INATIVO%'
+         ORDER BY
+            Psa.Nome
+      `);
+   
+      // Retornar um objeto contendo os dois resultados
+      return result
    },
 }
 

@@ -81,14 +81,14 @@ textarea {
   /* border-color: light-dark(rgba(118, 118, 118, 0.3), rgba(195, 195, 195, 0.3)) !important; */
 }
 
-.table-responsive {
+/* .table-responsive {
   position: fixed;
-  bottom: 0;
+  bottom: -50;
   left: 0;
   width: 100%;
   padding: 10px;
   padding-bottom: 0;
-}
+} */
 
 .file-manager-container {
   width: 101vw; /* 100% da largura da viewport */
@@ -118,7 +118,20 @@ textarea {
 }
 
 .documents-recent {
-  margin-bottom: 0 !important;
+  /* position: fixed; */
+  /* bottom: -50; */
+  left: 0;
+  width: 100%;
+  /* padding: 20px; */
+  padding-bottom: 10px;
 }
+
+.documents-recent-container{
+  bottom: 0;
+  width: 100%;
+  position: absolute;
+}
+
+
 
 

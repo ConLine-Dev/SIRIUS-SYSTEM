@@ -1,4 +1,4 @@
-const fetch = require('node-fetch');
+// const fetch = require('node-fetch');
 
 const api = {
    // Pega os dados da pessoa pessada por parametro

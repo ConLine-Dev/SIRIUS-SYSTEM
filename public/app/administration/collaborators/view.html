@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Controle de Comissões</title>
+    <title>Cadastro de Colaborador</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
@@ -38,19 +38,15 @@
     <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.min.css">
 
     <!-- <link rel="stylesheet" href="../../assets/libs/quill/quill.snow.css">
     <link rel="stylesheet" href="../../assets/libs/quill/quill.bubble.css"> -->
     <link rel="stylesheet" href="https://cdn.quilljs.com/2.0.0-dev.2/quill.snow.css">
     <link rel="stylesheet" href="https://cdn.quilljs.com/2.0.0-dev.2/quill.bubble.css">
-
-
-    <link rel="stylesheet" href="../../assets/libs/sweetalert2/sweetalert2.min.css">
     
     
 
-    <link rel="stylesheet" href="./assets/css/index.css">
+    <link rel="stylesheet" href="./assets/css/view.css">
     <meta http-equiv="imagetoolbar" content="no">
 </head>
 
@@ -502,456 +498,574 @@
         </div>
     </div>
     <!-- End Switcher -->
-    <!-- Loader -->
-    <div id="loader2">
+    <!-- <div id="loader" style="display: none;">
         <img src="../../assets/images/media/loader.svg" alt="">
-    </div>
+    </div> -->
+    <!-- Loader -->
+    <!-- <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div> -->
 
     <!-- <div id="loader" class="">
         <img src="../../assets/images/media/loader.svg" alt="">
     </div> -->
     <!-- Loader -->
+
     <div class="">
         <!-- app-header -->
 
         <!-- /app-header -->
         <!-- End::app-sidebar -->
         <!-- Start::app-content -->
-        <div class="main-content">
-            <div class="container-fluid">
+        <div class="">
+            <div class="">
+              
                 <div class="row">
-                    <div class="col-2">
-                       <div class="file-manager-container">
-                        <div class="file-manager-navigation">
-                            <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
-                                <div>
-                                    <h6 class="fw-semibold mb-0">Controle de Comissões</h6> </div>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-icon btn-primary-light btn-wave waves-light waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="ri-settings-3-line"></i> </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="/app/financial/commission_history/">Todos Registros</a></li>
-                                        <!-- <li><a class="dropdown-item" href="javascript:void(0);">Another action</a></li>
-                                        <li><a class="dropdown-item" href="javascript:void(0);">Something else here</a></li> -->
-                                    </ul>
-                                </div>
-                            </div>
-                       
-                      
-                                <ul class="list-unstyled files-main-nav" id="files-main-nav" data-simplebar="init">
-                                    <div class="simplebar-wrapper" >
-                                        <div class="simplebar-height-auto-observer-wrapper">
-                                            <div class="simplebar-height-auto-observer"></div>
-                                        </div>
-                                        <div class="simplebar-mask">
-                                            <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
-                                                <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
-                                                    <div class="simplebar-content" style="padding: 16px;padding-bottom: 81px;">
-                                                        <li class="files-type">
-                                                          
-                                                                <label for="input-date" class="form-label">De:</label> 
-                                                                <input type="date" class="form-control" id="dataDe"> 
+                    <div class="col-xl-12">
+                        <div class="card custom-card bodyWindows">
 
-                                                              
-                                                          
-                                                        </li>
-                                                        <li class="files-type">
-                                                            <label for="input-date" class="form-label">Até:</label> 
-                                                            <input type="date" class="form-control" id="dataAte"> 
-                                                        </li>
-                                                        <li class="files-type">
-                                                            <label for="input-date" class="form-label">Vendedor:</label> 
-                                                            <select name="" id="listOfSales" class="form-control" id="vendedorID"></select>
-                                                        </li>
-                                                        <li class="files-type">
-                                                            <label for="input-date" class="form-label">Inside Sales:</label> 
-                                                            <select name="" id="listOfInside" class="form-control" id="InsideID"></select>
-                                                        </li>
-                                                        <li class="files-type">
-                                                            <label for="input-date" class="form-label">Recebimento:</label> 
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 recebimento" type="checkbox" value="0" > 
-                                                                <label class="form-check-label" for="c-1"> Sem recebimento </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 recebimento" type="checkbox" value="1" > 
-                                                                <label class="form-check-label" for="c-1"> Em aberto </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 recebimento" type="checkbox" value="2" > 
-                                                                <label class="form-check-label" for="c-1"> Parcialmente recebido </label>
-                                                            </div>
-
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 recebimento" type="checkbox" value="3" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Recebido </label>
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <label for="input-date" class="form-label">Pagamento:</label> 
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 pagamento" type="checkbox" value="0" > 
-                                                                <label class="form-check-label" for="c-1"> Sem pagamento </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 pagamento" type="checkbox" value="1" > 
-                                                                <label class="form-check-label" for="c-1"> Em aberto </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 pagamento" type="checkbox" value="2" > 
-                                                                <label class="form-check-label" for="c-1"> Parcialmente pago </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 pagamento" type="checkbox" value="3" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Pago </label>
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <label for="input-date" class="form-label">Comissão Agente:</label> 
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 ComissaoAgente" type="checkbox" value="1" > 
-                                                                <label class="form-check-label" for="c-1"> Em aberto </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 ComissaoAgente" type="checkbox" value="2"> 
-                                                                <label class="form-check-label" for="c-1"> Parcialmente pago </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 ComissaoAgente" type="checkbox" value="3" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Pago </label>
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <label for="input-date" class="form-label">Comissão Vendedor: <span title="Só é levando com consideração quando um vendedor estiver selecionado para comissão">?</span> </label> 
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 comissao_vendedor" type="checkbox" value="1" > 
-                                                                <label class="form-check-label" for="c-1"> Pago </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 comissao_vendedor" type="checkbox" value="0" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Sem pagamento </label>
-                                                            </div>
-                                                        </li>
-                                                        <li>
-                                                            <label for="input-date" class="form-label">Comissão Inside Sales: <span title="Só é levando com consideração quando um Inside estiver selecionado para comissão">?</span> </label> 
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 comissao_inside" type="checkbox" value="1" > 
-                                                                <label class="form-check-label" for="c-1"> Pago </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 comissao_inside" type="checkbox" value="0" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Sem pagamento </label>
-                                                            </div>
-                                                        </li>
-                                                        <li class="mb-4">
-                                                            <label for="input-date" class="form-label">Modalidade:</label> 
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="5" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Importação Maritima </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="4" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Importação Aérea </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="6" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Importação Terrestre </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="2" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Exportação Maritima </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="1" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Exportação Aérea </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="3" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Exportação Terrestre </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="9" checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Nacional Terrestre </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="7"  checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Nacional Aéreo </label>
-                                                            </div>
-                                                            <div class="form-check mb-2"> 
-                                                                <input class="form-check-input me-2 modalidade" type="checkbox" value="8"  checked=""> 
-                                                                <label class="form-check-label" for="c-1"> Cabotagem </label>
-                                                            </div>
-                                                          
-                                                        </li>
-                                                        
-                                                        <li class="d-flex align-items-center justify-content-center">
-                                                          
-                                                                <button onclick="submitCommission()" class="btn btn-primary-gradient" style="width: 100%;">Filtrar</button>
-                                                        
-                                                        </li>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="simplebar-placeholder" style="width: auto; height: 809px;"></div>
-                                    </div>
-                                    <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
-                                        <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
-                                    </div>
-                                    <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
-                                        <div class="simplebar-scrollbar" style="height: 546px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
-                                    </div>
+                            <!-- BOTAO SALVAR -->
+                            <div class=" justify-content-between headerButtons">
+                                <ul class="nav nav-tabs border-0" role="tablist">
+                                    <li class="nav-item " role="presentation"> 
+                                        <a class="nav-link label-btn btn" onclick="getAllValuesInForm(this)">
+                                            <i class="ri-save-3-line label-btn-icon me-2"></i>
+                                            Salvar
+                                        </a> 
+                                    </li>
                                 </ul>
-                           
-                        </div>
-                       </div>
-                    </div>
-                  
-                    <div class="col-10">
-                        <br>
-                        <div class="row">
-                            <div class="col-3">
-                                <div class="card custom-card">
-                                  <div class="card-body">
-                                    <div class="d-flex align-items-top">
-                                      <div class="me-3">
-                                        <span class="avatar avatar-md p-2 bg-primary imgComissionado">
-                                          <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
-                                            <path d="M0 0h24v24H0V0z" fill="none"></path>
-                                            <path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"></path>
-                                          </svg>
-                                        </span>
-                                      </div>
-                                      <div class="flex-fill">
-                                        <div class="d-flex mb-1 align-items-top justify-content-between">
-                                          <h5 class="fw-semibold mb-0 lh-1 nameComissionado">-</h5>
-                                      
-                                        </div>
-                                        <p class="mb-0 fs-10 op-7 text-muted fw-semibold">COMISSIONADO <span class="typeComission"></span></p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="col-3">
-                                <div class="card custom-card">
-                                  <div class="card-body">
-                                    <div class="d-flex align-items-top">
-                                      <div class="me-3">
-                                        <span class="avatar avatar-md p-2 bg-primary">
-                                          <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
-                                            <path d="M0 0h24v24H0V0z" fill="none"></path>
-                                            <path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"></path>
-                                          </svg>
-                                        </span>
-                                      </div>
-                                      <div class="flex-fill">
-                                        <div class="d-flex mb-1 align-items-top justify-content-between">
-                                          <h5 class="fw-semibold mb-0 lh-1 total_profit">R$ -</h5>
-                                      
-                                        </div>
-                                        <p class="mb-0 fs-10 op-7 text-muted fw-semibold">PROFIT EFETIVO(CALC COMISSÃO)</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div class="col-2">
-                                <div class="card custom-card">
-                                  <div class="card-body">
-                                    <div class="d-flex align-items-top">
-                                      <div class="me-3">
-                                        <span class="avatar avatar-md p-2 bg-primary">
-                                          <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
-                                            <path d="M0 0h24v24H0V0z" fill="none"></path>
-                                            <path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"></path>
-                                          </svg>
-                                        </span>
-                                      </div>
-                                      <div class="flex-fill">
-                                        <div class="d-flex mb-1 align-items-top justify-content-between">
-                                          <h5 class="fw-semibold mb-0 lh-1 total_profit_estimado">R$ -</h5>
-                                      
-                                        </div>
-                                        <p class="mb-0 fs-10 op-7 text-muted fw-semibold">PROFIT ESTIMADO</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              
-                              <div class="col-2">
-                                <div class="card custom-card">
-                                  <div class="card-body">
-                                    <div class="d-flex align-items-top">
-                                      <div class="me-3">
-                                        <span class="avatar avatar-md p-2 bg-primary">
-                                          <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
-                                            <path d="M0 0h24v24H0V0z" fill="none"></path>
-                                            <path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"></path>
-                                          </svg>
-                                        </span>
-                                      </div>
-                                      <div class="flex-fill">
-                                        <div class="d-flex mb-1 align-items-top justify-content-between">
-                                          <h5 class="fw-semibold mb-0 lh-1 valor_Comissao_total">R$ -</h5>
-                                      
-                                        </div>
-                                        <p class="mb-0 fs-10 op-7 text-muted fw-semibold">TOTAL COMISSÃO</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <!-- <div class="col-2">
-                                <div class="card custom-card">
-                                  <div class="card-body">
-                                    <div class="d-flex align-items-top">
-                                      <div class="me-3">
-                                        <span class="avatar avatar-md p-2 bg-primary">
-                                          <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
-                                            <path d="M0 0h24v24H0V0z" fill="none"></path>
-                                            <path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"></path>
-                                          </svg>
-                                        </span>
-                                      </div>
-                                      <div class="flex-fill">
-                                        <div class="d-flex mb-1 align-items-top justify-content-between">
-                                          <h5 class="fw-semibold mb-0 lh-1 quantidade_processo">00</h5>
-                                      
-                                        </div>
-                                        <p class="mb-0 fs-10 op-7 text-muted fw-semibold">QUANTIDADE DE PROCESSOS</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div> -->
-                              <div class="col-2">
-                                <div class="card custom-card">
-                                  <div class="card-body">
-                                    <div class="d-flex align-items-top">
-                                      <div class="me-3">
-                                        <span class="avatar avatar-md p-2 bg-primary">
-                                          <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
-                                            <path d="M0 0h24v24H0V0z" fill="none"></path>
-                                            <path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"></path>
-                                          </svg>
-                                        </span>
-                                      </div>
-                                      <div class="flex-fill">
-                                        <div class="d-flex mb-1 align-items-top justify-content-between">
-                                          <h5 class="fw-semibold mb-0 lh-1 percentagem_processo">00</h5>
-                                      
-                                        </div>
-                                        <p class="mb-0 fs-10 op-7 text-muted fw-semibold">CALC PORCENTAGEM</p>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                        </div>
-                        <div class="card custom-card">
-                            <div class="card-header">
-                                <div class="card-title"> Gerenciamento de Comissões </div>
                             </div>
-                            <div class="card-body">
-                          
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <table id="table_commission_commercial" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1"  style="width: 350px;">
-                                                                <input class="form-check-input me-2 selectAllCheckbox" id="selectAllChecked" type="checkbox" checked="">
-                                                            </th>
-                                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 350px;">Modal</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Processo</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Abertura</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Compensação</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Tipo</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Cliente</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Vendedor</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Inside</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Consignee</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Shipper</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Comissão Vendedor</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Comissão IS</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Estimado</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Efetivo</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Restante</th>
-                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Comissão</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                      
-                                                    </tbody>
+
+                            <div class="row headProfiles">
+                                <div class="d-sm-flex align-items-top p-4 border-bottom-0">
+                                    <div> 
+                                        <!-- <span class="avatar avatar-xxl avatar-rounded online me-3"> 
+                                            <img src="../assets/images/faces/9.jpg" alt=""> 
+                                        </span>  -->
+                                        <span class="avatar avatar-xxl avatar-rounded me-3 avatarProfile"> 
+                                            <img src="../../assets/images/media/user-circle.png" alt="" id="profile-img"> 
+                                            <span class="badge rounded-pill bg-primary avatar-badge"> 
+                                                <input type="file" name="photo" class="position-absolute w-100 h-100 op-0" id="profile-change"> 
+                                                <i class="fe fe-camera"></i> 
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class="flex-fill main-profile-info">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <h6 class="fw-semibold mb-1 text-fixed-white "> 
+                                                <span> <span class="textName"></span> <span class="textFamilyName"></span> <br></span> 
+                                          
+                                        </h6>
+                                            
+                                        </div>
+                                        <p class="mb-1 text-muted text-fixed-white op-7 ">
+                                            <i class="ri-mail-line me-1 align-middle"></i>
+                                            <span class="textEmailBusiness"> - </span> 
+                                             </p>
+                                        <p class="fs-12 text-fixed-white mb-4 op-5"> 
+                                            <span class="me-3">
+                                                <i class="ri-map-pin-line me-1 align-middle"></i>
                                                 
-                                                </table>
+                                                <span class="textCompanie"> Itajaí | Brasil </span>
+                                            </span> 
+                                            <span>
+                                                <i class="ri-building-line me-1 align-middle"></i>
+                                                <span class="textContractType"> 
+                                                    CLT </span></span> 
+                                            </p>
+                                    </div>
+                                </div>
+                                
+                              </div>
+                              <br>
+
+                            <!-- Cadastro de Novo Colaborador -->
+                            <div class="card-body">
+                                <form id="collaboratorForm">
+                                
+                                 <!-- Dados Pessoais -->
+                                <div class="section">
+                                    <h3 class="text-default">Dados Pessoais</h3>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <label for="fullName" class="form-label">Nome</label>
+                                            <input type="text" name="name" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="fullName" class="form-label">Sobrenome</label>
+                                            <input type="text" name="family_name" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="cpf" class="form-label">CPF</label>
+                                            <input type="text" name="cpf" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="birthdate" class="form-label">Data de Nascimento</label>
+                                            <input type="date" name="birthdate" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="gender" class="form-label">Gênero</label>
+                                            <select type="text" name="gender" class="form-control form-input">
+                                                <option selected value="Masculino">Masculino</option>
+                                                <option value="Feminino">Feminino</option>
+                                                <option value="Outro">Outro</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="maritalStatus" class="form-label">Estado Civil</label>
+                                            <select type="text" name="maritalStatus" class="form-control form-input">
+                                                <option value="Casado(a)">Casado(a)</option>
+                                                <option selected value="Solteiro(a)">Solteiro(a)</option>
+                                                <option value="Divorciado(a)">Divorciado(a)</option>
+                                                <option value="Viuvo(a)">Viuvo(a)</option>
+                                                <option value="União Estavel">União Estavel</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="nationality" class="form-label">Nacionalidade</label>
+                                            <input type="text" name="nationality" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="maritalStatus" class="form-label">Email Pessoal</label>
+                                            <input type="text" name="personalEmail" class="form-control form-input">
+                                        </div>
+                                        
+                                        <div class="col-md-3 mb-3">
+                                            <label for="cnpj" class="form-label">CNPJ</label>
+                                            <input type="text" name="cnpj" class="form-control form-input">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Informações Adicionais -->
+                                <div class="section">
+                                    <h3 class="text-default">Informações Adicionais</h3>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="motherName" class="form-label">Nome da Mãe</label>
+                                            <input type="text" name="motherName" class="form-control form-input">
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label for="fatherName" class="form-label">Nome do Pai</label>
+                                            <input type="text" name="fatherName" class="form-control form-input">
+                                        </div>
+                                       
+                                        <div class="col-md-3 mb-3">
+                                            <label for="rg" class="form-label">RG</label>
+                                            <input type="text" name="rg" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="rgIssuer" class="form-label">Órgão Expedidor do RG</label>
+                                            <input type="text" name="rgIssuer" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="rgIssueDate" class="form-label">Data de Expedição do RG</label>
+                                            <input type="date" name="rgIssueDate" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="voterTitle" class="form-label">Título de Eleitor</label>
+                                            <input type="text" name="voterTitle" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="passportNumber" class="form-label">Número do Passaporte</label>
+                                            <input type="text" name="passportNumber" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="birthCity" class="form-label">Cidade de Nascimento</label>
+                                            <input type="text" name="birthCity" class="form-control form-input">
+                                        </div>
+                                        
+                                        
+                                        <div class="col-md-3 mb-3">
+                                            <label for="pisNumber" class="form-label">Número do PIS/PASEP</label>
+                                            <input type="text" name="pisNumber" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="workCardNumber" class="form-label">Número da Carteira de Trabalho</label>
+                                            <input type="text" name="workCardNumber" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="workCardSeries" class="form-label">Série da Carteira de Trabalho</label>
+                                            <input type="text" name="workCardSeries" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="workCardIssueDate" class="form-label">Emissão da Carteira de Trabalho</label>
+                                            <input type="date" name="workCardIssueDate" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="pix" class="form-label">PIX</label>
+                                            <input type="text" name="pix" class="form-control form-input">
+                                        </div>
+                                        
+                                       
+                                        <!-- Novo bloco de Endereço -->
+                                        <div class="row">
+                                            <div class="col-md-3 mb-3">
+                                                <label for="cep" class="form-label">CEP</label>
+                                                <input type="text" name="cep" class="form-control form-input">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="street" class="form-label">Rua</label>
+                                                <input type="text" name="street" class="form-control form-input">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="number" class="form-label">Número</label>
+                                                <input type="text" name="number" class="form-control form-input">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="complement" class="form-label">Complemento</label>
+                                                <input type="text" name="complement" class="form-control form-input">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="neighborhood" class="form-label">Bairro</label>
+                                                <input type="text" name="neighborhood" class="form-control form-input">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="city" class="form-label">Cidade</label>
+                                                <input type="text" name="city" class="form-control form-input">
+                                            </div>
+                                            <div class="col-md-3 mb-3">
+                                                <label for="state" class="form-label">Estado</label>
+                                                <input type="text" name="state" class="form-control form-input">
                                             </div>
                                         </div>
-                            
-                              
-                          
+
+                                        <div class="col-12 mb-3">
+                                            <label for="additionalObservations" class="form-label">Observações Adicionais</label>
+                                            <textarea name="additionalObservations" class="form-control form-input" rows="3"></textarea>
+                                        </div>
+
+                                    </div>
+                                    
+                                </div>
+
+                                 <!-- Certificações -->
+                                 <div class="section">
+                                    <h3 class="text-default">Certificações</h3>
+                                    <div class="row">
+                                        <div class="table-responsive">
+                                            <table id="Certifications" class="table text-nowrap table-bordered">
+                                                <thead>
+                                                    
+                                                    <tr>
+                                                        <th scope="col">Qualificação</th>
+                                                        <th scope="col">Instituição</th>
+                                                        <th scope="col">Data de Conclusão</th>
+                                                        <th scope="col">Ação</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="col">
+                                                            <input type="text" class="form-control" id="qualification" placeholder="Digite a qualificação">
+                                                        </th>
+                                                        <th scope="col">
+                                                            <input type="text" class="form-control" id="institution" placeholder="Digite a Instituição">
+                                                        </th>
+                                                        <th scope="col">
+                                                            <input type="date" class="form-control" id="completionDate" placeholder="Digite a qualificação">
+                                                        </th>
+                                                        <th scope="col">
+                                                            <input type="file" class="form-control" id="certificate" placeholder="Certificado">
+                                                        </th>
+                                                        <th scope="col" class="cardButtonsCertifications">
+                                                            <button type="button" onclick="addCertification()" class="btn btn-icon btn-primary-light btn_add">
+                                                                <i class="ri-add-line"></i>
+                                                            </button>
+                                                            <button type="button" style="display: none;" onclick="saveCertification()" class="btn btn-icon btn-primary-light btn_save">
+                                                                <i class="ri-save-line"></i>
+                                                            </button>
+                                                            <button type="button" style="display: none;" onclick="cancelCertification()" class="btn btn-icon btn-primary-light btn_cancel">
+                                                                <i class="ri-close-line"></i>
+                                                            </button>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Informações Corporativas -->
+                                <div class="section">
+                                    <h3 class="text-default">Informações Corporativa</h3>
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <label for="registrationNumber" class="form-label">Matrícula</label>
+                                            <input type="text" name="registrationNumber" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="admissionDate" class="form-label">Data de Admissão</label>
+                                            <input type="date" name="admissionDate" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="terminationDate" class="form-label">Data de Demissão</label>
+                                            <input type="date" name="terminationDate" class="form-control form-input">
+                                        </div>
+                                       
+                                        <div class="col-md-3 mb-3">
+                                            <label for="jobTitle" class="form-label">Cargo</label>
+                                            <input type="text" name="jobTitle" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="department" class="form-label">Departamento</label>
+                                            <select type="text" name="department" class="form-control form-input">
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="companie" class="form-label">Filial</label>
+                                            <select type="text" name="companie" class="form-control form-input">
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="salary" class="form-label">Salário</label>
+                                            <input type="text" name="salary" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="contractType" class="form-label">Tipo de Contrato</label>
+                                            <select type="text" name="contractType" class="form-control form-input">
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="workload" class="form-label">Carga Horária Semanal</label>
+                                            <input type="text" name="workload" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="maritalStatus" class="form-label">Email Corporativo</label>
+                                            <input type="text" name="emailBusiness" class="form-control form-input">
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="immediateSupervisor" class="form-label">Supervisor Imediato</label>
+                                            <select type="text" name="immediateSupervisor" class="form-control form-input">
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="educationLevel" class="form-label">Nível de Escolaridade</label>
+                                            <input type="text" class="form-control" name="educationLevel" placeholder="Digite o nível de escolaridade">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="languages" class="form-label">Idiomas Falados</label>
+                                            <select type="text" multiple name="languages" class="form-control">
+                                               
+                                        </select>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <label for="id_headcargo" class="form-label">ID HeadCargo</label>
+                                            <input type="text" class="form-control" name="id_headcargo" placeholder="Digite o id do sistema HeadCargo">
+                                        </div>
+                                    </div>
+                                </div>
+                                 <!-- Informações Bancária -->
+                                 <div class="section">
+                                    <h3 class="text-default">Informações Bancária</h3>
+                                    <div class="row">
+                                        <div class="table-responsive">
+                                            <table id="BankingInformation" class="table text-nowrap table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Banco</th>
+                                                        <th scope="col">Agência</th>
+                                                        <th scope="col">Conta</th>
+                                                        <th scope="col">Tipo</th>
+                                                        <th scope="col">Ação</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="col">
+                                                            <input type="text" class="form-control" id="bank_bank" placeholder="Digite a bank">
+                                                        </th>
+                                                        <th scope="col">
+                                                            <input type="text" class="form-control" id="bank_agencie" placeholder="Digite a agência">
+                                                        </th>
+                                                        <th scope="col">
+                                                            <input type="text" class="form-control" id="bank_account" placeholder="Digite a conta">
+                                                        </th>
+                                                        <th scope="col">
+                                                            <input type="text" class="form-control" id="bank_type" placeholder="Tipo">
+                                                        </th>
+                                                        <th scope="col" class="cardButtonsBankingInformation">
+                                                            <button type="button" onclick="addBankingInformation()" class="btn btn-icon btn-primary-light btn_add">
+                                                                <i class="ri-add-line"></i>
+                                                            </button>
+                                                            <button type="button" onclick="saveBankingInformation()" style="display: none;" class="btn btn-icon btn-primary-light btn_save">
+                                                                <i class="ri-save-line"></i>
+                                                            </button>
+                                                            <button type="button" onclick="cancelBankingInformation()" style="display: none;" class="btn btn-icon btn-primary-light btn_cancel">
+                                                                <i class="ri-close-line"></i>
+                                                            </button>
+                                                        </th>
+                                                    </tr>
+                                                    
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Documentos -->
+                                <div class="section">
+                                    <h3 class="text-default">Documentos</h3>
+                                    <div class="row">
+                                        <div class="table-responsive">
+                                            <table id="documents" class="table text-nowrap table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Nome</th>
+                                                        <th scope="col">Data</th>
+                                                        <th scope="col">Anexo</th>
+                                                        <th scope="col">Ação</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="col"><input type="text" class="form-control" id="doc_name" placeholder="Digite o nome do documento"></th>
+                                                        <th scope="col"><input type="date" class="form-control" id="doc_date" placeholder="data do documeneto enviado"></th>
+                                                        <th scope="col"><input type="file" class="form-control" id="doc_file"></th>
+                                                        <th scope="col" class="cardButtonsDocs">
+                                                            <button type="button" onclick="addDocument()" class="btn btn-icon btn-primary-light btn_add">
+                                                                <i class="ri-add-line"></i>
+                                                            </button>
+                                                            <button type="button" style="display: none;" onclick="saveDocument()" class="btn btn-icon btn-primary-light btn_save">
+                                                                <i class="ri-save-line"></i>
+                                                            </button>
+                                                            <button type="button" style="display: none;" onclick="cancelDocuments()" class="btn btn-icon btn-primary-light btn_cancel">
+                                                                <i class="ri-close-line"></i>
+                                                            </button>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                               
+                                </form>
                             </div>
+                            
+                         
                         </div>
                     </div>
                 </div>
             </div>
         </div>
- 
 
-    </div>
+        
+        <!-- <div class="modal fade" id="modalActions" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar Ação Imediata</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body"> 
+                       <div class="row">
+                            <div class="col-6"> 
+                                <label for="input-label" class="form-label">Responsável</label> 
+                                <select name="action_responsible"></select>
+                            </div>  
+                            <div class="col-3"> 
+                               
+                            </div>  
+                            <div class="col-3"> 
+                                <label for="input-label" class="form-label">Prazo</label> 
+                                <input type="date" class="form-control" name="action_expiration"> 
+                            </div>  
+                       </div>  
+                       <br>
+                       <div class="row">
+                        <div class="col-12"> 
+                            <label for="input-label" class="form-label">Ação</label> 
+                            <textarea class="form-control" name="action_description" cols="30" rows="10"></textarea>
+                        </div> 
+                      
+                       </div>
+                       <br>
+                       <div class="row" >
+                        <div class="col-12">
+                            <button style="width: 100%;" class="btn btn-primary" onclick="addAction(this)">Cadastrar</button>
 
-    <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 11">
-       
-      </div>
-      
-      <span class="avatar avatar-md p-2 bg-warning" data-bs-toggle="modal" data-bs-target="#staticBackdrop" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Olá, eu sou o Mycon."> 
-        <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
-     </span>
-
-     <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h6 class="modal-title" id="staticBackdropLabel">🦊 Olá! Eu sou o Mycon, seu assistente aqui no sistema!</h6>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-body">
-                
+        </div> -->
 
-                <p>No módulo de Gerenciamento de Comissões, estou aqui para te ajudar a entender como as comissões são calculadas. ✨</p>
-                <p><b>🔎 O que você precisa saber?</b> <br>
-                    As comissões que você vê aqui são baseadas no <b>lucro efetivo</b> dos processos. Esse lucro pode variar conforme as taxas associadas ao processo estejam pagas ou não. Portanto, é importante ficar atento(a) ao status de pagamento das taxas para garantir que o valor da comissão seja o mais preciso possível.
-                </p>
-                
-                
-                <p>
-                    <b>📊 Dica importante!</b> <br>
-                    Sempre utilize os filtros corretamente para visualizar as comissões da maneira mais precisa. Isso vai te ajudar a tomar decisões mais informadas e acompanhar melhor os resultados. 😎
-                </p>
-                
-                <p>
-                    <b>⚠️ Atenção!</b> <br>
-                    Algumas taxas não são levadas em consideração na hora de calcular a comissão, como: <br>
-                    <ul>
-                        <li>Incentivo Asia</li>
-                        <li>Incentivo Asia Marítimo</li>
-                        <li>Incentivo Terminal</li>
-                    </ul>
-                </p>
-                
-                <p>Se precisar de mim, estarei por aqui para te guiar! 🚀</p>
+        <!-- <div class="modal fade" id="modalPreventive" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar Ação Preventiva</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body"> 
+                       <div class="row">
+                            <div class="col-6"> 
+                                <label for="input-label" class="form-label">Responsável</label> 
+                                <select name="Preventive_responsible"></select>
+                            </div>  
+                            <div class="col-3"> 
+                               
+                            </div>  
+                            <div class="col-3"> 
+                                <label for="input-label" class="form-label">Prazo</label> 
+                                <input type="date" class="form-control" name="Preventive_expiration"> 
+                            </div>  
+                       </div>  
+                       <br>
+                       <div class="row">
+                        <div class="col-12"> 
+                            <label for="input-label" class="form-label">Ação</label> 
+                            <textarea class="form-control" name="Preventive_description" cols="30" rows="10"></textarea>
+                        </div> 
+                      
+                       </div>
+                       <br>
+                       <div class="row" >
+                        <div class="col-12">
+                            <button style="width: 100%;" class="btn btn-primary" onclick="addPreventive(this)">Cadastrar</button>
 
+                        </div>
+                    </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div> -->
 
+        <!-- <div class="modal fade" id="modalCause" tabindex="-1" aria-labelledby="exampleModalXlLabel" aria-modal="true" role="dialog">
+
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title" id="exampleModalXlLabel">Adicionar identificação de causas (5 Porquês)</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body"> 
+                       <div class="row">
+                        <div class="col-12"> 
+                            <label for="input-label" class="form-label">Causas</label> 
+                            <textarea class="form-control" name="reason" cols="30" rows="10"></textarea>
+                        </div> 
+                      
+                       </div>
+                       <br>
+                       <div class="row" >
+                        <div class="col-12">
+                            <button style="width: 100%;" class="btn btn-primary" onclick="addReason(this)">Cadastrar</button>
+
+                        </div>
+                    </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-    </div>
+        </div> -->
     
+    </div>
+
     <!-- Scroll To Top -->
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
     <div id="responsive-overlay"></div>
@@ -1082,34 +1196,21 @@
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 
 
-    <script src="https://cdn.datatables.net/2.0.7/js/dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.min.js"></script>
-
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
-
-    <!-- <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script> -->
-    <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.js"></script>
-    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.dataTables.js"></script>
-
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-
     <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
-    <!-- <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.js"></script>
-    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.dataTables.js"></script> -->
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
-    <script src="../../assets/js/real-time.js"></script>
-
-    <script src="./assets/js/index.js"></script>
+    
+    <script src="./assets/js/view.js"></script>
 
 
 
@@ -1117,7 +1218,7 @@
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
-    <script src="../../assets/js/custom.js"></script>
+    <!-- <script src="../../assets/js/custom.js"></script> -->
 
 </body>
 

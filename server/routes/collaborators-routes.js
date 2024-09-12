@@ -71,6 +71,7 @@ module.exports = function (io) {
             // Cria o colaborador no banco e obtém o ID
             const collaboratorId = await collaboratorsController.createCollaborator(collaboratorData, requestUser);
             await collaboratorsController.createCollaboratorBankInfo(collaboratorId, bankingInformation);
+            await collaboratorsController.createCollaboratorAddress(collaboratorId, collaboratorData);
             // Define o caminho base para armazenar os arquivos do colaborador
             const baseFolderPath = path.join('storageService', 'administration', 'collaborators', `${collaboratorId}`);
             
@@ -180,7 +181,9 @@ module.exports = function (io) {
     router.get('/collaborators/:id', async (req, res) => {
         try {
             const collaborator = await collaboratorsController.getCollaboratorById(req.params.id);
-            res.status(200).json(collaborator);
+            const bank_info = await collaboratorsController.getCollaboratorBankInfoById(req.params.id);
+
+            res.status(200).json({collaborator,bank_info});
         } catch (error) {
             res.status(500).json({ message: 'Erro ao buscar colaborador' });
         }

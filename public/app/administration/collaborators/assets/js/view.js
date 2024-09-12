@@ -950,6 +950,74 @@ async function fillFormWithTestData() {
     }
 }
 
+// Esta função busca os dados de uma senha específica via uma requisição à API
+async function getCollaborator(id) {
+
+    const {collaborator, bank_info} = await makeRequest(`/api/collaborators-management/collaborators/${id}`);
+
+
+    document.querySelector('input[name="name"]').value = collaborator.name ?? '';
+    document.querySelector('input[name="family_name"]').value = collaborator.family_name ?? '';
+    document.querySelector('input[name="cpf"]').value = collaborator.cpf ?? '';
+    document.querySelector('input[name="birthdate"]').value = collaborator.birth_date ? new Date(collaborator.birth_date).toISOString().split('T')[0] : '';
+    document.querySelector('select[name="gender"]').value = collaborator.gender ?? '';
+    document.querySelector('select[name="maritalStatus"]').value = collaborator.marital_status ?? '';
+    document.querySelector('input[name="nationality"]').value = collaborator.nationality ?? '';
+    document.querySelector('input[name="personalEmail"]').value = collaborator.email_personal ?? '';
+    document.querySelector('input[name="cnpj"]').value = collaborator.cnpj ?? '';
+    document.querySelector('input[name="motherName"]').value = collaborator.mother_name ?? '';
+    document.querySelector('input[name="fatherName"]').value = collaborator.father_name ?? '';
+    document.querySelector('input[name="rg"]').value = collaborator.rg ?? '';
+    document.querySelector('input[name="rgIssuer"]').value = collaborator.rg_issuer ?? '';
+    document.querySelector('input[name="rgIssueDate"]').value = collaborator.rg_issue_date ? new Date(collaborator.rg_issue_date).toISOString().split('T')[0] : '';
+    document.querySelector('input[name="voterTitle"]').value = collaborator.voter_title ?? '';
+    document.querySelector('input[name="passportNumber"]').value = collaborator.passport_number ?? '';
+    document.querySelector('input[name="birthCity"]').value = collaborator.birth_city ?? '';
+    document.querySelector('input[name="pisNumber"]').value = collaborator.pis_pasep_number ?? '';
+    document.querySelector('input[name="workCardNumber"]').value = collaborator.work_card_number ?? '';
+    document.querySelector('input[name="workCardSeries"]').value = collaborator.work_card_series ?? '';
+    document.querySelector('input[name="workCardIssueDate"]').value = collaborator.work_card_issue_date ? new Date(collaborator.work_card_issue_date).toISOString().split('T')[0] : '';
+    document.querySelector('input[name="pix"]').value = collaborator.pix ?? '';
+    document.querySelector('input[name="salary"]').value = collaborator.salary ?? '';
+    document.querySelector('input[name="jobTitle"]').value = collaborator.job_position ?? '';
+    document.querySelector('select[name="companie"]').value = collaborator.companie_id ?? '';
+    document.querySelector('input[name="admissionDate"]').value = collaborator.admission_date ? new Date(collaborator.admission_date).toISOString().split('T')[0] : '';
+    document.querySelector('input[name="terminationDate"]').value = collaborator.resignation_date ? new Date(collaborator.resignation_date).toISOString().split('T')[0] : '';
+    document.querySelector('select[name="contractType"]').value = collaborator.contract_type ?? '';
+    document.querySelector('input[name="workload"]').value = collaborator.weekly_hours ?? '';
+    document.querySelector('input[name="emailBusiness"]').value = collaborator.email_business ?? '';
+    document.querySelector('select[name="immediateSupervisor"]').value = collaborator.immediate_supervisor ?? '';
+    document.querySelector('input[name="educationLevel"]').value = collaborator.education ?? '';
+    document.querySelector('input[name="id_headcargo"]').value = collaborator.id_headcargo ?? '';
+    document.querySelector('textarea[name="additionalObservations"]').value = collaborator.additional_observations ?? '';
+    document.querySelector('input[name="street"]').value = collaborator.street ?? '';
+    document.querySelector('input[name="number"]').value = collaborator.number ?? '';
+    document.querySelector('input[name="complement"]').value = collaborator.complement ?? '';
+    document.querySelector('input[name="neighborhood"]').value = collaborator.neighborhood ?? '';
+    document.querySelector('input[name="city"]').value = collaborator.city ?? '';
+    document.querySelector('input[name="state"]').value = collaborator.state ?? '';
+    document.querySelector('input[name="cep"]').value = collaborator.zip_code ?? '';
+
+
+    sAllLanguages.setChoiceByValue(collaborator.languages.toString())
+
+    console.log(collaborator, bank_info)
+
+
+  
+
+} 
+
+
+// Função para receber o id da pessoa que esta sendo aberta nesta janela
+async function getIdParams() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const id = urlParams.get('id');
+
+    await getCollaborator(id);
+ };
+
 
 /**
  * @description Aguarda a página ser completamente carregada e inicializa todas as funções necessárias.
@@ -972,7 +1040,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await eventChangeImgProfile();
     await eventInputProfile();
     await formatInputs();
-    await fillFormWithTestData()
+    await getIdParams()
 
 
     // Fim da medição do tempo de carregamento da página

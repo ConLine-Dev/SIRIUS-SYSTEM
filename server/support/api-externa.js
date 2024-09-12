@@ -1,4 +1,4 @@
-const { executeQuery } = require('../connect/mysql')
+const fetch = require('node-fetch');
 
 const api = {
    // Pega os dados da pessoa pessada por parametro

@@ -23,7 +23,7 @@ const headcargo = {
         const pagamento = `AND PagamentoCodigo IN (${(value.pagamento).join(',')})`;
 
         
-        const AgenteCodigo = `AND AgenteCodigo IN (${(value.ComissaoAgente).join(',')})`;
+        const AgenteCodigo = `AND AgenteCodigo IN (${[0, ...value.ComissaoAgente].join(',')})`;
         
         const Abertura_Processo = `AND (CAST(Data_Compensacao AS DATE) >= '${value.dataDe}' AND CAST(Data_Compensacao AS DATE) <= '${value.dataAte}')`;
 

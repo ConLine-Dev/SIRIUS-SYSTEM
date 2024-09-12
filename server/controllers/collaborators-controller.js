@@ -73,7 +73,17 @@ const collaboratorsController = {
     },
 
     getCollaboratorById: async function(id) {
-        const query = `SELECT * FROM collaborators WHERE id = ?`;
+        const query = `SELECT clt.*,
+                              ca.collaborator_id,
+                              ca.street,
+                              ca.number,
+                              ca.complement,
+                              ca.neighborhood,
+                              ca.city,
+                              ca.state,
+                              ca.zip_code
+                      FROM collaborators clt
+        JOIN collaborators_addresses ca ON ca.collaborator_id = clt.id WHERE clt.id = ?`;
         const result = await executeQuery(query, [id]);
         return result[0];
     },
@@ -324,13 +334,13 @@ const collaboratorsController = {
     },
 
     // CRUD para 'collaborators_addresses'
-    createCollaboratorAddress: async function(address) {
+    createCollaboratorAddress: async function(id, address) {
         const query = `INSERT INTO collaborators_addresses 
         (collaborator_id, address_type, street, number, complement, neighborhood, city, state, postal_code) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
         
         const result = await executeQuery(query, [
-            address.collaborator_id,
+            id,
             address.address_type,
             address.street,
             address.number,
@@ -338,7 +348,7 @@ const collaboratorsController = {
             address.neighborhood,
             address.city,
             address.state,
-            address.postal_code
+            address.cep
         ]);
 
         return result.insertId;
@@ -492,7 +502,7 @@ const collaboratorsController = {
     },
 
     getCollaboratorBankInfoById: async function(id) {
-        const query = `SELECT * FROM collaborators_bank_info WHERE id = ?`;
+        const query = `SELECT * FROM collaborators_bank_info WHERE collaborator_id = ?`;
         const result = await executeQuery(query, [id]);
         return result[0];
     },

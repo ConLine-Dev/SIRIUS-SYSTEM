@@ -1,5 +1,4 @@
 const { executeQuery } = require('../connect/mysql');
-const { api } = require('../support/api-externa');
 
 const People = {
    // Lista todas as pessoas;
@@ -299,12 +298,6 @@ const People = {
             country cou ON cou.id = peo.country_id
          WHERE
             peo.cnpj_cpf = ?`, [cnpj])
-
-      // Se não encontrar nada na consulta, vai retornar as informações da api
-      if (result.length === 0) {
-         const resultApi = await api.getCnpjInfoCompany(cnpj);
-         return { resultApi: resultApi}
-      }
 
       // Se encontrar algo na consulta, vai informar que o CNPJ já está cadastrado
       return {company_exist: result};

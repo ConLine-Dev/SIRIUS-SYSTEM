@@ -1,5 +1,4 @@
 const { executeQuery } = require('../connect/mysql');
-const { api } = require('../support/api-externa');
 
 const Stock = {
    // Função para criar pessoas

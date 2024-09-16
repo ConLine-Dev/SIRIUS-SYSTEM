@@ -18,6 +18,8 @@
     <script src="../../assets/js/main.js"></script>
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
     <!-- Style Css -->
     <link href="../../assets/css/styles.min.css" rel="stylesheet">
     <!-- Icons Css -->
@@ -41,6 +43,11 @@
 
 <body>
 
+    <!-- Tutorial -->
+    <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 20px; z-index: 100;"> 
+        <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+     </span>
+
     <!-- LOADER -->
     <div id="loader2">
         <img src="../../assets/images/media/loader.svg" alt="">
@@ -50,7 +57,7 @@
     <div class="main-content">
         <div class="container-fluid">
             <div class="file-manager-container p-2 gap-2 d-sm-flex">
-                <div class="file-manager-navigation" style="min-height: 98vh !important; width: 25rem !important;">
+                <div class="file-manager-navigation intro-filter-performance-product" style="min-height: 98vh !important; width: 25rem !important;">
                     <div class="d-flex align-items-center justify-content-between w-100" style="padding: 1rem 1rem 0 1rem;">
                         <div class="card custom-card">
                             <div class="card-header py-1 pb-3">
@@ -179,7 +186,7 @@
                                                 <div class="row">
                                                    <div class="col-xl col-lg col-md col-sm-12">
                                                       <div class="card custom-card">
-                                                         <div class="card-body">
+                                                         <div class="card-body intro-card-profit">
                                                             <div class="d-flex flex-wrap align-items-center justify-content-between">
                                                                <div>
                                                                   <h6 class="fw-semibold mb-3">Lucro</h6> <span class="fs-18 fw-semibold" id="text-profit"></span>
@@ -190,7 +197,7 @@
                                                    </div>
                                                    <div class="col-xl col-lg col-md col-sm-12">
                                                       <div class="card custom-card">
-                                                         <div class="card-body">
+                                                         <div class="card-body intro-card-teus">
                                                             <div class="d-flex flex-wrap align-items-center justify-content-between">
                                                                <div>
                                                                   <h6 class="fw-semibold mb-3">Teus</h6> <span class="fs-18 fw-semibold" id="text-total-teus"></span>
@@ -201,7 +208,7 @@
                                                    </div>
                                                    <div class="col-xl col-lg col-md col-sm-12">
                                                       <div class="card custom-card">
-                                                         <div class="card-body">
+                                                         <div class="card-body intro-card-tons">
                                                             <div class="d-flex flex-wrap align-items-center justify-content-between">
                                                                <div>
                                                                   <h6 class="fw-semibold mb-3">Toneladas</h6> <span class="fs-18 fw-semibold" id="text-total-tons"></span>
@@ -212,7 +219,7 @@
                                                    </div>
                                                    <div class="col-xl col-lg col-md col-sm-12">
                                                       <div class="card custom-card">
-                                                         <div class="card-body">
+                                                         <div class="card-body intro-card-process">
                                                             <div class="d-flex flex-wrap align-items-center justify-content-between">
                                                                <div>
                                                                   <h6 class="fw-semibold mb-3">Processos</h6> <span class="fs-18 fw-semibold" id="text-total-process"></span>
@@ -223,7 +230,7 @@
                                                    </div>
                                                    <div class="col-xl col-lg col-md col-sm-12">
                                                     <div class="card custom-card">
-                                                       <div class="card-body">
+                                                       <div class="card-body intro-card-profitProcess">
                                                           <div class="d-flex flex-wrap align-items-center justify-content-between">
                                                              <div>
                                                                 <h6 class="fw-semibold mb-3">Lucro/Processo</h6> <span class="fs-18 fw-semibold" id="text-profit-process"></span>
@@ -233,9 +240,9 @@
                                                     </div>
                                                  </div>
                                                    <div class="col-xl-12">
-                                                      <div class="card custom-card">
+                                                      <div class="card custom-card intro-profitPerModal">
                                                          <div class="card-header justify-content-between">
-                                                            <div class="card-title"> Lucro por Modal</div>
+                                                            <div class="card-title"> Lucro por Mês</div>
                                                             <button type="button" class="btn btn-primary btn-sm" id="exportButton" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Exportar a tabela abaixo para Excel" aria-describedby="tooltip74454">Excel</button>
                                                          </div>
                                                          <div class="card-body">
@@ -250,7 +257,7 @@
                                              <div class="col-xl-12">
                                                 <div class="row">
                                                    <div class="col-xxl-4 col-xl-4 col-sm-12">
-                                                      <div class="card custom-card">
+                                                      <div class="card custom-card intro-profitTotalPerModal">
                                                          <div class="card-header justify-content-between">
                                                             <div class="card-title"> Lucro Total por Modal </div>
                                                          </div>
@@ -262,19 +269,18 @@
                                                       </div>
                                                    </div>
                                                    <div class="col-xxl-4 col-xl-4 col-sm-12">
-                                                      <div class="card custom-card">
+                                                      <div class="card custom-card intro-profitPerProduct">
                                                          <div class="card-header justify-content-between">
                                                             <div class="card-title"> Lucro por Produto </div>
                                                          </div>
                                                          <div class="card-body my-2 py-4" style="display: flex; justify-content: center;">
                                                             <div id="profit-by-type_load" style="min-height: 265px;">
-
                                                             </div>
                                                          </div>
                                                       </div>
                                                    </div>
                                                    <div class="col-xxl-4 col-xl-4 col-sm-12">
-                                                      <div class="card custom-card">
+                                                      <div class="card custom-card intro-profitAveragePerModal">
                                                          <div class="card-header justify-content-between">
                                                             <div class="card-title"> Lucro Médio por Processo/Modal </div>
                                                          </div>
@@ -328,6 +334,8 @@
 
     <!-- Internal Task  JS -->
     <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="../../assets/libs/intro.js/intro.min.js"></script>
+    <script src="../../assets/libs/intro.js/intro.js"></script>
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script src="./assets/js/script.js"></script>
 </body>

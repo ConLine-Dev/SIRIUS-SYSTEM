@@ -214,5 +214,55 @@
     "element": ".ynex-kanban-board",
     "title": "Lista de chamados solicitados",
     "intro": "Aqui você verá todos os chamados que solicitou para o time de TI e o andamento de cada um."
+  },
+  {
+    "element": ".intro-filter-performance-product",
+    "title": "Filtros",
+    "intro": "Aqui você pode aplicar filtros para personalizar os dados exibidos na tela ao lado.<br><strong>Processo Courier:</strong> Selecione 'Sim' ou 'Não' para filtrar os dados de processos que utilizam o serviço de courier. <br><strong>Data Abertura Processo:</strong> Utilize o calendário para definir um período de abertura dos processos que deseja visualizar. <br><strong>Clientes:</strong> Selecione o cliente específico cujos dados você deseja filtrar. <br><strong>Situação Agenciamento:</strong> Escolha a situação atual do agenciamento (por exemplo, em andamento, faturado, finalizado). <br><strong>Modalidade:</strong> Selecione o tipo de modalidade do processo. <br><strong>Tipo de Carga:</strong> Escolha o tipo de carga que deseja visualizar na tela ao lado."
+  },
+  {
+    "element": ".intro-card-profit",
+    "title": "Lucro",
+    "intro": "Exibe o lucro total de processos por ano."
+  },
+  {
+    "element": ".intro-card-teus",
+    "title": "Teus",
+    "intro": "Exibe a quantidade total de TEUs por ano."
+  },
+  {
+    "element": ".intro-card-tons",
+    "title": "Toneladas",
+    "intro": "Mostra o total de toneladas por ano."
+  },
+  {
+    "element": ".intro-card-process",
+    "title": "Processos",
+    "intro": "Mostra o total de processos por ano."
+  },
+  {
+    "element": ".intro-card-profitProcess",
+    "title": "Lucro/Processo",
+    "intro": "Mostra o lucro por processo, calculado dividindo o lucro total pelo número de processos."
+  },
+  {
+    "element": ".intro-profitPerModal",
+    "title": "Lucro por Mês",
+    "intro": "Mostra o lucro total por mês. Ao passar o mouse sobre o gráfico, você pode ver: <br><strong>Receita:</strong> Valor recebido<br><strong>Despesas:</strong> Valor pago<br><strong>Lucro:</strong> Lucro mensal. "
+  },
+  {
+    "element": ".intro-profitTotalPerModal",
+    "title": "Lucro Total por Modal",
+    "intro": "Mostra a porcentagem do lucro anual de cada modal. Ao passar o mouse, você pode visualizar o lucro total de cada um dos modais."
+  },
+  {
+    "element": ".intro-profitPerProduct",
+    "title": "Lucro por Produto",
+    "intro": "Mostra a porcentagem do lucro anual por tipo de carga. Ao passar o mouse, você pode visualizar o lucro total de cada tipo de carga."
+  },
+  {
+    "element": ".intro-profitAveragePerModal",
+    "title": "Lucro Médio por Processo/Modal",
+    "intro": "Mostra a porcentagem anual do lucro por processo de cada modal, calculado dividindo o lucro total pelo número de processos."
   }
 ]

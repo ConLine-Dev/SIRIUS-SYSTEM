@@ -539,7 +539,8 @@ async function getSelectCity() {
 
 // Adiciona um evento para carregar as opções quando o dropdown do select é exibido
 document.querySelector('#selectCity').addEventListener('showDropdown', async function() {
-   if (selectCity.getValue(true).length === 0) {
+   const currentValue = selectCity.getValue(true);
+   if (!currentValue || currentValue.length === 0) {
       await loadSelectCity();
    }
 });
@@ -581,7 +582,8 @@ async function getSelectState() {
 
 // Adiciona um evento para carregar as opções quando o dropdown do select é exibido
 document.querySelector('#selectState').addEventListener('showDropdown', async function() {
-   if (selectState.getValue(true).length === 0) {
+   const currentValue = selectState.getValue(true);
+   if (!currentValue || currentValue.length === 0) {
       await loadSelectState();
    }
 });
@@ -623,8 +625,9 @@ async function getSelectCountry() {
 
 // Adiciona um evento para carregar as opções quando o dropdown do select é exibido
 document.querySelector('#selectCountry').addEventListener('showDropdown', async function() {
-   if (selectCountry.getValue(true).length === 0) {
-      await loadSelectCountry();
+   const currentValue = selectCountry.getValue(true);
+   if (!currentValue || currentValue.length === 0) {
+      await loadSelectState();
    }
 });
 
@@ -657,7 +660,8 @@ async function openPeople(id) {
 
 // Função que emite um alerta se o cadastro já existir no banco. Se não existir, cadastra o usuario normal
 async function checkCompanyExistence(getPeopleByCNPJ) {
-   if (getPeopleByCNPJ && getPeopleByCNPJ.company_exist) {
+   
+   if (getPeopleByCNPJ && getPeopleByCNPJ.company_exist && getPeopleByCNPJ.company_exist.length > 0) {
       const result = await Swal.fire({
          title: "CNPJ já cadastrado no sistema!",
          text: "Deseja visualiza-lo?",
@@ -674,12 +678,11 @@ async function checkCompanyExistence(getPeopleByCNPJ) {
       document.getElementById('input-cnpj-cpf').value = '';
 
       if (result.isConfirmed) {
-         await openPeople(getPeopleByCNPJ.company_exist[0].id);
+         await openPeople(getPeopleByCNPJ[0].id);
       }
    } else {
       // Se o cadastro ainda nao existir no banco de dados, pega o que retorna da API e preenche nos inputs e selects
-
-      const getCityOrStateById = await makeRequest('/api/people/getCityOrStateById', 'POST', {city: getPeopleByCNPJ.resultApi.municipio}); // Pega a cidade e o estado
+      const getCityOrStateById = await makeRequest('/api/people/getCityOrStateById', 'POST', {city: getPeopleByCNPJ.municipio}); // Pega a cidade e o estado
       
       const input_razao_social = document.getElementById('input-razao-social');
       const input_fantasia = document.getElementById('input-fantasia');
@@ -688,12 +691,12 @@ async function checkCompanyExistence(getPeopleByCNPJ) {
       const input_complement = document.getElementById('input-complement');
       const input_neighborhood = document.getElementById('input-neighborhood');
 
-      input_razao_social.value = getPeopleByCNPJ.resultApi.razao_social;
-      input_fantasia.value = getPeopleByCNPJ.resultApi.nome_fantasia;
-      input_cep.value = getPeopleByCNPJ.resultApi.cep;
-      input_street.value = getPeopleByCNPJ.resultApi.logradouro;
-      input_complement.value = getPeopleByCNPJ.resultApi.complemento;
-      input_neighborhood.value = getPeopleByCNPJ.resultApi.bairro;
+      input_razao_social.value = getPeopleByCNPJ.razao_social;
+      input_fantasia.value = getPeopleByCNPJ.nome_fantasia;
+      input_cep.value = getPeopleByCNPJ.cep;
+      input_street.value = getPeopleByCNPJ.logradouro;
+      input_complement.value = getPeopleByCNPJ.complemento;
+      input_neighborhood.value = getPeopleByCNPJ.bairro;
       await setSelectCityFromDB(getCityOrStateById[0].city_id);
       await setSelectStateFromDB(getCityOrStateById[0].state_id)
       await setSelectCountryFromDB(getCityOrStateById[0].country_id)
@@ -824,8 +827,40 @@ async function eventClick() {
             if (cnpj.length === 14) {
                const getPeopleByCNPJ = await makeRequest('/api/people/getPeopleByCNPJ', 'POST', { cnpj: cnpj });
 
-               // Se o CNPJ existir no banco vai dar um alerta para o usuario se ele quer abrir o cadastro, para nao deixar cadastrar novamente. Senao, segue o cadastro normal
-               await checkCompanyExistence(getPeopleByCNPJ);
+               if (getPeopleByCNPJ && getPeopleByCNPJ.company_exist && getPeopleByCNPJ.company_exist.length > 0) {
+                  // Se o CNPJ existir no banco vai dar um alerta para o usuario se ele quer abrir o cadastro, para nao deixar cadastrar novamente. Senao, segue o cadastro normal
+                  await checkCompanyExistence(getPeopleByCNPJ);
+               } else {
+                  const api_receita = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
+                  // Se não localizar o CNPJ na API, vai retornar um alerta de erro
+                  if (!api_receita.ok) {
+                     Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Parece que este CNPJ não existe",
+                     });
+
+                     const input_razao_social = document.getElementById('input-razao-social');
+                     const input_fantasia = document.getElementById('input-fantasia');
+                     const input_cep = document.getElementById('input-cep');
+                     const input_street = document.getElementById('input-street');
+                     const input_complement = document.getElementById('input-complement');
+                     const input_neighborhood = document.getElementById('input-neighborhood');
+               
+                     input_razao_social.value = '';
+                     input_fantasia.value = '';
+                     input_cep.value = '';
+                     input_street.value = '';
+                     input_complement.value = '';
+                     input_neighborhood.value = '';
+                     selectCity.removeActiveItems();  // Remove o item selecionado
+                     selectState.removeActiveItems();  // Remove o item selecionado
+                     selectCountry.removeActiveItems();  // Remove o item selecionado
+                  } else {
+                     const data = await api_receita.json();
+                     await checkCompanyExistence(data);
+                  }
+               }
             }
          })
       }

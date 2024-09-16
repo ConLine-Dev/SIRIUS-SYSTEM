@@ -19,6 +19,48 @@ const userTickets = {
       return result;
    },
 
+   getAllTickets: async function () {
+
+      const ticketList = []
+      const tickets = await executeQuery(`
+         SELECT ct.*, clb.name, clb.family_name, clb.id_headcargo
+         FROM siriusDBO.called_tickets ct
+
+         JOIN collaborators clb ON clb.id = ct.collaborator_id
+
+         WHERE status != 'completed-tasks-draggable'
+         OR (status = 'completed-tasks-draggable'
+         AND month(finished_at) = month(now()));`);
+
+      for (let index = 0; index < tickets.length; index++) {
+          const element = tickets[index];
+  
+
+          const atribuido = await executeQuery(`SELECT car.*, collab.name,collab.family_name,collab.family_name, collab.id_headcargo FROM called_assigned_relations car
+          JOIN collaborators collab ON collab.id = car.collaborator_id WHERE ticket_id = ${element.id}`);
+
+          const msg = await executeQuery(`SELECT clm.*,collab.name, collab.family_name,collab.family_name, collab.id_headcargo 
+                                  FROM called_messages clm
+                                  JOIN collaborators collab ON collab.id = clm.collab_id 
+                                  WHERE clm.ticket_id = ${element.id}`);
+
+          ticketList.push({
+              id:element.id,
+              title:element.title,
+              description:element.description,
+              status:element.status,
+              responsible:element.collaborator_id,
+              start_forecast:element.start_forecast,
+              end_forecast:element.end_forecast,
+              finished_at:element.finished_at,
+              atribuido:atribuido,
+              messageCount: msg.length
+          })
+      }
+
+      return ticketList
+   },
+
    getById: async function (id) {
       const ticketsList = []
       const tickets = await executeQuery(`
@@ -85,7 +127,29 @@ const userTickets = {
          [result.insertId, 35]
       );
       return { id: result.insertId };
-   }
+   },
+
+   updateStatus: async function(value){
+
+      const id = value.id;
+      const status = value.status;
+
+      const hoje = new Date();
+      const ano = hoje.getFullYear();
+      const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+      const dia = String(hoje.getDate()).padStart(2, '0');
+      const horas = String(hoje.getHours()).padStart(2, '0');
+      const minutos = String(hoje.getMinutes()).padStart(2, '0');
+      const segundos = String(hoje.getSeconds()).padStart(2, '0');
+
+      const dataHoraFormatada = `${ano}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
+
+      await executeQuery(`UPDATE called_tickets SET status = '${status}' WHERE id = ${id}`);
+      if (status == 'completed-tasks-draggable'){
+         await executeQuery(`UPDATE called_tickets SET finished_at = '${dataHoraFormatada}' WHERE id = ${id}`);
+      }
+      return true;
+  },
 }
 
 module.exports = {

@@ -49,29 +49,35 @@ function initializeButtonAddTicket() {
     const buttonAddSimplifiedTicket = document.getElementById('ButtonAddSimplifiedTicket');
     const buttonRemoveTicket = document.getElementById('ButtonRemoveTicket');
     const buttonSaveTicket = document.getElementById('ButtonSaveTicket');
+    const buttonApproveByUser = document.getElementById('ButtonApproveTicket');
+    const buttonReviewByUser = document.getElementById('ButtonReviewTicket');
     const buttonAddMessage = document.getElementById('ButtonAddMessage');
 
     const inputMessage = document.querySelector('.inputMessage');
 
-    removeExistingEventListeners(buttonAddTicket, buttonAddSimplifiedTicket, buttonRemoveTicket, buttonSaveTicket, buttonAddMessage, inputMessage);
+    removeExistingEventListeners(buttonAddTicket, buttonAddSimplifiedTicket, buttonRemoveTicket, buttonSaveTicket, buttonApproveByUser, buttonReviewByUser, buttonAddMessage, inputMessage);
 
-    addEventListeners(buttonAddTicket, buttonAddSimplifiedTicket, buttonRemoveTicket, buttonSaveTicket, buttonAddMessage, inputMessage);
+    addEventListeners(buttonAddTicket, buttonAddSimplifiedTicket, buttonRemoveTicket, buttonSaveTicket, buttonApproveByUser, buttonReviewByUser, buttonAddMessage, inputMessage);
 }
 
-function removeExistingEventListeners(buttonAddTicket, buttonAddSimplifiedTicket, buttonRemoveTicket, buttonSaveTicket, buttonAddMessage, inputMessage) {
+function removeExistingEventListeners(buttonAddTicket, buttonAddSimplifiedTicket, buttonRemoveTicket, buttonSaveTicket, buttonApproveByUser, buttonReviewByUser, buttonAddMessage, inputMessage) {
     buttonAddTicket.removeEventListener('click', handleAddTicket);
     buttonAddSimplifiedTicket.removeEventListener('click', handleAddSimplifiedTicket);
     buttonRemoveTicket.removeEventListener('click', handleRemoveTicket);
     buttonSaveTicket.removeEventListener('click', handleSaveTicket);
+    buttonApproveByUser.removeEventListener('click', handleApproveByUser);
+    buttonReviewByUser.removeEventListener('click', handleReviewByUser);
     buttonAddMessage.removeEventListener('click', handleAddMessage);
     inputMessage.removeEventListener('keypress', handleInputMessageKeypress);
 }
 
-function addEventListeners(buttonAddTicket, buttonAddSimplifiedTicket, buttonRemoveTicket, buttonSaveTicket, buttonAddMessage, inputMessage) {
+function addEventListeners(buttonAddTicket, buttonAddSimplifiedTicket, buttonRemoveTicket, buttonSaveTicket, buttonApproveByUser, buttonReviewByUser, buttonAddMessage, inputMessage) {
     buttonAddTicket.addEventListener('click', handleAddTicket);
     buttonAddSimplifiedTicket.addEventListener('click', handleAddSimplifiedTicket);
     buttonRemoveTicket.addEventListener('click', handleRemoveTicket);
     buttonSaveTicket.addEventListener('click', handleSaveTicket);
+    buttonApproveByUser.addEventListener('click', handleApproveByUser);
+    buttonReviewByUser.addEventListener('click', handleReviewByUser);
     buttonAddMessage.addEventListener('click', handleAddMessage);
 
 
@@ -127,6 +133,30 @@ async function handleSaveTicket(event) {
 
     document.querySelector('#loader2').classList.remove('d-none')
     await saveTicket(ticketSettings);
+    document.querySelector('#loader2').classList.add('d-none')
+}
+
+async function handleApproveByUser(event) {
+    event.preventDefault();
+    const ticketSettings = getTicketEditing();
+
+    document.querySelector('#loader2').classList.remove('d-none')
+    await approveTicketByUser(ticketSettings);
+    await listAllTickets()
+    await initEvents()
+    await clearFormFields();
+    document.querySelector('#loader2').classList.add('d-none')
+}
+
+async function handleReviewByUser(event) {
+    event.preventDefault();
+    const ticketSettings = getTicketEditing();
+
+    document.querySelector('#loader2').classList.remove('d-none')
+    await reviewTicketByUser(ticketSettings);
+    await listAllTickets()
+    await initEvents()
+    await clearFormFields();
     document.querySelector('#loader2').classList.add('d-none')
 }
 
@@ -393,6 +423,21 @@ async function saveTicket(settingsTicket) {
     }
 }
 
+async function approveTicketByUser(ticketSettings) {
+    const ticket = await makeRequest('/api/called/tickets/saveTicket', 'POST', ticketSettings);
+    $('#edit-task').modal('hide');
+    
+    const arrayResult = { id: ticketSettings.id, status: 'completed-tasks-draggable' }
+    await makeRequest('/api/user-tickets/updateStatus', 'POST', arrayResult);
+
+}
+
+async function reviewTicketByUser(ticketSettings){
+    const ticket = await makeRequest('/api/called/tickets/saveTicket', 'POST', ticketSettings);
+    $('#edit-task').modal('hide'); 
+    await makeRequest('/api/user-tickets/updateStatus', 'POST', { id: ticketSettings.id, status: 'inprogress-tasks-draggable' });
+}
+
 // Cria um novo ticket
 async function createTicket(settingsTicket) {
 
@@ -553,6 +598,14 @@ async function editTask(taskId) {
     try {
         let data = await makeRequest('/api/called/tickets/getById', 'POST', { id: taskId });
         data = data[0];
+
+        document.querySelector('#ButtonReviewTicket').classList.add('d-none')
+        document.querySelector('#ButtonApproveTicket').classList.add('d-none')
+
+        if (data.status == 'inreview-tasks-draggable') {
+            document.querySelector('#ButtonReviewTicket').classList.remove('d-none')
+            document.querySelector('#ButtonApproveTicket').classList.remove('d-none')
+        }
 
         // Preenche os campos do modal com os dados recebidos
         document.querySelector('input[name="edit_title"]').value = data.title;
@@ -725,9 +778,7 @@ function resetSimplifiedTicket() {
     let printSimplifiedSubcategories = '';
 
     printSimplifiedSubcategories = ``
-
     divSimplifiedSubcategories.innerHTML = printSimplifiedSubcategories;
-
 }
 
 async function getInfosLogin() {

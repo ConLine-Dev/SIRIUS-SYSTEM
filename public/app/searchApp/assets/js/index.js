@@ -249,7 +249,7 @@ function selectSimplifiedTicket() {
        });
    });
 }
-
+ 
 async function sendSimplificatedTicket() {
 
    const loginData = await getInfosLogin();

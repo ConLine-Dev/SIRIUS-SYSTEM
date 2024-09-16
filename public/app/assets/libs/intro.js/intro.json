@@ -195,4 +195,10 @@
     "title": "Todas Ocorrências",
     "intro": "Aqui você pode visualizar o histórico completo de todas as ocorrências registradas."
   }
+  ,
+  {
+    "element": "#bottom-new-ticket",
+    "title": "Todas Ocorrências",
+    "intro": "Aqui você pode visualizar o histórico completo de todas as ocorrências registradas."
+  }
 ]

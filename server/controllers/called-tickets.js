@@ -6,37 +6,51 @@ const ExcelJS = require('exceljs');
 
 const tickets = {
     listAll: async function(value){
-        const ticketsList = []
-        const tickets = await executeQuery(`SELECT ct.*,collab.name,collab.family_name,collab.family_name, collab.id_headcargo FROM called_tickets ct
-        JOIN collaborators collab ON collab.id = ct.collaborator_id`);
+        const ticketsList = [];
 
-        for (let index = 0; index < tickets.length; index++) {
-            const element = tickets[index];
-    
+        // Consulta única para obter todos os dados de uma vez
+        const ticketsData = await executeQuery(`
+        SELECT 
+            ct.id as ticket_id,
+            ct.title,
+            IF(LENGTH(ct.description) > 200, 
+            CONCAT(SUBSTRING(ct.description, 1, 200), '...'), 
+            ct.description) as description, -- Limita a 200 caracteres e adiciona "..." se o texto for cortado
+            ct.status,
+            ct.collaborator_id as responsible,
+            ct.start_forecast,
+            ct.end_forecast,
+            ct.finished_at,
+            collab.name as collab_name,
+            collab.family_name as collab_family_name,
+            collab.id_headcargo as collab_headcargo,
+            COUNT(DISTINCT clm.id) as message_count,
+            GROUP_CONCAT(DISTINCT car.id ORDER BY car.id ASC) as assigned_ids,
+            GROUP_CONCAT(DISTINCT acollab.name ORDER BY acollab.id ASC) as assigned_names
+        FROM called_tickets ct
+        JOIN collaborators collab ON collab.id = ct.collaborator_id
+        LEFT JOIN called_messages clm ON clm.ticket_id = ct.id
+        LEFT JOIN called_assigned_relations car ON car.ticket_id = ct.id
+        LEFT JOIN collaborators acollab ON acollab.id = car.collaborator_id
+        GROUP BY ct.id
+        `);
 
-            const atribuido = await executeQuery(`SELECT car.*, collab.name,collab.family_name,collab.family_name, collab.id_headcargo FROM called_assigned_relations car
-            JOIN collaborators collab ON collab.id = car.collaborator_id WHERE ticket_id = ${element.id}`);
-
-            const msg = await executeQuery(`SELECT clm.*,collab.name, collab.family_name,collab.family_name, collab.id_headcargo 
-                                    FROM called_messages clm
-                                    JOIN collaborators collab ON collab.id = clm.collab_id 
-                                    WHERE clm.ticket_id = ${element.id}`);
-
+        ticketsData.forEach(ticket => {
             ticketsList.push({
-                id:element.id,
-                title:element.title,
-                description:element.description,
-                status:element.status,
-                responsible:element.collaborator_id,
-                start_forecast:element.start_forecast,
-                end_forecast:element.end_forecast,
-                finished_at:element.finished_at,
-                atribuido:atribuido,
-                messageCount: msg.length
-            })
-        }
+                id: ticket.ticket_id,
+                title: ticket.title,
+                description: ticket.description,
+                status: ticket.status,
+                responsible: ticket.responsible,
+                start_forecast: ticket.start_forecast,
+                end_forecast: ticket.end_forecast,
+                finished_at: ticket.finished_at,
+                atribuido: ticket.assigned_names ? ticket.assigned_names.split(',') : [],
+                messageCount: ticket.message_count
+            });
+        });
 
-        return ticketsList
+        return ticketsList;
     },
     getById: async function(id){
         const ticketsList = []

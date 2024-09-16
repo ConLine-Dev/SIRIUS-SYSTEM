@@ -19,48 +19,6 @@ const userTickets = {
       return result;
    },
 
-   getAllTickets: async function () {
-
-      const ticketList = []
-      const tickets = await executeQuery(`
-         SELECT ct.*, clb.name, clb.family_name, clb.id_headcargo
-         FROM siriusDBO.called_tickets ct
-
-         JOIN collaborators clb ON clb.id = ct.collaborator_id
-
-         WHERE status != 'completed-tasks-draggable'
-         OR (status = 'completed-tasks-draggable'
-         AND month(finished_at) = month(now()));`);
-
-      for (let index = 0; index < tickets.length; index++) {
-          const element = tickets[index];
-  
-
-          const atribuido = await executeQuery(`SELECT car.*, collab.name,collab.family_name,collab.family_name, collab.id_headcargo FROM called_assigned_relations car
-          JOIN collaborators collab ON collab.id = car.collaborator_id WHERE ticket_id = ${element.id}`);
-
-          const msg = await executeQuery(`SELECT clm.*,collab.name, collab.family_name,collab.family_name, collab.id_headcargo 
-                                  FROM called_messages clm
-                                  JOIN collaborators collab ON collab.id = clm.collab_id 
-                                  WHERE clm.ticket_id = ${element.id}`);
-
-          ticketList.push({
-              id:element.id,
-              title:element.title,
-              description:element.description,
-              status:element.status,
-              responsible:element.collaborator_id,
-              start_forecast:element.start_forecast,
-              end_forecast:element.end_forecast,
-              finished_at:element.finished_at,
-              atribuido:atribuido,
-              messageCount: msg.length
-          })
-      }
-
-      return ticketList
-   },
-
    getById: async function (id) {
       const ticketsList = []
       const tickets = await executeQuery(`

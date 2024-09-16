@@ -38,17 +38,6 @@ module.exports = function(io) {
       }
    });
 
-   router.get('/getAllTickets', async (req, res, next) => {
-      try {
-         const result = await userTickets.getAllTickets();
-
-         res.status(200).json(result)
-      } catch (error) {
-
-         res.status(404).json('Erro')
-      }
-   });
-
    router.get('/getById', async (req, res, next) => {
       const { id } = req.query
       try {

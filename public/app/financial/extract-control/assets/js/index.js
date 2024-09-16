@@ -25,13 +25,16 @@ function createFolder() {
                                                     </button>
                                                     <ul class="dropdown-menu">
                                                     <li>
-                                                        <a class="dropdown-item" href="javascript:void(0);">Delete</a>
+                                                        <a class="dropdown-item" href="javascript:void(0);">Abrir</a>
                                                     </li>
                                                     <li>
-                                                        <a class="dropdown-item" href="javascript:void(0);">Rename</a>
+                                                        <a class="dropdown-item" href="javascript:void(0);">Excluir</a>
                                                     </li>
                                                     <li>
-                                                        <a class="dropdown-item" href="javascript:void(0);">Hide Folder</a>
+                                                        <a class="dropdown-item" href="javascript:void(0);">Renomear</a>
+                                                    </li>
+                                                    <li>
+                                                        <a class="dropdown-item" href="javascript:void(0);">Inativar</a>
                                                     </li>
                                                     </ul>
                                                 </div>

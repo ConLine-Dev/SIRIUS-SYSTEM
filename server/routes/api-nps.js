@@ -14,7 +14,7 @@ module.exports = function(io) {
 
             res.status(404).json('error')
       }
-   });
+    });
 
    router.get('/answers', async (req, res, next) => {
         try {
@@ -36,7 +36,6 @@ module.exports = function(io) {
         }
     });
 
-
     router.post('/answers', async (req, res, next) => {
         const answers = req.body
         try {
@@ -47,6 +46,8 @@ module.exports = function(io) {
             res.status(404).json('error')
         }
     });
+
+
 
 
 

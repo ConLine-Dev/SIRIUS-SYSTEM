@@ -658,13 +658,7 @@ const headcargo = {
         let total_comissao = totalEfetivo * (percentagem / 100)
 
         const resultadosFormatados = await Promise.all(process.map(async function(item) {
-          const valor = item.Valor_Efetivo * (percentagem / 100)
-
-          if (!isNaN(valor)) {
-          } else {
-              console.error('O valor é NaN e não pode ser inserido no banco de dados', item);
-          }
-
+   
           return [
               parseInt(idReferenci),
               parseInt(item.IdLogistica_House),

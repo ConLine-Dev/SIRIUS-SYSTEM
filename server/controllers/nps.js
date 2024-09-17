@@ -56,7 +56,7 @@ const nps = {
         const [result, resultSirius] = await Promise.all([
             executeQuerySQL(`
                 SELECT pessoa.Nome, 
-                       CONCAT('https://nps-v2.vercel.app/app/survey?id=', cliente.IdPessoa) AS Link, 
+                       CONCAT('https://sirius-system.conlinebr.com.br/app/system/nps/survey?id=', cliente.IdPessoa) AS Link, 
                        cliente.IdVendedor_Responsavel AS IdVendedor, 
                        pessoa.Cpf_Cnpj, 
                        CONCAT('https://cdn.conlinebr.com.br/colaboradores/', cliente.IdVendedor_Responsavel) AS ImgVendedor,
@@ -98,7 +98,45 @@ const nps = {
         return result;
     },
     registerAnswers: async function(answers){
-        console.log(answers)
+        
+        const idempresa = parseInt(answers.idempresa)
+        const p1 = parseInt(answers.p1)
+        const p2 = parseInt(answers.p2)
+        const p3 = parseInt(answers.p3)
+        const satisfaction = (answers.satisfaction)
+        const feedback = answers.feedback
+
+
+        const queryhead = `select pessoa.Nome, cliente.Idpessoa, pss.Nome as 'Vendedor', pss.IdPessoa from cad_Cliente cliente
+        join cad_pessoa pessoa on pessoa.IdPessoa = cliente.IdPessoa
+        join cad_pessoa pss on pss.IdPessoa = cliente.IdVendedor_Responsavel
+        where cliente.IdPessoa = ${idempresa}`
+
+        const resulthead = await executeQuerySQL(queryhead);
+   
+        if (resulthead.length > 0) {
+            nameClient = resulthead[0].Nome;
+            nameVendedor = resulthead[0].Vendedor;
+            idVendedor = resulthead[0].IdPessoa;
+        }
+     
+        let query = `INSERT INTO nps
+        (idempresa, p1, p2, p3, satisfaction, feedback, nomeempresa, nomevendedor, idvendedor) VALUES
+        (${idempresa}, 
+            ${p1}, 
+            ${p2}, 
+            ${p3}, 
+            '${satisfaction}', 
+            "${feedback}", 
+            "${nameClient}", 
+            "${nameVendedor}", 
+            "${idVendedor}")`
+
+    
+        let result = await executeQuery(query);
+
+    
+        return result
     }
     
     

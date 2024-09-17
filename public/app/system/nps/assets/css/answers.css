@@ -40,3 +40,14 @@ td {
     padding-bottom: 10px !important;
 }
 
+#table-answers_filter{
+    display: none;
+}
+
+.feedback-limit {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 110px; /* ajuste conforme necessário */
+}

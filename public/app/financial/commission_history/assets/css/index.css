@@ -48,7 +48,7 @@
 
 .listHistory{
     overflow: scroll;
-    max-height: 100%;
+    max-height: calc(100vh - 165px);
 }
 
 .listHistory li{

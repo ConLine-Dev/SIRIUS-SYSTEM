@@ -1,4 +1,5 @@
 // Função que gera a tabela de faturas a partir dos dados recebidos de uma API.
+// Função Lista de faturas
 async function invoicesTable(situacao = 1) {
     // Fazer a requisição à API
     const totalInvoices = await makeRequest(`/api/financial-indicators/totalInvoices`, 'POST', {situacao: situacao});
@@ -59,6 +60,7 @@ async function invoicesTable(situacao = 1) {
     
 }
 
+// Função dos cards Indicadores Financeiro
 async function financialSummary() {
     const financialSummary = await makeRequest(`/api/financial-indicators/financial-summary`);
     console.log(financialSummary)
@@ -79,6 +81,7 @@ async function financialSummary() {
     document.querySelector('.percentage-totalReceived').textContent = financialSummary.totalReceived.percentage
 }
 
+// Função Despesas Financeira
 async function tableFinancialExpenses() {
     // Fazer a requisição à API
     const dados = await makeRequest(`/api/financial-indicators/financial-expenses`);
@@ -113,6 +116,7 @@ async function tableFinancialExpenses() {
     });
 }
 
+// Função para formatar a data (dia, mês, ano) no gráfico
 async function formattedDateTime(time) {
     const date = new Date(time);
 
@@ -123,6 +127,7 @@ async function formattedDateTime(time) {
     return `${day}/${month}/${year}`;
 }
 
+// Função para limitar caracteres nas listagem
 async function limitByCharacter(text, limit) {
     if (text.length > limit) {
         return text.substring(0, limit) + "...";
@@ -130,6 +135,7 @@ async function limitByCharacter(text, limit) {
     return text;
 }
 
+// Função para calcular o valor total dos cards
 async function totalCard(data, idtext) {
     const total = data.reduce((acumulator, element) => {
        return acumulator + element.Valor_Total
@@ -141,6 +147,7 @@ async function totalCard(data, idtext) {
     return total;
 };
 
+// Função para calcular os valores do recibo por mês no gráfico
 async function received_for_month(data) {
     const sum_for_month = [];
  
@@ -166,6 +173,7 @@ async function received_for_month(data) {
     return sum_for_month;
 };
 
+// Função para calcular os valores de despesas por mês no gráfico
 async function paid_for_month(data) {
     const sum_for_month = [];
  
@@ -191,6 +199,7 @@ async function paid_for_month(data) {
     return sum_for_month;
 };
 
+// Função para gerar o gráfico
 let chart
 async function graphic_month(dataReceived, dataPaid) {
     const received = await received_for_month(dataReceived)
@@ -283,6 +292,29 @@ async function graphic_month(dataReceived, dataPaid) {
         chart.render();
      }
 }
+
+// Pegando os elementos - função de filtros
+var modal = document.getElementById("filterModal");
+var btn = document.getElementById("filterButton");
+var span = document.getElementsByClassName("close")[0];
+
+// Quando o botão for clicado, abrir o modal
+btn.onclick = function() {
+    modal.style.display = "block";
+}
+
+// Quando o 'x' for clicado, fechar o modal
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+// Fechar o modal se clicar fora dele
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
 
 
 document.addEventListener("DOMContentLoaded", async () => {

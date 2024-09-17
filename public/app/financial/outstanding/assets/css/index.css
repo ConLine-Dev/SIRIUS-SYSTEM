@@ -16,3 +16,38 @@
     max-height: 486px;
 }
 
+/* Estilo do modal */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    right: 0;
+    top: 0;
+    width: 30%; /* Largura do modal na parte direita */
+    height: 100%; /* Altura total da tela */
+    overflow: auto; 
+    background-color: #ffffff;
+    box-shadow: -5px 0 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    left: auto;
+}
+
+.modal-content {
+    padding: 20px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+

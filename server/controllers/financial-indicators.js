@@ -2,7 +2,7 @@ const { executeQuerySQL } = require('../connect/sqlServer');
 const { executeQuery } = require('../connect/mysql');
 
 const financialIndicators = {
-    //Lista todas as faturas
+    // Lista todas as faturas
    totalInvoices: async function (situacao) {
 
       let where = '';
@@ -73,7 +73,7 @@ const financialIndicators = {
    },
 
 
-   //Pega todas as despesas financeiras 
+   // Lista todas as despesas financeira
    getFinancialExpenses: async function(){
    const result = await executeQuerySQL(`
       select ffc.Data_Vencimento as 'Data_Vencimento', 
@@ -114,8 +114,6 @@ const financialIndicators = {
    const format = {
          "data": resultadosFormatados
    }
-
-
 
    return format;
    },

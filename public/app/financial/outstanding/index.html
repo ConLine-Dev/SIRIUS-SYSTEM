@@ -504,11 +504,60 @@
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div class="card-title">Indicadores Financeiro</div>
                             <div class="btn-list mt-md-0 mt-2"> 
-                                <button type="button" class="btn btn-primary btn-wave waves-effect waves-light"> 
+                                <button type="button" class="btn btn-primary btn-wave waves-effect waves-light" id="filterButton"> 
                                     <i class="ri-filter-3-fill me-2 align-middle d-inline-block"></i>
                                     Filtro
                                 </button> 
                             </div>
+                            
+                            <!-- Modal -->
+                            <div id="filterModal" class="modal">
+                                <div class="modal-content">
+                                    <span class="close">&times;</span>
+                                    <h2>Filtro</h2>
+                                    <!-- Coloque os campos de filtro aqui -->
+                                    <li class="list-group-item" style="padding: 10px 20px !important;">
+                                        <div class="d-flex align-items-center" style="margin-bottom: 10px;">
+                                            <div class="flex-fill">
+                                                <p class="fw-bold mb-0">Data Abertura Processo</p>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                                <input type="text" placeholder="Data Abertura Processo" class="form-control dash-filter-picker flatpickr-input" id="inputDateFilter" data-provider="flatpickr" data-mode="range" data-date-format="d M Y">
+                                            </div>
+                                        </div>
+                                    </li><br>
+
+                                    <li class="list-group-item">
+                                        <div class="d-flex align-items-center" style="margin-bottom: 10px;">
+                                            <div class="flex-fill">
+                                                <p class="fw-bold mb-0">Situação Agenciamento</p>
+                                            </div>
+                                        </div>
+                                        <div class="row gy-3" style="gap: 20px;">
+                                            <select id="selectAgencySituation" multiple>
+                                                <option value="" style="width: 100% !important;">Selecione a Situação do Agenciamento</option>
+                                             </select>
+                                        </div>
+                                    </li><br>
+
+                                    <li class="list-group-item">
+                                        <div class="d-flex align-items-center" style="margin-bottom: 10px;">
+                                            <div class="flex-fill">
+                                                <p class="fw-bold mb-0">Modalidade</p>
+                                            </div>
+                                        </div>
+                                        <div class="row gy-3" style="gap: 20px;">
+                                            <select id="selectModal" multiple>
+                                                <option value="" style="width: 100% !important;">Selecione a Modalidade</option>
+                                             </select>
+                                        </div>
+                                    </li>
+                                </div>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -537,10 +586,10 @@
                                                     <p class="text-muted mb-0 fs-15">Faturado</p>
                                                     <h4 class="fw-semibold mt-1 fs-20 total-invoicing">-</h4> </div>
                                             </div>
-                                            <div class="align-items-center justify-content-between ">
+                                            <!-- <div class="align-items-center justify-content-between ">
                                                 <div class="text-end">
                                                     <p class="mb-0 text-success flex-wrap fs-20 percentage-invoicing">30%</p><span class="text-muted op-7 fs-11"></span> </div>
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </div>
                                 </div>
@@ -566,10 +615,10 @@
                                                     <p class="text-muted mb-0 fs-15">Lib. Faturamento</p>
                                                     <h4 class="fw-semibold mt-1 fs-20 total-billingReleased">-</h4> </div>
                                             </div>
-                                            <div class="align-items-center justify-content-between">
+                                            <!-- <div class="align-items-center justify-content-between">
                                                 <div class="text-end">
                                                     <p class="mb-0 text-success flex-wrap fs-20 percentage-billingReleased">30%</p><span class="text-muted op-7 fs-11"></span> </div>
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </div>
                                 </div>
@@ -595,10 +644,10 @@
                                                     <p class="text-muted mb-0 fs-15">Vencidos</p>
                                                     <h4 class="fw-semibold mt-1 fs-20 total-invoiceLosers">-</h4> </div>
                                             </div>
-                                            <div class="align-items-center justify-content-between ">
+                                            <!-- <div class="align-items-center justify-content-between ">
                                                 <div class="text-end">
                                                     <p class="mb-0 text-success flex-wrap fs-20 percentage-invoiceLosers">30%</p><span class="text-muted op-7 fs-11"></span> </div>
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </div>
                                 </div>
@@ -624,10 +673,10 @@
                                                     <p class="text-muted mb-0 fs-15">Total Recebido</p>
                                                     <h4 class="fw-semibold mt-1 fs-20 total-totalPaid">-</h4> </div>
                                             </div>
-                                            <div class="align-items-center justify-content-between ">
+                                            <!-- <div class="align-items-center justify-content-between ">
                                                 <div class="text-end">
                                                     <p class="mb-0 text-success flex-wrap fs-20 percentage-totalPaid">30%</p><span class="text-muted op-7 fs-11"></span> </div>
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </div>
                                 </div>
@@ -653,10 +702,10 @@
                                                     <p class="text-muted mb-0 fs-15">Total ADM </p>
                                                     <h4 class="fw-semibold mt-1 fs-20 total-totalReceived">-</h4> </div>
                                             </div>
-                                            <div class="align-items-center justify-content-between ">
+                                            <!-- <div class="align-items-center justify-content-between ">
                                                 <div class="text-end">
                                                     <p class="mb-0 text-success flex-wrap fs-20 percentage-totalReceived">30%</p><span class="text-muted op-7 fs-11"></span> </div>
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </div>
                                 </div>

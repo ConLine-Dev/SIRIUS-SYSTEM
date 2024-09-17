@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer');
 const { executeQuerySQL } = require('../connect/sqlServer');
 const { executeQuery } = require('../connect/mysql');
+const fs = require('fs');
 
 
 
@@ -568,7 +569,7 @@ const headcargo = {
           total_comission += Number(element.commission)
       }
 
-
+     
     
 
       return {
@@ -657,14 +658,20 @@ const headcargo = {
         let total_comissao = totalEfetivo * (percentagem / 100)
 
         const resultadosFormatados = await Promise.all(process.map(async function(item) {
-  
+          const valor = item.Valor_Efetivo * (percentagem / 100)
+
+          if (!isNaN(valor)) {
+          } else {
+              console.error('O valor é NaN e não pode ser inserido no banco de dados', item);
+          }
+
           return [
               parseInt(idReferenci),
               parseInt(item.IdLogistica_House),
               item.Numero_Processo,
               item.Modalidade,
-              parseInt(item.IdVendedor),
-              parseInt(item.IdInside_Sales),
+              parseInt(item.IdVendedor) || null,
+              parseInt(item.IdInside_Sales) || null, 
               item.Valor_Efetivo,
               percentagem, // row.percentage,
               item.Valor_Efetivo * (percentagem / 100), // row.commission,
@@ -681,6 +688,8 @@ const headcargo = {
           reference, id_process, reference_process, modal, id_seller, id_inside, 
           effective, percentage, commission,create_date, date_status, by_user, audited
         ) VALUES ?`;
+
+     
         
         await executeQuery(sql, [resultadosFormatados]);
 

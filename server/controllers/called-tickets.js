@@ -153,7 +153,7 @@ const tickets = {
             [result.insertId, value.categories.id]
           );
         
-        if (value.atribuido > 0) {
+        if (value.atribuido.length > 0) {
             const atribuido = value.atribuido;
             for (let index = 0; index < atribuido.length; index++) {
                 const element = atribuido[index];
@@ -322,7 +322,6 @@ const tickets = {
         await workbook.xlsx.writeFile(filePath);
     }
 }
-
 
 // Chamar a função e exportar os tickets para um arquivo Excel
 // tickets.exportTicketsToExcel('tickets.xlsx')

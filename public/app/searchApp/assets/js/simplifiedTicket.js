@@ -94,6 +94,7 @@ async function sendSimplificatedTicket() {
 
       const ticket = await makeRequest('/api/user-tickets/create', 'POST', arraySimplifiedTicket);
    }
+   window.close();
 }
 
 async function getInfosLogin() {

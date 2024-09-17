@@ -60,7 +60,7 @@ async function setInfosLogin(StorageGoogle) {
    });
 }
 
-async function loadAllApps(user){
+async function loadAllApps(user) {
    // carrega as unidades cadastradas (filiais)
    const AllApps = await makeRequest(`/api/system/listApp`, 'POST', user);
 
@@ -97,14 +97,14 @@ function searchItems() {
    const items = listAllApp.getElementsByClassName('col-6');
 
    for (let i = 0; i < items.length; i++) {
-       const item = items[i];
-       const textContent = item.textContent || item.innerText;
+      const item = items[i];
+      const textContent = item.textContent || item.innerText;
 
-       if (normalizeString(textContent).includes(filter)) {
-           item.style.display = "";
-       } else {
-           item.style.display = "none";
-       }
+      if (normalizeString(textContent).includes(filter)) {
+         item.style.display = "";
+      } else {
+         item.style.display = "none";
+      }
    }
 }
 
@@ -131,23 +131,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 
    let layoutSetting = document.querySelector(".layout-setting");
    layoutSetting?.addEventListener("click", toggleTheme);
-  
+
 
    // fim da função verificar tempo de carregamento da pagina e suas consultas no banco
    console.timeEnd(`A página "${document.title}" carregou em`);
 
    document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
 
-   
+
 
    function showNotification() {
       const notification = new Notification("Edinho", {
-        body: "Você tem uma nova notificação",
-        icon: __dirname + '/logo/icone-sirius.ico',
-        tag: 'soManyNotification',
-        hasReply: true
+         body: "Você tem uma nova notificação",
+         icon: __dirname + '/logo/icone-sirius.ico',
+         tag: 'soManyNotification',
+         hasReply: true
       })
-    }
+   }
    //  showNotification()
 
    //  console.log(Notification.permission)
@@ -161,26 +161,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 })
 
 
-function initLoaderMessages(){
+function initLoaderMessages() {
    const messages = [
       "Carregando recursos",
       "Verificando dados",
       "Quase lá",
       "Preparando a experiência",
       "Finalizando"
-    ];
+   ];
 
-    let messageIndex = 0;
+   let messageIndex = 0;
    const messageElement = document.getElementById('loader-message');
-   
+
    // Função para atualizar a mensagem a cada 2 segundos
    function updateMessage() {
-      if(!document.querySelector('#loader2').classList.contains('d-none')){
+      if (!document.querySelector('#loader2').classList.contains('d-none')) {
          if (messageIndex < messages.length) {
             messageElement.textContent = messages[messageIndex];
             messageIndex++;
-            }
-      }  
+         }
+      }
    }
    // Atualiza a mensagem a cada 2 segundos
    setInterval(updateMessage, 1500);
@@ -216,8 +216,8 @@ async function printSimplifiedSubcategories(category) {
    let printSimplifiedSubcategories = '';
 
    for (let index = 0; index < simplifiedTicketSubcategories.length; index++) {
-       if (simplifiedTicketSubcategories[index].id_simplified_ticket_categories == category) {
-           printSimplifiedSubcategories += `
+      if (simplifiedTicketSubcategories[index].id_simplified_ticket_categories == category) {
+         printSimplifiedSubcategories += `
                <div class="col-3">
                    <a href="javascript:void(0);" class="border-0">
                        <div class="list-group-item border-0">
@@ -230,7 +230,7 @@ async function printSimplifiedSubcategories(category) {
                        </div>
                    </a>
                </div>`
-       }
+      }
    }
    divSimplifiedSubcategories.innerHTML = printSimplifiedSubcategories;
 
@@ -241,15 +241,15 @@ function selectSimplifiedTicket() {
    const buttons = document.querySelectorAll('.simplified-ticket');
 
    buttons.forEach(function (button) {
-       button.addEventListener('click', function () {
-           buttons.forEach(function (b) {
-               b.classList.remove('selected-ticket');
-           });
-           this.classList.add('selected-ticket');
-       });
+      button.addEventListener('click', function () {
+         buttons.forEach(function (b) {
+            b.classList.remove('selected-ticket');
+         });
+         this.classList.add('selected-ticket');
+      });
    });
 }
- 
+
 async function sendSimplificatedTicket() {
 
    const loginData = await getInfosLogin();
@@ -257,15 +257,15 @@ async function sendSimplificatedTicket() {
    const idCollaborator = (loginData.system_collaborator_id).toString();
 
    if (subCategory) {
-       const subCategoryId = subCategory.getAttribute('id');
-       let description = document.querySelector('#simplifiedDescription').value;
-       const categoryName = subCategory.getAttribute('data-name');
+      const subCategoryId = subCategory.getAttribute('id');
+      let description = document.querySelector('#simplifiedDescription').value;
+      const categoryName = subCategory.getAttribute('data-name');
 
-       const arraySimplifiedTicket = { subCategoryId, description, categoryName, idCollaborator };
+      const arraySimplifiedTicket = { subCategoryId, description, categoryName, idCollaborator };
 
-       const ticket = await makeRequest('/api/user-tickets/create', 'POST', arraySimplifiedTicket);
+      const ticket = await makeRequest('/api/user-tickets/create', 'POST', arraySimplifiedTicket);
 
-       resetSimplifiedTicket();
+      resetSimplifiedTicket();
    }
 }
 
@@ -289,78 +289,89 @@ async function getInfosLogin() {
 }
 
 
-  /* header theme toggle */
-  async function toggleTheme() {
+/* header theme toggle */
+async function toggleTheme() {
    const user = await getInfosLogin()
 
    let html = document.querySelector("html");
    if (html.getAttribute("data-theme-mode") === "dark") {
-     html.setAttribute("data-theme-mode", "light");
-     html.setAttribute("data-header-styles", "light");
-     html.setAttribute("data-menu-styles", "light");
-     if (!localStorage.getItem("primaryRGB")) {
-       html.setAttribute("style", "");
-     }
-     html.removeAttribute("data-bg-theme");
-     document.querySelector("#switcher-light-theme").checked = true;
-     document.querySelector("#switcher-menu-light").checked = true;
-     document
-       .querySelector("html")
-       .style.removeProperty("--body-bg-rgb", localStorage.bodyBgRGB);
-     checkOptions();
-     html.style.removeProperty("--body-bg-rgb2");
-     html.style.removeProperty("--light-rgb");
-     html.style.removeProperty("--form-control-bg");
-     html.style.removeProperty("--input-border");
-     document.querySelector("#switcher-header-light").checked = true;
-     document.querySelector("#switcher-menu-light").checked = true;
-     document.querySelector("#switcher-light-theme").checked = true;
-     document.querySelector("#switcher-background4").checked = false;
-     document.querySelector("#switcher-background3").checked = false;
-     document.querySelector("#switcher-background2").checked = false;
-     document.querySelector("#switcher-background1").checked = false;
-     document.querySelector("#switcher-background").checked = false;
-     localStorage.removeItem("ynexdarktheme");
-     localStorage.removeItem("ynexMenu");
-     localStorage.removeItem("ynexHeader");
-     localStorage.removeItem("bodylightRGB");
-     localStorage.removeItem("bodyBgRGB");
-     if (localStorage.getItem("ynexlayout") != "horizontal") {
-       html.setAttribute("data-menu-styles", "dark");
-     }
-     html.setAttribute("data-header-styles", "light");
+      html.setAttribute("data-theme-mode", "light");
+      html.setAttribute("data-header-styles", "light");
+      html.setAttribute("data-menu-styles", "light");
+      if (!localStorage.getItem("primaryRGB")) {
+         html.setAttribute("style", "");
+      }
+      html.removeAttribute("data-bg-theme");
+      document.querySelector("#switcher-light-theme").checked = true;
+      document.querySelector("#switcher-menu-light").checked = true;
+      document
+         .querySelector("html")
+         .style.removeProperty("--body-bg-rgb", localStorage.bodyBgRGB);
+      checkOptions();
+      html.style.removeProperty("--body-bg-rgb2");
+      html.style.removeProperty("--light-rgb");
+      html.style.removeProperty("--form-control-bg");
+      html.style.removeProperty("--input-border");
+      document.querySelector("#switcher-header-light").checked = true;
+      document.querySelector("#switcher-menu-light").checked = true;
+      document.querySelector("#switcher-light-theme").checked = true;
+      document.querySelector("#switcher-background4").checked = false;
+      document.querySelector("#switcher-background3").checked = false;
+      document.querySelector("#switcher-background2").checked = false;
+      document.querySelector("#switcher-background1").checked = false;
+      document.querySelector("#switcher-background").checked = false;
+      localStorage.removeItem("ynexdarktheme");
+      localStorage.removeItem("ynexMenu");
+      localStorage.removeItem("ynexHeader");
+      localStorage.removeItem("bodylightRGB");
+      localStorage.removeItem("bodyBgRGB");
+      if (localStorage.getItem("ynexlayout") != "horizontal") {
+         html.setAttribute("data-menu-styles", "dark");
+      }
+      html.setAttribute("data-header-styles", "light");
 
-   
-     window.electron.sendMessage('theme-changed', 'light');
+
+      window.electron.sendMessage('theme-changed', 'light');
 
    } else {
-     html.setAttribute("data-theme-mode", "dark");
-     html.setAttribute("data-header-styles", "dark");
-     if (!localStorage.getItem("primaryRGB")) {
-       html.setAttribute("style", "");
-     }
-     html.setAttribute("data-menu-styles", "dark");
-     document.querySelector("#switcher-dark-theme").checked = true;
-     document.querySelector("#switcher-menu-dark").checked = true;
-     document.querySelector("#switcher-header-dark").checked = true;
-     checkOptions();
-     document.querySelector("#switcher-menu-dark").checked = true;
-     document.querySelector("#switcher-header-dark").checked = true;
-     document.querySelector("#switcher-dark-theme").checked = true;
-     document.querySelector("#switcher-background4").checked = false;
-     document.querySelector("#switcher-background3").checked = false;
-     document.querySelector("#switcher-background2").checked = false;
-     document.querySelector("#switcher-background1").checked = false;
-     document.querySelector("#switcher-background").checked = false;
-     localStorage.setItem("ynexdarktheme", "true");
-     localStorage.setItem("ynexMenu", "dark");
-     localStorage.setItem("ynexHeader", "dark");
-     localStorage.removeItem("bodylightRGB");
-     localStorage.removeItem("bodyBgRGB");
+      html.setAttribute("data-theme-mode", "dark");
+      html.setAttribute("data-header-styles", "dark");
+      if (!localStorage.getItem("primaryRGB")) {
+         html.setAttribute("style", "");
+      }
+      html.setAttribute("data-menu-styles", "dark");
+      document.querySelector("#switcher-dark-theme").checked = true;
+      document.querySelector("#switcher-menu-dark").checked = true;
+      document.querySelector("#switcher-header-dark").checked = true;
+      checkOptions();
+      document.querySelector("#switcher-menu-dark").checked = true;
+      document.querySelector("#switcher-header-dark").checked = true;
+      document.querySelector("#switcher-dark-theme").checked = true;
+      document.querySelector("#switcher-background4").checked = false;
+      document.querySelector("#switcher-background3").checked = false;
+      document.querySelector("#switcher-background2").checked = false;
+      document.querySelector("#switcher-background1").checked = false;
+      document.querySelector("#switcher-background").checked = false;
+      localStorage.setItem("ynexdarktheme", "true");
+      localStorage.setItem("ynexMenu", "dark");
+      localStorage.setItem("ynexHeader", "dark");
+      localStorage.removeItem("bodylightRGB");
+      localStorage.removeItem("bodyBgRGB");
 
 
-     window.electron.sendMessage('theme-changed', 'dark');
+      window.electron.sendMessage('theme-changed', 'dark');
    }
- }
+}
 
-      
+async function redirectToTable() {
+
+   const body = {
+      url: `/app/searchApp/simplifiedTicket`,
+      width: 500,
+      height: 560,
+      resizable: false
+   }
+   window.ipcRenderer.invoke('open-exWindow', body);
+}
+
+

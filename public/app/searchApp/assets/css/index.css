@@ -32,8 +32,8 @@
 
 .icon-square {
     display: inline-block;
-    width: 80px; /* Define o tamanho do quadrado */
-    height: 80px;
+    width: 100px; /* Define o tamanho do quadrado */
+    height: 100px;
     background-color: #fafafa; /* Cor de fundo do quadrado */
     border-radius: 10px; /* Ajusta os cantos arredondados, se necessário */
     display: flex;

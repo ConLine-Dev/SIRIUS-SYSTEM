@@ -15910,7 +15910,7 @@ hr {
 }
 
 .flatpickr-calendar.open {
-    z-index: 105 !important
+    z-index: 9999999 !important
 }
 
 .flatpickr-current-month .flatpickr-monthDropdown-months {

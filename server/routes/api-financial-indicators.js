@@ -18,6 +18,7 @@ module.exports = function(io) {
         }
     });
 
+    //Lista todas as Despesas administrativas
     router.post('/financial-expenses', async (req, res, next) => {
         
         try {
@@ -30,6 +31,7 @@ module.exports = function(io) {
         }
     });
 
+    //Lista todas os cards do Indicadores Fin
     router.post('/outstanding', async (req, res, next) => {
         
         try {

@@ -1,3 +1,7 @@
+body{
+    overflow: hidden !important;
+}
+
 .file-folders-container{
     height: 100%;
 }
@@ -48,4 +52,18 @@
 
 .selected-ticket{
     background-color: #dadada!important;
+}
+
+.file-manager-container .file-manager-folders, .file-manager-container .file-manager-navigation, .file-manager-container .selected-file-details {
+    height: calc(100vh - 52px);
+    margin-top: 52px;
+}
+
+#listAllApp {
+    overflow-y: auto;
+    max-height: calc(100% - 90px);
+    height: 100%;
+    margin-top: -22px;
+    margin-right: 0px;
+    margin-left: 0px;
 }

@@ -77,6 +77,25 @@
     margin-left: 0px !important;
 }
 
+.custom-swal-width {
+    width: 650px !important; /* Defina a largura que deseja */
+  }
+
+.custom-swal-height {
+height: auto; /* Defina a altura, se necessário */
+max-height: 80vh; /* Evita que ultrapasse a altura da tela */
+overflow-y: auto; /* Adiciona rolagem caso o conteúdo seja grande */
+}
+
+.custom-swal-width .choices__inner {
+    text-align: left;
+}
+
+.choices__list--dropdown {
+    z-index: 9999 !important; /* Certifique-se de que a lista dropdown fique acima do modal */
+    position: relative !important; /* Garante que a posição seja relativa ao seletor */
+}
+
 
 
   

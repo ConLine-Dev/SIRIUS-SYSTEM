@@ -466,6 +466,33 @@ const headcargo = {
       
       return sendmail
     },
+    sendEmailRegistersByColab: async function(data){
+
+      const resultHistory = await executeQuery(`SELECT * FROM commission_history WHERE reference = ${data.registerCommissionID}`);
+      const reference = await executeQuery(`SELECT * FROM commission_reference WHERE id = ${data.registerCommissionID}`);
+      let commissionTotalComission = parseFloat((data.commissionTotalComission).replace('R$', '').trim().replace(/\./g, '').replace(',', '.'));
+      const resultConcat = resultHistory.map((index) => index.id_process).join(',');
+      const getAllProcessToReference = await headcargo.getAllProcessToReference(resultConcat)
+      
+      const type = reference[0].commissioned_type == 1 ? 0 : 1;
+      const templateHTML =  await headcargo.createTableComissionByColab(getAllProcessToReference, type, {de:reference[0].filter_from, ate:reference[0].filter_to}, {name:data.commissionedName, id:reference[0].user}, {total_comissinado:commissionTotalComission})
+
+      const responsiblesGenarate = await executeQuery(`SELECT users.*, 
+      cllt.name as 'name', cllt.family_name as 'family_name' FROM users 
+      JOIN collaborators cllt ON users.collaborator_id = cllt.id
+      WHERE users.id = ${reference[0].by_user}`)
+ 
+      const nameGenerated = headcargo.formatarNome(responsiblesGenarate[0].name+' '+responsiblesGenarate[0].family_name)
+
+      const createBody = await headcargo.createBodyHTMLComission(reference[0].reference, templateHTML.title, templateHTML.html, nameGenerated, templateHTML.filterDates, templateHTML)
+
+    
+      const sendmail = await headcargo.sendEmailComissionByColab(templateHTML.subject, createBody, data.email)
+
+      
+      
+      return sendmail
+    },
     sendEmailRegisterCanceled: async function (id){
       const resultHistory = await executeQuery(`SELECT * FROM commission_history WHERE reference = ${id}`);
       const reference = await executeQuery(`SELECT * FROM commission_reference WHERE id = ${id}`);
@@ -973,6 +1000,113 @@ const headcargo = {
 
 
     },
+    createTableComissionByColab: async function(processList, type, dateFilter, user, registerComission){
+    
+      const commissioned_type = type == 0 ? 1 : 2
+        // assunto do email
+        const assunto = `[Sirius][ConLine] - Pagamento Comissões | ${user.name} | ${type == 0 ? 'Vendedor' : 'Inside'}`;
+
+        // formata a data apresentada no email
+        const new_data_de = headcargo.formatDate(dateFilter.de)
+        const new_data_ate = headcargo.formatDate(dateFilter.ate)
+
+        let Row_process = `
+            <tr>
+                <td style="border-color:black;border-style:solid;border-width:1px;font-weight: 900;text-align: center">REFERENCIA</td>
+                <td style="border-color:black;border-style:solid;border-width:1px;font-weight: 900;text-align: center">CLIENTE</td>
+                <td style="border-color:black;border-style:solid;border-width:1px;font-weight: 900;text-align: center">VENDEDOR</td>
+                <td style="border-color:black;border-style:solid;border-width:1px;font-weight: 900;text-align: center">INSIDE</td>
+                <td style="border-color:black;border-style:solid;border-width:1px;font-weight: 900;text-align: center">LUCRO</td>
+            </tr>`;
+
+        let total_efetivo = 0
+        let total_estimado = 0
+        // let total_comissao = 0
+        for (let index = 0; index < processList.length; index++) {
+            const e = processList[index];
+            total_efetivo += e.Valor_Efetivo;
+            total_estimado += e.Valor_Estimado;
+            
+            let comissaoAplicada = false;
+            let comissao_processo = 0;
+            let comissao_porcentagem = 0;
+           
+
+      
+        
+            Row_process += `
+            <tr>
+                <td style="border-color:black;border-style:solid;border-width:1px;white-space: nowrap;">${e.Numero_Processo}</td>
+                <td style="border-color:black;border-style:solid;border-width:1px;white-space: nowrap;">${e.Cliente == '' || e.Cliente == null ? 'Sem Seleção' : headcargo.formatarNome(e.Cliente.slice(0, 20))}</td>
+                <td style="border-color:black;border-style:solid;border-width:1px;white-space: nowrap;padding: 8px;">${e.Vendedor == '' || e.Vendedor == null ? 'Sem Seleção' : headcargo.formatarNome(e.Vendedor)}</td>
+                <td style="border-color:black;border-style:solid;border-width:1px;white-space: nowrap;padding: 8px;">${e.Inside_Sales == '' || e.Inside_Sales == null ? 'Sem Seleção' : headcargo.formatarNome(e.Inside_Sales)}</td>
+                <td style="border-color:black;border-style:solid;border-width:1px;text-align: right;white-space: nowrap;">${Number(e.Valor_Efetivo).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</td>
+            </tr>`;
+            
+        }
+
+        const filterDates = `<strong> ${new_data_de}</strong> Até <strong> ${new_data_ate}</strong>`
+
+        const header = `<div style="display: flex;height: 96px; max-width: 809px; justify-content: space-around; margin: 0px;">
+        <div style="margin: 5px;background-color: #f8f9fa; padding: 5px; border-radius: 0 0 0 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 271px;">
+        
+            <div style="display: flex; align-items: center; justify-content: center;">
+            
+                <div style="width: 40px; height: 40px; border-radius: 50%; background-color: #ff4d4d; margin-right: 10px;margin-top: 7px;background-image: url(https://cdn.conlinebr.com.br/colaboradores/${user.id});background-position: center center;background-size: cover;">
+                
+                </div>
+       
+    
+                <h2 style="margin-bottom: 0px;">${user.name}</h2>
+            </div>
+            
+                <p style="font-size: 12px; color: #666;">Comissionado [${type == 0 ? 'Vendedor' : 'Inside'}]</p>
+        </div>
+       
+        
+        <div style="margin: 5px;background-color: #f8f9fa; padding: 5px; border-radius: 0 0 0 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 200px;">
+            <h2 style="margin-bottom: 10px;">${total_efetivo.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</h2>
+            <p style="font-size: 12px; color: #666;">Lucro de Processos</p>
+        </div>
+        
+        <div style="margin: 5px;background-color: #f8f9fa; padding: 5px; border-radius: 0 0 0 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 200px;">
+            <h2 style="margin-bottom: 10px;">${(registerComission.total_comissinado).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})}</h2>
+            <p style="font-size: 12px; color: #666;">Comissão</p>
+        </div>
+        
+        
+        <div style="margin: 5px;background-color: #f8f9fa; padding: 5px; border-radius: 0 0 10px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 200px;">
+            <h2 style="margin-bottom: 10px;">${processList.length}</h2>
+            <p style="font-size: 12px; color: #666;">Processos</p>
+        </div>
+    
+    </div>`
+
+        let title = `
+        ${header}
+        <div style="font-size: 10px;padding: 0 10px 0 10px;"> 
+            Atenção o filtro de data é com base na data de compensação, Exportação: <strong>Data Embarque</strong> ou <strong>Previsao de Embarque</strong> 
+            e 
+            Importação: <strong>Data Desembarque</strong> ou <strong>Previsao de Desembarque</strong>
+            <br> 
+            O cálculo de comissão é calculado com base no <strong>lucro efetivo</strong>.
+        </div>`
+
+
+
+
+        return {
+            total_comissao:registerComission.total_comissinado,
+            filterDates:filterDates,
+            title:title,
+            subject:assunto,
+            html:Row_process,
+            total_efetivo:total_efetivo,
+            total_estimado:total_estimado
+        }
+
+
+    },
     sendEmailComission: async function(subject, CustomHTML, recipient){
         const transporter = nodemailer.createTransport({
                 name: 'no-reply@conline-news.com',
@@ -993,6 +1127,46 @@ const headcargo = {
         const mailOptions = {
             from: `Sirius OS <sirius@conline-news.com>`,
             to: `comissao-adm@conlinebr.com.br`,
+            // to: `petryck.leite@conlinebr.com.br`,
+            subject: subject,
+            html: CustomHTML
+        };
+
+        // Envia o e-mail para o destinatário atual
+        try {
+          const info = await transporter.sendMail(mailOptions);
+          console.log('Email enviado com sucesso:', info.response);
+          return { success: true, timestamp: new Date().toISOString() };
+        } catch (error) {
+            console.error('Erro ao enviar email:', error);
+            return { success: false, error: error.message };
+        }
+
+
+    },
+    sendEmailComissionByColab: async function(subject, CustomHTML, recipient){
+ 
+        const transporter = nodemailer.createTransport({
+                name: 'no-reply@conline-news.com',
+                host:'mail.conline-news.com',
+                service:'mail.conline-news.com',
+                port: 465,
+                secure: true,
+                pool:false,
+                rateDelta:1000,
+                rateLimit: 1000,
+                auth:{
+                user: 'sirius@conline-news.com',
+                pass: 'mce191919aA' },
+                debug : true
+            });
+
+          // Transforma o array de destinatários em uma string separada por vírgula
+            const recipientsList = recipient.join(',');
+
+        const mailOptions = {
+            from: `Sirius OS <sirius@conline-news.com>`,
+            to: recipientsList,  // Aqui vão todos os e-mails do array
             // to: `petryck.leite@conlinebr.com.br`,
             subject: subject,
             html: CustomHTML

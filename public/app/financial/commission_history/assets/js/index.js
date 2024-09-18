@@ -333,8 +333,7 @@ async function createTableRegisters(registers, name, type) {
                             }).then(async (result) => {
                                 if (result.isConfirmed) {
                                     // const selectedEmails = Array.from(document.getElementById('emailSelect').selectedOptions).map(option => option.value);
-                                    const emails = Array.from(choicesInstance.getValue()).map(option => option.value);
-                                    
+                                    const emails = choicesInstance.getValue(true)
                                     // Função de envio do email
                                     await sendEmailRegisterComissionByColab(emails);
                             

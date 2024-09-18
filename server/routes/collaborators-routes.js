@@ -190,7 +190,7 @@ module.exports = function (io) {
     });
 
     router.get('/collaboratorsByHeadCargo/:id', async (req, res, next) => {
-        console.log(req.params.id)
+
         try {
             const result = await collaboratorsController.getCollaboratorByHeadCargoId(req.params.id);
             res.status(200).json(result);

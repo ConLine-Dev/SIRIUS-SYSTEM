@@ -62,7 +62,6 @@ body{
 #listAllApp {
     overflow-y: auto;
     max-height: calc(100% - 90px);
-    height: 100%;
     margin-top: -22px;
     margin-right: 0px;
     margin-left: 0px;

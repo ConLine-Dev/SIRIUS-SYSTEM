@@ -72,34 +72,42 @@ const financialIndicators = {
       return result;
    },
 
-
-   // Lista todas as despesas financeira
+   // Lista todas as despesas administrativas
    getFinancialExpenses: async function(){
    const result = await executeQuerySQL(`
-      select ffc.Data_Vencimento as 'Data_Vencimento', 
-      case ffc.Situacao
-         when 1 then 'Em aberto'
-         when 2 then 'Quitada'
-         when 3 then 'Parcialmente quitada'
-         when 4 then 'Unificada'
-         when 5 then 'Em cobrança'
-         when 7 then 'Em combrança judicial'
-         when 8 then 'Negativado'
-         when 9 then 'Protestado'
-         when 10 then 'Junk'
-         when 6 then 'Cancelada' 
-         end as 'Situacao', 
-         ffc.Historico_Resumo,
-         pss.Nome as 'Pessoa',
-         ttc.Nome as 'Tipo_Transacao',
-         ffc.valor as 'valor'
-      from mov_Fatura_Financeira ffc
-      join mov_Registro_Financeiro rfc on rfc.IdRegistro_Financeiro = ffc.IdRegistro_Financeiro
-      join cad_Pessoa pss on pss.IdPessoa = rfc.IdPessoa
-      join cad_Tipo_Transacao ttc on ttc.IdTipo_Transacao = rfc.IdTipo_Transacao
-         WHERE 
-         ttc.Nome NOT LIKE 'DESPESA DO RH' AND
-         ffc.Historico_Resumo NOT LIKE '%ENDOMARKETING%'`);
+      SELECT
+         Fin.Data_Vencimento as Data_Vencimento,
+         case Fin.Situacao
+               when 1 then 'Em aberto'
+               when 2 then 'Quitada'
+               when 3 then 'Parcialmente quitada'
+               when 4 then 'Unificada'
+               when 5 then 'Em cobrança'
+               when 7 then 'Em combrança judicial'
+               when 8 then 'Negativado'
+               when 9 then 'Protestado'
+               when 10 then 'Junk'
+               when 6 then 'Cancelada' 
+               end as 'Situacao',
+         Fin.Historico_Resumo as Historico_Resumo,
+         Pss.Nome as Pessoa,
+         Cat.IdCategoria_Financeira,
+         Cat.Nome as Tipo_Fatura,
+         Ffc.Valor as Valor
+      FROM
+         mov_Fatura_Financeira Fin 
+      LEFT OUTER JOIN
+         mov_Registro_Financeiro Reg ON Reg.IdRegistro_Financeiro = Fin.IdRegistro_Financeiro
+      LEFT OUTER JOIN
+         cad_Pessoa Pss ON Pss.IdPessoa = Reg.IdPessoa
+      LEFT OUTER JOIN
+         mov_Fatura_Financeira_Categoria Ffc ON Ffc.IdFatura_Financeira = Fin.IdFatura_Financeira
+      LEFT OUTER JOIN
+         cad_Categoria_Financeira Cat ON Cat.IdCategoria_Financeira = Ffc.IdCategoria_Financeira
+      WHERE
+         Cat.IdCategoria_Financeira IN (30, 112, 23, 105, 29, 98, 106, 12, 59, 115, 99, 114, 49, 50, 79, 53, 33, 76, 44, 123, 41, 31, 51, 87, 104, 38, 57, 25, 47, 48, 61, 13, 94)
+      ORDER BY
+         Cat.IdCategoria_Financeira ASC`);
    
    // Mapear os resultados e formatar a data
    const resultadosFormatados = result.map(item => ({
@@ -107,8 +115,9 @@ const financialIndicators = {
          'Situacao': item.Situacao,
          'Historico_Resumo': item.Historico_Resumo,
          'Pessoa': item.Pessoa,
-         'Valor': (item.valor).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
-         'Tipo_Transacao': item.Tipo_Transacao
+         'Tipo_Fatura': item.Tipo_Fatura,
+         'Valor': (item.Valor).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+         
    }));
 
    const format = {
@@ -117,9 +126,8 @@ const financialIndicators = {
 
    return format;
    },
-
    
-   //Lista o valor total de cada situação de agenciamento
+   //Lista o valor total de cada situação de agenciamento (Consultas SQL)
    financialSummary: async function () {
    const invoicing = await executeQuerySQL(`
       SELECT 
@@ -687,7 +695,6 @@ const financialIndicators = {
       return result;
    },
    
-
    //Valor total do card Total ADM
    totalAdm: async function () {
       const result = await executeQuerySQL(`

@@ -264,5 +264,35 @@
     "element": ".intro-profitAveragePerModal",
     "title": "Lucro Médio por Processo/Modal",
     "intro": "Mostra a porcentagem anual do lucro por processo de cada modal, calculado dividindo o lucro total pelo número de processos."
+  },
+  {
+    "element": ".intro-commercial-note",
+    "title": "Nota Comercial",
+    "intro": "Esta seção exibe o total de avaliações comerciais fornecidas pelos clientes."
+  },
+  {
+    "element": ".intro-operational-note",
+    "title": "Nota Operacional",
+    "intro": "Esta seção exibe o total de avaliações operacionais fornecidas pelos clientes."
+  },
+  {
+    "element": ".intro-financial-note",
+    "title": "Nota Financeiro",
+    "intro": "Esta seção exibe o total de avaliações financeiras fornecidas pelos clientes."
+  },
+  {
+    "element": ".intro-overall-average",
+    "title": "Média Geral",
+    "intro": "Esta seção exibe a média geral das avaliações fornecidas pelos clientes."
+  },
+  {
+    "element": ".intro-summary-answers",
+    "title": "Resumo das Respostas",
+    "intro": "Este gráfico mostra um resumo das respostas recebidas de seus clientes ao longo de um período. Cada métrica está representada de forma clara para facilitar a análise.<br> <strong>Resp. Recebidas:</strong> Esta métrica exibe o número total de respostas que foram recebidas dos clientes.<br> <strong>Cli. Respondentes:</strong> Mostra a quantidade de clientes que responderam às suas solicitações.<br> <strong>Resp. com Feedback:</strong> Indica quantas respostas incluem feedback adicional dos clientes.<br> <strong>Respondentes Ativos:</strong> Exibe o número de clientes ativos que participaram do processo de feedback.<br> <strong>Gráfico:</strong> O gráfico abaixo ilustra a quantidade de respostas por mês. Ao passar o cursor sobre um ponto específico, você pode ver o número exato de respostas recebidas naquele período."
+  },
+  {
+    "element": "#intro-list-customers",
+    "title": "Lista de Clientes",
+    "intro": "Ao clicar em <strong>'ACESSAR'</strong>, você será redirecionado para a janela 'NPS - Lista de Clientes', onde poderá visualizar todos os clientes da nossa empresa."
   }
 ]

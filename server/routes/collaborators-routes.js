@@ -189,6 +189,16 @@ module.exports = function (io) {
         }
     });
 
+    router.get('/collaboratorsByHeadCargo/:id', async (req, res, next) => {
+        console.log(req.params.id)
+        try {
+            const result = await collaboratorsController.getCollaboratorByHeadCargoId(req.params.id);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    });
+
     router.get('/collaborators-birth-date', async (req, res) => {
         try {
             const collaborator = await collaboratorsController.getCollaboratorBirthDate(req.params.id);

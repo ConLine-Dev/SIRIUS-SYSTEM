@@ -88,6 +88,22 @@ const collaboratorsController = {
         return result[0];
     },
 
+    getCollaboratorByHeadCargoId: async function(id){
+        const query = `SELECT clt.*,
+                        ca.collaborator_id,
+                        ca.street,
+                        ca.number,
+                        ca.complement,
+                        ca.neighborhood,
+                        ca.city,
+                        ca.state,
+                        ca.zip_code
+                FROM collaborators clt
+                LEFT JOIN collaborators_addresses ca ON ca.collaborator_id = clt.id WHERE clt.id_headcargo = ?`;
+                const result = await executeQuery(query, [id]);
+                return result[0];
+    },
+
     getCollaboratorBirthDate: async function(){
         const result = await executeQuery(`SELECT 
         id, 

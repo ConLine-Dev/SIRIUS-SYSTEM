@@ -12,7 +12,7 @@ const StorageGoogleData = localStorage.getItem('StorageGoogle');
 const StorageGoogle = JSON.parse(StorageGoogleData);
 
 // Variáveis globais
-let toastCount = 0, commissionedID, commissionedName, commissionTotalProfitProcess, commissionType, commissionTotalComission, commissionLength, registerCommissionID;
+let toastCount = 0,choicesInstance, commissionedID, commissionedName, commissionTotalProfitProcess, commissionType, commissionTotalComission, commissionLength, registerCommissionID;
 
 /**
  * Evento que será disparado quando o DOM estiver completamente carregado,
@@ -255,7 +255,7 @@ async function createTableRegisters(registers, name, type) {
                         action: async function (e, dt, node, config) {
 
                             Swal.fire({
-                                title: 'Vamos enviar essa registro por email?',
+                                title: 'Deseja enviar esse registro por email?',
                                 text: "Este email por padrão será enviado para comissao-adm@conlinebr.com.br!",
                                 icon: 'question',
                                 showCancelButton: true,
@@ -276,6 +276,72 @@ async function createTableRegisters(registers, name, type) {
                                 }
                             })
                            
+                        }
+                    },
+                    {
+                        text: ' <i class="ri-mail-send-fill label-btn-icon me-2"></i> E-mail Comissionado',
+                        className: 'btn btn-secondary label-btn btn-table-custom',
+                        enabled: true,
+                        action: async function (e, dt, node, config) {
+                            const register = await makeRequest(`/api/collaborators-management/collaboratorsByHeadCargo/${commissionedID}`);
+                
+                            Swal.fire({
+                                title: 'Deseja enviar esse registro por email?',
+                                html: `
+                                    <label for="emailSelect">Selecione ou adicione emails:</label>
+                                    <select id="emailSelect" name="emails" class="choices-multiple" multiple>
+                                        <option value="${register.email_personal}" selected>${register.email_personal}</option>
+                                        <option value="${register.email_business}">${register.email_business}</option>
+                                    </select>
+                                `,
+                                showCancelButton: true,
+                                confirmButtonText: 'Sim, enviar email!',
+                                cancelButtonText: 'Cancelar',
+                                customClass: {
+                                    popup: 'custom-swal-width custom-swal-height',
+                                },
+                                didOpen: () => {
+                                    const emailSelect = document.getElementById('emailSelect');
+                                    choicesInstance = new Choices(emailSelect, {
+                                        addItems: true,
+                                        addChoices: true,
+                                        removeItemButton: true,
+                                        duplicateItemsAllowed: false,  // Não permite emails duplicados
+                                        editItems: true,
+                                        allowHTML: true,
+                                        customAddItemText: (value) => {
+                                            // Condição específica para emails válidos
+                                            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                            if (!emailPattern.test(value)) {
+                                                return `O valor <b>"${value}"</b> não é um email válido`;
+                                            }
+                                        },
+                                        addItemText: (value) => {
+                                            return `Pressione Enter para adicionar o email <b>"${value}"</b>`;
+                                          },
+                                        noResultsText: 'Nenhum resultado encontrado',
+                                        noChoicesText: 'Sem opções disponíveis',
+                                        itemSelectText: 'Clique para selecionar',
+                                        // Verificação do email
+                                        addItemFilter: (value) => {
+                                            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                            return emailPattern.test(value);
+                                        }
+                                    });
+                            
+                                },
+                            }).then(async (result) => {
+                                if (result.isConfirmed) {
+                                    // const selectedEmails = Array.from(document.getElementById('emailSelect').selectedOptions).map(option => option.value);
+                                    const emails = Array.from(choicesInstance.getValue()).map(option => option.value);
+                                    
+                                    // Função de envio do email
+                                    await sendEmailRegisterComissionByColab(emails);
+                            
+                                    createToast('Sirius', `Registro de comissões enviado com sucesso para: ${selectedEmails.join(', ')}`);
+                                }
+                            });
+                            
                         }
                     },
                     {
@@ -323,6 +389,16 @@ async function createTableRegisters(registers, name, type) {
     });
 }
 
+
+function addItemOnCustomKeyPress(value) {
+    console.log(value)
+	const addItemCharacters = ',; ';
+  if (choicesInstance && value && addItemCharacters.includes(value.slice(-1))) {
+    choicesInstance.setValue([value.slice(0, -1)]);
+    choicesInstance.clearInput();
+  }
+}
+
 /**
  * Função para cancelar o registro de pagamento de uma comissão
  */
@@ -357,6 +433,27 @@ async function sendEmailRegisterComission() {
 
     // Faz uma requisição para enviar o registro de comissão por e-mail
     const sendEmail = await makeRequest(`/api/headcargo/commission/sendEmailRegisters`, 'POST', data);
+    return sendEmail;
+}
+
+/**
+ * Função para enviar o registro de comissão por e-mail
+ */
+async function sendEmailRegisterComissionByColab(email) {
+    // Cria um objeto com os dados da comissão
+    const data = {
+        commissionedID: commissionedID,
+        commissionedName: commissionedName,
+        registerCommissionID: registerCommissionID,
+        commissionTotalProfitProcess: commissionTotalProfitProcess,
+        commissionType: commissionType,
+        commissionTotalComission: commissionTotalComission,
+        commissionLength: commissionLength,
+        email:email
+    };
+
+    // Faz uma requisição para enviar o registro de comissão por e-mail
+    const sendEmail = await makeRequest(`/api/headcargo/commission/sendEmailRegistersByColab`, 'POST', data);
     return sendEmail;
 }
 

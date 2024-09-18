@@ -67,7 +67,7 @@ async function loadAllApps(user) {
    let apps = '';
    for (let index = 0; index < AllApps.length; index++) {
       const element = AllApps[index];
-      apps += ` <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4">
+      apps += ` <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-2">
                      <a href="${element.path}">
                         <div class="text-center p-3 related-app"> 
                            <span class="avatar avatar-sm"> 

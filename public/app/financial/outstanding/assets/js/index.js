@@ -305,7 +305,7 @@ async function graphic_month(data) {
      }
 };
 
-// Inicializa o seletor de data
+// Inicializa o seletor de data (Filtro)
 async function initializeDatePicker() {
     console.log('aqui')
     flatpickr("#inputDateFilters", {

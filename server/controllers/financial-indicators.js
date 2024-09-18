@@ -141,7 +141,7 @@ const financialIndicators = {
         return result;
    },
 
-   // Valor total do card Faturado
+   // Valor total dos cards de Indicadores Fin
    outstanding: async function () {
       const result = await executeQuerySQL(`
          -- FATURADO IMPORTACAO

@@ -294,5 +294,15 @@
     "element": "#intro-list-customers",
     "title": "Lista de Clientes",
     "intro": "Ao clicar em <strong>'ACESSAR'</strong>, você será redirecionado para a janela 'NPS - Lista de Clientes', onde poderá visualizar todos os clientes da nossa empresa."
+  },
+  {
+    "element": ".intro-table-nps-clients",
+    "title": "NPS - Lista de Clientes",
+    "intro": "Esta seção exibe todos os clientes da nossa carteira. Você pode visualizar o nome do cliente, o vendedor responsável logo abaixo, o CNPJ ao lado, e um link para copiar e enviar diretamente ao cliente para que ele forneça seu feedback."
+  },
+  {
+    "element": ".intro-search-client",
+    "title": "Pesquisar",
+    "intro": "Aqui você pode pesquisar pelo nome do cliente ou por um vendedor específico."
   }
 ]

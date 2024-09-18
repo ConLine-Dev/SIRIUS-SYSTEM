@@ -8,7 +8,6 @@ module.exports = function(io) {
     //Lista todas as faturas
     router.post('/totalInvoices', async (req, res, next) => {
         const {situacao} = req.body;
-        console.log(situacao)
         try {
            const result = await financialIndicators.totalInvoices(situacao);
   
@@ -19,19 +18,7 @@ module.exports = function(io) {
         }
     });
 
-    router.get('/financial-summary', async (req, res, next) => {
-        
-        try {
-           const result = await financialIndicators.financialSummary();
-  
-           res.status(200).json(result)
-        } catch (error) {
-  
-           res.status(404).json('Erro')
-        }
-    });
-
-    router.get('/financial-expenses', async (req, res, next) => {
+    router.post('/financial-expenses', async (req, res, next) => {
         
         try {
            const result = await financialIndicators.getFinancialExpenses();
@@ -43,70 +30,10 @@ module.exports = function(io) {
         }
     });
 
-    router.get('/invoiced', async (req, res, next) => {
+    router.post('/outstanding', async (req, res, next) => {
         
         try {
-           const result = await financialIndicators.invoiced();
-  
-           res.status(200).json(result)
-        } catch (error) {
-  
-           res.status(404).json('Erro')
-        }
-    });
-
-    router.get('/billingReleased', async (req, res, next) => {
-        
-        try {
-           const result = await financialIndicators.billingReleased();
-  
-           res.status(200).json(result)
-        } catch (error) {
-  
-           res.status(404).json('Erro')
-        }
-    });
-
-    router.get('/losers', async (req, res, next) => {
-       
-        try {
-           const result = await financialIndicators.losers();
-  
-           res.status(200).json(result)
-        } catch (error) {
-  
-           res.status(404).json('Erro')
-        }
-    });
-
-    router.get('/totalReceived', async (req, res, next) => {
-
-        try {
-           const result = await financialIndicators.totalReceived();
-  
-           res.status(200).json(result)
-        } catch (error) {
-  
-           res.status(404).json('Erro')
-        }
-    });
-
-    router.get('/totalPaid', async (req, res, next) => {
-
-        try {
-           const result = await financialIndicators.totalPaid();
-  
-           res.status(200).json(result)
-        } catch (error) {
-  
-           res.status(404).json('Erro')
-        }
-    });
-
-    router.get('/totalAdm', async (req, res, next) => {
-
-        try {
-           const result = await financialIndicators.totalAdm();
+           const result = await financialIndicators.outstanding();
   
            res.status(200).json(result)
         } catch (error) {

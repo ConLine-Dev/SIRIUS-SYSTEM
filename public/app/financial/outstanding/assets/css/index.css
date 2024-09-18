@@ -16,7 +16,32 @@
     max-height: 486px;
 }
 
-/* Estilo do modal */
+/* Estiliza a largura da barra de rolagem */
+.listInvoices::-webkit-scrollbar {
+    width: 12px; /* largura da barra vertical */
+    height: 12px; /* altura da barra horizontal */
+}
+
+/* Estiliza o fundo da barra de rolagem */
+.listInvoices::-webkit-scrollbar-track {
+    background: #fff; /* cor do fundo */
+}
+
+/* Estiliza o thumb (parte que se move da barra) */
+.listInvoices::-webkit-scrollbar-thumb {
+    background-color: #979595; /* cor do thumb */
+    border-radius: 10px; /* borda arredondada */
+    border: 2px solid #f1f1f1; /* margem para o thumb */
+}
+
+
+
+
+.listInvoices::-webkit-scrollbar-button:active {
+    background-color: #aaa; /* cor das setas ao serem clicadas */
+}
+
+
 .modal {
     display: none; 
     position: fixed; 
@@ -48,6 +73,17 @@
     color: black;
     text-decoration: none;
     cursor: pointer;
+}
+
+:root{
+    --main-color: #F9423A;
+    --fcl-color: #b49900;
+    --lcl-color: #00b158;
+    --air-color: #007e8f;
+}
+
+.dt-buttons {
+    margin-bottom: 10px; /* Adiciona 20px de espaçamento abaixo dos botões */
 }
 
 

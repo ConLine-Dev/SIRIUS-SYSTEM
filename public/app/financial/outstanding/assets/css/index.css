@@ -18,9 +18,24 @@
     z-index: 9999;
 }
 
+#loader1 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--custom-white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
 .listInvoices {
     overflow-y: scroll;
     max-height: 486px;
+    position: relative;
+    min-height: 486px;
 }
 
 /* Estiliza a largura da barra de rolagem */
@@ -84,4 +99,22 @@
 
 .dt-buttons {
     margin-bottom: 10px; /* Adiciona 20px de espaçamento abaixo dos botões */
+}
+
+.invoiceActive {
+    color: var(--primary-color);
+    background-color: var(--primary005);
+}
+
+.image-fin-filter img {
+    opacity: 0.2;
+    width: 352px; /* Define a largura da imagem para deixá-la menor */
+    margin: 247px auto; /* Centraliza a imagem horizontalmente */
+    display: block; /* Garante que o elemento seja tratado como um bloco */
+    margin-bottom: 10px; /* Dá um espaço entre a imagem e o botão de filtro */
+}
+
+.image-fin-filter {
+    display: block;
+    position: fixed;
 }

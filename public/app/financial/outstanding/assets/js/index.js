@@ -1,8 +1,9 @@
 // Função que gera a tabela de faturas a partir dos dados recebidos de uma API.
+let startDateGlobal, endDateGlobal;
+
 // Função Lista de faturas
-async function invoicesTable(situacao = 1) {
+async function invoicesTable(totalInvoices) {
     // Fazer a requisição à API
-    const totalInvoices = await makeRequest(`/api/financial-indicators/totalInvoices`, 'POST', {situacao: situacao});
     const divlistInvoices = document.getElementById('listInvoices');
     
     let printlistInvoices = '';
@@ -33,8 +34,6 @@ async function invoicesTable(situacao = 1) {
             formattedValue = totalInvoices[index].Valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
         
-    
-      
 
         const date = await formattedDateTime(totalInvoices[index].Data);
         const clientName = totalInvoices[index].Pessoa
@@ -59,11 +58,12 @@ async function invoicesTable(situacao = 1) {
                     </div>
                 </div>
             </a>`
-
       
     }
 
     divlistInvoices.innerHTML = printlistInvoices
+
+    
 };
 
 // Função Despesas Administativas puxa da API
@@ -99,6 +99,7 @@ async function tableFinancialExpenses(dados) {
             url: '../../assets/libs/datatables/pt-br.json'
         },
     });
+
 };
 
 // Função para formatar a data (dia, mês, ano) no gráfico
@@ -308,9 +309,87 @@ async function graphic_month(data) {
 // Inicializa o seletor de data (Filtro)
 async function initializeDatePicker() {
     console.log('aqui')
-    flatpickr("#inputDateFilters", {
+    flatpickr("#inputDateFilter", {
         mode: "range",
         dateFormat: "d M Y",
+    });
+};
+
+async function eventClick() {
+    //====== BOTÃO DE FILTRO ======//
+    const inputDateFilter = document.getElementById('inputDateFilter');
+    const btn_filter = document.getElementById('btn-filter');
+    btn_filter.addEventListener('click', async function (e) {
+        e.preventDefault();
+        // Obtém o valor do input
+        const dateRange = inputDateFilter.value;
+        // Divide o valor em duas data separadas
+        const [startDateStr, endDateStr] = dateRange.split(' até ');
+        // Função para converter uma data "01 jan 2024" para "2024-01-01"
+        const formatDate = (dateStr) => {
+            if (!dateStr) {
+                return false
+            } else {
+                const [day, month, year] = dateStr.split(' ');
+                const month_map = {
+                    'Jan': '01',
+                    'Fev': '02',
+                    'Mar': '03',
+                    'Abr': '04',
+                    'Mai': '05',
+                    'Jun': '06',
+                    'Jul': '07',
+                    'Ago': '08',
+                    'Set': '09',
+                    'Out': '10',
+                    'Nov': '11',
+                    'Dez': '12',
+                };
+
+                return `${year}-${month_map[month]}-${day.padStart(2, 0)}`
+            }
+        };
+
+        startDateGlobal = formatDate(startDateStr);
+        endDateGlobal = formatDate(endDateStr);
+        const invoiceActive = document.querySelector('.InvoiceActive').getAttribute('invoicesTable');
+
+        // Tela de carregando 'add=quando vc fecha algo/remove=quando vc abre algo'
+        document.querySelector('#loader2').classList.remove('d-none')
+
+        const outstanding = await makeRequest(`/api/financial-indicators/outstanding`, 'POST', {startDateGlobal, endDateGlobal});
+        const despesaAdm = await makeRequest(`/api/financial-indicators/financial-expenses`, 'POST', {startDateGlobal, endDateGlobal});
+        const totalInvoices = await makeRequest(`/api/financial-indicators/totalInvoices`, 'POST', {startDateGlobal, endDateGlobal, situacao: invoiceActive});
+
+        await totalCard(outstanding);
+        await graphic_month(outstanding);
+        await tableFinancialExpenses(despesaAdm);
+        await invoicesTable(totalInvoices);
+
+        // Tela de carregando 'add=quando vc fecha algo/remove=quando vc abre algo'
+        document.querySelector('#loader2').classList.add('d-none')
+    })
+
+    //====== FILTRO DE FATURA ======//
+    const nameInvoices = document.querySelectorAll('[invoicesTable]')
+    nameInvoices.forEach(item => {
+        item.addEventListener('click', async function(e){
+            e.preventDefault()
+
+            // Tela de carregando 'add=quando vc fecha algo/remove=quando vc abre algo'
+            document.querySelector('#loader1').classList.remove('d-none')
+
+            const invoiceActive = document.querySelector('.invoiceActive')
+            invoiceActive.classList.remove('invoiceActive')
+            this.classList.add('invoiceActive')
+            const Invoice = this.getAttribute('invoicesTable')
+            const totalInvoices = await makeRequest(`/api/financial-indicators/totalInvoices`, 'POST', {startDateGlobal, endDateGlobal, situacao: Invoice});
+            await invoicesTable(totalInvoices);
+
+            document.querySelector('#loader1').classList.add('d-none')
+
+        })
+        
     });
 };
 
@@ -319,15 +398,18 @@ async function initializeDatePicker() {
 document.addEventListener("DOMContentLoaded", async () => {
     const outstanding = await makeRequest(`/api/financial-indicators/outstanding`, 'POST');
     const despesaAdm = await makeRequest(`/api/financial-indicators/financial-expenses`, 'POST');
-    // const billingReleased = await makeRequest(`/api/financial-indicators/billingReleased`, 'GET');
-    
+    const totalInvoices = await makeRequest(`/api/financial-indicators/totalInvoices`, 'POST');
+
     await totalCard(outstanding);
     await graphic_month(outstanding);
-    await invoicesTable(3); // Inicia a lista das faturas com a situação Parcialmente quitada
+    await invoicesTable(totalInvoices); // Inicia a lista das faturas com a situação Parcialmente quitada
     await tableFinancialExpenses(despesaAdm);
 
     await initializeDatePicker();
+    await eventClick();
 
+    introMain()
 
     document.querySelector('#loader2').classList.add('d-none')
+
 })

@@ -3,12 +3,21 @@ const { executeQuery } = require('../connect/mysql');
 
 const financialIndicators = {
     // Lista todas as faturas
-   totalInvoices: async function (situacao) {
+   totalInvoices: async function (startDateGlobal, endDateGlobal, situacao) {
 
-      let where = '';
-      if(situacao){
-         where = `AND Fnc.Situacao IN (${situacao})`
-      }
+      const dataAbertura = startDateGlobal && endDateGlobal ? `
+      (
+        (Fnc.Situacao = 2 AND Fnc.Data_Pagamento BETWEEN '${startDateGlobal}' AND '${endDateGlobal}')
+        OR
+        (Fnc.Situacao != 2 AND Vlf.Data_Referencia BETWEEN '${startDateGlobal}' AND '${endDateGlobal}')
+      )` : `
+      (
+        (Fnc.Situacao = 2 AND DATEPART(YEAR, Fnc.Data_Pagamento) = DATEPART(YEAR, GETDATE())) 
+        OR
+        (Fnc.Situacao != 2 AND DATEPART(YEAR, Vlf.Data_Referencia) =  DATEPART(YEAR, GETDATE())) 
+      )`
+
+      const situacaoHtml = situacao ? `AND Fnc.Situacao IN (${situacao})` : `AND Fnc.Situacao IN (3)`
 
       let result = await executeQuerySQL(`
          SELECT
@@ -51,8 +60,8 @@ const financialIndicators = {
             END AS Moeda,
 
             CASE
-               WHEN Fnc.Situacao = 2 /*Quitada*/ THEN Fnc.Total_Pago_Corrente
-               ELSE Vlf.Valor_Total
+               WHEN Fnc.Situacao = 2 /*Quitada*/ THEN COALESCE(Fnc.Total_Pago_Corrente, 0)
+               ELSE COALESCE(Vlf.Valor_Total, 0)
             END AS Valor
          FROM
             mov_Logistica_House Lhs
@@ -65,15 +74,17 @@ const financialIndicators = {
          LEFT OUTER JOIN
             cad_Moeda Mda ON Mda.IdMoeda = Vlf.IdMoeda
          WHERE
-            DATEPART(YEAR, Lhs.Data_Abertura_Processo) = DATEPART(YEAR, GETDATE())
+         ${dataAbertura}
             AND Lhs.Numero_Processo NOT LIKE ('%test%')
             AND Lhs.Situacao_Agenciamento NOT IN (7/*Cancelado*/)
-         ${where}`)
+         ${situacaoHtml}`)
       return result;
    },
 
    // Lista todas as despesas administrativas
-   getFinancialExpenses: async function(){
+   getFinancialExpenses: async function(startDateGlobal, endDateGlobal){
+      const filterDate = startDateGlobal && endDateGlobal ? `and (Fin.Data_Vencimento between '${startDateGlobal}' and '${endDateGlobal}')` : `and DATEPART(YEAR, Fin.Data_Vencimento) = DATEPART(YEAR, GETDATE())`
+
    const result = await executeQuerySQL(`
       SELECT
          Fin.Data_Vencimento as Data_Vencimento,
@@ -93,7 +104,7 @@ const financialIndicators = {
          Pss.Nome as Pessoa,
          Cat.IdCategoria_Financeira,
          Cat.Nome as Tipo_Fatura,
-         Ffc.Valor as Valor
+         COALESCE(Ffc.Valor, 0) as Valor
       FROM
          mov_Fatura_Financeira Fin 
       LEFT OUTER JOIN
@@ -106,6 +117,7 @@ const financialIndicators = {
          cad_Categoria_Financeira Cat ON Cat.IdCategoria_Financeira = Ffc.IdCategoria_Financeira
       WHERE
          Cat.IdCategoria_Financeira IN (30, 112, 23, 105, 29, 98, 106, 12, 59, 115, 99, 114, 49, 50, 79, 53, 33, 76, 44, 123, 41, 31, 51, 87, 104, 38, 57, 25, 47, 48, 61, 13, 94)
+         ${filterDate}
       ORDER BY
          Cat.IdCategoria_Financeira ASC`);
    
@@ -142,7 +154,14 @@ const financialIndicators = {
    },
 
    // Valor total dos cards de Indicadores Fin
-   outstanding: async function () {
+   outstanding: async function (startDateGlobal, endDateGlobal) {
+      const dataFaturado = startDateGlobal && endDateGlobal ? `AND (Vlf.Data_Referencia between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR,Vlf.Data_Referencia) = DATEPART(YEAR, GETDATE())` 
+      const dataLibImp = startDateGlobal && endDateGlobal ? `AND (Lgv.Data_Desembarque between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Lgv.Data_Desembarque) = DATEPART(YEAR, GETDATE())`
+      const dataLibExp = startDateGlobal && endDateGlobal ? `AND (Lms.Data_Embarque between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Lms.Data_Embarque) = DATEPART(YEAR, GETDATE())`
+      const dataPago = startDateGlobal && endDateGlobal ? `AND (Fnc.Data_Pagamento between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Fnc.Data_Pagamento) = DATEPART(YEAR, GETDATE())`
+      const DataVen = startDateGlobal && endDateGlobal ? `AND (Fnc.Data_Vencimento between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND Fnc.Data_Vencimento < GETDATE()`
+      const DataAdm = startDateGlobal && endDateGlobal ? `and (Fin.Data_Vencimento between '${startDateGlobal}' and '${endDateGlobal}')` : `and DATEPART(YEAR, Fin.Data_Vencimento) = DATEPART(YEAR, GETDATE())`
+
       const result = await executeQuerySQL(`
          -- FATURADO IMPORTACAO
       SELECT
@@ -195,7 +214,7 @@ const financialIndicators = {
          AND Fnc.Tipo = 2 /*Fatura Finalizada*/
          AND Fnc.Situacao NOT IN (2/*Quitada*/)
          AND Lms.Tipo_Operacao = 2 /*Importacao*/
-         AND DATEPART(YEAR, Vlf.Data_Referencia) = DATEPART(YEAR, GETDATE())
+         ${dataFaturado}
 
       UNION ALL
 
@@ -238,7 +257,7 @@ const financialIndicators = {
          AND Fnc.Tipo = 2 /*Fatura Finalizada*/
          AND Fnc.Situacao NOT IN (2/*Quitada*/)
          AND Lms.Tipo_Operacao = 1 /*Exportacao*/
-         AND DATEPART(YEAR, Vlf.Data_Referencia) = DATEPART(YEAR, GETDATE())
+         ${dataFaturado}
 
       UNION ALL
 
@@ -293,7 +312,7 @@ const financialIndicators = {
          AND Fnc.Tipo = 1 /*Fatura Em Aberto*/
          AND Fnc.Situacao NOT IN (2/*Quitada*/)
          AND Lms.Tipo_Operacao = 2 /*Importacao*/
-         AND DATEPART(YEAR, Lgv.Data_Desembarque) = DATEPART(YEAR, GETDATE())
+         ${dataLibImp}
 
       UNION ALL
 
@@ -337,7 +356,7 @@ const financialIndicators = {
          AND Fnc.Situacao NOT IN (2/*Quitada*/)
          AND Lms.Data_Embarque IS NOT NULL
          AND Lms.Tipo_Operacao = 1 /*Exportacao*/
-         AND DATEPART(YEAR, Lms.Data_Embarque) = DATEPART(YEAR, GETDATE())
+         ${dataLibExp}
 
       UNION ALL
 
@@ -361,7 +380,7 @@ const financialIndicators = {
          AND Lhs.Numero_Processo NOT LIKE ('%test%')
          AND Lhs.Situacao_Agenciamento NOT IN (7/*Cancelado*/)
          AND Fnc.Situacao IN (2/*Quitada*/)
-         AND DATEPART(YEAR, Fnc.Data_Pagamento) = DATEPART(YEAR, GETDATE())
+         ${dataPago}
 
       UNION ALL
 
@@ -385,7 +404,7 @@ const financialIndicators = {
          AND Lhs.Numero_Processo NOT LIKE ('%test%')
          AND Lhs.Situacao_Agenciamento NOT IN (7/*Cancelado*/)
          AND Fnc.Situacao IN (2/*Quitada*/)
-         AND DATEPART(YEAR, Fnc.Data_Pagamento) = DATEPART(YEAR, GETDATE())
+         ${dataPago}
 
       UNION ALL
 
@@ -437,14 +456,14 @@ const financialIndicators = {
          AND Lhs.Situacao_Agenciamento NOT IN (7/*Cancelado*/)
          AND Fnc.Tipo = 2 /*Fatura Finalizada*/
          AND Fnc.Situacao NOT IN (2/*Quitada*/)
-         AND Fnc.Data_Vencimento < GETDATE()
+         ${DataVen}
          
          UNION ALL
          
          SELECT
             '' AS Numero_Processo,
             Pss.Nome as Pessoa,
-            Fin.Data,
+            Fin.Data_Vencimento as Data,
             Ffc.Valor as Valor_Total,
             'Adm' AS Tipo_Fatura
 
@@ -460,8 +479,7 @@ const financialIndicators = {
             cad_Categoria_Financeira Cat ON Cat.IdCategoria_Financeira = Ffc.IdCategoria_Financeira
          WHERE
             Cat.IdCategoria_Financeira IN (30, 112, 23, 105, 29, 98, 106, 12, 59, 115, 99, 114, 49, 50, 79, 53, 33, 76, 44, 123, 41, 31, 51, 87, 104, 38, 57, 25, 47, 48, 61, 13, 94)
-         AND
-            DATEPART(YEAR, Fin.Data) = DATEPART(YEAR, GETDATE())
+         ${DataAdm}
          AND
             Fin.Natureza = 0 -- Pagamento`)
       return result;

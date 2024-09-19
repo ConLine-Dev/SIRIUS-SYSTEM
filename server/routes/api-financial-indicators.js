@@ -7,9 +7,9 @@ const { financialIndicators } = require('../controllers/financial-indicators.js'
 module.exports = function(io) {
     //Lista todas as faturas
     router.post('/totalInvoices', async (req, res, next) => {
-        const {situacao} = req.body;
+        const {startDateGlobal, endDateGlobal, situacao} = req.body;
         try {
-           const result = await financialIndicators.totalInvoices(situacao);
+           const result = await financialIndicators.totalInvoices(startDateGlobal, endDateGlobal, situacao);
   
            res.status(200).json(result)
         } catch (error) {
@@ -20,9 +20,10 @@ module.exports = function(io) {
 
     //Lista todas as Despesas administrativas
     router.post('/financial-expenses', async (req, res, next) => {
+      const {startDateGlobal, endDateGlobal} = req.body
         
         try {
-           const result = await financialIndicators.getFinancialExpenses();
+           const result = await financialIndicators.getFinancialExpenses(startDateGlobal, endDateGlobal);
   
            res.status(200).json(result)
         } catch (error) {
@@ -33,9 +34,10 @@ module.exports = function(io) {
 
     //Lista todas os cards do Indicadores Fin
     router.post('/outstanding', async (req, res, next) => {
+      const {startDateGlobal, endDateGlobal} = req.body
         
         try {
-           const result = await financialIndicators.outstanding();
+           const result = await financialIndicators.outstanding(startDateGlobal, endDateGlobal);
   
            res.status(200).json(result)
         } catch (error) {

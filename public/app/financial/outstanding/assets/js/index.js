@@ -1,3 +1,68 @@
+// Função para verificar se o tempo de login expirou
+async function checkLoginExpiration() {
+    // Verifica o localStorage para alterar a mensagem de boas vindas
+    const StorageGoogleData = localStorage.getItem('StorageGoogle');
+    const StorageGoogle = JSON.parse(StorageGoogleData);
+ 
+    if (!localStorage.getItem('StorageGoogle')) {
+        window.location.href = '/app/login';
+    } else {
+        document.querySelector('body').style.display = 'block'
+    }
+ 
+ 
+ 
+    const loginTime = localStorage.getItem('loginTime');
+ 
+    if (loginTime) {
+        const currentTime = new Date().getTime();
+        const elapsedTime = currentTime - parseInt(loginTime);
+    
+        // 24 horas em milissegundos
+        const twentyFourHours = 1000;
+ 
+        if (elapsedTime >= twentyFourHours) {
+            // Limpa os dados do usuário e redireciona para a página de login
+            localStorage.removeItem('StorageGoogle');
+            localStorage.removeItem('loginTime');
+            window.location.href = '/app/login';
+        }
+    }
+}
+
+// Verifica o localStorage para setar informações
+async function getInfosLogin() {
+    const StorageGoogleData = localStorage.getItem('StorageGoogle');
+    const StorageGoogle = JSON.parse(StorageGoogleData);
+ 
+    return StorageGoogle;
+}
+
+// Verifica o localStorage para setar informações
+async function setInfosLogin(StorageGoogle) {
+    document.querySelectorAll('.imgUser').forEach(element => {
+        element.src = StorageGoogle.picture ? StorageGoogle.picture : StorageGoogle.system_image
+    });
+ 
+    document.querySelectorAll('.UserName').forEach(element => {
+        element.textContent = StorageGoogle.given_name.replace(/[^a-zA-Z\s]/g, '');
+    });
+ 
+    document.querySelectorAll('.buttonLogout').forEach(element => {
+        element.addEventListener('click', function (e) {
+                e.preventDefault()
+        
+                localStorage.removeItem('StorageGoogle');
+                localStorage.removeItem('loginTime');
+        
+                window.location.href = '/app/login'
+        })
+ 
+    });
+ 
+ 
+}
+
 // Função que gera a tabela de faturas a partir dos dados recebidos de uma API.
 let startDateGlobal, endDateGlobal;
 
@@ -318,6 +383,7 @@ async function initializeDatePicker() {
     });
 };
 
+// Função do Filtro
 async function eventClick() {
     //====== BOTÃO DE FILTRO ======//
     const inputDateFilter = document.getElementById('inputDateFilter');
@@ -399,6 +465,15 @@ async function eventClick() {
 
 
 document.addEventListener("DOMContentLoaded", async () => {
+    await checkLoginExpiration()
+
+    setInterval(async () => {
+        await checkLoginExpiration()
+    }, 1000);
+
+    const StorageGoogle = await getInfosLogin();
+    await setInfosLogin(StorageGoogle)
+
     const outstanding = await makeRequest(`/api/financial-indicators/outstanding`, 'POST');
     const despesaAdm = await makeRequest(`/api/financial-indicators/financial-expenses`, 'POST');
     const totalInvoices = await makeRequest(`/api/financial-indicators/totalInvoices`, 'POST');

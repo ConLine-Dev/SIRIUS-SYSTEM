@@ -308,10 +308,13 @@ async function graphic_month(data) {
 
 // Inicializa o seletor de data (Filtro)
 async function initializeDatePicker() {
-    console.log('aqui')
+    const today = new Date();
+    const startOfYear = new Date(today.getFullYear(), 0, 1); // 1° de Janeiro do ano atual
+
     flatpickr("#inputDateFilter", {
         mode: "range",
         dateFormat: "d M Y",
+        defaultDate: [startOfYear, today], // Defini o intervalo de data
     });
 };
 

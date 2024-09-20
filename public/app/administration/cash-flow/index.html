@@ -1,0 +1,457 @@
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Financeiro</title>
+    <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
+    <meta name="Author" content="Spruko Technologies Private Limited">
+    <meta name="keywords"
+        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main JS -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    <!-- Color Picker Css -->
+    <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    
+
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+
+    <!-- Tutorial -->
+    <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 0px; z-index: 9999;"> 
+        <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+     </span>
+     
+    <!-- Loader -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div class="page">
+        <div class="main-content">
+            <div class="container-fluid">
+
+                <!-- Pagina do Indicadores Financeiro e Filtro -->
+                <div class="col-12">
+                    <br>
+                    <div class="card custom-card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="card-title">Indicadores Financeiro</div>
+
+                             <!-- Botão de filtro dos cards -->
+                            <div class="btn-list mt-md-0 mt-2 intro-btn-filter"> 
+                                <button type="button" class="btn btn-primary btn-wave waves-effect waves-light" id="filterButton" data-bs-toggle="offcanvas" data-bs-target="#switcher-canvas"> 
+                                    <i class="ri-filter-3-fill me-2 align-middle d-inline-block"></i>
+                                    Filtro
+                                </button> 
+                            </div>
+                            
+                            <!-- Filtros -->
+                            <div class="offcanvas offcanvas-end" tabindex="-1" id="switcher-canvas" aria-labelledby="offcanvasRightLabel"> 
+                                <div class="offcanvas-header"> 
+                                    <div class="card-header py-1 pb-3" style="width: 100%;">
+                                        <div class="card-title fw-semibold fs-14">Filtros</div>
+                                    </div>
+                                </div> 
+                                <div class="offcanvas-body">
+                                    <div class="d-flex align-items-center justify-content-between" style="padding: 0 1rem 1rem 1rem">
+                                        <div class="card-body p-0">
+                                            <div class="d-flex flex-column justify-content-between" style="height: 90vh; overflow-y: auto;">
+                                                <ul class="list-group list-group-flush mb-0" style="z-index: 9999;">
+                
+                                                    <li class="list-group-item" style="padding: 10px 20px !important;">
+                                                        <div class="d-flex align-items-center" style="margin-bottom: 10px;">
+                                                            <div class="flex-fill">
+                                                                <p class="fw-bold mb-0">Data</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <div class="input-group">
+                                                                <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                                                <input type="text" placeholder="Filtrar por uma data" class="form-control dash-filter-picker flatpickr-input" id="inputDateFilter" data-provider="flatpickr" data-mode="range" data-date-format="d M Y" readonly="readonly">
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                
+                                                    <!-- <li class="list-group-item">
+                                                        <div class="d-flex align-items-center" style="margin-bottom: 10px;">
+                                                            <div class="flex-fill">
+                                                                <p class="fw-bold mb-0">Status da Pessoa</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row gy-3" style="gap: 20px;">
+                                                            <select id="selectPeopleStatus" multiple>
+                                                                <option value="" style="width: 100% !important;">Selecione o status</option>
+                                                             </select>
+                                                        </div>
+                                                    </li> -->
+                
+                                                </ul>
+                                                
+                                                <!-- Imagem do filtro -->
+                                                <div class="card-body image-fin-filter"> <img src="../../assets/images/media/media-finc.png" alt="" class="mb-1">
+                                                    <div> <span class="fs-15 fw-semibold d-block mt-4 mb-3"></span>
+                                                    </div> <span class="shape-1 text-primary"><i class="ti ti-circle fs-20 fw-bold"></i></span> 
+                                                    <span class="shape-2 text-secondary"><i class="ti ti-triangle fs-20 fw-bold"></i></span> 
+                                                    <span class="shape-3 text-warning"><i class="ti ti-square fs-20 fw-bold"></i></span>    
+                                                    <span class="shape-4 text-info"><i class="ti ti-square-rotated fs-20 fw-bold"></i></span> 
+                                                    <span class="shape-5 text-success"><i class="ti ti-pentagon fs-20 fw-bold"></i></span> 
+                                                    <span class="shape-6 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span>    
+                                                    <span class="shape-7 text-pink"><i class="ti ti-hexagon fs-20 fw-bold"></i></span> 
+                                                    <span class="shape-8 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span> 
+                                                    <span class="shape-9 text-primary"><i class="ti ti-circle fs-20 fw-bold"></i></span>    
+                                                    <span class="shape-10 text-secondary"><i class="ti ti-triangle fs-20 fw-bold"></i></span> 
+                                                    <span class="shape-11 text-warning"><i class="ti ti-square fs-20 fw-bold"></i></span> 
+                                                    <span class="shape-12 text-info"><i class="ti ti-square-rotated fs-20 fw-bold"></i></span>    
+                                                    <span class="shape-13 text-success"><i class="ti ti-pentagon fs-20 fw-bold"></i></span> 
+                                                    <span class="shape-14 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span> 
+                                                    <span class="shape-15 text-pink"><i class="ti ti-hexagon fs-20 fw-bold"></i></span>    
+                                                    <span class="shape-16 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span> 
+                                                </div>
+                                                <!-- Botão do filtro -->
+                                                <div class="d-flex align-items-center justify-content-center" style="margin-bottom: 40px;">
+                                                    <button class="btn btn-primary-gradient" id="btn-filter" style="width: 85%;">Filtrar</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> 
+                            </div>
+                                                    
+                        </div>
+                    </div>
+                </div>
+
+                <div class="">
+                    <!-- Start: Cards Indicadores Financeiro -->
+                    <div class="row">
+                        <div class="col-xl col-lg-6 col-md-6 col-sm-6">
+                            <div class="card custom-card overflow-hidden">
+                                <div class="card-body intro-card-invoiced">
+                                    <div class="d-flex align-items-top justify-content-between">
+                                        <div> <span class="avatar avatar-md avatar-rounded bg-purple"> <i class="ti fs-16"></i>
+                                            <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                                                <g>
+                                                    <rect fill="none" height="24" width="24"></rect>
+                                                </g>
+                                                <g>
+                                                    <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8c0-4.41,3.59-8,8-8 s8,3.59,8,8C20,16.41,16.41,20,12,20z M12.89,11.1c-1.78-0.59-2.64-0.96-2.64-1.9c0-1.02,1.11-1.39,1.81-1.39 c1.31,0,1.79,0.99,1.9,1.34l1.58-0.67c-0.15-0.44-0.82-1.91-2.66-2.23V5h-1.75v1.26c-2.6,0.56-2.62,2.85-2.62,2.96 c0,2.27,2.25,2.91,3.35,3.31c1.58,0.56,2.28,1.07,2.28,2.03c0,1.13-1.05,1.61-1.98,1.61c-1.82,0-2.34-1.87-2.4-2.09L8.1,14.75 c0.63,2.19,2.28,2.78,3.02,2.96V19h1.75v-1.24c0.52-0.09,3.02-0.59,3.02-3.22C15.9,13.15,15.29,11.93,12.89,11.1z"></path>
+                                                </g>
+                                            </svg></span> </div>
+                                        <div class="flex-fill ms-3">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                                <div>
+                                                    <p class="text-muted mb-0 fs-15">Faturado</p>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-invoicing">-</h4> 
+                                                    <!-- <p class="mb-1 fs-9"> <span class="d-block fs-9  text-muted" style="position: absolute; top: 70px;">ANO ATUAL</span> </p> -->
+                                                </div>
+                                                    
+                                            
+                                            </div>
+                                            <!-- <div class="align-items-center ">
+                                                <div class="text">
+                                                    <p class="d-block fs-10 fw-semibold text-muted">ANO ATUAL</p>
+                                                </div>
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl col-lg-6 col-md-6 col-sm-6">
+                            <div class="card custom-card overflow-hidden">
+                                <div class="card-body intro-card-billingReleased">
+                                    <div class="d-flex align-items-top justify-content-between">
+                                        <div> <span class="avatar avatar-md avatar-rounded bg-success"> <i class="ti fs-16"></i>
+                                            <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                                                <g>
+                                                    <rect fill="none" height="24" width="24"></rect>
+                                                </g>
+                                                <g>
+                                                    <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8c0-4.41,3.59-8,8-8 s8,3.59,8,8C20,16.41,16.41,20,12,20z M12.89,11.1c-1.78-0.59-2.64-0.96-2.64-1.9c0-1.02,1.11-1.39,1.81-1.39 c1.31,0,1.79,0.99,1.9,1.34l1.58-0.67c-0.15-0.44-0.82-1.91-2.66-2.23V5h-1.75v1.26c-2.6,0.56-2.62,2.85-2.62,2.96 c0,2.27,2.25,2.91,3.35,3.31c1.58,0.56,2.28,1.07,2.28,2.03c0,1.13-1.05,1.61-1.98,1.61c-1.82,0-2.34-1.87-2.4-2.09L8.1,14.75 c0.63,2.19,2.28,2.78,3.02,2.96V19h1.75v-1.24c0.52-0.09,3.02-0.59,3.02-3.22C15.9,13.15,15.29,11.93,12.89,11.1z"></path>
+                                                </g>
+                                            </svg></span> </div>
+                                        <div class="flex-fill ms-3">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                                <div>
+                                                    <p class="text-muted mb-0 fs-15">Lib. Faturamento</p>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-billingReleased">-</h4> </div>
+                                            </div>
+                                            <!-- <div class="align-items-center justify-content-between">
+                                                <div class="text-end">
+                                                    <p class="mb-0 text-success flex-wrap fs-20 percentage-billingReleased">30%</p><span class="text-muted op-7 fs-11"></span> </div>
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl col-lg-6 col-md-6 col-sm-6">
+                            <div class="card custom-card overflow-hidden">
+                                <div class="card-body intro-card-losers">
+                                    <div class="d-flex align-items-top justify-content-between">
+                                        <div> <span class="avatar avatar-md avatar-rounded bg-primary"> <i class="ti fs-16"></i>
+                                            <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                                                <g>
+                                                    <rect fill="none" height="24" width="24"></rect>
+                                                </g>
+                                                <g>
+                                                    <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8c0-4.41,3.59-8,8-8 s8,3.59,8,8C20,16.41,16.41,20,12,20z M12.89,11.1c-1.78-0.59-2.64-0.96-2.64-1.9c0-1.02,1.11-1.39,1.81-1.39 c1.31,0,1.79,0.99,1.9,1.34l1.58-0.67c-0.15-0.44-0.82-1.91-2.66-2.23V5h-1.75v1.26c-2.6,0.56-2.62,2.85-2.62,2.96 c0,2.27,2.25,2.91,3.35,3.31c1.58,0.56,2.28,1.07,2.28,2.03c0,1.13-1.05,1.61-1.98,1.61c-1.82,0-2.34-1.87-2.4-2.09L8.1,14.75 c0.63,2.19,2.28,2.78,3.02,2.96V19h1.75v-1.24c0.52-0.09,3.02-0.59,3.02-3.22C15.9,13.15,15.29,11.93,12.89,11.1z"></path>
+                                                </g>
+                                            </svg></span> </div>
+                                        <div class="flex-fill ms-3">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                                <div>
+                                                    <p class="text-muted mb-0 fs-15">Vencidos</p>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-invoiceLosers">-</h4> </div>
+                                            </div>
+                                            <!-- <div class="align-items-center justify-content-between ">
+                                                <div class="text-end">
+                                                    <p class="mb-0 text-success flex-wrap fs-20 percentage-invoiceLosers">30%</p><span class="text-muted op-7 fs-11"></span> </div>
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl col-lg-6 col-md-6 col-sm-6">
+                            <div class="card custom-card overflow-hidden">
+                                <div class="card-body intro-card-totalReceived">
+                                    <div class="d-flex align-items-top justify-content-between">
+                                        <div> <span class="avatar avatar-md avatar-rounded bg-success"> <i class="ti fs-16"></i>
+                                            <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                                                <g>
+                                                    <rect fill="none" height="24" width="24"></rect>
+                                                </g>
+                                                <g>
+                                                    <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8c0-4.41,3.59-8,8-8 s8,3.59,8,8C20,16.41,16.41,20,12,20z M12.89,11.1c-1.78-0.59-2.64-0.96-2.64-1.9c0-1.02,1.11-1.39,1.81-1.39 c1.31,0,1.79,0.99,1.9,1.34l1.58-0.67c-0.15-0.44-0.82-1.91-2.66-2.23V5h-1.75v1.26c-2.6,0.56-2.62,2.85-2.62,2.96 c0,2.27,2.25,2.91,3.35,3.31c1.58,0.56,2.28,1.07,2.28,2.03c0,1.13-1.05,1.61-1.98,1.61c-1.82,0-2.34-1.87-2.4-2.09L8.1,14.75 c0.63,2.19,2.28,2.78,3.02,2.96V19h1.75v-1.24c0.52-0.09,3.02-0.59,3.02-3.22C15.9,13.15,15.29,11.93,12.89,11.1z"></path>
+                                                </g>
+                                            </svg></span> </div>
+                                        <div class="flex-fill ms-3">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                                <div>
+                                                    <p class="text-muted mb-0 fs-15">Total Recebido</p>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-totalReceived">-</h4> </div>
+                                            </div>
+                                            <!-- <div class="align-items-center justify-content-between ">
+                                                <div class="text-end">
+                                                    <p class="mb-0 text-success flex-wrap fs-20 percentage-totalPaid">30%</p><span class="text-muted op-7 fs-11"></span> </div>
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl col-lg-6 col-md-6 col-sm-6">
+                            <div class="card custom-card overflow-hidden">
+                                <div class="card-body intro-card-administrativeTotal">
+                                    <div class="d-flex align-items-top justify-content-between">
+                                        <div> <span class="avatar avatar-md avatar-rounded bg-warning"> <i class="ti fs-16"></i>
+                                            <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                                                <g>
+                                                    <rect fill="none" height="24" width="24"></rect>
+                                                </g>
+                                                <g>
+                                                    <path d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8c0-4.41,3.59-8,8-8 s8,3.59,8,8C20,16.41,16.41,20,12,20z M12.89,11.1c-1.78-0.59-2.64-0.96-2.64-1.9c0-1.02,1.11-1.39,1.81-1.39 c1.31,0,1.79,0.99,1.9,1.34l1.58-0.67c-0.15-0.44-0.82-1.91-2.66-2.23V5h-1.75v1.26c-2.6,0.56-2.62,2.85-2.62,2.96 c0,2.27,2.25,2.91,3.35,3.31c1.58,0.56,2.28,1.07,2.28,2.03c0,1.13-1.05,1.61-1.98,1.61c-1.82,0-2.34-1.87-2.4-2.09L8.1,14.75 c0.63,2.19,2.28,2.78,3.02,2.96V19h1.75v-1.24c0.52-0.09,3.02-0.59,3.02-3.22C15.9,13.15,15.29,11.93,12.89,11.1z"></path>
+                                                </g>
+                                            </svg></span> </div>
+                                        <div class="flex-fill ms-3">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                                <div>
+                                                    <p class="text-muted mb-0 fs-15">Total ADM </p>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-ADM">-</h4> </div>
+                                            </div>
+                                            <!-- <div class="align-items-center justify-content-between ">
+                                                <div class="text-end">
+                                                    <p class="mb-0 text-success flex-wrap fs-20 percentage-totalReceived">30%</p><span class="text-muted op-7 fs-11"></span> </div>
+                                            </div> -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Start: Gráfico e Lista de Faturas -->
+                    <div class="row">
+
+                        <!-- Start: Gráfico Faturamento por Mês -->
+                        <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
+                            <div class="card custom-card intro-billingGraph">
+                                <div class="card-header">
+                                    <div class="card-title"> Faturamento por mês </div>
+                                </div>
+                                <div class="card-body" id="invoice-chart">
+                                    <!-- INFOS ADD PELO JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Start: Lista de faturas -->
+                        <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
+                            <div class="card custom-card intro-invoiceList">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Lista de faturas</div>
+                                    <div class="dropdown">
+                                        <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon btn-sm btn-light" data-bs-toggle="dropdown"> <i class="fe fe-more-vertical"></i> </a>
+                                        <ul class="dropdown-menu" style="z-index: 9999;">
+                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="1,2,3,4,5,6,7,8,9,10" id="filter_TotalReceived">Todas</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="1" id="filter_Invoiced">Em aberto</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="2" id="filter_Invoicing">Quitada</a></li>
+                                            <li><a class="dropdown-item invoiceActive" href="javascript:void(0);" invoicesTable="3" id="filter_Losers">Parcialmente quitada</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="4" id="filter_TotalReceived">Unificada</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="5" id="filter_Invoicing">Em cobrança</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="6" id="filter_Invoicing">Cancelada</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="7" id="filter_Invoicing">Em cobrança judicial</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="8" id="filter_Invoicing">Negativado</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="9" id="filter_Invoicing">Protestado</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="10" id="filter_Invoicing">Junk</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="card-body listInvoices">
+                                    <!-- Loader -->
+                                    <div id="loader1" class="d-none">
+                                        <img src="../../assets/images/media/loader.svg" alt="">
+                                    </div>
+                                    <div class="list-group" id="listInvoices">
+                                        <!-- INFOS ADD PELO JS -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Start:: Lista de Despesas Administrativas -->
+                    <div class="row"> 
+                        <div class="col-12">
+                            <div class="card custom-card intro-card-administrativeExpenses" style="height: 100%;">
+                                <div class="card-header justify-content-between">
+                                   <div class="card-title"> Despesas Administrativas </div>
+                               </div>
+                               
+                               <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <table id="table_despesasFIN" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="sorting" style="width: 508px;">Vencimento</th>
+                                                        <th class="sorting" style="width: 508px;">Situação</th>
+                                                        <th class="sorting" style="width: 243px;">Descrição</th>
+                                                        <th class="sorting" style="width: 243px;">Pessoa</th>
+                                                        <th class="sorting" style="width: 243px;">Tipo</th>
+                                                        <th class="sorting" style="width: 243px;">Valor</th>
+                                                    </tr>
+                                                </thead>
+                                                <!-- INFOS ADD PELO JS -->
+                                                <!-- <tbody>
+                                                <tr>
+                                                    <th class="" style="width: 508px;">23/08/2024</th>
+                                                    <th class="" style="width: 508px;">Quitada</th>
+                                                    <th class="" style="width: 243px;">PLANO DE SAUDE - NOVO HAMBURGO - BRADESCO</th>
+                                                    <th class="" style="width: 243px;">DAYANA ALVES</th>
+                                                    <th class="" style="width: 243px;">DESPESA FINANCEIRO</th>
+                                                    <th class="" style="width: 243px;">R$ 25.00,00</th>
+                                                </tr>
+                                                <tr>
+                                                    <th class="" style="width: 508px;">23/08/2024</th>
+                                                    <th class="" style="width: 508px;">Quitada</th>
+                                                    <th class="" style="width: 243px;">PLANO DE SAUDE - NOVO HAMBURGO - BRADESCO</th>
+                                                    <th class="" style="width: 243px;">DAYANA ALVES</th>
+                                                    <th class="" style="width: 243px;">DESPESA FINANCEIRO</th>
+                                                    <th class="" style="width: 243px;">R$ 25.00,00</th>
+                                                </tr>
+                                                <tr>
+                                                    <th class="" style="width: 508px;">23/08/2024</th>
+                                                    <th class="" style="width: 508px;">Quitada</th>
+                                                    <th class="" style="width: 243px;">PLANO DE SAUDE - NOVO HAMBURGO - BRADESCO</th>
+                                                    <th class="" style="width: 243px;">DAYANA ALVES</th>
+                                                    <th class="" style="width: 243px;">DESPESA FINANCEIRO</th>
+                                                    <th class="" style="width: 243px;">R$ 25.00,00</th>
+                                                </tr>
+                                                </tbody> -->
+                                            </table>
+                                        </div>
+                                    </div>
+                               </div>
+                           </div>
+                        </div>
+                       </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+   
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+
+    <!-- Jquery -->
+    <script src="../../assets/libs/jQuery/jquery-3.6.1.min.js"></script>
+    <!-- Popper JS -->
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Color Picker JS -->
+    <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+    <!-- Flat Picker JS -->
+    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+    <!-- ApexCharts JS -->
+    <script src="../../assets/libs/apexCharts/apexCharts.js"></script>
+    <!-- Xlsx -->
+    <script src="../../assets/libs/xlsx/xlsx.full.min.js"></script>
+
+    <script src="../../assets/libs/datatables.min.js/jquery.dataTables.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/dataTables.bootstrap5.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/dataTables.responsive.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/dataTables.buttons.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/buttons.print.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/pdfmake.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/vfs_fonts.js"></script>
+    <script src="../../assets/libs/datatables.min.js/buttons.html5.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/jszip.min.js"></script>
+
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="../../assets/libs/intro.js/intro.min.js"></script>
+    <script src="../../assets/libs/intro.js/intro.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="./assets/js/index.js"></script>
+
+</body>
+
+</html>

@@ -304,5 +304,47 @@
     "element": ".intro-search-client",
     "title": "Pesquisar",
     "intro": "Aqui você pode pesquisar pelo nome do cliente ou por um vendedor específico."
+  },
+  {
+    "element": ".intro-card-invoiced",
+    "title": "Total Faturado",
+    "intro": "Este card exibe o valor total das faturas emitidas no ano atual."
+  },
+  {
+    "element": ".intro-card-billingReleased",
+    "title": "Faturamento Liberado",
+    "intro": "Este card exibe o valor total das faturas liberadas para faturamento no ano atual."
+  },
+  {
+    "element": ".intro-card-losers",
+    "title": "Faturas Vencidas",
+    "intro": "Este card exibe o valor total das faturas vencidas no ano atual."
+  },
+  {
+    "element": ".intro-card-totalReceived",
+    "title": "Total de Recebimentos",
+    "intro": "Este card exibe o valor total das faturas recebidas no ano atual."
+  },
+  {
+    "element": ".intro-card-administrativeTotal",
+    "title": "Total Administrativo",
+    "intro": "Este card exibe o valor total das despesas administrativas no ano atual."
+  },
+  {
+    "element": ".intro-billingGraph",
+    "title": "Faturamento por mês",
+    "intro": "Aqui você pode visualizar todos os pagamentos e recebimentos por mês.",
+    "position": "left"
+  },
+  {
+    "element": ".intro-card-administrativeExpenses",
+    "title": "Despesas Administrativas",
+    "intro": "Aqui você pode visualizar as despesas administrativas, incluindo: <strong>13° SALÁRIO, ÁGUA/ESGOTO, ALUGUEL, APLICAÇÕES FINANCEIRAS, APORTE FINANCEIRO, ASSISTÊNCIA MÉDICA E SOCIAL, AVISO PRÉVIO, BENS IMOBILIZADOS, BREAKBULK, BRINDES E DOAÇÕES, COMISSÕES, CONDOMÍNIO, CURSOS - TREINAMENTOS, DESLOCAMENTO/UBER/COMBUSTÍVEL, DESPESA DE CARTÃO DE CRÉDITO, DESPESAS DE SISTEMA, ENDOMARKETING, ESTACIONAMENTO, ESTÁGIO, EVENTOS, FARMÁCIA, FÉRIAS, FESTAS E CONGRAÇAMENTO, FGTS, HAPPY HOUR, HOSPEDAGEM, IMPOSTO, INFORMÁTICA, INGRESSOS/PALESTRAS, INSS, INTERNET, INVESTIMENTO IMOBILIÁRIO, IRRF SOBRE FOLHA, JUROS, LANCHES E REFEIÇÕES, LAZER, LIMPEZA/HIGIENIZAÇÃO, LOCAÇÃO DE VEÍCULO, LUZ, MARKETING EXTERNO, MATERIAL DE EXPEDIENTE, MEMBERSHIP, MENSALIDADES, MULTAS, PASSAGENS, PATROCÍNIOS, PEDÁGIO, PLANO DE SAÚDE, PLANO ODONTOLÓGICO, PRESENTE / BRINDE, PRO-LABORE, PUBLICIDADE/PROPAGANDA, REFORMA/MANUTENÇÃO/CONSERVAÇÃO DE IMÓVEIS, RESCISÕES, RETIRADA SÓCIO, SALÁRIOS, SEGURANÇA, SEGURO, SERVIÇOS ADVOCATÍCIOS, SERVIÇOS CONTÁBEIS, SERVIÇOS TERCEIRIZADOS/CONSULTORIA, TARIFAS BANCÁRIAS, TELEFONIA, VALE REFEIÇÃO, VALE TRANSPORTE, VARIAÇÕES CAMBIAIS, VIAGENS COMERCIAIS.</strong>"
+  },
+  {
+    "element": ".intro-btn-filter",
+    "title": "Filtro",
+    "intro":"Ao aplicar o filtro por uma data específica, os valores de <strong>Faturado</strong>, <strong>Faturamento Liberado</strong>, <strong>Vencidos</strong>, <strong>Total Recebido</strong> e <strong>Total Administrativo</strong> serão exibidos conforme o filtro aplicado. No gráfico, os valores mensais referentes à data selecionada serão mostrados. Ao lado, na lista de faturas, aparecerão apenas as faturas correspondentes ao filtro. Da mesma forma, nas despesas administrativas, serão exibidas apenas as despesas relacionadas ao filtro aplicado."
   }
+  
 ]

@@ -65,7 +65,7 @@
                             <div class="card-title">Indicadores Financeiro</div>
 
                              <!-- Botão de filtro dos cards -->
-                            <div class="btn-list mt-md-0 mt-2"> 
+                            <div class="btn-list mt-md-0 mt-2 intro-btn-filter"> 
                                 <button type="button" class="btn btn-primary btn-wave waves-effect waves-light" id="filterButton" data-bs-toggle="offcanvas" data-bs-target="#switcher-canvas"> 
                                     <i class="ri-filter-3-fill me-2 align-middle d-inline-block"></i>
                                     Filtro
@@ -152,7 +152,7 @@
                     <div class="row">
                         <div class="col-xl col-lg-6 col-md-6 col-sm-6">
                             <div class="card custom-card overflow-hidden">
-                                <div class="card-body">
+                                <div class="card-body intro-card-invoiced">
                                     <div class="d-flex align-items-top justify-content-between">
                                         <div> <span class="avatar avatar-md avatar-rounded bg-purple"> <i class="ti fs-16"></i>
                                             <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
@@ -167,11 +167,16 @@
                                             <div class="d-flex align-items-center justify-content-between flex-wrap">
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Faturado</p>
-                                                    <h4 class="fw-semibold mt-1 fs-20 total-invoicing">-</h4> </div>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-invoicing" title="ANO ATUAL">-</h4> 
+                                                    <!-- <p class="mb-1 fs-9"> <span class="d-block fs-9  text-muted" style="position: absolute; top: 70px;">ANO ATUAL</span> </p> -->
+                                                </div>
+                                                    
+                                            
                                             </div>
-                                            <!-- <div class="align-items-center justify-content-between ">
-                                                <div class="text-end">
-                                                    <p class="mb-0 text-success flex-wrap fs-20 percentage-invoicing">30%</p><span class="text-muted op-7 fs-11"></span> </div>
+                                            <!-- <div class="align-items-center ">
+                                                <div class="text">
+                                                    <p class="d-block fs-10 fw-semibold text-muted">ANO ATUAL</p>
+                                                </div>
                                             </div> -->
                                         </div>
                                     </div>
@@ -181,7 +186,7 @@
 
                         <div class="col-xl col-lg-6 col-md-6 col-sm-6">
                             <div class="card custom-card overflow-hidden">
-                                <div class="card-body">
+                                <div class="card-body intro-card-billingReleased">
                                     <div class="d-flex align-items-top justify-content-between">
                                         <div> <span class="avatar avatar-md avatar-rounded bg-success"> <i class="ti fs-16"></i>
                                             <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
@@ -196,7 +201,7 @@
                                             <div class="d-flex align-items-center justify-content-between flex-wrap">
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Lib. Faturamento</p>
-                                                    <h4 class="fw-semibold mt-1 fs-20 total-billingReleased">-</h4> </div>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-billingReleased" title="ANO ATUAL">-</h4> </div>
                                             </div>
                                             <!-- <div class="align-items-center justify-content-between">
                                                 <div class="text-end">
@@ -210,7 +215,7 @@
 
                         <div class="col-xl col-lg-6 col-md-6 col-sm-6">
                             <div class="card custom-card overflow-hidden">
-                                <div class="card-body">
+                                <div class="card-body intro-card-losers">
                                     <div class="d-flex align-items-top justify-content-between">
                                         <div> <span class="avatar avatar-md avatar-rounded bg-primary"> <i class="ti fs-16"></i>
                                             <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
@@ -225,7 +230,7 @@
                                             <div class="d-flex align-items-center justify-content-between flex-wrap">
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Vencidos</p>
-                                                    <h4 class="fw-semibold mt-1 fs-20 total-invoiceLosers">-</h4> </div>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-invoiceLosers" title="ANO ATUAL">-</h4> </div>
                                             </div>
                                             <!-- <div class="align-items-center justify-content-between ">
                                                 <div class="text-end">
@@ -239,7 +244,7 @@
 
                         <div class="col-xl col-lg-6 col-md-6 col-sm-6">
                             <div class="card custom-card overflow-hidden">
-                                <div class="card-body">
+                                <div class="card-body intro-card-totalReceived">
                                     <div class="d-flex align-items-top justify-content-between">
                                         <div> <span class="avatar avatar-md avatar-rounded bg-success"> <i class="ti fs-16"></i>
                                             <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
@@ -254,7 +259,7 @@
                                             <div class="d-flex align-items-center justify-content-between flex-wrap">
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Total Recebido</p>
-                                                    <h4 class="fw-semibold mt-1 fs-20 total-totalReceived">-</h4> </div>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-totalReceived" title="ANO ATUAL">-</h4> </div>
                                             </div>
                                             <!-- <div class="align-items-center justify-content-between ">
                                                 <div class="text-end">
@@ -268,7 +273,7 @@
 
                         <div class="col-xl col-lg-6 col-md-6 col-sm-6">
                             <div class="card custom-card overflow-hidden">
-                                <div class="card-body">
+                                <div class="card-body intro-card-administrativeTotal">
                                     <div class="d-flex align-items-top justify-content-between">
                                         <div> <span class="avatar avatar-md avatar-rounded bg-warning"> <i class="ti fs-16"></i>
                                             <svg class="svg-white" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
@@ -283,7 +288,7 @@
                                             <div class="d-flex align-items-center justify-content-between flex-wrap">
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Total ADM </p>
-                                                    <h4 class="fw-semibold mt-1 fs-20 total-ADM">-</h4> </div>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-ADM" title="ANO ATUAL">-</h4> </div>
                                             </div>
                                             <!-- <div class="align-items-center justify-content-between ">
                                                 <div class="text-end">
@@ -300,7 +305,7 @@
                     <div class="row">
                         <!-- Start: Gráfico Faturamento por Mês -->
                         <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
-                            <div class="card custom-card">
+                            <div class="card custom-card intro-billingGraph">
                                 <div class="card-header">
                                     <div class="card-title"> Faturamento por mês </div>
                                 </div>
@@ -349,7 +354,7 @@
                     <!-- Start:: Lista de Despesas Administrativas -->
                     <div class="row"> 
                         <div class="col-12">
-                            <div class="card custom-card" style="height: 100%;">
+                            <div class="card custom-card intro-card-administrativeExpenses" style="height: 100%;">
                                 <div class="card-header justify-content-between">
                                    <div class="card-title"> Despesas Administrativas </div>
                                </div>

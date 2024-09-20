@@ -57,8 +57,6 @@
 }
 
 
-
-
 .listInvoices::-webkit-scrollbar-button:active {
     background-color: #aaa; /* cor das setas ao serem clicadas */
 }

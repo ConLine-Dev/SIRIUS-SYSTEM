@@ -337,13 +337,18 @@
     "position": "left"
   },
   {
+    "element": ".intro-invoiceList",
+    "title": "Lista de faturas",
+    "intro": "Aqui você pode visualizar todas as faturas do ano atual, incluindo o nome do cliente, número do processo, data e valores. Utilize o menu dos três pontos ao lado para filtrar pela situação da fatura."
+  },
+  {
     "element": ".intro-card-administrativeExpenses",
     "title": "Despesas Administrativas",
-    "intro": "Aqui você pode visualizar as despesas administrativas, incluindo: <strong>13° SALÁRIO, ÁGUA/ESGOTO, ALUGUEL, APLICAÇÕES FINANCEIRAS, APORTE FINANCEIRO, ASSISTÊNCIA MÉDICA E SOCIAL, AVISO PRÉVIO, BENS IMOBILIZADOS, BREAKBULK, BRINDES E DOAÇÕES, COMISSÕES, CONDOMÍNIO, CURSOS - TREINAMENTOS, DESLOCAMENTO/UBER/COMBUSTÍVEL, DESPESA DE CARTÃO DE CRÉDITO, DESPESAS DE SISTEMA, ENDOMARKETING, ESTACIONAMENTO, ESTÁGIO, EVENTOS, FARMÁCIA, FÉRIAS, FESTAS E CONGRAÇAMENTO, FGTS, HAPPY HOUR, HOSPEDAGEM, IMPOSTO, INFORMÁTICA, INGRESSOS/PALESTRAS, INSS, INTERNET, INVESTIMENTO IMOBILIÁRIO, IRRF SOBRE FOLHA, JUROS, LANCHES E REFEIÇÕES, LAZER, LIMPEZA/HIGIENIZAÇÃO, LOCAÇÃO DE VEÍCULO, LUZ, MARKETING EXTERNO, MATERIAL DE EXPEDIENTE, MEMBERSHIP, MENSALIDADES, MULTAS, PASSAGENS, PATROCÍNIOS, PEDÁGIO, PLANO DE SAÚDE, PLANO ODONTOLÓGICO, PRESENTE / BRINDE, PRO-LABORE, PUBLICIDADE/PROPAGANDA, REFORMA/MANUTENÇÃO/CONSERVAÇÃO DE IMÓVEIS, RESCISÕES, RETIRADA SÓCIO, SALÁRIOS, SEGURANÇA, SEGURO, SERVIÇOS ADVOCATÍCIOS, SERVIÇOS CONTÁBEIS, SERVIÇOS TERCEIRIZADOS/CONSULTORIA, TARIFAS BANCÁRIAS, TELEFONIA, VALE REFEIÇÃO, VALE TRANSPORTE, VARIAÇÕES CAMBIAIS, VIAGENS COMERCIAIS.</strong>"
+    "intro": "Aqui você pode visualizar as despesas administrativas, incluindo no campo tipo: <strong>13° SALÁRIO, ÁGUA/ESGOTO, ALUGUEL, APLICAÇÕES FINANCEIRAS, APORTE FINANCEIRO, ASSISTÊNCIA MÉDICA E SOCIAL, AVISO PRÉVIO, BENS IMOBILIZADOS, BREAKBULK, BRINDES E DOAÇÕES, COMISSÕES, CONDOMÍNIO, CURSOS - TREINAMENTOS, DESLOCAMENTO/UBER/COMBUSTÍVEL, DESPESA DE CARTÃO DE CRÉDITO, DESPESAS DE SISTEMA, ENDOMARKETING, ESTACIONAMENTO, ESTÁGIO, EVENTOS, FARMÁCIA, FÉRIAS, FESTAS E CONGRAÇAMENTO, FGTS, HAPPY HOUR, HOSPEDAGEM, IMPOSTO, INFORMÁTICA, INGRESSOS/PALESTRAS, INSS, INTERNET, INVESTIMENTO IMOBILIÁRIO, IRRF SOBRE FOLHA, JUROS, LANCHES E REFEIÇÕES, LAZER, LIMPEZA/HIGIENIZAÇÃO, LOCAÇÃO DE VEÍCULO, LUZ, MARKETING EXTERNO, MATERIAL DE EXPEDIENTE, MEMBERSHIP, MENSALIDADES, MULTAS, PASSAGENS, PATROCÍNIOS, PEDÁGIO, PLANO DE SAÚDE, PLANO ODONTOLÓGICO, PRESENTE / BRINDE, PRO-LABORE, PUBLICIDADE/PROPAGANDA, REFORMA/MANUTENÇÃO/CONSERVAÇÃO DE IMÓVEIS, RESCISÕES, RETIRADA SÓCIO, SALÁRIOS, SEGURANÇA, SEGURO, SERVIÇOS ADVOCATÍCIOS, SERVIÇOS CONTÁBEIS, SERVIÇOS TERCEIRIZADOS/CONSULTORIA, TARIFAS BANCÁRIAS, TELEFONIA, VALE REFEIÇÃO, VALE TRANSPORTE, VARIAÇÕES CAMBIAIS, VIAGENS COMERCIAIS.</strong>"
   },
   {
     "element": ".intro-btn-filter",
-    "title": "Filtro",
+    "title": "Filtro Ano Atual",
     "intro":"Ao aplicar o filtro por uma data específica, os valores de <strong>Faturado</strong>, <strong>Faturamento Liberado</strong>, <strong>Vencidos</strong>, <strong>Total Recebido</strong> e <strong>Total Administrativo</strong> serão exibidos conforme o filtro aplicado. No gráfico, os valores mensais referentes à data selecionada serão mostrados. Ao lado, na lista de faturas, aparecerão apenas as faturas correspondentes ao filtro. Da mesma forma, nas despesas administrativas, serão exibidas apenas as despesas relacionadas ao filtro aplicado."
   }
   

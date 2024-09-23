@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 require('dotenv/config');
 
 // Função para enviar email
-async function sendEmail(recipient, htmlContent) {
+async function sendEmail(recipient,subject, htmlContent) {
     // Configura o transporte de email usando as variáveis de ambiente
     let transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
@@ -18,7 +18,7 @@ async function sendEmail(recipient, htmlContent) {
     let mailOptions = {
         from: process.env.EMAIL_USER,  // remetente
         to: recipient,                // destinatário
-        subject: 'Resposta Automática', // assunto do email
+        subject: subject, // assunto do email
         html: htmlContent,            // corpo do email em HTML
     };
 

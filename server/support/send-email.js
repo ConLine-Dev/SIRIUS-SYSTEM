@@ -2,34 +2,44 @@ const nodemailer = require('nodemailer');
 require('dotenv/config');
 
 // Função para enviar email
-async function sendEmail(recipient,subject, htmlContent) {
-    // Configura o transporte de email usando as variáveis de ambiente
-    let transporter = nodemailer.createTransport({
+async function sendEmail(recipient, subject, htmlContent) {
+    const transporter = nodemailer.createTransport({
+        name: 'no-reply@conline-news.com',
         host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
-        secure: process.env.SMTP_SECURE === 'true', // true para 465, false para outras portas
+        service: process.env.SMTP_HOST,
+        port: 465,
+        secure: true,
+        pool: false,
+        rateDelta: 1000,
+        rateLimit: 1000,
         auth: {
-            user: process.env.EMAIL_USER, // usuário do email
-            pass: process.env.EMAIL_PASS,  // senha do email
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
         },
+        debug: true
     });
 
-    // Opções do email
-    let mailOptions = {
-        from: process.env.EMAIL_USER,  // remetente
-        to: recipient,                // destinatário
-        subject: subject, // assunto do email
-        html: htmlContent,            // corpo do email em HTML
+    const mailOptions = {
+        from: `Sirius OS <sirius@conline-news.com>`,
+        to: recipient,  // Aqui vão todos os e-mails do array
+        // to: `petryck.leite@conlinebr.com.br`,
+        subject: subject,
+        html: htmlContent
     };
 
+    // Envia o e-mail para o destinatário atual
     try {
-        // Envia o email
-        let info = await transporter.sendMail(mailOptions);
-        console.log('Email enviado: %s', info.messageId);
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email enviado com sucesso:', info.response);
+        return { success: true, timestamp: new Date().toISOString() };
     } catch (error) {
-        console.error('Erro ao enviar email: ', error);
+        console.error('Erro ao enviar email:', error);
+        return { success: false, error: error.message };
     }
+
 }
 
-
 module.exports = {sendEmail};
+
+
+

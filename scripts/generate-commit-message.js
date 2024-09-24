@@ -40,6 +40,10 @@ function validateGitChanges() {
 // Função para enviar as alterações para a API do Google Generative AI e gerar a mensagem de commit
 async function sendToGoogleGenerativeAI(changes) {
     const prompt = `
+    NÃO FAÇA NENHUM TIPO DE MARCAÇÃO OU ROTULO APENAS NA PRIMEIRA LINHA DA RESPOSTA RETORNE O TITULO DO COMMIT E NAS LINHAS SUBSEQUENTES A DESCRIÇÃO.
+    Não inclua nenhum tipo de rótulos, apenas forneça o texto final que será utilizado para o commit.
+    Não inclua nenhum tipo de rótulos, apenas forneça o texto final que será utilizado para o commit.
+    ATENÇÃO POIS SEUS RESTA SERÁ DIRETAMENTE ENVIADO PARA COMMIT DO GIT.
     Aqui estão as alterações feitas no projeto (com detalhes do diff):
     ${changes}
     Por favor, forneça apenas um título (na primeira linha) e uma descrição (nas linhas subsequentes) para o commit.
@@ -77,6 +81,8 @@ function cleanCommitMessage(commitMessage) {
     return commitMessage
         .replace(/^.*título.*:/i, '')   // Remove linhas com "Título" ou "Title"
         .replace(/^.*descrição.*:/i, '') // Remove linhas com "Descrição" ou "Description"
+        .replace(/^.*Título.*:/i, '')   // Remove linhas com "Título" ou "Title"
+        .replace(/^.*Descrição.*:/i, '') // Remove linhas com "Descrição" ou "Description"
         .trim();                         // Remove espaços em branco extras
 }
 

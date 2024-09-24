@@ -305,23 +305,32 @@ async function total_tons(data) {
 
 // Função para calcular o total de processos
 async function total_process(data) {
-   const total_process = data.length;
+   // Filtra os processos que não começam com "DEMU"
+   const filtered_data = data.filter(process => !process.Numero_Processo.startsWith('DEMU'));
+   
+   // Calcula o total de processos filtrados
+   const total_process = filtered_data.length;
 
    // Formata o número com separadores de milhar
    const formatted_process = total_process.toLocaleString('pt-BR');
 
+   // Atualiza o texto no elemento HTML
    const text_total_process = document.getElementById('text-total-process');
    text_total_process.textContent = formatted_process;
 
    return text_total_process;
 };
 
+
 async function average_profit_process(data) {
    const total_received = data.reduce((acumulator, element) => {
       return acumulator + element.Lucro_Estimado
    }, 0);
+
+   // Filtra os processos que não começam com "DEMU"
+   const filtered_data = data.filter(process => !process.Numero_Processo.startsWith('DEMU'));
    
-   const total_process = data.length || 0;
+   const total_process = filtered_data.length || 0;
 
    const average_profit = total_process > 0 ? (total_received / total_process) : 0;
 

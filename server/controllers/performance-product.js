@@ -72,13 +72,16 @@ const PerformanceProducts = {
                WHEN 6 THEN 'Rodoviário'
             END AS Tipo_Carga,
 
-            Lmh.Total_Teus,
+            CASE
+               WHEN Lhs.Numero_Processo LIKE '%DEMU%' THEN 0
+               ELSE Lmh.Total_Teus
+            END AS Total_Teus,
 
             COALESCE(CASE
-               WHEN Lms.Modalidade_Processo = 1 AND Lms.Tipo_Operacao = 1 THEN CAST(Lhs.Peso_Bruto / 1000 AS FLOAT)
-               WHEN Lms.Modalidade_Processo = 2 AND Lms.Tipo_Operacao = 1 AND Lhs.Tipo_Carga NOT IN (3) THEN CAST(Lhs.Peso_Bruto / 1000 AS FLOAT)
-               WHEN Lms.Modalidade_Processo = 1 AND Lms.Tipo_Operacao = 2 THEN CAST(Lhs.Peso_Bruto / 1000 AS FLOAT)
-               WHEN Lms.Modalidade_Processo = 2 AND Lms.Tipo_Operacao = 2 AND Lhs.Tipo_Carga NOT IN (3) THEN CAST(Lhs.Peso_Bruto / 1000 AS FLOAT)
+               WHEN Lms.Modalidade_Processo = 1 AND Lms.Tipo_Operacao = 1 AND Lhs.Numero_Processo NOT LIKE '%DEMU%' THEN CAST(Lhs.Peso_Bruto / 1000 AS FLOAT)
+               WHEN Lms.Modalidade_Processo = 2 AND Lms.Tipo_Operacao = 1 AND Lhs.Tipo_Carga NOT IN (3) AND Lhs.Numero_Processo NOT LIKE '%DEMU%' THEN CAST(Lhs.Peso_Bruto / 1000 AS FLOAT)
+               WHEN Lms.Modalidade_Processo = 1 AND Lms.Tipo_Operacao = 2 AND Lhs.Numero_Processo NOT LIKE '%DEMU%' THEN CAST(Lhs.Peso_Bruto / 1000 AS FLOAT)
+               WHEN Lms.Modalidade_Processo = 2 AND Lms.Tipo_Operacao = 2 AND Lhs.Tipo_Carga NOT IN (3) AND Lhs.Numero_Processo NOT LIKE '%DEMU%' THEN CAST(Lhs.Peso_Bruto / 1000 AS FLOAT)
                ELSE CAST(Lhs.Peso_Bruto / 1000 AS FLOAT)
             END,0) AS Tons,
 
@@ -100,8 +103,7 @@ const PerformanceProducts = {
          LEFT OUTER JOIN
             cad_Pessoa Cli ON Cli.IdPessoa = Lhs.IdCliente
          WHERE
-            Lhs.Numero_Processo NOT LIKE ('%DEMU%')
-            AND Lhs.Numero_Processo NOT LIKE ('%test%')
+            Lhs.Numero_Processo NOT LIKE ('%test%')
             AND Lmd.IdMoeda = 110 /*BRL*/
             ${couriers}
             ${filterDate}

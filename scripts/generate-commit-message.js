@@ -125,8 +125,12 @@ async function generateCommitMessage() {
         // Realiza o commit automaticamente com a mensagem aprovada
         execSync('git commit -F commit_message.txt');
         console.log('Commit realizado com sucesso.');
+
+        // Agora faz o push das mudanças para o repositório remoto
+        execSync('git push');
+        console.log('Mudanças enviadas para o repositório remoto (GitHub).');
     } catch (error) {
-        console.error('Erro ao salvar a mensagem de commit ou ao realizar o commit:', error.message);
+        console.error('Erro ao salvar a mensagem de commit ou ao realizar o commit/push:', error.message);
     }
 }
 

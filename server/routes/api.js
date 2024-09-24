@@ -25,6 +25,7 @@ const api_meeting_control = require('./api-meeting-control');
 const api_user_tickets = require('./api-user-tickets');
 const api_performance_products = require('./api-performance-product');
 const api_nps = require('./api-nps');
+const api_cash_flow = require('./api-cash-flow');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -121,8 +122,11 @@ const setIO = (io) => {
   // Use as rotas do arquivo api-perfomance-product .js
   router.use('/performance-products', api_performance_products(io)); 
 
-    // Use as rotas do arquivo api-perfomance-product .js
-    router.use('/nps', api_nps(io)); 
+  // Use as rotas do arquivo api-perfomance-product .js
+  router.use('/nps', api_nps(io));
+
+  // Use as rotas do arquivo api-perfomance-product .js
+  router.use('/cash-flow', api_cash_flow(io)); 
 
   return router;
 };

@@ -1,3 +1,5 @@
+
+
 // Função executada após toda a página ser executada
 window.addEventListener("load", async () => {
 

@@ -2,6 +2,8 @@ const nodemailer = require('nodemailer');
 const { executeQuerySQL } = require('../connect/sqlServer');
 const { executeQuery } = require('../connect/mysql');
 const ExcelJS = require('exceljs');
+// Importa a função sendEmail do arquivo emailService.js
+const { sendEmail } = require('../support/send-email');
 
 
 const tickets = {
@@ -142,11 +144,16 @@ const tickets = {
         const timeEnd = value.timeEnd ?  value.timeEnd : null;
         const finished_at = value.finished_at ? value.finished_at : null;
 
+        const userMail = await executeQuery(
+            `SELECT * FROM siriusDBO.users usr
+            WHERE usr.collaborator_id = ${value.responsible.id};`
+        )
+        let destinationMail = userMail[0].email;
+
         const result = await executeQuery(
             'INSERT INTO called_tickets (title,status, description, collaborator_id, start_forecast, end_forecast, finished_at) VALUES (?,?, ?, ?, ?, ?, ?)',
             [value.title,'new-tasks-draggable', value.description, value.responsible.id, timeInit, timeEnd, finished_at]
           );
-
 
         await executeQuery(
             'INSERT INTO called_ticket_categories (ticket_id, category_id) VALUES (?, ?)',
@@ -181,7 +188,82 @@ const tickets = {
              );
         }
 
+        let userDescription = value.description;
+        if (value.description.length == 0){
+           userDescription = '(O usuário não escreveu nada 😔)'
+        }
+  
+        const hoje = new Date();
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+        const dia = String(hoje.getDate()).padStart(2, '0');
+        const horas = String(hoje.getHours()).padStart(2, '0');
+        const minutos = String(hoje.getMinutes()).padStart(2, '0');
+  
+        const dataHoraFormatada = `${ano}-${mes}-${dia} - ${horas}:${minutos}`;
 
+        let userBody = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+                <h1 style="margin: 0; font-size: 24px;">Chamado aberto com sucesso!</h1>
+            </div>
+            <div style="padding: 20px; background-color: #f9f9f9;">
+                <p style="color: #333; font-size: 16px;">Olá,</p>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Viemos te avisar que deu tudo certo na abertura do ticket! 🥳</p>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Aqui estão os detalhes do que foi inserido no sistema, só para deixarmos registrado:</p>
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <tr>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Assunto do Chamado:</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${value.title}</td>
+                </tr>
+                <tr>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${userDescription}</td>
+                </tr>
+                <tr>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Data da Abertura:</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${dataHoraFormatada}</td>
+                </tr>
+                </table>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
+            </div>
+            <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+                <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+            </div>
+        </div>`
+
+        let devBody = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+                <h1 style="margin: 0; font-size: 24px;">Tem um novo ticket te esperando!</h1>
+            </div>
+            <div style="padding: 20px; background-color: #f9f9f9;">
+                <p style="color: #333; font-size: 16px;">Olá,</p>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Um usuário acabou de abrir um novo ticket no Sirius! 🥳</p>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Aqui estão os detalhes do que foi inserido no sistema, já para agilizar seu trabalho:</p>
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <tr>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Assunto do Chamado:</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${value.title}</td>
+                </tr>
+                <tr>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${userDescription}</td>
+                </tr>
+                <tr>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Data da Abertura:</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${dataHoraFormatada}</td>
+                </tr>
+                </table>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Boa sorte desde já! 🤠</p>
+            </div>
+            <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+                <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+            </div>
+        </div>`
+
+        await sendEmail(destinationMail, '[Sirius System] Seu pedido foi registrado! 🎉', userBody);
+        await sendEmail('ti@conlinebr.com.br', '[Sirius System] Um novo chamado foi aberto!', devBody);
         return { id: result.insertId};
     },
     saveTicket: async function(value){

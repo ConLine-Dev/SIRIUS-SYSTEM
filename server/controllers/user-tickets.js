@@ -1,4 +1,6 @@
 const { executeQuery } = require('../connect/mysql');
+// Importa a função sendEmail do arquivo emailService.js
+const { sendEmail } = require('../support/send-email');
 
 const userTickets = {
    simplifiedTicketCategories: async function () {
@@ -84,6 +86,53 @@ const userTickets = {
          'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
          [result.insertId, 35]
       );
+
+      let userDescription = description;
+      if (description.length == 0){
+         userDescription = '(O usuário não escreveu nada 😔)'
+      }
+
+      const hoje = new Date();
+      const ano = hoje.getFullYear();
+      const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+      const dia = String(hoje.getDate()).padStart(2, '0');
+      const horas = String(hoje.getHours()).padStart(2, '0');
+      const minutos = String(hoje.getMinutes()).padStart(2, '0');
+
+      const dataHoraFormatada = `${ano}-${mes}-${dia} - ${horas}:${minutos}`;
+
+      let mailBody = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+         <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+            <h1 style="margin: 0; font-size: 24px;">Um novo ticket está te esperando!</h1>
+         </div>
+         <div style="padding: 20px; background-color: #f9f9f9;">
+            <p style="color: #333; font-size: 16px;">Olá,</p>
+            <p style="color: #333; font-size: 16px; line-height: 1.6;">Um usuário acabou de abrir um novo ticket no Sirius! 🥳</p>
+            <p style="color: #333; font-size: 16px; line-height: 1.6;">Aqui estão os detalhes do que foi inserido no sistema, já para agilizar seu trabalho:</p>
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+               <tr>
+               <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Assunto do Chamado:</td>
+               <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${title}</td>
+               </tr>
+               <tr>
+               <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
+               <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${userDescription}</td>
+               </tr>
+               <tr>
+               <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Data da Abertura:</td>
+               <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${dataHoraFormatada}</td>
+               </tr>
+            </table>
+            <p style="color: #333; font-size: 16px; line-height: 1.6;">Boa sorte desde já! 🤠</p>
+         </div>
+         <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+            <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+         </div>
+      </div>`
+
+      sendEmail('lucas@conlinebr.com.br', '[Sirius System] Um novo chamado foi aberto!', mailBody);
+
       return { id: result.insertId };
    },
 

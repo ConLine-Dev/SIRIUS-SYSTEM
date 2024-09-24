@@ -28,8 +28,8 @@ function validateGitChanges() {
     try {
         const stagedChanges = execSync('git diff --cached').toString().trim();
         if (!stagedChanges) {
-            console.log('Erro: Não há alterações staged para o commit. Por favor, adicione arquivos usando "git add".');
-            process.exit(1);
+            console.log('Erro: Não há alterações staged para o commit. Adicionando as mudanças ao stage...');
+            execSync('git add .');  // Adiciona todas as mudanças ao stage
         }
     } catch (error) {
         console.error('Erro ao validar as mudanças do Git:', error.message);
@@ -119,7 +119,7 @@ async function generateCommitMessage() {
         fs.writeFileSync('commit_message.txt', commitMessage);
         console.log('Mensagem salva em commit_message.txt. Fazendo o commit...');
 
-        // Valida se há mudanças staged antes de tentar commitar
+        // Valida se há mudanças staged e adiciona se não houver
         validateGitChanges();
 
         // Realiza o commit automaticamente com a mensagem aprovada

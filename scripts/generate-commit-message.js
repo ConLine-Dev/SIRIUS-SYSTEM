@@ -42,9 +42,8 @@ async function sendToGoogleGenerativeAI(changes) {
     const prompt = `
     Aqui estão as alterações feitas no projeto (com detalhes do diff):
     ${changes}
-    Por favor, crie um título e uma descrição de commit para essas alterações.
-    O commit deve ser claro e descrever de maneira objetiva as mudanças realizadas.
-    A descrição deve ser curta, mas informativa, com foco nas alterações mais importantes.
+    Por favor, forneça apenas um título (na primeira linha) e uma descrição (nas linhas subsequentes) para o commit.
+    Não inclua rótulos como "Título" ou "Descrição", apenas forneça o texto final que será utilizado para o commit.
     `;
 
     try {
@@ -71,6 +70,14 @@ async function sendToGoogleGenerativeAI(changes) {
         console.error('Erro ao enviar as mudanças para o Google Generative AI:', error.message);
         return null;
     }
+}
+
+// Função para remover rótulos como "Título" ou "Descrição", se a IA os adicionar
+function cleanCommitMessage(commitMessage) {
+    return commitMessage
+        .replace(/^.*título.*:/i, '')   // Remove linhas com "Título" ou "Title"
+        .replace(/^.*descrição.*:/i, '') // Remove linhas com "Descrição" ou "Description"
+        .trim();                         // Remove espaços em branco extras
 }
 
 // Função para perguntar ao usuário se ele aprova ou quer gerar uma nova mensagem
@@ -105,10 +112,12 @@ async function generateCommitMessage() {
             process.exit(1);
         }
 
+        // Limpa a mensagem de commit, removendo rótulos indesejados
+        commitMessage = cleanCommitMessage(commitMessage);
+
         // Exibe a mensagem gerada e pergunta ao usuário
         approved = await askUserApproval(commitMessage);
         if (!approved) {
-            execSync('clear');
             console.log('Gerando uma nova mensagem...');
         }
     }
@@ -118,10 +127,11 @@ async function generateCommitMessage() {
 
     try {
         // Separa a primeira linha como o título e o restante como a descrição
-        const [title, ...descriptionLines] = commitMessage.split('\n');
+        const [title, ...descriptionLines] = commitMessage.split('\n').filter(line => line.trim() !== '');
         const formattedDescription = descriptionLines.join('\n').trim();
 
-        const finalCommitMessage = `${title}\n\n${formattedDescription}`;
+        // Garante que a descrição não tenha rótulos desnecessários e está bem formatada
+        const finalCommitMessage = `${title.trim()}\n\n${formattedDescription}`;
 
         // Salva a mensagem no arquivo commit_message.txt
         fs.writeFileSync('commit_message.txt', finalCommitMessage);
@@ -131,11 +141,11 @@ async function generateCommitMessage() {
         validateGitChanges();
 
         // Realiza o commit automaticamente com a mensagem aprovada
-        // execSync('git commit -F commit_message.txt');
+        execSync('git commit -F commit_message.txt');
         console.log('Commit realizado com sucesso.');
 
         // Agora faz o push das mudanças para o repositório remoto
-        // execSync('git push');
+        execSync('git push');
         console.log('Mudanças enviadas para o repositório remoto (GitHub).');
     } catch (error) {
         console.error('Erro ao salvar a mensagem de commit ou ao realizar o commit/push:', error.message);

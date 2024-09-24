@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node ./index.js",
-    "push": "node ./scripts/generate-commit-message.js",
+    "auto-commit": "node ./scripts/generate-commit-message.js",
     "email-test": "node ./server/support/send-email.js",
     "dev": "nodemon ./index.js"
   },

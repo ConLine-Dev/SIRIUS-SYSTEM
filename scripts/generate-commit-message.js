@@ -64,6 +64,21 @@ function validateGitChanges(selectedFiles) {
     }
 }
 
+// Função para perguntar ao usuário se ele aprova ou quer gerar uma nova mensagem
+function askUserApproval(message) {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    return new Promise((resolve) => {
+        rl.question(`Mensagem gerada:\n${message}\n\nVocê quer usar esta mensagem para o commit? (s/n): `, (answer) => {
+            rl.close();
+            resolve(answer.toLowerCase() === 's');
+        });
+    });
+}
+
 // Função para perguntar se o usuário quer fazer o push
 function askUserForPush() {
     const rl = readline.createInterface({
@@ -83,14 +98,10 @@ function askUserForPush() {
 async function sendToGoogleGenerativeAI(changes) {
     const prompt = `
     NÃO FAÇA NENHUM TIPO DE MARCAÇÃO OU ROTULO APENAS NA PRIMEIRA LINHA DA RESPOSTA RETORNE O TITULO DO COMMIT E NAS LINHAS SUBSEQUENTES A DESCRIÇÃO.
-    Não inclua nenhum tipo de rótulos, apenas forneça o texto final que será utilizado para o commit.
-    Não inclua nenhum tipo de rótulos, apenas forneça o texto final que será utilizado para o commit.
-    NÃO UTILIZE MARKDOWN OU QUALQUER TIPO DE FORMATAÇÃO, APENAS TEXTO SIMPLES.
-    ATENÇÃO POIS SEUS RESTA SERÁ DIRETAMENTE ENVIADO PARA COMMIT DO GIT.
     Aqui estão as alterações feitas no projeto (com detalhes do diff):
     ${changes}
     Por favor, forneça apenas um título (na primeira linha) e uma descrição (nas linhas subsequentes) para o commit.
-    Não inclua rótulos como "Título" ou "Descrição", apenas forneça o texto final que será utilizado para o commit.`;
+    `;
 
     try {
         const model = await genAI.getGenerativeModel({ model: "gemini-pro" });
@@ -117,22 +128,6 @@ async function sendToGoogleGenerativeAI(changes) {
         return null;
     }
 }
-
-// Função para perguntar ao usuário se ele aprova ou quer gerar uma nova mensagem
-function askUserApproval(message) {
-    const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout
-    });
-
-    return new Promise((resolve) => {
-        rl.question(`Mensagem gerada:\n${message}\n\nVocê quer usar esta mensagem para o commit? (s/n): `, (answer) => {
-            rl.close();
-            resolve(answer.toLowerCase() === 's');
-        });
-    });
-}
-
 
 // Função principal para gerar o commit
 async function generateCommitMessage() {
@@ -187,8 +182,23 @@ async function generateCommitMessage() {
         // Pergunta se o usuário deseja realizar o push
         const shouldPush = await askUserForPush();
         if (shouldPush) {
-            execSync('git push');
-            console.log('Mudanças enviadas para o repositório remoto.');
+            try {
+                // Tenta realizar o push
+                execSync('git push');
+                console.log('Mudanças enviadas para o repositório remoto.');
+            } catch (pushError) {
+                console.log('Push falhou. Tentando fazer git pull para mesclar as mudanças remotas...');
+                try {
+                    // Faz o pull para atualizar o repositório local
+                    execSync('git pull --rebase');
+                    console.log('Pull realizado com sucesso. Tentando fazer o push novamente...');
+                    // Tenta o push novamente após o pull
+                    execSync('git push');
+                    console.log('Mudanças enviadas para o repositório remoto.');
+                } catch (pullError) {
+                    console.error('Erro ao realizar o pull/rebase ou ao tentar fazer o push novamente:', pullError.message);
+                }
+            }
         } else {
             console.log('Push foi cancelado pelo usuário.');
         }

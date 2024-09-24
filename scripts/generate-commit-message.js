@@ -7,7 +7,7 @@ require('dotenv').config(); // Carregar a chave da API do arquivo .env
 // Inicializar a API da Google Generative AI com a chave de API
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
-// Função para pegar as mudanças feitas no projeto usando Git (incluindo staged e unstaged)
+// Função para pegar as mudanças feitas no projeto usando Git (captura o diff completo)
 function getGitChanges() {
     try {
         const changes = execSync('git diff HEAD').toString().trim(); // Captura o diff completo
@@ -16,16 +16,23 @@ function getGitChanges() {
             process.exit(1);
         }
 
-    
-        // Sanitiza o conteúdo removendo quebras de linha desnecessárias e caracteres que podem ser problemáticos
-        const sanitizedChanges = changes
-            .replace(/\r?\n|\r/g, ' ')  // Substitui quebras de linha por espaços
-            .replace(/"/g, "'")  // Substitui aspas duplas por aspas simples
-            .slice(0, 100000);  // Limita o texto a 10000 caracteres (ajuste conforme necessário)
-
-        return sanitizedChanges.trim();
+        return changes;  // Retorna as mudanças sem sanitização para melhor contexto
     } catch (error) {
         console.error('Erro ao pegar as mudanças do Git:', error.message);
+        process.exit(1);
+    }
+}
+
+// Função para validar se há mudanças staged
+function validateGitChanges() {
+    try {
+        const stagedChanges = execSync('git diff --cached').toString().trim();
+        if (!stagedChanges) {
+            console.log('Erro: Não há alterações staged para o commit. Por favor, adicione arquivos usando "git add".');
+            process.exit(1);
+        }
+    } catch (error) {
+        console.error('Erro ao validar as mudanças do Git:', error.message);
         process.exit(1);
     }
 }
@@ -46,9 +53,7 @@ async function sendToGoogleGenerativeAI(changes) {
             history: [
                 {
                     role: "user",
-                    parts: [{
-                        text: 'olá' 
-                    }]
+                    parts: [{ text: prompt }]
                 }
             ],
             generationConfig: {
@@ -85,7 +90,7 @@ function askUserApproval(message) {
 
 // Função principal para gerar o commit
 async function generateCommitMessage() {
-    const changes = getGitChanges(); // Agora pegando o diff completo (staged e unstaged)
+    const changes = getGitChanges(); // Agora pegando o diff completo
 
     let commitMessage;
     let approved = false;
@@ -107,17 +112,21 @@ async function generateCommitMessage() {
         }
     }
 
-    // Se a mensagem foi aprovada, salva no arquivo e faz o commit
+    // Se a mensagem foi aprovada, valida as mudanças staged e faz o commit
     console.log('Mensagem de commit aprovada:');
-    console.log(commitMessage);
 
     try {
         fs.writeFileSync('commit_message.txt', commitMessage);
-        console.log('Mensagem salva em commit_message.txt. Você pode agora usá-la para o commit:');
-        // Descomente esta linha para fazer o commit automaticamente
-        // execSync('git commit -F commit_message.txt');
+        console.log('Mensagem salva em commit_message.txt. Fazendo o commit...');
+
+        // Valida se há mudanças staged antes de tentar commitar
+        validateGitChanges();
+
+        // Realiza o commit automaticamente com a mensagem aprovada
+        execSync('git commit -F commit_message.txt');
+        console.log('Commit realizado com sucesso.');
     } catch (error) {
-        console.error('Erro ao salvar a mensagem de commit:', error.message);
+        console.error('Erro ao salvar a mensagem de commit ou ao realizar o commit:', error.message);
     }
 }
 

@@ -181,15 +181,17 @@ async function formattedDateTime(time) {
 // Função para calcular o valor total dos cards
 async function totalCard(data) {
     const totalInvoicing = document.querySelector('.total-invoicing')
-    const totalBillingReleased = document.querySelector('.total-billingReleased')
+    // const totalBillingReleased = document.querySelector('.total-billingReleased')
     const totalInvoiceLosers = document.querySelector('.total-invoiceLosers')
     const totalTotalReceived = document.querySelector('.total-totalReceived')
+    const totalTotalPaid = document.querySelector('.total-totalPaid')
     const totalADM = document.querySelector('.total-ADM')
 
     let invoicing = 0
-    let billingReleased = 0
+    // let billingReleased = 0
     let invoiceLosers = 0
     let totalReceived = 0
+    let totalPaid = 0
     let total_ADM = 0
 
 
@@ -198,12 +200,12 @@ async function totalCard(data) {
 
         if (item.Tipo_Fatura && item.Tipo_Fatura === 'Faturado') {
             invoicing += item.Valor_Total
-        } else if (item.Tipo_Fatura && item.Tipo_Fatura === 'Lib.Faturamento') {
-            billingReleased += item.Valor_Total
         } else if (item.Tipo_Fatura && item.Tipo_Fatura === 'Vencido') {
             invoiceLosers += item.Valor_Total
         } else if (item.Tipo_Fatura && item.Tipo_Fatura === 'Recebido') {
             totalReceived += item.Valor_Total
+        } else if (item.Tipo_Fatura && item.Tipo_Fatura === 'Pago') {
+            totalPaid += item.Valor_Total
         } else if (item.Tipo_Fatura && item.Tipo_Fatura === 'Adm') {
             total_ADM += item.Valor_Total
         }
@@ -211,15 +213,17 @@ async function totalCard(data) {
     }
 
     invoicing = invoicing.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-    billingReleased = billingReleased.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+    // billingReleased = billingReleased.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
     invoiceLosers = invoiceLosers.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
     totalReceived = totalReceived.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+    totalPaid = totalPaid.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
     total_ADM = total_ADM.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
     totalInvoicing.textContent = invoicing
-    totalBillingReleased.textContent = billingReleased
+    // totalBillingReleased.textContent = billingReleased
     totalInvoiceLosers.textContent = invoiceLosers
     totalTotalReceived.textContent = totalReceived
+    totalTotalPaid.textContent = totalPaid
     totalADM.textContent = total_ADM
 };
 

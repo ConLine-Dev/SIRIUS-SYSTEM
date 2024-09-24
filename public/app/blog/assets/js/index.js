@@ -1,9 +1,18 @@
+/**
+ * Event listener que é acionado quando o conteúdo do DOM é carregado.
+ * Chama a função listAllPosts e oculta o elemento de carregamento.
+ */
 document.addEventListener("DOMContentLoaded", async () => {
  
     await listAllPosts() 
     document.querySelector('#loader2').classList.add('d-none')
 })
 
+
+/**
+ * Busca todas as postagens da API e as renderiza na página.
+ * @returns {Promise<void>} Uma promise que é resolvida quando as postagens são renderizadas.
+ */
 
 async function listAllPosts(){
     const AllPosts = await makeRequest(`/api/posts/listAll`);

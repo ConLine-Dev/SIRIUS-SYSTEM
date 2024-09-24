@@ -108,15 +108,23 @@ async function generateCommitMessage() {
         // Exibe a mensagem gerada e pergunta ao usuário
         approved = await askUserApproval(commitMessage);
         if (!approved) {
+            execSync('clear');
             console.log('Gerando uma nova mensagem...');
         }
     }
 
-    // Se a mensagem foi aprovada, valida as mudanças staged e faz o commit
+    // Se a mensagem foi aprovada, separa título e descrição e faz o commit
     console.log('Mensagem de commit aprovada:');
 
     try {
-        fs.writeFileSync('commit_message.txt', commitMessage);
+        // Separa a primeira linha como o título e o restante como a descrição
+        const [title, ...descriptionLines] = commitMessage.split('\n');
+        const formattedDescription = descriptionLines.join('\n').trim();
+
+        const finalCommitMessage = `${title}\n\n${formattedDescription}`;
+
+        // Salva a mensagem no arquivo commit_message.txt
+        fs.writeFileSync('commit_message.txt', finalCommitMessage);
         console.log('Mensagem salva em commit_message.txt. Fazendo o commit...');
 
         // Valida se há mudanças staged e adiciona se não houver

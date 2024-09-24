@@ -1915,9 +1915,6 @@ const headcargo = {
      
   
       return ClienteInactive;
-    },
-    getallProcessByHeadCargo: async function(id){
-      return await executeQuery(`SELECT * FROM mov_Logistica_House WHERE IdVendedor = ${id} OR IdInside_Sales = ${id}`)
     }
 }
 

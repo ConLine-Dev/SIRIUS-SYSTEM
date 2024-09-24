@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    // fim da função verificar tempo de carregamento da pagina e suas consultas no banco
    console.timeEnd(`A página "${document.title}" carregou em`);
 
-   document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
+   // document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
 
 
 

@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "node ./index.js",
+    "email-test": "node ./server/support/send-email.js",
     "dev": "nodemon ./index.js"
   },
   "keywords": [],

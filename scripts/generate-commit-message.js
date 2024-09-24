@@ -98,10 +98,15 @@ function askUserForPush() {
 async function sendToGoogleGenerativeAI(changes) {
     const prompt = `
     NÃO FAÇA NENHUM TIPO DE MARCAÇÃO OU ROTULO APENAS NA PRIMEIRA LINHA DA RESPOSTA RETORNE O TITULO DO COMMIT E NAS LINHAS SUBSEQUENTES A DESCRIÇÃO.
+    Não inclua nenhum tipo de rótulos, apenas forneça o texto final que será utilizado para o commit.
+    Não inclua nenhum tipo de rótulos, apenas forneça o texto final que será utilizado para o commit.
+    NÃO UTILIZE MARKDOWN OU QUALQUER TIPO DE FORMATAÇÃO, APENAS TEXTO SIMPLES.
+    ATENÇÃO POIS SEUS RESTA SERÁ DIRETAMENTE ENVIADO PARA COMMIT DO GIT.
+    VOCÊ DEVE ATUAL COMO UM DEV SENIOR EM JAVASCRIPT E GIT.
     Aqui estão as alterações feitas no projeto (com detalhes do diff):
     ${changes}
     Por favor, forneça apenas um título (na primeira linha) e uma descrição (nas linhas subsequentes) para o commit.
-    `;
+    Não inclua rótulos como "Título" ou "Descrição", apenas forneça o texto final que será utilizado para o commit.`;
 
     try {
         const model = await genAI.getGenerativeModel({ model: "gemini-pro" });

@@ -79,11 +79,8 @@ async function sendToGoogleGenerativeAI(changes) {
 // Função para remover rótulos como "Título" ou "Descrição", se a IA os adicionar
 function cleanCommitMessage(commitMessage) {
     return commitMessage
-        .replace(/^.*título.*:/i, '')   // Remove linhas com "Título" ou "Title"
-        .replace(/^.*descrição.*:/i, '') // Remove linhas com "Descrição" ou "Description"
-        .replace(/^.*Título.*:/i, '')   // Remove linhas com "Título" ou "Title"
-        .replace(/^.*Descrição.*:/i, '') // Remove linhas com "Descrição" ou "Description"
-        .trim();                         // Remove espaços em branco extras
+        .replace(/.*(?:título|descrição):/gi, '')  // Remove todas as variações de "Título" e "Descrição"
+        .trim();                                   // Remove espaços em branco extras
 }
 
 // Função para perguntar ao usuário se ele aprova ou quer gerar uma nova mensagem
@@ -151,8 +148,14 @@ async function generateCommitMessage() {
         console.log('Commit realizado com sucesso.');
 
         // Agora faz o push das mudanças para o repositório remoto
-        execSync('git push');
-        console.log('Mudanças enviadas para o repositório remoto (GitHub).');
+        const shouldPush = readlineSync.question('Deseja fazer o push agora? (s/n): ');
+        if (shouldPush.toLowerCase() === 's') {
+            execSync('git push');
+            console.log('Mudanças enviadas para o repositório remoto (GitHub).');
+        } else {
+            console.log('Lembre-se de fazer o push mais tarde.');
+        }
+        
     } catch (error) {
         console.error('Erro ao salvar a mensagem de commit ou ao realizar o commit/push:', error.message);
     }

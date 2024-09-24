@@ -2,6 +2,13 @@ const nodemailer = require('nodemailer');
 require('dotenv/config');
 
 // Função para enviar email
+/**
+ * Envia um email para o destinatário especificado.
+ * @param {string} recipient - O endereço de email do destinatário.
+ * @param {string} subject - O assunto do email.
+ * @param {string} htmlContent - O conteúdo HTML do email.
+ * @returns {Promise<{ success: boolean, timestamp: string } | { success: boolean, error: string }>} - Uma promise que resolve para um objeto indicando o sucesso ou falha da operação de envio do email.
+ */
 async function sendEmail(recipient, subject, htmlContent) {
     const transporter = nodemailer.createTransport({
         name: 'no-reply@conline-news.com',

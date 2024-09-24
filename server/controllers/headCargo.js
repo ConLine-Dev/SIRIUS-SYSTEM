@@ -33,6 +33,10 @@ const headcargo = {
         const sql = `WITH CTE_Logistica AS (
           SELECT
              Lhs.IdLogistica_House,
+             Lhs.IdCliente,
+             Lhs.IdImportador,
+             Lhs.IdExportador,
+             Lhs.IdDespachante_Aduaneiro,
        
              CASE
                 WHEN Lms.Tipo_Operacao = 1 AND Lms.Modalidade_Processo = 1 THEN 'EA'
@@ -333,11 +337,65 @@ const headcargo = {
              AND Lhs.Agenciamento_Carga = 1
              AND YEAR(Lhs.Data_Abertura_Processo) >= 2022
              AND Lmo.IdMoeda = 110
+       ),
+       Verifica_Fatura_Vencida AS (
+          SELECT
+             Psa.IdPessoa,
+             Psa.Nome AS Pessoa,
+             COUNT(Vlf.IdRegistro_Financeiro) AS Qtd_Fatura_Vencidas,
+             DATEDIFF(DAY, MIN(Fnc.Data_Vencimento), GETDATE()) AS Dias_Vencido,
+             FORMAT(SUM(Vlf.Valor_Total * Vlf.Fator_Corrente), 'C', 'pt-BR') AS Valor_Vencido,
+             CASE
+                -- Pessoa com acordo e com mais de uma fatura vencida
+                WHEN COALESCE(Cpg.IdCondicao_Pagamento, 0) NOT IN (1, 18, 17, 0) AND COUNT(Vlf.IdRegistro_Financeiro) > 1 THEN CONCAT('Com acordo e possui ', COUNT(Vlf.IdRegistro_Financeiro), ' faturas vencidas com valor total de ', FORMAT(SUM(Vlf.Valor_Total * Vlf.Fator_Corrente), 'C', 'pt-BR'))
+                -- Pessoa com acordo e com uma fatura vencida
+                WHEN COALESCE(Cpg.IdCondicao_Pagamento, 0) NOT IN (1, 18, 17, 0) AND COUNT(Vlf.IdRegistro_Financeiro) = 1 THEN CONCAT('Com acordo e possui ', COUNT(Vlf.IdRegistro_Financeiro), ' fatura vencida há ', DATEDIFF(DAY, MIN(Fnc.Data_Vencimento), GETDATE()), ' dias, com valor total de ', FORMAT(SUM(Vlf.Valor_Total * Vlf.Fator_Corrente), 'C', 'pt-BR'))
+                -- Pessoa sem acordo e com mais de uma fatura vencida
+                WHEN COALESCE(Cpg.IdCondicao_Pagamento, 0) IN (1, 18, 17, 0) AND COUNT(Vlf.IdRegistro_Financeiro) > 1 THEN CONCAT('Sem acordo e possui ', COUNT(Vlf.IdRegistro_Financeiro), ' faturas vencidas com valor total de ', FORMAT(SUM(Vlf.Valor_Total * Vlf.Fator_Corrente), 'C', 'pt-BR'))
+                -- Pessoa sem acordo e com uma fatura vencida
+                WHEN COALESCE(Cpg.IdCondicao_Pagamento, 0) IN (1, 18, 17, 0) AND COUNT(Vlf.IdRegistro_Financeiro) = 1 THEN CONCAT('Sem acordo e possui ', COUNT(Vlf.IdRegistro_Financeiro), ' fatura vencida há ', DATEDIFF(DAY, MIN(Fnc.Data_Vencimento), GETDATE()), ' dias, com valor total de ', FORMAT(SUM(Vlf.Valor_Total * Vlf.Fator_Corrente), 'C', 'pt-BR'))
+             END AS Status_Faturas
+          FROM
+             mov_Logistica_House Lhs
+          LEFT OUTER JOIN
+             mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+          LEFT OUTER JOIN
+             vis_Logistica_Fatura Vlf ON Vlf.IdLogistica_House = Lhs.IdLogistica_House
+          LEFT OUTER JOIN
+             mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Vlf.IdRegistro_Financeiro
+          LEFT OUTER JOIN
+             cad_Pessoa Psa ON Psa.IdPessoa = Vlf.IdPessoa
+          LEFT OUTER JOIN
+             cad_Contrato_Financeiro Cfn on Cfn.IdContrato_Financeiro = Psa.IdContrato_Financeiro
+          LEFT OUTER JOIN
+             cad_Contrato_Logistica_Item Cli on Cli.IdContrato_Financeiro = Cfn.IdContrato_Financeiro
+          LEFT OUTER JOIN
+             cad_Condicao_Pagamento Cpg on Cpg.IdCondicao_Pagamento = Cli.IdCondicao_Pagamento
+          WHERE
+             Fnc.Data_Vencimento < GETDATE()
+             AND Fnc.Tipo = 2 -- Finalizada
+             AND Fnc.Situacao NOT IN (2) -- Quitado
+             AND Lhs.Situacao_Agenciamento NOT IN (7) -- Não esteja cancelado
+             AND Lms.Situacao_Embarque NOT IN (4) -- Cancelado
+             AND Vlf.Tipo_Fatura = 2 -- Recebimento
+             AND (Vlf.IdPessoa = Lhs.IdCliente OR Vlf.IdPessoa = Lhs.IdImportador OR Vlf.IdPessoa = Lhs.IdExportador OR Vlf.IdPessoa = Lhs.IdDespachante_Aduaneiro)
+             AND Lhs.Numero_Processo NOT LIKE '%test%'
+          GROUP BY
+             Psa.Nome,
+             Psa.IdPessoa,
+             Cpg.IdCondicao_Pagamento
        )
        SELECT
-          *
+          Vfv.Status_Faturas,
+          Vfv.Qtd_Fatura_Vencidas,
+          Vfv.Dias_Vencido,
+          Vfv.Valor_Vencido,
+          Vfv.IdPessoa AS Pessoa_Fatura,
+          Cte.*
        FROM
-          CTE_Logistica
+          CTE_Logistica Cte
+       LEFT OUTER JOIN
+          Verifica_Fatura_Vencida Vfv ON (Vfv.IdPessoa = Cte.IdCliente OR Vfv.IdPessoa = Cte.IdImportador OR Vfv.IdPessoa = Cte.IdExportador OR Vfv.IdPessoa = Cte.IdDespachante_Aduaneiro)       
        WHERE
         ModalidadeCodigo IN (${modalidade})
         ${comissaoVendedor}

@@ -1,0 +1,9 @@
+**Título:** Reimplementação do envio de email
+
+**Descrição:**
+
+* Reimplementa a funcionalidade de envio de email usando Nodemailer.
+* Atualiza as dependências relacionadas a email, como nodemailer e package-lock.json.
+* Remove dependências não utilizadas, como `sendmail`.
+* Corrige problemas com o envio de emails por meio de endereços IP locais.
+* Adiciona a opção de enviar emails em formato HTML.

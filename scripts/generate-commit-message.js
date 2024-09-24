@@ -7,34 +7,76 @@ require('dotenv').config(); // Carregar a chave da API do arquivo .env
 // Inicializar a API da Google Generative AI com a chave de API
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
-// Função para pegar as mudanças feitas no projeto usando Git (captura o diff completo)
-function getGitChanges() {
+// Função para listar os arquivos modificados
+function listModifiedFiles() {
     try {
-        const changes = execSync('git diff HEAD').toString().trim(); // Captura o diff completo
+        const changes = execSync('git status -s').toString().trim();
         if (!changes) {
             console.log('Nenhuma alteração foi encontrada.');
             process.exit(1);
         }
-
-        return changes;  // Retorna as mudanças sem sanitização para melhor contexto
+        return changes.split('\n').map(line => line.trim().split(' ').pop());
     } catch (error) {
-        console.error('Erro ao pegar as mudanças do Git:', error.message);
+        console.error('Erro ao listar os arquivos modificados:', error.message);
         process.exit(1);
     }
 }
 
+// Função para perguntar ao usuário quais arquivos devem ser adicionados ao stage
+function askUserForFiles(files) {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    return new Promise((resolve) => {
+        rl.question(`Arquivos modificados:\n${files.join('\n')}\n\nEscolha os arquivos para adicionar ao commit (separe por vírgula ou digite "todos" para incluir todos): `, (answer) => {
+            rl.close();
+            if (answer.toLowerCase() === 'todos') {
+                resolve(files);
+            } else {
+                const selectedFiles = answer.split(',').map(file => file.trim()).filter(file => files.includes(file));
+                resolve(selectedFiles);
+            }
+        });
+    });
+}
+
 // Função para validar se há mudanças staged
-function validateGitChanges() {
+function validateGitChanges(selectedFiles) {
     try {
+        if (selectedFiles.length === 0) {
+            console.log('Nenhum arquivo foi selecionado para o commit.');
+            process.exit(1);
+        }
+
+        // Adiciona os arquivos selecionados ao stage
+        execSync(`git add ${selectedFiles.join(' ')}`);
+
         const stagedChanges = execSync('git diff --cached').toString().trim();
         if (!stagedChanges) {
-            console.log('Erro: Não há alterações staged para o commit. Adicionando as mudanças ao stage...');
-            execSync('git add .');  // Adiciona todas as mudanças ao stage
+            console.log('Erro: Não há alterações staged para o commit.');
+            process.exit(1);
         }
     } catch (error) {
         console.error('Erro ao validar as mudanças do Git:', error.message);
         process.exit(1);
     }
+}
+
+// Função para perguntar se o usuário quer fazer o push
+function askUserForPush() {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    return new Promise((resolve) => {
+        rl.question('Você deseja realizar o push após o commit? (s/n): ', (answer) => {
+            rl.close();
+            resolve(answer.toLowerCase() === 's');
+        });
+    });
 }
 
 // Função para enviar as alterações para a API do Google Generative AI e gerar a mensagem de commit
@@ -43,12 +85,12 @@ async function sendToGoogleGenerativeAI(changes) {
     NÃO FAÇA NENHUM TIPO DE MARCAÇÃO OU ROTULO APENAS NA PRIMEIRA LINHA DA RESPOSTA RETORNE O TITULO DO COMMIT E NAS LINHAS SUBSEQUENTES A DESCRIÇÃO.
     Não inclua nenhum tipo de rótulos, apenas forneça o texto final que será utilizado para o commit.
     Não inclua nenhum tipo de rótulos, apenas forneça o texto final que será utilizado para o commit.
+    NÃO UTILIZE MARKDOWN OU QUALQUER TIPO DE FORMATAÇÃO, APENAS TEXTO SIMPLES.
     ATENÇÃO POIS SEUS RESTA SERÁ DIRETAMENTE ENVIADO PARA COMMIT DO GIT.
     Aqui estão as alterações feitas no projeto (com detalhes do diff):
     ${changes}
     Por favor, forneça apenas um título (na primeira linha) e uma descrição (nas linhas subsequentes) para o commit.
-    Não inclua rótulos como "Título" ou "Descrição", apenas forneça o texto final que será utilizado para o commit.
-    `;
+    Não inclua rótulos como "Título" ou "Descrição", apenas forneça o texto final que será utilizado para o commit.`;
 
     try {
         const model = await genAI.getGenerativeModel({ model: "gemini-pro" });
@@ -76,13 +118,6 @@ async function sendToGoogleGenerativeAI(changes) {
     }
 }
 
-// Função para remover rótulos como "Título" ou "Descrição", se a IA os adicionar
-function cleanCommitMessage(commitMessage) {
-    return commitMessage
-        .replace(/.*(?:título|descrição):/gi, '')  // Remove todas as variações de "Título" e "Descrição"
-        .trim();                                   // Remove espaços em branco extras
-}
-
 // Função para perguntar ao usuário se ele aprova ou quer gerar uma nova mensagem
 function askUserApproval(message) {
     const rl = readline.createInterface({
@@ -98,9 +133,17 @@ function askUserApproval(message) {
     });
 }
 
+
 // Função principal para gerar o commit
 async function generateCommitMessage() {
-    const changes = getGitChanges(); // Agora pegando o diff completo
+    // Listar arquivos modificados e perguntar ao usuário quais incluir
+    const modifiedFiles = listModifiedFiles();
+    const selectedFiles = await askUserForFiles(modifiedFiles);
+
+    // Validar se há mudanças no stage (apenas os arquivos selecionados)
+    validateGitChanges(selectedFiles);
+
+    const changes = execSync(`git diff --cached`).toString().trim();
 
     let commitMessage;
     let approved = false;
@@ -115,8 +158,8 @@ async function generateCommitMessage() {
             process.exit(1);
         }
 
-        // Limpa a mensagem de commit, removendo rótulos indesejados
-        commitMessage = cleanCommitMessage(commitMessage);
+        // Limpa a mensagem de commit
+        commitMessage = commitMessage.trim();
 
         // Exibe a mensagem gerada e pergunta ao usuário
         approved = await askUserApproval(commitMessage);
@@ -129,33 +172,26 @@ async function generateCommitMessage() {
     console.log('Mensagem de commit aprovada:');
 
     try {
-        // Separa a primeira linha como o título e o restante como a descrição
         const [title, ...descriptionLines] = commitMessage.split('\n').filter(line => line.trim() !== '');
         const formattedDescription = descriptionLines.join('\n').trim();
-
-        // Garante que a descrição não tenha rótulos desnecessários e está bem formatada
         const finalCommitMessage = `${title.trim()}\n\n${formattedDescription}`;
 
         // Salva a mensagem no arquivo commit_message.txt
         fs.writeFileSync('commit_message.txt', finalCommitMessage);
         console.log('Mensagem salva em commit_message.txt. Fazendo o commit...');
 
-        // Valida se há mudanças staged e adiciona se não houver
-        validateGitChanges();
-
         // Realiza o commit automaticamente com a mensagem aprovada
         execSync('git commit -F commit_message.txt');
         console.log('Commit realizado com sucesso.');
 
-        // Agora faz o push das mudanças para o repositório remoto
-        const shouldPush = readlineSync.question('Deseja fazer o push agora? (s/n): ');
-        if (shouldPush.toLowerCase() === 's') {
+        // Pergunta se o usuário deseja realizar o push
+        const shouldPush = await askUserForPush();
+        if (shouldPush) {
             execSync('git push');
-            console.log('Mudanças enviadas para o repositório remoto (GitHub).');
+            console.log('Mudanças enviadas para o repositório remoto.');
         } else {
-            console.log('Lembre-se de fazer o push mais tarde.');
+            console.log('Push foi cancelado pelo usuário.');
         }
-        
     } catch (error) {
         console.error('Erro ao salvar a mensagem de commit ou ao realizar o commit/push:', error.message);
     }

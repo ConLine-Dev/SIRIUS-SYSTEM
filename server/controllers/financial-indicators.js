@@ -531,6 +531,7 @@ const financialIndicators = {
                Lhs.IdLogistica_House,
                Vlf.Situacao,
                Vlf.Valor_Corrente,
+               Vlr_Recib.IdTaxa_Logistica_Exibicao,
                Fin.Total_Pago_Corrente
             FROM
                vis_Logistica_Fatura Vlf
@@ -540,6 +541,17 @@ const financialIndicators = {
                mov_Logistica_House Lhs ON Lhs.IdLogistica_House = Vlf.IdLogistica_House
             LEFT OUTER JOIN
                mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+            JOIN (
+               SELECT
+                     Ltx.IdRegistro_Recebimento,
+                     Ltx.IdMoeda_Recebimento,
+                     Ltx.Valor_Recebimento_Total,
+                     Ltx.IdTaxa_Logistica_Exibicao
+               FROM
+                     mov_Logistica_Taxa Ltx
+               WHERE
+                     Ltx.IdTaxa_Logistica_Exibicao IN (2, 43, 199, 207, 711, 771, 28)
+            ) Vlr_Recib ON Vlr_Recib.IdRegistro_Recebimento = Vlf.IdRegistro_Financeiro
             WHERE   
                (Vlf.IdPessoa = Lhs.IdCliente OR Vlf.IdPessoa = Lhs.IdImportador OR Vlf.IdPessoa = Lhs.IdExportador OR Vlf.IdPessoa = Lhs.IdDespachante_Aduaneiro)
             AND Vlf.Tipo_Fatura = 2 /*Recebimento*/

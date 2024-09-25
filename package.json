@@ -8,7 +8,9 @@
   },
   "scripts": {
     "start": "node ./index.js",
+    "auto-commit": "node ./scripts/generate-commit-message.js",
     "email-test": "node ./server/support/send-email.js",
+    "upload-release": "node scripts/upload-release.js",
     "dev": "nodemon ./index.js"
   },
   "keywords": [],

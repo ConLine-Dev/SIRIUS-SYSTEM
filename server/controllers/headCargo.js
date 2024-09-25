@@ -1914,7 +1914,7 @@ const headcargo = {
      
   
       return ClienteInactive;
-  },
+    }
 }
 
 

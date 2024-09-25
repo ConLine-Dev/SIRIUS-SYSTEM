@@ -304,7 +304,49 @@ const tickets = {
     },
     updateStatus: async function(id, status){
         await executeQuery(`UPDATE called_tickets SET status = '${status}' WHERE id = ${id}`);
-        return true
+
+        if (status != 'inreview-tasks-draggable') {
+            return true;
+        }
+
+        const responsibleData = await executeQuery(`
+            SELECT ct.*, usr.email
+            FROM called_tickets ct
+            LEFT OUTER JOIN users usr on usr.collaborator_id = ct.collaborator_id
+            WHERE ct.id = ${id}`
+        );
+
+        let responsibleMail = responsibleData[0].email;
+
+        let mailBody = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+                <h1 style="margin: 0; font-size: 24px;">Agora só falta a sua aprovação!</h1>
+            </div>
+            <div style="padding: 20px; background-color: #f9f9f9;">
+                <p style="color: #333; font-size: 16px;">Olá,</p>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Viemos avisar que o seu chamado foi atendido! 🧞</p>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Aguardamos sua aprovação para seguir com os próximos tickets.</p>
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <tr>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Assunto do Chamado:</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${responsibleData[0].title}</td>
+                </tr>
+                <tr>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${responsibleData[0].description}</td>
+                </tr>
+                </table>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
+            </div>
+            <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+                <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+            </div>
+        </div>`
+
+        await sendEmail(responsibleMail, '[Sirius System] Tem um ticket esperando por você! 🫣', mailBody);
+
+        return true;
 
     },
     formatarNome: function(nome) {

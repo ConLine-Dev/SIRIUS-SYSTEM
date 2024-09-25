@@ -161,7 +161,9 @@ const financialIndicators = {
       const dataPago = startDateGlobal && endDateGlobal ? `AND (Fnc.Data_Pagamento between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Fnc.Data_Pagamento) = DATEPART(YEAR, GETDATE())`
       const DataVen = startDateGlobal && endDateGlobal ? `AND (Fnc.Data_Vencimento between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND Fnc.Data_Vencimento < GETDATE()`
       const DataAdm = startDateGlobal && endDateGlobal ? `and (Fin.Data_Vencimento between '${startDateGlobal}' and '${endDateGlobal}')` : `and DATEPART(YEAR, Fin.Data_Vencimento) = DATEPART(YEAR, GETDATE())`
+      const dataAdiantamento = startDateGlobal && endDateGlobal ? `AND (Valor_Cia.Data_Pagamento between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Valor_Cia.Data_Pagamento) = DATEPART(YEAR, GETDATE())`
 
+      // Consultas no Banco de dados
       const result = await executeQuerySQL(`
          -- FATURADO IMPORTACAO
       SELECT
@@ -460,6 +462,7 @@ const financialIndicators = {
          
          UNION ALL
          
+         -- DESPESAS ADM
          SELECT
             '' AS Numero_Processo,
             Pss.Nome as Pessoa,
@@ -481,7 +484,71 @@ const financialIndicators = {
             Cat.IdCategoria_Financeira IN (30, 112, 23, 105, 29, 98, 106, 12, 59, 115, 99, 114, 49, 50, 79, 53, 33, 76, 44, 123, 41, 31, 51, 87, 104, 38, 57, 25, 47, 48, 61, 13, 94)
          ${DataAdm}
          AND
-            Fin.Natureza = 0 -- Pagamento`)
+            Fin.Natureza = 0 -- Pagamento
+            
+         UNION ALL
+         
+         -- ADIANTADOS
+         SELECT
+            Lhs.Numero_Processo,
+            '' as Pessoa,
+            Valor_Cia.Data_Pagamento as Data,
+            Valor_Cia.Total_Pago_Corrente as Valor_Total,
+            'Antecipado' as Tipo_Fatura
+         FROM
+            mov_Logistica_House Lhs 
+         LEFT OUTER JOIN
+            mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+         LEFT OUTER JOIN 
+            cad_Pessoa Imp ON (Imp.IdPessoa = Lhs.IdImportador OR Imp.IdPessoa = Lhs.IdExportador)
+         LEFT OUTER JOIN
+            cad_Contrato_Financeiro Cfn ON Cfn.IdContrato_Financeiro = Imp.IdContrato_Financeiro
+         LEFT OUTER JOIN 
+            cad_Contrato_Logistica_Item Cli ON Cli.IdContrato_Financeiro = Cfn.IdContrato_Financeiro
+         LEFT OUTER JOIN
+            cad_Condicao_Pagamento Cpg ON Cpg.IdCondicao_Pagamento = Cli.IdCondicao_Pagamento
+         JOIN (
+            SELECT 
+               Lhs.IdLogistica_House,
+               Vlf.Situacao,
+               Fin.Data_Pagamento,
+               Fin.Total_Pago_Corrente
+            FROM
+               vis_Logistica_Fatura Vlf
+            LEFT OUTER JOIN
+               mov_Fatura_Financeira Fin ON Fin.IdRegistro_Financeiro = Vlf.IdRegistro_Financeiro
+            LEFT OUTER JOIN
+               mov_Logistica_House Lhs ON Lhs.IdLogistica_House = Vlf.IdLogistica_House
+            LEFT OUTER JOIN
+               mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+            WHERE   
+               (Vlf.IdPessoa = Lms.IdCompanhia_Transporte OR Vlf.IdPessoa = Lms.IdAgente_Origem OR Vlf.IdPessoa = Lms.IdAgente_Destino)
+            AND Vlf.Tipo_Fatura = 1 /*Pagamento*/
+            AND Vlf.Situacao IN (2, 4) /*Quitada - Parcialmente Quitada*/ 
+         ) Valor_Cia ON Valor_Cia.IdLogistica_House = Lhs.IdLogistica_House
+         JOIN (
+            SELECT 
+               Lhs.IdLogistica_House,
+               Vlf.Situacao,
+               Vlf.Valor_Corrente,
+               Fin.Total_Pago_Corrente
+            FROM
+               vis_Logistica_Fatura Vlf
+            LEFT OUTER JOIN
+               mov_Fatura_Financeira Fin ON Fin.IdRegistro_Financeiro = Vlf.IdRegistro_Financeiro
+            LEFT OUTER JOIN
+               mov_Logistica_House Lhs ON Lhs.IdLogistica_House = Vlf.IdLogistica_House
+            LEFT OUTER JOIN
+               mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+            WHERE   
+               (Vlf.IdPessoa = Lhs.IdCliente OR Vlf.IdPessoa = Lhs.IdImportador OR Vlf.IdPessoa = Lhs.IdExportador OR Vlf.IdPessoa = Lhs.IdDespachante_Aduaneiro)
+            AND Vlf.Tipo_Fatura = 2 /*Recebimento*/
+            AND Vlf.Situacao IN (1) /*Em aberto*/ 
+         ) Valor_Cli ON Valor_Cli.IdLogistica_House = Lhs.IdLogistica_House
+         WHERE
+            -- Lhs.Numero_Processo = 'IM1898-24'
+            COALESCE(Cpg.IdCondicao_Pagamento, 0) NOT IN (1, 18, 17, 0)
+         ${dataAdiantamento}`)
       return result;
    },
 }

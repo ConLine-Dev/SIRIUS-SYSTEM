@@ -181,14 +181,14 @@ async function formattedDateTime(time) {
 // Função para calcular o valor total dos cards
 async function totalCard(data) {
     const totalInvoicing = document.querySelector('.total-invoicing')
-    // const totalBillingReleased = document.querySelector('.total-billingReleased')
+    const totalAnticipated = document.querySelector('.total-anticipated')
     const totalInvoiceLosers = document.querySelector('.total-invoiceLosers')
     const totalTotalReceived = document.querySelector('.total-totalReceived')
     const totalTotalPaid = document.querySelector('.total-totalPaid')
     const totalADM = document.querySelector('.total-ADM')
 
     let invoicing = 0
-    // let billingReleased = 0
+    let anticipated = 0
     let invoiceLosers = 0
     let totalReceived = 0
     let totalPaid = 0
@@ -200,6 +200,8 @@ async function totalCard(data) {
 
         if (item.Tipo_Fatura && item.Tipo_Fatura === 'Faturado') {
             invoicing += item.Valor_Total
+        } else if (item.Tipo_Fatura && item.Tipo_Fatura === 'Antecipado') {
+            anticipated += item.Valor_Total
         } else if (item.Tipo_Fatura && item.Tipo_Fatura === 'Vencido') {
             invoiceLosers += item.Valor_Total
         } else if (item.Tipo_Fatura && item.Tipo_Fatura === 'Recebido') {
@@ -213,14 +215,14 @@ async function totalCard(data) {
     }
 
     invoicing = invoicing.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-    // billingReleased = billingReleased.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+    anticipated = anticipated.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
     invoiceLosers = invoiceLosers.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
     totalReceived = totalReceived.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
     totalPaid = totalPaid.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
     total_ADM = total_ADM.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
     totalInvoicing.textContent = invoicing
-    // totalBillingReleased.textContent = billingReleased
+    totalAnticipated.textContent = anticipated
     totalInvoiceLosers.textContent = invoiceLosers
     totalTotalReceived.textContent = totalReceived
     totalTotalPaid.textContent = totalPaid

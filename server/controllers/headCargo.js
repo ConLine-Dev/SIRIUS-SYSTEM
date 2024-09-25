@@ -142,7 +142,6 @@ const headcargo = {
                 WHEN Lhs.Situacao_Recebimento = 1 THEN 1
                 WHEN Lhs.Situacao_Recebimento = 2 THEN 2
                 WHEN Lhs.Situacao_Recebimento = 3 THEN 3
-                WHEN Lhs.Situacao_Recebimento = 4 THEN 4
                 WHEN Lhs.Situacao_Recebimento = 3 AND Fcr.Status_Fatura = 'Quitado' AND Inc.Qtd_Fatura > 0 THEN 3
              END AS RecebimentoCodigo,
        

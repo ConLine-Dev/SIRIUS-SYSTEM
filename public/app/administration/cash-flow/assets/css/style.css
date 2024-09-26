@@ -52,14 +52,14 @@
 
 /* Estiliza o fundo da barra de rolagem */
 .listInvoices::-webkit-scrollbar-track {
-   background: #fff; /* cor do fundo */
+   background: var(--header-bg); /* cor do fundo */
 }
 
 /* Estiliza o thumb (parte que se move da barra) */
 .listInvoices::-webkit-scrollbar-thumb {
-   background-color: #979595; /* cor do thumb */
+   background-color: var(--header-border-color); /* cor do thumb */
    border-radius: 10px; /* borda arredondada */
-   border: 2px solid #f1f1f1; /* margem para o thumb */
+   border: 2px solid var(--default-background); /* margem para o thumb */
 }
 
 
@@ -124,5 +124,5 @@
 }
 
 .categories:hover {
-   background-color: #f0f1f7 !important;
+   background-color: var(--default-background) !important;
 }

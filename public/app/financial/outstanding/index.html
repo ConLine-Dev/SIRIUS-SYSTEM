@@ -346,25 +346,34 @@
                         <!-- Start: Lista de faturas -->
                         <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
                             <div class="card custom-card intro-invoiceList">
-                                <div class="card-header justify-content-between">
+                                <div class="card-header d-flex justify-content-between align-items-center">
                                     <div class="card-title">Lista de faturas</div>
-                                    <div class="dropdown">
-                                        <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon btn-sm btn-light" data-bs-toggle="dropdown"> <i class="fe fe-more-vertical"></i> </a>
-                                        <ul class="dropdown-menu" style="z-index: 9999;">
-                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="1,2,3,4,5,6,7,8,9,10" id="filter_TotalReceived">Todas</a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="1" id="filter_Invoiced">Em aberto</a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="2" id="filter_Invoicing">Quitada</a></li>
-                                            <li><a class="dropdown-item invoiceActive" href="javascript:void(0);" invoicesTable="3" id="filter_Losers">Parcialmente quitada</a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="4" id="filter_TotalReceived">Unificada</a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="5" id="filter_Invoicing">Em cobrança</a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="6" id="filter_Invoicing">Cancelada</a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="7" id="filter_Invoicing">Em cobrança judicial</a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="8" id="filter_Invoicing">Negativado</a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="9" id="filter_Invoicing">Protestado</a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="10" id="filter_Invoicing">Junk</a></li>
-                                        </ul>
+                                    <div class="d-flex align-items-center">
+                                        <button type="button" class="btn btn-primary btn-sm me-2" id="exportExcel">
+                                            <i class="me-0 align-middle"></i>
+                                            Excel
+                                        </button>
+                                        <div class="dropdown">
+                                            <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon btn-sm btn-light" data-bs-toggle="dropdown">
+                                                <i class="fe fe-more-vertical"></i>
+                                            </a>
+                                            <ul class="dropdown-menu" style="z-index: 9999;">
+                                                <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="1,2,3,4,5,6,7,8,9,10" id="filter_TotalReceived">Todas</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="1" id="filter_Invoiced">Em aberto</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="2" id="filter_Invoicing">Quitada</a></li>
+                                                <li><a class="dropdown-item invoiceActive" href="javascript:void(0);" invoicesTable="3" id="filter_Losers">Parcialmente quitada</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="4" id="filter_TotalReceived">Unificada</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="5" id="filter_Invoicing">Em cobrança</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="6" id="filter_Invoicing">Cancelada</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="7" id="filter_Invoicing">Em cobrança judicial</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="8" id="filter_Invoicing">Negativado</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="9" id="filter_Invoicing">Protestado</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="10" id="filter_Invoicing">Junk</a></li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
+                                
 
                                 <div class="card-body listInvoices">
                                     <!-- Loader -->
@@ -462,6 +471,9 @@
     <!-- Xlsx -->
     <script src="../../assets/libs/xlsx/xlsx.full.min.js"></script>
 
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>

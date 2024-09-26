@@ -102,6 +102,7 @@ async function invoicesTable(totalInvoices) {
 
         const date = await formattedDateTime(totalInvoices[index].Data);
         const clientName = totalInvoices[index].Pessoa
+       
 
         printlistInvoices += `
             <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}">
@@ -123,13 +124,42 @@ async function invoicesTable(totalInvoices) {
                     </div>
                 </div>
             </a>`
-      
     }
+
+    buttons: [
+        'excel', 'pdf', 'print'
+    ]
 
     divlistInvoices.innerHTML = printlistInvoices
 
-    
+   // Função para exportar o relatório de faturas
+    document.getElementById('exportExcel').addEventListener('click', () => {
+        // Preparar os dados para exportação
+        let data = totalInvoices.map(invoice => {
+            return {
+                Nome: invoice.Pessoa,
+                'Número do Processo': invoice.Numero_Processo,
+                Modal: invoice.Modal,
+                'Situação da Fatura': invoice.Situacao_Fatura,
+                Valor: invoice.Valor,
+                Moeda: invoice.Moeda,
+                Data: new Date(invoice.Data).toLocaleDateString('pt-BR')
+            };
+        });
+
+        // Converta os dados em uma planilha
+        let worksheet = XLSX.utils.json_to_sheet(data);
+        
+        // Crie uma nova pasta de trabalho e adicione a planilha
+        let workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Faturas");
+
+        // Exporte a pasta de trabalho para um arquivo Excel
+        XLSX.writeFile(workbook, "faturas.xlsx");
+});
+
 };
+
 
 // Função Despesas Administativas puxa da API
 async function tableFinancialExpenses(dados) {

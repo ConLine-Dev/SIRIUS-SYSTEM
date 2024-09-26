@@ -1,0 +1,167 @@
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title id="title-categorie"></title>
+    <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
+    <meta name="Author" content="Spruko Technologies Private Limited">
+    <meta name="keywords"
+        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+    <!-- Favicon -->
+    <link rel="icon" href="../../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main JS -->
+    <script src="../../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    <!-- Color Picker Css -->
+    <link rel="stylesheet" href="../../../assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="../../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../../assets/libs/filepond/filepond.min.css">
+    
+
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+
+   <!-- Tutorial -->
+   <span class="avatar avatar-md p-2 bg-warning d-none" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 0px; z-index: 9999;"> 
+      <img src="../../../assets/images/brand-logos/mycon.svg" alt="mycon">
+   </span>
+     
+   <!-- Loader -->
+   <div id="loader2">
+      <img src="../../../assets/images/media/loader.svg" alt="">
+   </div>
+
+   <div class="page">
+      <div class="main-content">
+         <div class="container-fluid">
+
+            <!-- Pagina do Fluxo de Caixa e Filtro -->
+            <!-- <div class="col-12">
+               <br>
+               <div class="card custom-card">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                     <div class="card-title" id="title-categorie"></div>
+                  </div>
+               </div>
+            </div> -->
+
+            <div>
+
+               <!-- Start: Gráfico e Lista de Faturas -->
+               <div class="row">
+
+                  <!-- Start: Gráfico Despesas Mensais-->
+                  <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
+                        <div class="card custom-card intro-billingGraph">
+                           <div class="card-header">
+                              <div class="card-title">Despesas Mensais</div>
+                           </div>
+                           <div class="card-body" id="cash-flow-chart">
+                              <!-- INFOS ADD PELO JS -->
+                           </div>
+                        </div>
+                  </div>
+
+                  <!-- Start: Lista de faturas -->
+                  <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
+                        <div class="card custom-card intro-invoiceList">
+                           <div class="card-header justify-content-between">
+                              <div class="card-title">Lista de faturas administrativas</div>
+                              <div class="dropdown">
+                                 <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon btn-sm btn-light" data-bs-toggle="dropdown"> <i class="fe fe-more-vertical"></i> </a>
+                                 <ul class="dropdown-menu" style="z-index: 9999;">
+                                     <li><a class="dropdown-item invoiceActive" href="javascript:void(0);" invoicesTable="1,2,3,4,5,6,7,8,9,10" id="filter_TotalReceived">Todas</a></li>
+                                     <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="1" id="filter_Invoiced">Em aberto</a></li>
+                                     <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="2" id="filter_Invoicing">Quitada</a></li>
+                                     <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="3" id="filter_Losers">Parcialmente quitada</a></li>
+                                     <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="4" id="filter_TotalReceived">Unificada</a></li>
+                                     <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="5" id="filter_Invoicing">Em cobrança</a></li>
+                                     <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="6" id="filter_Invoicing">Cancelada</a></li>
+                                     <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="7" id="filter_Invoicing">Em cobrança judicial</a></li>
+                                     <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="8" id="filter_Invoicing">Negativado</a></li>
+                                     <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="9" id="filter_Invoicing">Protestado</a></li>
+                                     <li><a class="dropdown-item" href="javascript:void(0);" invoicesTable="10" id="filter_Invoicing">Junk</a></li>
+                                 </ul>
+                             </div>
+                           </div>
+
+                           <div class="card-body listInvoices">
+                              <!-- Loader -->
+                              <div id="loader1" class="d-none">
+                                 <img src="../../../assets/images/media/loader.svg" alt="">
+                              </div>
+                              <div class="list-group" id="listInvoices">
+                                    <!-- INFOS ADD PELO JS -->
+                              </div>
+                           </div>
+                        </div>
+                  </div>
+               </div>
+
+            </div>
+         </div>
+      </div>
+   </div>
+
+   
+
+   <!-- Scroll To Top -->
+   <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+   <div id="responsive-overlay"></div>
+
+   <!-- Jquery -->
+   <script src="../../../assets/libs/jQuery/jquery-3.6.1.min.js"></script>
+   <!-- Popper JS -->
+   <script src="../../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+   <!-- Bootstrap JS -->
+   <script src="../../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+   <!-- Color Picker JS -->
+   <script src="../../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+   <!-- Flat Picker JS -->
+   <script src="../../../assets/libs/flatpickr/flatpickr.min.js"></script>
+   <!-- ApexCharts JS -->
+   <script src="../../../assets/libs/apexCharts/apexCharts.js"></script>
+   <!-- Xlsx -->
+   <script src="../../../assets/libs/xlsx/xlsx.full.min.js"></script>
+
+   <script src="../../../assets/libs/datatables.min.js/jquery.dataTables.min.js"></script>
+   <script src="../../../assets/libs/datatables.min.js/dataTables.bootstrap5.min.js"></script>
+   <script src="../../../assets/libs/datatables.min.js/dataTables.responsive.min.js"></script>
+   <script src="../../../assets/libs/datatables.min.js/dataTables.buttons.min.js"></script>
+   <script src="../../../assets/libs/datatables.min.js/buttons.print.min.js"></script>
+   <script src="../../../assets/libs/datatables.min.js/pdfmake.min.js"></script>
+   <script src="../../../assets/libs/datatables.min.js/vfs_fonts.js"></script>
+   <script src="../../../assets/libs/datatables.min.js/buttons.html5.min.js"></script>
+   <script src="../../../assets/libs/datatables.min.js/jszip.min.js"></script>
+
+   <script src="../../../assets/js/fetchAPI.js"></script>
+   <script src="../../../assets/libs/intro.js/intro.min.js"></script>
+   <script src="../../../assets/libs/intro.js/intro.js"></script>
+   <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+   <script src="./assets/js/script.js"></script>
+
+</body>
+
+</html>

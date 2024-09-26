@@ -311,9 +311,9 @@
     "intro": "Este card exibe o valor total das faturas emitidas no ano atual."
   },
   {
-    "element": ".intro-card-billingReleased",
-    "title": "Faturamento Liberado",
-    "intro": "Este card exibe o valor total das faturas liberadas para faturamento no ano atual."
+    "element": ".intro-card-anticipated",
+    "title": "Total de Antecipados",
+    "intro": "Este card exibe o valor total das faturas antecipadas no ano atual."
   },
   {
     "element": ".intro-card-losers",
@@ -326,6 +326,11 @@
     "intro": "Este card exibe o valor total das faturas recebidas no ano atual."
   },
   {
+    "element": ".intro-card-totalPaid",
+    "title": "Total de Pagamentos",
+    "intro": "Este card exibe o valor total das faturas pagas no ano atual."
+  },
+  {
     "element": ".intro-card-administrativeTotal",
     "title": "Total Administrativo",
     "intro": "Este card exibe o valor total das despesas administrativas no ano atual."
@@ -333,13 +338,13 @@
   {
     "element": ".intro-billingGraph",
     "title": "Faturamento por mês",
-    "intro": "Aqui você pode visualizar todos os pagamentos e recebimentos por mês.",
+    "intro": "Aqui você pode visualizar tudo o que foi pago e recebido por mês.",
     "position": "left"
   },
   {
     "element": ".intro-invoiceList",
     "title": "Lista de faturas",
-    "intro": "Aqui você pode visualizar todas as faturas do ano atual, incluindo o nome do cliente, número do processo, data e valores. Utilize o menu dos três pontos ao lado para filtrar pela situação da fatura."
+    "intro": "Aqui você pode visualizar todas as faturas do ano atual, incluindo o nome do cliente, número do processo, data e valores. Utilize o menu dos três pontos ao lado para filtrar pela situação da fatura que desejar."
   },
   {
     "element": ".intro-card-administrativeExpenses",

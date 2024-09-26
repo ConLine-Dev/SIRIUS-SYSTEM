@@ -110,24 +110,100 @@ const tickets = {
 
         return msg
     },
-    createMessage: async function(body){
+    createMessage: async function (body) {
 
         const date = new Date()
 
         const addmsg = await executeQuery(
             'INSERT INTO called_messages (ticket_id, body, create_at, collab_id) VALUES (?, ?, ?, ?)',
             [body.ticketId, body.body, date, body.collab_id]
-          );
+        );
 
-          const colaboradores = await executeQuery(`SELECT * FROM collaborators WHERE id = ${body.collab_id}`)
-    
+        const colaboradores = await executeQuery(`SELECT * FROM collaborators WHERE id = ${body.collab_id}`)
 
-          return {
+        const messagesByTicket = await executeQuery(`
+            SELECT ct.title, cm.body, cm.create_at, cl.name, cl.family_name, rs.email_business as 'responsible_email'
+            FROM called_messages cm
+            LEFT OUTER JOIN collaborators cl ON cl.id = cm.collab_id
+            LEFT OUTER JOIN called_tickets ct ON ct.id = cm.ticket_id
+            LEFT OUTER JOIN collaborators rs ON rs.id = ct.collaborator_id
+            WHERE cm.ticket_id = ${body.ticketId}
+            ORDER BY create_at DESC`)
+
+        let allMessages = '';
+        let font = '';
+        for (let index = 0; index < messagesByTicket.length; index++) {
+
+            if (index == 0) {
+                font = 'bold'
+            } else {
+                font = 'normal'
+            }
+
+            let date = messagesByTicket[index].create_at;
+            const formattedDate = date.toLocaleString("pt-BR", {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+
+            allMessages += `
+                <tr>
+                    <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                        <h6 style="margin: 0px; font-weight: ${font}">Remetente:</h6>
+                        <h4 style="margin: 0px; font-weight: ${font}">${messagesByTicket[index].name} ${messagesByTicket[index].family_name}</h4>
+                    </td>
+                    <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                        <h6 style="margin: 0px; font-weight: ${font}">Data:</h6>
+                        <h4 style="margin: 0px; font-weight: ${font}">${formattedDate}</h4>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="font-weight: ${font}; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                        ${messagesByTicket[index].body}
+                    </td>
+                </tr>`
+        }
+
+        let mailBody = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+                <h1 style="margin: 0; font-size: 24px;">Nova mensagem no seu ticket!</h1>
+            </div>
+            <div style="padding: 20px; background-color: #f9f9f9;">
+                <p style="color: #333; font-size: 16px;">Olá,</p>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Alguém escreveu em um chamado que você está envolvido. 📩</p>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Aqui está todo o loop de mensagens, já para adiantar as novidades:</p>
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <tr>
+                <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Assunto do Chamado:</td>
+                <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">${messagesByTicket[0].title}</td>
+                </tr>
+                </table>
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                ${allMessages}
+                </table>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
+            </div>
+            <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+                <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+            </div>
+        </div>`
+
+        if (messagesByTicket[0].collab_id != messagesByTicket[0].id){
+            sendEmail(messagesByTicket[0].responsibleMail, '[Sirius System] Viemos com atualizações 🫡', mailBody);
+            
+        }
+        sendEmail('ti@conlinebr.com.br', '[Sirius System] Viemos com atualizações 🫡', mailBody);
+        
+        return {
             colab_name: tickets.formatarNome(colaboradores[0].name),
             colab_id: body.collab_id,
-            id:addmsg.insertId,
-            date:date
-          }
+            id: addmsg.insertId,
+            date: date
+        }
 
     },
     removeTicket: async function(id){
@@ -144,11 +220,14 @@ const tickets = {
         const timeEnd = value.timeEnd ?  value.timeEnd : null;
         const finished_at = value.finished_at ? value.finished_at : null;
 
-        const userMail = await executeQuery(
-            `SELECT * FROM siriusDBO.users usr
+        const userData = await executeQuery(`
+            SELECT usr.*, cl.name, cl.family_name FROM users usr
+            LEFT OUTER JOIN collaborators cl on cl.id = usr.collaborator_id
             WHERE usr.collaborator_id = ${value.responsible.id};`
         )
-        let destinationMail = userMail[0].email;
+        let name = userData[0].name;
+        let familyName = userData[0].family_name;
+        let destinationMail = userData[0].email;
 
         const result = await executeQuery(
             'INSERT INTO called_tickets (title,status, description, collaborator_id, start_forecast, end_forecast, finished_at) VALUES (?,?, ?, ?, ?, ?, ?)',
@@ -218,7 +297,7 @@ const tickets = {
                 </tr>
                 <tr>
                 <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
-                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${userDescription}</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${value.description}</td>
                 </tr>
                 <tr>
                 <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Data da Abertura:</td>
@@ -242,6 +321,10 @@ const tickets = {
                 <p style="color: #333; font-size: 16px; line-height: 1.6;">Um usuário acabou de abrir um novo ticket no Sirius! 🥳</p>
                 <p style="color: #333; font-size: 16px; line-height: 1.6;">Aqui estão os detalhes do que foi inserido no sistema, já para agilizar seu trabalho:</p>
                 <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <tr>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Funcionário Responsável:</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${name} ${familyName}</td>
+                </tr>
                 <tr>
                 <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Assunto do Chamado:</td>
                 <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${value.title}</td>

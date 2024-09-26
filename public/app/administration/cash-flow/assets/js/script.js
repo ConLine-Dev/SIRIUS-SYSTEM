@@ -388,7 +388,7 @@ async function total_for_categories(data) {
       const formattedValue = array_categories[i].paid.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
       printlistInvoices += `
-         <a href="javascript:void(0);" class="border-0">
+         <a href="javascript:void(0);" class="border-0" id-categorie="${array_categories[i].id_categorie}">
             <div class="list-group-item border-0 categories" style="padding: 0.5rem 0.75rem !important;">
                <div class="d-flex align-items-start">
                      <div class="w-100">
@@ -409,6 +409,18 @@ async function total_for_categories(data) {
    }
 
    divlistInvoices.innerHTML = printlistInvoices
+
+   //====== ABRIR CATEGORIA ======//
+   const categories = document.querySelectorAll('[id-categorie]')
+   categories.forEach(categorie => {
+      categorie.addEventListener('dblclick', async function(e) {
+         e.preventDefault();
+
+         const idCategorie = this.getAttribute('id-categorie')
+         await openCategorie(idCategorie);
+      })
+   });
+   //====== / ABRIR CATEGORIA ======//
 };
 
 // Função para formatar a data (dia, mês, ano) no gráfico
@@ -472,46 +484,58 @@ async function eventClick() {
 
          startDateGlobal = formatDate(startDateStr);
          endDateGlobal = formatDate(endDateStr);
-         const invoiceActive = document.querySelector('.InvoiceActive').getAttribute('invoicesTable');
+         // const invoiceActive = document.querySelector('.InvoiceActive').getAttribute('invoicesTable');
 
          // Tela de carregando 'add=quando vc fecha algo/remove=quando vc abre algo'
          document.querySelector('#loader2').classList.remove('d-none')
 
          const totalOperation = await makeRequest(`/api/cash-flow/totalOperation`, 'POST', {startDateGlobal, endDateGlobal});
-         const totalAdm = await makeRequest(`/api/cash-flow/totalAdm`, 'POST', {startDateGlobal, endDateGlobal, situacao: invoiceActive});
+         const totalAdm = await makeRequest(`/api/cash-flow/totalAdm`, 'POST', {startDateGlobal, endDateGlobal});
          
          await totalCard(totalOperation, totalAdm);
          await profit_for_month(totalOperation, totalAdm);
          await graphic_month(totalOperation, totalAdm);
-         await invoicesTable(totalAdm);
+         await total_for_categories(totalAdm);
+         // await invoicesTable(totalAdm);
 
          // Tela de carregando 'add=quando vc fecha algo/remove=quando vc abre algo'
          document.querySelector('#loader2').classList.add('d-none')
       })
    //====== / BOTÃO DE FILTRO ======//
 
-
    //====== FILTRO DE FATURA ======//
-      const nameInvoices = document.querySelectorAll('[invoicesTable]')
-      nameInvoices.forEach(item => {
-         item.addEventListener('click', async function(e){
-            e.preventDefault()
+      // const nameInvoices = document.querySelectorAll('[invoicesTable]')
+      // nameInvoices.forEach(item => {
+      //    item.addEventListener('click', async function(e){
+      //       e.preventDefault()
 
-            // Tela de carregando 'add=quando vc fecha algo/remove=quando vc abre algo'
-            document.querySelector('#loader1').classList.remove('d-none')
+      //       // Tela de carregando 'add=quando vc fecha algo/remove=quando vc abre algo'
+      //       document.querySelector('#loader1').classList.remove('d-none')
 
-            const invoiceActive = document.querySelector('.invoiceActive')
-            invoiceActive.classList.remove('invoiceActive')
-            this.classList.add('invoiceActive')
-            const Invoice = this.getAttribute('invoicesTable')
-            const totalInvoices = await makeRequest(`/api/cash-flow/totalAdm`, 'POST', {startDateGlobal, endDateGlobal, situacao: Invoice});
-            await invoicesTable(totalInvoices);
+      //       const invoiceActive = document.querySelector('.invoiceActive')
+      //       invoiceActive.classList.remove('invoiceActive')
+      //       this.classList.add('invoiceActive')
+      //       const Invoice = this.getAttribute('invoicesTable')
+      //       const totalInvoices = await makeRequest(`/api/cash-flow/totalAdm`, 'POST', {startDateGlobal, endDateGlobal, situacao: Invoice});
+      //       await invoicesTable(totalInvoices);
 
-            document.querySelector('#loader1').classList.add('d-none')
-         })
+      //       document.querySelector('#loader1').classList.add('d-none')
+      //    })
          
-      });
+      // });
    //====== / FILTRO DE FATURA ======//
+};
+
+// Função que envia para a proxima janela o id da pessoa clicada
+async function openCategorie(idCategorie) {
+   const existDate = !startDateGlobal && !endDateGlobal ? `/app/administration/cash-flow/get-categorie?id=${idCategorie}` : `/app/administration/cash-flow/get-categorie?id=${idCategorie}&startDate=${startDateGlobal}&endDate=${endDateGlobal}`
+   const body = {
+      url: existDate,
+      width: 1420,
+      height: 720
+   }
+
+   window.ipcRenderer.invoke('open-exWindow', body);
 };
 
 // Função executada após toda a página ser executada

@@ -2,11 +2,13 @@ const { executeQuerySQL } = require('../connect/sqlServer');
 const { executeQuery } = require('../connect/mysql');
 
 const cashFlow = {
-    // Lista todas as faturas
-   totalOperation: async function () {
+   // Lista todas as faturas
+   totalOperation: async function (startDateGlobal, endDateGlobal) {
+      const dateFilter = startDateGlobal && endDateGlobal ? `AND (Lhs.Data_Abertura_Processo BETWEEN '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Lhs.Data_Abertura_Processo) = DATEPART(YEAR, GETDATE())`
+
       let result = await executeQuerySQL(`
          SELECT
-            Lhs.Data_Abertura_Processo AS Data,
+            Lhs.Data_Abertura_Processo,
             Lhs.Numero_Processo,
             Cli.Nome AS Cliente,
 
@@ -58,7 +60,75 @@ const cashFlow = {
          WHERE
             Lmo.IdMoeda = 110 -- BRL
             AND Lhs.Numero_Processo NOT LIKE '%test%'
-            AND DATEPART(YEAR, Lhs.Data_Abertura_Processo) = DATEPART(YEAR, GETDATE())
+            ${dateFilter}
+      `)
+      return result;
+   },
+
+   // Lista todas as faturas
+   totalAdm: async function (startDateGlobal, endDateGlobal, situacao) {
+      const dateFilterAdm = startDateGlobal && endDateGlobal ? `AND (Fin.Data BETWEEN '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Fin.Data) = DATEPART(YEAR, GETDATE())`
+      const situacaoHtml = situacao ? `AND Fin.Situacao IN (${situacao})` : `AND Fin.Situacao IN (1,2,3,4,5,6,7,8,9,10)`
+      const dateFilterAdmSalary = startDateGlobal && endDateGlobal ? `AND (Tfn.Data BETWEEN '${startDateGlobal}' AND '${endDateGlobal}')` : `AND (Tfn.Data BETWEEN '2024-05-01' AND '2024-12-31')`
+      let result = await executeQuerySQL(`
+         SELECT
+            Fin.Data,
+            Pss.Nome as Cliente,
+
+            case Fin.Situacao
+               when 1 then 'Em aberto'
+               when 2 then 'Quitada'
+               when 3 then 'Parcialmente quitada'
+               when 4 then 'Unificada'
+               when 5 then 'Em cobrança'
+               when 6 then 'Cancelada' 
+               when 7 then 'Em combrança judicial'
+               when 8 then 'Negativado'
+               when 9 then 'Protestado'
+               when 10 then 'Junk'
+            end as Situacao_Fatura,
+
+            Fin.Historico_Resumo as Historico_Resumo,
+            Cat.IdCategoria_Financeira,
+            Cat.Nome as Categoria,
+
+            Ffc.Valor AS Total_Pagamento_Estimado
+
+         FROM
+            mov_Fatura_Financeira Fin 
+         LEFT OUTER JOIN
+            mov_Registro_Financeiro Reg ON Reg.IdRegistro_Financeiro = Fin.IdRegistro_Financeiro
+         LEFT OUTER JOIN
+            cad_Pessoa Pss ON Pss.IdPessoa = Reg.IdPessoa
+         LEFT OUTER JOIN
+            mov_Fatura_Financeira_Categoria Ffc ON Ffc.IdFatura_Financeira = Fin.IdFatura_Financeira
+         LEFT OUTER JOIN
+            cad_Categoria_Financeira Cat ON Cat.IdCategoria_Financeira = Ffc.IdCategoria_Financeira
+         WHERE
+            Cat.IdCategoria_Financeira IN (30, 112, 23, 105, 29, 98, 106, 12, 59, 115, 99, 114, 49, 50, 79, 53, 33, 76, 44, 123, 41, 31, 51, 87, 104, 38, 57, 25, 47, 48, 61, 13, 94)
+         AND
+            Fin.Natureza = 0
+         ${dateFilterAdm}
+         ${situacaoHtml}
+
+         UNION ALL
+
+         SELECT
+            Tfn.Data,
+            'TRANSFERÊNCIA PARA PAGAMENTO DE SALÁRIO' AS Cliente,
+
+            'Quitada' AS Situacao_Fatura,
+            '' AS Historico_Resumo,
+            999999999 AS IdCategoria_Financeira,
+            'SALARIO' AS Categoria,
+
+            Tfn.Valor_Destino AS Total_Pagamento_Estimado
+         FROM
+            mov_Transferencia_Financeira Tfn
+         WHERE
+            Tfn.IdConta_Origem = 10 -- Banco Bradesco
+            AND Tfn.IdConta_Destino = 18 -- Banco Inter
+            ${dateFilterAdmSalary}
       `)
       return result;
    },

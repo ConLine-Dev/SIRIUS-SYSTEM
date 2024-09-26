@@ -384,6 +384,8 @@ const headcargo = {
              Psa.Nome,
              Psa.IdPessoa,
              Cpg.IdCondicao_Pagamento
+          HAVING
+             DATEDIFF(DAY, MIN(Fnc.Data_Vencimento), GETDATE()) <> 0
        )
        SELECT
           Vfv.Status_Faturas,
@@ -405,8 +407,7 @@ const headcargo = {
         ${pagamento}
         ${recebimento}
         ${AgenteCodigo}
-        ${Abertura_Processo}
-        `
+        ${Abertura_Processo}`
 
         console.log(sql)
 
@@ -459,7 +460,7 @@ const headcargo = {
 
         // Mapear os resultados e formatar a data
         const resultadosFormatados = commissions.map(item => ({
-          'check': `<input class="form-check-input me-2 selectCheckbox" data-id="${item.IdLogistica_House}" type="checkbox" checked="">`,
+          'check': `<input class="form-check-input me-2 selectCheckbox" data-comissao="${ item.Valor_Efetivo ? (item.Valor_Efetivo * (percentagem / 100)) : 0 }" data-value="${(item.Valor_Efetivo || 0)}" data-id="${item.IdLogistica_House}" type="checkbox" checked="">`,
           'modal': item.Modalidade,
           'processo': item.Numero_Processo,
           'abertura': '<span style="display:none">'+item.Abertura_Processo_Convertida+'</span>'+new Date(item.Abertura_Processo).toLocaleDateString('pt-BR', { timeZone: 'UTC' }),
@@ -475,8 +476,14 @@ const headcargo = {
           'comissao_inside': item.Comissao_Inside_Sales_Pago == 0 ? 'Pendente' : 'Pago',
           'estimado': (item.Valor_Estimado || 0).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
           'efetivo': (item.Valor_Efetivo || 0).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
-          'restante': ((item.Valor_Efetivo || 0) - (item.Valor_Estimado || 0)).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+          'restante': ((item.Valor_Efetivo || 0) - (item.Valor_Estimado || 0)).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
+          'fatura_status': item.Status_Faturas,
+          'fatura_quant_vencidas': item.Qtd_Fatura_Vencidas,
+          'fatura_dias_vencimento': item.Dias_Vencido,
+          'fatura_valor_vencimento': item.Valor_Vencido,
+          'fatura_pessoa_fatura': item.Pessoa_Fatura,
       }));
+
 
       // end comissão por lucro total 
 
@@ -491,6 +498,59 @@ const headcargo = {
 
         return format;
   
+    },
+    getOverdueInvoices: async function(id = null, idresponsavel = null){
+      const sql = `SELECT
+        Lhs.Numero_Processo,
+        Psa.IdPessoa as IdPessoa,
+        Psa.Nome AS Pessoa,
+        Ven.Nome AS Vendedor,
+        Ven.IdPessoa AS IdVendedor,
+        FORMAT(SUM(Vlf.Valor_Total * Vlf.Fator_Corrente), 'C', 'pt-BR') AS Valor_Total,
+        DATEDIFF(DAY, MIN(Fnc.Data_Vencimento), GETDATE()) AS Dias_Vencidos
+      FROM
+        mov_Logistica_House Lhs
+      LEFT OUTER JOIN
+        mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+      LEFT OUTER JOIN
+        vis_Logistica_Fatura Vlf ON Vlf.IdLogistica_House = Lhs.IdLogistica_House
+      LEFT OUTER JOIN
+        mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Vlf.IdRegistro_Financeiro
+      LEFT OUTER JOIN
+        cad_Pessoa Psa ON Psa.IdPessoa = Vlf.IdPessoa
+      LEFT OUTER JOIN
+        cad_Contrato_Financeiro Cfn on Cfn.IdContrato_Financeiro = Psa.IdContrato_Financeiro
+      LEFT OUTER JOIN
+        cad_Contrato_Logistica_Item Cli on Cli.IdContrato_Financeiro = Cfn.IdContrato_Financeiro
+      LEFT OUTER JOIN
+        cad_Condicao_Pagamento Cpg on Cpg.IdCondicao_Pagamento = Cli.IdCondicao_Pagamento
+      LEFT OUTER JOIN
+        cad_Pessoa Ven ON Ven.IdPessoa = Lhs.IdVendedor
+      WHERE
+        Fnc.Data_Vencimento < GETDATE()
+        AND Fnc.Tipo = 2 -- Finalizada
+        AND Fnc.Situacao NOT IN (2) -- Quitado
+        AND Lhs.Situacao_Agenciamento NOT IN (7) -- Não esteja cancelado
+        AND Lms.Situacao_Embarque NOT IN (4) -- Cancelado
+        AND Vlf.Tipo_Fatura = 2 -- Recebimento
+        AND (Vlf.IdPessoa = Lhs.IdCliente OR Vlf.IdPessoa = Lhs.IdImportador OR Vlf.IdPessoa = Lhs.IdExportador OR Vlf.IdPessoa = Lhs.IdDespachante_Aduaneiro)
+        AND Lhs.Numero_Processo NOT LIKE '%test%'
+        ${id || id != null ? `AND Vlf.IdPessoa = ${id}` : ''}
+        ${idresponsavel || idresponsavel != null ? `AND Ven.IdPessoa = ${idresponsavel}` : ''}
+      GROUP BY
+        Lhs.Numero_Processo,
+        Psa.Nome,
+        Ven.Nome,
+        Ven.IdPessoa,
+        Psa.IdPessoa
+      HAVING
+        DATEDIFF(DAY, MIN(Fnc.Data_Vencimento), GETDATE()) <> 0
+      `;
+
+
+
+      const registers = await executeQuerySQL(sql)
+      return registers;
     },
     listRegisterComission: async function(){
       const sql = `SELECT cmmr.*, collab.name, collab.family_name FROM commission_reference cmmr

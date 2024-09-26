@@ -819,7 +819,7 @@
                                           <h5 class="fw-semibold mb-0 lh-1 quantidade_processo">00</h5>
                                       
                                         </div>
-                                        <p class="mb-0 fs-10 op-7 text-muted fw-semibold">QUANTIDADE DE PROCESSOS</p>
+                                        <p class="mb-0 fs-10 op-7 text-muted fw-semibold">PROCESSOS</p>
                                       </div>
                                     </div>
                                   </div>
@@ -949,6 +949,38 @@
 
             </div>
           </div>
+        </div>
+    </div>
+
+  <!-- Modal -->
+    <div class="modal fade" id="OverdueInvoicesModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title" id="staticBackdropLabel">🦊 MyCon: Aqui estão as faturas em aberto.</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered text-nowrap w-100 dataTable ">
+                        <thead>
+                            <tr>
+                                <th scope="col">Processo</th>
+                                <th scope="col">Valor</th>
+                                <th scope="col">Dias vencidos</th>
+                                <th scope="col">Nome</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-OverdueInvoices">
+                            <!-- Aqui você pode adicionar as linhas da tabela com os dados das faturas vencidas -->
+                           
+                            <!-- Adicione mais linhas conforme necessário -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
         </div>
     </div>
     

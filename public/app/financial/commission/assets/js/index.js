@@ -194,6 +194,7 @@ async function submitCommission() {
 
     const dados = await makeRequest(`/api/headcargo/commission/filterComission`, 'POST', { filters }); // Faz uma requisição para filtrar a comissão
 
+    console.log(dados)
     const idvalue = listOfSales.value !== '000' ? listOfSales : listOfInside; // Define o elemento ID com base na seleção
     const typeSales = listOfSales.value !== '000' ? 'Vendedor' : 'Inside'; // Define o tipo de vendas
     const typeID = listOfSales.value !== '000' ? 0 : 1; // Define o tipo de ID (0 para Vendedor, 1 para Inside)
@@ -275,7 +276,15 @@ async function submitCommission() {
         columns: [
             { data: 'check', orderable: false }, // Coluna de checkbox
             { data: 'modal' }, // Coluna de modal
-            { data: 'processo' }, // Coluna de processo
+            { data: 'processo',
+                render: function(data, type, row) {
+                    if (row.fatura_quant_vencidas > 0) {
+                        return '<span data-id="'+row.fatura_pessoa_fatura+'" class="processo-vencido fw-bold">' + data + '</span>';
+                    } else {
+                        return data;
+                    }
+                } 
+            }, // Coluna de processo
             { data: 'abertura' }, // Coluna de abertura
             { data: 'data_compensacao' }, // Coluna de data de compensação
             { data: 'tipo' }, // Coluna de tipo
@@ -291,6 +300,12 @@ async function submitCommission() {
             { data: 'restante' }, // Coluna de valor restante
             { data: 'valorComissao' }, // Coluna de valor valorComissao
         ],
+        rowCallback: function(row, data, index) {
+            
+            if(data.fatura_quant_vencidas > 0){
+                $(row).find('td').addClass('bd-red-500'); // Adiciona a classe 'bg-warning' a todas as colunas da linha
+            }
+        },
         language: {
             url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
             searchPlaceholder: 'Pesquisar...',
@@ -310,6 +325,7 @@ async function submitCommission() {
     if(!verify){
         createToast('Sirius', `Atenção você não pode gerar um registro do(a) ${selectedText} pois já existe um registro em aberto.`); // Exibe uma mensagem de sucesso  
     }
+
 }
 
 /**
@@ -469,7 +485,61 @@ async function eventsCliks() {
             element.checked = all; // Define o estado de todos os checkboxes com base no estado do checkbox "selecionar todos"
         }
     });
+
+
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('processo-vencido')) {
+            const id = e.target.getAttribute('data-id');
+            e.preventDefault();
+            OpenOverdueInvoices(id);
+        }
+
+        if (e.target.classList.contains('selectCheckbox') || e.target.classList.contains('selectAllCheckbox')) {
+            let checks = document.querySelectorAll('.selectCheckbox');
+
+            let total = 0;
+            let totalComissao = 0;
+            let totalProcessosSelecionados = 0
+            // Itera sobre cada elemento de verificação
+            checks.forEach(check => {
+                // Se o elemento de verificação está marcado, adiciona o valor à total
+                if (check.checked) {
+                    totalProcessosSelecionados++
+                    total += parseFloat(check.getAttribute('data-value'));
+                    totalComissao += parseFloat(check.getAttribute('data-comissao'));
+                }
+            });
+
+            // Atualiza o total na página
+            document.querySelector('.total_profit').textContent = total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+            document.querySelector('.quantidade_processo').textContent = totalProcessosSelecionados;
+            document.querySelector('.valor_Comissao_total').textContent = totalComissao.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+        }
+    })
 }
+
+async function OpenOverdueInvoices(id) {
+    const dados = await makeRequest(`/api/headcargo/commission/overdueInvoices?id=${id}`); // Faz uma requisição para filtrar a comissão
+    console.log(dados)
+    let invoices = ``;
+    for (let index = 0; index < dados.length; index++) {
+        const element = dados[index];
+        invoices += ` 
+        <tr>
+            <td>${element.Numero_Processo}</td>
+            <td class="text-danger">${element.Valor_Total}</td>
+            <td>${element.Dias_Vencidos}</td>
+            <td>${element.Pessoa}</td>
+        </tr>`
+    }
+
+    document.querySelector('#table-OverdueInvoices').innerHTML = invoices; 
+
+    $('#OverdueInvoicesModal').modal('show')
+}
+
+
+
 
 /**
  * Função para formatar o nome.
@@ -578,3 +648,4 @@ function validateFilters(recebimentoList, ComissaoAgenteList, pagamentoList, com
     }
     return true;
 }
+

@@ -18,11 +18,25 @@
    z-index: 9999;
 }
 
+#loader1 {
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   background-color: var(--custom-white);
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   z-index: 999;
+}
+
 .listInvoices {
    overflow-y: scroll;
-   max-height: 593px;
+   max-height: 568px;
    position: relative;
-   min-height: 593px;
+   min-height: 568px;
+   margin-bottom: 25px;
 }
 
 #invoice-chart {
@@ -107,4 +121,8 @@
 .image-fin-filter {
    display: block;
    position: fixed;
+}
+
+.categories:hover {
+   background-color: #f0f1f7 !important;
 }

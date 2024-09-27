@@ -93,7 +93,8 @@ input[type="number"] {
 }
 
 #listPeople {
-   height: 85vh;
+   /* height: 85vh; */
+   max-height: calc(100vh - 133px);
    overflow-y: scroll;
    padding: 16px;
 }

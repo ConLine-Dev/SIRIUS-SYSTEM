@@ -25081,7 +25081,11 @@ a:hover {
 }
 
 [data-theme-mode=dark] .shadow-sm {
-    box-shadow: 0 .125rem .25rem rgba(33, 37, 41, .3) !important
+    box-shadow: 0 .125rem .25rem rgba(255, 255, 255, .2) !important
+}
+
+[data-theme-mode=light] .shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(33, 37, 41, .2) !important
 }
 
 [data-theme-mode=dark] .shadow {

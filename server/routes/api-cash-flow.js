@@ -33,5 +33,19 @@ module.exports = function(io) {
       }
    });
 
+   //Lista todas as faturas ADM
+   router.post('/listInvoiceByCategorie', async (req, res, next) => {
+      const {startDateGlobal, endDateGlobal, situacao, idCategorie} = req.body;
+
+      try {
+         const result = await cashFlow.listInvoiceByCategorie(startDateGlobal, endDateGlobal, situacao, idCategorie);
+
+         res.status(200).json(result)
+      } catch (error) {
+
+         res.status(404).json('Erro')
+      }
+   });
+
    return router;
 }

@@ -132,6 +132,82 @@ const cashFlow = {
       `)
       return result;
    },
+
+   // Lista as faturas de uma categoria em expecifico
+   listInvoiceByCategorie: async function (startDateGlobal, endDateGlobal, situacao, idCategorie) {
+      const dateFilterAdm = startDateGlobal && endDateGlobal ? `AND (Inv.Data BETWEEN '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Inv.Data) = DATEPART(YEAR, GETDATE())`
+      const situacaoHtml = situacao ? `AND Inv.Situacao_Fatura_Num IN (${situacao})` : `AND Inv.Situacao_Fatura_Num IN (1,2,3,4,5,6,7,8,9,10)`
+      let result = await executeQuerySQL(`
+         WITH invoiceAdm AS (
+            SELECT
+            Fin.Data,
+            Pss.Nome as Cliente,
+
+            Fin.Situacao as Situacao_Fatura_Num,
+            case Fin.Situacao
+               when 1 then 'Em aberto'
+               when 2 then 'Quitada'
+               when 3 then 'Parcialmente quitada'
+               when 4 then 'Unificada'
+               when 5 then 'Em cobrança'
+               when 6 then 'Cancelada' 
+               when 7 then 'Em combrança judicial'
+               when 8 then 'Negativado'
+               when 9 then 'Protestado'
+               when 10 then 'Junk'
+            end as Situacao_Fatura, -- Mantém o rótulo para exibição
+
+            Fin.Historico_Resumo as Historico_Resumo,
+            Cat.IdCategoria_Financeira,
+            Cat.Nome as Categoria,
+
+            Ffc.Valor AS Total_Pagamento_Estimado
+
+         FROM
+            mov_Fatura_Financeira Fin 
+         LEFT OUTER JOIN
+            mov_Registro_Financeiro Reg ON Reg.IdRegistro_Financeiro = Fin.IdRegistro_Financeiro
+         LEFT OUTER JOIN
+            cad_Pessoa Pss ON Pss.IdPessoa = Reg.IdPessoa
+         LEFT OUTER JOIN
+            mov_Fatura_Financeira_Categoria Ffc ON Ffc.IdFatura_Financeira = Fin.IdFatura_Financeira
+         LEFT OUTER JOIN
+            cad_Categoria_Financeira Cat ON Cat.IdCategoria_Financeira = Ffc.IdCategoria_Financeira
+         WHERE
+            Cat.IdCategoria_Financeira IN (30, 112, 23, 105, 29, 98, 106, 12, 59, 115, 99, 114, 49, 50, 79, 53, 33, 76, 44, 123, 41, 31, 51, 87, 104, 38, 57, 25, 47, 48, 61, 13, 94)
+         AND
+            Fin.Natureza = 0
+
+         UNION ALL
+
+         SELECT
+            Tfn.Data,
+            'TRANSFERÊNCIA PARA PAGAMENTO DE SALÁRIO' AS Cliente,
+
+            2 AS Situacao_Fatura_Num, -- Retorna o número para consistência
+            'Quitada' AS Situacao_Fatura, -- Mantém o rótulo para exibição
+            '' AS Historico_Resumo,
+            999999999 AS IdCategoria_Financeira,
+            'SALARIO' AS Categoria,
+
+            Tfn.Valor_Destino AS Total_Pagamento_Estimado
+         FROM
+            mov_Transferencia_Financeira Tfn
+         WHERE
+            Tfn.IdConta_Origem = 10 -- Banco Bradesco
+            AND Tfn.IdConta_Destino = 18 -- Banco Inter
+         )
+         SELECT
+            *
+         FROM
+            invoiceAdm Inv
+         WHERE
+            Inv.IdCategoria_Financeira IN (${idCategorie})
+            ${dateFilterAdm}
+            ${situacaoHtml}
+      `)
+      return result;
+   },
 }
 
 module.exports = {

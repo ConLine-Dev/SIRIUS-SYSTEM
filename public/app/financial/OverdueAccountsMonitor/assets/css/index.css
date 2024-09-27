@@ -35,31 +35,36 @@
     height: 100vh
 }
 
-
 .simplebar-wrapper{
     margin-bottom: 41px;
 }
 
 .file-manager-navigation{
-    margin-top: 20px;
     margin-bottom: -22px;
 }
 
-#btn-tutorial {
-    position: absolute;
-    top: 12%;
-    right: 14px;
-    cursor: pointer;
- }
+.table-responsive{
+    overflow-x: hidden !important;
+}
 
-.bd-red-500 {
-    background-color: rgba(208, 61, 70, .5) !important;
-    color: var(--default-text-color) !important;
+/* CSS para ocultar apenas o texto "Pesquisar" */
+#table-overdue-accounts-monitor_filter label {
+    font-size: 0;
+}
+
+#table-overdue-accounts-monitor_filter label input {
+    font-size: initial;
+}
+
+#table-overdue-accounts-monitor_filter input {
+    margin-bottom: 10px;
 }
 
 .processo-vencido{
-    cursor: pointer;
+    cursor: context-menu;
 }
 
-
+tr{
+    cursor: context-menu !important;
+}
   

@@ -21,6 +21,20 @@ router.post('/createRegister', async (req, res, next) => {
     }
 });
 
+router.get('/overdueInvoices', async (req, res, next) => {
+    const { id, idresponsavel } = req.query;
+    try {
+        const result = await headcargo.getOverdueInvoices(id || null, idresponsavel || null);
+
+        res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+
+        res.status(404).json('Erro');
+    }
+});
+
+
 // INICIO API CONTROLE DE COMISSÃO
 router.post('/filter', async (req, res, next) => {
     const {filters} = req.body;

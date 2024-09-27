@@ -33,9 +33,9 @@
 
 .listInvoices {
    overflow-y: scroll;
-   max-height: 568px;
+   max-height: 530px;
    position: relative;
-   min-height: 568px;
+   min-height: 530px;
    margin-bottom: 25px;
 }
 
@@ -124,5 +124,5 @@
 }
 
 .categories:hover {
-   background-color: var(--default-background) !important;
+   background-color: #f0f1f7 !important;
 }

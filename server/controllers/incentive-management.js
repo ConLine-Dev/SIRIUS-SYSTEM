@@ -1,6 +1,7 @@
 const { executeQuerySQL } = require('../connect/sqlServer');
 
 const incentiveManagement = {
+    // Consulta banco de dados, taxas de Seguro
     getAllSecurity: async function(){
     const result = await executeQuerySQL(`WITH FaturasComTaxaSeguro AS (
         SELECT
@@ -55,6 +56,7 @@ const incentiveManagement = {
 
         return result
     },
+    // Consulta banco de dados, taxas de Incentivo
     getAllComission: async function(){
         const result = await executeQuerySQL(`WITH FaturasComTaxaSeguro AS (
             SELECT
@@ -103,7 +105,54 @@ const incentiveManagement = {
     
     
             return result
-        }
+    },
+    // Consulta banco de dados, taxas de Agente
+    getAllAgent: async function(){
+        const result = await executeQuerySQL(`
+        SELECT DISTINCT
+            Lhs.Numero_Processo,
+            Lms.Numero_Conhecimento,
+            CAST(Lhs.Conhecimentos AS VARCHAR(MAX)) AS Conhecimentos,
+
+            CASE 
+                WHEN Vlf2.Qnt_Fatura > 1 THEN NULL
+                ELSE Moe.Sigla
+            END AS Moeda,
+
+            CASE 
+                WHEN Vlf2.Qnt_Fatura > 1 THEN NULL
+                ELSE Vlf.Valor_Total
+            END AS Valor_Total,
+
+            CASE 
+                WHEN Vlf2.Qnt_Fatura > 1 THEN 'Mais de uma fatura de acerto agentes'
+                ELSE 'OK'
+            END AS Status    
+        FROM
+            vis_Logistica_Fatura Vlf
+        LEFT OUTER JOIN (
+            SELECT 
+                Vlf.IdLogistica_House,
+                COUNT(Vlf.IdRegistro_Financeiro) AS Qnt_Fatura 
+            FROM
+                vis_Logistica_Fatura Vlf
+            WHERE
+                Vlf.IdTipo_Transacao = 3 /*ACERTO AGENTES*/
+            GROUP BY
+                Vlf.IdLogistica_House
+        ) Vlf2 ON Vlf2.IdLogistica_House = Vlf.IdLogistica_House
+        LEFT OUTER JOIN
+            mov_Logistica_House Lhs ON Lhs.IdLogistica_House = Vlf.IdLogistica_House
+        LEFT OUTER JOIN
+            mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+        LEFT OUTER JOIN
+            cad_Moeda Moe ON Moe.IdMoeda = Vlf.IdMoeda
+        WHERE
+            Vlf.IdTipo_Transacao = 3 /*ACERTO AGENTES*/`);
+    
+    
+            return result
+    }
 
 }
 

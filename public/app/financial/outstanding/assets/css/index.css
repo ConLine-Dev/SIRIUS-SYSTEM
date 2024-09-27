@@ -36,6 +36,7 @@
     max-height: 486px;
     position: relative;
     min-height: 486px;
+    content: none; /* Remove o conteúdo que gera a mãozinha */
 }
 
 /* Estiliza a largura da barra de rolagem */
@@ -120,4 +121,8 @@
 
 .alert_filter {
     font-size: 12px;
+}
+
+.showMore {
+    cursor: pointer; /* Adiciona a mãozinha ao passar o mouse */
 }

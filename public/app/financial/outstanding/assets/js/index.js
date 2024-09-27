@@ -105,7 +105,7 @@ async function invoicesTable(totalInvoices) {
        
 
         printlistInvoices += `
-            <a href="javascript:void(0);" class="border-0" id="${totalInvoices[index].Numero_Processo}">
+            <a class="border-0" id="${totalInvoices[index].Numero_Processo}">
                 <div class="list-group-item border-0">
                    <div class="d-flex align-items-start"> <span class="tansaction-icon bg-primary" title="${totalInvoices[index].Modal}" style="background-color: ${color}!important"> ${icon} </span>
                         <div class="w-100">

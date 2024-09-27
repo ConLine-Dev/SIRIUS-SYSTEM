@@ -80,9 +80,6 @@ const setIO = (io) => {
   // Use as rotas do arquivo api-collaborators.js
   router.use('/collaborators', api_collaborators);
 
-  // Use as rotas do arquivo api-product.js
-  router.use('/product', api_product);
-
   // Use as rotas do arquivo api-people.js
   router.use('/people', api_people(io));
 
@@ -127,6 +124,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-perfomance-product .js
   router.use('/cash-flow', api_cash_flow(io)); 
+
+  // Use as rotas do arquivo api-product .js
+  router.use('/product', api_product(io)); 
 
   return router;
 };

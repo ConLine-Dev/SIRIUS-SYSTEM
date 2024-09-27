@@ -17,7 +17,7 @@ async function loadSelectProduct() {
    // Definir uma opção inicial como 'Carregando...'
    selectProduct.setChoices([{
       value: '',
-      label: 'Carregando...',
+      label: 'Digite algo...',
       disabled: false
    }], 'value', 'label', true);
 
@@ -72,6 +72,21 @@ document.querySelector('#selectProduct').addEventListener('showDropdown', async 
       await loadSelectProduct();
    }
 });
+
+async function newProduct() {
+   const body = {
+       url: `/app/stock/new-product`,
+       width: 930, 
+       height: 200,
+       resizable:false
+   }
+   window.ipcRenderer.invoke('open-exWindow', body);
+};
+
+document.getElementById('createProduct').addEventListener('click', async function(e) {
+   e.preventDefault();
+   await newProduct();
+})
 
 // Função executada após toda a página ser executada
 window.addEventListener("load", async () => {

@@ -1,37 +1,20 @@
-async function active_tooltip() {
-    const tooltipTriggerList = document.querySelectorAll(
-        '[data-bs-toggle="tooltip"]'
-    );
-    const tooltipList = [...tooltipTriggerList].map(
-        (tooltipTriggerEl) => new bootstrap.Tooltip(tooltipTriggerEl)
-    );
-};
-
-// Função para criar um novo produto!
-async function createProduct() {
+// Função para entrar na tela de entrada no estoque
+async function stockEntry() {
     const body = {
-        url: `/app/stock/new-product`,
+        url: `/app/stock/stock-entry`,
         width: 900, 
-        height: 200,
+        height: 500,
         resizable:false
     }
     window.ipcRenderer.invoke('open-exWindow', body);
 };
 
-async function eventClick() {
-    // ========== CRIAR PRODUTO ========== // 
-    document.getElementById('create-product').addEventListener('click', async function () {
-        await createProduct();
-    });
-    // ========== / CRIAR PRODUTO ========== // 
-}
-
+document.getElementById('stock-entry').addEventListener('click', async function () {
+    await stockEntry();
+});
 
 // Função executada após toda a página ser executada
 window.addEventListener("load", async () => {
-
-    await active_tooltip();
-    await eventClick();
 
     // Tela de carregando 'add=quando vc fecha algo/remove=quando vc abre algo'
     document.querySelector('#loader2').classList.add('d-none')

@@ -156,8 +156,6 @@ const financialIndicators = {
    // Valor total dos cards de Indicadores Fin
    outstanding: async function (startDateGlobal, endDateGlobal) {
       const dataFaturado = startDateGlobal && endDateGlobal ? `AND (Vlf.Data_Referencia between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR,Vlf.Data_Referencia) = DATEPART(YEAR, GETDATE())` 
-      const dataLibImp = startDateGlobal && endDateGlobal ? `AND (Lgv.Data_Desembarque between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Lgv.Data_Desembarque) = DATEPART(YEAR, GETDATE())`
-      const dataLibExp = startDateGlobal && endDateGlobal ? `AND (Lms.Data_Embarque between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Lms.Data_Embarque) = DATEPART(YEAR, GETDATE())`
       const dataPago = startDateGlobal && endDateGlobal ? `AND (Fnc.Data_Pagamento between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Fnc.Data_Pagamento) = DATEPART(YEAR, GETDATE())`
       const DataVen = startDateGlobal && endDateGlobal ? `AND (Fnc.Data_Vencimento between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND Fnc.Data_Vencimento < GETDATE()`
       const DataAdm = startDateGlobal && endDateGlobal ? `and (Fin.Data_Vencimento between '${startDateGlobal}' and '${endDateGlobal}')` : `and DATEPART(YEAR, Fin.Data_Vencimento) = DATEPART(YEAR, GETDATE())`
@@ -260,105 +258,6 @@ const financialIndicators = {
          AND Fnc.Situacao NOT IN (2/*Quitada*/)
          AND Lms.Tipo_Operacao = 1 /*Exportacao*/
          ${dataFaturado}
-
-      UNION ALL
-
-      -- LIBERADO FATURAMENTO IMPORTACAO
-      SELECT
-         Lhs.Numero_Processo,
-         Psa.Nome AS Pessoa,
-         Vlf.Data_Referencia AS Data,
-         CASE
-            WHEN Vlf.IdMoeda != 110 /*Real*/ THEN Fnc.Valor_Residual * Cmf.Fator
-            ELSE Fnc.Valor_Residual
-         END AS Valor_Total,
-         'Lib.Faturamento' AS Tipo_Fatura
-      FROM
-         mov_Logistica_House Lhs
-      LEFT OUTER JOIN
-         mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
-      -- Verifica se o processo já descarregou ou não
-      LEFT OUTER JOIN (
-         SELECT
-            ROW_NUMBER() OVER(PARTITION BY Lgv.IdLogistica_House ORDER BY Lgv.Sequencia DESC) AS Indice,
-            Lgv.IdLogistica_House,
-            Lgv.Data_Previsao_Desembarque,
-            Lgv.Data_Previsao_Embarque,
-            Lgv.Data_Embarque,
-            Lgv.Data_Desembarque
-         FROM
-            mov_Logistica_Viagem Lgv
-      ) Lgv ON Lgv.IdLogistica_House = Lhs.IdLogistica_House AND Indice = 1 
-      LEFT OUTER JOIN
-         vis_Logistica_Fatura Vlf ON Vlf.IdLogistica_House = Lhs.IdLogistica_House
-      LEFT OUTER JOIN
-         mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Vlf.IdRegistro_Financeiro
-      -- Pega o fator de conversao com o mesmo dia de conversao da fatura
-      LEFT OUTER JOIN(
-         SELECT
-            Cmf.IdConversao_Moeda,
-            Cmf.Data,
-            Cmf.IdMoeda_Origem,
-            Cmf.Fator
-         From
-            cad_Conversao_Moeda_Fator Cmf
-         Where
-            Cmf.IdConversao_Moeda = 2 /*Abertura*/
-      ) Cmf ON Cmf.IdMoeda_Origem = Vlf.IdMoeda AND CONVERT(VARCHAR, Cmf.Data, 103) = CONVERT(VARCHAR, Vlf.Data_Conversao, 103)
-      LEFT OUTER JOIN
-         cad_Pessoa Psa ON Psa.IdPessoa = Vlf.IdPessoa
-      WHERE
-         Vlf.Natureza = 1 /*Recebimento*/
-         AND Lhs.Numero_Processo NOT LIKE ('%test%')
-         AND Lhs.Situacao_Agenciamento NOT IN (7/*Cancelado*/)
-         AND Fnc.Tipo = 1 /*Fatura Em Aberto*/
-         AND Fnc.Situacao NOT IN (2/*Quitada*/)
-         AND Lms.Tipo_Operacao = 2 /*Importacao*/
-         ${dataLibImp}
-
-      UNION ALL
-
-      -- LIBERADO FATURAMENTO EXPORTACAO
-      SELECT
-         Lhs.Numero_Processo,
-         Psa.Nome AS Pessoa,
-         Vlf.Data_Referencia AS Data,
-         CASE
-            WHEN Vlf.IdMoeda != 110 /*Real*/ THEN Fnc.Valor_Residual * Cmf.Fator
-            ELSE Fnc.Valor_Residual
-         END AS Valor_Total,
-         'Lib.Faturamento' AS Tipo_Fatura
-      FROM
-         mov_Logistica_House Lhs
-      LEFT OUTER JOIN
-         mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
-      LEFT OUTER JOIN
-         vis_Logistica_Fatura Vlf ON Vlf.IdLogistica_House = Lhs.IdLogistica_House
-      LEFT OUTER JOIN
-         mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Vlf.IdRegistro_Financeiro
-      -- Pega o fator de conversao com o mesmo dia de conversao da fatura
-      LEFT OUTER JOIN(
-         SELECT
-            Cmf.IdConversao_Moeda,
-            Cmf.Data,
-            Cmf.IdMoeda_Origem,
-            Cmf.Fator
-         From
-            cad_Conversao_Moeda_Fator Cmf
-         Where
-            Cmf.IdConversao_Moeda = 2 /*Abertura*/
-      ) Cmf ON Cmf.IdMoeda_Origem = Vlf.IdMoeda AND CONVERT(VARCHAR, Cmf.Data, 103) = CONVERT(VARCHAR, Vlf.Data_Conversao, 103)
-      LEFT OUTER JOIN
-         cad_Pessoa Psa ON Psa.IdPessoa = Vlf.IdPessoa
-      WHERE
-         Vlf.Natureza = 1 /*Recebimento*/
-         AND Lhs.Numero_Processo NOT LIKE ('%test%')
-         AND Lhs.Situacao_Agenciamento NOT IN (7/*Cancelado*/)
-         AND Fnc.Tipo = 1 /*Fatura Em Aberto*/
-         AND Fnc.Situacao NOT IN (2/*Quitada*/)
-         AND Lms.Data_Embarque IS NOT NULL
-         AND Lms.Tipo_Operacao = 1 /*Exportacao*/
-         ${dataLibExp}
 
       UNION ALL
 
@@ -563,6 +462,312 @@ const financialIndicators = {
          ${dataAdiantamento}`)
       return result;
    },
+
+   // Lista em uma nova janela as faturas do Faturado
+   listFaturado: async function (startDateGlobal, endDateGlobal) {
+      const dataFaturado = startDateGlobal && endDateGlobal ? `AND (Vlf.Data_Referencia between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR,Vlf.Data_Referencia) = DATEPART(YEAR, GETDATE())` 
+
+      // Consultas no Banco de dados
+      const result = await executeQuerySQL(`
+         -- FATURADO IMPORTACAO
+            SELECT
+               Lhs.Numero_Processo,
+               Psa.Nome AS Pessoa,
+               Vlf.Data_Referencia AS Data,
+               CASE
+                  WHEN Vlf.IdMoeda != 110 /*Real*/ THEN Fnc.Valor_Residual * Cmf.Fator
+                  ELSE Fnc.Valor_Residual
+               END AS Valor_Total,
+               'Faturado' AS Tipo_Fatura
+            FROM
+               mov_Logistica_House Lhs
+            LEFT OUTER JOIN
+               mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+            -- Verifica se o processo já descarregou ou não
+            LEFT OUTER JOIN (
+               SELECT
+                  ROW_NUMBER() OVER(PARTITION BY Lgv.IdLogistica_House ORDER BY Lgv.Sequencia DESC) AS Indice,
+                  Lgv.IdLogistica_House,
+                  Lgv.Data_Previsao_Desembarque,
+                  Lgv.Data_Previsao_Embarque,
+                  Lgv.Data_Embarque,
+                  Lgv.Data_Desembarque
+               FROM
+                  mov_Logistica_Viagem Lgv
+            ) Lgv ON Lgv.IdLogistica_House = Lhs.IdLogistica_House AND Indice = 1 
+            LEFT OUTER JOIN
+               vis_Logistica_Fatura Vlf ON Vlf.IdLogistica_House = Lhs.IdLogistica_House
+            LEFT OUTER JOIN
+               mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Vlf.IdRegistro_Financeiro
+            -- Pega o fator de conversao com o mesmo dia de conversao da fatura
+            LEFT OUTER JOIN(
+               SELECT
+                  Cmf.IdConversao_Moeda,
+                  Cmf.Data,
+                  Cmf.IdMoeda_Origem,
+                  Cmf.Fator
+               From
+                  cad_Conversao_Moeda_Fator Cmf
+               Where
+                  Cmf.IdConversao_Moeda = 2 /*Abertura*/
+            ) Cmf ON Cmf.IdMoeda_Origem = Vlf.IdMoeda AND CONVERT(VARCHAR, Cmf.Data, 103) = CONVERT(VARCHAR, Vlf.Data_Conversao, 103)
+            LEFT OUTER JOIN
+               cad_Pessoa Psa ON Psa.IdPessoa = Vlf.IdPessoa
+            WHERE
+               Vlf.Natureza = 1 /*Recebimento*/
+               AND Lhs.Numero_Processo NOT LIKE ('%test%')
+               AND Lhs.Situacao_Agenciamento NOT IN (7/*Cancelado*/)
+               AND Fnc.Tipo = 2 /*Fatura Finalizada*/
+               AND Fnc.Situacao NOT IN (2/*Quitada*/)
+               AND Lms.Tipo_Operacao = 2 /*Importacao*/
+               ${dataFaturado}
+
+            UNION ALL
+
+            -- FATURADO EXPORTACAO
+            SELECT
+               Lhs.Numero_Processo,
+               Psa.Nome AS Pessoa,
+               Vlf.Data_Referencia AS Data,
+               CASE
+                  WHEN Vlf.IdMoeda != 110 /*Real*/ THEN Fnc.Valor_Residual * Cmf.Fator
+                  ELSE Fnc.Valor_Residual
+               END AS Valor_Total,
+               'Faturado' AS Tipo_Fatura
+            FROM
+               mov_Logistica_House Lhs
+            LEFT OUTER JOIN
+               mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+            LEFT OUTER JOIN
+               vis_Logistica_Fatura Vlf ON Vlf.IdLogistica_House = Lhs.IdLogistica_House
+            LEFT OUTER JOIN
+               mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Vlf.IdRegistro_Financeiro
+            -- Pega o fator de conversao com o mesmo dia de conversao da fatura
+            LEFT OUTER JOIN(
+               SELECT
+                  Cmf.IdConversao_Moeda,
+                  Cmf.Data,
+                  Cmf.IdMoeda_Origem,
+                  Cmf.Fator
+               From
+                  cad_Conversao_Moeda_Fator Cmf
+               Where
+                  Cmf.IdConversao_Moeda = 2 /*Abertura*/
+            ) Cmf ON Cmf.IdMoeda_Origem = Vlf.IdMoeda AND CONVERT(VARCHAR, Cmf.Data, 103) = CONVERT(VARCHAR, Vlf.Data_Conversao, 103)
+            LEFT OUTER JOIN
+               cad_Pessoa Psa ON Psa.IdPessoa = Vlf.IdPessoa
+            WHERE
+               Vlf.Natureza = 1 /*Recebimento*/
+               AND Lhs.Numero_Processo NOT LIKE ('%test%')
+               AND Lhs.Situacao_Agenciamento NOT IN (7/*Cancelado*/)
+               AND Fnc.Tipo = 2 /*Fatura Finalizada*/
+               AND Fnc.Situacao NOT IN (2/*Quitada*/)
+               AND Lms.Tipo_Operacao = 1 /*Exportacao*/
+               ${dataFaturado}`)
+      return result;
+   },
+
+   // Lista em uma nova janela as faturas do Antecipados
+   listAntecipados: async function (startDateGlobal, endDateGlobal) {
+      const dataAdiantamento = startDateGlobal && endDateGlobal ? `AND (Valor_Cia.Data_Pagamento between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Valor_Cia.Data_Pagamento) = DATEPART(YEAR, GETDATE())`
+
+      // Consultas no Banco de dados
+      const result = await executeQuerySQL(`
+         -- ADIANTADOS
+            SELECT
+               Lhs.Numero_Processo,
+               '' as Pessoa,
+               Valor_Cia.Data_Pagamento as Data,
+               Valor_Cia.Total_Pago_Corrente as Valor_Total,
+               'Antecipado' as Tipo_Fatura
+            FROM
+               mov_Logistica_House Lhs 
+            LEFT OUTER JOIN
+               mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+            LEFT OUTER JOIN 
+               cad_Pessoa Imp ON (Imp.IdPessoa = Lhs.IdImportador OR Imp.IdPessoa = Lhs.IdExportador)
+            LEFT OUTER JOIN
+               cad_Contrato_Financeiro Cfn ON Cfn.IdContrato_Financeiro = Imp.IdContrato_Financeiro
+            LEFT OUTER JOIN 
+               cad_Contrato_Logistica_Item Cli ON Cli.IdContrato_Financeiro = Cfn.IdContrato_Financeiro
+            LEFT OUTER JOIN
+               cad_Condicao_Pagamento Cpg ON Cpg.IdCondicao_Pagamento = Cli.IdCondicao_Pagamento
+            JOIN (
+               SELECT 
+                  Lhs.IdLogistica_House,
+                  Vlf.Situacao,
+                  Fin.Data_Pagamento,
+                  Fin.Total_Pago_Corrente
+               FROM
+                  vis_Logistica_Fatura Vlf
+               LEFT OUTER JOIN
+                  mov_Fatura_Financeira Fin ON Fin.IdRegistro_Financeiro = Vlf.IdRegistro_Financeiro
+               LEFT OUTER JOIN
+                  mov_Logistica_House Lhs ON Lhs.IdLogistica_House = Vlf.IdLogistica_House
+               LEFT OUTER JOIN
+                  mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+               WHERE   
+                  (Vlf.IdPessoa = Lms.IdCompanhia_Transporte OR Vlf.IdPessoa = Lms.IdAgente_Origem OR Vlf.IdPessoa = Lms.IdAgente_Destino)
+               AND Vlf.Tipo_Fatura = 1 /*Pagamento*/
+               AND Vlf.Situacao IN (2, 4) /*Quitada - Parcialmente Quitada*/ 
+            ) Valor_Cia ON Valor_Cia.IdLogistica_House = Lhs.IdLogistica_House
+            JOIN (
+               SELECT 
+                  Lhs.IdLogistica_House,
+                  Vlf.Situacao,
+                  Vlf.Valor_Corrente,
+                  Vlr_Recib.IdTaxa_Logistica_Exibicao,
+                  Fin.Total_Pago_Corrente
+               FROM
+                  vis_Logistica_Fatura Vlf
+               LEFT OUTER JOIN
+                  mov_Fatura_Financeira Fin ON Fin.IdRegistro_Financeiro = Vlf.IdRegistro_Financeiro
+               LEFT OUTER JOIN
+                  mov_Logistica_House Lhs ON Lhs.IdLogistica_House = Vlf.IdLogistica_House
+               LEFT OUTER JOIN
+                  mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+               JOIN (
+                  SELECT
+                        Ltx.IdRegistro_Recebimento,
+                        Ltx.IdMoeda_Recebimento,
+                        Ltx.Valor_Recebimento_Total,
+                        Ltx.IdTaxa_Logistica_Exibicao
+                  FROM
+                        mov_Logistica_Taxa Ltx
+                  WHERE
+                        Ltx.IdTaxa_Logistica_Exibicao IN (2, 43, 199, 207, 711, 771, 28)
+               ) Vlr_Recib ON Vlr_Recib.IdRegistro_Recebimento = Vlf.IdRegistro_Financeiro
+               WHERE   
+                  (Vlf.IdPessoa = Lhs.IdCliente OR Vlf.IdPessoa = Lhs.IdImportador OR Vlf.IdPessoa = Lhs.IdExportador OR Vlf.IdPessoa = Lhs.IdDespachante_Aduaneiro)
+               AND Vlf.Tipo_Fatura = 2 /*Recebimento*/
+               AND Vlf.Situacao IN (1) /*Em aberto*/ 
+            ) Valor_Cli ON Valor_Cli.IdLogistica_House = Lhs.IdLogistica_House
+            WHERE
+               -- Lhs.Numero_Processo = 'IM1898-24'
+               COALESCE(Cpg.IdCondicao_Pagamento, 0) NOT IN (1, 18, 17, 0)
+            ${dataAdiantamento}`)
+      return result;
+   },
+
+   // Lista em uma nova janela as faturas do Vencidos
+   listVencidos: async function (startDateGlobal, endDateGlobal) {
+      const DataVen = startDateGlobal && endDateGlobal ? `AND (Fnc.Data_Vencimento between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND Fnc.Data_Vencimento < GETDATE()`
+
+      // Consultas no Banco de dados
+      const result = await executeQuerySQL(`
+        -- VENCIDO
+            SELECT
+               Lhs.Numero_Processo,
+               Psa.Nome AS Pessoa,
+               Fnc.Data_Vencimento AS Data,
+               CASE
+                  WHEN Vlf.IdMoeda != 110 /*Real*/ THEN Fnc.Valor_Residual * Cmf.Fator
+                  ELSE Fnc.Valor_Residual
+               END AS Valor_Total,
+               'Vencido' AS Tipo_Fatura
+            FROM
+               mov_Logistica_House Lhs
+            -- Verifica se o processo já descarregou ou não
+            LEFT OUTER JOIN (
+               SELECT
+                  ROW_NUMBER() OVER(PARTITION BY Lgv.IdLogistica_House ORDER BY Lgv.Sequencia DESC) AS Indice,
+                  Lgv.IdLogistica_House,
+                  Lgv.Data_Previsao_Desembarque,
+                  Lgv.Data_Previsao_Embarque,
+                  Lgv.Data_Embarque,
+                  Lgv.Data_Desembarque
+               FROM
+                  mov_Logistica_Viagem Lgv
+            ) Lgv ON Lgv.IdLogistica_House = Lhs.IdLogistica_House AND Indice = 1 
+            LEFT OUTER JOIN
+               vis_Logistica_Fatura Vlf ON Vlf.IdLogistica_House = Lhs.IdLogistica_House
+            LEFT OUTER JOIN
+               mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Vlf.IdRegistro_Financeiro
+            -- Pega o fator de conversao com o mesmo dia de conversao da fatura
+            LEFT OUTER JOIN(
+               SELECT
+                  Cmf.IdConversao_Moeda,
+                  Cmf.Data,
+                  Cmf.IdMoeda_Origem,
+                  Cmf.Fator
+               From
+                  cad_Conversao_Moeda_Fator Cmf
+               Where
+                  Cmf.IdConversao_Moeda = 2 /*Abertura*/
+            ) Cmf ON Cmf.IdMoeda_Origem = Vlf.IdMoeda AND CONVERT(VARCHAR, Cmf.Data, 103) = CONVERT(VARCHAR, Vlf.Data_Conversao, 103)
+            LEFT OUTER JOIN
+               cad_Pessoa Psa ON Psa.IdPessoa = Vlf.IdPessoa
+            WHERE
+               Vlf.Natureza = 1 /*Recebimento*/
+               AND Lhs.Numero_Processo NOT LIKE ('%test%')
+               AND Lhs.Situacao_Agenciamento NOT IN (7/*Cancelado*/)
+               AND Fnc.Tipo = 2 /*Fatura Finalizada*/
+               AND Fnc.Situacao NOT IN (2/*Quitada*/)
+               ${DataVen}`)
+      return result;
+   },
+
+   // Lista em uma nova janela as faturas do Total Recebido
+   listRecebimento: async function (startDateGlobal, endDateGlobal) {
+      const dataPago = startDateGlobal && endDateGlobal ? `AND (Fnc.Data_Pagamento between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Fnc.Data_Pagamento) = DATEPART(YEAR, GETDATE())`
+
+      // Consultas no Banco de dados
+      const result = await executeQuerySQL(`
+      -- RECEBIDO
+      SELECT
+         Lhs.Numero_Processo,
+         Psa.Nome AS Pessoa,
+         Fnc.Data_Pagamento AS Data,
+         Fnc.Total_Pago_Corrente AS Valor_Total,
+         'Recebido' AS Tipo_Fatura
+      FROM
+         mov_Logistica_House Lhs
+      LEFT OUTER JOIN
+         vis_Logistica_Fatura Vlf ON Vlf.IdLogistica_House = Lhs.IdLogistica_House
+      LEFT OUTER JOIN
+         mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Vlf.IdRegistro_Financeiro
+      LEFT OUTER JOIN
+         cad_Pessoa Psa ON Psa.IdPessoa = Vlf.IdPessoa
+      WHERE
+         Vlf.Natureza = 1 /*Recebimento*/
+         AND Lhs.Numero_Processo NOT LIKE ('%test%')
+         AND Lhs.Situacao_Agenciamento NOT IN (7/*Cancelado*/)
+         AND Fnc.Situacao IN (2/*Quitada*/)
+         ${dataPago}`)
+      return result;
+   },
+
+   // Lista em uma nova janela as faturas do Total Pago
+   listPagamento: async function (startDateGlobal, endDateGlobal) {
+      const dataPago = startDateGlobal && endDateGlobal ? `AND (Fnc.Data_Pagamento between '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Fnc.Data_Pagamento) = DATEPART(YEAR, GETDATE())`
+
+      // Consultas no Banco de dados
+      const result = await executeQuerySQL(`
+     -- PAGO
+      SELECT
+         Lhs.Numero_Processo,
+         Psa.Nome AS Pessoa,
+         Fnc.Data_Pagamento AS Data,
+         Fnc.Total_Pago_Corrente AS Valor_Total,
+         'Pago' AS Tipo_Fatura
+      FROM
+         mov_Logistica_House Lhs
+      LEFT OUTER JOIN
+         vis_Logistica_Fatura Vlf ON Vlf.IdLogistica_House = Lhs.IdLogistica_House
+      LEFT OUTER JOIN
+         mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Vlf.IdRegistro_Financeiro
+      LEFT OUTER JOIN
+         cad_Pessoa Psa ON Psa.IdPessoa = Vlf.IdPessoa
+      WHERE
+         Vlf.Natureza = 0 /*Pago*/
+         AND Lhs.Numero_Processo NOT LIKE ('%test%')
+         AND Lhs.Situacao_Agenciamento NOT IN (7/*Cancelado*/)
+         AND Fnc.Situacao IN (2/*Quitada*/)
+         ${dataPago}`)
+      return result;
+   },
+
+
 }
 
 module.exports = {

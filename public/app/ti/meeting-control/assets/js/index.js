@@ -1,3 +1,4 @@
+// Função para listar as categorias do calendario criado na API
 async function ListCategory(data) {
   const calendarCategories = document.querySelector('.calendar-categories')
   let divMeetingControl = ''
@@ -25,32 +26,32 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 
 
-    // let calendarEl = document.getElementById('calendar');
+    let calendarEl = document.getElementById('calendar');
   
-    // let calendar = new FullCalendar.Calendar(calendarEl, {
-    //   initialView: 'dayGridMonth', // Exibição inicial
-    //   locale: 'pt-br',
+    let calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth', // Exibição inicial
+      locale: 'pt-br',
 
-    //   events: [
-    //     {
-    //       title: 'Evento 1',
-    //       start: '2024-09-10',
-    //       end: '2024-09-12',
-    //       color: '#ff0000'
-    //     },
-    //     {
-    //       title: 'Evento 2',
-    //       start: '2024-09-15',
-    //     }
-    //   ],
-    //   // eventColor: '#ff0000',
-    //   editable: true, // Permite arrastar e soltar eventos
-    //   selectable: true, // Permite selecionar datas
-    //   dateClick: function(info) {
-    //     alert('Data clicada: ' + info.dateStr);
-    //   },
-    //   // height: '100%',
-    // });
+      events: [
+        {
+          title: 'Evento 1',
+          start: '2024-09-10',
+          end: '2024-09-12',
+          color: '#ff0000'
+        },
+        {
+          title: 'Evento 2',
+          start: '2024-09-15',
+        }
+      ],
+      // eventColor: '#ff0000',
+      editable: true, // Permite arrastar e soltar eventos
+      selectable: true, // Permite selecionar datas
+      dateClick: function(info) {
+        alert('Data clicada: ' + info.dateStr);
+      },
+      // height: '100%',
+    });
   
     // calendar.render();
   });

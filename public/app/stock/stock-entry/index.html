@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Cadastro de Produto</title>
+    <title>Entrada no Estoque</title>
     <meta name="Description" content="Controle de chamados & projetos TI">
     <meta name="Author" content="ConLine">
 
@@ -15,7 +15,7 @@
     <!-- Choices JS -->
     <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
     <!-- Main JS -->
-    <!-- <script src="../../assets/js/main.js"></script> -->
+    <script src="../../assets/js/main.js"></script>
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <!-- Style Css -->
@@ -69,15 +69,12 @@
                         <datalist id="product-options"></datalist>
                      </div> -->
 
-                     <div class="custom-dropdown">
-                        <input type="text" id="input-product" class="form-control" placeholder="Nome do Produto" name="input-product">
-                        <div id="custom-options" class="custom-options"></div>
-                      </div>
-                      
-
                      <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
-                        <label for="input-ncm" class="form-label">NCM</label> 
-                        <input type="text" class="form-control" id="input-ncm" placeholder="Número do NCM" name="input-ncm" maxlength="8"> 
+                        <label for="selectProduct" class="form-label">Produto</label> 
+                        <br>
+                        <select class="form-control" id="selectProduct" name="selectProduct">
+                           <option value="" style="width: 100% !important;">Selecione um produto</option>
+                        </select> 
                      </div>
                </div>
             </div>

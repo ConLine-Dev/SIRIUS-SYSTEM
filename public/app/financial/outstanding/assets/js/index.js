@@ -1,3 +1,6 @@
+// Função que gera a tabela de faturas a partir dos dados recebidos de uma API.
+let startDateGlobal, endDateGlobal, dataExport;
+
 // Função para verificar se o tempo de login expirou
 async function checkLoginExpiration() {
     // Verifica o localStorage para alterar a mensagem de boas vindas
@@ -28,7 +31,7 @@ async function checkLoginExpiration() {
             window.location.href = '/app/login';
         }
     }
-}
+};
 
 // Verifica o localStorage para setar informações
 async function getInfosLogin() {
@@ -36,7 +39,7 @@ async function getInfosLogin() {
     const StorageGoogle = JSON.parse(StorageGoogleData);
  
     return StorageGoogle;
-}
+};
 
 // Verifica o localStorage para setar informações
 async function setInfosLogin(StorageGoogle) {
@@ -61,10 +64,7 @@ async function setInfosLogin(StorageGoogle) {
     });
  
  
-}
-
-// Função que gera a tabela de faturas a partir dos dados recebidos de uma API.
-let startDateGlobal, endDateGlobal;
+};
 
 // Função Lista de faturas
 async function invoicesTable(totalInvoices) {
@@ -132,34 +132,20 @@ async function invoicesTable(totalInvoices) {
 
     divlistInvoices.innerHTML = printlistInvoices
 
-   // Função para exportar o relatório de faturas
-    document.getElementById('exportExcel').addEventListener('click', () => {
-        // Preparar os dados para exportação
-        let data = totalInvoices.map(invoice => {
-            return {
-                Nome: invoice.Pessoa,
-                'Número do Processo': invoice.Numero_Processo,
-                Modal: invoice.Modal,
-                'Situação da Fatura': invoice.Situacao_Fatura,
-                Valor: invoice.Valor,
-                Moeda: invoice.Moeda,
-                Data: new Date(invoice.Data).toLocaleDateString('pt-BR')
-            };
-        });
-
-        // Converta os dados em uma planilha
-        let worksheet = XLSX.utils.json_to_sheet(data);
-        
-        // Crie uma nova pasta de trabalho e adicione a planilha
-        let workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Faturas");
-
-        // Exporte a pasta de trabalho para um arquivo Excel
-        XLSX.writeFile(workbook, "faturas.xlsx");
-});
+    // Preparar os dados para exportação no excel 
+    dataExport = totalInvoices.map(invoice => {
+        return {
+            Nome: invoice.Pessoa,
+            'Número do Processo': invoice.Numero_Processo,
+            Modal: invoice.Modal,
+            'Situação da Fatura': invoice.Situacao_Fatura,
+            Valor: invoice.Valor,
+            Moeda: invoice.Moeda,
+            Data: new Date(invoice.Data).toLocaleDateString('pt-BR')
+        };
+    });
 
 };
-
 
 // Função Despesas Administativas puxa da API
 async function tableFinancialExpenses(dados) {
@@ -496,7 +482,40 @@ async function eventClick() {
         })
         
     });
+
+     // Função para exportar o relatório de faturas
+     document.getElementById('exportExcel').addEventListener('click', () => {
+        
+
+        // Converta os dados em uma planilha
+        let worksheet = XLSX.utils.json_to_sheet(dataExport);
+        
+        // Crie uma nova pasta de trabalho e adicione a planilha
+        let workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Faturas");
+
+        // Exporte a pasta de trabalho para um arquivo Excel
+        XLSX.writeFile(workbook, "faturas.xlsx");
+    });
+
+    document.querySelectorAll('[statusFatura]').forEach(item => {
+        item.addEventListener('click', async function(e){
+            e.preventDefault()
+            await showMore(this.getAttribute('statusFatura'))
+        })
+    });
 };
+
+// Função que envia para a proxima janela o id da pessoa clicada
+async function showMore(statusFatura) {
+    const existDate = !startDateGlobal && !endDateGlobal ? `/app/financial/outstanding/table?status=${statusFatura}` : `/app/financial/outstanding/table?status=${statusFatura}&startDate=${startDateGlobal}&endDate=${endDateGlobal}`
+    const body = {
+       url: existDate,
+       max: true
+    }
+ 
+    window.ipcRenderer.invoke('open-exWindow', body);
+ };
 
 
 

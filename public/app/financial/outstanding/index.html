@@ -86,6 +86,25 @@
                                                 <ul class="list-group list-group-flush mb-0" style="z-index: 9999;">
                 
                                                     <li class="list-group-item" style="padding: 10px 20px !important;">
+                                                            <!-- Alerta de filtro -->
+                                                    <div class="alert alert-warning d-flex align-items-center alert_filter" role="alert">
+                                                        <svg class="flex-shrink-0 me-2 svg-warning" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="1.5rem" viewBox="0 0 24 24" width="1.5rem" fill="#000000">
+                                                            <g>
+                                                                <rect fill="none" height="24" width="24"></rect>
+                                                            </g>
+                                                            <g>
+                                                                <g>
+                                                                    <g>
+                                                                        <path d="M12,5.99L19.53,19H4.47L12,5.99 M12,2L1,21h22L12,2L12,2z"></path>
+                                                                        <polygon points="13,16 11,16 11,18 13,18"></polygon>
+                                                                        <polygon points="13,10 11,10 11,15 13,15"></polygon>
+                                                                    </g>
+                                                                </g>
+                                                            </g>
+                                                        </svg>
+                                                        <div> O filtro será aplicado a todos os elementos da tela. </div>
+                                                    </div>
+
                                                         <div class="d-flex align-items-center" style="margin-bottom: 10px;">
                                                             <div class="flex-fill">
                                                                 <p class="fw-bold mb-0">Data</p>
@@ -97,7 +116,10 @@
                                                                 <input type="text" placeholder="Filtrar por uma data" class="form-control dash-filter-picker flatpickr-input" id="inputDateFilter" data-provider="flatpickr" data-mode="range" data-date-format="d M Y" readonly="readonly">
                                                             </div>
                                                         </div>
+
+                                                    
                                                     </li>
+                                                    
                 
                                                     <!-- <li class="list-group-item">
                                                         <div class="d-flex align-items-center" style="margin-bottom: 10px;">
@@ -169,7 +191,8 @@
                                             <div class="d-flex align-items-center justify-content-between flex-wrap">
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Faturado</p>
-                                                    <h4 class="fw-semibold mt-1 fs-20 total-invoicing">-</h4> 
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-invoicing">-</h4>
+                                                    <a href="javascript:void(0);" class="fs-10 mb-0 text-primary" statusFatura="listFaturado">Ver mais<i class="ti ti-chevron-right ms-1"></i></a> 
                                                     <!-- <p class="mb-1 fs-9"> <span class="d-block fs-9  text-muted" style="position: absolute; top: 70px;">ANO ATUAL</span> </p> -->
                                                 </div>
                                                     
@@ -203,7 +226,9 @@
                                             <div class="d-flex align-items-center justify-content-between flex-wrap">
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Antecipados</p>
-                                                    <h4 class="fw-semibold mt-1 fs-20 total-anticipated">-</h4> </div>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-anticipated">-</h4> 
+                                                    <div class="fs-10 mb-0 text-primary d-block" statusFatura="listAntecipados">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -228,7 +253,9 @@
                                             <div class="d-flex align-items-center justify-content-between flex-wrap">
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Vencidos</p>
-                                                    <h4 class="fw-semibold mt-1 fs-20 total-invoiceLosers">-</h4> </div>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-invoiceLosers">-</h4>
+                                                    <div class="fs-10 mb-0 text-primary d-block" statusFatura="listVencidos">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
+                                                </div>
                                             </div>
                                             <!-- <div class="align-items-center justify-content-between ">
                                                 <div class="text-end">
@@ -257,7 +284,9 @@
                                             <div class="d-flex align-items-center justify-content-between flex-wrap">
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Total Recebido</p>
-                                                    <h4 class="fw-semibold mt-1 fs-20 total-totalReceived">-</h4> </div>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-totalReceived">-</h4>
+                                                    <div class="fs-10 mb-0 text-primary d-block" statusFatura="listRecebimento">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
+                                                </div>
                                             </div>
                                             <!-- <div class="align-items-center justify-content-between ">
                                                 <div class="text-end">
@@ -286,7 +315,9 @@
                                             <div class="d-flex align-items-center justify-content-between flex-wrap">
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Total Pago</p>
-                                                    <h4 class="fw-semibold mt-1 fs-20 total-totalPaid">-</h4> </div>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-totalPaid">-</h4>
+                                                    <div class="fs-10 mb-0 text-primary d-block" statusFatura="listPagamento">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
+                                                </div>
                                             </div>
                                             <!-- <div class="align-items-center justify-content-between ">
                                                 <div class="text-end">
@@ -315,12 +346,10 @@
                                             <div class="d-flex align-items-center justify-content-between flex-wrap">
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Total ADM </p>
-                                                    <h4 class="fw-semibold mt-1 fs-20 total-ADM">-</h4> </div>
+                                                    <h4 class="fw-semibold mt-1 fs-20 total-ADM">-</h4>
+                                                    <div class="fs-10 mb-0 text-primary d-block" style="visibility: hidden !important;">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
+                                                </div>
                                             </div>
-                                            <!-- <div class="align-items-center justify-content-between ">
-                                                <div class="text-end">
-                                                    <p class="mb-0 text-success flex-wrap fs-20 percentage-totalReceived">30%</p><span class="text-muted op-7 fs-11"></span> </div>
-                                            </div> -->
                                         </div>
                                     </div>
                                 </div>

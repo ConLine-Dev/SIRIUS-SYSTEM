@@ -308,32 +308,32 @@
   {
     "element": ".intro-card-invoiced",
     "title": "Total Faturado",
-    "intro": "Este card exibe o valor total das faturas emitidas no ano atual."
+    "intro": "Este card exibe o valor total das faturas emitidas no ano atual. Ao clicar em 'Ver mais', será exibida a lista de todas as faturas relacionadas a este card."
   },
   {
     "element": ".intro-card-anticipated",
     "title": "Total de Antecipados",
-    "intro": "Este card exibe o valor total das faturas antecipadas no ano atual."
+    "intro": "Este card exibe o valor total das faturas antecipadas no ano atual. Ao clicar em 'Ver mais', será exibida a lista de todas as faturas relacionadas a este card."
   },
   {
     "element": ".intro-card-losers",
     "title": "Faturas Vencidas",
-    "intro": "Este card exibe o valor total das faturas vencidas no ano atual."
+    "intro": "Este card exibe o valor total das faturas vencidas no ano atual. Ao clicar em 'Ver mais', será exibida a lista de todas as faturas relacionadas a este card."
   },
   {
     "element": ".intro-card-totalReceived",
     "title": "Total de Recebimentos",
-    "intro": "Este card exibe o valor total das faturas recebidas no ano atual."
+    "intro": "Este card exibe o valor total das faturas recebidas no ano atual. Ao clicar em 'Ver mais', será exibida a lista de todas as faturas relacionadas a este card."
   },
   {
     "element": ".intro-card-totalPaid",
     "title": "Total de Pagamentos",
-    "intro": "Este card exibe o valor total das faturas pagas no ano atual."
+    "intro": "Este card exibe o valor total das faturas pagas no ano atual. Ao clicar em 'Ver mais', será exibida a lista de todas as faturas relacionadas a este card."
   },
   {
     "element": ".intro-card-administrativeTotal",
     "title": "Total Administrativo",
-    "intro": "Este card exibe o valor total das despesas administrativas no ano atual."
+    "intro": "Este card exibe o valor total das despesas administrativas no ano atual. Ao clicar em 'Ver mais', será exibida a lista de todas as faturas relacionadas a este card."
   },
   {
     "element": ".intro-billingGraph",

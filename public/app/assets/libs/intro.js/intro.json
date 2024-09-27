@@ -333,7 +333,7 @@
   {
     "element": ".intro-card-administrativeTotal",
     "title": "Total Administrativo",
-    "intro": "Este card exibe o valor total das despesas administrativas no ano atual. Ao clicar em 'Ver mais', será exibida a lista de todas as faturas relacionadas a este card."
+    "intro": "Este card exibe o valor total das despesas administrativas no ano atual. Na parte inferior da tela, você pode visualizar a lista de despesas administrativas."
   },
   {
     "element": ".intro-billingGraph",
@@ -354,7 +354,7 @@
   {
     "element": ".intro-btn-filter",
     "title": "Filtro Ano Atual",
-    "intro":"Ao aplicar o filtro por uma data específica, os valores de <strong>Faturado</strong>, <strong>Faturamento Liberado</strong>, <strong>Vencidos</strong>, <strong>Total Recebido</strong> e <strong>Total Administrativo</strong> serão exibidos conforme o filtro aplicado. No gráfico, os valores mensais referentes à data selecionada serão mostrados. Ao lado, na lista de faturas, aparecerão apenas as faturas correspondentes ao filtro. Da mesma forma, nas despesas administrativas, serão exibidas apenas as despesas relacionadas ao filtro aplicado."
+    "intro":"Ao aplicar o filtro por uma data específica, os valores de <strong>Faturado</strong>, <strong>Faturamento Liberado</strong>, <strong>Vencidos</strong>, <strong>Total Recebido</strong> e <strong>Total Administrativo</strong> serão atualizados de acordo com o filtro selecionado. O filtro também será aplicado na seção 'Ver mais'. No gráfico, serão exibidos os valores mensais correspondentes à data escolhida. Ao lado, na lista de faturas, aparecerão apenas as faturas filtradas. Da mesma forma, na seção de despesas administrativas, serão mostradas apenas as despesas relacionadas ao filtro."
   }
   
 ]

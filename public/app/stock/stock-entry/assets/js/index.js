@@ -76,8 +76,8 @@ document.querySelector('#selectProduct').addEventListener('showDropdown', async 
 async function newProduct() {
    const body = {
        url: `/app/stock/new-product`,
-       width: 930, 
-       height: 200,
+       width: 700, 
+       height: 600,
        resizable:false
    }
    window.ipcRenderer.invoke('open-exWindow', body);

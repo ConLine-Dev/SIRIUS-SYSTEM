@@ -192,8 +192,7 @@
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Faturado</p>
                                                     <h4 class="fw-semibold mt-1 fs-20 total-invoicing">-</h4>
-                                                    <a href="javascript:void(0);" class="fs-10 mb-0 text-primary" statusFatura="listFaturado">Ver mais<i class="ti ti-chevron-right ms-1"></i></a> 
-                                                    <!-- <p class="mb-1 fs-9"> <span class="d-block fs-9  text-muted" style="position: absolute; top: 70px;">ANO ATUAL</span> </p> -->
+                                                    <div class="showMore fs-10 mb-0 text-primary" statusFatura="listFaturado">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
                                                 </div>
                                                     
                                             
@@ -227,7 +226,7 @@
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Antecipados</p>
                                                     <h4 class="fw-semibold mt-1 fs-20 total-anticipated">-</h4> 
-                                                    <div class="fs-10 mb-0 text-primary d-block" statusFatura="listAntecipados">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
+                                                    <div class="showMore fs-10 mb-0 text-primary d-block" statusFatura="listAntecipados">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
                                                 </div>
                                             </div>
                                         </div>
@@ -254,7 +253,7 @@
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Vencidos</p>
                                                     <h4 class="fw-semibold mt-1 fs-20 total-invoiceLosers">-</h4>
-                                                    <div class="fs-10 mb-0 text-primary d-block" statusFatura="listVencidos">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
+                                                    <div class="showMore fs-10 mb-0 text-primary d-block" statusFatura="listVencidos">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
                                                 </div>
                                             </div>
                                             <!-- <div class="align-items-center justify-content-between ">
@@ -285,7 +284,7 @@
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Total Recebido</p>
                                                     <h4 class="fw-semibold mt-1 fs-20 total-totalReceived">-</h4>
-                                                    <div class="fs-10 mb-0 text-primary d-block" statusFatura="listRecebimento">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
+                                                    <div class="showMore fs-10 mb-0 text-primary d-block" statusFatura="listRecebimento">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
                                                 </div>
                                             </div>
                                             <!-- <div class="align-items-center justify-content-between ">
@@ -316,7 +315,7 @@
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Total Pago</p>
                                                     <h4 class="fw-semibold mt-1 fs-20 total-totalPaid">-</h4>
-                                                    <div class="fs-10 mb-0 text-primary d-block" statusFatura="listPagamento">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
+                                                    <div class="showMore fs-10 mb-0 text-primary d-block" statusFatura="listPagamento">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
                                                 </div>
                                             </div>
                                             <!-- <div class="align-items-center justify-content-between ">
@@ -347,7 +346,7 @@
                                                 <div>
                                                     <p class="text-muted mb-0 fs-15">Total ADM </p>
                                                     <h4 class="fw-semibold mt-1 fs-20 total-ADM">-</h4>
-                                                    <div class="fs-10 mb-0 text-primary d-block" style="visibility: hidden !important;">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
+                                                    <div class="showMore fs-10 mb-0 text-primary d-block" style="visibility: hidden !important;">Ver mais<i class="ti ti-chevron-right ms-1"></i></div> 
                                                 </div>
                                             </div>
                                         </div>
@@ -428,7 +427,7 @@
                                <div class="card-body">
                                     <div class="row">
                                         <div class="col-sm-12">
-                                            <table id="table_despesasFIN" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                            <table id="table_despesasFIN" class="table table-bordered text-nowrap w-100 dataTable" aria-describedby="hidden-columns_info" style="width: 1477px;">
                                                 <thead>
                                                     <tr>
                                                         <th class="sorting" style="width: 508px;">Vencimento</th>

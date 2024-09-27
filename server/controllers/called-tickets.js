@@ -122,7 +122,7 @@ const tickets = {
         const colaboradores = await executeQuery(`SELECT * FROM collaborators WHERE id = ${body.collab_id}`)
 
         const messagesByTicket = await executeQuery(`
-            SELECT ct.title, cm.body, cm.create_at, cl.name, cl.family_name, rs.email_business as 'responsible_email'
+            SELECT ct.title, ct.description, cm.body, cm.create_at, cl.name, cl.family_name, rs.email_business as 'responsible_email'
             FROM called_messages cm
             LEFT OUTER JOIN collaborators cl ON cl.id = cm.collab_id
             LEFT OUTER JOIN called_tickets ct ON ct.id = cm.ticket_id
@@ -178,8 +178,14 @@ const tickets = {
                 <p style="color: #333; font-size: 16px; line-height: 1.6;">Aqui está todo o loop de mensagens, já para adiantar as novidades:</p>
                 <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
                 <tr>
-                <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Assunto do Chamado:</td>
-                <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">${messagesByTicket[0].title}</td>
+                    <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Assunto do Chamado:</td>
+                    <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">${messagesByTicket[0].title}</td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                        <h5 style="margin: 0px; margin-bottom: 10px; font-weight: bold">Detalhes do Chamado:</h5>
+                        <h4 style="margin: 0px; font-weight: bold">${messagesByTicket[0].description}</h4>
+                    </td>
                 </tr>
                 </table>
                 <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">

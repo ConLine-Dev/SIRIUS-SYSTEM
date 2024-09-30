@@ -65,8 +65,7 @@ const nps = {
                 JOIN cad_pessoa pessoa ON pessoa.IdPessoa = cliente.IdPessoa
                 LEFT JOIN cad_pessoa pss ON pss.IdPessoa = cliente.IdVendedor_Responsavel
                 WHERE cliente.cliente = 1 
-                AND cliente.Tipo_Cliente = 2 
-                AND pessoa.Cpf_Cnpj LIKE '%/%'`),
+                AND cliente.Tipo_Cliente = 2`),
             executeQuery(`
                 SELECT id, 
                        CONCAT(collaborators.name, ' ', collaborators.family_name) AS name, 

@@ -125,7 +125,7 @@ const setIO = (io) => {
   // Use as rotas do arquivo api-perfomance-product .js
   router.use('/cash-flow', api_cash_flow(io)); 
 
-  // Use as rotas do arquivo api-product .js
+  // Use as rotas do arquivo api-product .js oi
   router.use('/product', api_product(io)); 
 
   return router;

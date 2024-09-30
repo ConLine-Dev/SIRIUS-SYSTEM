@@ -56,16 +56,17 @@ const nps = {
         const [result, resultSirius] = await Promise.all([
             executeQuerySQL(`
                 SELECT pessoa.Nome, 
-                       CONCAT('https://sirius-system.conlinebr.com.br/app/system/nps/survey?id=', cliente.IdPessoa) AS Link, 
-                       cliente.IdVendedor_Responsavel AS IdVendedor, 
-                       pessoa.Cpf_Cnpj, 
-                       CONCAT('https://cdn.conlinebr.com.br/colaboradores/', cliente.IdVendedor_Responsavel) AS ImgVendedor,
-                       pss.Nome AS Vendedor 
-                FROM cad_Cliente cliente
-                JOIN cad_pessoa pessoa ON pessoa.IdPessoa = cliente.IdPessoa
-                LEFT JOIN cad_pessoa pss ON pss.IdPessoa = cliente.IdVendedor_Responsavel
-                WHERE cliente.cliente = 1 
-                AND cliente.Tipo_Cliente = 2`),
+                    CONCAT('https://sirius-system.conlinebr.com.br/app/system/nps/survey?id=', cliente.IdPessoa) AS Link, 
+                    cliente.IdVendedor_Responsavel AS IdVendedor, 
+                    pessoa.Cpf_Cnpj, 
+                    CONCAT('https://cdn.conlinebr.com.br/colaboradores/', cliente.IdVendedor_Responsavel) AS ImgVendedor,
+                    pss.Nome AS Vendedor 
+                    FROM cad_Cliente cliente
+                    JOIN cad_pessoa pessoa ON pessoa.IdPessoa = cliente.IdPessoa
+                    LEFT JOIN cad_pessoa pss ON pss.IdPessoa = cliente.IdVendedor_Responsavel
+                    WHERE cliente.cliente = 1 
+                        AND cliente.Tipo_Cliente = 2
+                        AND cliente.Tipo_Cliente = 2`),
             executeQuery(`
                 SELECT id, 
                        CONCAT(collaborators.name, ' ', collaborators.family_name) AS name, 

@@ -42,7 +42,7 @@ module.exports = function(io) {
         }
     });
 
-    // Criar uma produto;
+    // Criar uma produto; 
     router.post('/createProduct', async (req, res, next) => {
         const {name, ncm, categoryId} = req.body;
         try {

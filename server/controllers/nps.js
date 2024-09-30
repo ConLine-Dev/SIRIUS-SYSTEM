@@ -57,9 +57,9 @@ const nps = {
             executeQuerySQL(`
             SELECT DISTINCT pessoa.Nome, 
             CONCAT('https://sirius-system.conlinebr.com.br/app/system/nps/survey?id=', cliente.IdPessoa) AS Link, 
-            cliente.IdVendedor_Responsavel AS IdVendedor, 
+            PCL.IdVendedor_Responsavel AS IdVendedor, 
             pessoa.Cpf_Cnpj, 
-            CONCAT('https://cdn.conlinebr.com.br/colaboradores/', cliente.IdVendedor_Responsavel) AS ImgVendedor,
+            CONCAT('https://cdn.conlinebr.com.br/colaboradores/', PCL.IdVendedor_Responsavel) AS ImgVendedor,
             pss.Nome AS Vendedor 
             FROM cad_Cliente cliente
             JOIN cad_pessoa pessoa ON pessoa.IdPessoa = cliente.IdPessoa

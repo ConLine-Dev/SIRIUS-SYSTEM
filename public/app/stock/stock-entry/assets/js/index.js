@@ -26,7 +26,7 @@ async function loadSelectProduct() {
          const inputValue = document.querySelector('.choices__input--cloned').value;
 
          if (inputValue.length >= 3) {
-            const searchProduct = await makeRequest(`/api/stock/getTop5Products`, 'POST', {productName: inputValue});
+            const searchProduct = await makeRequest(`/api/stock/getTop10Products`, 'POST', {productName: inputValue});
 
             // Formatar o array para ser usado com o Choices.js
             const options = searchProduct.map(element => ({

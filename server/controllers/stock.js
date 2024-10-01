@@ -19,9 +19,9 @@ const Stock = {
    },
 
    // Lista todos comerciais;
-   getTop5Products: async function(productName) {
+   getTop10Products: async function(productName) {
       let result = await executeQuery(
-         `SELECT * FROM product WHERE name LIKE ? ORDER BY name LIMIT 5`, [`%${productName}%`])
+         `SELECT * FROM product WHERE name LIKE ? ORDER BY name LIMIT 10`, [`%${productName}%`])
       return result;
    },
 

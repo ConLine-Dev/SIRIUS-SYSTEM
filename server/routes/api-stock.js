@@ -19,10 +19,10 @@ module.exports = function(io) {
    });
 
    // Verifica se o produto já esta cadastrado
-   router.post('/getTop5Products', async (req, res, next) => {
+   router.post('/getTop10Products', async (req, res, next) => {
    const { productName } = req.body;
       try {
-            const result = await Stock.getTop5Products(productName);
+            const result = await Stock.getTop10Products(productName);
             res.status(200).json(result)
       } catch (error) {
             console.log(error);

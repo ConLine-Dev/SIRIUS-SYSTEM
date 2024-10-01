@@ -166,15 +166,18 @@ document.getElementById('btn-save').addEventListener('click', async function(e) 
    e.preventDefault();
 
    const selectCategoryValue = await getSelectCategory();
-   const inputProductName = document.getElementById('input-product-name').value;
-   let inputNCM = document.getElementById('input-ncm').value;
+   const inputProductName = document.getElementById('input-product-name').value.trim();
+   let inputNCM = document.getElementById('input-ncm').value.trim();
    !inputNCM ? inputNCM = null : inputNCM; // Se nao existir valor no NCM entao retorna null
-   
+
+   const textareaObservation = document.getElementById('textarea-observation').value.trim();
+   !textareaObservation ? inputNCM = null : textareaObservation
+
    const inputsValid = await getValuesFromInputs();
    const selectsValid = await getValuesFromSelects();
 
    if (inputsValid && selectsValid) {
-      const insertProduct = await makeRequest(`/api/product/createProduct`, 'POST', { name: inputProductName, ncm: inputNCM, categoryId: selectCategoryValue});
+      const insertProduct = await makeRequest(`/api/product/createProduct`, 'POST', { name: inputProductName, ncm: inputNCM, categoryId: selectCategoryValue, textareaObservation});
       window.close();
    }
    

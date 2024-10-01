@@ -136,13 +136,16 @@ document.getElementById('btn-save').addEventListener('click', async function(e) 
    e.preventDefault();
 
    const selectDepartmentstValue = await getSelectDepartments();
-   const inputCategoryName = document.getElementById('input-category-name').value;
+   const inputCategoryName = document.getElementById('input-category-name').value.trim();
 
    const inputsValid = await getValuesFromInputs();
    const selectsValid = await getValuesFromSelects();
 
+   const textareaObservation = document.getElementById('textarea-observation').value.trim();
+   !textareaObservation ? inputNCM = null : textareaObservation
+
    if (inputsValid && selectsValid) {
-      const insertCategory = await makeRequest(`/api/product/createCategory`, 'POST', { departmentId: selectDepartmentstValue, name: inputCategoryName });
+      const insertCategory = await makeRequest(`/api/product/createCategory`, 'POST', { departmentId: selectDepartmentstValue, name: inputCategoryName, textareaObservation });
       window.close();
    }
    

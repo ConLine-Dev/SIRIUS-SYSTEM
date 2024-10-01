@@ -8,8 +8,8 @@ const Product = {
     },
 
     // Criar Categoria
-    createCategory: async function(departmentId, name) {
-        let result = await executeQuery(`INSERT INTO product_category (department_id, name) VALUES (?, ?)`, [departmentId, name])
+    createCategory: async function(departmentId, name, textareaObservation) {
+        let result = await executeQuery(`INSERT INTO product_category (department_id, name, observation) VALUES (?, ?, ?)`, [departmentId, name, textareaObservation])
         return result;
     },
 
@@ -20,14 +20,21 @@ const Product = {
     },
 
     // Criar produto
-    createProduct: async function(name, ncm, categoryId) {
+    createProduct: async function(name, ncm, categoryId, textareaObservation) {
         // Insere o produto no banco de dados
-        let insertProduct = await executeQuery(`INSERT INTO product (name, ncm) VALUES (?, ?)`, [name, ncm])
+        let insertProduct = await executeQuery(`INSERT INTO product (name, ncm, observation) VALUES (?, ?, ?)`, [name, ncm, textareaObservation])
 
         // Insere um registro na relação produto categoria
         let insertProductCategoryRelations = await executeQuery(`INSERT INTO product_category_relations (product_category_id, product_id) VALUES (?, ?)`, [categoryId, insertProduct.insertId])
 
         return insertProductCategoryRelations;
+    },
+
+    // Lista todos comerciais;
+    getTop10Products: async function(productName) {
+        let result = await executeQuery(
+        `SELECT * FROM product WHERE name LIKE ? ORDER BY name LIMIT 10`, [`%${productName}%`])
+        return result;
     },
 }
 

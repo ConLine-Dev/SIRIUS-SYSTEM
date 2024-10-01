@@ -19,9 +19,9 @@ module.exports = function(io) {
 
     // Criar uma categoria;
     router.post('/createCategory', async (req, res, next) => {
-        const {departmentId, name} = req.body;
+        const {departmentId, name, textareaObservation} = req.body;
         try {
-            const result = await Product.createCategory(departmentId, name);
+            const result = await Product.createCategory(departmentId, name, textareaObservation);
 
             res.status(200).json(result)
         } catch (error) {
@@ -44,13 +44,26 @@ module.exports = function(io) {
 
     // Criar uma produto; 
     router.post('/createProduct', async (req, res, next) => {
-        const {name, ncm, categoryId} = req.body;
+        const {name, ncm, categoryId, textareaObservation} = req.body;
         try {
-            const result = await Product.createProduct(name, ncm, categoryId);
+            const result = await Product.createProduct(name, ncm, categoryId, textareaObservation);
 
             res.status(200).json(result)
         } catch (error) {
 
+            res.status(404).json('Erro')
+        }
+    });
+
+       // Verifica se o produto já esta cadastrado
+    router.post('/getTop10Products', async (req, res, next) => {
+        const { productName } = req.body;
+        try {
+            const result = await Product.getTop10Products(productName);
+            res.status(200).json(result)
+        } catch (error) {
+            console.log(error);
+    
             res.status(404).json('Erro')
         }
     });

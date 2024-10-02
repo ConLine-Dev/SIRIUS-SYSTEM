@@ -27,6 +27,20 @@ async function listProducts() {
     await listProducts();
 })
 
+async function listCategories() {
+    const body = {
+        url: `/app/stock/list-categories`,
+        max: true,
+        resizable:true
+    }
+    window.ipcRenderer.invoke('open-exWindow', body);
+};
+ 
+document.getElementById('list-categories').addEventListener('click', async function(e) {
+    e.preventDefault();
+    await listCategories();
+})
+
 // Função executada após toda a página ser executada
 window.addEventListener("load", async () => {
 

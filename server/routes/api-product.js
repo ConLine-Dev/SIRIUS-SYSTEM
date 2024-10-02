@@ -22,7 +22,7 @@ module.exports = function(io) {
         const {departmentId, name, textareaObservation} = req.body;
         try {
             const result = await Product.createCategory(departmentId, name, textareaObservation);
-
+            io.emit('updateListCategories', '');
             res.status(200).json(result)
         } catch (error) {
 
@@ -105,7 +105,44 @@ module.exports = function(io) {
             res.status(404).json('Erro')
         }
     });
-    
+
+    // Lista todas os produtos;
+    router.get('/listAllCategories', async (req, res, next) => {
+        try {
+            const result = await Product.listAllCategories();
+
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    // Lista a categoria por ID;
+    router.post('/getCategoryById', async (req, res, next) => {
+        const { id } = req.body;
+        try {
+            const result = await Product.getCategoryById(id);
+
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    // Atualiza o produto;
+    router.post('/updateCategory', async (req, res, next) => {
+        const {departmentId, name, textareaObservation, idCategory} = req.body;
+        try {
+            const result = await Product.updateCategory(departmentId, name, textareaObservation, idCategory);
+            io.emit('updateListCategories', '');
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
 
     return router;
 }

@@ -60,10 +60,8 @@ const Product = {
         return result;
     },
 
-    // Lista todos os produtos;
+    // Lista o produto por ID;
     getProductById: async function(id) {
-        console.log(id);
-        
         let result = await executeQuery(`SELECT 
                 Pdc.id,
                 Pdc.name AS Product,
@@ -88,7 +86,7 @@ const Product = {
         return result;
     },
 
-    // Criar produto
+    // Atualiza produto
     updateProduct: async function(name, ncm, categoryId, textareaObservation, idProduct) {
         // Insere o produto no banco de dados
         let update = await executeQuery(`
@@ -104,6 +102,56 @@ const Product = {
 
         // Função para atualizar a categoria do produto
         await executeQuery(`UPDATE product_category_relations SET product_category_id = ? WHERE product_id = ?`, [categoryId, idProduct]);
+
+        return update;
+    },
+
+    // Lista todos os produtos;
+    listAllCategories: async function() {
+        let result = await executeQuery(`SELECT 
+                Pct.id,
+                Pct.name AS Category,
+                Pct.observation AS Observation,
+                Dpt.name AS Department
+            FROM 
+                product_category Pct
+            LEFT OUTER JOIN
+                departments Dpt ON Dpt.id = Pct.department_id
+            ORDER BY
+                Pct.name`
+        )
+        return result;
+    },
+
+    // Lista a categoria por ID;
+    getCategoryById: async function(id) {
+        let result = await executeQuery(`SELECT 
+                Pct.id AS IdCategory,
+                Pct.name AS Category,
+                Pct.observation,
+                Dpt.id AS IdDepartment,
+                Dpt.name AS Department
+            FROM 
+                product_category Pct
+            LEFT OUTER JOIN
+                departments Dpt ON Dpt.id = Pct.department_id
+            WHERE
+                Pct.id = ${id}`
+        )
+        return result;
+    },
+
+    // Atualiza categoria
+    updateCategory: async function(departmentId, name, textareaObservation, idCategory) {
+        // Insere o produto no banco de dados
+        let update = await executeQuery(`
+            UPDATE product_category SET 
+            department_id = ?, 
+            name = ?, 
+            observation = ? 
+            WHERE id = ?`, 
+            [departmentId, name, textareaObservation, idCategory]
+        )
 
         return update;
     },

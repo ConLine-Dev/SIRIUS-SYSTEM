@@ -47,7 +47,7 @@ module.exports = function(io) {
         const {name, ncm, categoryId, textareaObservation} = req.body;
         try {
             const result = await Product.createProduct(name, ncm, categoryId, textareaObservation);
-
+            io.emit('updateListProducts', '');
             res.status(200).json(result)
         } catch (error) {
 
@@ -64,6 +64,44 @@ module.exports = function(io) {
         } catch (error) {
             console.log(error);
     
+            res.status(404).json('Erro')
+        }
+    });
+
+    // Lista todas os produtos;
+    router.get('/listAllProducts', async (req, res, next) => {
+        try {
+            const result = await Product.listAllProducts();
+
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    // Lista o produto por ID;
+    router.post('/getProductById', async (req, res, next) => {
+        const { id } = req.body;
+        try {
+            const result = await Product.getProductById(id);
+
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    // Atualiza o produto;
+    router.post('/updateProduct', async (req, res, next) => {
+        const {name, ncm, categoryId, textareaObservation, idProduct} = req.body;
+        try {
+            const result = await Product.updateProduct(name, ncm, categoryId, textareaObservation, idProduct);
+            io.emit('updateListProducts', '');
+            res.status(200).json(result)
+        } catch (error) {
+
             res.status(404).json('Erro')
         }
     });

@@ -16,17 +16,16 @@ document.getElementById('stock-entry').addEventListener('click', async function 
 async function listProducts() {
     const body = {
         url: `/app/stock/list-products`,
-        width: 1280, 
-        height: 720,
+        max: true,
         resizable:true
     }
     window.ipcRenderer.invoke('open-exWindow', body);
- };
+};
  
  document.getElementById('list-products').addEventListener('click', async function(e) {
     e.preventDefault();
     await listProducts();
- })
+})
 
 // Função executada após toda a página ser executada
 window.addEventListener("load", async () => {

@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Entrada no Estoque</title>
+    <title>Editar Produto</title>
     <meta name="Description" content="Controle de chamados & projetos TI">
     <meta name="Author" content="ConLine">
 
@@ -57,25 +57,40 @@
                         </a> 
                      </li>
                </ul>
-
-               <div>
-                  <a class="btn btn-primary" id="createProduct" style="border-radius: 5px;">
-                     <i class="ri-add-line me-1 fw-semibold align-middle"></i>
-                     Cadastrar Produto
-                  </a>
-               </div>
             </div>
 
             <!-- DADOS PRODUTO -->                     
-            <div class="card-body default">
+            <div class="card-body default" style="height: 500px !important;">
                <div class="row">
-                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
-                        <label for="selectProduct" class="form-label">Produto</label> 
-                        <br>
-                        <select class="form-control" id="selectProduct" name="selectProduct">
-                           <option value="" style="width: 100% !important;">Selecione um produto</option>
-                        </select> 
-                     </div>
+
+                  <div class="col-xl-9 col-lg-9 col-md-9 col-sm-9"> 
+                     <label for="input-product-name" class="form-label">Nome do Produto</label>
+                     <label for="input-product-name" class="form-label mandatory required" id="label-product-name" title="Campo Obrigatório">*</label>
+                     <br>
+                     <input type="text" id="input-product-name" class="form-control form-input" name="input-product-name" placeholder="Insira o nome do produto"> 
+                  </div>
+
+                  <div class="col-xl-3 col-lg-3 col-md-3 col-sm-3">
+                     <label for="input-ncm" class="form-label">NCM</label>
+                     <br>
+                     <input type="text" id="input-ncm" class="form-control form-input" placeholder="Insira o NCM"> 
+                  </div>
+
+                  <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12" style="margin-top: 20px;"> 
+                     <label for="selectCategory" class="form-label">Categoria</label> 
+                     <label for="label-select-categoriy" class="form-label mandatory required" id="label-select-category" title="Campo Obrigatório">*</label>
+                     <br>
+                     <select class="form-control" id="selectCategory" name="selectCategory">
+                        <option value="" style="width: 100% !important;">Selecione uma categoria</option>
+                     </select> 
+                  </div>
+
+                  <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12" style="margin-top: 20px;">
+                     <label for="textarea-observation" class="form-label">Observação</label>
+                     <br>
+                     <textarea name="textarea-observation" id="textarea-observation" class="form-control form-input" placeholder="Máximo de 255 caracteres" maxlength="255"></textarea>
+                  </div>
+
                </div>
             </div>
 

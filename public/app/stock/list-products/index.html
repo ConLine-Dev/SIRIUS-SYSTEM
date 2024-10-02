@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Controle de senha</title>
+    <title>Lista de Produtos</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
@@ -31,7 +31,6 @@
     <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
     <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
     <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
-    
 
     <link rel="stylesheet" href="./assets/css/style.css">
     <meta http-equiv="imagetoolbar" content="no">
@@ -55,30 +54,30 @@
             <div class="col-xl-12">
                 <div class="card custom-card">
                     <div class="card-header">
-                        <div class="card-title fw-semibold fs-14"> Controle de senhas </div>
+                        <div class="card-title fw-semibold fs-14"> Lista de Produtos </div>
                     </div>
                     <div class="card-body">
 
                             <!--BOTAO CADASTRO NOVA SENHA-->
-                            <div class="col-6">
-                            <button class="btn btn-primary me-2" onclick="registerPassword()" id="intro-bottom-new">
-                            <i class="ri-add-line me-1 fw-semibold align-middle"></i>
-                                Novo
-                            </button>
+                            <div class="col-12 d-flex justify-content-between">
+                                <button class="btn btn-primary me-2" id="createProduct">
+                                    <i class="ri-add-line me-1 fw-semibold align-middle"></i>
+                                    Novo Produto
+                                </button>
+                                <input type="text" class="form-control bg-light" style="border-radius: 5px; width: 20%;" id="search" placeholder="Pesquisar" aria-describedby="button-addon2">
                             </div>
                         <br>
     
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <table id="table_control_password" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                    <table id="table-list-products" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
                                         <thead>
                                             <tr>
-                                                <th>Título</th>
-                                                <th>Login</th>
-                                                <th>Responsável</th>
-                                                <th>Departamento</th>
-                                                <th>Ultima alteração</th>
-                                                <th class="intro-btn-action">Ação</th>
+                                                <th style="width: 30%;">Produto</th>
+                                                <th style="width: 7%;">NCM</th>
+                                                <th style="width: 10%;">Categoria</th>
+                                                <th style="width: 10%;">Departamento</th>
+                                                <th style="width: 43%;">Observação</th>
                                             </tr>
                                         </thead>
                                     </table>
@@ -89,7 +88,6 @@
             </div>
            
         </div>
-        
     </div>
     
 
@@ -98,8 +96,8 @@
     <!-- Scroll To Top -->
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
     <div id="responsive-overlay"></div>
-    <!-- Scroll To Top -->
-    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+   <!-- Jquery -->
+   <script src="../../assets/libs/jQuery/jquery-3.6.1.min.js"></script>
     <!-- Popper JS -->
     <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
     <!-- Bootstrap JS -->
@@ -109,15 +107,15 @@
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 
-    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/jquery.dataTables.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/dataTables.bootstrap5.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/dataTables.responsive.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/dataTables.buttons.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/buttons.print.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/pdfmake.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/vfs_fonts.js"></script>
+    <script src="../../assets/libs/datatables.min.js/buttons.html5.min.js"></script>
+    <script src="../../assets/libs/datatables.min.js/jszip.min.js"></script>
 
     <!-- SweetAlert JS -->
    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>

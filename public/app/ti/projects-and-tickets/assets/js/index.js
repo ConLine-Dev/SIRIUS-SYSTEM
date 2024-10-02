@@ -659,8 +659,8 @@ async function eventDragDrop(tickets) {
     });
 }
 
-// Função que envia o ticket para o status de concluido quando for inserido a data de finalizacao
-async function concludesWhenFinishedDate() {
+async function notificatePendingTickets() {
+    await makeRequest('/api/called/tickets/notificatePendingTickets');
 
 }
 
@@ -681,6 +681,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await listAllTickets();
     await eventDragDrop(tickets);
     await initEvents();
+    await notificatePendingTickets();
 
     // flatpickr(".flatpickr-input", {
     //     dateFormat: "d-m-Y H:i",

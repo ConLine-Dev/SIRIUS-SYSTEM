@@ -23,8 +23,10 @@ async function getAllUnit(){
             value: `${element.id}`,
             label: `${element.city+' | '+element.country}`,
         };
-    });
 
+        
+    });
+    
     //adicionar a opção selecione ao select como default e desabilita
     listaDeOpcoes.push({value:0, label:'Selecione', selected: true, disabled: true})
 
@@ -446,6 +448,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // carrega os tipos de ocorrencia
     await getAllTypes();
+
+    
 
     
     // remover loader

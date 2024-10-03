@@ -507,6 +507,7 @@
         <img src="../../assets/images/media/loader.svg" alt="">
     </div>
 
+
     <!-- <div id="loader" class="">
         <img src="../../assets/images/media/loader.svg" alt="">
     </div> -->
@@ -540,30 +541,35 @@
                             
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-12"> 
-                                        <label for="input-label" class="form-label">Ocorrência</label> 
+                                    <div class="col-xl-9 col-lg-9 col-md-9 col-sm-12" id="intro-tittle-occurrence"> 
+                                        <label for="input-label" class="form-label">Ocorrência</label> <br>
+                                        <label for="input-label" class="form-label fs-11" style="font-style: italic; opacity: 0.6;">Insira um título breve, informando um problema + o que prova que é um problema + lei, norma ISO ou diretriz que determina.</label>                                        
                                         <input type="text" name="occurrence" class="form-control form-input"> 
                                     </div>
                                   
-                                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
-                                        <label for="input-label" class="form-label">Data Ocorrência</label> 
+                                    <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12" id="intro-tittle-date"> 
+                                        <label for="input-label" class="form-label">Data Ocorrência</label>  <br>   
+                                        <label for="input-label" class="form-label fs-11" style="font-style: italic; opacity: 0.6;">Informe a data de criação da nova ocorrência.</label>
                                         <input type="date" name="occurrence_date" class="form-control form-input" > 
                                     </div>
                                 </div>
                                 <br>
                                 <div class="row">
-                                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12"> 
-                                        <label for="input-label" class="form-label">Unidade</label> 
+                                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12" id="intro-tittle-unit"> 
+                                        <label for="input-label" class="form-label">Unidade</label> <br>
+                                        <label for="input-label" class="form-label fs-11" style="font-style: italic; opacity: 0.6;">Selecione a filial onde a ocorrência está sendo registrada.</label>
                                         <select name="company_id" class="form-input"></select>
                                   
                                     </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12"> 
-                                        <label for="input-label" class="form-label">Origem</label> 
+                                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12" id="intro-tittle-origin"> 
+                                        <label for="input-label" class="form-label">Origem</label> <br>
+                                        <label for="input-label" class="form-label fs-11" style="font-style: italic; opacity: 0.6;">Selecione a origem onde foi constatada a não conformidade.</label>
                                         <select name="origin_id" class="form-input"></select>
                                   
                                     </div>
-                                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12"> 
-                                        <label for="input-label" class="form-label">Tipo</label> 
+                                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12" id="intro-tittle-type"> 
+                                        <label for="input-label" class="form-label">Tipo</label>  <br>
+                                        <label for="input-label" class="form-label fs-11" style="font-style: italic; opacity: 0.6;">Selecione a classificação da ocorrência.</label>
                                         <select name="type_id" class="form-input"></select>
                                   
                                     </div>
@@ -576,7 +582,7 @@
                                 </div>
                                 <br>
                                 <div class="row">
-                                    <div class="col-12"> 
+                                    <div class="col-12" id="intro-tittle-people"> 
                                         <label for="input-label" class="form-label">Quais pessoas serão informadas sobre essa ocorrência</label> 
                                         <select name="occurrence_responsible" multiple class="form-input "></select>
                                   
@@ -584,16 +590,18 @@
                                 </div>
                                 <br>
                                 <div class="row">
-                                    <div class="col-12"> 
-                                        <label for="input-label" class="form-label">Descrição</label> 
+                                    <div class="col-12" id="intro-tittle-description"> 
+                                        <label for="input-label" class="form-label">Descrição</label> <br>
+                                        <label for="input-label" class="form-label fs-11" style="font-style: italic; opacity: 0.6;">Descreva mais detalhes sobre a ocorrência. Forneça informações adicionais para orientar melhor o tratamento.</label>
                                         <textarea name="description" class="form-control form-input"cols="30" rows="5"></textarea>
                                   
                                     </div>
                                 </div>
                                 <br>
                                 <div class="row">
-                                    <div class="col-12"> 
-                                        <label for="input-label" class="form-label">Correção [ Ações já tomada(s) ]</label> 
+                                    <div class="col-12" id="intro-tittle-action"> 
+                                        <label for="input-label" class="form-label">Correção [ Ações já tomada(s) ]</label> <br>
+                                        <label for="input-label" class="form-label fs-11" style="font-style: italic; opacity: 0.6;">Descreva as ações que já foram tomadas para melhorias relacionadas a esta ocorrência.</label>
                                         <textarea name="correction" class="form-control form-input"cols="30" rows="5"></textarea>
                                   
                                     </div>

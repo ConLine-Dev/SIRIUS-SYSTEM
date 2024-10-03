@@ -283,5 +283,7 @@ window.addEventListener("load", async () => {
 
 
     document.querySelector('#loader2').classList.add('d-none')
+
+    $('#naoConformidadeModal').modal('show')
 })
 

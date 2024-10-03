@@ -484,13 +484,14 @@ document.addEventListener("DOMContentLoaded", async () => {
               //   status_invoice += '<span class="badge bg-danger-transparent">MBL não encontrado</span>'
               // }
 
-              const mbl = new RegExp(`${((matchingAgent.MBL).trim()).replace(/-/g, '')}`).test(row[0].replace(/-/g, ''));
+         
+              const mbl = new RegExp(`${(((matchingAgent.MBL).toString()).trim()).replace(/-/g, '')}`).test((row[0].toString()).replace(/-/g, ''));
 
               if (!mbl) {
                 status_invoice += '<span class="badge bg-danger-transparent">MBL não encontrado</span>';
               }
 
-              const hbl = new RegExp(`${((matchingAgent.HBL).trim()).replace(/-/g, '')}`).test(row[1].replace(/-/g, ''));
+              const hbl = new RegExp(`${(((matchingAgent.HBL).toString()).trim()).replace(/-/g, '')}`).test((row[1].toString()).replace(/-/g, ''));
 
               if (!hbl) {
                 status_invoice += '<span class="badge bg-danger-transparent">HBL não encontrado</span>';

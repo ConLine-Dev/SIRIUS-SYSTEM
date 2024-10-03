@@ -544,6 +544,7 @@ async function listAllTickets() {
                             <span class="fw-semibold fs-12">${ticket.messageCount}</span>
                         </a>
                     </div>
+                    <div style="display: none;">${ticket.responsible_name} ${ticket.responsible_family_name}
                     <div class="avatar-list-stacked">${users}</div>
                 </div>
             </div>

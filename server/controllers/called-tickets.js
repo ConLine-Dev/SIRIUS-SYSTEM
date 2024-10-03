@@ -61,7 +61,9 @@ const tickets = {
             end_forecast: ticket.end_forecast,
             finished_at: ticket.finished_at,
             atribuido: atribuidoMap[ticket.id] || [],
-            messageCount: messageMap[ticket.id] ? messageMap[ticket.id].length : 0
+            messageCount: messageMap[ticket.id] ? messageMap[ticket.id].length : 0,
+            responsible_name: ticket.name,
+            responsible_family_name: ticket.family_name
         });
         });
 
@@ -230,6 +232,11 @@ const tickets = {
         const timeEnd = value.timeEnd ?  value.timeEnd : null;
         const finished_at = value.finished_at ? value.finished_at : null;
 
+        let status = 'new-tasks-draggable';
+        if (finished_at != null){
+            status = 'completed-tasks-draggable';
+        }
+
         const userData = await executeQuery(`
             SELECT usr.*, cl.name, cl.family_name FROM users usr
             LEFT OUTER JOIN collaborators cl on cl.id = usr.collaborator_id
@@ -240,8 +247,8 @@ const tickets = {
         let destinationMail = userData[0].email;
 
         const result = await executeQuery(
-            'INSERT INTO called_tickets (title,status, description, collaborator_id, start_forecast, end_forecast, finished_at) VALUES (?,?, ?, ?, ?, ?, ?)',
-            [value.title,'new-tasks-draggable', value.description, value.responsible.id, timeInit, timeEnd, finished_at]
+            'INSERT INTO called_tickets (title, status, description, collaborator_id, start_forecast, end_forecast, finished_at) VALUES (?,?, ?, ?, ?, ?, ?)',
+            [value.title, status, value.description, value.responsible.id, timeInit, timeEnd, finished_at]
           );
 
         await executeQuery(

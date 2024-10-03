@@ -9,7 +9,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Configura os eventos de clique nos botões de comparação
     document.querySelector('#startComparison-security').addEventListener('click', handleFileSecurity);
     document.querySelector('#startComparison-comission').addEventListener('click', handleFileComission);
-
+    document.querySelector('#startComparison-agent').addEventListener('click', handleFileAgent);
+    
     document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
   });
   
@@ -39,6 +40,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const filePondSecurity = FilePond.create(document.querySelector('.file-upload-security'), {
       labelIdle: 'Arraste e solte seu arquivo aqui ou <span class="filepond--label-action">Procure</span> para comparar com o sistema.'
     });
+
+    // Cria a instância FilePond para Agente
+    const filePondAgent = FilePond.create(document.querySelector('.file-upload-agent'), {
+      labelIdle: 'Arraste e solte seu arquivo aqui ou <span class="filepond--label-action">Procure</span> para comparar com o sistema.'
+    });
+  
   
     // Habilita o botão "Comparar" quando um arquivo é adicionado
     filePondComission.on('addfile', () => {
@@ -48,6 +55,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     filePondSecurity.on('addfile', () => {
       document.querySelector('#startComparison-security').disabled = false;
     });
+
+    filePondAgent.on('addfile', () => {
+      document.querySelector('#startComparison-agent').disabled = false;
+    });
   }
   
   /**
@@ -55,7 +66,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    * Realiza a leitura do arquivo Excel, processa os dados e popula a tabela de segurança.
    */
   function handleFileSecurity() {
-    document.querySelector('.title-table').textContent = 'Comparação de seguro';
+    document.querySelector('.title-table').textContent = 'Conferencia taxas de seguro';
     const filePondInstance = FilePond.find(document.querySelector('.file-upload-security'));
     const file = filePondInstance.getFile();
   
@@ -107,7 +118,7 @@ document.addEventListener("DOMContentLoaded", async () => {
    * Realiza a leitura do arquivo Excel, processa os dados e popula a tabela de comissão.
    */
   function handleFileComission() {
-    document.querySelector('.title-table').textContent = 'Comparação de Incentivo & Comissão';
+    document.querySelector('.title-table').textContent = 'Conferencia taxas de Incentivo & Comissão';
     const filePondInstance = FilePond.find(document.querySelector('.file-upload-comission'));
     const file = filePondInstance.getFile();
   
@@ -121,6 +132,32 @@ document.addEventListener("DOMContentLoaded", async () => {
         const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
         await resetAndChangeHeaderTable(changeHeaderTableComission);
         populateTableComission(json);
+      };
+      reader.readAsArrayBuffer(file.file);
+    } else {
+      alert('Por favor, faça o upload de um arquivo primeiro.');
+    }
+  }
+
+  /**
+   * Manipula o arquivo de comissão carregado.
+   * Realiza a leitura do arquivo Excel, processa os dados e popula a tabela de Agente.
+   */
+  function handleFileAgent() {
+    document.querySelector('.title-table').textContent = 'Conferencia de pagamento ao Agente';
+    const filePondInstance = FilePond.find(document.querySelector('.file-upload-agent'));
+    const file = filePondInstance.getFile();
+  
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        await resetAndChangeHeaderTable(changeHeaderTableAgent);
+        populateTableAgent(json);
       };
       reader.readAsArrayBuffer(file.file);
     } else {
@@ -178,9 +215,24 @@ document.addEventListener("DOMContentLoaded", async () => {
       
       
     </tr>`;
+    document.querySelector('#incentive_management_table thead').innerHTML = header;
+  }
 
-
-
+  /**
+   * Muda o cabeçalho da tabela de Agente.
+   */
+  async function changeHeaderTableAgent() {
+    const header = `<tr>
+      <th>Check</th>
+      <th>MBL</th>
+      <th>HBL</th>
+      <th>Moeda</th>
+      <th>Valor</th>
+      <th>Valor do Sistema</th>
+      <th>Status da Fatura</th>
+      
+      
+    </tr>`;
     document.querySelector('#incentive_management_table thead').innerHTML = header;
   }
   
@@ -376,6 +428,157 @@ document.addEventListener("DOMContentLoaded", async () => {
           { data: 'valorSistema', type: 'currency'},
           { data: 'statusValor' },
           { data: 'Status_Fatura' }
+      ],
+        buttons: [
+          'excel', 'pdf'
+        ],
+        language: {
+          url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
+          searchPlaceholder: 'Pesquisar...',
+        },
+      });
+  
+  
+  
+  
+    }
+
+    /**
+   * Preenche a tabela de segurança com os dados fornecidos.
+   * @param {Array<Array<string|number>>} data - Dados a serem populados na tabela.
+   */
+    async function populateTableAgent(data) {
+
+    
+
+      const agentData = await makeRequest('/api/incentive-management/getAllAgent');
+
+      // console.log(data, agentData)
+  
+      // Array para armazenar os novos dados
+      const newData = [];
+      
+      data.slice(2).forEach(row => {
+
+        if (row.some(cell => cell !== undefined && cell !== '')) {
+          if (row[1] !== undefined && row[1] !== '') {
+      
+          const matchingAgent = agentData.find(agent => {
+            if (row[0] == agent.MBL) {
+              return true;
+            }
+
+            if (row[1] == agent.HBL) {
+              return true;
+            }
+      
+            return false;
+          });
+
+
+      
+            if (matchingAgent) {
+              let status_invoice = ''
+              
+              // if (row[0] != matchingAgent.MBL) {
+              //   status_invoice += '<span class="badge bg-danger-transparent">MBL não encontrado</span>'
+              // }
+
+              const mbl = new RegExp(`${((matchingAgent.MBL).trim()).replace(/-/g, '')}`).test(row[0].replace(/-/g, ''));
+
+              if (!mbl) {
+                status_invoice += '<span class="badge bg-danger-transparent">MBL não encontrado</span>';
+              }
+
+              const hbl = new RegExp(`${((matchingAgent.HBL).trim()).replace(/-/g, '')}`).test(row[1].replace(/-/g, ''));
+
+              if (!hbl) {
+                status_invoice += '<span class="badge bg-danger-transparent">HBL não encontrado</span>';
+              }
+
+            
+             const moeda = new RegExp(`${matchingAgent.Moeda}`, 'i').test(row[2]);
+
+             if (!moeda) {
+               status_invoice += ' / <span class="badge bg-danger-transparent">Moeda divergente</span>';
+             }
+             
+              console.log(matchingAgent, row[2])
+
+            if (row[3] != matchingAgent.Valor_Total) {
+              status_invoice += ' / <span class="badge bg-danger-transparent">Valor divergente</span>'
+            }
+
+            if (matchingAgent.Status == 1) {
+
+              status_invoice += ' / <span class="badge bg-danger-transparent">Mais de uma fatura para o agente</span>'
+
+             }
+
+             const valor_formatado = (matchingAgent.Valor_Total).toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: matchingAgent.Moeda
+            });
+
+            const valor_formatado_excel = (row[3]).toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: row[2]
+            });
+             
+             
+              newData.push({
+                check: '<input class="form-check-input me-2 " type="checkbox">',
+                mbl: row[0] || '',
+                hbl: row[1] || '',
+                moeda: row[2] || '',
+                valor: valor_formatado_excel || '',
+                valorSistema: valor_formatado || '',
+                status_invoice: '<span class="text-success">OK</span>'
+              })
+
+
+            } else {
+
+              const valor_formatado_excel = (row[3]).toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: row[2]
+              });
+
+              newData.push({
+                check: '<input class="form-check-input me-2 " type="checkbox">',
+                mbl: row[0] || '',
+                hbl: row[1] || '',
+                moeda: row[2] || '',
+                valor: valor_formatado_excel || '',
+                valorSistema: '',
+                status_invoice: '<span class="badge bg-warning-transparent">Nenhum registro foi encontrado no sistema</span>'
+              })
+            }
+          }
+        }
+      });
+
+      
+      // $.fn.dataTable.ext.type.order['currency-pre'] = function(data) {
+      //   // Remove tudo exceto números, pontos e vírgulas
+      //   return parseFloat(data.replace(/[^0-9.,-]/g, '').replace(',', '.')) || 0;
+      // };
+   
+  
+      const table = $('#incentive_management_table').DataTable({
+        dom: 'Bfrtip',
+        pageInfo: false,
+        pageLength: 15,
+        data: newData,
+        bInfo: false,
+        columns: [
+          { data: 'check' },
+          { data: 'mbl' },
+          { data: 'hbl' },
+          { data: 'moeda' },
+          { data: 'valor' },
+          { data: 'valorSistema' },
+          { data: 'status_invoice' }
       ],
         buttons: [
           'excel', 'pdf'

@@ -111,8 +111,9 @@ const incentiveManagement = {
         const result = await executeQuerySQL(`
         SELECT DISTINCT
             Lhs.Numero_Processo,
-            Lms.Numero_Conhecimento,
-            CAST(Lhs.Conhecimentos AS VARCHAR(MAX)) AS Conhecimentos,
+            TRIM(Lms.Numero_Conhecimento) AS MBL,
+            TRIM(CAST(Lhs.Conhecimentos AS VARCHAR(MAX))) AS HBL,
+            Vlf.IdRegistro_Financeiro,
 
             CASE 
                 WHEN Vlf2.Qnt_Fatura > 1 THEN NULL
@@ -125,21 +126,28 @@ const incentiveManagement = {
             END AS Valor_Total,
 
             CASE 
-                WHEN Vlf2.Qnt_Fatura > 1 THEN 'Mais de uma fatura de acerto agentes'
-                ELSE 'OK'
+                WHEN Vlf2.Qnt_Fatura > 1 THEN 1
+                ELSE 0
             END AS Status    
         FROM
             vis_Logistica_Fatura Vlf
         LEFT OUTER JOIN (
             SELECT 
                 Vlf.IdLogistica_House,
-                COUNT(Vlf.IdRegistro_Financeiro) AS Qnt_Fatura 
+                Vlf.IdRegistro_Financeiro,
+                Pss.Nome AS Agente,
+                COUNT(Vlf.IdRegistro_Financeiro) AS Qnt_Fatura,
+                MAX(Vlf.Situacao) AS Situacao /* Assume que a tabela contém a coluna 'Situacao' */
             FROM
                 vis_Logistica_Fatura Vlf
+            LEFT OUTER JOIN
+                cad_Pessoa Pss ON Pss.IdPessoa = Vlf.IdPessoa
             WHERE
                 Vlf.IdTipo_Transacao = 3 /*ACERTO AGENTES*/
             GROUP BY
-                Vlf.IdLogistica_House
+                Vlf.IdLogistica_House,
+                Pss.Nome,
+                Vlf.IdRegistro_Financeiro
         ) Vlf2 ON Vlf2.IdLogistica_House = Vlf.IdLogistica_House
         LEFT OUTER JOIN
             mov_Logistica_House Lhs ON Lhs.IdLogistica_House = Vlf.IdLogistica_House
@@ -148,7 +156,9 @@ const incentiveManagement = {
         LEFT OUTER JOIN
             cad_Moeda Moe ON Moe.IdMoeda = Vlf.IdMoeda
         WHERE
-            Vlf.IdTipo_Transacao = 3 /*ACERTO AGENTES*/`);
+            Vlf.IdTipo_Transacao = 3 /*ACERTO AGENTES*/
+            AND (Vlf.Situacao <> 2 AND Vlf.Situacao <> 4) /* Exclui 'Finalizado' e 'Parcialmente quitado' */
+            AND (Vlf2.Qnt_Fatura > 1 OR Vlf.Situacao = 1) /* Considera apenas a situação em aberto se tiver um único agente */`);
     
     
             return result

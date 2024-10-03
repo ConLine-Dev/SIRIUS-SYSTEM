@@ -510,7 +510,7 @@ const tickets = {
             </div>`
     
             await sendEmail(responsibleMail, '[Sirius System] Mais um pedido foi concluído 😎', userBody);
-            await sendEmail('lucas@conlinebr.com.br', '[Sirius System] Mais um pedido foi concluído 😎', devBody);
+            await sendEmail('ti@conlinebr.com.br', '[Sirius System] Mais um pedido foi concluído 😎', devBody);
     
             return true;
         }
@@ -523,7 +523,6 @@ const tickets = {
             WHERE ct.status = 'inreview-tasks-draggable'
             AND ct.review_notification <= DATE_SUB(CURDATE(), INTERVAL 7 DAY);`
         );
-
         for (let index = 0; index < pendingTickets.length; index++) {
 
             let mailBody = `

@@ -443,170 +443,144 @@ document.addEventListener("DOMContentLoaded", async () => {
   
     }
 
-    /**
-   * Preenche a tabela de segurança com os dados fornecidos.
-   * @param {Array<Array<string|number>>} data - Dados a serem populados na tabela.
-   */
-    async function populateTableAgent(data) {
-
+/**
+ * Função que preenche a tabela de agente com os dados fornecidos e faz a comparação com os dados do sistema.
+ * @param {Array<Array<string|number>>} data - Dados extraídos do Excel para serem populados na tabela.
+ */
+async function populateTableAgent(data) {
+  try {
+    // Faz uma requisição para buscar todos os agentes da API.
+    const agentData = await makeRequest('/api/incentive-management/getAllAgent');
     
+    // Array para armazenar os novos dados que serão exibidos na tabela.
+    const newData = [];
 
-      const agentData = await makeRequest('/api/incentive-management/getAllAgent');
+    // Itera sobre os dados fornecidos do Excel, a partir da terceira linha (índice 2) para ignorar cabeçalhos.
+    data.slice(2).forEach(row => {
+      // Verifica se a linha tem ao menos uma célula preenchida. Caso contrário, a linha será ignorada.
+      if (!(row[0] === undefined || row[0] === '' || row[0] === null) || !(row[1] === undefined || row[1] === '' || row[1] === null)) {
+        
+        // Procura um agente no sistema cujo MBL ou HBL correspondam aos valores da linha do Excel.
+        const matchingAgent = agentData.find(agent => {
+          return (row[0] == agent.MBL && agent.MBL) || (row[1] == agent.HBL && agent.HBL);
+        });
 
-      // console.log(data, agentData)
-  
-      // Array para armazenar os novos dados
-      const newData = [];
-      
-      data.slice(2).forEach(row => {
+        // Se um agente correspondente foi encontrado, começa a verificar os dados e preencher o status.
+        if (matchingAgent) {
+          let status_invoice = '';  // Variável para armazenar o status da comparação.
 
-        if (row.some(cell => cell !== undefined && cell !== '')) {
-          if (row[1] !== undefined && row[1] !== '') {
-      
-          const matchingAgent = agentData.find(agent => {
-            if (row[0] == agent.MBL) {
-              return true;
-            }
+          // Validação do MBL - Verifica se o MBL da planilha corresponde ao do sistema.
+          status_invoice += validateField(row[0], matchingAgent.MBL, 'MBL');
 
-            if (row[1] == agent.HBL) {
-              return true;
-            }
-      
-            return false;
-          });
+          // Validação do HBL - Verifica se o HBL da planilha corresponde ao do sistema.
+          status_invoice += validateField(row[1], matchingAgent.HBL, 'HBL');
 
-
-          console.log(matchingAgent, row[0])
-            if (matchingAgent) {
-              let status_invoice = ''
-              
-              // if (row[0] != matchingAgent.MBL) {
-              //   status_invoice += '<span class="badge bg-danger-transparent">MBL não encontrado</span>'
-              // }
-
-              if (row[0] != '' && row[0] != undefined) {
-                const newMbl = matchingAgent.MBL || ''
-                const mbl = new RegExp(`${(((newMbl)).trim()).replace(/-/g, '')}`).test((row[0].toString()).replace(/-/g, ''));
-
-              if (!mbl) {
-                status_invoice += '<span class="badge bg-danger-transparent">MBL não encontrado</span>  ';
-              }
-              }
-
-              if ((row[1] != '' && row[1] != undefined)) {
-          
-                const newHbl = matchingAgent.HBL || ''
-                const hbl = new RegExp(`${(((newHbl)).trim()).replace(/-/g, '')}`).test((row[1].toString()).replace(/-/g, ''));
-
-              if (!hbl) {
-                status_invoice += '<span class="badge bg-danger-transparent">HBL não encontrado</span>  ';
-              }
-              }
-         
-              
-              
-
-            
-             const moeda = new RegExp(`${matchingAgent.Moeda}`, 'i').test(row[2]);
-
-             if (!moeda) {
-               status_invoice += '<span class="badge bg-danger-transparent">Moeda divergente</span>  ';
-             }
-             
-              console.log(matchingAgent, row[2])
-
-            if (row[3] != matchingAgent.Valor_Total) {
-              status_invoice += '<span class="badge bg-danger-transparent">Valor divergente</span>  '
-            }
-
-            if (matchingAgent.Status == 1) {
-
-              status_invoice += '<span class="badge bg-danger-transparent">Mais de uma fatura para o agente</span>  '
-
-             }
-
-             const valor_formatado = (matchingAgent.Valor_Total).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: matchingAgent.Moeda
-            });
-
-            const valor_formatado_excel = (row[3]).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: row[2]
-            });
-
-            if (status_invoice == '') {
-              status_invoice = '<span class="badge bg-success-transparent">OK</span>'
-            }
-             
-             
-              newData.push({
-                check: '<input class="form-check-input me-2 " type="checkbox">',
-                mbl: row[0] || '',
-                hbl: row[1] || '',
-                moeda: row[2] || '',
-                valor: valor_formatado_excel || '',
-                valorSistema: valor_formatado || '',
-                status_invoice: status_invoice
-              })
-
-
-            } else {
-
-              const valor_formatado_excel = (row[3]).toLocaleString('pt-BR', {
-                style: 'currency',
-                currency: row[2]
-              });
-
-              newData.push({
-                check: '<input class="form-check-input me-2 " type="checkbox">',
-                mbl: row[0] || '',
-                hbl: row[1] || '',
-                moeda: row[2] || '',
-                valor: valor_formatado_excel || '',
-                valorSistema: '',
-                status_invoice: '<span class="badge bg-warning-transparent">Nenhum registro foi encontrado no sistema</span>'
-              })
-            }
+          // Validação da Moeda - Verifica se a moeda do sistema é a mesma da planilha.
+          const moedaValida = new RegExp(`${matchingAgent.Moeda}`, 'i').test(row[2]);
+          if (!moedaValida) {
+            status_invoice += '<span class="badge bg-danger-transparent">Moeda divergente</span>';
           }
-        }
-      });
 
-      
-      // $.fn.dataTable.ext.type.order['currency-pre'] = function(data) {
-      //   // Remove tudo exceto números, pontos e vírgulas
-      //   return parseFloat(data.replace(/[^0-9.,-]/g, '').replace(',', '.')) || 0;
-      // };
-   
-  
-      const table = $('#incentive_management_table').DataTable({
-        dom: 'Bfrtip',
-        pageInfo: false,
-        pageLength: 15,
-        data: newData,
-        bInfo: false,
-        columns: [
-          { data: 'check' },
-          { data: 'mbl' },
-          { data: 'hbl' },
-          { data: 'moeda' },
-          { data: 'valor' },
-          { data: 'valorSistema' },
-          { data: 'status_invoice' }
+          // Validação do valor total - Verifica se o valor total da planilha corresponde ao do sistema.
+          if (parseFloat(row[3]) !== parseFloat(matchingAgent.Valor_Total)) {
+            status_invoice += '<span class="badge bg-danger-transparent">Valor divergente</span>';
+          }
+
+          // Verifica se o agente tem mais de uma fatura, e adiciona a respectiva mensagem de status.
+          if (matchingAgent.Status == 1) {
+            status_invoice += '<span class="badge bg-danger-transparent">Mais de uma fatura para o agente</span>';
+          }
+
+          // Se o status_invoice não tiver nenhuma mensagem de erro, significa que está tudo certo.
+          if (status_invoice === '') {
+            status_invoice = '<span class="badge bg-success-transparent">TUDO OK</span>';
+          }
+
+          // Adiciona os dados formatados e validados no array `newData` para exibição na tabela.
+          newData.push({
+            check: '<input class="form-check-input me-2 " type="checkbox">',  // Checkbox para seleção manual.
+            mbl: row[0] || '',  // MBL da planilha ou valor vazio.
+            hbl: row[1] || '',  // HBL da planilha ou valor vazio.
+            moeda: row[2].toUpperCase() || '',  // Moeda da planilha ou valor vazio.
+            valor: formatCurrency(row[3], row[2]),  // Valor da planilha formatado.
+            valorSistema: formatCurrency(matchingAgent.Valor_Total, matchingAgent.Moeda),  // Valor do sistema formatado.
+            status_invoice: status_invoice  // Status final da fatura (validado ou divergente).
+          });
+        } else {
+          // Se nenhum agente correspondente for encontrado, adiciona uma mensagem de aviso.
+          newData.push({
+            check: '<input class="form-check-input me-2 " type="checkbox">',  // Checkbox para seleção.
+            mbl: row[0] || '',  // MBL da planilha ou valor vazio.
+            hbl: row[1] || '',  // HBL da planilha ou valor vazio.
+            moeda: row[2].toUpperCase() || '',  // Moeda da planilha ou valor vazio.
+            valor: formatCurrency(row[3], row[2]),  // Valor da planilha formatado.
+            valorSistema: 'NÃO DEFINIDO',  // Valor do sistema será vazio, pois o agente não foi encontrado.
+            status_invoice: '<span class="badge bg-warning-transparent">Nenhum registro foi encontrado no sistema</span>'  // Status indicando que o registro não foi encontrado.
+          });
+        }
+      }
+    });
+
+    // Inicializa o DataTable com os novos dados coletados.
+    const table = $('#incentive_management_table').DataTable({
+      dom: 'Bfrtip',  // Define a estrutura da tabela (botões e pesquisa no topo).
+      pageInfo: false,  // Desabilita a exibição de informações de página.
+      pageLength: 15,  // Define o número de linhas exibidas por página.
+      data: newData,  // Alimenta a tabela com os dados processados.
+      bInfo: false,  // Remove a exibição de informações gerais da tabela.
+      columns: [
+        { data: 'check' },  // Coluna de checkbox para seleção de linhas.
+        { data: 'mbl' },  // Coluna de MBL.
+        { data: 'hbl' },  // Coluna de HBL.
+        { data: 'moeda' },  // Coluna de moeda.
+        { data: 'valor' },  // Coluna do valor da planilha.
+        { data: 'valorSistema' },  // Coluna do valor do sistema.
+        { data: 'status_invoice' }  // Coluna do status de validação.
       ],
-        buttons: [
-          'excel', 'pdf'
-        ],
-        language: {
-          url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
-          searchPlaceholder: 'Pesquisar...',
-        },
-      });
-  
-  
-  
-  
-    }
+      buttons: ['excel', 'pdf'],  // Botões para exportar a tabela em Excel ou PDF.
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",  // Tradução para português.
+        searchPlaceholder: 'Pesquisar...',  // Placeholder do campo de busca.
+      },
+    });
+
+  } catch (error) {
+    // Em caso de erro ao buscar os dados do agente, exibe uma mensagem no console.
+    console.error('Erro ao obter dados do agente:', error);
+  }
+}
+
+/**
+ * Função que valida um campo específico (MBL ou HBL) comparando a planilha com o sistema.
+ * @param {string} fieldValue - Valor do campo na planilha.
+ * @param {string} matchingValue - Valor correspondente no sistema.
+ * @param {string} fieldLabel - Nome do campo para exibição de mensagens de erro.
+ * @returns {string} - Mensagem de erro ou vazio se não houver erro.
+ */
+function validateField(fieldValue, matchingValue, fieldLabel) {
+  const formattedValue = matchingValue || '';  // Formata o valor comparável do sistema.
+  const regex = new RegExp(`${(formattedValue.trim()).replace(/-/g, '')}`);  // Remove traços e cria uma expressão regular.
+  // Se o valor do campo na planilha não corresponder ao do sistema, retorna uma mensagem de erro.
+  if (!regex.test((fieldValue || '').toString().replace(/-/g, ''))) {
+    return `<span class="badge bg-danger-transparent">${fieldLabel} não encontrado</span>  `;
+  }
+  return '';  // Se tudo estiver correto, retorna uma string vazia.
+}
+
+/**
+ * Função que formata um valor numérico como moeda.
+ * @param {number} value - Valor a ser formatado.
+ * @param {string} currency - Código da moeda (BRL, USD, etc.).
+ * @returns {string} - Valor formatado como moeda.
+ */
+function formatCurrency(value, currency) {
+
+  return value ? value.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: currency
+  }) : 'NÃO DEFINIDO';
+}
+
   
   /**
    * Preenche a tabela de segurança com os dados fornecidos.

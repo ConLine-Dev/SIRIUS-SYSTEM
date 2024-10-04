@@ -476,7 +476,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           });
 
 
-      
+          console.log(matchingAgent, row[0])
             if (matchingAgent) {
               let status_invoice = ''
               
@@ -484,35 +484,44 @@ document.addEventListener("DOMContentLoaded", async () => {
               //   status_invoice += '<span class="badge bg-danger-transparent">MBL não encontrado</span>'
               // }
 
-         
-              const mbl = new RegExp(`${(((matchingAgent.MBL).toString()).trim()).replace(/-/g, '')}`).test((row[0].toString()).replace(/-/g, ''));
+              if (row[0] != '' && row[0] != undefined) {
+                const newMbl = matchingAgent.MBL || ''
+                const mbl = new RegExp(`${(((newMbl)).trim()).replace(/-/g, '')}`).test((row[0].toString()).replace(/-/g, ''));
 
               if (!mbl) {
-                status_invoice += '<span class="badge bg-danger-transparent">MBL não encontrado</span>';
+                status_invoice += '<span class="badge bg-danger-transparent">MBL não encontrado</span>  ';
+              }
               }
 
-              const hbl = new RegExp(`${(((matchingAgent.HBL).toString()).trim()).replace(/-/g, '')}`).test((row[1].toString()).replace(/-/g, ''));
+              if ((row[1] != '' && row[1] != undefined)) {
+          
+                const newHbl = matchingAgent.HBL || ''
+                const hbl = new RegExp(`${(((newHbl)).trim()).replace(/-/g, '')}`).test((row[1].toString()).replace(/-/g, ''));
 
               if (!hbl) {
-                status_invoice += '<span class="badge bg-danger-transparent">HBL não encontrado</span>';
+                status_invoice += '<span class="badge bg-danger-transparent">HBL não encontrado</span>  ';
               }
+              }
+         
+              
+              
 
             
              const moeda = new RegExp(`${matchingAgent.Moeda}`, 'i').test(row[2]);
 
              if (!moeda) {
-               status_invoice += ' / <span class="badge bg-danger-transparent">Moeda divergente</span>';
+               status_invoice += '<span class="badge bg-danger-transparent">Moeda divergente</span>  ';
              }
              
               console.log(matchingAgent, row[2])
 
             if (row[3] != matchingAgent.Valor_Total) {
-              status_invoice += ' / <span class="badge bg-danger-transparent">Valor divergente</span>'
+              status_invoice += '<span class="badge bg-danger-transparent">Valor divergente</span>  '
             }
 
             if (matchingAgent.Status == 1) {
 
-              status_invoice += ' / <span class="badge bg-danger-transparent">Mais de uma fatura para o agente</span>'
+              status_invoice += '<span class="badge bg-danger-transparent">Mais de uma fatura para o agente</span>  '
 
              }
 
@@ -525,6 +534,10 @@ document.addEventListener("DOMContentLoaded", async () => {
               style: 'currency',
               currency: row[2]
             });
+
+            if (status_invoice == '') {
+              status_invoice = '<span class="badge bg-success-transparent">OK</span>'
+            }
              
              
               newData.push({
@@ -534,7 +547,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 moeda: row[2] || '',
                 valor: valor_formatado_excel || '',
                 valorSistema: valor_formatado || '',
-                status_invoice: '<span class="text-success">OK</span>'
+                status_invoice: status_invoice
               })
 
 

@@ -66,3 +66,11 @@ body{
     margin-right: 0px;
     margin-left: 0px;
 }
+
+.categoryName{
+        /* text-align: center; */
+        color: var(--text-muted);
+        margin-block-end: 2rem;
+        opacity: .6;
+        position: relative;
+}

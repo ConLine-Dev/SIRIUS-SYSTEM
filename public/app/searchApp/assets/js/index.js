@@ -90,7 +90,7 @@ async function loadAllApps(user) {
 
       // Verifica se a categoria contém algum aplicativo
       if (apps.length > 0) {
-         appsHTML += `<div class="fw-semibold mb-1 categoryName fs-12">${category}</div>`;
+         appsHTML += `<div class="fw-semibold mb-1 categoryName fs-12 ">${category}</div>`;
 
 
          // Itera sobre os aplicativos dentro da categoria

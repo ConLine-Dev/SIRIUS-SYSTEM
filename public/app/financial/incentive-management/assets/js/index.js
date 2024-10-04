@@ -529,20 +529,42 @@ async function populateTableAgent(data) {
       data: newData,  // Alimenta a tabela com os dados processados.
       bInfo: false,  // Remove a exibição de informações gerais da tabela.
       columns: [
-        { data: 'check' },  // Coluna de checkbox para seleção de linhas.
-        { data: 'mbl' },  // Coluna de MBL.
-        { data: 'hbl' },  // Coluna de HBL.
-        { data: 'moeda' },  // Coluna de moeda.
-        { data: 'valor' },  // Coluna do valor da planilha.
-        { data: 'valorSistema' },  // Coluna do valor do sistema.
-        { data: 'status_invoice' }  // Coluna do status de validação.
+        { data: 'check',},
+        { data: 'mbl' },
+        { data: 'hbl' },
+        { data: 'moeda' },
+        { data: 'valor' },
+        { data: 'valorSistema' },
+        { data: 'status_invoice' }
       ],
-      buttons: ['excel', 'pdf'],  // Botões para exportar a tabela em Excel ou PDF.
+      buttons: [
+        {
+          extend: 'excel',
+          text: 'Excel',
+          action: function (e, dt, button, config) {
+            // Atualiza os dados antes de exportar
+            dt.rows().every(function (rowIdx, tableLoop, rowLoop) {
+              var checkbox = $(this.node()).find('input[type="checkbox"]');
+              if (checkbox.is(':checked')) {
+                this.data().check = '✅';  // Define o valor como "Marcado" no objeto de dados
+              } else {
+                this.data().check = '❌';  // Define o valor como "Desmarcado"
+              }
+            });
+            
+            // Chama a exportação padrão
+            $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
+          }
+        },
+        'pdf'
+      ],
       language: {
         url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",  // Tradução para português.
         searchPlaceholder: 'Pesquisar...',  // Placeholder do campo de busca.
-      },
+      }
     });
+    
+    
 
   } catch (error) {
     // Em caso de erro ao buscar os dados do agente, exibe uma mensagem no console.

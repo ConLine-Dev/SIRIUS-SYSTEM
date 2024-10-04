@@ -502,7 +502,7 @@ async function populateTableAgent(data) {
             mbl: row[0] || '',  // MBL da planilha ou valor vazio.
             hbl: row[1] || '',  // HBL da planilha ou valor vazio.
             moeda: row[2].toUpperCase() || '',  // Moeda da planilha ou valor vazio.
-            valor: formatCurrency(row[3], row[2]),  // Valor da planilha formatado.
+            valor: formatCurrency(parseFloat(row[3]), row[2]),  // Valor da planilha formatado.
             valorSistema: formatCurrency(matchingAgent.Valor_Total, matchingAgent.Moeda),  // Valor do sistema formatado.
             status_invoice: status_invoice  // Status final da fatura (validado ou divergente).
           });
@@ -561,7 +561,7 @@ function validateField(fieldValue, matchingValue, fieldLabel) {
   const formattedValue = matchingValue || '';  // Formata o valor comparável do sistema.
   const regex = new RegExp(`${(formattedValue.trim()).replace(/-/g, '')}`);  // Remove traços e cria uma expressão regular.
   // Se o valor do campo na planilha não corresponder ao do sistema, retorna uma mensagem de erro.
-  if (!regex.test((fieldValue || '').toString().replace(/-/g, ''))) {
+  if (fieldValue && !regex.test((fieldValue || '').toString().replace(/-/g, ''))) {
     return `<span class="badge bg-danger-transparent">${fieldLabel} não encontrado</span>  `;
   }
   return '';  // Se tudo estiver correto, retorna uma string vazia.
@@ -575,6 +575,7 @@ function validateField(fieldValue, matchingValue, fieldLabel) {
  */
 function formatCurrency(value, currency) {
 
+  console.log(value, currency)
   return value ? value.toLocaleString('pt-BR', {
     style: 'currency',
     currency: currency

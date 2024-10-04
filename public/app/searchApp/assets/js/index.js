@@ -61,51 +61,105 @@ async function setInfosLogin(StorageGoogle) {
 }
 
 async function loadAllApps(user) {
-   // carrega as unidades cadastradas (filiais)
+   // Carrega as unidades cadastradas (filiais)
    const AllApps = await makeRequest(`/api/system/listApp`, 'POST', user);
+   console.log(AllApps);
 
-   let apps = '';
-   for (let index = 0; index < AllApps.length; index++) {
-      const element = AllApps[index];
-      apps += ` <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-2">
-                     <a href="${element.path}">
-                        <div class="text-center p-3 related-app"> 
-                           <span class="avatar avatar-sm"> 
-                           ${element.icon}
-                           </span> 
+   const appsByCategory = {};
 
-                           <span class="d-block fs-12 no-break"><strong>${element.title}</strong> </span> 
-                           <span class="d-block fs-10 no-break">${element.description} </span>
-                        
-                        </div>
-                     </a>
-               </div>`
-   }
+   // Agrupa as aplicações por categoria
+   AllApps.forEach(element => {
+      const category = element.category_name;
+      if (!appsByCategory[category]) {
+         appsByCategory[category] = [];
+      }
+      appsByCategory[category].push(element);
+   });
 
-   document.querySelector('#listAllApp').innerHTML = apps
+   let appsHTML = '';
+
+   // Ordena as categorias por ordem alfabética
+   const sortedCategories = Object.keys(appsByCategory).sort((a, b) => a.localeCompare(b));
+
+   // Itera sobre as categorias ordenadas
+   sortedCategories.forEach(category => {
+      const apps = appsByCategory[category];
+
+      // Ordena os aplicativos dentro da categoria por ordem alfabética
+      apps.sort((a, b) => a.title.localeCompare(b.title));
+
+      // Verifica se a categoria contém algum aplicativo
+      if (apps.length > 0) {
+         appsHTML += `<div class="fw-semibold mb-1 categoryName fs-12">${category}</div>`;
+
+
+         // Itera sobre os aplicativos dentro da categoria
+         apps.forEach(app => {
+            appsHTML += `<div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-2">
+                           <a href="${app.path}">
+                              <div class="text-center p-3 related-app"> 
+                                 <span class="avatar avatar-sm"> 
+                                 ${app.icon}
+                                 </span> 
+
+                                 <span class="d-block fs-12 no-break"><strong>${app.title}</strong> </span> 
+                                 <span class="d-block fs-10 no-break">${app.description} </span>
+                              
+                              </div>
+                           </a>
+                        </div>`;
+         });
+      }
+   });
+
+   document.querySelector('#listAllApp').innerHTML = appsHTML;
 }
 
 
-function normalizeString(str) {
-   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-}
 
 function searchItems() {
    const input = document.querySelector('.inputSearch');
    const filter = normalizeString(input.value);
    const listAllApp = document.getElementById('listAllApp');
-   const items = listAllApp.getElementsByClassName('col-6');
+   const categories = listAllApp.getElementsByClassName('categoryName');
 
-   for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const textContent = item.textContent || item.innerText;
+   for (let i = 0; i < categories.length; i++) {
+      const category = categories[i];
+      const nextSibling = category.nextElementSibling;
+      const apps = [];
 
-      if (normalizeString(textContent).includes(filter)) {
-         item.style.display = "";
+      // Agrupa os aplicativos pertencentes a essa categoria
+      let sibling = nextSibling;
+      while (sibling && sibling.classList.contains('col-6')) {
+         apps.push(sibling);
+         sibling = sibling.nextElementSibling;
+      }
+
+      let hasVisibleApp = false;
+
+      // Verifica cada aplicativo dentro da categoria
+      apps.forEach(app => {
+         const textContent = app.textContent || app.innerText;
+         if (normalizeString(textContent).includes(filter)) {
+            app.style.display = "";  // Mostra o item se corresponder à pesquisa
+            hasVisibleApp = true;    // Marca que há pelo menos um item visível
+         } else {
+            app.style.display = "none";  // Oculta o item se não corresponder
+         }
+      });
+
+      // Se nenhum item dentro da categoria está visível, oculta a categoria
+      if (hasVisibleApp) {
+         category.style.display = "";  // Mostra a categoria se houver itens visíveis
       } else {
-         item.style.display = "none";
+         category.style.display = "none";  // Oculta a categoria se não houver itens visíveis
       }
    }
+}
+
+
+function normalizeString(str) {
+   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
 // ESPERA A PAGINA SER COMPLETAMENTE CARREGADA
@@ -175,10 +229,13 @@ function initLoaderMessages() {
 
    // Função para atualizar a mensagem a cada 2 segundos
    function updateMessage() {
-      if (!document.querySelector('#loader2').classList.contains('d-none')) {
+      if (!document.querySelector('#loader2')?.classList.contains('d-none')) {
          if (messageIndex < messages.length) {
-            messageElement.textContent = messages[messageIndex];
-            messageIndex++;
+            if(messageElement){
+               messageElement.textContent = messages[messageIndex];
+               messageIndex++;
+            }
+            
          }
       }
    }

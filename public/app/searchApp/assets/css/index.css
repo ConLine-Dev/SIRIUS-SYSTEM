@@ -62,15 +62,18 @@ body{
 #listAllApp {
     overflow-y: auto;
     max-height: calc(100% - 90px);
-    margin-top: -22px;
+    margin-top: 0px;
     margin-right: 0px;
     margin-left: 0px;
 }
 
 .categoryName{
-        /* text-align: center; */
+   
         color: var(--text-muted);
         margin-block-end: 2rem;
         opacity: .6;
         position: relative;
+        border-bottom: 1px solid var(--default-border) !important;
+        border-bottom-style: dashed !important;
+        padding-bottom: 5px;
 }

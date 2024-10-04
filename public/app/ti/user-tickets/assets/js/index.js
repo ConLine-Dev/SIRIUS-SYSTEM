@@ -88,13 +88,15 @@ function addEventListeners(buttonAddTicket, buttonAddSimplifiedTicket, buttonRem
 async function handleAddTicket(event) {
     event.preventDefault();
     const ticketSettings = getTicketSettings();
-
-    document.querySelector('#loader2').classList.remove('d-none')
-    await createTicket(ticketSettings);
-    await listAllTickets()
-    await initEvents()
-    await clearFormFields();
-    document.querySelector('#loader2').classList.add('d-none')
+    if(ticketSettings){
+        document.querySelector('#loader2').classList.remove('d-none')
+        await createTicket(ticketSettings);
+        await listAllTickets()
+        await initEvents()
+        await clearFormFields();
+        document.querySelector('#loader2').classList.add('d-none')
+    }
+   
 }
 
 async function handleAddSimplifiedTicket(event) {
@@ -186,6 +188,23 @@ function getTicketSettings() {
     const responsibleElement = document.getElementsByName('responsible')[0];
     const responsibleOption = responsibleElement.options[responsibleElement.selectedIndex];
 
+    const categoriesElement = document.getElementsByName('categories')[0];
+    const categoriesValue = SCategories.getValue(true);
+    const categoriesName = categoriesElement.textContent;
+
+    const timeInit = document.getElementsByName('timeInit')[0].value;
+    const timeEnd = document.getElementsByName('timeEnd')[0].value;
+    const finished_at = document.getElementsByName('finished_at')[0].value;
+    const title = document.getElementsByName('title')[0].value;
+    const description = document.getElementsByName('description')[0].value;
+
+
+    if (categoriesValue == 'Selecione uma categoria') {
+        alert('categoria não pode estar sem seleção')
+        // SCategories select is empty, return null or handle the error accordingly
+        return null;
+    }
+
     return {
         type: '#new-tasks-draggable',
         responsible: {
@@ -193,15 +212,15 @@ function getTicketSettings() {
             name: responsibleOption.text
         },
         categories: {
-            id: SCategories.getValue(true),
-            name: document.getElementsByName("categories")[0].textContent
+            id: categoriesValue,
+            name: categoriesName
         },
-        timeInit: document.getElementsByName("timeInit")[0].value,
-        timeEnd: document.getElementsByName("timeEnd")[0].value,
-        finished_at: document.getElementsByName("finished_at")[0].value,
-        title: document.getElementsByName("title")[0].value,
+        timeInit,
+        timeEnd,
+        finished_at,
+        title,
         atribuido: selectedOptions,
-        description: document.getElementsByName("description")[0].value,
+        description,
     };
 }
 

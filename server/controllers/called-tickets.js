@@ -204,8 +204,9 @@ const tickets = {
             </div>
         </div>`
 
-        if (messagesByTicket[0].collab_id != messagesByTicket[0].id){
-            sendEmail(messagesByTicket[0].responsibleMail, '[Sirius System] Viemos com atualizações 🫡', mailBody);
+        if (messagesByTicket[0].name != messagesByTicket[0].responsible_name && messagesByTicket[0].family_name != messagesByTicket[0].responsible_family_name){
+            console.log(messagesByTicket[0].responsible_email);
+            sendEmail(messagesByTicket[0].responsible_email, '[Sirius System] Viemos com atualizações 🫡', mailBody);
             
         }
         sendEmail('ti@conlinebr.com.br', '[Sirius System] Viemos com atualizações 🫡', mailBody);
@@ -412,6 +413,21 @@ const tickets = {
             WHERE ct.id = ${id}`
         );
         let responsibleMail = responsibleData[0].email;
+
+        if (status == 'todo-tasks-draggable' && responsibleData[0].start_forecast == null) {
+
+            const hoje = new Date();
+            const ano = hoje.getFullYear();
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            const horas = String(hoje.getHours()).padStart(2, '0');
+            const minutos = String(hoje.getMinutes()).padStart(2, '0');
+            const segundos = String(hoje.getSeconds()).padStart(2, '0');
+        
+            const dataHoraFormatada = `${ano}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
+
+            await executeQuery(`UPDATE called_tickets SET start_forecast = '${dataHoraFormatada}' WHERE id = ${id}`);
+        }
 
         if (status == 'inreview-tasks-draggable') {
 

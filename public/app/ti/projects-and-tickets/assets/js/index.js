@@ -16,6 +16,13 @@ async function initEvents() {
     initializeCollaboratorFilter();
 }
 
+async function buttonEditResponsible() {
+    document.querySelector('select[name="old_responsible"]').value = 3;
+
+    $('select[name="old_responsible"]').val(data.responsible).trigger('change');
+
+}
+
 // Clique na imagem para fazer o filtro do colab responsavel
 function initializeCollaboratorFilter() {
     const collaboratorButtons = document.querySelectorAll('.btnSelectTI');
@@ -192,6 +199,8 @@ async function clearFormFields() {
 
     // Limpa o campo de seleção 'responsible'
     document.getElementsByName('responsible')[0].selectedIndex = 0;
+    document.getElementsByName('old_responsible')[0].selectedIndex = 0;
+    document.getElementsByName('new_responsible')[0].selectedIndex = 0;
 
     // Limpa o campo de categorias
     SCategories.setChoiceByValue([0]);
@@ -348,6 +357,8 @@ async function listResponsibles() {
     const users = await makeRequest('/api/users/listAllUsers');
     updateResponsibleOptions(users, 'responsible');
     updateResponsibleOptions(users, 'edit_responsible');
+    updateResponsibleOptions(users, 'old_responsible');
+    updateResponsibleOptions(users, 'new_responsible');
 }
 
 // Atualiza as opções de responsáveis nos selects
@@ -511,8 +522,6 @@ async function listAllTickets() {
             <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt="img">
         </span>`).join('');
 
-     
- 
 
     const dateEnd = ticket.finished_at 
         ? `<span class="badge bg-success-transparent">${formatDate(ticket.finished_at)}</span>` 
@@ -532,7 +541,7 @@ async function listAllTickets() {
                     <div class="task-badges"></div>
                 </div>
                 <div class="kanban-content mt-2">
-                    <h6 class="fw-semibold mb-1 fs-15">${ticket.title}</h6>
+                    <h6 class="fw-semibold mb-1 fs-15">${ticket.title} - Ticket #${ticket.id}</h6>
                     <div class="kanban-task-description">${ticket.description}</div>
                 </div>
             </div>
@@ -544,7 +553,7 @@ async function listAllTickets() {
                             <span class="fw-semibold fs-12">${ticket.messageCount}</span>
                         </a>
                     </div>
-                    <div style="display: none;">${ticket.responsible_name} ${ticket.responsible_family_name}
+                    <div style="display: none;">${ticket.responsible_name} ${ticket.responsible_family_name}</div>
                     <div class="avatar-list-stacked">${users}</div>
                 </div>
             </div>

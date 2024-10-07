@@ -10,7 +10,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     await renderGradeAverage()
     document.querySelector('#loader2').classList.add('d-none')
 
+  
+
 })
+
+
 
 // Verifica informações no localStorage do usuario logado
 // Esta função recupera e retorna os dados armazenados localmente relacionados ao login do Google.
@@ -18,6 +22,7 @@ async function getInfosLogin() {
     const StorageGoogleData = localStorage.getItem('StorageGoogle');
     const StorageGoogle = JSON.parse(StorageGoogleData);
     return StorageGoogle;   
+    
 }
 
 
@@ -125,6 +130,7 @@ async function openPassword(id) {
             sSearch: '',
             url: '../../assets/libs/datatables/pt-br.json'
         }
+        
     });
 
     // Adicionar evento de pesquisa ao campo de input
@@ -135,6 +141,8 @@ async function openPassword(id) {
     // Foco automático no input de pesquisa após o carregamento dos dados
     table['table-answers'].on('xhr.dt', function () {
         document.querySelector('#search-client').focus();
+
+        introMain()
     });
 
     
@@ -246,6 +254,8 @@ function createToast(title, text) {
     toast.addEventListener('hidden.bs.toast', function() {
         toastContainer.removeChild(toast); // Remove o toast do DOM quando ele for ocultado
     });
+
+   
 }
 
 

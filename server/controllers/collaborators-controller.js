@@ -15,54 +15,62 @@ const collaboratorsController = {
     // CRUD para 'collaborators'
     createCollaborator: async function(collaborator, requestUser) {
         try {
-            const query = `INSERT INTO collaborators 
-            (name, family_name,id_headcargo, birth_date, gender, marital_status, nationality, cpf, rg, rg_issuer, rg_issue_date, 
-            voter_title, passport_number, birth_city, mother_name, father_name, job_position, department, 
-            admission_date, resignation_date, employee_id, salary, contract_type, weekly_hours, immediate_supervisor, 
-            pis_pasep_number, work_card_number, work_card_series, education, email_personal, email_business, cnpj, pix, work_card_issue_date, additional_observations, companie_id, languages, image) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        
-            const result = await executeQuery(query, [
-                collaborator.name,
-                collaborator.family_name,
-                collaborator.id_headcargo || null,
-                collaborator.birthdate || null,
-                collaborator.gender,
-                collaborator.maritalStatus,
-                collaborator.nationality,
-                collaborator.cpf,
-                collaborator.rg,
-                collaborator.rgIssuer,
-                collaborator.rgIssueDate || null,
-                collaborator.voterTitle,
-                collaborator.passportNumber,
-                collaborator.birthCity,
-                collaborator.motherName,
-                collaborator.fatherName,
-                collaborator.jobTitle,
-                collaborator.department,
-                collaborator.admissionDate || null,
-                collaborator.terminationDate || null,
-                collaborator.registrationNumber || null, // Ajuste se 'employee_id' for correto ou se precisa ser outro campo
-                collaborator.salary || null,
-                collaborator.contractType,
-                collaborator.workload || null, // Ajuste se 'weekly_hours' for o nome correto da coluna
-                collaborator.immediateSupervisor,
-                collaborator.pisNumber,
-                collaborator.workCardNumber,
-                collaborator.workCardSeries,
-                collaborator.educationLevel, // Verifique se 'educationLevel' corresponde à coluna 'education' na tabela
-                collaborator.personalEmail,
-                collaborator.emailBusiness,
-                collaborator.cnpj,
-                collaborator.pix,
-                collaborator.workCardIssueDate || null,
-                collaborator.additionalObservations,
-                collaborator.companie,
-                collaborator.languages,
-                collaborator.photo,
-            ], requestUser);
-    
+            const query = `
+                    INSERT INTO collaborators 
+                    (name, family_name, id_headcargo, birth_date, gender, marital_status, nationality, cpf, rg, rg_issuer, rg_issue_date, 
+                    voter_title, passport_number, birth_city, mother_name, father_name, job_position, department, 
+                    admission_date, resignation_date, employee_id, salary, contract_type, weekly_hours, immediate_supervisor, 
+                    pis_pasep_number, work_card_number, work_card_series, education, email_personal, email_business, 
+                    cnpj, pix, work_card_issue_date, additional_observations, companie_id, languages, image) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `;
+
+                console.log('sem formatação', collaborator.languages)
+                // collaborator.languages = JSON.stringify(collaborator.languages);
+                // console.log('com formatação', collaborator.languages)
+
+                const result = await executeQuery(query, [
+                    collaborator.name,
+                    collaborator.family_name,
+                    collaborator.id_headcargo || null,
+                    collaborator.birthdate || null,
+                    collaborator.gender,
+                    collaborator.maritalStatus,
+                    collaborator.nationality,
+                    collaborator.cpf,
+                    collaborator.rg,
+                    collaborator.rgIssuer,
+                    collaborator.rgIssueDate || null,
+                    collaborator.voterTitle,
+                    collaborator.passportNumber,
+                    collaborator.birthCity,
+                    collaborator.motherName,
+                    collaborator.fatherName,
+                    collaborator.jobTitle, // Certifique-se que o nome corresponde a 'job_position'
+                    collaborator.department,
+                    collaborator.admissionDate || null,
+                    collaborator.terminationDate || null,
+                    collaborator.registrationNumber || null, // Verifique o campo correto se 'employee_id'
+                    collaborator.salary || null,
+                    collaborator.contractType,
+                    collaborator.workload || null, // Se 'weekly_hours' for o nome correto
+                    collaborator.immediateSupervisor,
+                    collaborator.pisNumber,
+                    collaborator.workCardNumber,
+                    collaborator.workCardSeries,
+                    collaborator.educationLevel, // Se 'educationLevel' corresponde à coluna 'education'
+                    collaborator.personalEmail,
+                    collaborator.emailBusiness,
+                    collaborator.cnpj,
+                    collaborator.pix,
+                    collaborator.workCardIssueDate || null,
+                    collaborator.additionalObservations,
+                    collaborator.companie,
+                    collaborator.languages,
+                    collaborator.photo || null,
+                ], requestUser);
+
+
             return result.insertId;
 
         } catch (error) {
@@ -83,7 +91,7 @@ const collaboratorsController = {
                               ca.state,
                               ca.zip_code
                       FROM collaborators clt
-        JOIN collaborators_addresses ca ON ca.collaborator_id = clt.id WHERE clt.id = ?`;
+        LEFT JOIN collaborators_addresses ca ON ca.collaborator_id = clt.id WHERE clt.id = ?`;
         const result = await executeQuery(query, [id]);
         return result[0];
     },
@@ -352,12 +360,11 @@ const collaboratorsController = {
     // CRUD para 'collaborators_addresses'
     createCollaboratorAddress: async function(id, address) {
         const query = `INSERT INTO collaborators_addresses 
-        (collaborator_id, address_type, street, number, complement, neighborhood, city, state, postal_code) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        (collaborator_id, street, number, complement, neighborhood, city, state, zip_code) 
+        VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)`;
         
         const result = await executeQuery(query, [
             id,
-            address.address_type,
             address.street,
             address.number,
             address.complement,
@@ -371,9 +378,10 @@ const collaboratorsController = {
     },
 
     getCollaboratorAddressById: async function(id) {
-        const query = `SELECT * FROM collaborators_addresses WHERE id = ?`;
+        console.log(id)
+        const query = `SELECT * FROM collaborators_addresses WHERE collaborator_id = ?`;
         const result = await executeQuery(query, [id]);
-        return result[0];
+        return result[0] || result;
     },
 
     getAllCollaboratorAddresses: async function() {
@@ -468,9 +476,9 @@ const collaboratorsController = {
     },
 
     getCollaboratorQualificationById: async function(id) {
-        const query = `SELECT * FROM collaborators_qualifications WHERE id = ?`;
+        const query = `SELECT * FROM collaborators_qualifications WHERE collaborator_id = ?`;
         const result = await executeQuery(query, [id]);
-        return result[0];
+        return result;
     },
 
     getAllCollaboratorQualifications: async function() {
@@ -520,7 +528,7 @@ const collaboratorsController = {
     getCollaboratorBankInfoById: async function(id) {
         const query = `SELECT * FROM collaborators_bank_info WHERE collaborator_id = ?`;
         const result = await executeQuery(query, [id]);
-        return result[0];
+        return result;
     },
 
     getAllCollaboratorBankInfo: async function() {
@@ -610,9 +618,9 @@ const collaboratorsController = {
     },
 
     getCollaboratorDocumentById: async function(id) {
-        const query = `SELECT * FROM collaborators_documents WHERE id = ?`;
+        const query = `SELECT * FROM collaborators_documents WHERE collaborator_id = ?`;
         const result = await executeQuery(query, [id]);
-        return result[0];
+        return result;
     },
 
     getAllCollaboratorDocuments: async function() {

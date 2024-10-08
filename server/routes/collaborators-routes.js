@@ -50,6 +50,7 @@ module.exports = function (io) {
     router.post('/collaborators', upload.fields([{ name: 'photo', maxCount: 1 }, { name: 'files[]', maxCount: 10 }, { name: 'certifications-files[]', maxCount: 10 }]), async (req, res) => {
         try {
             const { body, files } = req;
+          
 
             const requestUser = req.headers['x-user'] ? JSON.parse(req.headers['x-user']) : null
           
@@ -58,7 +59,7 @@ module.exports = function (io) {
             const documentsData = body.documentsData
             const certificationsData = body.certificationsData
             const bankingInformation = JSON.parse(body.bankingInformation);
-
+     
 
             // Dados do colaborador
             const collaboratorData = {
@@ -168,7 +169,7 @@ module.exports = function (io) {
                 });
 
                 await Promise.all(certificationsInsertPromises);
-            }
+             }
 
     
             res.status(201).json({ message: 'Colaborador criado com sucesso', id: collaboratorId });
@@ -182,8 +183,9 @@ module.exports = function (io) {
         try {
             const collaborator = await collaboratorsController.getCollaboratorById(req.params.id);
             const bank_info = await collaboratorsController.getCollaboratorBankInfoById(req.params.id);
+            const documents = await collaboratorsController.getCollaboratorDocumentById(req.params.id);
 
-            res.status(200).json({collaborator,bank_info});
+            res.status(200).json({collaborator,bank_info, documents});
         } catch (error) {
             res.status(500).json({ message: 'Erro ao buscar colaborador' });
         }
@@ -410,9 +412,9 @@ module.exports = function (io) {
     });
 
     // CRUD para 'collaborators_bank_info'
-    router.post('/collaborators_bank_info', async (req, res) => {
+    router.post('/collaborators_bank_info/:id', async (req, res) => {
         try {
-            const bankInfoId = await collaboratorsController.createCollaboratorBankInfo(req.body);
+            const bankInfoId = await collaboratorsController.createCollaboratorBankInfo(req.params.id, req.body);
             res.status(201).json({ message: 'Informação bancária criada com sucesso', id: bankInfoId });
         } catch (error) {
             res.status(500).json({ message: 'Erro ao criar informação bancária' });

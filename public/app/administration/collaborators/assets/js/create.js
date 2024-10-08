@@ -287,7 +287,8 @@ async function getAllValuesInForm() {
     }
 
     // Adiciona os valores do select de línguas ao formData
-    formData.append('languages', sAllLanguages.getValue(true));
+    formData.delete('languages');
+    formData.append('languages', JSON.stringify(sAllLanguages.getValue(true)));
 
     // Verifica se há uma imagem no campo de upload
     const photoInput = document.querySelector('input[name="photo"]');
@@ -323,7 +324,7 @@ async function getAllValuesInForm() {
     });
 
     
-
+    
 
     try {
         await makeRequest(`/api/collaborators-management/collaborators`, 'POST', formData);
@@ -973,6 +974,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     await eventInputProfile();
     await formatInputs();
     await fillFormWithTestData()
+
+    
 
 
     // Fim da medição do tempo de carregamento da página

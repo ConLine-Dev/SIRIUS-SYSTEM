@@ -1,4 +1,4 @@
-let sAllcompanie, sAllLanguages, sAllResponsible, BankingInformation = [], Documents = [], Certifications = [];
+let sAllcompanie, idCollaborator,sAllLanguages, sAllResponsible, BankingInformation = [], Documents = [], Certifications = [];
 
 /**
  * @function getAllCompanie
@@ -344,27 +344,28 @@ async function getAllValuesInForm() {
 }
 
 
-
-
 /**
  * Renderiza as informações bancárias na tabela HTML.
  * Esta função percorre o array `BankingInformation` e gera linhas de tabela
  * para exibir os dados. Cada linha inclui links para editar e remover informações.
  */
-function renderBankingInformation() {
+async function renderBankingInformation() {
+    const data = await makeRequest(`/api/collaborators-management/collaborators_bank_info/${idCollaborator}`);
+
     // Inicializa uma string para armazenar o conteúdo HTML das linhas da tabela
     let rowBankingInformation = '';
 
     // Itera sobre o array `BankingInformation` para gerar as linhas da tabela
-    for (let index = 0; index < BankingInformation.length; index++) {
-        const element = BankingInformation[index];
+    for (let index = 0; index < data.length; index++) {
+        const element = data[index];
+
 
         // Adiciona uma linha com os dados do item atual e os botões de ação
         rowBankingInformation += `<tr>
-                                     <td>${element.bank}</td>
+                                     <td>${element.bank_name}</td>
                                      <td>${element.agency}</td>
-                                     <td>${element.account}</td>
-                                     <td>${element.type}</td>
+                                     <td>${element.account_number}</td>
+                                     <td>${element.account_type}</td>
                                      <td>
                                       <div class="hstack gap-2 flex-wrap"> 
                                         <a href="javascript:void(0);" onclick="fillBankingInformation(${element.id})" class="text-info fs-14 lh-1">
@@ -400,6 +401,8 @@ function addBankingInformation(e) {
         agency: bank_agencie.value,
         type: bank_type.value
     });
+
+    // await makeRequest(`/api/collaborators-management/collaborators_bank_info/${idCollaborator}`, 'POST', BankingInformation[index]);
 
     // Limpa o formulário e renderiza a tabela atualizada
     clearFormBankingInformation();
@@ -461,7 +464,7 @@ function cancelBankingInformation() {
  * Salva as alterações feitas na informação bancária editada.
  * Atualiza o item correspondente no array `BankingInformation` e re-renderiza a tabela.
  */
-function saveBankingInformation() {
+await function saveBankingInformation() {
     // Recupera o ID do item sendo editado a partir do botão "Salvar"
     const id = parseInt(document.querySelector('#BankingInformation .btn_save').dataset.editId, 10);
 
@@ -475,6 +478,8 @@ function saveBankingInformation() {
             agency: document.querySelector('#bank_agencie').value,
             type: document.querySelector('#bank_type').value
         };
+
+        // await makeRequest(`/api/collaborators-management/collaborators_bank_info/${idCollaborator}`, 'POST', BankingInformation[index]);
 
         // Renderiza novamente as informações bancárias
         renderBankingInformation();
@@ -504,16 +509,17 @@ function removeBankingInformation(id) {
  * exibindo informações como nome, data e um link para visualizar o arquivo.
  * Também adiciona botões para editar e remover documentos.
  */
-function renderDocuments() {
+async function renderDocuments() {
+    const data = await makeRequest(`/api/collaborators-management/collaborators_documents/${idCollaborator}`);
     let rowDocuments = ''; // Armazena o HTML das linhas da tabela
-    
+
     // Itera sobre todos os documentos
-    for (let index = 0; index < Documents.length; index++) {
-        const element = Documents[index];
+    for (let index = 0; index < data.length; index++) {
+        const element = data[index];
         rowDocuments += `<tr>
-                             <td>${element.name}</td>
-                             <td>${element.date}</td>
-                             <td><a href="${element.fileURL}" target="_blank">
+                             <td>${element.document_name}</td>
+                             <td>${formatDate(element.document_date)}</td>
+                             <td><a href="/storageService/collaborators/195/documents/${element.document_path}" target="_blank">
                                  <div class="d-flex align-items-center">
                                      <div class="me-2">
                                          <span class="avatar avatar-xs">
@@ -534,8 +540,10 @@ function renderDocuments() {
                               </div>
                              </td>
                          </tr>`;
+                      
     }
     
+
     // Atualiza o conteúdo da tabela com as linhas geradas
     document.querySelector('#documents tbody').innerHTML = rowDocuments;
 }
@@ -619,6 +627,7 @@ function cancelDocuments() {
     clearFormDocument(); // Limpa o formulário e ajusta os botões
 }
 
+
 /**
  * Função para salvar as alterações de um documento existente.
  * 
@@ -677,17 +686,18 @@ function removeDocument(id) {
  * no array `Certifications`. Ela também inclui links para visualizar e 
  * ações para editar e remover certificações.
  */
-function renderCertifications() {
+async function renderCertifications() {
+    const data = await makeRequest(`/api/collaborators-management/collaborators_qualifications/${idCollaborator}`);
     let rowCertifications = '';
-    
+
     // Itera sobre cada certificação no array `Certifications`
-    for (let index = 0; index < Certifications.length; index++) {
-        const element = Certifications[index];
+    for (let index = 0; index < data.length; index++) {
+        const element = data[index];
         rowCertifications += `<tr>
             <td>${element.qualification}</td>
             <td>${element.institution}</td>
-            <td>${element.completionDate}</td>
-            <td><a href="${element.certificateURL}" target="_blank">
+            <td>${formatDate(element.date)}</td>
+            <td><a href="/storageService/collaborators/195/certifications/${element.path}" target="_blank">
             <div class="d-flex align-items-center">
             <div class="me-2">
               <span class="avatar avatar-xs">
@@ -952,11 +962,16 @@ async function fillFormWithTestData() {
 
 // Esta função busca os dados de uma senha específica via uma requisição à API
 async function getCollaborator(id) {
+    
+    const {collaborator} = await makeRequest(`/api/collaborators-management/collaborators/${id}`);
 
-    const {collaborator, bank_info} = await makeRequest(`/api/collaborators-management/collaborators/${id}`);
-
-
+    document.querySelector('#profile-img').setAttribute('src', `/storageService/collaborators/${id}/perfil-image.webp`);
+    document.querySelector('input[name="registrationNumber"]').value = collaborator.employee_id ?? '';
     document.querySelector('input[name="name"]').value = collaborator.name ?? '';
+    
+    document.querySelector('.textName').textContent = collaborator.name ?? '';
+    document.querySelector('.textFamilyName').textContent = collaborator.family_name ?? '';
+    
     document.querySelector('input[name="family_name"]').value = collaborator.family_name ?? '';
     document.querySelector('input[name="cpf"]').value = collaborator.cpf ?? '';
     document.querySelector('input[name="birthdate"]').value = collaborator.birth_date ? new Date(collaborator.birth_date).toISOString().split('T')[0] : '';
@@ -980,12 +995,22 @@ async function getCollaborator(id) {
     document.querySelector('input[name="pix"]').value = collaborator.pix ?? '';
     document.querySelector('input[name="salary"]').value = collaborator.salary ?? '';
     document.querySelector('input[name="jobTitle"]').value = collaborator.job_position ?? '';
+
     document.querySelector('select[name="companie"]').value = collaborator.companie_id ?? '';
+    document.querySelector('.textCompanie').textContent = document.querySelector('select[name="companie"] :checked').textContent
+
+
     document.querySelector('input[name="admissionDate"]').value = collaborator.admission_date ? new Date(collaborator.admission_date).toISOString().split('T')[0] : '';
     document.querySelector('input[name="terminationDate"]').value = collaborator.resignation_date ? new Date(collaborator.resignation_date).toISOString().split('T')[0] : '';
+    
     document.querySelector('select[name="contractType"]').value = collaborator.contract_type ?? '';
+    document.querySelector('.textContractType').textContent = document.querySelector('select[name="contractType"] :checked').textContent
+
     document.querySelector('input[name="workload"]').value = collaborator.weekly_hours ?? '';
+    
     document.querySelector('input[name="emailBusiness"]').value = collaborator.email_business ?? '';
+    document.querySelector('.textEmailBusiness').textContent = collaborator.email_business ?? '';
+    
     document.querySelector('select[name="immediateSupervisor"]').value = collaborator.immediate_supervisor ?? '';
     document.querySelector('input[name="educationLevel"]').value = collaborator.education ?? '';
     document.querySelector('input[name="id_headcargo"]').value = collaborator.id_headcargo ?? '';
@@ -998,13 +1023,14 @@ async function getCollaborator(id) {
     document.querySelector('input[name="state"]').value = collaborator.state ?? '';
     document.querySelector('input[name="cep"]').value = collaborator.zip_code ?? '';
 
+    
+    collaborator.languages = JSON.parse(collaborator.languages)
+    sAllLanguages.setValue(collaborator.languages);
 
-    sAllLanguages.setChoiceByValue(collaborator.languages.toString())
+     renderBankingInformation();
+     renderDocuments();
+     renderCertifications();
 
-    console.log(collaborator, bank_info)
-
-
-  
 
 } 
 
@@ -1014,9 +1040,18 @@ async function getIdParams() {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const id = urlParams.get('id');
-
+    idCollaborator = id
     await getCollaborator(id);
  };
+
+
+function formatDate(dateString) {
+    // Divide a data original em ano, mês e dia
+    const [year, month, day] = dateString.split('-');
+    // Retorna a data no formato desejado DD-MM-YYYY
+    return `${day}/${month}/${year}`;
+}
+
 
 
 /**

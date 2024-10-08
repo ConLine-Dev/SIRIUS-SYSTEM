@@ -291,6 +291,31 @@
     "intro": "Este gráfico mostra um resumo das respostas recebidas de seus clientes ao longo de um período. Cada métrica está representada de forma clara para facilitar a análise.<br> <strong>Resp. Recebidas:</strong> Esta métrica exibe o número total de respostas que foram recebidas dos clientes.<br> <strong>Cli. Respondentes:</strong> Mostra a quantidade de clientes que responderam às suas solicitações.<br> <strong>Resp. com Feedback:</strong> Indica quantas respostas incluem feedback adicional dos clientes.<br> <strong>Respondentes Ativos:</strong> Exibe o número de clientes ativos que participaram do processo de feedback.<br> <strong>Gráfico:</strong> O gráfico abaixo ilustra a quantidade de respostas por mês. Ao passar o cursor sobre um ponto específico, você pode ver o número exato de respostas recebidas naquele período."
   },
   {
+    "element": "#intro-card-noteCommercial",
+    "title": "Nota Comercial",
+    "intro": "Aqui você pode visualizar a média desta categoria, ela é obtida dividindo a soma das notas da respectiva categoria pelo número total de respostas válidas."
+  },
+  {
+    "element": "#intro-card-noteOperational",
+    "title": "Nota Operacional",
+    "intro": "Aqui você pode visualizar a média desta categoria, ela é obtida dividindo a soma das notas da respectiva categoria pelo número total de respostas válidas."
+  },
+  {
+    "element": "#intro-card-noteFinancial",
+    "title": "Nota Financeiro",
+    "intro": "Aqui você pode visualizar a média desta categoria, ela é obtida dividindo a soma das notas da respectiva categoria pelo número total de respostas válidas."
+  },
+  {
+    "element": "#intro-card-overallAverage",
+    "title": "Média Geral",
+    "intro": "Aqui você pode visualizar a média geral, é calculada somando as médias das três categorias e dividindo o resultado por 3, resultando na média final de desempenho."
+  },
+  {
+    "element": "#intro-listAnswers",
+    "title": "NPS - Respostas",
+    "intro": "Esta seção mostra um resumo detalhado das respostas dos clientes. Você pode visualizar o nome do cliente, a pessoa responsável pelo atendimento, e as notas atribuídas para as áreas Comercial, Operacional e Financeira. Além disso, é possível ver o status de satisfação do cliente (Satisfeito ou Insatisfeito) e ler os feedbacks fornecidos, que podem ser expandidos clicando na linha correspondente. A última coluna exibe a data em que o feedback foi registrado ou respondido."
+  },
+  {
     "element": "#intro-list-customers",
     "title": "Lista de Clientes",
     "intro": "Ao clicar em <strong>'ACESSAR'</strong>, você será redirecionado para a janela 'NPS - Lista de Clientes', onde poderá visualizar todos os clientes da nossa empresa."

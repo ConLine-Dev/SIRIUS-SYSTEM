@@ -513,12 +513,12 @@
                                                 Novo Chamado
                                             </button>
                                         </div>
-                                        <div class="col-6" style="margin-left: -45px;">
+                                        <!-- <div class="col-6" style="margin-left: -45px;">
                                             <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#edit-responsible" onclick="buttonEditResponsible()">
                                             <i class="ri-add-line me-1 fw-semibold align-middle"></i>
                                                 Editar Responsável
                                             </button>
-                                        </div>
+                                        </div> -->
                                     </div>
                                     <div class="avatar-list-stacked listusers"></div>
                                     <div class="d-flex" role="search">
@@ -785,6 +785,15 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="col-xl-6">
+                                        <label class="form-label">Aprovado em</label>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                                <input type="text" class="form-control flatpickr-input targetDate" name="approved_at"  id="targetDate" placeholder="Escolha a data e hora" readonly="readonly" >
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="col-xl-12" style="display: none;">
                                         <label for="text-area" class="form-label">Arquivos/Imagem</label>
                                 
@@ -803,7 +812,7 @@
                 </div>
 
                 <!-- MODAL EDITAR RESPONSÁVEL -->
-                <div class="modal fade" id="edit-responsible" tabindex="-1" aria-hidden="true">
+                <!-- <div class="modal fade" id="edit-responsible" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">
@@ -821,12 +830,49 @@
                                     <div class="col-xl-12">
                                         <label class="form-label">Responsável</label>
                                         <select class="form-control" name="new_responsible"></select>
-                                    </div>                                
+                                    </div>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                
                                     <button type="button" id="ButtonAddTicket" class="btn btn-primary">Adicionar</button></div>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- MODAL CONFIRMAR END_FORECAST -->
+                <div class="modal fade" id="edit-end-forecast" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title">Previsão de Conclusão</h6>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body px-4">
+                                <div class="row gy-2">
+                                    <div class="col-xl-12">
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-text text-muted">
+                                                    <i class="ri-calendar-line"></i>
+                                                </div>
+                                                <input type="text" class="form-control flatpickr-input targetDate" name="end_forecast_input" id="end_forecast_input" placeholder="Escolha a data e hora" readonly="readonly" >
+                                            </div>
+                                        </div>
+                                        <div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer row">
+                                <div class="col-8">
+                                    <label class="form-label">Caso o campo não seja preenchido a previsão de término será daqui 2 dias, às 17h.</label>
+                                </div>
+                                <div class="col-3">
+                                    <button type="button" class="btn btn-primary" onclick="inputEndForecast()">Adicionar</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -902,6 +948,16 @@
                                                 <div class="input-group">
                                                     <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
                                                     <input type="text" class="form-control flatpickr-input targetDate" name="edit_finished_at"  id="targetDate"
+                                                        placeholder="Escolha a data e hora" readonly="readonly">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-xl-6">
+                                            <label class="form-label">Aprovado em</label>
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                                    <input type="text" class="form-control flatpickr-input targetDate" name="edit_approved_at"  id="targetDate"
                                                         placeholder="Escolha a data e hora" readonly="readonly">
                                                 </div>
                                             </div>

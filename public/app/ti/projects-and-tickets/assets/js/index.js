@@ -4,8 +4,6 @@ let choicesInstance, choicesInstanceEdit, SCategories, SEditing_Categories;
   const StorageGoogleData = localStorage.getItem('StorageGoogle');
   const StorageGoogle = JSON.parse(StorageGoogleData);
 
-
-
 // Função principal para iniciar os eventos
 async function initEvents() {
     initializeButtonAddTicket();
@@ -14,13 +12,6 @@ async function initEvents() {
     initializeDatePicker();
     // Inicializar os event listeners
     initializeCollaboratorFilter();
-}
-
-async function buttonEditResponsible() {
-    document.querySelector('select[name="old_responsible"]').value = 3;
-
-    $('select[name="old_responsible"]').val(data.responsible).trigger('change');
-
 }
 
 // Clique na imagem para fazer o filtro do colab responsavel
@@ -183,6 +174,7 @@ function getTicketSettings() {
         timeInit: document.getElementsByName("timeInit")[0].value,
         timeEnd: document.getElementsByName("timeEnd")[0].value,
         finished_at: document.getElementsByName("finished_at")[0].value,
+        approved_at: document.getElementsByName("approved_at")[0].value,
         title: document.getElementsByName("title")[0].value,
         atribuido: selectedOptions,
         description: document.getElementsByName("description")[0].value,
@@ -194,13 +186,12 @@ async function clearFormFields() {
     document.getElementsByName("timeInit")[0].value = "";
     document.getElementsByName("timeEnd")[0].value = "";
     document.getElementsByName("finished_at")[0].value = "";
+    document.getElementsByName("approved_at")[0].value = "";
     document.getElementsByName("title")[0].value = "";
     document.getElementsByName("description")[0].value = "";
 
     // Limpa o campo de seleção 'responsible'
     document.getElementsByName('responsible')[0].selectedIndex = 0;
-    document.getElementsByName('old_responsible')[0].selectedIndex = 0;
-    document.getElementsByName('new_responsible')[0].selectedIndex = 0;
 
     // Limpa o campo de categorias
     SCategories.setChoiceByValue([0]);
@@ -235,6 +226,7 @@ function getTicketEditing() {
         timeInit: document.getElementsByName("edit_timeInit")[0].value,
         timeEnd: document.getElementsByName("edit_timeEnd")[0].value,
         finished_at: document.getElementsByName("edit_finished_at")[0].value,
+        approved_at: document.getElementsByName("edit_approved_at")[0].value,
         title: document.getElementsByName("edit_title")[0].value,
         atribuido: selectedOptions,
         description: document.getElementsByName("edit_description")[0].value,
@@ -351,14 +343,11 @@ async function listCategories() {
     });
 }
 
-
 // Lista todos os responsáveis
 async function listResponsibles() {
     const users = await makeRequest('/api/users/listAllUsers');
     updateResponsibleOptions(users, 'responsible');
     updateResponsibleOptions(users, 'edit_responsible');
-    updateResponsibleOptions(users, 'old_responsible');
-    updateResponsibleOptions(users, 'new_responsible');
 }
 
 // Atualiza as opções de responsáveis nos selects
@@ -366,7 +355,6 @@ function updateResponsibleOptions(users, selectName) {
     const selectElement = document.querySelector(`select[name="${selectName}"]`);
     selectElement.innerHTML = '';
 
-    // ForEach pra inserir todos os colaboradores no select2
     users.forEach(user => {
         selectElement.innerHTML += `<option data-headcargoID="${user.id_headcargo}" id="${user.id_colab}" value="${user.id_colab}">${user.username} ${user.familyName}</option>`;
     });
@@ -405,13 +393,13 @@ async function saveTicket(settingsTicket){
     const ticket = await makeRequest('/api/called/tickets/saveTicket', 'POST', settingsTicket);
 
     $('#edit-task').modal('hide');
-    // Se a data de finalizado for vazia, só lista os chamados normalmente
-    if (settingsTicket.finished_at == '') {
+    // Se a data de aprovação for vazia, só lista os chamados normalmente
+    if (settingsTicket.approved_at == '') {
         await listAllTickets()
         await initEvents()
 
-        // Se a data de finalizado for diferente de vazia, joga o chamado para concluido
-    } else if (settingsTicket.finished_at !== '') {
+        // Se a data de approvação for diferente de vazia, joga o chamado para concluido
+    } else if (settingsTicket.approved_at !== '') {
         await makeRequest('/api/called/tickets/updateStatus', 'POST', { id: settingsTicket.id, status: 'completed-tasks-draggable' });
         await listAllTickets()
         await initEvents()
@@ -602,6 +590,7 @@ async function editTask(taskId) {
         document.querySelector('input[name="edit_timeInit"]').value = data.start_forecast ? formatDate(data.start_forecast) : '';
         document.querySelector('input[name="edit_timeEnd"]').value = data.end_forecast ? formatDate(data.end_forecast) : '';
         document.querySelector('input[name="edit_finished_at"]').value = data.finished_at ? formatDate(data.finished_at) : '';
+        document.querySelector('input[name="edit_approved_at"]').value = data.approved_at ? formatDate(data.approved_at) : '';
 
         document.querySelector('#ButtonRemoveTicket').setAttribute('data-id', taskId)
         document.querySelector('#ButtonSaveTicket').setAttribute('data-id', taskId)
@@ -660,13 +649,33 @@ function selectFormatImg(client) {
     return $(`<span><img src="https://cdn.conlinebr.com.br/colaboradores/${headID}" /> ${client.text}</span>`);
 }
 
-// Evento de arrastar e soltar para atualização de status dos tickets
+let IdUpdate, myModal;
+
 async function eventDragDrop(tickets) {
     tickets.on('drop', async (el, target, source) => {
         const cardId = el.getAttribute('id');
         const newContainerId = target.getAttribute('id');
         await makeRequest('/api/called/tickets/updateStatus', 'POST', { id: cardId, status: newContainerId });
+
+        if (newContainerId == 'inprogress-tasks-draggable') {
+            const modalElement = document.getElementById('edit-end-forecast');
+            if (!myModal) {  // Verifica se a instância do modal já foi criada
+                myModal = new bootstrap.Modal(modalElement); // Cria a instância apenas uma vez
+            }
+            myModal.show();  // Exibe o modal
+            IdUpdate = cardId;
+        }
     });
+}
+
+function inputEndForecast() {
+    const targetDate = document.getElementById('end_forecast_input').value;
+    
+    makeRequest('/api/called/tickets/updateEndForecast', 'POST', { id: IdUpdate, date: targetDate });
+
+    if (myModal) {
+        myModal.hide();
+    }
 }
 
 async function notificatePendingTickets() {

@@ -52,13 +52,20 @@
     cursor: pointer;
  }
 
-.bd-red-500 {
-    background-color: rgba(208, 61, 70, .5) !important;
-    color: var(--default-text-color) !important;
-}
+
 
 .processo-vencido{
     cursor: pointer;
+}
+
+.bd-yellow-500 {
+    background-color: rgba(255, 193, 2, .5) !important;
+    color: var(--default-text-color) !important;
+}
+
+.bd-red-500 {
+    background-color: rgba(208, 61, 70, .5) !important;
+    color: var(--default-text-color) !important;
 }
 
 

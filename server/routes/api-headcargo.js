@@ -34,6 +34,20 @@ router.get('/overdueInvoices', async (req, res, next) => {
     }
 });
 
+router.get('/ListInvoicesByProcessId/:id', async (req, res, next) => {
+    const { id } = req.params;
+    try {
+        console.log(id)
+        const result = await headcargo.ListInvoicesByProcessId(id);
+
+        res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+
+        res.status(404).json('Erro');
+    }
+});
+
 
 // INICIO API CONTROLE DE COMISSÃO
 router.post('/filter', async (req, res, next) => {

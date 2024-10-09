@@ -88,6 +88,17 @@ router.post('/updateStatus', async (req, res, next) => {
     }
 });
 
+router.post('/updateEndForecast', async (req, res, next) => {
+    const {id, date} = req.body
+    try {
+        const result = await tickets.updateEndForecast(id, date);
+
+        res.status(200).json(result)
+    } catch (error) {
+        res.status(500).json(error);
+    }
+});
+
 router.get('/notificatePendingTickets', async (req, res, next) => {
     try {
         const result = await tickets.notificatePendingTickets();

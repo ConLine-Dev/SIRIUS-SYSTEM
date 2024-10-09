@@ -60,6 +60,7 @@ const tickets = {
             start_forecast: ticket.start_forecast,
             end_forecast: ticket.end_forecast,
             finished_at: ticket.finished_at,
+            approved_at: ticket.approved_at,
             atribuido: atribuidoMap[ticket.id] || [],
             messageCount: messageMap[ticket.id] ? messageMap[ticket.id].length : 0,
             responsible_name: ticket.name,
@@ -98,6 +99,7 @@ const tickets = {
                 start_forecast:element.start_forecast,
                 end_forecast:element.end_forecast,
                 finished_at:element.finished_at,
+                approved_at:element.approved_at,
                 atribuido:atribuido
             })
         }
@@ -205,7 +207,6 @@ const tickets = {
         </div>`
 
         if (messagesByTicket[0].name != messagesByTicket[0].responsible_name && messagesByTicket[0].family_name != messagesByTicket[0].responsible_family_name){
-            console.log(messagesByTicket[0].responsible_email);
             sendEmail(messagesByTicket[0].responsible_email, '[Sirius System] Viemos com atualizações 🫡', mailBody);
             
         }
@@ -232,9 +233,10 @@ const tickets = {
         const timeInit = value.timeInit ? value.timeInit : null;
         const timeEnd = value.timeEnd ?  value.timeEnd : null;
         const finished_at = value.finished_at ? value.finished_at : null;
+        const approved_at = value.approved_at ? value.approved_at : null;
 
         let status = 'new-tasks-draggable';
-        if (finished_at != null){
+        if (approved_at != null){
             status = 'completed-tasks-draggable';
         }
 
@@ -248,8 +250,8 @@ const tickets = {
         let destinationMail = userData[0].email;
 
         const result = await executeQuery(
-            'INSERT INTO called_tickets (title, status, description, collaborator_id, start_forecast, end_forecast, finished_at) VALUES (?,?, ?, ?, ?, ?, ?)',
-            [value.title, status, value.description, value.responsible.id, timeInit, timeEnd, finished_at]
+            'INSERT INTO called_tickets (title, status, description, collaborator_id, start_forecast, end_forecast, finished_at, approved_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [value.title, status, value.description, value.responsible.id, timeInit, timeEnd, finished_at, approved_at]
           );
 
         await executeQuery(
@@ -371,11 +373,12 @@ const tickets = {
         const timeInit = value.timeInit ? value.timeInit : null;
         const timeEnd = value.timeEnd ? value.timeEnd : null;
         const finished_at = value.finished_at ? value.finished_at : null;
+        const approved_at = value.approved_at ? value.approved_at : null;
 
         // Atualiza as informações básicas do ticket
         await executeQuery(
-            'UPDATE called_tickets SET title = ?, description = ?, collaborator_id = ?, start_forecast = ?, end_forecast = ?, finished_at = ? WHERE id = ?',
-            [value.title, value.description, value.responsible.id, timeInit, timeEnd, finished_at, value.id]
+            'UPDATE called_tickets SET title = ?, description = ?, collaborator_id = ?, start_forecast = ?, end_forecast = ?, finished_at = ?, approved_at = ? WHERE id = ?',
+            [value.title, value.description, value.responsible.id, timeInit, timeEnd, finished_at, approved_at, value.id]
         );
 
         // Atualiza a categoria do ticket
@@ -403,6 +406,25 @@ const tickets = {
 
         return { id: value.id };
     },
+
+    updateEndForecast: async function (id, date) {
+        
+        if (date == ''){
+            const hoje = new Date();
+            hoje.setDate(hoje.getDate() + 2);
+            const ano = hoje.getFullYear();
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            
+            date = `${ano}-${mes}-${dia} 17:00`;
+        }
+        console.log(id, date);
+        
+        await executeQuery(`UPDATE called_tickets SET end_forecast = '${date}' WHERE id = ${id}`);
+
+        return true;
+    },
+
     updateStatus: async function(id, status){
         await executeQuery(`UPDATE called_tickets SET status = '${status}' WHERE id = ${id}`);
         
@@ -431,7 +453,7 @@ const tickets = {
 
         if (status == 'inreview-tasks-draggable') {
 
-            if (responsibleData[0].end_forecast == null){
+            if (responsibleData[0].finished_at == null){
                 const hoje = new Date();
                 const ano = hoje.getFullYear();
                 const mes = String(hoje.getMonth() + 1).padStart(2, '0');
@@ -442,7 +464,7 @@ const tickets = {
           
                 const dataHoraFormatada = `${ano}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
             
-                await executeQuery(`UPDATE called_tickets SET end_forecast = '${dataHoraFormatada}' WHERE id = ${id}`);
+                await executeQuery(`UPDATE called_tickets SET finished_at = '${dataHoraFormatada}' WHERE id = ${id}`);
             }
 
             await executeQuery(`UPDATE called_tickets SET review_notification = CURDATE() WHERE id = ${id}`);
@@ -475,10 +497,23 @@ const tickets = {
     
             await sendEmail(responsibleMail, '[Sirius System] Tem um ticket esperando por você! 🫣', mailBody);
     
-            return true;
         }
 
         if (status == 'completed-tasks-draggable') {
+
+            if (responsibleData[0].approved_at == null){
+                const hoje = new Date();
+                const ano = hoje.getFullYear();
+                const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+                const dia = String(hoje.getDate()).padStart(2, '0');
+                const horas = String(hoje.getHours()).padStart(2, '0');
+                const minutos = String(hoje.getMinutes()).padStart(2, '0');
+                const segundos = String(hoje.getSeconds()).padStart(2, '0');
+          
+                const dataHoraFormatada = `${ano}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
+            
+                await executeQuery(`UPDATE called_tickets SET approved_at = '${dataHoraFormatada}' WHERE id = ${id}`);
+            }
     
             let userBody = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
@@ -535,8 +570,9 @@ const tickets = {
             await sendEmail(responsibleMail, '[Sirius System] Mais um pedido foi concluído 😎', userBody);
             await sendEmail('ti@conlinebr.com.br', '[Sirius System] Mais um pedido foi concluído 😎', devBody);
     
-            return true;
         }
+
+        return true;
     },
     notificatePendingTickets: async function(){
         const pendingTickets = await executeQuery(`
@@ -646,6 +682,7 @@ const tickets = {
                 start_forecast: element.start_forecast,
                 end_forecast: element.end_forecast,
                 finished_at: element.finished_at,
+                approved_at: element.approved_at,
                 atribuido: atribuido,
                 messages: messages
             });
@@ -665,6 +702,7 @@ const tickets = {
             { header: 'Previsão de Início', key: 'start_forecast', width: 20 },
             { header: 'Previsão de Término', key: 'end_forecast', width: 20 },
             { header: 'Finalizado em', key: 'finished_at', width: 20 },
+            { header: 'Aprovado em', key: 'approved_at', width: 20 },
             { header: 'Atribuído', key: 'atribuido', width: 30 },
             { header: 'Mensagens', key: 'messages', width: 50 }
         ];

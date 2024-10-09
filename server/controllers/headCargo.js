@@ -161,7 +161,7 @@ const headcargo = {
                WHEN Lhs.Situacao_Pagamento = 0 THEN 0
                WHEN Lhs.Situacao_Pagamento = 1 THEN 1
                WHEN Lhs.Situacao_Pagamento = 2 THEN 2
-               WHEN Lhs.Situacao_Pagamento = 3 AND (ComInter.Situacao = 2 OR ComInter.Situacao IS NULL) THEN 3
+               WHEN Lhs.Situacao_Pagamento = 3 AND Fde.Status_Fatura = 'Quitado' THEN 3
             END AS PagamentoCodigo,
       
             Lhs.Data_Pagamento_Local AS Data_Pagamento,

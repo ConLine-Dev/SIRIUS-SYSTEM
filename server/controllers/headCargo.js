@@ -1342,8 +1342,8 @@ const headcargo = {
 
         const mailOptions = {
             from: `Sirius OS <sirius@conline-news.com>`,
-            // to: `comissao-adm@conlinebr.com.br`,
-            to: `petryck.leite@conlinebr.com.br`,
+            to: `comissao-adm@conlinebr.com.br`,
+            // to: `petryck.leite@conlinebr.com.br`,
             subject: subject,
             html: CustomHTML
         };

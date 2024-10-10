@@ -25,8 +25,43 @@ async function eventsCliks() {
 
  
     })
+
+    $('#table-overdue-accounts-monitor tbody').on('click', 'tr', function () {
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+        }
+        else {
+            table['table-overdue-accounts-monitor'].$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+        }
+    });
+
+     // Vinculando o evento de pesquisa ao DataTable
+     table['table-overdue-accounts-monitor'].on('search.dt', function() {
+        calcularValorTotal(); // Chama a função ao realizar a pesquisa
+    });
 }
 
+function formatarParaNumero(valor) {
+    // Remove o símbolo "R$", os pontos de milhar e troca a vírgula decimal por ponto
+    const valorFormatado = valor.replace('R$', '').replace('.', '').replace(',', '.').trim();
+    // Converte a string para número float
+    return parseFloat(valorFormatado);
+}
+
+// Função para calcular o valor total da coluna value_comission considerando apenas os itens visíveis da tabela
+function calcularValorTotal() {
+    let valorTotal = 0;
+    table['table-overdue-accounts-monitor'].rows({ search: 'applied' }).data().each(function (row) {
+        valorTotal += formatarParaNumero(row.Valor_Total);
+    });
+
+
+    const numeroRegistrosFiltrados = table['table-overdue-accounts-monitor'].rows({ search: 'applied' }).count();
+    document.querySelector('.total-comisions').textContent = numeroRegistrosFiltrados;
+
+    document.querySelector('.total-pay').textContent = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorTotal.toFixed(2));
+}
 
 /**
  * Obtém as informações de login do armazenamento local.
@@ -79,7 +114,7 @@ async function generateTable(id = null, idresponsavel = null) {
         paging: false,  // Desativa a paginação
         fixedHeader: true, // Cabeçalho fixo
         info: false,
-        scrollY: 'calc(100vh - 192px)',  // Define a altura dinamicamente
+        scrollY: 'calc(100vh - 345px)',  // Define a altura dinamicamente
         scrollCollapse: false,  // Permite que a rolagem seja usada somente quando necessário
         order: [[0, 'asc']],
         ajax: {

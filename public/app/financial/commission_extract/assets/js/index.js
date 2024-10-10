@@ -529,6 +529,9 @@ async function eventClick() {
     });
 
 
+   
+
+
     // Função para limpar o campo de data de criação
     document.getElementById('clearDateCreateBtn').addEventListener('click', function() {
         document.getElementById('inputDateCreate').value = ''; // Limpa o campo de data de criação

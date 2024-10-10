@@ -852,7 +852,23 @@
                         </div>
                         <div class="card custom-card">
                             <div class="card-header">
-                                <div class="card-title"> Gerenciamento de Comissões </div>
+                                <div class="card-title"> Gerenciamento de Comissões <br>
+                                    <span class="d-flex align-items-center"> 
+                                        <div class="m-2 bd-red-500 color-container" style="width: 20px;height: 20px;">
+
+                                        </div> 
+                                        <span class="pb-0 mb-0 font-monospace text-muted" style="font-size: 17px;font-variant-caps: all-petite-caps;">Parceiro com fatura <strong>em aberto</strong> </span>
+                                         
+                                        |
+
+                                        <div class="m-2 bd-yellow-500 color-container" style="width: 20px;height: 20px;">
+
+                                        </div> 
+                                        <span class="pb-0 mb-0 font-monospace text-muted" style="font-size: 17px;font-variant-caps: all-petite-caps;">Processos com incentivo</span>
+                                    </span>
+                                </div>
+                               
+                              
                             </div>
                             <div class="card-body">
                           
@@ -864,6 +880,7 @@
                                                             <th class="" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1"  style="width: 350px;">
                                                                 <input class="form-check-input me-2 selectAllCheckbox" id="selectAllChecked" type="checkbox" checked="">
                                                             </th>
+                                                            <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;"></th>
                                                             <th class="sorting sorting_asc" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 350px;">Modal</th>
                                                             <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 508px;">Processo</th>
                                                             <th class="sorting" tabindex="0" aria-controls="hidden-columns" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 243px;">Abertura</th>
@@ -929,6 +946,15 @@
                 <p>
                     <b>📊 Dica importante!</b> <br>
                     Sempre utilize os filtros corretamente para visualizar as comissões da maneira mais precisa. Isso vai te ajudar a tomar decisões mais informadas e acompanhar melhor os resultados. 😎
+                </p>
+                <p>
+                    <b>🚀 Novidade Importante!</b> <br>
+                    Agora, os processos que possuem clientes, fornecedores ou parceiros com faturas em atraso são destacados em vermelho. Ao clicar em um processo com fatura em atraso, uma janela será aberta, mostrando todas as faturas pendentes, incluindo:
+                    <ul>
+                        <li>Dias de vencimento: há quantos dias a fatura está atrasada.</li>
+                        <li>Devedor: o nome do cliente/fornecedor com faturas em aberto.</li>
+                        <li>Valor: o total pendente de pagamento.</li>
+                    </ul>
                 </p>
                 
                 <p>

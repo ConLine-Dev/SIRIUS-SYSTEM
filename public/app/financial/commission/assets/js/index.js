@@ -193,8 +193,7 @@ async function submitCommission() {
 
 
     const dados = await makeRequest(`/api/headcargo/commission/filterComission`, 'POST', { filters }); // Faz uma requisição para filtrar a comissão
-
-    console.log(dados)
+    
     const idvalue = listOfSales.value !== '000' ? listOfSales : listOfInside; // Define o elemento ID com base na seleção
     const typeSales = listOfSales.value !== '000' ? 'Vendedor' : 'Inside'; // Define o tipo de vendas
     const typeID = listOfSales.value !== '000' ? 0 : 1; // Define o tipo de ID (0 para Vendedor, 1 para Inside)
@@ -228,7 +227,7 @@ async function submitCommission() {
 
   
     const verifyPercentageComission = await makeRequest(`/api/headcargo/commission/verifyPercentageComission`, 'POST', { id:selectedValue });
-
+    console.log(verifyPercentageComission)
     // document.querySelector('.btn_salvarRegistro').setAttribute('disabled', true);
 
 
@@ -275,7 +274,13 @@ async function submitCommission() {
         data: dados.data, // Define os dados da tabela
         columns: [
             { data: 'check', orderable: false }, // Coluna de checkbox
-            { data: 'modal' }, // Coluna de modal
+            {
+                class: 'financial-detail',
+                orderable: false,
+                data: null,
+                defaultContent: '<i class="ri ri-eye-fill"></i>'
+            },
+            { data: 'modal'}, // Coluna de modal
             { data: 'processo',
                 render: function(data, type, row) {
                     if (row.fatura_quant_vencidas > 0) {
@@ -299,12 +304,21 @@ async function submitCommission() {
             { data: 'efetivo' }, // Coluna de valor efetivo
             { data: 'restante' }, // Coluna de valor restante
             { data: 'valorComissao' }, // Coluna de valor valorComissao
+            { data: 'IdLogistica_House', visible: false },  // Coluna de IdLogistica_House
         ],
         rowCallback: function(row, data, index) {
+
+            if(data.Incentivo == 1){
+                $(row).find('td').addClass('bd-yellow-500'); // Adiciona a classe 'bg-warning' a todas as colunas da linha
+            }
             
             if(data.fatura_quant_vencidas > 0){
                 $(row).find('td').addClass('bd-red-500'); // Adiciona a classe 'bg-warning' a todas as colunas da linha
             }
+
+            
+
+            
         },
         language: {
             url: "https://cdn.datatables.net/plug-ins/1.12.1/i18n/pt-BR.json",
@@ -313,7 +327,7 @@ async function submitCommission() {
         }
     });
 
-    document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
+    
 
     createToast('Sirius', `Filtro de comissões do(a) ${selectedText} foi gerado com sucesso!`); // Exibe uma mensagem de sucesso
 
@@ -325,6 +339,12 @@ async function submitCommission() {
     if(!verify){
         createToast('Sirius', `Atenção você não pode gerar um registro do(a) ${selectedText} pois já existe um registro em aberto.`); // Exibe uma mensagem de sucesso  
     }
+
+    setTimeout(async () => {
+        await countProcessosFiltered()
+        document.querySelector('#loader2').classList.add('d-none'); // Esconde o loader
+    }, 300);
+    
 
 }
 
@@ -509,14 +529,91 @@ async function eventsCliks() {
                     totalComissao += parseFloat(check.getAttribute('data-comissao'));
                 }
             });
-
+        
             // Atualiza o total na página
             document.querySelector('.total_profit').textContent = total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
             document.querySelector('.quantidade_processo').textContent = totalProcessosSelecionados;
             document.querySelector('.valor_Comissao_total').textContent = totalComissao.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
         }
+
+
+
+
     })
+
+ 
 }
+async function countProcessosFiltered(){
+    let checks = document.querySelectorAll('.selectCheckbox');
+
+    let total = 0;
+    let totalComissao = 0;
+    let totalProcessosSelecionados = 0
+    // Itera sobre cada elemento de verificação
+    checks.forEach(check => {
+        // Se o elemento de verificação está marcado, adiciona o valor à total
+        if (check.checked) {
+            totalProcessosSelecionados++
+            total += parseFloat(check.getAttribute('data-value'));
+            totalComissao += parseFloat(check.getAttribute('data-comissao'));
+        }
+    });
+
+    // Atualiza o total na página
+    document.querySelector('.total_profit').textContent = total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+    document.querySelector('.quantidade_processo').textContent = totalProcessosSelecionados;
+    document.querySelector('.valor_Comissao_total').textContent = totalComissao.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'})
+}
+
+
+$(document).on('click', '.financial-detail', async function () {
+    var tr = $(this).closest('tr'); // Pega a linha da tabela
+    var row = tables['table_commission_commercial'].row(tr); // Acessa a linha através do DataTables
+
+    if (row.child.isShown()) {
+        // Se os detalhes já estão mostrados, remove a linha de detalhes e troca o ícone para "plus"
+        row.child.hide();
+        tr.find('.ri').removeClass('ri-eye-off-fill').addClass('ri-eye-fill');
+    } else {
+        const data = await makeRequest(`/api/headcargo/commission/ListInvoicesByProcessId/${row.data().IdLogistica_House}`); // Faz uma requisição para obter os detalhes da fatura
+        let detailsHtml = await formatDetails(data); // Função para formatar os detalhes retornados
+        row.child(detailsHtml).show();
+        tr.find('.ri').removeClass('ri-eye-fill').addClass('ri-eye-off-fill');
+    }
+
+    console.log(tr.find('.ri'))
+});
+
+// Função para formatar os detalhes retornados da consulta
+async function formatDetails(data) {
+
+    let trs = '';
+    for (let index = 0; index < data.length; index++) {
+        const element = data[index];
+        trs += `<tr>
+                    <td style="max-width: 50px !important">${element.Pessoa}</td>
+                    <td style="max-width: 50px !important">${element.TIPO_FATURA}</td>
+                    <td style="max-width: 50px !important">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: element.Sigla }).format(element.Valor_Original)}</td>
+                    <td style="max-width: 50px !important">${element.SituacaoNome}</td>
+                </tr>`
+    }
+
+    return `
+    <table class="table table-bordered" style="width:calc(100vw - 411px) !important;">
+        <tr>
+            <td style="max-width: 50px !important;"><b>Pessoa</b></td>
+            <td style="max-width: 50px !important;"><b>Tipo</b></td>
+            <td style="max-width: 50px !important;"><b>Valor</b></td>
+            <td style="max-width: 50px !important;"><b>Situação</b></td>
+        </tr>
+        ${trs}
+
+        
+    </table>`
+    
+}
+
+
 
 async function OpenOverdueInvoices(id) {
     const dados = await makeRequest(`/api/headcargo/commission/overdueInvoices?id=${id}`); // Faz uma requisição para filtrar a comissão

@@ -48,11 +48,22 @@ document.addEventListener('DOMContentLoaded', async function() {
       editable: true, // Permite arrastar e soltar eventos
       selectable: true, // Permite selecionar datas
       dateClick: function(info) {
-        alert('Data clicada: ' + info.dateStr);
+        // alert('Data clicada: ' + info.dateStr);
       },
       // height: '100%',
     });
   
-    // calendar.render();
+    calendar.render();
   });
+
+  function registerNewEvent() {
+    const body = {
+      url: '/app/ti/meeting-control/create',
+      width: 1000,
+      height: 640,
+      resizable: false
+    }
+
+    window.ipcRenderer.invoice('open-exWindow', body);
+  }
   

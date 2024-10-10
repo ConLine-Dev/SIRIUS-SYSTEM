@@ -454,7 +454,7 @@ async function approveTicketByUser(ticketSettings) {
 async function reviewTicketByUser(ticketSettings){
     const ticket = await makeRequest('/api/called/tickets/saveTicket', 'POST', ticketSettings);
     $('#edit-task').modal('hide'); 
-    await makeRequest('/api/user-tickets/updateStatus', 'POST', { id: ticketSettings.id, status: 'inprogress-tasks-draggable' });
+    await makeRequest('/api/user-tickets/updateStatus', 'POST', { id: ticketSettings.id, status: 'todo-tasks-draggable' });
 }
 
 // Cria um novo ticket

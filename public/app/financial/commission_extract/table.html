@@ -1,0 +1,132 @@
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Faturas</title>
+    <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
+    <meta name="Author" content="Spruko Technologies Private Limited">
+    <meta name="keywords"
+        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main JS -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    <!-- Color Picker Css -->
+    <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    
+
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+    
+    <!-- Loader -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <!-- <div id="loader" class="">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div> -->
+    <!-- Loader -->
+    <div class="page">
+        <div class="">
+            <div class="container-fluid">
+                <!-- Page Header -->
+                <div class="col-12">
+                    <div class="card custom-card">
+                        <div class="card-header d-sm-flex d-block" id="cardTitle">
+                            <div class="card-title">Tabela de faturas</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Page Header Close -->
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                    <div class="card custom-card">
+                        <div class="card-body" style="height: 87vh;">
+                            <div class="table-responsive">
+                                <table class="table text-nowrap table-bordered" id="fullTable">
+                                   <tbody>
+                                    <!-- ADD PELO JS -->
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Numero Processo</th>
+                                            <th scope="col">Pessoa</th>
+                                            <th scope="col">Data</th>
+                                            <th scope="col">Valor</th>
+                                            <th scope="col">Tipo Fatura</th>
+                                        </tr>
+                                    </thead>
+                                   </tbody>
+                                </table>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+    <!-- Jquery -->
+    <script src="../../assets/libs/jQuery/jquery-3.6.1.min.js"></script>
+    <!-- Popper JS -->
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Color Picker JS -->
+    <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+    <!-- Flat Picker JS -->
+    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+    <!-- ApexCharts JS -->
+    <script src="../../assets/libs/apexCharts/apexCharts.js"></script>
+    <!-- Xlsx -->
+    <script src="../../assets/libs/xlsx/xlsx.full.min.js"></script>
+
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="./assets/js/table.js"></script>
+
+</body>
+
+</html>

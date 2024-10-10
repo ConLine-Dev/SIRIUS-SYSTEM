@@ -651,7 +651,7 @@ const headcargo = {
     },
     listRegisterComission: async function(){
       const sql = `SELECT cmmr.*, collab.name, collab.family_name FROM commission_reference cmmr
-      JOIN collaborators collab ON collab.id_headcargo = cmmr.user ORDER BY cmmr.id`;
+      JOIN collaborators collab ON collab.id_headcargo = cmmr.user ORDER BY cmmr.id desc`;
       const registers = await executeQuery(sql)
       return registers;
     },
@@ -1802,7 +1802,6 @@ const headcargo = {
       WHERE
        Cte.IdLogistica_House IN (${listProcess})`
 
-       console.log(listProcess)
 
         const result = await executeQuerySQL(sql)
 

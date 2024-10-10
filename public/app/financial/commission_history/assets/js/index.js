@@ -119,6 +119,18 @@ async function events() {
             }
         });
     });
+
+
+
+  // Adiciona um event listener ao novo elemento da lista
+  document.querySelector('#btnExtrato').addEventListener('click', function() {
+    const body = {
+        url: `/app/financial/commission_extract`,
+        max:true
+    }
+    window.ipcRenderer.invoke('open-exWindow', body);
+  });
+    
 }
 
 /**

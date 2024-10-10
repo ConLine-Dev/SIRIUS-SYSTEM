@@ -9,7 +9,7 @@ const worker = new Worker('./assets/js/worker.js');
 document.addEventListener("DOMContentLoaded", async () => {
 
     await generateTable()
-    await loadSales();
+    // await loadSales();
     await eventsCliks()
 
     document.querySelector('#loader2').classList.add('d-none')
@@ -91,8 +91,9 @@ async function generateTable(id = null, idresponsavel = null) {
     const alturaDisponivel = window.innerHeight - document.querySelector('.card-header').offsetHeight
 
     const userLogged = await getInfosLogin()
+    console.log(userLogged)
     
-    idresponsavel = idresponsavel == 0 ? null : idresponsavel;
+    idresponsavel = userLogged.system_id_headcargo;
 
     let where = ``;
     if(id != null){

@@ -110,7 +110,7 @@ async function generateTable(id = null, idresponsavel = null) {
 
     // Criar a nova tabela com os dados da API
     table['table-overdue-accounts-monitor'] =  $('#table-overdue-accounts-monitor').DataTable({
-        dom: 'frtip',
+        dom: 'Bfrtip',
         paging: false,  // Desativa a paginação
         fixedHeader: true, // Cabeçalho fixo
         info: false,

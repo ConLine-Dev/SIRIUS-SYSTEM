@@ -168,6 +168,7 @@ router.post('/removeSetting', async (req, res, next) => {
 router.post('/verifyRegisters', async (req, res, next) => {
     const {filters} = req.body;
     try {
+      
         const result = await headcargo.verifyRegisters(filters);
 
         res.status(200).json(result)

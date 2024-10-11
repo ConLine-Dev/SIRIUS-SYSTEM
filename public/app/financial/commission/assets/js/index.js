@@ -454,6 +454,8 @@ async function createRegister(typeID, dateFilter, user) {
 
     const verify = await makeRequest(`/api/headcargo/commission/verifyRegisters`, 'POST', { filters });
 
+
+
     if(!verify){
         document.querySelector('.btn_salvarRegistro').setAttribute('disabled', true); 
         createToast('Sirius', `Atenção você não pode gerar um novo registro do(a) ${user.name} pois já existe um registro em aberto.`); // Exibe uma mensagem de sucesso  

@@ -449,11 +449,15 @@ async function loadInsideSales() {
 async function createRegister(typeID, dateFilter, user) {
 
     const filters = {
-        vendedorID: user.id
+        vendedorID: user.id,
+        type:typeID == 0 ? 1 : 2,
     }
 
-    const verify = await makeRequest(`/api/headcargo/commission/verifyRegisters`, 'POST', { filters });
 
+
+
+    const verify = await makeRequest(`/api/headcargo/commission/verifyRegisters`, 'POST', { filters });
+    console.log('aqui', filters)
 
 
     if(!verify){

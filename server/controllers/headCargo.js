@@ -438,7 +438,7 @@ const headcargo = {
         ${AgenteCodigo}
         ${Abertura_Processo}`
 
-        console.log(sql)
+
 
           
         const commissions = await executeQuerySQL(sql)
@@ -1901,8 +1901,13 @@ const headcargo = {
 
       const comissioned = data.vendedorID != '000' ? data.vendedorID : data.InsideID
 
-      const verify = await executeQuery(`SELECT * FROM commission_reference WHERE user = ${comissioned} AND status != 1 AND status != 3`)
+      const type = data.type ? data.type : data.vendedorID != '000' ? 1 : 2
 
+      console.log(data, type)
+
+      const verify = await executeQuery(`SELECT * FROM commission_reference WHERE user = ${comissioned} AND status != 1 AND status != 3 AND commissioned_type = ${type}`);
+
+   
       
       return verify.length > 0 ? false : true
     },

@@ -1351,6 +1351,7 @@ const headcargo = {
                 debug : true
             });
 
+            console.log('email enviado')
 
         const mailOptions = {
             from: `Sirius OS <sirius@conline-news.com>`,

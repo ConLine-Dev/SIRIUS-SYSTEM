@@ -11,6 +11,7 @@ const api_called_tickets = require('./api-called-tickets');
 const api_called = require('./api-called');
 const api_collaborators = require('./api-collaborators');
 const api_product = require('./api-product');
+const api_safety_inspection = require('./api-safety-inspection');
 const api_people = require('./api-people');
 const api_moduleManagement = require('./api-module-management');
 const api_controlPassword = require('./api-control-password');
@@ -127,6 +128,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-product .js oi
   router.use('/product', api_product(io)); 
+
+  // Use as rotas do arquivo api-product .js oi
+  router.use('/safety-inspection', api_safety_inspection(io)); 
 
   return router;
 };

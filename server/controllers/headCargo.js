@@ -777,11 +777,11 @@ const headcargo = {
       cllt_vendedor.id_headcargo as 'SellerHeadID',
       cmmr.commissioned_type
       FROM commission_history cmmh
-      JOIN collaborators cllt_inside ON cllt_inside.id_headcargo = cmmh.id_inside
-      JOIN collaborators cllt_vendedor ON cllt_vendedor.id_headcargo = cmmh.id_seller
-      JOIN users cad_user ON cad_user.id = cmmh.by_user
-      JOIN collaborators collab_user ON collab_user.id = cad_user.collaborator_id
-      JOIN commission_reference cmmr ON cmmr.id = cmmh.reference
+      LEFT JOIN collaborators cllt_inside ON cllt_inside.id_headcargo = cmmh.id_inside
+      LEFT JOIN collaborators cllt_vendedor ON cllt_vendedor.id_headcargo = cmmh.id_seller
+      LEFT JOIN users cad_user ON cad_user.id = cmmh.by_user
+      LEFT JOIN collaborators collab_user ON collab_user.id = cad_user.collaborator_id
+      LEFT JOIN commission_reference cmmr ON cmmr.id = cmmh.reference
       WHERE cmmh.reference = ${id}`;
 
       const registers = await executeQuery(sql)
@@ -791,8 +791,8 @@ const headcargo = {
         'modal': item.modal,
         'processo': item.reference_process,
         'payment': item.payment_date ? '<span style="display:none">'+item.payment_date+'</span>'+new Date(item.payment_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'Pendente',
-        'seller': headcargo.formatarNome(item.SellerName+' '+item.SellerFamily),
-        'inside': headcargo.formatarNome(item.InsideName+' '+item.InsideFamily),
+        'seller': item.SellerName ? headcargo.formatarNome(item.SellerName+' '+item.SellerFamily) : 'Sem cadastro',
+        'inside': item.InsideName ? headcargo.formatarNome(item.InsideName+' '+item.InsideFamily) : 'Sem cadastro',
         'valueComission': Number(item.commission).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
         'ValueProfit': Number(item.effective).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
         'create_date': new Date(item.create_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' }),
@@ -839,11 +839,23 @@ const headcargo = {
     },
     createRegisterComission: async function(processList, type, dateFilter, user){
          
+      console.log('processList')
+      console.log(processList)
+      console.log('processList')
+
 
         // Convertendo o array original em uma string de números sequenciais separados por vírgulas
-        const resultConcat = processList.map((index) => index).join(',');     
+        const resultConcat = processList.map((index) => index).join(',');   
+        
+        console.log('resultConcat')
+        console.log(resultConcat)
+        console.log('resultConcat')
        
         const infoProcess = await headcargo.getAllProcessToReference(resultConcat);
+
+      //   console.log('infoProcess')
+      //   console.log(infoProcess)
+      //   console.log('infoProcess')
 
         const register = await headcargo.registerDBComission(infoProcess, user, dateFilter)
         
@@ -1342,8 +1354,8 @@ const headcargo = {
 
         const mailOptions = {
             from: `Sirius OS <sirius@conline-news.com>`,
-            to: `comissao-adm@conlinebr.com.br`,
-            // to: `petryck.leite@conlinebr.com.br`,
+            // to: `comissao-adm@conlinebr.com.br`,
+            to: `petryck.leite@conlinebr.com.br`,
             subject: subject,
             html: CustomHTML
         };

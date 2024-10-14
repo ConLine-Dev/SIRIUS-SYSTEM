@@ -1,16 +1,30 @@
 
 
-.avatar {
+.cards_avatar {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 3.8rem !important;
-    height: 3.8rem !important;
+    width: 3.7rem !important;
+    height: 3.7rem !important;
     
 }
 
 .avatar i {
-    line-height: 0.8rem;
+    line-height: 0.9rem;
     margin: 3px 0; /* Espaçamento entre os ícones */
 }
+
+.rotate-icon {
+    transform: rotate(-90deg); /* Gira o ícone 90 graus para a esquerda */
+}
+
+
+.icon_container {
+    font-weight: bold !important; /* Pode ajudar, mas o efeito é sutil */
+    stroke-width: 6px; /* Tenta aumentar a espessura do ícone, se aplicável */
+    transform: rotate(90deg); /* Gira o ícone, se necessário */
+    transform: rotate(-90deg); /* Gira o ícone 90 graus para a esquerda */
+}
+
+

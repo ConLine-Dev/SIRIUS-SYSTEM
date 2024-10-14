@@ -496,13 +496,14 @@ async function populateTableAgent(data) {
             status_invoice = '<span class="badge bg-success-transparent">TUDO OK</span>';
           }
 
+
           // Adiciona os dados formatados e validados no array `newData` para exibição na tabela.
           newData.push({
             check: '<input class="form-check-input me-2 " type="checkbox">',  // Checkbox para seleção manual.
             mbl: row[0] || '',  // MBL da planilha ou valor vazio.
             hbl: row[1] || '',  // HBL da planilha ou valor vazio.
             moeda: row[2].toUpperCase() || '',  // Moeda da planilha ou valor vazio.
-            valor: formatCurrency(parseFloat(row[3]), row[2]),  // Valor da planilha formatado.
+            valor: formatCurrency(parseFloat(row[3]), row[2].trim()),  // Valor da planilha formatado.
             valorSistema: formatCurrency(matchingAgent.Valor_Total, matchingAgent.Moeda),  // Valor do sistema formatado.
             status_invoice: status_invoice  // Status final da fatura (validado ou divergente).
           });
@@ -513,7 +514,7 @@ async function populateTableAgent(data) {
             mbl: row[0] || '',  // MBL da planilha ou valor vazio.
             hbl: row[1] || '',  // HBL da planilha ou valor vazio.
             moeda: row[2].toUpperCase() || '',  // Moeda da planilha ou valor vazio.
-            valor: formatCurrency(row[3], row[2]),  // Valor da planilha formatado.
+            valor: formatCurrency(row[3], row[2].trim()),  // Valor da planilha formatado.
             valorSistema: 'NÃO DEFINIDO',  // Valor do sistema será vazio, pois o agente não foi encontrado.
             status_invoice: '<span class="badge bg-warning-transparent">Nenhum registro foi encontrado no sistema</span>'  // Status indicando que o registro não foi encontrado.
           });

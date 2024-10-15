@@ -145,6 +145,8 @@ async function getRegisterById(id) {
     // Faz uma requisição para obter os detalhes do registro pelo ID
     const register = await makeRequest(`/api/headcargo/commission/getRegisterById`, 'POST', { id: id });
 
+    console.log(register)
+
     const typeSales = register.data[0].commissioned_type == 1 ? 'Vendedor' : 'Inside';
 
     // Atualiza as variáveis globais com os dados do registro

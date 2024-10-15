@@ -1,0 +1,153 @@
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Editar Cadastro</title>
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    
+    <link rel="stylesheet" href="./assets/css/edit.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+
+    <!-- Loader -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div class="">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card custom-card bodyWindows">
+
+                    <!-- BOTAO SALVAR -->
+                    <div class="justify-content-between headerButtons">
+                        <ul class="nav nav-tabs border-0" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link label-btn" id="btn-save">
+                                    <i class="ri-save-3-line label-btn-icon me-2"></i>
+                                    Salvar
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- VISUALIZAR/EDITAR CADASTRO -->
+                    <!-- <div class="card-header justify-content-between">
+                        <div class="card-title"> Editar Cadastro </div>
+                    </div> -->
+                    
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12"> 
+                                <label for="input-label" class="form-label center-text">Título</label>
+                                <input type="text" name="title" class="form-control form-input" placeholder="Insira um título"> 
+                            </div>
+                        </div>
+                        <br>
+
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
+                                <label for="input-label" class="form-label">Login</label> 
+                                <input type="text" name="login" class="form-control form-input" placeholder="Insira o login"> 
+                            </div>
+                            <br>
+
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
+                                <label for="input-label" class="form-label">Senha</label> 
+                                <input type="text" name="password" class="form-control form-input" placeholder="Insira a senha"> 
+                            </div>
+                        </div>
+                        <br>
+
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                                <label class="form-label">Responsável</label>
+                                <select class="form-control" name="responsible">
+                                    <option value="">Selecione um responsável</option>
+                                </select>
+                            </div>
+                            
+                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
+                                    <label for="input-label" class="form-label">Link</label>
+                                    <input type="text" name="link" class="form-control form-input" placeholder="Insira o link"> 
+                                </div>
+                            
+                    
+                        </div>
+
+                        <br>
+
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                                <label class="form-label">Departamento</label>
+                                <select class="form-control" multiple name="departments">
+                                    <option value="">Selecione um departamento</option>
+                                </select>
+                            </div>
+
+                        <br>
+
+                        <div class="row">
+                            <div class="col-12"> 
+                                <label for="input-label" class="form-label center-text">Observações</label> 
+                                <textarea name="observation" class="form-control form-input"cols="30" rows="5" placeholder="Insira uma observação"></textarea>
+                            
+                            </div>
+                        </div>
+                        <br>
+
+                    </div>
+                    
+                </div>
+            </div>
+                </div>
+    </div>
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+    <!-- Scroll To Top -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../../assets/js/fetchAPI.js"></script>
+
+
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="./assets/js/edit.js"></script>
+
+
+
+    <!-- Custom JS -->
+    <!-- <script src="../../assets/js/custom.js"></script> -->
+
+</body>
+
+</html>

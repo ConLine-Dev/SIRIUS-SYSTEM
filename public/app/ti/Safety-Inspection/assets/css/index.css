@@ -1,0 +1,45 @@
+#loader2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--custom-white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+#table_control_password {
+    cursor: pointer;
+}
+
+/* Definir altura total do contêiner pai */
+.container-fluid {
+    height: 100vh; /* Define a altura da tela inteira para o contêiner principal */
+    display: flex;
+    flex-direction: column;
+}
+
+/* O elemento que contém a tabela */
+.dataTables_wrapper {
+    flex: 1; /* Permite que a tabela se expanda para preencher o espaço */
+    overflow: hidden; /* Esconde rolagens extras */
+}
+
+body {
+    /* overflow: hidden !important; */
+}
+
+td {
+    user-select: none !important;
+}
+
+
+#table_control_password_filter {
+    padding-bottom: 10px !important;
+}
+#corrective-actions-pedings_filter {
+    padding-bottom: 10px !important;
+}

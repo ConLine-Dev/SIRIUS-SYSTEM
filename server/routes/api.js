@@ -133,7 +133,7 @@ const setIO = (io) => {
   // Use as rotas do arquivo api-product .js oi
   router.use('/product', api_product(io)); 
 
-  // Use as rotas do arquivo api-product .js oi
+  // Use as rotas do arquivo api-safety-inspection .js oi
   router.use('/safety-inspection', api_safety_inspection(io)); 
 
   return router;

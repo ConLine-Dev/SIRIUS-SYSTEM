@@ -132,6 +132,17 @@ textarea {
   position: absolute;
 }
 
+.file-folders-container {
+  padding: 10px;
+  background-color: #f8f9fa; /* Cor de fundo opcional para destacar */
+  border-radius: 4px;
+}
+
+.table-responsive {
+  margin-top: 10px; /* Espaçamento para alinhar melhor com as pastas */
+}
+
+
 
 
 

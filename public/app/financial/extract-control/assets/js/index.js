@@ -1,12 +1,20 @@
 function createFolder() {
     const folderName = document.getElementById("create-folder1").value;
 
-    if (folderName.trim() === "") {
-        alert("Por favor, insira um nome para a pasta.");
-        return;
-    }
+    
+    
 
     const FoldersContainer = document.querySelector("#folders-container");
+
+    if (folderName.trim() === "") {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Atenção',
+            text: 'Por favor, insira um nome para a pasta.',
+            confirmButtonText: 'OK'
+        });
+        return;
+    }
 
     FoldersContainer.innerHTML += `<div class="col-xxl-2 col-xl-4 col-lg-4 col-md-6">
                                         <div class="card border custom-card shadow-none">
@@ -63,6 +71,8 @@ function createFolder() {
      $('#create-folder').modal('hide')
 }
 
+
+
 function openModalCreateFolder(){
     $('#create-folder').modal('show')
 }
@@ -70,7 +80,7 @@ function openModalCreateFolder(){
 document.addEventListener("DOMContentLoaded", async () => {
 
     //Chama a função
-    // createFolder()
+    createFolder()
     
     // document.querySelector('#loader2').classList.add('d-none')
 })

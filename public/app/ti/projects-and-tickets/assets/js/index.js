@@ -430,7 +430,7 @@ async function createTicket(settingsTicket) {
                 </div>
                 <div class="kanban-content mt-2">
                     <h6 class="fw-semibold mb-1 fs-15">${settingsTicket.title}</h6>
-                    <div class="kanban-task-description">${settingsTicket.description}</div>
+                    <div class="kanban-task-description">${(settingsTicket.description).replace(/\n/g, '<br>')}</div>
                 </div>
             </div>
             <div class="p-3 border-top border-block-start-dashed">
@@ -530,7 +530,7 @@ async function listAllTickets() {
                 </div>
                 <div class="kanban-content mt-2">
                     <h6 class="fw-semibold mb-1 fs-15">${ticket.title} - Ticket #${ticket.id}</h6>
-                    <div class="kanban-task-description">${ticket.description}</div>
+                    <div class="kanban-task-description">${(ticket.description).replace(/\n/g, '<br>')}</div>
                 </div>
             </div>
             <div class="p-3 border-top border-block-start-dashed">
@@ -692,7 +692,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.querySelector('#inreview-tasks-draggable'), 
         document.querySelector('#completed-tasks-draggable')
     ]);
-
+    
+    notificatePendingTickets();
     await listAllUsersTI();
     await listAllUsersTIToChoice();
     await listResponsibles();
@@ -700,7 +701,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     await listAllTickets();
     await eventDragDrop(tickets);
     await initEvents();
-    await notificatePendingTickets();
 
     // flatpickr(".flatpickr-input", {
     //     dateFormat: "d-m-Y H:i",

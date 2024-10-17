@@ -35,7 +35,7 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 
     <link href="../../assets/libs/fullCalender/main.min.css" rel="stylesheet">
-    
+
 
     <link rel="stylesheet" href="./assets/css/index.css">
     <meta http-equiv="imagetoolbar" content="no">
@@ -47,7 +47,7 @@
     <!-- <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 0px; z-index: 100;"> 
         <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
      </span> -->
-    
+
     <!-- Loader -->
     <!-- <div id="loader2">
         <img src="../../assets/images/media/loader.svg" alt="">
@@ -62,185 +62,202 @@
             </div>
         </div>
 
-            <!-- PAGINA DO CONTROLE DE REUNIÕES -->
-            <div class="row">
-                <div class="col-xl-3">
-                    <div class="card custom-card">
+        <div class="modal fade" id="add-task" tabindex="-1" aria-hidden="true" style="--bs-modal-width: 620px;">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <!-- <h6 class="modal-title">Detalhes do Evento</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+                    </div>
+                    <div class="modal-body px-4">
+                        <div class="row gy-2">
+                            <div class="col-xl-12">
+                                <label for="task-name" class="form-label">Título</label>
+                                <input type="text" class="form-control" name="title" placeholder="Título">
+                            </div>
+                            <div class="col-xl-6">
+                                <label class="form-label">Responsável</label>
+                                <select class="form-control" name="responsible"></select>
+                            </div>
+                            <div class="col-xl-6">
+                                <label class="form-label">Categoria</label>
+                                <select class="form-control" name="category">
+                                    <option placeholder>Selecione uma categoria</option>
+                                </select>
+                            </div>
+                            <div class="col-xl-12">
+                                <label for="text-area" class="form-label">Descrição</label>
+                                <textarea class="form-control" name="description" rows="2"
+                                    placeholder="Escreva uma descrição"></textarea>
+                            </div>
+                            <div class="col-xl-12">
+                                <label class="form-label">Departamentos</label>
+                                <select class="form-control choices__input" multiple name="departments">
+                                    <option placeholder>Selecione a quem atribuir</option>
+                                </select>
+                            </div>
+                            <div class="col-xl-6">
+                                <label class="form-label">Data de Inicio</label>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                        <input type="text" class="form-control flatpickr-input targetDate"
+                                            name="timeInit" id="targetDate" placeholder="Escolha a data e hora"
+                                            readonly="readonly">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <label class="form-label">Data de Fim</label>
+                                <div class="form-group">
+                                    <div class="input-group">
+                                        <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                        <input type="text" class="form-control flatpickr-input targetDate"
+                                            name="timeEnd" id="targetDate" placeholder="Escolha a data e hora"
+                                            readonly="readonly">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary updateEventButton" onclick="updateEvent(this.id)">Salvar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                        <!-- BOTAO DE CRIAR NOVO EVENTO -->
-                        <div class="card-header d-grid">
+        <!-- PAGINA DO CONTROLE DE REUNIÕES -->
+        <div class="row">
+            <div class="col-xl-3">
+                <div class="card custom-card">
+
+                    <!-- BOTAO DE CRIAR NOVO EVENTO -->
+                    <!-- <div class="card-header d-grid">
                             <button class="btn btn-primary btn-wave waves-effect waves-light" onclick="registerNewEvent()">
                                 <i class="ri-add-line align-middle me-1 fw-semibold d-inline-block"></i>
                                 Criar novo evento
                             </button>
+                        </div> -->
+
+                    <div class="card-body p-0">
+                        <!-- CATEGORIAS DO CALENDARIO -->
+                        <div id="external-events" class="border-bottom p-3 calendar-categories">
+
                         </div>
 
-                        <div class="card-body p-0">
-                            <!-- CATEGORIAS DO CALENDARIO -->
-                            <div id="external-events" class="border-bottom p-3 calendar-categories">
-                                <!-- <div class="fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event border" style="background-color: #8a20ad;">
-                                    <div class="fc-event-main">Aniversariantes</div>
-                                </div> -->
-                            </div>
-
-                            <!-- MODAL DE CRIAR NOVO EVENTO -->
-                            <!-- <div class="modal fade" id="add-task" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered modal-lg" style="--bs-modal-width: 800px">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h6 class="modal-title">Novo Evento</h6>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body px-4">
-                                            <div class="row gy-2">
-                                                <div class="col-xl-12">
-                                                    <label for="input-label" class="form-label center-text">Título</label>
-                                                    <input type="text" name="title" class="form-control form-input" placeholder="Insira um título">
-                                                </div>
-                                            
-                                                <div class="col-xl-6">
-                                                    <label class="form-label">Responsável</label>
-                                                    <select class="form-control" name="responsible">
-                                                        <option value="">Selecione um responsável</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-xl-6">
-                                                    <label class="form-label">Tipo de envento</label>
-                                                    <select class="form-control" name="TypeEvent">
-                                                        <option placeholder>Insira um evento</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-xl-12">
-                                                    <label for="text-area" class="form-label">Descrição</label>
-                                                    <textarea class="form-control" name="description" rows="4" placeholder="Escreva uma descrição"></textarea>
-                                                </div>
-                                                <div class="col-xl-12">
-                                                    <label class="form-label">Departamento</label>
-                                                    <select class="form-control" multiple name="departments">
-                                                        <option value="">Insira um departamento</option>
-                                                    </select>    
-                                                </div>
-                                                
-                                                <div class="col-xl-6">
-                                                    <label class="form-label">Inicio</label>
-                                                    <div class="form-group">
-                                                        <div class="input-group">
-                                                            <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                                                            <input type="text" class="form-control flatpickr-input targetDate" name="timeInit" id="targetDate" placeholder="Escolha a data e hora" readonly="readonly" >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-xl-6">
-                                                    <label class="form-label">Término</label>
-                                                    <div class="form-group">
-                                                        <div class="input-group">
-                                                            <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                                                            <input type="text" class="form-control flatpickr-input targetDate" name="finished_at"  id="targetDate" placeholder="Escolha a data e hora" readonly="readonly" >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-xl-12" style="display: none;">
-                                                    <label for="text-area" class="form-label">Arquivos/Imagem</label>
-                                            
-                                                    <input type="file" class="multiple-filepond" name="filepond" multiple data-allow-reorder="true"
-                                                        data-max-file-size="3MB" data-max-files="3">
-                                                
-                                                </div>
-                                            
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                        
-                                                <button type="button" id="ButtonAddTicket" class="btn btn-primary">Adicionar</button></div>
-                                    </div>
-                                </div>
-                            </div> -->
-
-                            <!-- ATIVIDADES RECENTES -->
-                            <div class="p-3">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <h6 class="fw-semibold">Atividades:</h6>
-                                    <div class="dropdown">
+                        <!-- ATIVIDADES RECENTES -->
+                        <div class="p-3">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <h6 class="fw-semibold">Próximas Atividades:</h6>
+                                <!-- <div class="dropdown">
                                         <a aria-label="âncora" href="javascript:void(0);" class="btn btn-icon btn-sm btn-light" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fe fe-more-vertical"></i> </a>
                                         <ul class="dropdown-menu">
                                             <li><a class="dropdown-item" href="javascript:void(0);"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Próximos Eventos</font></font></a></li>
                                             <li><a class="dropdown-item" href="javascript:void(0);"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Lembrete</font></font></a></li>
                                             <li><a class="dropdown-item" href="javascript:void(0);"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Concluído</font></font></a></li>
                                         </ul>
-                                    </div>
-                                </div>
+                                    </div> -->
                             </div>
-                                <div class="p-3 border-bottom" id="full-calendar-activity" data-simplebar="init">
-                                    <div class="simplebar-wrapper" style="margin: -16px;">
-                                        <div class="simplebar-height-auto-observer-wrapper">
-                                            <div class="simplebar-height-auto-observer"></div>
-                                        </div>
-                                        <div class="simplebar-mask">
-                                            <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
-                                                <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
-                                                    <div class="simplebar-content" style="padding: 16px;">
-                                                        <ul class="list-unstyled mb-0 fullcalendar-events-activity">
-                                                            <li>
-                                                                <div class="d-flex align-items-center justify-content-between flex-wrap">
-                                                                    <p class="mb-1 fw-semibold"> Quarta-Feira, 5 de setembro de 2024 </p><span class="badge bg-light text-default mb-1">15h00 - 16h00</span> </div>
-                                                                <p class="mb-0 text-muted fs-12"> Reuninão com o setor de Importação Maritima </p>
-                                                            </li>
-                                                            <li>
-                                                                <div class="d-flex align-items-center justify-content-between flex-wrap">
-                                                                    <p class="mb-1 fw-semibold"> Quinta-feira, 29 de dezembro de 2022 </p><span class="badge bg-success mb-1">Concluído</span> </div>
-                                                                <p class="mb-0 text-muted fs-12"> Treinamento Head Cargo </p>
-                                                            </li>
-                                                            <li>
-                                                                <div class="d-flex align-items-center justify-content-between flex-wrap">
-                                                                    <p class="mb-1 fw-semibold"> Quarta-feira, 3 de janeiro de 2023 </p><span class="badge bg-warning-transparent mb-1">Lembrete</span> </div>
-                                                                <p class="mb-0 text-muted fs-12"> O trabalho para o novo projeto está sendo concluído </p>
-                                                            </li>
-                                                            <li>
-                                                                <div class="d-flex align-items-center justify-content-between flex-wrap">
-                                                                    <p class="mb-1 fw-semibold"> Quarta-Feira, 18 de setembro de 2024 </p><span class="badge bg-light text-default mb-1">10h00 - 11h00</span> </div>
-                                                                <p class="mb-0 text-muted fs-12"> Reuninão com o setor de IA/EA  </p>
-                                                            </li>
-                                                            <li>
-                                                                <div class="d-flex align-items-center justify-content-between flex-wrap">
-                                                                    <p class="mb-1 fw-semibold"> Quinta-feira, 29 de dezembro de 2022 </p><span class="badge bg-success mb-1">Concluído</span> </div>
-                                                                <p class="mb-0 text-muted fs-12"> Treinamento Head Cargo </p>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
+                        </div>
+                        <div class="p-3 border-bottom" id="full-calendar-activity" data-simplebar="init">
+                            <div class="simplebar-wrapper" style="margin: -16px;">
+                                <div class="simplebar-height-auto-observer-wrapper">
+                                    <div class="simplebar-height-auto-observer"></div>
+                                </div>
+                                <div class="simplebar-mask">
+                                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                        <div class="simplebar-content-wrapper" tabindex="0" role="region"
+                                            aria-label="scrollable content"
+                                            style="height: auto; overflow: hidden scroll;">
+                                            <div class="simplebar-content" style="padding: 16px;">
+                                                <ul class="list-unstyled mb-0 fullcalendar-events-activity">
+                                                    <li>
+                                                        <div
+                                                            class="d-flex align-items-center justify-content-between flex-wrap">
+                                                            <p class="mb-1 fw-semibold"> Quarta-Feira, 5 de setembro de
+                                                                2024 </p><span
+                                                                class="badge bg-light text-default mb-1">15h00 -
+                                                                16h00</span>
+                                                        </div>
+                                                        <p class="mb-0 text-muted fs-12"> Reuninão com o setor de
+                                                            Importação Maritima </p>
+                                                    </li>
+                                                    <li>
+                                                        <div
+                                                            class="d-flex align-items-center justify-content-between flex-wrap">
+                                                            <p class="mb-1 fw-semibold"> Quinta-feira, 29 de dezembro de
+                                                                2022 </p><span
+                                                                class="badge bg-success mb-1">Concluído</span>
+                                                        </div>
+                                                        <p class="mb-0 text-muted fs-12"> Treinamento Head Cargo </p>
+                                                    </li>
+                                                    <li>
+                                                        <div
+                                                            class="d-flex align-items-center justify-content-between flex-wrap">
+                                                            <p class="mb-1 fw-semibold"> Quarta-feira, 3 de janeiro de
+                                                                2023 </p><span
+                                                                class="badge bg-warning-transparent mb-1">Lembrete</span>
+                                                        </div>
+                                                        <p class="mb-0 text-muted fs-12"> O trabalho para o novo projeto
+                                                            está sendo concluído </p>
+                                                    </li>
+                                                    <li>
+                                                        <div
+                                                            class="d-flex align-items-center justify-content-between flex-wrap">
+                                                            <p class="mb-1 fw-semibold"> Quarta-Feira, 18 de setembro de
+                                                                2024 </p><span
+                                                                class="badge bg-light text-default mb-1">10h00 -
+                                                                11h00</span>
+                                                        </div>
+                                                        <p class="mb-0 text-muted fs-12"> Reuninão com o setor de IA/EA
+                                                        </p>
+                                                    </li>
+                                                    <li>
+                                                        <div
+                                                            class="d-flex align-items-center justify-content-between flex-wrap">
+                                                            <p class="mb-1 fw-semibold"> Quinta-feira, 29 de dezembro de
+                                                                2022 </p><span
+                                                                class="badge bg-success mb-1">Concluído</span>
+                                                        </div>
+                                                        <p class="mb-0 text-muted fs-12"> Treinamento Head Cargo </p>
+                                                    </li>
+                                                </ul>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- CALENDÁRIO -->
-                <div class="col-xl-9">
-                    <div class="card custom-card">
-                        <div class="card-header">
-                            <div class="card-title">Calendário</div>
-                        </div>
-                        <div class="card-body">
-                            <div id='calendar'></div>
-                             <!-- INFO ADD NO JS -->
-                        </div>
+            <!-- CALENDÁRIO -->
+            <div class="col-xl-9">
+                <div class="card custom-card">
+                    <div class="card-header">
+                        <div class="card-title">Calendário</div>
+                    </div>
+                    <div class="card-body">
+                        <div id='calendar'></div>
+                        <!-- INFO ADD NO JS -->
                     </div>
                 </div>
+            </div>
 
-            </div> 
+        </div>
     </div>
-    
 
-   
+
+
 
     <!-- Scroll To Top -->
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
     <div id="responsive-overlay"></div>
     <!-- Scroll To Top -->
-    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"
+        integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
     <!-- Popper JS -->
     <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
     <!-- Bootstrap JS -->
@@ -265,7 +282,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <!-- SweetAlert JS -->
-   <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
 
     <script src='../../assets/libs/fullCalender/main.min.js'></script>
     <script src='../../assets/libs/fullCalender/core/locales/pt-br.global.js'></script>

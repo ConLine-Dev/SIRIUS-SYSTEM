@@ -142,7 +142,6 @@ async function getValuesFromSelects() {
     // Array com os names dos selects que não devem ficar em branco e suas mensagens personalizadas
     let selectNames = [
        { name: 'responsible', message: 'O campo RESPONSÁVEL é obrigatório.' },
-       { name: 'departments', message: 'O campo DEPARTAMENTO é obrigatório.' },
     ];
  
     let allValid = true;

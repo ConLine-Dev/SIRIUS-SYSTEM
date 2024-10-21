@@ -114,6 +114,13 @@ const tickets = {
 
         return msg
     },
+    listAllMessage: async function(){
+        const msg = await executeQuery(`SELECT clm.*,collab.name, collab.family_name,collab.family_name, collab.id_headcargo 
+        FROM called_messages clm
+        JOIN collaborators collab ON collab.id = clm.collab_id ORDER BY id DESC`);
+
+        return msg
+    },
     createMessage: async function (body) {
 
         const date = new Date()

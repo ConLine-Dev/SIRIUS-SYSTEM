@@ -711,3 +711,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.querySelector('#loader2').classList.add('d-none')
 });
+
+// Função que envia para a proxima janela o id da senha clicada
+async function OpenReport() {
+
+    const body = {
+        url: `/app/ti/projects-and-tickets/report`,
+        max:true
+    }
+    window.ipcRenderer.invoke('open-exWindow', body);
+ };

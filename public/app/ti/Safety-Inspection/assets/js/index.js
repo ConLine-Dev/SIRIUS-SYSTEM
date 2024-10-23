@@ -273,7 +273,6 @@ async function loadComplianceData() {
     // document.querySelector('#ComplianceRate').innerText = ComplianceRate+'%'
 }
 
-
 function formatDate(dateString) {
     // Dividir a string de data no formato "YYYY-MM-DD"
     const [year, month, day] = dateString.split('-');

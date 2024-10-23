@@ -59,6 +59,7 @@ const tickets = {
             responsible: ticket.collaborator_id,
             start_forecast: ticket.start_forecast,
             end_forecast: ticket.end_forecast,
+            created_at: ticket.created_at,
             finished_at: ticket.finished_at,
             approved_at: ticket.approved_at,
             atribuido: atribuidoMap[ticket.id] || [],

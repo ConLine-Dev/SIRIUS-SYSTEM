@@ -500,18 +500,24 @@
     <div class="page">
         <div class="main-content">
             <div class="container-fluid">
-                <!-- BOTAO NOVO CHAMADO -->
+              
                 <div class="row">
                     <div class="col-xl-12">
                         <div class="card custom-card">
                             <div class="card-body p-3">
                                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                                     <div class="row kanban-board" style="width: 415px;">
-                                        <div class="col-6">
-                                            <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#add-task">
-                                            <i class="ri-add-line me-1 fw-semibold align-middle"></i>
+                                        <div class="col-4">
+                                            <button class="btn btn-primary me-2 btn-sm" data-bs-toggle="modal" data-bs-target="#add-task">
+                                       
                                                 Novo Chamado
                                             </button>
+                                        </div>
+                                        <div class="col-3">
+                                            <button  onclick="OpenReport()" class="btn btn-primary me-2 btn-sm">
+                                              
+                                                    Indicadores
+                                              </button>
                                         </div>
                                         <!-- <div class="col-6" style="margin-left: -45px;">
                                             <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#edit-responsible" onclick="buttonEditResponsible()">

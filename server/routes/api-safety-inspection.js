@@ -17,6 +17,32 @@ module.exports = function(io) {
         }
     });
 
+    router.get('/inspections-by-id/:id', async (req, res, next) => {
+      
+        try {
+            const result = await safetyInspection.inspectionsById(req.params.id);
+
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    // rota para editar inspeção
+    router.put('/inspections/:id', async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const { finished, status, description, idCollaborator } = req.body;
+
+            const result = await safetyInspection.updateInspectionsById(id, finished, status, description, idCollaborator);
+
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json('Erro');
+        }
+    });
+
     router.get('/inspections', async (req, res, next) => {
         try {
             const result = await safetyInspection.inspections();

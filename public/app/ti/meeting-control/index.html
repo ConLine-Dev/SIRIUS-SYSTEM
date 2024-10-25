@@ -25,6 +25,9 @@
     <link href="../../assets/css/styles.min.css" rel="stylesheet">
     <!-- Icons Css -->
     <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Flatpickr Css -->
+    <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
     <!-- Choices Css -->
     <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
     <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
@@ -96,13 +99,19 @@
                                     <option placeholder>Selecione a quem atribuir</option>
                                 </select>
                             </div>
+                            <div class="col-xl-12">
+                                <label class="form-label">Funcionários</label>
+                                <select class="form-control choices__input" multiple name="responsibles">
+                                    <option placeholder>Selecione a quem atribuir</option>
+                                </select>
+                            </div>
                             <div class="col-xl-6">
                                 <label class="form-label">Data de Inicio</label>
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
                                         <input type="text" class="form-control flatpickr-input targetDate"
-                                            name="timeInit" id="targetDate" placeholder="Escolha a data e hora"
+                                            name="timeInit" id="targetDate1" placeholder="Escolha a data e hora"
                                             readonly="readonly">
                                     </div>
                                 </div>
@@ -113,7 +122,7 @@
                                     <div class="input-group">
                                         <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
                                         <input type="text" class="form-control flatpickr-input targetDate"
-                                            name="timeEnd" id="targetDate" placeholder="Escolha a data e hora"
+                                            name="timeEnd" id="targetDate2" placeholder="Escolha a data e hora"
                                             readonly="readonly">
                                     </div>
                                 </div>
@@ -121,6 +130,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
+                        <button type="button" class="btn btn-primary deleteEventButton" onclick="deleteEvent(this.id)">Excluir</button>
                         <button type="button" class="btn btn-primary updateEventButton" onclick="updateEvent(this.id)">Salvar</button>
                     </div>
                 </div>
@@ -146,21 +156,13 @@
 
                         </div>
 
-                        <!-- ATIVIDADES RECENTES -->
+                        <!-- ATIVIDADES DO DIA -->
                         <div class="p-3">
                             <div class="d-flex align-items-center justify-content-between">
-                                <h6 class="fw-semibold">Próximas Atividades:</h6>
-                                <!-- <div class="dropdown">
-                                        <a aria-label="âncora" href="javascript:void(0);" class="btn btn-icon btn-sm btn-light" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fe fe-more-vertical"></i> </a>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="javascript:void(0);"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Próximos Eventos</font></font></a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Lembrete</font></font></a></li>
-                                            <li><a class="dropdown-item" href="javascript:void(0);"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Concluído</font></font></a></li>
-                                        </ul>
-                                    </div> -->
+                                <h6 class="fw-semibold">Eventos do dia:</h6>
                             </div>
                         </div>
-                        <div class="p-3 border-bottom" id="full-calendar-activity" data-simplebar="init">
+                        <div class="p-3 border-bottom" id="full-calendar-activity" data-simplebar="init" style="overflow:scroll">
                             <div class="simplebar-wrapper" style="margin: -16px;">
                                 <div class="simplebar-height-auto-observer-wrapper">
                                     <div class="simplebar-height-auto-observer"></div>
@@ -171,57 +173,30 @@
                                             aria-label="scrollable content"
                                             style="height: auto; overflow: hidden scroll;">
                                             <div class="simplebar-content" style="padding: 16px;">
-                                                <ul class="list-unstyled mb-0 fullcalendar-events-activity">
-                                                    <li>
-                                                        <div
-                                                            class="d-flex align-items-center justify-content-between flex-wrap">
-                                                            <p class="mb-1 fw-semibold"> Quarta-Feira, 5 de setembro de
-                                                                2024 </p><span
-                                                                class="badge bg-light text-default mb-1">15h00 -
-                                                                16h00</span>
-                                                        </div>
-                                                        <p class="mb-0 text-muted fs-12"> Reuninão com o setor de
-                                                            Importação Maritima </p>
-                                                    </li>
-                                                    <li>
-                                                        <div
-                                                            class="d-flex align-items-center justify-content-between flex-wrap">
-                                                            <p class="mb-1 fw-semibold"> Quinta-feira, 29 de dezembro de
-                                                                2022 </p><span
-                                                                class="badge bg-success mb-1">Concluído</span>
-                                                        </div>
-                                                        <p class="mb-0 text-muted fs-12"> Treinamento Head Cargo </p>
-                                                    </li>
-                                                    <li>
-                                                        <div
-                                                            class="d-flex align-items-center justify-content-between flex-wrap">
-                                                            <p class="mb-1 fw-semibold"> Quarta-feira, 3 de janeiro de
-                                                                2023 </p><span
-                                                                class="badge bg-warning-transparent mb-1">Lembrete</span>
-                                                        </div>
-                                                        <p class="mb-0 text-muted fs-12"> O trabalho para o novo projeto
-                                                            está sendo concluído </p>
-                                                    </li>
-                                                    <li>
-                                                        <div
-                                                            class="d-flex align-items-center justify-content-between flex-wrap">
-                                                            <p class="mb-1 fw-semibold"> Quarta-Feira, 18 de setembro de
-                                                                2024 </p><span
-                                                                class="badge bg-light text-default mb-1">10h00 -
-                                                                11h00</span>
-                                                        </div>
-                                                        <p class="mb-0 text-muted fs-12"> Reuninão com o setor de IA/EA
-                                                        </p>
-                                                    </li>
-                                                    <li>
-                                                        <div
-                                                            class="d-flex align-items-center justify-content-between flex-wrap">
-                                                            <p class="mb-1 fw-semibold"> Quinta-feira, 29 de dezembro de
-                                                                2022 </p><span
-                                                                class="badge bg-success mb-1">Concluído</span>
-                                                        </div>
-                                                        <p class="mb-0 text-muted fs-12"> Treinamento Head Cargo </p>
-                                                    </li>
+                                                <ul class="list-unstyled mb-0 fullcalendar-events-activity" id="eventsList">
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- ATIVIDADES DA SEMANA -->
+                        <div class="p-3">
+                            <div class="d-flex align-items-center justify-content-between" id="weekEvents"></div>
+                        </div>
+                        <div class="p-3 border-bottom" id="full-calendar-activity" data-simplebar="init" style="overflow:scroll">
+                            <div class="simplebar-wrapper" style="margin: -16px;">
+                                <div class="simplebar-height-auto-observer-wrapper">
+                                    <div class="simplebar-height-auto-observer"></div>
+                                </div>
+                                <div class="simplebar-mask">
+                                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                        <div class="simplebar-content-wrapper" tabindex="0" role="region"
+                                            aria-label="scrollable content"
+                                            style="height: auto; overflow: hidden scroll;">
+                                            <div class="simplebar-content" style="padding: 16px;">
+                                                <ul class="list-unstyled mb-0 fullcalendar-events-activity" id="weekEventsList">
                                                 </ul>
                                             </div>
                                         </div>
@@ -267,6 +242,9 @@
     <!-- <script src="../../assets/libs/intro.js/intro.min.js"></script> -->
     <!-- <script src="../../assets/libs/intro.js/intro.js"></script> -->
 
+    <!-- Flat Picker JS -->
+    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+    <script src="../../assets/libs/flatpickr/pt.js"></script>
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 

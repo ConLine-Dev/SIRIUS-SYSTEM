@@ -1,4 +1,7 @@
-let sAllCategories, sAllResponsible, sAllDepartments, choicesInstanceEdit;
+let sAllCategories, sAllResponsible, sAllDepartments, sAllResponsibles2, choicesInstanceEdit, calendar;
+
+let modalElement = document.getElementById('add-task');
+let modalInstance = new bootstrap.Modal(modalElement);
 
 // Função para listar as categorias do calendario criado na API
 async function ListCategory(data) {
@@ -9,7 +12,7 @@ async function ListCategory(data) {
     const item = data[i];
 
     divMeetingControl += `<div class="row">
-                              <div class="col-11 fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event border" style="background-color: ${item.color}; cursor: auto;">
+                              <div id="${item.id}" class="col-11 fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event border" style="background-color: ${item.color}; cursor: auto;" onclick="printWeekEvents(this.id)">
                                   <div class="fc-event-main">${item.name}</div>
                               </div>
                               <div id="${item.id}" class="col-1 fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event border" style="background-color: ${item.color}; cursor: pointer;" onclick="openRegister(this.id)">
@@ -106,6 +109,32 @@ async function getAllDepartments() {
 
 }
 
+async function getAllResponsibles2() {
+  // carrega os usuarios responsaveis
+  const Responsible = await makeRequest(`/api/users/listAllUsers`);
+
+  // Formate o array para ser usado com o Choices.js (Biblioteca)
+  const listaDeOpcoes = Responsible.map(function (element) {
+      return {
+          value: `${element.id_colab}`,
+          label: `${element.username + ' ' + element.familyName}`,
+      };
+  });
+
+  // verifica se o select ja existe, caso exista destroi
+  if (sAllResponsibles2) {
+      sAllResponsibles2.destroy();
+  }
+
+  // renderiza o select com as opções formatadas
+  sAllResponsibles2 = new Choices('select[name="responsibles"]', {
+      choices: listaDeOpcoes,
+      shouldSort: false,
+      removeItemButton: true,
+      noChoicesText: 'Não há opções disponíveis',
+  });
+}
+
 async function getAllCategories(categoryId) {
 
   // carrega os usuarios responsaveis
@@ -143,15 +172,17 @@ async function getAllCategories(categoryId) {
 
 async function disableOptions(responsibleId, userId) {
   const fields = document.querySelectorAll('.form-control');
-  
-  fields.forEach(function (field) {
-    field.disabled = false;
-  });
 
+  for (let index = 0; index < fields.length; index++) {
+    const element = fields[index];
+    element.disabled = false;
+  }
+  
   if (responsibleId != userId) {
-    fields.forEach(function (field) {
-      field.disabled = true;
-    });
+    for (let index = 0; index < fields.length; index++) {
+      const element = fields[index];
+      element.disabled = true;
+    }
   }
 }
 
@@ -160,13 +191,15 @@ async function printEventData(eventId) {
   let data = await makeRequest('/api/meeting-control/getById', 'POST', { id: eventId });
   data = data[0];
 
-  
   const loggedData = await getInfosLogin();
   const collabData = await makeRequest(`/api/meeting-control/getCollabData`, 'POST', loggedData);
+  const deleteButton = document.querySelector('.deleteEventButton');
   const saveButton = document.querySelector('.updateEventButton');
   saveButton.id = eventId;
-  
+  deleteButton.id = eventId;
+
   await getAllDepartments();
+  await getAllResponsibles2();
   await getAllCategories(data.id_category);
   await getAllResponsible(data.id_collaborator);
   
@@ -176,14 +209,17 @@ async function printEventData(eventId) {
   document.querySelector('input[name="timeEnd"]').value = data.end_date ? formatDate(data.end_date) : '';
   
   let departmentsbyEvent = await makeRequest('/api/meeting-control/getDepartmentsbyEvent', 'POST', {id: eventId});
+  let responsiblesbyEvent = await makeRequest('/api/meeting-control/getResponsiblesbyEvent', 'POST', {id: eventId});
   
+  console.log(responsiblesbyEvent);
   const departments = departmentsbyEvent.map(department => department.department_id.toString());
   sAllDepartments.setChoiceByValue(departments);
-  
+
+  const responsibles = responsiblesbyEvent.map(responsible => responsible.collaborator_id.toString());
+  sAllResponsibles2.setChoiceByValue(responsibles);
+
   await disableOptions(data.id_collaborator, collabData[0].collabId);
 
-  let modalElement = document.getElementById('add-task');
-  let modalInstance = new bootstrap.Modal(modalElement);
   modalInstance.show();
 }
 
@@ -198,18 +234,131 @@ function formatDate(value) {
   return `${ano}-${mes}-${dia} ${horas}:${minutos}`;
 }
 
-function updateEvent(id){
+async function updateEvent(id){
   const title = document.querySelector('input[name="title"]').value;
   const responsible = document.querySelector('select[name="responsible"]').value;
   const eventCategory = document.querySelector('select[name="category"]').value;
   const departments = Array.from(document.querySelectorAll('select[name="departments"] option:checked')).map(option => option.value);
+  const responsibles = Array.from(document.querySelectorAll('select[name="responsibles"] option:checked')).map(option2 => option2.value);
   const description = document.querySelector('textarea[name="description"]').value;
   const timeInit = document.querySelector('input[name="timeInit"]').value;
   const timeEnd = document.querySelector('input[name="timeEnd"]').value;
 
-  const eventData = {id, title, responsible, eventCategory, departments, description, timeInit, timeEnd}
+  const eventData = {id, title, responsible, eventCategory, departments, responsibles, description, timeInit, timeEnd}
   
-  makeRequest(`/api/meeting-control/updateEvent`, 'POST', eventData);
+  await makeRequest(`/api/meeting-control/updateEvent`, 'POST', eventData);
+
+  calendar.destroy();
+  await initializeCalendar()
+  modalInstance.hide();
+}
+
+async function deleteEvent(id){
+
+  await makeRequest(`/api/meeting-control/deleteEvent`, 'POST', {id: id});
+
+  calendar.destroy();
+  await initializeCalendar()
+  modalInstance.hide();
+
+}
+
+async function printEventsList(date){
+  const eventsList = document.querySelector('#eventsList');
+  let divEventsList = ''
+
+  const allEvents = await makeRequest(`/api/meeting-control/getAllEventsFull`);
+
+  for (let index = 0; index < allEvents.length; index++) {
+    if (allEvents[index].start == date){
+      let datetime = formatDateTime(allEvents[index].init_date, allEvents[index].end_date);
+      divEventsList += `<li>
+                            <div
+                                class="d-flex align-items-center justify-content-between flex-wrap">
+                                <p class="mb-1 fw-semibold"> ${datetime.formattedDate} </p><span
+                                    class="badge bg-light text-default mb-1"> ${datetime.formattedTime} </span>
+                            </div>
+                            <p class="mb-0 text-muted fs-12" style="color:${allEvents[index].color}!important"> ${allEvents[index].category} </p>
+                        </li>`
+    }
+  }
+  eventsList.innerHTML = divEventsList;
+}
+
+async function printWeekEvents(category){
+  const eventsTitle = document.querySelector('#weekEvents');
+  let divEventsTitle = '';
+  const eventsList = document.querySelector('#weekEventsList');
+  let divEventsList = '';
+
+  const categoryCalendar = await makeRequest(`/api/meeting-control/getAllCategoryCalendar`);
+  const allEvents = await makeRequest(`/api/meeting-control/getAllEventsFull`);
+
+  for (let index = 0; index < array.length; index++) {
+    const element = array[index];
+    
+  }
+  divEventsTitle = `<h6 class="fw-semibold">${category} da semana:</h6>`
+
+  for (let index = 0; index < allEvents.length; index++) {
+    if (allEvents[index].category_id == category) {
+      console.log(allEvents[index]);
+    }
+  }
+  eventsTitle.innerHTML = divEventsTitle;
+  eventsList.innerHTML = divEventsList;
+}
+
+function formatDateTime(initDate, endDate) {
+  const optionsDate = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  };
+
+  const optionsTime = {
+    hour: '2-digit',
+    minute: '2-digit',
+  };
+
+  const init = new Date(initDate);
+  const end = new Date(endDate);
+
+  const formattedDate = init.toLocaleDateString('pt-BR', optionsDate);
+  const startTime = init.toLocaleTimeString('pt-BR', optionsTime);
+  const endTime = end.toLocaleTimeString('pt-BR', optionsTime);
+
+  return {
+    formattedDate,
+    formattedTime: `${startTime} - ${endTime}`
+  };
+}
+
+async function initializeCalendar(){
+
+  const loggedData = await getInfosLogin();
+  const allEvents = await makeRequest(`/api/meeting-control/getEventsByUser`, 'POST', loggedData);
+ 
+  let calendarEl = document.getElementById('calendar');
+
+  calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    locale: 'pt-br',
+    events: allEvents,
+    editable: true,
+    selectable: true,
+    eventDrop: function (info) {
+      updateEventDate(info);
+    },
+    eventClick: async function (info) {
+      await printEventData(info.event.id);
+    },
+    dateClick: function (info) {
+      printEventsList(info.dateStr);
+    }
+  });
+  calendar.render();
 }
 
 async function getInfosLogin() {
@@ -219,30 +368,24 @@ async function getInfosLogin() {
   return StorageGoogle;
 };
 
+function initializeDatePicker() {
+  flatpickr(".targetDate", {
+      enableTime: true,
+      dateFormat: "Y-m-d H:i",
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async function () {
 
   const categoryCalendar = await makeRequest(`/api/meeting-control/getAllCategoryCalendar`);
 
+  let date = new Date();
+  date = formatDate(date);
+  date = date.split(" ")[0];
+  await printEventsList(date);
+
+  initializeDatePicker();
   await ListCategory(categoryCalendar);
+  await initializeCalendar();
 
-  const allEvents = await makeRequest(`/api/meeting-control/getAllEvents`)
- 
-  let calendarEl = document.getElementById('calendar');
-
-  let calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth', // Exibição inicial
-    locale: 'pt-br',
-
-    events: allEvents,
-    eventDrop: function (info) {
-      updateEventDate(info);
-    },
-    editable: true, // Permite arrastar e soltar eventos
-    selectable: true, // Permite selecionar datas
-    eventClick: async function (info) {
-      await printEventData(info.event.id);
-    },
-  });
-
-  calendar.render();
 });

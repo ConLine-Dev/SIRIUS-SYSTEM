@@ -13,9 +13,27 @@ module.exports = function(io) {
         }
     });
 
-    router.get('/getAllEvents', async (req, res, next) => {
+    router.post('/getEventsByUser', async (req, res, next) => {
         try {
-            const result = await meetingControl.getAllEvents();
+            const result = await meetingControl.getEventsByUser(req.body);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    });
+
+    router.post('/getCollabsByDept', async (req, res, next) => {
+        try {
+            const result = await meetingControl.getCollabsByDept(req.body);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    });
+
+    router.get('/getAllEventsFull', async (req, res, next) => {
+        try {
+            const result = await meetingControl.getAllEventsFull();
             res.status(200).json(result);
         } catch (error) {
             res.status(404).json(error);
@@ -32,9 +50,30 @@ module.exports = function(io) {
         }
     });
 
+    router.post('/createMessage', async (req, res, next) => {
+        try {
+            const result = await meetingControl.createMessage(req.body);
+    
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json(error);
+        }
+    });
+
     router.post('/updateEvent', async (req, res, next) => {
         try {
             const result = await meetingControl.updateEvent(req.body);
+    
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json(error);
+        }
+    });
+
+    router.post('/deleteEvent', async (req, res, next) => {
+        const {id} = req.body
+        try {
+            const result = await meetingControl.deleteEvent(id);
     
             res.status(200).json(result)
         } catch (error) {
@@ -63,6 +102,28 @@ module.exports = function(io) {
         }
     });
 
+    router.post('/verifyFreeRoom', async (req, res, next) => {
+        const {firstDate, lastDate} = req.body
+        try {
+            const result = await meetingControl.verifyFreeRoom(firstDate, lastDate);
+    
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json(error);
+        }
+    });
+
+    router.post('/verifyFreeBooth', async (req, res, next) => {
+        const {firstDate, lastDate} = req.body
+        try {
+            const result = await meetingControl.verifyFreeBooth(firstDate, lastDate);
+    
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json(error);
+        }
+    });
+
     router.post('/getById', async (req, res, next) => {
         const {id} = req.body
         try {
@@ -77,6 +138,16 @@ module.exports = function(io) {
     router.post('/getDepartmentsbyEvent', async (req, res, next) => {
         try {
             const result = await meetingControl.getDepartmentsbyEvent(req.body.id);
+    
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json(error);
+        }
+    });
+
+    router.post('/getResponsiblesbyEvent', async (req, res, next) => {
+        try {
+            const result = await meetingControl.getResponsiblesbyEvent(req.body.id);
     
             res.status(200).json(result)
         } catch (error) {

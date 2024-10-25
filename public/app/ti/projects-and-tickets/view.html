@@ -1,0 +1,298 @@
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Chamados Membro Equipe</title>
+    <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
+    <meta name="Author" content="Spruko Technologies Private Limited">
+    <meta name="keywords"
+        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main JS -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    <!-- Color Picker Css -->
+    <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    
+
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+    
+    <!-- Loader -->
+    <!-- <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div> -->
+
+    <div class="page">
+        <div class="main-content">
+            <div class="container-fluid">
+
+                <!--Pagina de Chamados Membro Equipe-->
+                <div class="col-12"><br>                    
+                    <div class="card custom-card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="card-title">Chamados Membro Equipe</div>
+                                                    
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="">  
+                    <div class="row">
+                        <!--Cards de Projetos-->
+                        <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">   
+                            <div class="row">
+                                <!-- Card Membro-->
+                                <div class="col-xl-12">
+                                    <div class="card custom-card border-top-card border-top-purple rounded-2">
+                                        <div class="card-body">
+                                            <div class="text-center"> <span class="avatar avatar-md bd-purple shadow-sm avatar-rounded mb-2"> <i class="bi bi-person-circle fs-20"></i></span>
+                                                <p class="fs-14 fw-semibold mb-2">Developer</p>
+                                                <div class="d-flex align-items-center justify-content-center flex-wrap">
+                                                    <h5 class="mb-0 fw-semibold">Dayana Alves</h5> 
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--Projetos Novos-->
+                                <div class="col-sm-4">
+                                    <div class="card custom-card cardsProjects">
+                                        <div class="card-body d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <p class="mb-2">Projetos Novos</p>
+                                                <h4 id="newProjects" class="mb-0 fw-semibold mb-2 ">109</h4> 
+                                                <span class="badge bg-success-transparent"><span id="newProjectsPercentage"></span>
+                                                
+                                                </span>
+                                                <span class="text-muted fs-11 ms-1">este mês</span> </div>
+                                            <div> <span class="avatar avatar-md bg-primary p-2"> <i class="bi bi-code-slash fs-20 op-8"></i> </span> </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--Projetos Análise-->
+                                <div class="col-sm-4">
+                                    <div class="card custom-card cardsProjects">
+                                        <div class="card-body d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <p class="mb-2">Projetos Análise</p>
+                                                <h4 id="analiseProjects" class="mb-0 fw-semibold mb-2">18</h4> 
+                                                <span class="badge bg-danger-transparent"><span id="analiseProjectsPercentage"></span>
+                                                    </span><span class="text-muted fs-11 ms-1">este mês</span> </div>
+                                            <div> <span class="avatar avatar-md bg-secondary p-2"> <i class="bi bi-clock fs-20 op-8"></i> </span> </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--Projetos Andamento-->
+                                <div class="col-sm-4">
+                                    <div class="card custom-card cardsProjects">
+                                        <div class="card-body d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <p class="mb-2">Projetos Andamento</p>
+                                                <h4 id="inProgressProjects" class="mb-0 fw-semibold mb-2">389</h4> <span class="badge bg-success-transparent">
+                                                    <span id="inProgressProjectsPercentage"></span> 
+                                                    </span><span class="text-muted fs-11 ms-1">este mês</span> </div>
+                                            <div> <span class="avatar avatar-md bg-success p-2"> <i class="bi bi-hourglass-top fs-20 op-8"></i> </span> </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--Projetos Revisão-->
+                                <div class="col-sm-4">
+                                    <div class="card custom-card cardsProjects">
+                                        <div class="card-body d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <p class="mb-2">Projetos Revisão</p>
+                                                <h4 id="inReviewProjects" class="mb-0 fw-semibold mb-2">227</h4> <span class="badge bg-success-transparent">
+                                                    <span id="inReviewProjectsPercentage"></span>
+                                                </span><span class="text-muted fs-11 ms-1">este mês</span> </div>
+                                            <div> <span class="avatar avatar-md bg-warning p-2"> <i class="bi bi-arrow-repeat fs-20 op-8"></i> </span> </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--Projetos Concluídos-->
+                                <div class="col-sm-4">
+                                    <div class="card custom-card cardsProjects">
+                                        <div class="card-body d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <p class="mb-2">Projetos Concluídos</p>
+                                                <h4 id="completedProjects" class="mb-0 fw-semibold mb-2">227</h4> 
+                                                <span class="badge bg-success-transparent">
+                                                    <span id="completedProjectsPercentage"></span> </span><span class="text-muted fs-11 ms-1">este mês</span> </div>
+                                            <div> <span class="avatar avatar-md bg-warning p-2"> <i class="bi bi-check2-circle fs-20 op-8"></i> </span> </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--Total Projetos-->
+                                <div class="col-sm-4">
+                                    <div class="card custom-card cardsProjects">
+                                        <div class="card-body d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <p class="mb-2">Total Projetos</p>
+                                                <h4 id="totalProjects" class="mb-0 fw-semibold mb-2">227</h4> 
+                                                    <!-- <span id="newProjectsPercentage"></span>  -->
+                                                
+                                                    <span class="text-muted fs-11 ms-1">este mês</span> </div>
+                                            <div> <span class="avatar avatar-md bg-warning p-2"> <i class="bi bi-list-check fs-20 op-8"></i> </span> </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Grafico de Analise de projetos-->
+                        <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
+                            <div class="row">
+                                <div class="col-xl-12">
+                                    <div class="card custom-card">
+                                        <div class="card-header justify-content-between">
+                                            <div class="card-title"> Analise de Projetos </div>
+                                        </div>
+                                        <div class="card-body" style="min-height: 381px;">
+                                            <div id="chart-container" style="min-height: 300px;">
+                                            <!--INFOS ADD NO JS-->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                              
+                              
+                            </div>
+                        </div>  
+                    </div>
+
+                
+                    <!--Lista de Resumo dos projetos-->
+                    <div class="row">
+                        <div class="col-xxl-12">
+                            <div class="card custom-card">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title"> Resumo dos projetos </div>
+                                    <div class="d-flex flex-wrap">
+                                        <div class="me-3 my-1">
+                                            <input class="form-control form-control-sm" type="text" placeholder="Pesquisar" aria-label=".form-control-sm example"> </div>
+                                        <div class="dropdown my-1"> <a href="javascript:void(0);" class="btn btn-primary btn-sm btn-wave waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false"> Status<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i> </a>
+                                            <ul
+                                            class="dropdown-menu" role="menu">
+                                                <li><a class="dropdown-item" href="javascript:void(0);">Novos</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);">Em Análise</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);">Em Andamento</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);">Em Revisão</a></li>
+                                                <li><a class="dropdown-item" href="javascript:void(0);">Em Concluído</a></li>
+                                                </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table id="table-resumo-projetos" class="table table-hover text-nowrap table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">N° Ticket</th>
+                                                    <th scope="col">Título</th>
+                                                    <th scope="col">Atribuído</th>
+                                                    <th scope="col">Responsável</th>
+                                                    <th scope="col">Categoria</th>
+                                                    <th scope="col">Status</th>
+                                                    <th scope="col">Progresso</th>
+                                                    <th scope="col">Início Previsto</th>
+                                                    <th scope="col">Fim Previsto</th>
+                                                    <th scope="col">Concluído em</th>
+                                                    <th scope="col">Aprovado em</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- <tr>
+                                                    <th scope="row"> 1 </th>
+                                                    <td> Home Page </td>
+                                                    <td>
+                                                        <div class="avatar-list-stacked"> <span class="avatar avatar-xs avatar-rounded"> <img src="../assets/images/faces/2.jpg" alt="img"> </span> <span class="avatar avatar-xs avatar-rounded"> <img src="../assets/images/faces/8.jpg" alt="img"> </span>                                            <span class="avatar avatar-xs avatar-rounded"> <img src="../assets/images/faces/2.jpg" alt="img"> </span> <a class="avatar avatar-xs bg-primary avatar-rounded text-fixed-white" href="javascript:void(0);"> +2 </a>                                            </div>
+                                                    </td>
+                                                    <td>110/180</td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="progress progress-animate progress-xs w-100" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 0%"></div>
+                                                            </div>
+                                                            <div class="ms-2">0%</div>
+                                                        </div>
+                                                    </td>
+                                                    <td> <span class="badge bg-primary-transparent">In Progress</span> </td>
+                                                    <td> 14-04-2023 </td>
+                                                </tr> -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+    <!-- Jquery -->
+    <script src="../../assets/libs/jQuery/jquery-3.6.1.min.js"></script>
+    <!-- Popper JS -->
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Color Picker JS -->
+    <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+    <!-- Flat Picker JS -->
+    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+    <!-- ApexCharts JS -->
+    <script src="../../assets/libs/apexCharts/apexCharts.js"></script>
+    <!-- Xlsx -->
+    <script src="../../assets/libs/xlsx/xlsx.full.min.js"></script>
+
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <!-- <script src="./assets/js/table.js"></script> -->
+
+</body>
+
+</html>

@@ -62,13 +62,13 @@ async function getReport() {
 
     const projectsMaintask = document.querySelector('.projects-maintask-card');
     projectsMaintask.innerHTML = '';
-    
-    for (let index = 0; index < 5; index++) {
+    let html = '';
+    for (let index = 0; index < filteredDates.length; index++) {
         const element = filteredDates[index];
 
         const imgAtribued = element.atribuido.map(item => `<span class="avatar avatar-xs avatar-rounded"> <img title="${item.name} ${item.family_name}" src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt="img"> </span>`).join('')
         
-        projectsMaintask.innerHTML += `<li onclick="editTask(${element.id})">
+        html += `<li onclick="editTask(${element.id})" style="padding: 0px 1px !important;">
                         <div class="d-flex align-items-top">
                             <div class="d-flex align-items-top flex-fill"> 
                            
@@ -82,6 +82,8 @@ async function getReport() {
                         </div>
                     </li>`
     }
+
+    projectsMaintask.innerHTML = html;
 
 
     new DataTable('#table-resumo-projetos', {
@@ -234,7 +236,7 @@ async function generateChart(projects) {
             curve: 'smooth'
         },
         marker: {
-            size: 5,
+            size: 10,
             hover: {
                 sizeOffset: 6
             }
@@ -327,11 +329,6 @@ async function generateChart(projects) {
     chart1.render();
 }
 
-
-
-
-
-
 // Função para listar todos os membros e a quantidade de projetos atribuídos a cada um
 async function listAllMembers(projects) {
     const listusers = await makeRequest('/api/users/ListUserByDep/7');
@@ -345,7 +342,7 @@ async function listAllMembers(projects) {
 
         teamMembers.innerHTML += `<li>
             <a href="javascript:void(0)">
-                <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center justify-content-between" style="padding: 1px; !important">
                     <div class="d-flex align-items-top"> 
                         <span class="avatar avatar-sm lh-1"> 
                             <img src="https://cdn.conlinebr.com.br/colaboradores/${element.id_headcargo}" alt=""> 
@@ -362,16 +359,28 @@ async function listAllMembers(projects) {
             </a>
         </li>`;
     }
+    
+}
+
+// Função que envia para a proxima janela o id do membro
+async function openMember(id) {
+    const body = {
+        url: `/app/ti/projects-and-tickets/view?id=${id}`,
+        resizable: false,
+        alwaysOnTop: true
+    }
+    window.ipcRenderer.invoke('open-exWindow', body);
 }
 
 async function listMenssages(){
     const messages = await makeRequest('/api/called/tickets/listAllMessage', 'POST');
     const teamMembers = document.querySelector('.project-transactions-card');
     teamMembers.innerHTML = '';
-    for (let index = 0; index < 5; index++) {
+    let html = '';
+    for (let index = 0; index < 30; index++) {
         const element = messages[index];
         
-        teamMembers.innerHTML += `<li>
+        html += `<li>
                                     <div class="d-flex align-items-top">
                                         <div class="me-3"> <span class="avatar avatar-rounded fw-bold avatar-md bg-primary-transparent"> <img src="https://cdn.conlinebr.com.br/colaboradores/${element.id_headcargo}" alt=""> </span> </div>
                                         <div class="flex-fill"> <span class="d-block fw-semibold">
@@ -382,6 +391,8 @@ async function listMenssages(){
                                     </div>
                                 </li>`
     }
+
+    teamMembers.innerHTML = html
 }
 
 // Formata a data no estilo "DD/MM/YYYY HH:mm"
@@ -407,7 +418,6 @@ function formatDateBR(value) {
 
     return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
 }
-
 
 async function listCategories() {
     const categories = await makeRequest('/api/called/categories');
@@ -467,7 +477,6 @@ function scrollToBottom(selector) {
         behavior: 'smooth' // Faz a rolagem ser suave
     });
 }
-
 
 // Edita uma tarefa existente
 async function editTask(taskId) {
@@ -537,3 +546,5 @@ async function editTask(taskId) {
         console.error('Error:', error);
     }
 }
+
+

@@ -1,6 +1,88 @@
 // Função que gera a tabela de faturas a partir dos dados recebidos de uma API.
 let startDateGlobal, endDateGlobal;
 
+// Função para listar todos os cards de Teus, m3 e peso
+async function totalContainers(data) {
+    // Seleciona as divs onde os valores serão exibidos
+    const divTotalTeus = document.querySelector('.total_teus')
+    const divTotalCntr = document.querySelector('.total_cntr')
+    const divTotalCntr20 = document.querySelector('.total_cntr20')
+    const divTotalCntr40 = document.querySelector('.total_cntr40')
+    const divTotalVolume = document.querySelector('.total_volume')
+    const divTotalPeso = document.querySelector('.total_peso')
+
+    // Inicializa as variáveis que armazenarão os totais
+    let totalTeus = 0;
+    let totalCntr = 0;
+    let totalCntr20 = 0;
+    let totalCntr40 = 0;
+    let totalVolume = 0;
+    let totalPeso = 0;
+
+    // Percorre cada item do array de dados
+    for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+
+        if (item.TEUS) {
+            totalTeus += item.TEUS
+        }
+
+        if (item.Total_Containers) {
+            totalCntr += item.Total_Containers;
+        }
+
+        if (item.Qnt_Container_20) {
+            totalCntr20 += item.Qnt_Container_20; 
+        }
+
+        if (item.Qnt_Container_40) {
+            totalCntr40 += item.Qnt_Container_40;
+        }
+
+        if (item.Metragem_Cubica) {
+            totalVolume += item.Metragem_Cubica;
+        }
+
+        if (item.Peso_Bruto) {
+            totalPeso += item.Peso_Bruto;
+        }
+  
+    }
+
+    // Formatando os valores para exibir com separadores de milhar e casas decimais
+    totalVolume = totalVolume.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).replace(',', '.');
+    totalPeso = totalPeso.toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).replace(',', '.');
+
+     // Exibe os valores totais nas divs
+     divTotalTeus.textContent = totalTeus;
+     divTotalCntr.textContent = totalCntr;
+     divTotalCntr20.textContent = totalCntr20;
+     divTotalCntr40.textContent = totalCntr40;
+     divTotalVolume.textContent = totalVolume;
+     divTotalPeso.textContent = totalPeso;
+}
+
+async function customerRanking(data) {
+    const divTotalProcesses = document.querySelector('.total_processes')
+
+    let totalProcesses = 0;
+
+    for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+
+        if (item.Numero_Processo) {
+            totalProcesses += item.Numero_Processo;
+            
+        }
+        
+    }
+
+    divTotalProcesses.textContent = totalProcesses;
+    
+}
+
+
+
 
 async function fetchProcessData() {
     // Aqui você fará a chamada à sua API ou banco de dados
@@ -100,6 +182,7 @@ async function generateProcessChart(startDate,endDate) {
 }
 
 
+
 // Função para listar as propostas
 async function totalOffers(data) {
     const divTotalApproved = document.querySelector('.total_approved');
@@ -135,9 +218,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const totalOffersProcesses = await makeRequest(`/api/report-pricing/totalOffersProcesses`, 'POST');
     const graphicProcesses = await makeRequest(`/api/report-pricing/graphicProcesses`, 'POST');
+    const managementPricing = await makeRequest(`/api/report-pricing/managementPricing`, 'POST');
 
 
+    
     await totalOffers(totalOffersProcesses);
+    await totalContainers(managementPricing);
+    await customerRanking(managementPricing);
+
+
+
 
     // Chama a função para gerar o gráfico
     generateProcessChart(graphicProcesses);

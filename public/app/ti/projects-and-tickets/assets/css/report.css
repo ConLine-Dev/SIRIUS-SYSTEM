@@ -71,3 +71,111 @@ textarea {
 #table-resumo-projetos_filter{
     display: none;
 }
+
+#members-equip {
+    cursor: pointer;  /* Aponta que o item pode ser clicado */
+    transition: background-color 0.2s ease;  /* Suaviza a transição de cor */
+    padding: 15px 20px;  /* 10px no topo/baixo e 20px nas laterais */
+    border-radius: 8px; /* borda arredondada */
+}
+
+#members-equip li:hover {
+    background-color: #f6f6f6;  /* Muda a cor de fundo ao passar o mouse */
+}
+
+#tasksLate {
+    overflow-y: scroll;
+    max-height: 368px;
+    position: relative;
+    min-height: 368px;
+}
+
+/* Estiliza a largura da barra de rolagem */
+#tasksLate::-webkit-scrollbar {
+    width: 12px; /* largura da barra vertical */
+    height: 12px; /* altura da barra horizontal */
+ }
+ 
+ /* Estiliza o fundo da barra de rolagem */
+#tasksLate::-webkit-scrollbar-track {
+    background: var(--header-bg); /* cor do fundo */
+ }
+ 
+ /* Estiliza o thumb (parte que se move da barra) */
+#tasksLate::-webkit-scrollbar-thumb {
+    background-color: var(--header-border-color); /* cor do thumb */
+    border-radius: 10px; /* borda arredondada */
+    border: 2px solid var(--default-background); /* margem para o thumb */
+ }
+ 
+#tasksLate::-webkit-scrollbar-button:active {
+    background-color: #aaaaaaea; /* cor das setas ao serem clicadas */
+ }
+
+.cardsOne {
+    max-height: 242px;
+    position: relative;
+    min-height: 242px;
+}
+
+.cardsTwo {
+    max-height: 288px;
+    position: relative;
+    min-height: 288px;
+}
+
+.listCards1 {
+    max-height: 13px;
+    position: relative;
+    min-height: 13px;
+}
+
+#latestMessages {
+    overflow-y: scroll;
+    max-height: 368px;
+    position: relative;
+    min-height: 368px;
+}
+
+/* Estiliza a largura da barra de rolagem */
+#latestMessages::-webkit-scrollbar {
+    width: 12px; /* largura da barra vertical */
+    height: 12px; /* altura da barra horizontal */
+}
+ 
+ /* Estiliza o fundo da barra de rolagem */
+ #latestMessages::-webkit-scrollbar-track {
+    background: var(--header-bg); /* cor do fundo */
+}
+ 
+ /* Estiliza o thumb (parte que se move da barra) */
+ #latestMessages::-webkit-scrollbar-thumb {
+    background-color: var(--header-border-color); /* cor do thumb */
+    border-radius: 10px; /* borda arredondada */
+    border: 2px solid var(--default-background); /* margem para o thumb */
+}
+ 
+ 
+ #latestMessages::-webkit-scrollbar-button:active {
+    background-color: #aaa; /* cor das setas ao serem clicadas */
+}
+
+/* Estilo básico para os itens da lista */
+.projects-maintask-card li {
+    cursor: pointer;  /* Aponta que o item pode ser clicado */
+    transition: background-color 0.2s ease;  /* Suaviza a transição de cor */
+    padding: 6px 10px;  /* 10px no topo/baixo e 20px nas laterais */
+    border-radius: 5px; /* borda arredondada */
+}
+
+/* Cor de fundo ao passar o mouse */
+.projects-maintask-card li:hover {
+    background-color: #f1f1f1;  /* Muda a cor de fundo ao passar o mouse */
+}
+
+.cardsProjects {
+    padding: 0.30rem;
+}
+
+
+

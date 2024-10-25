@@ -3,9 +3,71 @@ const { executeQuery } = require('../connect/mysql');
 
 const reportPricing = {
 
+    // Lista todos os cards referente a operação
+    managementPricing: async function (startDate, endDate) {
+        const allDate = startDate && endDate ? `(Lhs.Data_Abertura_Processo '${startDate}' and '${endDate}')` : `DATEPART(YEAR, Lhs.Data_Abertura_Processo) = DATEPART(YEAR, GETDATE())`
 
-        // Lista todas as situaçoes da proposta
-        totalOffersProcesses: async function (startDate, endDate) {
+
+        const result = await executeQuerySQL(`
+        SELECT
+            COUNT(Lhs.Numero_Processo) AS Numero_Processo,
+            Cli.Nome AS Cliente,
+            Lmh.Total_TEUS AS TEUS,
+            Lmh.Total_Container_20 AS Qnt_Container_20,
+            Lmh.Total_Container_40 AS Qnt_Container_40,
+            (Lmh.Total_Container_20 + Lmh.Total_Container_40) AS Total_Containers,
+            Lhs.Peso_Bruto AS Peso_Bruto,
+            Lhs.Metros_Cubicos AS Metragem_Cubica,
+            Mer.Nome AS Mercadoria,
+            Lme.IdEquipamento_Maritimo AS IdEquipamentos,
+            Cia.Nome AS Cia_Transporte,
+
+            CASE Lme.IdEquipamento_Maritimo
+            WHEN 3 THEN '20 DRY'
+            WHEN 4 THEN '20 OPEN TOP'
+            WHEN 5 THEN '20 FLAT RACK'
+            WHEN 8 THEN '40 FLAT RACK'
+            WHEN 9 THEN '40 HIGH CUBE'
+            WHEN 10 THEN '40 DRY'
+            WHEN 11 THEN '40 OPEN TOP'
+            WHEN 12 THEN '40 REEFER'
+            WHEN 15 THEN '40 NOR'
+            WHEN 26 THEN '40 OT OH'
+            END AS Equipamentos
+        FROM
+            mov_Logistica_House Lhs
+        LEFT OUTER JOIN
+            mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+        LEFT OUTER JOIN
+            mov_Logistica_Maritima_House Lmh ON Lmh.IdLogistica_House = Lhs.IdLogistica_House
+        LEFT OUTER JOIN
+            cad_Pessoa Cli ON Cli.IdPessoa = Lhs.IdCliente
+        LEFT OUTER JOIN
+            cad_Pessoa Cia ON Cia.IdPessoa = Lms.IdCompanhia_Transporte
+        LEFT OUTER JOIN
+            cad_Mercadoria Mer ON Mer.IdMercadoria = Lhs.IdMercadoria
+        LEFT OUTER JOIN
+            mov_Logistica_Maritima_Equipamento Lme ON Lme.IdLogistica_House = Lhs.IdLogistica_House
+        WHERE
+            ${allDate}
+        AND Lhs.Numero_Processo NOT LIKE '%test%'
+        GROUP BY
+            Cli.Nome,
+            Lmh.Total_TEUS,
+            Lmh.Total_Container_20,
+            Lmh.Total_Container_40,
+            Lhs.Peso_Bruto,
+            Lhs.Metros_Cubicos,
+            Mer.Nome,
+            Lme.IdEquipamento_Maritimo,
+            Cia.Nome`)
+
+    return result;
+},
+
+
+    // Lista todas as situaçoes da proposta
+    totalOffersProcesses: async function (startDate, endDate) {
             const dataOffers = startDate && endDate ? `(pft.Data_Proposta '${startDate}' and '${endDate}')` : `DATEPART(YEAR,pft.Data_Proposta) = DATEPART(YEAR, GETDATE())`
 
 
@@ -37,10 +99,10 @@ const reportPricing = {
                 pft.Situacao`)
 
         return result;
-    },
+},
 
-        // Lista todos os processos de 2023 e 2024
-        graphicProcesses: async function (startDate, endDate) {
+    // Lista todos os processos de 2023 e 2024
+    graphicProcesses: async function (startDate, endDate) {
             const dataProcesses = startDate && endDate ? `(pft.Data_Proposta '${startDate}' and '${endDate}')` : `DATEPART(YEAR, Pfr.Data_Proposta) IN (2023, 2024)`
 
 
@@ -92,63 +154,12 @@ const reportPricing = {
         return result;
 
             
-        }
+},
 
 
-         // Lista todos os departamentos
-    //      totalOffers: async function (data) {
+   
 
-    //         let result = await executeQuerySQL(`
-    //             select 
-    //             pft.Numero_Proposta as 'Referência',
-    //             pft.Data_Proposta as 'Data Abertura',
-    //             cli.Nome as 'Cliente',
-    //             cne.Nome as 'Consignee',
-    //             shp.Nome as 'Shipper',
-    //             vdd.Nome as 'Vendedor',
-    //             ctp.Nome as 'Cia Transporte',
-    //             ori.Nome as 'Origem',
-    //             des.Nome as 'Destino',
-    //             case pft.Situacao
-    //             when 1 then 'Aguardando Aprovação'
-    //             when 2 then 'Aprovada'
-    //             when 3 then 'Reprovada'
-    //             when 4 then 'Não Enviada'
-    //             when 5 then 'Pré Proposta'
-    //             when 6 then 'Enviada'
-    //             end as 'Situação',
-    //             case oft.Tipo_Operacao
-    //             when 1 then 'Exportação'
-    //             when 2 then 'Importação'
-    //             when 3 then 'Nacional'
-    //             end as 'Tipo',
-    //             case pfc.Tipo_Carga
-    //             when 1 then 'Aéreo'
-    //             when 2 then 'Break Bulk'
-    //             when 3 then 'FCL'
-    //             when 4 then 'LCL'
-    //             when 5 then 'RO-RO'
-    //             when 6 then 'Rodoviário'
-    //             end as 'Modal'
-    //             from mov_Proposta_Frete pft
-    
-    //             left outer join mov_Oferta_Frete oft on oft.IdProposta_Frete = pft.IdProposta_Frete
-    //             left outer join mov_Proposta_Frete_Carga pfc on pfc.IdProposta_Frete = pft.IdProposta_Frete
-    //             left outer join cad_Pessoa cli on cli.IdPessoa = pft.IdCliente
-    //             left outer join cad_Pessoa cne on cne.IdPessoa = oft.IdImportador
-    //             left outer join cad_Pessoa shp on shp.IdPessoa = oft.IdExportador
-    //             left outer join cad_Pessoa vdd on vdd.IdPessoa = pft.IdVendedor
-    //             left outer join cad_Pessoa ctp on ctp.IdPessoa = oft.IdCompanhia_Transporte
-    //             left outer join cad_Origem_Destino ori on ori.IdOrigem_Destino = oft.IdOrigem
-    //             left outer join cad_Origem_Destino des on des.IdOrigem_Destino = oft.IdDestino
-    
-    //             WHERE DATEPART(year, pft.Data_Proposta) = 2024
-    //             ${whereFilter}
-    
-    //             order by pft.Numero_Proposta DESC`);
-    
-    //         return result;
-    //    },
+
 }
 
 

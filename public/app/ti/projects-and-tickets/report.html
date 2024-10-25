@@ -51,426 +51,427 @@
         <img src="../../assets/images/media/loader.svg" alt="">
     </div>
 
-    <div class="container-fluid">
-        <!--LISTA CONTROLE DE SENHAS-->
-            <!-- Start::page-header -->
-            <!-- Page Header -->
-            <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
-                <h1 class="page-title fw-semibold fs-18 mb-0">Indicadores T.I</h1>
-                <div class="ms-md-1 ms-0">
-                    <nav>
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboards</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Projects</li>
-                        </ol>
-                    </nav>
+
+
+    <div class="page">
+        <div class="main-content">
+            <div class="container-fluid">
+
+                <!--Pagina de Indicadores T.I-->
+                <div class="col-12"><br>                    
+                    <div class="card custom-card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="card-title">Indicadores T.I</div>
+                                                    
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <!-- Page Header Close -->
-            <!-- End::page-header -->
-            <!-- Start::row-1 -->
-            <div class="row">
-                <div class="col-xxl-9">
+
+                <div class="">  
                     <div class="row">
-                        <div class="col-xxl-8">
+                        <!--Cards de Projetos e o Grafico-->
+                        <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">   
                             <div class="row">
-                               <div class="row">
+                                <!--Projetos Novos-->
                                 <div class="col-sm-4">
-                                    <div class="card custom-card">
+                                    <div class="card custom-card cardsProjects">
                                         <div class="card-body d-flex justify-content-between align-items-center">
                                             <div>
                                                 <p class="mb-2">Projetos Novos</p>
                                                 <h4 id="newProjects" class="mb-0 fw-semibold mb-2 ">109</h4> 
                                                 <span class="badge bg-success-transparent"><span id="newProjectsPercentage"></span>
-                                                 
+                                                
                                                 </span>
                                                 <span class="text-muted fs-11 ms-1">este mês</span> </div>
-                                            <div> <span class="avatar avatar-md bg-primary p-2"> <i class="ti ti-file-check fs-20 op-7"></i> </span> </div>
+                                            <div> <span class="avatar avatar-md bg-primary p-2"> <i class="bi bi-code-slash fs-20 op-8"></i> </span> </div>
                                         </div>
                                     </div>
                                 </div>
+                                <!--Projetos Análise-->
                                 <div class="col-sm-4">
-                                    <div class="card custom-card">
+                                    <div class="card custom-card cardsProjects">
                                         <div class="card-body d-flex justify-content-between align-items-center">
                                             <div>
                                                 <p class="mb-2">Projetos Análise</p>
                                                 <h4 id="analiseProjects" class="mb-0 fw-semibold mb-2">18</h4> 
                                                 <span class="badge bg-danger-transparent"><span id="analiseProjectsPercentage"></span>
                                                     </span><span class="text-muted fs-11 ms-1">este mês</span> </div>
-                                            <div> <span class="avatar avatar-md bg-secondary p-2"> <i class="ti ti-briefcase fs-20 op-7"></i> </span> </div>
+                                            <div> <span class="avatar avatar-md bg-secondary p-2"> <i class="bi bi-clock fs-20 op-8"></i> </span> </div>
                                         </div>
                                     </div>
                                 </div>
+                                <!--Projetos Andamento-->
                                 <div class="col-sm-4">
-                                    <div class="card custom-card">
+                                    <div class="card custom-card cardsProjects">
                                         <div class="card-body d-flex justify-content-between align-items-center">
                                             <div>
                                                 <p class="mb-2">Projetos Andamento</p>
                                                 <h4 id="inProgressProjects" class="mb-0 fw-semibold mb-2">389</h4> <span class="badge bg-success-transparent">
                                                     <span id="inProgressProjectsPercentage"></span> 
                                                     </span><span class="text-muted fs-11 ms-1">este mês</span> </div>
-                                            <div> <span class="avatar avatar-md bg-success p-2"> <i class="ti ti-album fs-20 op-7"></i> </span> </div>
+                                            <div> <span class="avatar avatar-md bg-success p-2"> <i class="bi bi-hourglass-top fs-20 op-8"></i> </span> </div>
                                         </div>
                                     </div>
                                 </div>
+                                <!--Projetos Revisão-->
                                 <div class="col-sm-4">
-                                    <div class="card custom-card">
+                                    <div class="card custom-card cardsProjects">
                                         <div class="card-body d-flex justify-content-between align-items-center">
                                             <div>
                                                 <p class="mb-2">Projetos Revisão</p>
                                                 <h4 id="inReviewProjects" class="mb-0 fw-semibold mb-2">227</h4> <span class="badge bg-success-transparent">
                                                     <span id="inReviewProjectsPercentage"></span>
-                                                   </span><span class="text-muted fs-11 ms-1">este mês</span> </div>
-                                            <div> <span class="avatar avatar-md bg-warning p-2"> <i class="ti ti-chart-pie-2 fs-20 op-7"></i> </span> </div>
+                                                </span><span class="text-muted fs-11 ms-1">este mês</span> </div>
+                                            <div> <span class="avatar avatar-md bg-warning p-2"> <i class="bi bi-arrow-repeat fs-20 op-8"></i> </span> </div>
                                         </div>
                                     </div>
                                 </div>
+                                <!--Projetos Concluídos-->
                                 <div class="col-sm-4">
-                                    <div class="card custom-card">
+                                    <div class="card custom-card cardsProjects">
                                         <div class="card-body d-flex justify-content-between align-items-center">
                                             <div>
                                                 <p class="mb-2">Projetos Concluídos</p>
                                                 <h4 id="completedProjects" class="mb-0 fw-semibold mb-2">227</h4> 
                                                 <span class="badge bg-success-transparent">
                                                     <span id="completedProjectsPercentage"></span> </span><span class="text-muted fs-11 ms-1">este mês</span> </div>
-                                            <div> <span class="avatar avatar-md bg-warning p-2"> <i class="ti ti-chart-pie-2 fs-20 op-7"></i> </span> </div>
+                                            <div> <span class="avatar avatar-md bg-warning p-2"> <i class="bi bi-check2-circle fs-20 op-8"></i> </span> </div>
                                         </div>
                                     </div>
                                 </div>
+                                <!--Total Projetos-->
                                 <div class="col-sm-4">
-                                    <div class="card custom-card">
+                                    <div class="card custom-card cardsProjects">
                                         <div class="card-body d-flex justify-content-between align-items-center">
                                             <div>
                                                 <p class="mb-2">Total Projetos</p>
                                                 <h4 id="totalProjects" class="mb-0 fw-semibold mb-2">227</h4> 
                                                     <!-- <span id="newProjectsPercentage"></span>  -->
-                                                  
+                                                
                                                     <span class="text-muted fs-11 ms-1">este mês</span> </div>
-                                            <div> <span class="avatar avatar-md bg-warning p-2"> <i class="ti ti-chart-pie-2 fs-20 op-7"></i> </span> </div>
+                                            <div> <span class="avatar avatar-md bg-warning p-2"> <i class="bi bi-list-check fs-20 op-8"></i> </span> </div>
                                         </div>
                                     </div>
                                 </div>
-                               </div>
-                             
-                                <div class="col-xl-12" style="margin-top: 25px;">
+
+                                <!--Grafico de Analise de projetos-->
+                                <div class="col-xl-12" style="margin-top: -5px;">
                                     <div class="card custom-card">
                                         <div class="card-header justify-content-between">
                                             <div class="card-title"> Analise de Projetos </div>
-                                         
                                         </div>
-                                        <div class="card-body">
-                                            <div id="chart-container" style="min-height: 315px;">
-                                             
+                                        <div class="card-body" style="min-height: 371px;">
+                                            <div id="chart-container" style="min-height: 300px;">
+                                            <!--INFOS ADD NO JS-->
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-xxl-4">
-                            <div class="row">
-                                <div class="col-xl-12">
-                                    <div class="card custom-card">
-                                        <div class="card-header justify-content-between">
-                                            <div class="card-title"> Membros da Equipe </div>
-                                          
-                                        </div>
-                                        <div class="card-body">
-                                            <ul class="list-unstyled team-members-card mb-0">
-                                                
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-xl-12">
-                                    <div class="card custom-card">
-                                        <div class="card-header justify-content-between">
-                                            <div class="card-title"> Tarefas a vencer </div>
-                                           
-                                        </div>
-                                        <div class="card-body">
-                                            <ul class="list-unstyled projects-maintask-card">
-                                              
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                       
-                    </div>
-                </div>
-                <div class="col-xxl-3">
-                    <div class="row">
-                        <div class="col-xxl-12">
-                            <div class="card custom-card shadow-none projects-tracking-card overflow-hidden text-center">
-                                <div class="card-body"> <img src="../../assets/images/media/media-86.svg" alt="" class="mb-1">
-                                    <div> <span class="fs-15 fw-semibold d-block mt-4 mb-3">Iniciar um novo projeto</span>
-                                        <a href="/app/ti/projects-and-tickets/" type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light">Cadastrar agora</a>
-                                    </div> <span class="shape-1 text-primary"><i class="ti ti-circle fs-20 fw-bold"></i></span> <span class="shape-2 text-secondary"><i class="ti ti-triangle fs-20 fw-bold"></i></span> <span class="shape-3 text-warning"><i class="ti ti-square fs-20 fw-bold"></i></span>                            <span class="shape-4 text-info"><i class="ti ti-square-rotated fs-20 fw-bold"></i></span> <span class="shape-5 text-success"><i class="ti ti-pentagon fs-20 fw-bold"></i></span> <span class="shape-6 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span>                            <span class="shape-7 text-pink"><i class="ti ti-hexagon fs-20 fw-bold"></i></span> <span class="shape-8 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span> <span class="shape-9 text-primary"><i class="ti ti-circle fs-20 fw-bold"></i></span>                            <span class="shape-10 text-secondary"><i class="ti ti-triangle fs-20 fw-bold"></i></span> <span class="shape-11 text-warning"><i class="ti ti-square fs-20 fw-bold"></i></span> <span class="shape-12 text-info"><i class="ti ti-square-rotated fs-20 fw-bold"></i></span>                            <span class="shape-13 text-success"><i class="ti ti-pentagon fs-20 fw-bold"></i></span> <span class="shape-14 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span> <span class="shape-15 text-pink"><i class="ti ti-hexagon fs-20 fw-bold"></i></span>                            <span class="shape-16 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span> </div>
-                            </div>
-                        </div>
-                        <div class="col-xxl-12">
-                            <div class="card custom-card">
-                                <div class="card-header justify-content-between">
-                                    <div class="card-title"> Ultimas mensagens </div>
-                                    
-                                </div>
-                                <div class="card-body">
-                                    <ul class="list-unstyled project-transactions-card">
-                                       
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--End::row-1 -->
-            <!-- Start::row-3 -->
-            <div class="row">
-                <div class="col-xxl-12">
-                    <div class="card custom-card">
-                        <div class="card-header justify-content-between">
-                            <div class="card-title"> Resumo dos projetos </div>
-                            <div class="d-flex flex-wrap">
-                                <div class="me-3 my-1">
-                                    <input class="form-control form-control-sm" type="text" placeholder="Pesquisar" aria-label=".form-control-sm example"> </div>
-                                <div class="dropdown my-1"> <a href="javascript:void(0);" class="btn btn-primary btn-sm btn-wave waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false"> Status<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i> </a>
-                                    <ul
-                                    class="dropdown-menu" role="menu">
-                                        <li><a class="dropdown-item" href="javascript:void(0);">Novos</a></li>
-                                        <li><a class="dropdown-item" href="javascript:void(0);">Em Análise</a></li>
-                                        <li><a class="dropdown-item" href="javascript:void(0);">Em Andamento</a></li>
-                                        <li><a class="dropdown-item" href="javascript:void(0);">Em Revisão</a></li>
-                                        <li><a class="dropdown-item" href="javascript:void(0);">Em Concluído</a></li>
-                                        </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table id="table-resumo-projetos" class="table table-hover text-nowrap table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">N.</th>
-                                            <th scope="col">Título</th>
-                                            <th scope="col">Atribuído</th>
-                                            <th scope="col">Responsável</th>
-                                            <th scope="col">Categoria</th>
-                                            <th scope="col">Status</th>
-                                            <th scope="col">Progresso</th>
-                                            <th scope="col">Início Previsto</th>
-                                            <th scope="col">Fim Previsto</th>
-                                            <th scope="col">Concluído em</th>
-                                            <th scope="col">Aprovado em</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- <tr>
-                                            <th scope="row"> 1 </th>
-                                            <td> Home Page </td>
-                                            <td>
-                                                <div class="avatar-list-stacked"> <span class="avatar avatar-xs avatar-rounded"> <img src="../assets/images/faces/2.jpg" alt="img"> </span> <span class="avatar avatar-xs avatar-rounded"> <img src="../assets/images/faces/8.jpg" alt="img"> </span>                                            <span class="avatar avatar-xs avatar-rounded"> <img src="../assets/images/faces/2.jpg" alt="img"> </span> <a class="avatar avatar-xs bg-primary avatar-rounded text-fixed-white" href="javascript:void(0);"> +2 </a>                                            </div>
-                                            </td>
-                                            <td>110/180</td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="progress progress-animate progress-xs w-100" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 0%"></div>
-                                                    </div>
-                                                    <div class="ms-2">0%</div>
-                                                </div>
-                                            </td>
-                                            <td> <span class="badge bg-primary-transparent">In Progress</span> </td>
-                                            <td> 14-04-2023 </td>
-                                        </tr> -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- End::row-3 -->
-
-        
-    </div>
-    
- <!-- MODAL EDITAR CHAMADO -->
- <div class="modal fade" id="edit-task" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 50%;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h6 class="modal-title titleProjetct">Novo Chamado ou Projeto</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="Close"></button>
-            </div>
-            <div class="modal-body px-4">
-               <div class="row" style="margin-right: -37px;">
-                <div class="col-7">
-                    <div class="row gy-2">
-                  
-                        <div class="col-xl-12">
-                            <label for="task-name" class="form-label">Título</label>
-                            <input type="text" disabled class="form-control" name="edit_title" placeholder="Título">
-                        </div>
-                       
-                        <div class="col-xl-12">
-                            <label class="form-label">Responsável</label>
-                            <select disabled class="form-control" name="edit_responsible">
-                            </select>
-                        </div>
-
-                        <div class="col-xl-12">
-                            <label for="text-area" class="form-label">Descrição</label>
-                            <textarea disabled class="form-control" name="edit_description" rows="2" placeholder="Escreva uma descrição"></textarea>
-                        </div>
-                    
-
-                        <div class="col-xl-12">
-                            <label class="form-label">Categoria</label>
-                            <select disabled class="form-control" name="edit_categories">
-                                <option value="">Selecione uma categoria</option>
-                            </select>
-                        </div>
-
-                        <div class="col-xl-12">
-                            <label class="form-label">Atribuído a</label>
-                            <select disabled class="form-control choices__input" multiple name="edit_atribuido">
-                                <option value="">Selecione a quem atribuir</option>
-                            </select>
-                        </div>
-
-                        <div class="col-xl-6">
-                            <label class="form-label">Previsão de Inicio</label>
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                                    <input disabled type="text" class="form-control flatpickr-input targetDate " name="edit_timeInit" id="targetDate"
-                                        placeholder="Escolha a data e hora" readonly="readonly">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-6">
-                            <label class="form-label">Previsão de Fim</label>
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                                    <input disabled type="text" class="form-control flatpickr-input targetDate" name="edit_timeEnd"  id="targetDate"
-                                        placeholder="Escolha a data e hora" readonly="readonly">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-6">
-                            <label class="form-label">Finalizado em</label>
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                                    <input disabled type="text" class="form-control flatpickr-input targetDate" name="edit_finished_at"  id="targetDate"
-                                        placeholder="Escolha a data e hora" readonly="readonly">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-6">
-                            <label class="form-label">Aprovado em</label>
-                            <div class="form-group">
-                                <div class="input-group">
-                                    <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                                    <input disabled type="text" class="form-control flatpickr-input targetDate" name="edit_approved_at"  id="targetDate"
-                                        placeholder="Escolha a data e hora" readonly="readonly">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-12" style="display: none;">
-                            <label for="text-area" class="form-label">Arquivos/Imagem</label>
-                    
-                            <input type="file" disabled class="multiple-filepond" name="filepond" multiple data-allow-reorder="true"
-                                data-max-file-size="3MB" data-max-files="3">
-                        
-                        </div>
-                    
-                    </div>
-                </div>
-                <div class="col-5 main-chart-wrapper p-2 gap-2 d-lg-flex">
-                    <div class="main-chat-area border" style="height: auto;margin-left: 11px;">
-                       
-                        <div class="chat-content" id="main-chat-content" data-simplebar="init">
-                            <div class="simplebar-wrapper" >
-                                <div class="simplebar-height-auto-observer-wrapper">
-                                    <div class="simplebar-height-auto-observer"></div>
-                                </div>
-                                <div class="simplebar-mask">
-                                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
-                                        <div class="simplebar-content-wrapper cardScrollMessage" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden;">
-                                            <div class="simplebar-content" style="padding: 10px;">
-                                                <ul class="list-unstyled chat-ticket">
-                                                    <!-- <li class="chat-item-start">
-                                                        <div class="chat-list-inner">
-
-                                                            <div class="ms-3"> <span class="chatting-user-info"> <span class="chatnameperson">Emiley Jackson</span> <span class="msg-sent-time">11:48PM</span> </span>
-                                                                <div class="main-chat-msg">
-                                                                    <div>
-                                                                        <p class="mb-0">Nice to meet you 😀</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </li> -->
-                                                    <!-- <li class="chat-item-start">
-                                                        <div class="chat-list-inner">
                                 
-                                                            <div class="ms-3"> <span class="chatting-user-info chatnameperson"> Emiley Jackson <span class="msg-sent-time">11:45PM</span> </span>
-                                                                <div class="main-chat-msg">
-                                                                    <div>
-                                                                        <p class="mb-0">Happy to talk with you,chat you later 👋</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </li> -->
-                                                    <!-- <li class="chat-item-end">
-                                                        <div class="chat-list-inner">
-                
-                                                            <div class="ms-3"> <span class="chatting-user-info chatnameperson"> Petryck William <span class="msg-sent-time">11:45PM</span> </span>
-                                                                <div class="main-chat-msg">
-                                                                    <div>
-                                                                        <p class="mb-0">Entrei em contato com o responsavel e o mesmo solicitou que o aguardasse quando estivesse no escritório 👋</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </li> -->
-                                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Cards Membros da equipe, Iniciar projeto, Tarefas e Últimas mensagens -->
+                        <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
+                            <div class="row">
+                                <!-- Membros da equipe -->
+                                <div class="col-lg-6">
+                                    <div class="card custom-card">
+                                        <div class="card-header justify-content-between align-items-center">
+                                            <div class="card-title listCards1"> Membros da Equipe </div>
+                                        </div>
+                                        <div class="card-body cardsOne" id="members-equip">
+                                            <ul class="list-unstyled team-members-card mb-0"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Iniciar novo projeto -->
+                                <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
+                                    <div class="card custom-card shadow-none projects-tracking-card overflow-hidden text-center mt-3 mt-lg-0">
+                                        <div class="card-body cardsTwo"> 
+                                            <img src="../../assets/images/media/media-86.svg" alt="" class="mb-1">
+                                            <div> 
+                                                <span class="fs-15 fw-semibold d-block mt-4 mb-3">Iniciar um novo projeto</span>
+                                                <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light">Cadastrar agora</button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                           
-                            </div>
-                            <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
-                                <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
-                            </div>
-                            <div class="simplebar-track simplebar-vertical" style="visibility: hidden;">
-                                <div class="simplebar-scrollbar" style="height: 0px; transform: translate3d(0px, 9px, 0px); display: none;"></div>
+                                <!-- Tarefas a vencer -->
+                                <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
+                                    <div class="card custom-card">
+                                        <div class="card-header justify-content-between align-items-center">
+                                            <div class="card-title">Tarefas a vencer</div>
+                                        </div>
+                                        <div class="card-body listCards2" id="tasksLate">
+                                            <ul class="list-unstyled projects-maintask-card">
+                                                <!-- Conteúdo das tarefas -->
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Últimas mensagens -->
+                                <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
+                                    <div class="card custom-card">
+                                        <div class="card-header justify-content-between align-items-center">
+                                            <div class="card-title">Últimas mensagens</div>
+                                        </div>
+                                        <div class="card-body listCards2" id="latestMessages">
+                                            <ul class="list-unstyled project-transactions-card">
+                                                <!-- Conteúdo das mensagens -->
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="chat-footer">
-                            <input disabled class="form-control inputMessage" placeholder="Digite sua mensagem aqui..." type="text">
-                            
-                            <!-- <a disabled style="margin-left: 5px;" aria-label="anchor" class="btn btn-primary btn-icon btn-send" id="ButtonAddMessage" href="javascript:void(0)"> <i class="ri-send-plane-2-line"></i> </a> -->
-                        </div>
+                        
                     </div>
                 </div>
-               </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" id="ButtonRemoveTicket" style="float: left;left: 20px;position: absolute;" class="btn btn-primary">Remover</button>
-                    <button type="button" id="ButtonSaveTicket" class="btn btn-primary">Salvar</button>
+
+                <!-- Lista Resumo dos projetos-->
+                <div class="row">
+                    <div class="col-xxl-12">
+                        <div class="card custom-card">
+                            <div class="card-header justify-content-between">
+                                <div class="card-title"> Resumo dos projetos </div>
+                                <div class="d-flex flex-wrap">
+                                    <div class="me-3 my-1">
+                                        <input class="form-control form-control-sm" type="text" placeholder="Pesquisar" aria-label=".form-control-sm example"> </div>
+                                    <div class="dropdown my-1"> <a href="javascript:void(0);" class="btn btn-primary btn-sm btn-wave waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false"> Status<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i> </a>
+                                        <ul
+                                        class="dropdown-menu" role="menu">
+                                            <li><a class="dropdown-item" href="javascript:void(0);">Novos</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);">Em Análise</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);">Em Andamento</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);">Em Revisão</a></li>
+                                            <li><a class="dropdown-item" href="javascript:void(0);">Em Concluído</a></li>
+                                            </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table id="table-resumo-projetos" class="table table-hover text-nowrap table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">N.</th>
+                                                <th scope="col">Título</th>
+                                                <th scope="col">Atribuído</th>
+                                                <th scope="col">Responsável</th>
+                                                <th scope="col">Categoria</th>
+                                                <th scope="col">Status</th>
+                                                <th scope="col">Progresso</th>
+                                                <th scope="col">Início Previsto</th>
+                                                <th scope="col">Fim Previsto</th>
+                                                <th scope="col">Concluído em</th>
+                                                <th scope="col">Aprovado em</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- <tr>
+                                                <th scope="row"> 1 </th>
+                                                <td> Home Page </td>
+                                                <td>
+                                                    <div class="avatar-list-stacked"> <span class="avatar avatar-xs avatar-rounded"> <img src="../assets/images/faces/2.jpg" alt="img"> </span> <span class="avatar avatar-xs avatar-rounded"> <img src="../assets/images/faces/8.jpg" alt="img"> </span>                                            <span class="avatar avatar-xs avatar-rounded"> <img src="../assets/images/faces/2.jpg" alt="img"> </span> <a class="avatar avatar-xs bg-primary avatar-rounded text-fixed-white" href="javascript:void(0);"> +2 </a>                                            </div>
+                                                </td>
+                                                <td>110/180</td>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="progress progress-animate progress-xs w-100" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" style="width: 0%"></div>
+                                                        </div>
+                                                        <div class="ms-2">0%</div>
+                                                    </div>
+                                                </td>
+                                                <td> <span class="badge bg-primary-transparent">In Progress</span> </td>
+                                                <td> 14-04-2023 </td>
+                                            </tr> -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
         </div>
     </div>
-</div>
+    
+        <!-- MODAL EDITAR CHAMADO -->
+        <div class="modal fade" id="edit-task" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" style="max-width: 50%;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title titleProjetct">Novo Chamado ou Projeto</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body px-4">
+                    <div class="row" style="margin-right: -37px;">
+                        <div class="col-7">
+                            <div class="row gy-2">
+                        
+                                <div class="col-xl-12">
+                                    <label for="task-name" class="form-label">Título</label>
+                                    <input type="text" disabled class="form-control" name="edit_title" placeholder="Título">
+                                </div>
+                            
+                                <div class="col-xl-12">
+                                    <label class="form-label">Responsável</label>
+                                    <select disabled class="form-control" name="edit_responsible">
+                                    </select>
+                                </div>
+
+                                <div class="col-xl-12">
+                                    <label for="text-area" class="form-label">Descrição</label>
+                                    <textarea disabled class="form-control" name="edit_description" rows="2" placeholder="Escreva uma descrição"></textarea>
+                                </div>
+                            
+
+                                <div class="col-xl-12">
+                                    <label class="form-label">Categoria</label>
+                                    <select disabled class="form-control" name="edit_categories">
+                                        <option value="">Selecione uma categoria</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-xl-12">
+                                    <label class="form-label">Atribuído a</label>
+                                    <select disabled class="form-control choices__input" multiple name="edit_atribuido">
+                                        <option value="">Selecione a quem atribuir</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-xl-6">
+                                    <label class="form-label">Previsão de Inicio</label>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                            <input disabled type="text" class="form-control flatpickr-input targetDate " name="edit_timeInit" id="targetDate"
+                                                placeholder="Escolha a data e hora" readonly="readonly">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <label class="form-label">Previsão de Fim</label>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                            <input disabled type="text" class="form-control flatpickr-input targetDate" name="edit_timeEnd"  id="targetDate"
+                                                placeholder="Escolha a data e hora" readonly="readonly">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <label class="form-label">Finalizado em</label>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                            <input disabled type="text" class="form-control flatpickr-input targetDate" name="edit_finished_at"  id="targetDate"
+                                                placeholder="Escolha a data e hora" readonly="readonly">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-6">
+                                    <label class="form-label">Aprovado em</label>
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                            <input disabled type="text" class="form-control flatpickr-input targetDate" name="edit_approved_at"  id="targetDate"
+                                                placeholder="Escolha a data e hora" readonly="readonly">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xl-12" style="display: none;">
+                                    <label for="text-area" class="form-label">Arquivos/Imagem</label>
+                            
+                                    <input type="file" disabled class="multiple-filepond" name="filepond" multiple data-allow-reorder="true"
+                                        data-max-file-size="3MB" data-max-files="3">
+                                
+                                </div>
+                            
+                            </div>
+                        </div>
+                        <div class="col-5 main-chart-wrapper p-2 gap-2 d-lg-flex">
+                            <div class="main-chat-area border" style="height: auto;margin-left: 11px;">
+                            
+                                <div class="chat-content" id="main-chat-content" data-simplebar="init">
+                                    <div class="simplebar-wrapper" >
+                                        <div class="simplebar-height-auto-observer-wrapper">
+                                            <div class="simplebar-height-auto-observer"></div>
+                                        </div>
+                                        <div class="simplebar-mask">
+                                            <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                                <div class="simplebar-content-wrapper cardScrollMessage" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden;">
+                                                    <div class="simplebar-content" style="padding: 10px;">
+                                                        <ul class="list-unstyled chat-ticket">
+                                                            <!-- <li class="chat-item-start">
+                                                                <div class="chat-list-inner">
+
+                                                                    <div class="ms-3"> <span class="chatting-user-info"> <span class="chatnameperson">Emiley Jackson</span> <span class="msg-sent-time">11:48PM</span> </span>
+                                                                        <div class="main-chat-msg">
+                                                                            <div>
+                                                                                <p class="mb-0">Nice to meet you 😀</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </li> -->
+                                                            <!-- <li class="chat-item-start">
+                                                                <div class="chat-list-inner">
+                                        
+                                                                    <div class="ms-3"> <span class="chatting-user-info chatnameperson"> Emiley Jackson <span class="msg-sent-time">11:45PM</span> </span>
+                                                                        <div class="main-chat-msg">
+                                                                            <div>
+                                                                                <p class="mb-0">Happy to talk with you,chat you later 👋</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </li> -->
+                                                            <!-- <li class="chat-item-end">
+                                                                <div class="chat-list-inner">
+                        
+                                                                    <div class="ms-3"> <span class="chatting-user-info chatnameperson"> Petryck William <span class="msg-sent-time">11:45PM</span> </span>
+                                                                        <div class="main-chat-msg">
+                                                                            <div>
+                                                                                <p class="mb-0">Entrei em contato com o responsavel e o mesmo solicitou que o aguardasse quando estivesse no escritório 👋</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </li> -->
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                
+                                    </div>
+                                    <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                        <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                                    </div>
+                                    <div class="simplebar-track simplebar-vertical" style="visibility: hidden;">
+                                        <div class="simplebar-scrollbar" style="height: 0px; transform: translate3d(0px, 9px, 0px); display: none;"></div>
+                                    </div>
+                                </div>
+                                <div class="chat-footer">
+                                    <input disabled class="form-control inputMessage" placeholder="Digite sua mensagem aqui..." type="text">
+                                    
+                                    <!-- <a disabled style="margin-left: 5px;" aria-label="anchor" class="btn btn-primary btn-icon btn-send" id="ButtonAddMessage" href="javascript:void(0)"> <i class="ri-send-plane-2-line"></i> </a> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="ButtonRemoveTicket" style="float: left;left: 20px;position: absolute;" class="btn btn-primary">Remover</button>
+                            <button type="button" id="ButtonSaveTicket" class="btn btn-primary">Salvar</button>
+                        </div>
+                </div>
+            </div>
+        </div>
    
 
     <!-- Scroll To Top -->

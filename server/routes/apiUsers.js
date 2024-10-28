@@ -55,6 +55,20 @@ router.post('/ListUserByEmail', async (req, res, next) => {
     }
 });
 
+router.post('/ListUserByEmailAndPassword', async (req, res, next) => {
+    const {email, password} = req.body;
+    // console.log(body)
+    try {
+
+        const result = await Users.ListUserByEmailAndPassword(email, password);
+
+        res.status(200).json(result)
+    } catch (error) {
+
+        res.status(404).json('Erro')   
+    }
+});
+
 router.get('/getAllDept', async (req, res, next) => {
     try {
 

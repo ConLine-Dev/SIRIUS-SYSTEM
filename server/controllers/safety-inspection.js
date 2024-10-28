@@ -108,16 +108,36 @@ const safetyInspection = {
     `)
         return result;
     },
+    create_corrective_actions: async function(local, date, finish, observation, idCollaborator) {
+        let result = await executeQuery(`INSERT INTO safety_corrective_actions (local, create_at, ended_at, description, user) VALUES (?, ?, ?, ?, ?)`, [local, date, finish, observation, idCollaborator]);
+        return result;
+    },
+    action_by_id: async function(id) {
+        let result = await executeQuery(`SELECT * FROM safety_corrective_actions WHERE id = ${id}`)
+        return result[0] || result;
+    },
     corrective_actions: async function() {
-        let result = await executeQuery(`SELECT * FROM safety_corrective_actions ORDER BY id desc`)
+        let result = await executeQuery(`SELECT sca.*,sm.name as 'LocalName', CONCAT(clt.name, ' ', clt.family_name) AS fullName FROM safety_corrective_actions sca
+        JOIN 
+                safety_monitoring sm ON sm.id = sca.local
+            LEFT JOIN 
+                collaborators clt ON clt.id = sca.user ORDER BY sca.id desc`)
+        return result;
+    },
+    update_corrective_actions: async function(id, local, date, finish, observation, idCollaborator) {
+        let result = await executeQuery(`UPDATE safety_corrective_actions SET local = ?, create_at = ?, ended_at = ?, description = ?, user = ? WHERE id = ?`, [local, date, finish, observation, idCollaborator, id]);
         return result;
     },
     corrective_actions_pending: async function() {
-        let result = await executeQuery(`SELECT * FROM safety_corrective_actions WHERE status = 0 ORDER BY id desc`)
+        let result = await executeQuery(`SELECT sca.*,sm.name as 'LocalName', CONCAT(clt.name, ' ', clt.family_name) AS fullName FROM safety_corrective_actions sca
+        JOIN 
+                safety_monitoring sm ON sm.id = sca.local
+            LEFT JOIN 
+                collaborators clt ON clt.id = sca.user WHERE sca.ended_at is null OR sca.ended_at = '' ORDER BY sca.id desc`)
         return result;
     },
     corrective_actions_completed: async function() {
-        let result = await executeQuery(`SELECT * FROM safety_corrective_actions WHERE status = 1 ORDER BY id desc`)
+        let result = await executeQuery(`SELECT * FROM safety_corrective_actions WHERE ended_at is not null OR ended_at != '' ORDER BY id desc`)
         return result;
     },
     inspectionsById: async function(id) {

@@ -7,8 +7,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadListMonitoring();
     await correctiveActionsPending();   
     await loadComplianceData()
-
-
+    const socket = io();
+    socket.on('update-corrective-actions', (data) => {
+        table['corrective-actions-pedings'].ajax.reload(null, false)
+    })
 
     document.querySelector('#loader2').classList.add('d-none')
 
@@ -155,12 +157,13 @@ async function correctiveActionsPending() {
         scrollCollapse: false,  // Permite que a rolagem seja usada somente quando necessário
         order: [[0, 'asc']],
         ajax: {
-            url: `/api/safety-inspection/corrective-actions`,
+            url: `/api/safety-inspection/corrective-actions-pending`,
             dataSrc: ''
           },
 
         columns: [
             { data: 'id' },
+            { data: 'LocalName' },
             { data: 'description' },
             { data: 'create_at',
              render: function(data) {
@@ -168,19 +171,23 @@ async function correctiveActionsPending() {
                 }
             },
             { data: 'status', 
-             render: function(data) {
-                return data == 1 ? '<span class="badge bg-success-transparent">Concluído</span>' : '<span class="badge bg-warning-transparent">Pendente</span>';
+             render: function(data, type, row) {
+                if(row.ended_at == '' || row.ended_at == null){ 
+                    return '<span class="badge bg-warning-transparent">Pendente</span>';
+                }else{
+                    return '<span class="badge bg-success-transparent">Concluído</span>';
+                }
              },
             },
         ],
         createdRow: function(row, data, dataIndex) {
-            // // Adiciona o atributo com o id da senha 
-            // $(row).attr('password-id', data.id);
-            // // Adicionar evento click na linha 
-            // $(row).on('dblclick', async function() {
-            //     const password_id = $(this).attr('password-id'); // Captura o id do password
-            //     await openPassword(password_id);
-            // });
+           // Adiciona o atributo com o id da senha 
+           $(row).attr('action-id', data.id);
+           // Adicionar evento click na linha 
+           $(row).on('dblclick', async function() {
+               const action_id = $(this).attr('action-id'); // Captura o id do password
+               await openAction(action_id);
+           });
         },
         buttons: [
             'excel', 'pdf', 'print'
@@ -210,6 +217,17 @@ async function correctiveActionsPending() {
    
 }
 
+function openAction(id){
+    openWindow(`/app/ti/Safety-Inspection/create-corrective-Actions?id=${id}`, '550', '550');
+}
+
+
+
+
+function openWindow(url, width, height) {
+   const options = `width=${width},height=${height},resizable=no`;
+   window.open(url, '_blank', options);
+}
 
 // Função para organizar inspeções e ações corretivas por mês
 function organizeByMonth(data, dateField) {
@@ -237,7 +255,7 @@ function calculateMonthlyComplianceRates(inspectionsByMonth, correctiveActionsBy
         const correctiveActions = correctiveActionsByMonth[month] || 0;
 
         const total = inspections + correctiveActions;
-        return total > 0 ? (inspections / total) * 100 : 0; // Evitar divisão por zero
+        return parseInt(total > 0 ? (inspections / total) * 100 : 0); // Evitar divisão por zero
     });
 }
 
@@ -258,7 +276,7 @@ async function loadComplianceData() {
     const months = Object.keys(inspectionsByMonth);
 
     // Atualizar a interface
-    document.querySelector('#ComplianceRate').innerText = monthlyComplianceRates.reduce((a, b) => a + b, 0) / monthlyComplianceRates.length + '%'; // Média geral
+    document.querySelector('#ComplianceRate').innerText = parseInt(monthlyComplianceRates.reduce((a, b) => a + b, 0) / monthlyComplianceRates.length) + '%'; // Média geral
 
     // Chamar a função para desenhar gráficos
     await charts([inspections.length, corrective_actions.length], months, monthlyComplianceRates);

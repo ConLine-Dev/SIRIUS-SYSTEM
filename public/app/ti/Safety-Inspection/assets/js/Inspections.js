@@ -7,7 +7,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // remover loader
     document.querySelector('#loader2').classList.add('d-none');
-
+    
+    const socket = io();
+    socket.on('update-Inspections', (data) => {
+        table['Inspections'].ajax.reload(null, false)
+    })
     
 })
 

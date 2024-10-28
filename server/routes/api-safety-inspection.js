@@ -36,7 +36,7 @@ module.exports = function(io) {
             const { finished, status, description, idCollaborator } = req.body;
 
             const result = await safetyInspection.updateInspectionsById(id, finished, status, description, idCollaborator);
-
+            io.emit('update-Inspections', result);
             res.status(200).json(result);
         } catch (error) {
             res.status(404).json('Erro');
@@ -47,6 +47,43 @@ module.exports = function(io) {
         try {
             const result = await safetyInspection.inspections();
 
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    router.post('/create-corrective-actions', async (req, res, next) => {
+        try {
+            const { local, date, finish, observation, idCollaborator} = req.body;
+            const result = await safetyInspection.create_corrective_actions(local, date, finish, observation, idCollaborator);
+            io.emit('update-corrective-actions', result);
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    router.get('/action-by-id/:id', async (req, res, next) => {
+        try {
+            const result = await safetyInspection.action_by_id(req.params.id);
+
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+ 
+    router.put('/update-corrective-actions/:id', async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const { local, date, finish, observation, idCollaborator} = req.body;
+            const result = await safetyInspection.update_corrective_actions(id, local, date, finish, observation, idCollaborator);
+            io.emit('update-corrective-actions', result);
             res.status(200).json(result)
         } catch (error) {
 

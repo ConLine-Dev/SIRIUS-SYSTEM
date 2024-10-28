@@ -69,6 +69,37 @@ const Users = {
     
         return result;
     },
+    ListUserByEmailAndPassword: async function(email, password){
+ 
+        let result = await executeQuery(`SELECT
+                                            u.id AS 'system_userID',
+                                            u.email AS 'system_email',
+                                            u.email_password AS 'email_password',
+                                            u.collaborator_id AS 'system_collaborator_id',
+                                            c.id_headcargo AS 'system_id_headcargo',
+                                            c.name AS 'system_username',
+                                            c.image AS 'system_image',
+                                            c.family_name AS 'system_familyName',
+                                            CONCAT('https://cdn.conlinebr.com.br/colaboradores/', c.id_headcargo) AS ImgCollaborator,
+                                            d.department_ids
+                                        FROM
+                                            users u
+                                        JOIN
+                                            collaborators c ON c.id = u.collaborator_id
+                                        LEFT JOIN (
+                                            SELECT collaborator_id, GROUP_CONCAT(department_id) AS department_ids
+                                            FROM departments_relations
+                                            GROUP BY collaborator_id
+                                        ) d ON d.collaborator_id = c.id
+                                        WHERE
+                                            u.email = '${email}'
+                                            AND u.email_password = '${password}'
+                                            AND c.resignation_date IS NULL
+                                        ORDER BY
+                                            c.name ASC`);
+    
+        return result;
+    },
     getUserById: async function(id){
  
         let result = await executeQuery(`SELECT

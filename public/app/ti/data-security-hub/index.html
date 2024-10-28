@@ -1,0 +1,464 @@
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Central de Segurança de Dados</title>
+    <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
+    <meta name="Author" content="Spruko Technologies Private Limited">
+    <meta name="keywords"
+        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
+    <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
+    
+
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+
+    <!-- Tutorial -->
+    <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 0px; z-index: 100;"> 
+        <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+    </span>
+    
+    <!-- Loader -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div class="container-fluid">
+        <div class="file-manager-container p-2 gap-2 d-sm-flex">
+          <div class="file-manager-navigation">
+           
+            <div class="p-3 border-bottom">
+              <div class="input-group">
+                <input type="text" class="form-control bg-light border-0" placeholder="Search Files" aria-describedby="button-addon2">
+                <button class="btn btn-light" type="button" id="button-addon2">
+                  <i class="ri-search-line text-muted"></i>
+                </button>
+              </div>
+            </div>
+            <div>
+              <ul class="list-unstyled files-main-nav" id="files-main-nav" data-simplebar="init">
+                <div class="simplebar-wrapper" style="margin: -16px;">
+                  <div class="simplebar-height-auto-observer-wrapper">
+                    <div class="simplebar-height-auto-observer"></div>
+                  </div>
+                  <div class="simplebar-mask">
+                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                      <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
+                        <div class="simplebar-content" style="padding: 16px;">
+                          <li class="active files-type">
+                            <a href="javascript:void(0)">
+                              <div class="d-flex align-items-center">
+                                <div class="me-2">
+                                  <i class="ri-folder-2-line fs-16"></i>
+                                </div>
+                                <span class="flex-fill text-nowrap"> Todos Backups</span>
+                                <!-- <span class="badge bg-primary">322</span> -->
+                              </div>
+                            </a>
+                          </li>
+                          <li class="files-type">
+                            <a href="javascript:void(0)">
+                              <div class="d-flex align-items-center">
+                                <div class="me-2">
+                                  <i class="ri-star-s-line fs-16"></i>
+                                </div>
+                                <span class="flex-fill text-nowrap"> Agendamentos </span>
+                              </div>
+                            </a>
+                          </li>
+                          <li class="files-type">
+                            <a href="javascript:void(0)">
+                              <div class="d-flex align-items-center">
+                                <div class="me-2">
+                                    <i class="ri-history-fill fs-16"></i>
+                                </div>
+                                <span class="flex-fill text-nowrap"> Recentes </span>
+                              </div>
+                            </a>
+                          </li>
+                          <li class="files-type">
+                            <a href="javascript:void(0)">
+                              <div class="d-flex align-items-center">
+                                <div class="me-2">
+                                  <i class="ri-delete-bin-line fs-16"></i>
+                                </div>
+                                <span class="flex-fill text-nowrap"> Backup Logs </span>
+                              </div>
+                            </a>
+                          </li>
+                          
+                          <li class="mb-4 totalUsed">
+                            <div class="text-muted mb-2">
+                              <p class="mb-1">
+                                <span class="fw-bold fs-14">4,8 TB</span> usados
+                              </p>
+                              <p class="fs-12 mb-0">2,45% em uso - 196 TB Livre</p>
+                            </div>
+                            <div class="progress progress-xs">
+                              <div class="progress-bar bg-info" role="progressbar" style="width: 2.45%" aria-valuenow="58" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                          </li>
+                        
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+                <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                  <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                </div>
+                <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                  <div class="simplebar-scrollbar" style="height: 546px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+                </div>
+              </ul>
+            </div>
+          </div>
+          <div class="file-manager-folders">
+            <div class="d-flex p-3 flex-wrap gap-2 align-items-center justify-content-between border-bottom">
+              <div>
+                <h6 class="fw-semibold mb-0">Central de Segurança de Dados</h6>
+              </div>
+              <div class="d-flex gap-2">
+                <button id="folders-close-btn" class="d-sm-none d-block btn btn-icon btn-sm btn-danger-light">
+                  <i class="ri-close-fill"></i>
+                </button>
+                <button class="btn btn-sm btn-primary d-flex align-items-center justify-content-center btn-wave waves-light waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#create-folder">
+                  <i class="ri-add-circle-line align-middle me-1"></i>Backup Manual </button>
+                <div class="modal fade" id="create-folder" tabindex="-1" aria-labelledby="create-folder" data-bs-keyboard="false" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h6 class="modal-title" id="staticBackdropLabel">Create Folder </h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <label for="create-folder1" class="form-label">Folder Name</label>
+                        <input type="text" class="form-control" id="create-folder1" placeholder="Folder Name">
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-icon btn-light" data-bs-dismiss="modal">
+                          <i class="ri-close-fill"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-success">Create</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+            <div class="p-3 file-folders-container" id="file-folders-container" data-simplebar="init">
+              <div class="simplebar-wrapper" style="margin: -16px;">
+                <div class="simplebar-height-auto-observer-wrapper">
+                  <div class="simplebar-height-auto-observer"></div>
+                </div>
+                <div class="simplebar-mask">
+                  <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                    <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
+                      <div class="simplebar-content" style="padding: 16px;">
+                     
+                        <div class="row mb-3">
+                            <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-6">
+                                <div class="card custom-card shadow-none bg-light">
+                                  <div class="card-body p-3">
+                                    <a href="javascript:void(0);">
+                                      <div class="d-flex justify-content-between flex-wrap">
+                                        <div class="file-format-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="svg-primary" viewBox="0 0 24 24">
+                                                <!-- Nuvem principal -->
+                                                <path opacity="0.3" d="M12 4c-2.21 0-4 1.79-4 4 0 .34.04.68.1 1H8C5.79 9 4 10.79 4 13s1.79 4 4 4h8c2.21 0 4-1.79 4-4s-1.79-4-4-4h-.1c.06-.32.1-.66.1-1 0-2.21-1.79-4-4-4z"/>
+                                                
+                                                <!-- Parte de trás da nuvem para profundidade -->
+                                                <path opacity="0.1" d="M20 13c0 1.66-1.34 3-3 3H7c-1.66 0-3-1.34-3-3s1.34-3 3-3h.09c.3-.7.88-1.28 1.59-1.57C9.47 7.67 10.67 7 12 7c1.66 0 3 1.34 3 3 0 .36-.07.7-.18 1.02-.1.3.05.63.35.72.31.1.63-.05.72-.35C15.89 10.56 16 9.8 16 9c0-2.76-2.24-5-5-5S6 6.24 6 9c0 1.02.31 1.98.87 2.79C7.15 12.04 8.04 13 9 13h8c1.1 0 2 .9 2 2z"/>
+                                                
+                                                <!-- Seta para cima simbolizando o backup -->
+                                                <path opacity="1" d="M12 8l-3 3h2v3h2v-3h2l-3-3z"/>
+                                              </svg>
+                                              
+                                        </div>
+                                        <div>
+                                          <span class="fw-semibold mb-1"> Absam Host </span>
+                                          <span class="fs-10 d-block text-muted text-end"> 422MB | 32 arquivos | 23,Nov 2022</span>
+                                        </div>
+                                      </div>
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                          <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-6">
+                            <div class="card custom-card shadow-none bg-light">
+                              <div class="card-body p-3">
+                                <a href="javascript:void(0);">
+                                  <div class="d-flex justify-content-between flex-wrap">
+                                    <div class="file-format-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="svg-primary" viewBox="0 0 24 24">
+                                            <!-- Nuvem principal -->
+                                            <path opacity="0.3" d="M12 4c-2.21 0-4 1.79-4 4 0 .34.04.68.1 1H8C5.79 9 4 10.79 4 13s1.79 4 4 4h8c2.21 0 4-1.79 4-4s-1.79-4-4-4h-.1c.06-.32.1-.66.1-1 0-2.21-1.79-4-4-4z"/>
+                                            
+                                            <!-- Parte de trás da nuvem para profundidade -->
+                                            <path opacity="0.1" d="M20 13c0 1.66-1.34 3-3 3H7c-1.66 0-3-1.34-3-3s1.34-3 3-3h.09c.3-.7.88-1.28 1.59-1.57C9.47 7.67 10.67 7 12 7c1.66 0 3 1.34 3 3 0 .36-.07.7-.18 1.02-.1.3.05.63.35.72.31.1.63-.05.72-.35C15.89 10.56 16 9.8 16 9c0-2.76-2.24-5-5-5S6 6.24 6 9c0 1.02.31 1.98.87 2.79C7.15 12.04 8.04 13 9 13h8c1.1 0 2 .9 2 2z"/>
+                                            
+                                            <!-- Seta para cima simbolizando o backup -->
+                                            <path opacity="1" d="M12 8l-3 3h2v3h2v-3h2l-3-3z"/>
+                                          </svg>
+                                          
+                                    </div>
+                                    <div>
+                                      <span class="fw-semibold mb-1"> Amazon AWS </span>
+                                      <span class="fs-10 d-block text-muted text-end"> 422MB | 32 arquivos | 23,Nov 2022</span>
+                                    </div>
+                                  </div>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-6">
+                            <div class="card custom-card shadow-none bg-light">
+                              <div class="card-body p-3">
+                                <a href="javascript:void(0);">
+                                  <div class="d-flex justify-content-between flex-wrap">
+                                    <div class="file-format-icon">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="svg-primary" viewBox="0 0 24 24">
+                                            <!-- Representação de um disco ou unidade de armazenamento -->
+                                            <rect x="5" y="15" width="14" height="5" rx="1" ry="1" opacity="0.3" />
+                                            <rect x="6" y="16" width="12" height="3" opacity="0.1" />
+                                          
+                                            <!-- Parte inferior do ícone para dar profundidade -->
+                                            <rect x="7" y="17" width="10" height="1" opacity="0.2" />
+                                          
+                                            <!-- Seta para baixo simbolizando o backup local -->
+                                            <path opacity="1" d="M12 8l3 3h-2v3h-2v-3H9l3-3z"/>
+                                          </svg>
+                                          
+                                          
+                                    </div>
+                                    <div>
+                                      <span class="fw-semibold mb-1"> HD externo </span>
+                                      <span class="fs-10 d-block text-muted text-end"> desconectado</span>
+                                    </div>
+                                  </div>
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+                         
+                         
+                         
+                        </div>
+                     
+                      
+                        <div class="d-flex mb-3 align-items-center justify-content-between">
+                          <p class="mb-0 fw-semibold fs-14">Backups Registros </p>
+                          <button class="btn btn-sm btn-primary-light">Ver todos</button>
+                        </div>
+                        <div class="row">
+                          <div class="col-xl-12">
+                            <div class="table-responsive border border-bottom-0">
+                              <table class="table text-nowrap table-hover">
+                                <thead>
+                                  <tr>
+                                    <th scope="col">Nome</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Tamanho</th>
+                                    <th scope="col">Data</th>
+                                  </tr>
+                                </thead>
+                                <tbody class="files-list">
+                                  <tr>
+                                    <th scope="row">
+                                      <div class="d-flex align-items-center">
+                                        <div class="me-2">
+                                          <span class="avatar avatar-xs">
+                                            <img src="../../assets/images/media/files/zip.png" alt="">
+                                          </span>
+                                        </div>
+                                        <div> Backup 2024-10-25 </div>
+                                      </div>
+                                    </th>
+                                    <td><span class="badge bg-outline-success">Completo</span></td>
+                                    <td>4,8 TB</td>
+                                    <td><span class="badge bg-light text-dark">07-10-2024</span></td>
+                                   
+                                  </tr>
+                                  
+                                </tbody>
+                                <tfoot>
+                                  <tr>
+                                    <td colspan="5">
+                                      <nav aria-label="Page navigation">
+                                        <ul class="pagination justify-content-end mb-0">
+                                          <li class="page-item disabled">
+                                            <a class="page-link" href="javascript:void(0);">Previous</a>
+                                          </li>
+                                          <li class="page-item">
+                                            <a class="page-link" href="javascript:void(0);">1</a>
+                                          </li>
+                                          <li class="page-item">
+                                            <a class="page-link" href="javascript:void(0);">2</a>
+                                          </li>
+                                          <li class="page-item">
+                                            <a class="page-link" href="javascript:void(0);">Next</a>
+                                          </li>
+                                        </ul>
+                                      </nav>
+                                    </td>
+                                  </tr>
+                                </tfoot>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="simplebar-placeholder" style="width: auto; height: 928px;"></div>
+              </div>
+              <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+              </div>
+              <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                <div class="simplebar-scrollbar" style="height: 614px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="selected-file-details">
+            <div class="d-flex p-3 align-items-center justify-content-between border-bottom">
+              <div>
+                <h6 class="fw-semibold mb-0">Detalhes do Backup</h6>
+              </div>
+              
+            </div>
+            <div class="filemanager-file-details" id="filemanager-file-details" data-simplebar="init">
+              <div class="simplebar-wrapper" style="margin: 0px;">
+                <div class="simplebar-height-auto-observer-wrapper">
+                  <div class="simplebar-height-auto-observer"></div>
+                </div>
+                <div class="simplebar-mask">
+                  <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                    <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
+                      <div class="simplebar-content" style="padding: 0px;">
+                        <div class="p-3 text-center border-bottom border-block-end-dashed">
+                          <div class="file-details mb-3">
+                            <img src="../../assets/images/media/files/zip.png" alt="">
+                          </div>
+                          <div>
+                            <p class="mb-0 fw-semibold fs-16">Backup 2024-10-25.zip</p>
+                            <p class="mb-0 text-muted fs-10"> 422MB | 32 arquivos | 23,Nov 2022</p>
+                          </div>
+                        </div>
+                        <div class="p-3 border-bottom border-block-end-dashed">
+                          <ul class="list-group">
+                            <li class="list-group-item">
+                              <div>
+                                <span class="fw-semibold">Formato de Arquivo : </span>
+                                <span class="fs-12 text-muted">zip</span>
+                              </div>
+                            </li>
+                            <li class="list-group-item">
+                              <div>
+                                <p class="fw-semibold mb-0">Descrição do arquivo : </p>
+                                <span class="fs-12 text-muted">Este arquivo de backup contém uma atualização recente, incluindo a adição de <span class="badge bg-outline-success">22</span> novos arquivos. Cada arquivo foi incorporado ao backup para assegurar a integridade e a continuidade das informações armazenadas, garantindo que todos os dados mais recentes estejam protegidos e facilmente acessíveis para recuperação futura, caso necessário. Este backup reflete o crescimento contínuo do conjunto de dados e mantém a consistência das informações armazenadas.</span>
+                              </div>
+                            </li>
+                            <li class="list-group-item">
+                              <p class="fw-semibold mb-0">Localização do arquivo : </p>
+                              <span class="fs-12 text-muted">Device/Storage/Archives/Backup 2024-10-25.zip</span>
+                            </li>
+                          </ul>
+                        </div>
+                     
+                        <div class="p-3">
+                        
+                          <div class="d-flex align-items-center p-2 mb-1">
+                            <button style="width: 100%;" type="button" class="btn btn-outline-secondary btn-wave waves-effect waves-light">Restaurar Backup</button>
+                          </div>
+                          <div class="d-flex align-items-center p-2 mb-1">
+                            <button style="width: 100%;" type="button" class="btn btn-outline-danger btn-wave waves-effect waves-light">Deletar Backup</button>
+                          </div>
+                         
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="simplebar-placeholder" style="width: auto; height: 810px;"></div>
+              </div>
+              <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+              </div>
+              <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                <div class="simplebar-scrollbar" style="height: 703px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+   
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+    <!-- Scroll To Top -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <!-- Popper JS -->
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="../../assets/libs/intro.js/intro.min.js"></script>
+    <script src="../../assets/libs/intro.js/intro.js"></script>
+
+
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+
+
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- SweetAlert JS -->
+   <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+
+    <script src="./assets/js/index.js"></script>
+
+</body>
+
+</html>

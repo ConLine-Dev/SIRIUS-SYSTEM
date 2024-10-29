@@ -28,6 +28,7 @@ const api_user_tickets = require('./api-user-tickets');
 const api_performance_products = require('./api-performance-product');
 const api_nps = require('./api-nps');
 const api_cash_flow = require('./api-cash-flow');
+const dataDecurityHub = require('./api-data-security-hub');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -135,6 +136,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-safety-inspection .js oi
   router.use('/safety-inspection', api_safety_inspection(io)); 
+  
+  // Use as rotas do arquivo api-safety-inspection .js oi
+  router.use('/data-security-hub', dataDecurityHub(io)); 
 
   return router;
 };

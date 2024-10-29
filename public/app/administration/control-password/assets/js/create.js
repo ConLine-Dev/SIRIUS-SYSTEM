@@ -68,6 +68,9 @@ async function getAllDepartments() {
 
 // Esta função coleta dados de um formulário HTML, realiza validações no campo de link, e faz uma requisição para criar uma nova entrada no sistema de controle de senhas
 async function getForm() {
+    const maxLoginLength = 45; // Limite de caracteres para o login
+    const maxTitleLength = 100; // Limite de caracteres para o título
+
     const form = {
         title: document.querySelector('input[name="title"]').value,
         login: document.querySelector('input[name="login"]').value,
@@ -76,6 +79,18 @@ async function getForm() {
         departments: sAllDepartments.getValue(true),
         link: document.querySelector('input[name="link"]').value,
         observation: document.querySelector('textarea[name="observation"]').value,
+    };
+
+    // Verifica se o título ultrapassa o limite de caracteres
+    if (form.title.length > maxTitleLength) {
+        Swal.fire(`O título deve ter no máximo ${maxTitleLength} caracteres.`);
+        return; // Interrompe a execução se o título ultrapassar o limite
+    }
+
+    // Verifica se o login ultrapassa o limite de caracteres
+    if (form.login.length > maxLoginLength) {
+        Swal.fire(`O login deve ter no máximo ${maxLoginLength} caracteres.`);
+        return; // Interrompe a execução se o login ultrapassar o limite
     }
 
     // Verifica se o campo link não está vazio
@@ -89,9 +104,11 @@ async function getForm() {
         }
     }
 
-    const Result = await makeRequest(`/api/control-password/create`, 'POST', form);
+    const result = await makeRequest(`/api/control-password/create`, 'POST', form);
     window.close();
 }
+
+
 
 // Função para verificar se os campos estão preenchidos
 async function getValuesFromInputs() {

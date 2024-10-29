@@ -82,7 +82,7 @@
                               </div>
                             </a>
                           </li>
-                          <li class="files-type">
+                          <!-- <li class="files-type">
                             <a href="javascript:void(0)">
                               <div class="d-flex align-items-center">
                                 <div class="me-2">
@@ -111,7 +111,7 @@
                                 <span class="flex-fill text-nowrap"> Backup Logs </span>
                               </div>
                             </a>
-                          </li>
+                          </li> -->
                           
                           <li class="mb-4 totalUsed">
                             <div class="text-muted mb-2">
@@ -281,8 +281,8 @@
                         </div>
                         <div class="row">
                           <div class="col-xl-12">
-                            <div class="table-responsive border border-bottom-0">
-                              <table class="table text-nowrap table-hover">
+                       
+                              <table class="table table-bordered text-nowrap w-100 dataTable table-hover" id="table_registers">
                                 <thead>
                                   <tr>
                                     <th scope="col">Nome</th>
@@ -291,49 +291,13 @@
                                     <th scope="col">Data</th>
                                   </tr>
                                 </thead>
-                                <tbody class="files-list">
-                                  <tr>
-                                    <th scope="row">
-                                      <div class="d-flex align-items-center">
-                                        <div class="me-2">
-                                          <span class="avatar avatar-xs">
-                                            <img src="../../assets/images/media/files/zip.png" alt="">
-                                          </span>
-                                        </div>
-                                        <div> Backup 2024-10-25 </div>
-                                      </div>
-                                    </th>
-                                    <td><span class="badge bg-outline-success">Completo</span></td>
-                                    <td>4,8 TB</td>
-                                    <td><span class="badge bg-light text-dark">07-10-2024</span></td>
-                                   
-                                  </tr>
+                                <tbody class="files-list" >
+                                 
                                   
                                 </tbody>
-                                <tfoot>
-                                  <tr>
-                                    <td colspan="5">
-                                      <nav aria-label="Page navigation">
-                                        <ul class="pagination justify-content-end mb-0">
-                                          <li class="page-item disabled">
-                                            <a class="page-link" href="javascript:void(0);">Previous</a>
-                                          </li>
-                                          <li class="page-item">
-                                            <a class="page-link" href="javascript:void(0);">1</a>
-                                          </li>
-                                          <li class="page-item">
-                                            <a class="page-link" href="javascript:void(0);">2</a>
-                                          </li>
-                                          <li class="page-item">
-                                            <a class="page-link" href="javascript:void(0);">Next</a>
-                                          </li>
-                                        </ul>
-                                      </nav>
-                                    </td>
-                                  </tr>
-                                </tfoot>
+                              
                               </table>
-                            </div>
+                          
                           </div>
                         </div>
                       </div>
@@ -355,7 +319,15 @@
               <div>
                 <h6 class="fw-semibold mb-0">Detalhes do Backup</h6>
               </div>
-              
+              <div class="d-flex align-items-center">
+                <div class="dropdown me-1">
+                    <button id="btnCloseDetail" class="btn btn-sm btn-icon btn-primary-light btn-wave waves-light waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false"> 
+                      <i class="ri-close-line"></i> 
+                    </button>
+                    
+                </div>
+                <button id="file-close-btn" class="btn btn-icon btn-sm btn-danger-light d-xl-none d-block"> <i class="ri-close-fill"></i> </button>
+            </div>
             </div>
             <div class="filemanager-file-details" id="filemanager-file-details" data-simplebar="init">
               <div class="simplebar-wrapper" style="margin: 0px;">
@@ -371,8 +343,8 @@
                             <img src="../../assets/images/media/files/zip.png" alt="">
                           </div>
                           <div>
-                            <p class="mb-0 fw-semibold fs-16">Backup 2024-10-25.zip</p>
-                            <p class="mb-0 text-muted fs-10"> 422MB | 32 arquivos | 23,Nov 2022</p>
+                            <p class="mb-0 fw-semibold fs-16 fileName">Backup 2024-10-25.zip</p>
+                            <p class="mb-0 text-muted fs-10 fileDetail"> 422MB | 32 arquivos | 23,Nov 2022</p>
                           </div>
                         </div>
                         <div class="p-3 border-bottom border-block-end-dashed">
@@ -380,18 +352,18 @@
                             <li class="list-group-item">
                               <div>
                                 <span class="fw-semibold">Formato de Arquivo : </span>
-                                <span class="fs-12 text-muted">zip</span>
+                                <span class="fs-12 text-muted fileFormate">zip</span>
                               </div>
                             </li>
                             <li class="list-group-item">
                               <div>
                                 <p class="fw-semibold mb-0">Descrição do arquivo : </p>
-                                <span class="fs-12 text-muted">Este arquivo de backup contém uma atualização recente, incluindo a adição de <span class="badge bg-outline-success">22</span> novos arquivos. Cada arquivo foi incorporado ao backup para assegurar a integridade e a continuidade das informações armazenadas, garantindo que todos os dados mais recentes estejam protegidos e facilmente acessíveis para recuperação futura, caso necessário. Este backup reflete o crescimento contínuo do conjunto de dados e mantém a consistência das informações armazenadas.</span>
+                                <span class="fs-12 text-muted fileDescription">Este arquivo de backup contém uma atualização recente, incluindo a adição de <span class="badge bg-outline-success">22</span> novos arquivos. Cada arquivo foi incorporado ao backup para assegurar a integridade e a continuidade das informações armazenadas, garantindo que todos os dados mais recentes estejam protegidos e facilmente acessíveis para recuperação futura, caso necessário. Este backup reflete o crescimento contínuo do conjunto de dados e mantém a consistência das informações armazenadas.</span>
                               </div>
                             </li>
                             <li class="list-group-item">
                               <p class="fw-semibold mb-0">Localização do arquivo : </p>
-                              <span class="fs-12 text-muted">Device/Storage/Archives/Backup 2024-10-25.zip</span>
+                              <span class="fs-12 text-muted filelocation">Device/Storage/Archives/Backup 2024-10-25.zip</span>
                             </li>
                           </ul>
                         </div>

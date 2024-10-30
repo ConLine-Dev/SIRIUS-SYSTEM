@@ -2,6 +2,7 @@ const nodemailer = require('nodemailer');
 const { executeQuerySQL } = require('../connect/sqlServer');
 const { executeQuery } = require('../connect/mysql');
 const fs = require('fs');
+const cron = require('node-cron');
 
 
 
@@ -2266,10 +2267,58 @@ const headcargo = {
      
   
       return ClienteInactive;
-    }
+    },
+    processUserSessionsHead: async function(currentUsers){
+      try {
+
+         // Obtém todos os usuários logados atualmente para comparar e identificar logout
+         const loggedUsers = await executeQuery("SELECT * FROM user_sessions WHERE isLogged = 1");
+ 
+         const loggedUserMap = {};
+         loggedUsers.forEach(user => loggedUserMap[user.userName] = user);
+ 
+         // Processa os dados da API
+         for (const user of currentUsers) {
+             const { spid, userName, hostName, loginIn, lastBatch } = user;
+ 
+             if (loggedUserMap[userName]) {
+                 // Usuário já está logado: apenas atualiza o lastBatch
+                 await executeQuery(
+                     "UPDATE user_sessions SET lastBatch = ? WHERE userName = ? AND isLogged = 1",
+                     [lastBatch, userName]
+                 );
+             } else {
+                 // Novo login detectado: insere a sessão
+                 await executeQuery(
+                     "INSERT INTO user_sessions (spid, userName, hostName, loginIn, lastBatch, isLogged) VALUES (?, ?, ?, ?, ?, 1)",
+                     [spid, userName, hostName, loginIn, lastBatch]
+                 );
+             }
+         }
+ 
+         // Identifica os usuários que fizeram logout
+         for (const user of loggedUsers) {
+             if (!currentUsers.find(u => u.userName === user.userName)) {
+                 await executeQuery(
+                     "UPDATE user_sessions SET logoutTime = NOW(), isLogged = 0 WHERE userName = ?",
+                     [user.userName]
+                 );
+             }
+         }
+ 
+     } catch (error) {
+         console.error('Erro ao processar sessões de usuários:', error);
+     }
+    },
 }
 
+// Configuração do cron para rodar a cada 10 minutos
+cron.schedule('*/10 * * * *', async () => {
+   console.log('Processando sessões de usuários...');
+   // const teste = await headcargo.processUserSessionsHead();
 
+   // await headcargo.processUserSessionsHead(teste);
+});
 module.exports = {
     headcargo,
 };

@@ -151,6 +151,24 @@ async function saveEvent() {
     let validEvent = 1;
 
     const eventData = { title, responsible, eventCategory, departments, responsibles, description, timeInit, timeEnd }
+    
+    const occupiedCollabs = await makeRequest('/api/meeting-control/getResponsiblesCallendar', 'POST', {responsibles: responsibles, start: timeInit, end: timeEnd});
+    if (occupiedCollabs.length > 0) {
+        validEvent = 0;
+        let occupiedName = '';
+        for (let index = 0; index < occupiedCollabs.length; index++) {
+            if (index == 0) {
+                occupiedName = `${occupiedCollabs[index].name} ${occupiedCollabs[index].family_name}`
+            } else if (index > 1) {
+                occupiedName += `, ${occupiedCollabs[index].name} ${occupiedCollabs[index].family_name}`
+            }
+        }
+        Swal.fire({
+            icon: "error",
+            title: "Nem todos os envolvidos estão disponíveis!",
+            text: `${occupiedName} já tem compromisso marcado para este horário.`,
+        });
+    }
 
     if (eventCategory == 3) {
         let occupiedRoom = await makeRequest(`/api/meeting-control/verifyFreeRoom`, 'POST', { firstDate: timeInit, lastDate: timeEnd });

@@ -12,7 +12,7 @@ async function ListCategory(data) {
     const item = data[i];
 
     divMeetingControl += `<div class="row">
-                              <div id="${item.id}" class="col-11 fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event border" style="background-color: ${item.color}; cursor: auto;" onclick="printWeekEvents(this.id)">
+                              <div id="${item.id}" class="col-11 fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event border" style="background-color: ${item.color}; cursor: auto;" onclick="printEventsList(this.id, 'category')">
                                   <div class="fc-event-main">${item.name}</div>
                               </div>
                               <div id="${item.id}" class="col-1 fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event border" style="background-color: ${item.color}; cursor: pointer;" onclick="openRegister(this.id)">
@@ -263,46 +263,52 @@ async function deleteEvent(id){
 
 }
 
-async function printEventsList(date){
+async function printEventsList(date, param){
   const eventsList = document.querySelector('#eventsList');
   let divEventsList = ''
-
-  const allEvents = await makeRequest(`/api/meeting-control/getAllEventsFull`);
-
-  for (let index = 0; index < allEvents.length; index++) {
-    if (allEvents[index].start == date){
-      let datetime = formatDateTime(allEvents[index].init_date, allEvents[index].end_date);
-      divEventsList += `<li>
-                            <div
-                                class="d-flex align-items-center justify-content-between flex-wrap">
-                                <p class="mb-1 fw-semibold"> ${datetime.formattedDate} </p><span
-                                    class="badge bg-light text-default mb-1"> ${datetime.formattedTime} </span>
-                            </div>
-                            <p class="mb-0 text-muted fs-12" style="color:${allEvents[index].color}!important"> ${allEvents[index].category} </p>
-                        </li>`
-    }
-  }
-  eventsList.innerHTML = divEventsList;
-}
-
-async function printWeekEvents(category){
-  const eventsTitle = document.querySelector('#weekEvents');
+  const eventsTitle = document.querySelector('#eventsTitle');
   let divEventsTitle = '';
-  const eventsList = document.querySelector('#weekEventsList');
-  let divEventsList = '';
 
   const categoryCalendar = await makeRequest(`/api/meeting-control/getAllCategoryCalendar`);
   const allEvents = await makeRequest(`/api/meeting-control/getAllEventsFull`);
 
-  for (let index = 0; index < array.length; index++) {
-    const element = array[index];
-    
-  }
-  divEventsTitle = `<h6 class="fw-semibold">${category} da semana:</h6>`
+  if (param == 'day') { 
 
-  for (let index = 0; index < allEvents.length; index++) {
-    if (allEvents[index].category_id == category) {
-      console.log(allEvents[index]);
+    divEventsTitle = `<h6 class="fw-semibold">Eventos do dia:</h6>`
+
+    for (let index = 0; index < allEvents.length; index++) {
+      if (allEvents[index].start == date){
+        let datetime = formatDateTime(allEvents[index].init_date, allEvents[index].end_date);
+        divEventsList += `<li>
+                            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                              <p class="mb-1 fw-semibold"> ${datetime.formattedDate} </p>
+                              <span class="badge bg-light text-default mb-1"> ${datetime.formattedTime} </span>
+                            </div>
+                            <p class="mb-0 text-muted fs-12" style="color:${allEvents[index].color}!important"> ${allEvents[index].category} </p>
+                          </li>`
+      }
+    }
+  }
+  
+  if (param == 'category') {
+    const category = date;
+
+    for (let index = 0; index < categoryCalendar.length; index++) {
+      if(categoryCalendar[index].id == category) {
+        divEventsTitle = `<h6 class="fw-semibold">${categoryCalendar[index].name} do mês:</h6>`
+      } 
+    }
+    for (let index = 0; index < allEvents.length; index++) {
+      if (allEvents[index].id_category == category) {
+        let datetime = formatDateTime(allEvents[index].init_date, allEvents[index].end_date);
+        divEventsList += `<li>
+                            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                              <p class="mb-1 fw-semibold"> ${datetime.formattedDate} </p>
+                              <span class="badge bg-light text-default mb-1"> ${datetime.formattedTime} </span>
+                            </div>
+                            <p class="mb-0 text-muted fs-12" style="color:${allEvents[index].color}!important"> ${allEvents[index].category} </p>
+                          </li>`
+      }
     }
   }
   eventsTitle.innerHTML = divEventsTitle;
@@ -355,7 +361,7 @@ async function initializeCalendar(){
       await printEventData(info.event.id);
     },
     dateClick: function (info) {
-      printEventsList(info.dateStr);
+      printEventsList(info.dateStr, 'day');
     }
   });
   calendar.render();
@@ -382,7 +388,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   let date = new Date();
   date = formatDate(date);
   date = date.split(" ")[0];
-  await printEventsList(date);
+  await printEventsList(date, 'day');
 
   initializeDatePicker();
   await ListCategory(categoryCalendar);

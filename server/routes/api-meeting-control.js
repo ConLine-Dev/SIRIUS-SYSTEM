@@ -155,6 +155,16 @@ module.exports = function(io) {
         }
     });
 
+    router.post('/getResponsiblesCallendar', async (req, res, next) => {
+        try {
+            const result = await meetingControl.getResponsiblesCallendar(req.body);
+    
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json(error);
+        }
+    });
+
     // Retorna o router configurado
     return router;
 };

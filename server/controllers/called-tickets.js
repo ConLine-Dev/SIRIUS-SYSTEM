@@ -663,7 +663,7 @@ const tickets = {
                     <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
                 </div>
             </div>`
-    
+            console.log(pendingTickets[index].email_business);
             await sendEmail(pendingTickets[index].email_business, '[Sirius System] Seguimos no aguardo da sua aprovação! 🫠', mailBody);
 
             await executeQuery(`UPDATE called_tickets SET review_notification = DATE_SUB(CURDATE(), INTERVAL 6 DAY) WHERE id = ${pendingTickets[index].id}`);

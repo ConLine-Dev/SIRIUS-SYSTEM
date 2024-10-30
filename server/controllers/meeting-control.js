@@ -30,7 +30,7 @@ const meetingControl = {
 
     getAllEventsFull: async function () {
         let result = await executeQuery(`
-            SELECT ce.id, ce.title, ce.description, cc.name as 'category', cc.color, date_format(ce.init_date, '%Y-%m-%d') as 'start',
+            SELECT ce.id, ce.title, ce.description, cc.id as 'id_category', cc.name as 'category', cc.color, date_format(ce.init_date, '%Y-%m-%d') as 'start',
             date_format(ce.end_date, '%Y-%m-%d') as 'end', ce.init_date, ce.end_date, cl.name as 'collaborator'
             FROM calendar_events ce
             LEFT OUTER JOIN calendar_category cc on cc.id = ce.id_category
@@ -40,7 +40,23 @@ const meetingControl = {
         return result;
     },
 
+    getResponsiblesCallendar: async function (data) {
+
+        const collabList = data.responsibles.map(id => `'${String(id).replace(/'/g, "''")}'`).join(', ');
+
+        let result = await executeQuery(`
+            SELECT cer.*, cl.name, cl.family_name
+            FROM calendar_events_resps cer
+            LEFT OUTER JOIN collaborators cl on cl.id = cer.collaborator_id
+            WHERE cer.collaborator_id IN (${collabList})
+            AND (('${data.start}' < cer.event_end_date AND '${data.end}' > cer.event_init_date));`)
+
+        return result;
+    },
+
     saveEvent: async function (eventData) {
+        
+        return false;
 
         const result = await executeQuery(
             'INSERT INTO calendar_events (id_category, title, description, id_collaborator, init_date, end_date) VALUES (?, ?, ?, ?, ?, ?)',
@@ -59,7 +75,7 @@ const meetingControl = {
             const responsibles = eventData.responsibles;
             for (let index = 0; index < responsibles.length; index++) {
                 await executeQuery(`
-                    INSERT INTO calendar_events_resps (event_id, collaborator_id) VALUES (?, ?)`, [result.insertId, responsibles[index]]);
+                    INSERT INTO calendar_events_resps (event_id, collaborator_id, event_init_date, event_end_date) VALUES (?, ?, ?, ?)`, [result.insertId, responsibles[index], eventData.timeInit, eventData.timeEnd]);
             }
         }
 

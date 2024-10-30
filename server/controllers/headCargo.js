@@ -1,12 +1,12 @@
 const nodemailer = require('nodemailer');
 const { executeQuerySQL } = require('../connect/sqlServer');
 const { executeQuery } = require('../connect/mysql');
+const { sendEmail } = require('../support/send-email');
 const fs = require('fs');
 const cron = require('node-cron');
 const axios = require('axios');
 
 const headcargo = {
-   // refreshToken: null,
    // INICIO API CONTROLE DE COMISSÃO
    gerenateCommission: async function(value){
    
@@ -2272,7 +2272,6 @@ LEFT OUTER JOIN
    // Usuarios logados e ultimo comando executado no HeadCargo
    userSessionsHeadToken: async function(){
       try {
-
          // Obtém o token atualizado do banco
          const token = await executeQuery("SELECT * FROM siriusDBO.user_sessions_head_token");
          return token[0].token;
@@ -2280,7 +2279,6 @@ LEFT OUTER JOIN
          console.error('Erro ao processar sessões de usuários:', error);
       }
    },
-
    getAccessToken: async function() {
       try {
          const getDBToken = await headcargo.userSessionsHeadToken();
@@ -2299,13 +2297,27 @@ LEFT OUTER JOIN
          );
 
          // Atualiza o refresh_token e retorna o acess_token
-         await executeQuery("UPDATE user_sessions_head_token SET token = ? WHERE (id = 1)", [response.data.refresh_token]);
+         await executeQuery("UPDATE user_sessions_head_token SET token = ?, update_data = NOW() WHERE (id = 1)", [response.data.refresh_token]);
          return response.data.access_token;
       } catch (error) {
-         console.error('Erro ao obter access_token:', error);
+         let messageBody = `
+         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+               <h1 style="margin: 0; font-size: 24px;">Opa! Parece que deu um erro ao pegar o token da API do Head!</h1>
+            </div>
+            <div style="padding: 20px; background-color: #f9f9f9;">
+               <p style="color: #333; font-size: 16px;">Olá,</p>
+               <p style="color: #333; font-size: 16px; line-height: 1.6;">Parece que aconteceu algum problema ao tentar realizar uma requisição da API de token do Head Cargo! 🥳</p>
+               <p style="color: #333; font-size: 16px; line-height: 1.6;">Recomendo acessar o servidor para analisar o que pode ter acontecido</p>
+            </div>
+            <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+               <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+            </div>
+         </div>`
+
+         await sendEmail('ti@conlinebr.com.br', 'Opa! Parece que deu um erro ao pegar o token da API do Head', messageBody)
       }
    },
-
    fetchLoggedDesktopUsers: async function(accessToken) {
       try {
          const response = await axios.get('https://api.headsoft.com.br/web/system/logged-desktop-users', {
@@ -2319,7 +2331,6 @@ LEFT OUTER JOIN
          console.error('Erro ao buscar usuários logados:', error);
       }
    },
-
    processUserSessionsHead: async function(currentUsers){
       try {
 

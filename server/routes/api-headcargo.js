@@ -232,7 +232,23 @@ router.post('/listAllClienteInactive', async (req, res, next) => {
 });
 
 
-// INICIO API Gestão de Inatividade Comercial
+// FIM API Gestão de Inatividade Comercial
+
+
+
+
+router.post('/GetFeesByProcess', async (req, res, next) => {
+    const {reference} = req.body;
+    
+    try {
+        const result = await headcargo.GetFeesByProcess(reference);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+        res.status(404).json('Erro')   
+    }
+});
 
 
 

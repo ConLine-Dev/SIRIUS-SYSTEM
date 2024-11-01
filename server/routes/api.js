@@ -72,6 +72,9 @@ const setIO = (io) => {
   router.use('/headcargo/inactive-clients-report', api_headcargo);
 
   // Use as rotas do arquivo apiAppMonitor.js
+  router.use('/headcargo/repurchase-management', api_headcargo);
+
+  // Use as rotas do arquivo apiAppMonitor.js
   // router.use('/called/projects', api_called_projects);
 
   // Use as rotas do arquivo apiAppMonitor.js

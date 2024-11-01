@@ -40,7 +40,7 @@
                     <div class=" justify-content-between headerButtons">
                         <ul class="nav nav-tabs border-0" role="tablist">
                             <li class="nav-item " role="presentation"> 
-                                <a class="nav-link label-btn" id="btn-save">
+                                <a class="nav-link label-btn" id="sendButton">
                                     <i class="ri-save-3-line label-btn-icon me-2"></i>
                                     Cadastrar
                                 </a> 
@@ -61,7 +61,17 @@
                         <div class="row">
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
                                 <label for="input-label" class="form-label">Nº do Processo</label> 
-                                <input type="text" name="referenceProcess" class="form-control form-input" placeholder="IM0000-00"> 
+                                <!-- <input type="text" name="" class="form-control form-input" placeholder="IM0000-00">  -->
+                                <select class="form-control choices__input" name="referenceProcess" >
+                                </select>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
+                                <label for="input-label" class="form-label">Lucro Abertura</label> 
+                                <input type="text" name="OpeningProfit" disabled class="form-control form-input" value="67,04"> 
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
+                                <label for="input-label" class="form-label">Lucro Estimado</label> 
+                                <input type="text" name="EstimatedProfit" disabled class="form-control form-input" value="71,18"> 
                             </div>
                            
                         </div>
@@ -71,7 +81,7 @@
                             <table id="tableTaxasProcessos" class="table text-nowrap table-hover">
                               <thead>
                                 <tr>
-                                <th scope="col"></th>
+                                <th scope="col"><input type="checkbox" disabled class="form-check-input" id="check1"></th>
                                   <th scope="col">Taxa</th>
                                   <th scope="col">Compra</th>
                                   <th scope="col">Venda</th>
@@ -128,6 +138,11 @@
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 
     <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
 
     <script src="./assets/js/new-repurchase.js"></script>
 

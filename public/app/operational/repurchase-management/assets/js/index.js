@@ -25,7 +25,7 @@ function openNewrepurchase() {
 }
 
 function openWindow(url, width, height) {
-    const options = `width=${width},height=${height},resizable=no`;
+    const options = `width=${width},height=${height},resizable=yes`;
     window.open(url, '_blank', options);
 }
 

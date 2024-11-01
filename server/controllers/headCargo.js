@@ -2374,95 +2374,44 @@ LEFT OUTER JOIN
       }
    },
    GetFeesByProcess: async function(reference){
-   //    const sql = `SELECT
-   //    Vlf.IdMoeda,
-   //    Fnc.Valor_Original,
-   //    Moe.Sigla,
-   //    CONVERT(varchar, Fnc.Data_Vencimento, 103) AS Data_Vencimento_Formatada,
-   //    CASE Vlf.Tipo_Fatura
-   //    WHEN 1 THEN 'PAGAMENTO'
-   //    WHEN 2 THEN 'RECEBIMENTO'
-   //    WHEN 3 THEN 'AGENTE'
-   //    WHEN 4 THEN 'COMISSÃO'
-   //    WHEN 5 THEN 'OUTRAS DESPESAS'
-   //    WHEN 6 THEN 'ADIANTAMENTO'
-   //    WHEN 7 THEN 'ACERTO DE SALDO'
-   //    WHEN 8 THEN 'VENDEDOR'
-   //    WHEN 9 THEN 'REPRESENTANTE'
-   //    WHEN 10 THEN 'CAUÇÃO DEMURRAGE'
-   //    WHEN 11 THEN 'ACERTO DEMURRAGE'
-   //    WHEN 12 THEN 'ASSOCIAÇÃO INTERNACIONAL'
-   //    WHEN 13 THEN 'SEGURADORA'
-   // END AS TIPO_FATURA,
-   //    CASE Fnc.Situacao
-   //       WHEN 1 THEN 'EM ABERTO'
-   //       WHEN 2 THEN 'QUITADA'
-   //       WHEN 3 THEN 'PARCIALMENTE QUITADA'
-   //       WHEN 4 THEN 'UNIFICADA'
-   //       WHEN 5 THEN 'EM COBRANÇA'
-   //       WHEN 6 THEN 'CANCELADA'
-   //       WHEN 7 THEN 'EM COBRANÇA JUDICIAL'
-   //       WHEN 8 THEN 'NEGATIVADO'
-   //       WHEN 9 THEN 'PROTESTADO'
-   //       WHEN 10 THEN 'JUNK'
-   //    END AS SituacaoNome,
-   //    Lhs.Numero_Processo,
-   //    Psa.IdPessoa as IdPessoa,
-   //    Psa.Nome AS Pessoa,
-   //    Ven.Nome AS Vendedor,
-   //    Ven.IdPessoa AS IdVendedor
-   // FROM
-   //    mov_Logistica_House Lhs
-   // LEFT OUTER JOIN
-   //    mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
-   // LEFT OUTER JOIN
-   //    vis_Logistica_Fatura Vlf ON Vlf.IdLogistica_House = Lhs.IdLogistica_House
-   // LEFT OUTER JOIN
+      const sql = `SELECT
+      Lhs.Numero_Processo,
+      Tle.Nome AS Nome_Taxa,
+      Ltx.Valor_Pagamento_Total,
+      Pag.Sigla AS Moeda_Pgto,
+      Ltx.Valor_Recebimento_Total,
+      Rec.Sigla AS Moeda_Receb
+  
+  FROM
+      mov_Logistica_House Lhs 
+  LEFT OUTER JOIN 
+      mov_Logistica_Taxa Ltx ON Ltx.IdLogistica_House = Lhs.IdLogistica_House
+  LEFT OUTER JOIN
+      cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
+  LEFT OUTER JOIN
+      cad_Moeda Pag ON Pag.IdMoeda = Ltx.IdMoeda_Pagamento 
+  LEFT OUTER JOIN
+      cad_Moeda Rec ON Rec.IdMoeda = Ltx.IdMoeda_Recebimento
+  WHERE
+      Lhs.Numero_Processo = '${reference}'`;
    
-   //    cad_Moeda Moe ON Moe.IdMoeda = Vlf.IdMoeda
-   //    LEFT OUTER JOIN
-   //    mov_Fatura_Financeira Fnc ON Fnc.IdRegistro_Financeiro = Vlf.IdRegistro_Financeiro
-   // LEFT OUTER JOIN
-   //    cad_Pessoa Psa ON Psa.IdPessoa = Vlf.IdPessoa
-   // LEFT OUTER JOIN
-   //    cad_Contrato_Financeiro Cfn on Cfn.IdContrato_Financeiro = Psa.IdContrato_Financeiro
-   // LEFT OUTER JOIN
-   //    cad_Contrato_Logistica_Item Cli on Cli.IdContrato_Financeiro = Cfn.IdContrato_Financeiro
-   // LEFT OUTER JOIN
-   //    cad_Condicao_Pagamento Cpg on Cpg.IdCondicao_Pagamento = Cli.IdCondicao_Pagamento
-   // LEFT OUTER JOIN
-   //    cad_Pessoa Ven ON Ven.IdPessoa = Lhs.IdVendedor
-   //                WHERE
-   //                Lhs.IdLogistica_House = '${reference}'`;
+      const registers = await executeQuerySQL(sql)
+      
+      return registers;
    
-   //    const registers = await executeQuerySQL(sql)
-      return [
-         {
-            id: 1,
-            taxa: 'LIBERAÇÃO DE BL',
-            valor_compra: 10.00,
-            Sigla_compra: 'BRL',
-            valor_venda: 10.00,
-            Sigla_venda: 'BRL'
-         },
-         {
-            id: 2,
-            taxa: 'DESCONSOLIDAÇÃO',
-            valor_compra: 10.00,
-            Sigla_compra: 'BRL',
-            valor_venda: 10.00,
-            Sigla_venda: 'BRL'
-         },
-         {
-            id: 3,
-            taxa: 'FRETE MARITIMO',
-            valor_compra: 10.00,
-            Sigla_compra: 'BRL',
-            valor_venda: 10.00,
-            Sigla_venda: 'BRL'
-         }
-      ];
    },
+   getAllProcessByRef: async function(reference){
+      const sql = `SELECT
+      Lhs.Numero_Processo,
+      Lhs.IdLogistica_House
+  FROM
+      mov_Logistica_House Lhs 
+  WHERE
+      Lhs.Numero_Processo LIKE '%${reference}%'`;
+   
+      const registers = await executeQuerySQL(sql)
+      return registers
+   }
       
 }
 

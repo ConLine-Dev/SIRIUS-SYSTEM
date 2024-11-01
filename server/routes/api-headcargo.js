@@ -239,13 +239,42 @@ router.post('/listAllClienteInactive', async (req, res, next) => {
 
 router.post('/GetFeesByProcess', async (req, res, next) => {
     const {reference} = req.body;
-    
+
     try {
         const result = await headcargo.GetFeesByProcess(reference);
 
         res.status(200).json(result)
     } catch (error) {
         console.log(error)
+        res.status(404).json('Erro')   
+    }
+});
+
+
+router.post('/getAllProcessByRef', async (req, res, next) => {
+    const {body} = req.body;
+    console.log(body)
+    try {
+        const refProposalDecoded = decodeURIComponent(body);
+        let result = await headcargo.getAllProcessByRef(refProposalDecoded);
+        
+
+
+    
+        // Formate o array para ser usado com o Choices.js
+        // { value: 'opcao1', label: 'Casa' }
+        result = result.map(function(element) {
+            
+            return {
+                customProperties:{reference:element.Numero_Processo, id:element.IdLogistica_House},
+                value: `${element.Numero_Processo}`,
+                label: `${element.Numero_Processo}`,
+                selected: true,
+            };
+        });
+       
+        res.status(200).json(result)
+    } catch (error) {
         res.status(404).json('Erro')   
     }
 });

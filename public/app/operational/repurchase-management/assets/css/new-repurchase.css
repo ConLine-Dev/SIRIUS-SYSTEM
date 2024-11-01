@@ -5,3 +5,6 @@ html{
 .bodyWindows{
     height: 100vh;
 }
+.choices__inner {
+    min-height: 35px !important;
+}

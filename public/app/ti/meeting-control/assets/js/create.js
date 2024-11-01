@@ -158,8 +158,8 @@ async function saveEvent() {
         let occupiedName = '';
         for (let index = 0; index < occupiedCollabs.length; index++) {
             if (index == 0) {
-                occupiedName = `${occupiedCollabs[index].name} ${occupiedCollabs[index].family_name}`
-            } else if (index > 1) {
+                occupiedName += `${occupiedCollabs[index].name} ${occupiedCollabs[index].family_name}`
+            } else if (index > 0) {
                 occupiedName += `, ${occupiedCollabs[index].name} ${occupiedCollabs[index].family_name}`
             }
         }

@@ -12,7 +12,7 @@ async function ListCategory(data) {
     const item = data[i];
 
     divMeetingControl += `<div class="row">
-                              <div id="${item.id}" class="col-11 fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event border" style="background-color: ${item.color}; cursor: auto;" onclick="printEventsList(this.id, 'category')">
+                              <div id="${item.id}" class="col-11 fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event border" style="background-color: ${item.color}; cursor: pointer;" onclick="printEventsList(this.id, 'category')">
                                   <div class="fc-event-main">${item.name}</div>
                               </div>
                               <div id="${item.id}" class="col-1 fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event border" style="background-color: ${item.color}; cursor: pointer;" onclick="openRegister(this.id)">
@@ -370,6 +370,8 @@ async function initializeCalendar(){
 async function getInfosLogin() {
   const StorageGoogleData = localStorage.getItem('StorageGoogle');
   const StorageGoogle = JSON.parse(StorageGoogleData);
+
+  const categories = await makeRequest(`/api/meeting-control/notificateMessage`);
 
   return StorageGoogle;
 };

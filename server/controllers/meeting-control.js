@@ -49,18 +49,40 @@ const meetingControl = {
             FROM calendar_events_resps cer
             LEFT OUTER JOIN collaborators cl on cl.id = cer.collaborator_id
             WHERE cer.collaborator_id IN (${collabList})
-            AND (('${data.start}' < cer.event_end_date AND '${data.end}' > cer.event_init_date));`)
+            AND (('${data.start}' <= cer.event_end_date AND '${data.end}' >= cer.event_init_date));`)
 
         return result;
     },
 
-    saveEvent: async function (eventData) {
+    subtractByOne: async function (datetime, param) {
+        const date = new Date(datetime.replace(' ', 'T'));
         
-        return false;
+        if (param == 'minute') {
+            date.setMinutes(date.getMinutes() - 1);
+        }
+
+        if (param == 'day') {
+            date.setDate(date.getDate() - 1);
+        }
+        
+        // Formata de volta para "YYYY-MM-DD HH:MM"
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+    },
+    
+    saveEvent: async function (eventData) {
+
+        eventData.timeEnd = await this.subtractByOne(eventData.timeEnd, 'minute');
+        const notificationDate = await this.subtractByOne(eventData.timeInit, 'day');
 
         const result = await executeQuery(
-            'INSERT INTO calendar_events (id_category, title, description, id_collaborator, init_date, end_date) VALUES (?, ?, ?, ?, ?, ?)',
-            [eventData.eventCategory, eventData.title, eventData.description, eventData.responsible, eventData.timeInit, eventData.timeEnd]
+            'INSERT INTO calendar_events (id_category, title, description, id_collaborator, init_date, end_date, notification_date, notificate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [eventData.eventCategory, eventData.title, eventData.description, eventData.responsible, eventData.timeInit, eventData.timeEnd, notificationDate, 0]
         );
 
         if (eventData.departments.length > 0) {
@@ -78,10 +100,81 @@ const meetingControl = {
                     INSERT INTO calendar_events_resps (event_id, collaborator_id, event_init_date, event_end_date) VALUES (?, ?, ?, ?)`, [result.insertId, responsibles[index], eventData.timeInit, eventData.timeEnd]);
             }
         }
-
         this.createMessage(eventData);
 
         return { id: result.insertId};
+    },
+
+    notificateMessage: async function () {
+        const result = await executeQuery(`
+            SELECT ce.*, cl.name, cl.family_name, cl.email_business
+            FROM calendar_events ce
+            LEFT OUTER JOIN collaborators cl on cl.id = ce.id_collaborator
+            WHERE (
+                CASE 
+                    WHEN DAYOFWEEK(NOW()) = 6 THEN DATE(init_date) IN (DATE(NOW() + INTERVAL 1 DAY), DATE(NOW() + INTERVAL 2 DAY), DATE(NOW() + INTERVAL 3 DAY))
+                    ELSE DATE(init_date) = DATE(NOW() + INTERVAL 1 DAY)
+                END
+            )
+            AND notificate = 0;`);
+        
+        const options = {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        };
+
+        for (let index = 0; index < result.length; index++) {
+            result[index].init_date = new Date(result[index].init_date);
+            result[index].init_date = result[index].init_date.toLocaleString('pt-BR', options);
+            const emailsArray = [];
+
+            const responsibles = await executeQuery(`
+                SELECT cer.*, cl.email_business
+                FROM siriusDBO.calendar_events_resps cer
+                LEFT OUTER JOIN collaborators cl on cl.id = cer.collaborator_id
+                WHERE event_id = ${result[index].id}`);
+            for (let index = 0; index < responsibles.length; index++) {
+                emailsArray[index] = responsibles[index].email_business;
+            }
+
+            await executeQuery(`UPDATE calendar_events SET notificate = 1, notification_date = NOW() WHERE id = ${result[index].id}`);
+
+            let mailBody = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+                    <h1 style="margin: 0; font-size: 24px;"></h1>
+                </div>
+                <div style="padding: 20px; background-color: #f9f9f9;">
+                    <p style="color: #333; font-size: 16px;">Olá,</p>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Você está envolvido em um evento que acontecerá em breve! 😎</p>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Aqui estão os detalhes do agendamento, se precisar de algo pode nos chamar!</p>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                    <tr>
+                        <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Funcionário Responsável:</td>
+                        <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">${result[index].name} ${result[index].family_name}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Evento:</td>
+                        <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">${result[index].title}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Previsão de Início:</td>
+                        <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">${result[index].init_date}</td>
+                    </tr>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
+                </div>
+                <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+                    <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+                </div>
+            </div>`
+    
+            sendEmail('lucas@conlinebr.com.br', '[Sirius System] Um evento se aproxima! ', mailBody);
+        }
+
+        return true;
     },
 
     updateEvent: async function (eventData) {
@@ -111,10 +204,9 @@ const meetingControl = {
             const responsibles = eventData.responsibles;
             for (let index = 0; index < responsibles.length; index++) {
                 await executeQuery(`
-                    INSERT INTO calendar_events_resps (event_id, collaborator_id) VALUES (?, ?)`, [eventData.id, responsibles[index]]);
+                    INSERT INTO calendar_events_resps (event_id, collaborator_id, event_init_date, event_end_date) VALUES (?, ?, ?, ?)`, [eventData.id, responsibles[index], eventData.timeInit, eventData.timeEnd]);
             }
         }
-
         return result;
     },
 
@@ -240,6 +332,7 @@ const meetingControl = {
         }
 
         const respsArray = [];
+        const emailsArray = [];
         let responsiblesLine = '';
         if (eventData.responsibles.length > 0){
             for (let index = 0; index < eventData.responsibles.length; index++) {
@@ -249,6 +342,7 @@ const meetingControl = {
                     LEFT OUTER JOIN departments_relations dr on dr.collaborator_id = cl.id
                     WHERE cl.id = ${eventData.responsibles[index]}`);
                     respsArray[index] = ' ' + responsibles[0].name + ' ' + responsibles[0].family_name;
+                    emailsArray[index] = responsibles[0].email_business;
             }
             responsiblesLine = `
                             <tr>
@@ -266,7 +360,7 @@ const meetingControl = {
             </div>
             <div style="padding: 20px; background-color: #f9f9f9;">
                 <p style="color: #333; font-size: 16px;">Olá,</p>
-                <p style="color: #333; font-size: 16px; line-height: 1.6;">Viemos confirmar o agendamento da sua reunião. 🤝</p>
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Tem um novo evento em que você está atrelado! 😎</p>
                 <p style="color: #333; font-size: 16px; line-height: 1.6;">Aqui estão os detalhes da reserva, te avisaremos de novo quando a data estiver próxima:</p>
                 <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
                 <tr>
@@ -290,7 +384,7 @@ const meetingControl = {
             </div>
         </div>`
 
-        sendEmail('lucas@conlinebr.com.br', '[Sirius System] Novo evento criado! ', mailBody);
+        sendEmail(emailsArray, '[Sirius System] Novo evento criado! ', mailBody);
 
         return true;
     },

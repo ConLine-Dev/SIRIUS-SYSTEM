@@ -60,6 +60,16 @@ module.exports = function(io) {
         }
     });
 
+    router.get('/notificateMessage', async (req, res, next) => {
+        try {
+            const result = await meetingControl.notificateMessage();
+    
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json(error);
+        }
+    });
+
     router.post('/updateEvent', async (req, res, next) => {
         try {
             const result = await meetingControl.updateEvent(req.body);

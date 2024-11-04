@@ -80,7 +80,7 @@ textarea {
 }
 
 #members-equip li:hover {
-    background-color: #f6f6f6;  /* Muda a cor de fundo ao passar o mouse */
+    background-color: #e4e4e450;  /* Muda a cor de fundo ao passar o mouse */
 }
 
 #tasksLate {
@@ -170,7 +170,7 @@ textarea {
 
 /* Cor de fundo ao passar o mouse */
 .projects-maintask-card li:hover {
-    background-color: #f1f1f1;  /* Muda a cor de fundo ao passar o mouse */
+    background-color: #e4e4e450;  /* Muda a cor de fundo ao passar o mouse */
 }
 
 .cardsProjects {

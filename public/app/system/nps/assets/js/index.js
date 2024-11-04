@@ -5,6 +5,8 @@ const table = [];
 document.addEventListener("DOMContentLoaded", async () => {
 
     await renderGradeAverage()
+
+    introMain();
     document.querySelector('#loader2').classList.add('d-none')
 
 })

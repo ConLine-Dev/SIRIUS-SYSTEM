@@ -1,0 +1,21 @@
+.container {
+    padding: 20px;
+    background-color: #2b2b2b; /* Cor de fundo escura */
+    color: #fff;
+}
+
+.form-control {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+}
+
+.col {
+    flex: 10 10 200px; /* Ajuste de largura mínimo para os campos */
+}
+
+label {
+    font-weight: bold;
+}
+
+
+

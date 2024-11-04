@@ -61,8 +61,7 @@
                 <div class="col-12"><br>                    
                     <div class="card custom-card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <div class="card-title">Indicadores T.I</div>
-                                                    
+                            <div class="card-title">Indicadores T.I</div>                     
                         </div>
                     </div>
                 </div>
@@ -74,7 +73,7 @@
                             <div class="row">
                                 <!--Projetos Novos-->
                                 <div class="col-sm-4">
-                                    <div class="card custom-card cardsProjects">
+                                    <div class="card custom-card cardsProjects" id="intro_card_new">
                                         <div class="card-body d-flex justify-content-between align-items-center">
                                             <div>
                                                 <p class="mb-2">Projetos Novos</p>
@@ -89,7 +88,7 @@
                                 </div>
                                 <!--Projetos Análise-->
                                 <div class="col-sm-4">
-                                    <div class="card custom-card cardsProjects">
+                                    <div class="card custom-card cardsProjects" id="intro_card_analise">
                                         <div class="card-body d-flex justify-content-between align-items-center">
                                             <div>
                                                 <p class="mb-2">Projetos Análise</p>
@@ -102,7 +101,7 @@
                                 </div>
                                 <!--Projetos Andamento-->
                                 <div class="col-sm-4">
-                                    <div class="card custom-card cardsProjects">
+                                    <div class="card custom-card cardsProjects" id="intro_card_andamento">
                                         <div class="card-body d-flex justify-content-between align-items-center">
                                             <div>
                                                 <p class="mb-2">Projetos Andamento</p>
@@ -115,7 +114,7 @@
                                 </div>
                                 <!--Projetos Revisão-->
                                 <div class="col-sm-4">
-                                    <div class="card custom-card cardsProjects">
+                                    <div class="card custom-card cardsProjects" id="intro_card_revisao">
                                         <div class="card-body d-flex justify-content-between align-items-center">
                                             <div>
                                                 <p class="mb-2">Projetos Revisão</p>
@@ -128,7 +127,7 @@
                                 </div>
                                 <!--Projetos Concluídos-->
                                 <div class="col-sm-4">
-                                    <div class="card custom-card cardsProjects">
+                                    <div class="card custom-card cardsProjects" id="intro_card_concluido">
                                         <div class="card-body d-flex justify-content-between align-items-center">
                                             <div>
                                                 <p class="mb-2">Projetos Concluídos</p>
@@ -141,7 +140,7 @@
                                 </div>
                                 <!--Total Projetos-->
                                 <div class="col-sm-4">
-                                    <div class="card custom-card cardsProjects">
+                                    <div class="card custom-card cardsProjects" id="intro_card_totalProjects">
                                         <div class="card-body d-flex justify-content-between align-items-center">
                                             <div>
                                                 <p class="mb-2">Total Projetos</p>
@@ -156,7 +155,7 @@
 
                                 <!--Grafico de Analise de projetos-->
                                 <div class="col-xl-12" style="margin-top: -5px;">
-                                    <div class="card custom-card">
+                                    <div class="card custom-card intro_graphic_projects">
                                         <div class="card-header justify-content-between">
                                             <div class="card-title"> Analise de Projetos </div>
                                         </div>
@@ -176,7 +175,7 @@
                             <div class="row">
                                 <!-- Membros da equipe -->
                                 <div class="col-lg-6">
-                                    <div class="card custom-card">
+                                    <div class="card custom-card intro_membersEquip">
                                         <div class="card-header justify-content-between align-items-center">
                                             <div class="card-title listCards1"> Membros da Equipe </div>
                                         </div>
@@ -199,7 +198,7 @@
                                 </div>
                                 <!-- Tarefas a vencer -->
                                 <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
-                                    <div class="card custom-card">
+                                    <div class="card custom-card intro_task_pending">
                                         <div class="card-header justify-content-between align-items-center">
                                             <div class="card-title">Tarefas a vencer</div>
                                         </div>
@@ -212,7 +211,7 @@
                                 </div>
                                 <!-- Últimas mensagens -->
                                 <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
-                                    <div class="card custom-card">
+                                    <div class="card custom-card intro_last_messenger">
                                         <div class="card-header justify-content-between align-items-center">
                                             <div class="card-title">Últimas mensagens</div>
                                         </div>
@@ -233,7 +232,7 @@
                 <!-- Lista Resumo dos projetos-->
                 <div class="row">
                     <div class="col-xxl-12">
-                        <div class="card custom-card">
+                        <div class="card custom-card intro_list_projects">
                             <div class="card-header justify-content-between">
                                 <div class="card-title"> Resumo dos projetos </div>
                                 <div class="d-flex flex-wrap">
@@ -241,13 +240,13 @@
                                         <input class="form-control form-control-sm" type="text" placeholder="Pesquisar" aria-label=".form-control-sm example"> </div>
                                     <div class="dropdown my-1"> <a href="javascript:void(0);" class="btn btn-primary btn-sm btn-wave waves-effect waves-light" data-bs-toggle="dropdown" aria-expanded="false"> Status<i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i> </a>
                                         <ul
-                                        class="dropdown-menu" role="menu">
+                                            class="dropdown-menu" role="menu">
                                             <li><a class="dropdown-item" href="javascript:void(0);">Novos</a></li>
                                             <li><a class="dropdown-item" href="javascript:void(0);">Em Análise</a></li>
                                             <li><a class="dropdown-item" href="javascript:void(0);">Em Andamento</a></li>
                                             <li><a class="dropdown-item" href="javascript:void(0);">Em Revisão</a></li>
                                             <li><a class="dropdown-item" href="javascript:void(0);">Em Concluído</a></li>
-                                            </ul>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
@@ -297,6 +296,18 @@
                 </div>
         </div>
     </div>
+
+    <!-- Janela Modal HTML -->
+    <div id="memberModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span id="closeModal" class="close">&times;</span>
+            <h2 id="memberName"></h2>
+            <p id="memberRole"></p>
+            <p id="projectCount"></p>
+            <!-- Adicione outras informações conforme necessário -->
+        </div>
+    </div>
+
     
         <!-- MODAL EDITAR CHAMADO -->
         <div class="modal fade" id="edit-task" tabindex="-1" aria-hidden="true">

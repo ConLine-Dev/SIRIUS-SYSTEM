@@ -1,10 +1,12 @@
 let choicesInstance, choicesInstanceEdit, SCategories, SEditing_Categories;
 // Função principal executada ao carregar o DOM
 document.addEventListener("DOMContentLoaded", async () => {
- 
+
     await listCategories();
     await getReport();
     await listMenssages();
+
+    introMain();
     document.querySelector('#loader2').classList.add('d-none')
 });
 

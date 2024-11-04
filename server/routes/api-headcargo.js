@@ -237,11 +237,11 @@ router.post('/listAllClienteInactive', async (req, res, next) => {
 
 
 
-router.post('/GetFeesByProcess', async (req, res, next) => {
+router.post('/getTaxasProcessByRef', async (req, res, next) => {
     const {reference} = req.body;
 
     try {
-        const result = await headcargo.GetFeesByProcess(reference);
+        const result = await headcargo.getTaxasProcessByRef(reference);
 
         res.status(200).json(result)
     } catch (error) {
@@ -251,9 +251,9 @@ router.post('/GetFeesByProcess', async (req, res, next) => {
 });
 
 
-router.post('/getAllProcessByRef', async (req, res, next) => {
+router.post('/getAllHeadProcessByRef', async (req, res, next) => {
     const {body} = req.body;
-    console.log(body)
+
     try {
         const refProposalDecoded = decodeURIComponent(body);
         let result = await headcargo.getAllProcessByRef(refProposalDecoded);
@@ -307,12 +307,28 @@ router.get('/GetRepurchases', async (req, res, next) => {
     }
 });
 
+// Rota para obter recompras por processo
+router.post('/GetFeesByProcess', async (req, res, next) => {
+    const { processId, status } = req.body;
+
+    try {
+        const result = await headcargo.getRepurchasesByProcess(processId, status);
+        res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        res.status(404).json('Erro ao buscar recompras');
+    }
+});
+
+
 // Rota para aprovar ou rejeitar uma recompra
 router.post('/UpdateRepurchaseStatus', async (req, res, next) => {
     const { repurchase_id, status, user_id } = req.body;
 
+
     try {
         const result = await headcargo.updateRepurchaseStatus({ repurchase_id, status, user_id });
+        io.emit('updateRepurchase', '')
         res.status(200).json(result);
     } catch (error) {
         console.log(error);

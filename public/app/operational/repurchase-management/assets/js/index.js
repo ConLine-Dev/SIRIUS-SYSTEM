@@ -1,90 +1,66 @@
-const table = []
-/**
- * Inicialização da página
- * Carrega os dados, e esconde o loader após o carregamento.
- */
-document.addEventListener("DOMContentLoaded", async () => {
-  
-    await generateTable()
+const table = [];
+const socket = io();
 
+document.addEventListener("DOMContentLoaded", async () => {
+    await generateTable();
     hideLoader();
 
-    const socket = io();
-
     socket.on('updateRepurchase', (data) => {
-        table['table_repurchase_user'].ajax.reload(null, false)
-    })
+        table['table_repurchase_user'].ajax.reload(null, false);
+    });
 
+    const filesType = document.querySelectorAll('.files-type');
+    filesType.forEach((element, index) => {
+        element.addEventListener('click', () => {
+            filesType.forEach((el, i) => {
+                if (i !== index) el.classList.remove('active');
+            });
+            element.classList.add('active');
+        });
+    });
 });
 
-
-
-
-
-
-
-
-// Esta função cria ou recria a tabela de controle de senhas na página
-async function generateTable() {
-
-    // Destruir a tabela existente, se houver
+// Esta função cria ou recria a tabela de controle de recompras
+async function generateTable(status = 'PENDING') {
     if ($.fn.DataTable.isDataTable('#table_repurchase_user')) {
         $('#table_repurchase_user').DataTable().destroy();
     }
 
-    const userLogged = await getInfosLogin()
+    const userLogged = await getInfosLogin();
 
-    // Criar a nova tabela com os dados da API
-    table['table_repurchase_user'] =  $('#table_repurchase_user').DataTable({
+    table['table_repurchase_user'] = $('#table_repurchase_user').DataTable({
         dom: 'frtip',
-        paging: false,  // Desativa a paginação
-        fixedHeader: true, // Cabeçalho fixo
+        paging: false,
+        fixedHeader: true,
         info: false,
-        scrollY: 'calc(100vh - 240px)',  // Define a altura dinamicamente
-        scrollCollapse: false,  // Permite que a rolagem seja usada somente quando necessário
+        scrollY: 'calc(100vh - 240px)',
+        scrollCollapse: false,
         order: [[0, 'asc']],
         ajax: {
-            url: `/api/headcargo/repurchase-management/GetRepurchases?userId=${userLogged.system_collaborator_id}&status=PENDING`,
+            url: `/api/headcargo/repurchase-management/GetRepurchases?userId=${userLogged.system_collaborator_id}&status=${status}`,
             dataSrc: ''
-          },
+        },
         columns: [
-            { data: 'referenceProcess' },
-            { data: 'fee_name' },
             {
-                data: 'status', // Esta coluna não vai buscar dados diretamente
+                data: null,
                 render: function (data, type, row) {
-                    const status = {
-                        'PENDING': 'Pendente',
-                        'APPROVED': 'Aprovado',
-                        'REJECTED': 'Rejeitado',
-                    };
-                    return status[data];
+                    return `<button class="btn btn-sm btn-primary" onclick="showRepurchaseDetails(${row.process_id}, '${status}')">Ver Taxas</button>`;
                 },
+                orderable: false
             },
+            { data: 'referenceProcess' },
+            { data: 'repurchase_count' },
             {
-                data: 'creation_date', // Esta coluna não vai buscar dados diretamente
-                render: function (data, type, row) {
+                data: 'creation_date',
+                render: function (data) {
                     return formatarData(data);
                 },
-            },
-            {
-                data: null, // Esta coluna não vai buscar dados diretamente
-                render: function (data, type, row) {
-                    return `
-                        <a href="javascript:void(0);" class="btn btn-sm btn-danger-light" title="Deletar" onclick="">
-                             Cancelar
-                        </a>
-                    `;
-                },
-                orderable: false, // Impede que a coluna seja ordenável
-            },
+            }
         ],
         createdRow: function(row, data, dataIndex) {
-           
+            $(row).attr('data-process-id', data.process_id);
         },
-        buttons: [
-            'excel', 'pdf', 'print'
-        ],
+        buttons: ['excel', 'pdf', 'print'],
         language: {
             searchPlaceholder: 'Pesquisar...',
             sSearch: '',
@@ -92,63 +68,139 @@ async function generateTable() {
         },
     });
 
-    // Espera o carregamento completo dos dados via AJAX
     table['table_repurchase_user'].on('xhr.dt', function() {
-        // Coloque aqui o código que precisa ser executado após os dados serem carregados
-
-        introMain()
-
-        // document.querySelector('#table_repurchase_user input').focus()
+        introMain();
     });
-
-    // Evento disparado quando a tabela é redesenhada
-    table['table_repurchase_user'].on('draw.dt', function() {
-        // Coloque aqui o código que precisa ser executado após o redesenho da tabela
-    });
-
-
-   
 }
 
-// Verifica informações no localStorage do usuario logado
+// Função para mostrar os detalhes das taxas de recompra de um processo específico
+async function showRepurchaseDetails(processId, status) {
+    try {
+        const details = await makeRequest(`/api/headcargo/repurchase-management/GetFeesByProcess`, 'POST', { processId, status });
+
+        // Função auxiliar para formatar moeda BRL
+        function formatCurrency(value, currency) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency }).format(value);
+        }
+
+        // Função auxiliar para formatar células com estilos específicos
+        function formatValueCell(value, oldValue, currency, isPurchase) {
+            const valueChanged = value !== oldValue;
+            const badgeClass = valueChanged ? 'badge bg-danger-transparent' : isPurchase ? 'text-danger' : 'text-muted';
+            const formattedValue = formatCurrency(value, currency);
+            return `<span class="${badgeClass}">${formattedValue}</span>`;
+        }
+
+        // Mapeamento de status
+        const statusMap = {
+            'PENDING': 'Pendente',
+            'APPROVED': 'Aprovado',
+            'REJECTED': 'Rejeitado',
+            'CANCELED': 'Cancelado',
+        };
+
+        // Gera as linhas de detalhes
+        const detailRows = details.map(fee => {
+            const purchaseDifference = fee.purchase_value !== fee.old_purchase_value 
+                ? formatCurrency(fee.purchase_value - fee.old_purchase_value, fee.coin_purchase) 
+                : '-';
+            const saleDifference = fee.sale_value !== fee.old_sale_value 
+                ? formatCurrency(fee.sale_value - fee.old_sale_value, fee.coin_sale) 
+                : '-';
+
+            const oldPurchaseValueCell = formatValueCell(fee.old_purchase_value, fee.purchase_value, fee.coin_purchase, true);
+            const newPurchaseValueCell = formatValueCell(fee.purchase_value, fee.old_purchase_value, fee.coin_purchase, true);
+            const oldSaleValueCell = formatValueCell(fee.old_sale_value, fee.sale_value, fee.coin_sale, false);
+            const newSaleValueCell = formatValueCell(fee.sale_value, fee.old_sale_value, fee.coin_sale, false);
+
+            return `
+                <tr>
+                    <td>${fee.fee_name}</td>
+                    <td>${oldPurchaseValueCell}</td>
+                    <td>${newPurchaseValueCell}</td>
+                    <td><span class="mb-0 fw-semibold">${purchaseDifference}</span></td>
+                    <td>${oldSaleValueCell}</td>
+                    <td>${newSaleValueCell}</td>
+                    <td><span class="mb-0 fw-semibold">${saleDifference}</span></td>
+                    <td>${fee.fullName}</td>
+                    <td>${formatarData(fee.creation_date)}</td>
+                    <td>${statusMap[fee.status]}</td>
+                    <td><a href="javascript:void(0);" class="btn btn-sm btn-danger-light" title="Deletar" onclick="alterStatus(${fee.id},'CANCELED')">Cancelar</a></td>
+                </tr>
+            `;
+        }).join('');
+
+        // Define a estrutura da tabela de detalhes
+        const detailTable = `
+            <table class="table table-sm table-bordered mt-2">
+                <thead>
+                    <tr>
+                        <th>Nome da Taxa</th>
+                        <th>Antiga Compra</th>
+                        <th>Nova Compra</th>
+                        <th>Diferença Compra</th>
+                        <th>Antiga Venda</th>
+                        <th>Nova Venda</th>
+                        <th>Diferença Venda</th>
+                        <th>Responsável</th>
+                        <th>Data de Criação</th>
+                        <th>Status</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>${detailRows}</tbody>
+            </table>
+        `;
+
+        // Exibe a tabela de detalhes abaixo da linha do processo
+        const tableRow = $(`#table_repurchase_user tr[data-process-id="${processId}"]`);
+        if (tableRow.next().hasClass('details-row')) {
+            tableRow.next().remove(); // Remove a linha se já estiver exibida
+        } else {
+            tableRow.after(`<tr class="details-row"><td colspan="10">${detailTable}</td></tr>`);
+        }
+    } catch (error) {
+        console.error('Erro ao buscar detalhes das taxas:', error);
+    }
+}
+
+
+
+
+
+
 async function getInfosLogin() {
     const StorageGoogleData = localStorage.getItem('StorageGoogle');
-    const StorageGoogle = JSON.parse(StorageGoogleData);
-    return StorageGoogle;
-};
+    return JSON.parse(StorageGoogleData);
+}
 
+async function alterStatus(id, status) {
+    const userLogged = await getInfosLogin();
+    await makeRequest('/api/headcargo/repurchase-management/UpdateRepurchaseStatus', 'POST', { repurchase_id: id, status: status, user_id: userLogged.system_collaborator_id });
+}
 
-
-
-
-
-
-/**
- * Função para ocultar o loader da página.
- */
 function hideLoader() {
     document.querySelector('#loader2').classList.add('d-none');
 }
 
-
 function openNewrepurchase() {
-
     openWindow('/app/operational/repurchase-management/new-repurchase', 800, 600);
-
 }
 
 function openWindow(url, width, height) {
-    const options = `width=${width},height=${height},resizable=yes`;
-    window.open(url, '_blank', options);
+    window.open(url, '_blank', `width=${width},height=${height},resizable=yes`);
 }
 
 function formatarData(dataISO) {
     const data = new Date(dataISO);
+    // Subtrai 3 horas da data
+    data.setHours(data.getHours() - 3);
+    
     return data.toLocaleString('pt-BR', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
-        // hour: '2-digit',
-        // minute: '2-digit'
+        hour: '2-digit',
+        minute: '2-digit'
     });
 }

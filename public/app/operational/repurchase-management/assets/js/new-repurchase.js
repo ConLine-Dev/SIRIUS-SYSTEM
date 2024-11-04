@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 });
 
 async function getfees(reference) {
-    const response = await makeRequest('/api/headcargo/repurchase-management/GetFeesByProcess', 'POST', { reference });
+    const response = await makeRequest('/api/headcargo/repurchase-management/getTaxasProcessByRef', 'POST', { reference });
     return response;
 }
 
@@ -121,8 +121,10 @@ function trackChanges(rowData, detailsRow) {
                 idTaxa: rowData.idTaxa,
                 Nome_Taxa: rowData.Nome_Taxa,
                 referenceProcess: document.querySelector('[name=referenceProcess]').value,
+                moedaCompra: rowData.Moeda_Pgto,
                 oldValorCompra: rowData.Valor_Pagamento_Total,
                 oldValorVenda: rowData.Valor_Recebimento_Total,
+                moedaVenda: rowData.Moeda_Receb,
                 newValorCompra: newValorCompra ? parseFloat(newValorCompra) : null,
                 newValorVenda: newValorVenda ? parseFloat(newValorVenda) : null,
             });
@@ -198,7 +200,7 @@ async function getAllProcessByRef(){
        const searchTerm = event.detail.value || '';
 
        if(searchTerm.length > 5){
-           const filteredOptions = await makeRequest(`/api/headcargo/repurchase-management/getAllProcessByRef`, 'POST', {body:searchTerm})
+           const filteredOptions = await makeRequest(`/api/headcargo/repurchase-management/getAllHeadProcessByRef`, 'POST', {body:searchTerm})
 
        
            inputSelectProposal.setChoices(filteredOptions, 'value', 'label', true);
@@ -212,6 +214,7 @@ async function getAllProcessByRef(){
        'addItem',
        async function(event) {
        const data = await getfees(this.value);
+       console.log(data)
         createDatatable(data);
        },
        false,

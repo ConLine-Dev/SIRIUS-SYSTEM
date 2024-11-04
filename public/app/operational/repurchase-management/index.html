@@ -72,7 +72,7 @@
                       <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
                         <div class="simplebar-content" style="padding: 16px;">
                           <li class="active files-type">
-                            <a href="javascript:void(0)">
+                            <a href="javascript:void(0)" onclick="generateTable('PENDING')">
                               <div class="d-flex align-items-center">
                                 <div class="me-2">
                                   <i class="ri-folder-2-line fs-16"></i>
@@ -83,7 +83,7 @@
                             </a>
                           </li>
                           <li class=" files-type">
-                            <a href="javascript:void(0)">
+                            <a href="javascript:void(0)" onclick="generateTable('APPROVED')">
                               <div class="d-flex align-items-center">
                                 <div class="me-2">
                                   <i class="ri-folder-2-line fs-16"></i>
@@ -94,7 +94,7 @@
                             </a>
                           </li>
                           <li class=" files-type">
-                            <a href="javascript:void(0)">
+                            <a href="javascript:void(0)" onclick="generateTable('CANCELED')">
                               <div class="d-flex align-items-center">
                                 <div class="me-2">
                                   <i class="ri-folder-2-line fs-16"></i>
@@ -105,7 +105,7 @@
                             </a>
                           </li>
                           <li class=" files-type">
-                            <a href="javascript:void(0)">
+                            <a href="javascript:void(0)" onclick="generateTable('REJECTED')">
                               <div class="d-flex align-items-center">
                                 <div class="me-2">
                                   <i class="ri-folder-2-line fs-16"></i>
@@ -116,7 +116,7 @@
                             </a>
                           </li>
                           <li class=" files-type">
-                            <a href="javascript:void(0)">
+                            <a href="javascript:void(0)" onclick="generateTable('ALL')">
                               <div class="d-flex align-items-center">
                                 <div class="me-2">
                                   <i class="ri-folder-2-line fs-16"></i>
@@ -232,11 +232,10 @@
                               <table class="table table-bordered text-nowrap w-100 dataTable table-hover" id="table_repurchase_user">
                                 <thead>
                                   <tr>
+                                    <th scope="col">#</th>
                                     <th scope="col">Processo</th>
-                                    <th scope="col">Taxa</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Criação</th>
-                                    <th scope="col">Ação</th>
+                                    <th scope="col">Recompras</th>
+                                    <th scope="col">Ultimo Lançamento</th>
                                   </tr>
                                 </thead>
                

@@ -63,16 +63,16 @@ const setIO = (io) => {
   router.use('/headcargo/user', api_user_headcargo);
 
   // Use as rotas do arquivo apiAppMonitor.js
-  router.use('/headcargo/commission', api_headcargo);
+  router.use('/headcargo/commission', api_headcargo(io));
 
   // Use as rotas do arquivo apiAppMonitor.js
-  router.use('/headcargo/searchLog', api_headcargo);
+  router.use('/headcargo/searchLog', api_headcargo(io));
 
   // Use as rotas do arquivo apiAppMonitor.js
-  router.use('/headcargo/inactive-clients-report', api_headcargo);
+  router.use('/headcargo/inactive-clients-report', api_headcargo(io));
 
   // Use as rotas do arquivo apiAppMonitor.js
-  router.use('/headcargo/repurchase-management', api_headcargo);
+  router.use('/headcargo/repurchase-management', api_headcargo(io));
 
   // Use as rotas do arquivo apiAppMonitor.js
   // router.use('/called/projects', api_called_projects);

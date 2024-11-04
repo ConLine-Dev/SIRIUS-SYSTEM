@@ -5,7 +5,7 @@ const fs = require('fs');
 const { headcargo } = require('../controllers/headCargo');
 
 
-
+module.exports = function(io) {
 // INICIO API CONTROLE DE COMISSÃO
 router.post('/createRegister', async (req, res, next) => {
     const {process, type, dateFilter, user} = req.body;
@@ -280,20 +280,60 @@ router.post('/getAllProcessByRef', async (req, res, next) => {
 });
 
 
+// Rota para criar uma nova recompra
+router.post('/CreateRepurchase', async (req, res, next) => {
+    const {alteredFees, observation, idCollaborator} = req.body;
+
+    try {
+        const result = await headcargo.createRepurchase(alteredFees, observation, idCollaborator);
+        io.emit('updateRepurchase', '')
+        res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json('Erro ao criar a recompra');
+    }
+});
+
+// Rota para obter recompras por processo
+router.get('/GetRepurchases', async (req, res, next) => {
+    const { process_id, status } = req.query;
+
+    try {
+        const result = await headcargo.getRepurchases(process_id, status);
+        res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        res.status(404).json('Erro ao buscar recompras');
+    }
+});
+
+// Rota para aprovar ou rejeitar uma recompra
+router.post('/UpdateRepurchaseStatus', async (req, res, next) => {
+    const { repurchase_id, status, user_id } = req.body;
+
+    try {
+        const result = await headcargo.updateRepurchaseStatus({ repurchase_id, status, user_id });
+        res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json('Erro ao atualizar o status da recompra');
+    }
+});
+
+// Rota para obter o histórico de uma recompra específica
+router.post('/GetRepurchaseHistory', async (req, res, next) => {
+    const { repurchase_id } = req.body;
+
+    try {
+        const result = await headcargo.getRepurchaseHistory(repurchase_id);
+        res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        res.status(404).json('Erro ao buscar o histórico da recompra');
+    }
+});
 
 
+    return router;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-module.exports = router;

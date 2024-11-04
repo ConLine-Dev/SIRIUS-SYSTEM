@@ -2375,25 +2375,27 @@ LEFT OUTER JOIN
    },
    GetFeesByProcess: async function(reference){
       const sql = `SELECT
-      Lhs.Numero_Processo,
-      Tle.Nome AS Nome_Taxa,
-      Ltx.Valor_Pagamento_Total,
-      Pag.Sigla AS Moeda_Pgto,
-      Ltx.Valor_Recebimento_Total,
-      Rec.Sigla AS Moeda_Receb
-  
-  FROM
-      mov_Logistica_House Lhs 
-  LEFT OUTER JOIN 
-      mov_Logistica_Taxa Ltx ON Ltx.IdLogistica_House = Lhs.IdLogistica_House
-  LEFT OUTER JOIN
-      cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
-  LEFT OUTER JOIN
-      cad_Moeda Pag ON Pag.IdMoeda = Ltx.IdMoeda_Pagamento 
-  LEFT OUTER JOIN
-      cad_Moeda Rec ON Rec.IdMoeda = Ltx.IdMoeda_Recebimento
-  WHERE
-      Lhs.Numero_Processo = '${reference}'`;
+            Lhs.IdLogistica_House as idProcessos,
+            Lhs.Numero_Processo,
+            Tle.Nome AS Nome_Taxa,
+            Ltx.IdTaxa_Logistica_Exibicao as idTaxa,
+            Ltx.Valor_Pagamento_Total,
+            Pag.Sigla AS Moeda_Pgto,
+            Ltx.Valor_Recebimento_Total,
+            Rec.Sigla AS Moeda_Receb
+      
+      FROM
+            mov_Logistica_House Lhs 
+      LEFT OUTER JOIN 
+            mov_Logistica_Taxa Ltx ON Ltx.IdLogistica_House = Lhs.IdLogistica_House
+      LEFT OUTER JOIN
+            cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
+      LEFT OUTER JOIN
+            cad_Moeda Pag ON Pag.IdMoeda = Ltx.IdMoeda_Pagamento 
+      LEFT OUTER JOIN
+            cad_Moeda Rec ON Rec.IdMoeda = Ltx.IdMoeda_Recebimento
+      WHERE
+            Lhs.Numero_Processo = '${reference}'`;
    
       const registers = await executeQuerySQL(sql)
       
@@ -2411,8 +2413,82 @@ LEFT OUTER JOIN
    
       const registers = await executeQuerySQL(sql)
       return registers
-   }
+   },
+   // Função para criar uma nova recompra
+   createRepurchase: async function(data, observation, idCollaborator) {
+      const repurchase = await Promise.all(data.map(async function(item) {
+
+         return [
+            parseInt(item.idTaxa),
+            item.Nome_Taxa,
+            parseInt(item.idProcessos),
+            item.newValorCompra,
+            item.oldValorCompra,
+            item.newValorVenda,
+            item.oldValorVenda,
+            item.referenceProcess,
+            idCollaborator, //userid
+            observation
+         ];
+   }));
+
+      const query = `
+        INSERT INTO repurchases (fee_id,fee_name, process_id, purchase_value, old_purchase_value, sale_value,old_sale_value,referenceProcess, created_by, observation)
+        VALUES ?
+    `;
+    const result = await executeQuery(query, [repurchase]);
+    return { id: result.insertId, message: 'Recompra criada com sucesso' };
+
+   },
+   // Função para obter recompras por processo
+   getRepurchases: async function (userId, status) {
+      let where = '';
+
+      // Verifica se userId existe, adiciona condição para ele
+      if (userId) {
+          where += `created_by = ${userId}`;
+      }
       
+      // Verifica se status existe e concatena com o operador correto
+      if (status) {
+          where += `${where ? ' AND ' : ''}status = '${status}'`;
+      }
+      
+      // Se houver alguma condição, adiciona WHERE
+      const query = `
+          SELECT * FROM repurchases ${where ? 'WHERE ' + where : ''} ORDER BY creation_date DESC
+      `;
+      
+      const result = await executeQuery(query);
+
+      return result;
+  },
+  // Função para atualizar o status de uma recompra (aprovar ou rejeitar)
+  updateRepurchaseStatus: async function ({ repurchase_id, status, user_id }) {
+   const queryUpdateStatus = `
+            UPDATE repurchases 
+            SET status = ?, modification_date = CURRENT_TIMESTAMP, ${status === 'APPROVED' ? 'approved_by' : 'rejected_by'} = ?
+            WHERE id = ?
+         `;
+
+    await executeQuery(queryUpdateStatus, [status, user_id, repurchase_id]);
+
+    const queryInsertHistory = `
+        INSERT INTO repurchase_history (repurchase_id, collaborator_id, action_type)
+        VALUES (?, ?, ?)
+    `;
+    await executeQuery(queryInsertHistory, [repurchase_id, user_id, status === 'APPROVED' ? 'APPROVAL' : 'REJECTION']);
+
+    return { message: `Recompra ${status === 'APPROVED' ? 'aprovada' : 'rejeitada'} com sucesso` };
+  },
+  // Função para obter o histórico de uma recompra específica
+  getRepurchaseHistory: async function(repurchase_id){
+   const query = `
+        SELECT * FROM repurchase_history WHERE repurchase_id = ? ORDER BY action_date DESC
+    `;
+    const result = await executeQuery(query, [repurchase_id]);
+    return result;
+  }
 }
 
 // Configuração do cron para rodar a cada 10 minutos

@@ -36,9 +36,9 @@ function createDatatable(data) {
         data: data,
         columns: [
             {
-                data: null,
+                data: 'idTaxa',
                 render: function(data, type, row) {
-                    return `<input type="checkbox" class="form-check-input checkbox-row" id="check1">`;
+                    return `<input type="checkbox" class="form-check-input checkbox-row" id="${data}">`;
                 },
                 orderable: false,
             },
@@ -108,7 +108,7 @@ function trackChanges(rowData, detailsRow) {
     // Verifica se houve mudança nos valores
     if (newValorCompra !== rowData.Valor_Pagamento_Total || newValorVenda !== rowData.Valor_Recebimento_Total) {
         // Adiciona ou atualiza a taxa alterada na lista
-        const alteredIndex = alteredFees.findIndex(item => item.Nome_Taxa === rowData.Nome_Taxa);
+        const alteredIndex = alteredFees.findIndex(item => item.idTaxa === rowData.idTaxa);
 
         if (alteredIndex > -1) {
             // Atualiza valores caso a taxa já esteja na lista
@@ -117,6 +117,8 @@ function trackChanges(rowData, detailsRow) {
         } else {
             // Adiciona nova taxa alterada na lista
             alteredFees.push({
+                idProcessos: rowData.idProcessos,
+                idTaxa: rowData.idTaxa,
                 Nome_Taxa: rowData.Nome_Taxa,
                 referenceProcess: document.querySelector('[name=referenceProcess]').value,
                 oldValorCompra: rowData.Valor_Pagamento_Total,
@@ -139,22 +141,34 @@ async function collectAndSendAlteredFees() {
     const selectedAlteredFees = alteredFees.filter(item =>
         Array.from(checkedRows).some(row => {
             const rowData = table['tableTaxasProcessos'].row(row).data();
-            return item.Nome_Taxa === rowData.Nome_Taxa;
+            return item.idTaxa === rowData.idTaxa;
         })
     );
-
-    // try {
-    //     const response = await makeRequest('/api/headcargo/repurchase-management/UpdateFees', 'POST', { alteredFees: selectedAlteredFees });
-    //     console.log('Alterações enviadas:', response);
-    //     alert("Taxas alteradas enviadas com sucesso!");
-    // } catch (error) {
-    //     console.error('Erro ao enviar taxas alteradas:', error);
-    //     alert("Erro ao enviar as taxas alteradas.");
-    // }
+    
+    const observation = document.querySelector('[name=observation]').value;
+    const user = await getInfosLogin()
+    const idCollaborator = parseInt(user.system_collaborator_id)
+    try {
+        const response = await makeRequest('/api/headcargo/repurchase-management/CreateRepurchase', 'POST', { alteredFees: selectedAlteredFees, observation:observation, idCollaborator:idCollaborator });
+        console.log('Alterações enviadas:', response);
+        alert("Taxas enviadas para aprovação com sucesso!");
+        window.close()
+    } catch (error) {
+        console.error('Erro ao enviar taxas para aprovação:', error);
+        alert("Erro ao enviar as taxas para aprovação.");
+    }
     console.log(selectedAlteredFees)
     // Limpa a lista de taxas alteradas após o envio
     alteredFees.length = 0;
 }
+
+// Verifica informações no localStorage do usuario logado
+async function getInfosLogin() {
+    const StorageGoogleData = localStorage.getItem('StorageGoogle');
+    const StorageGoogle = JSON.parse(StorageGoogleData);
+    return StorageGoogle;
+};
+
 
 async function getAllProcessByRef(){
     
@@ -165,9 +179,6 @@ async function getAllProcessByRef(){
 
 
    inputSelectProposal = new Choices('select[name="referenceProcess"]', {
-       // choices: [], //listaDeOpcoesFile,
-       // allowHTML: true,
-       // allowSearch: true,
        removeItemButton: true,
        noChoicesText: 'Não há opções disponíveis'
    });

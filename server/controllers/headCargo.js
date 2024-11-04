@@ -2273,7 +2273,7 @@ LEFT OUTER JOIN
    userSessionsHeadToken: async function(){
       try {
          // Obtém o token atualizado do banco
-         const token = await executeQuery("SELECT * FROM siriusDBO.user_sessions_head_token");
+         const token = await executeQuery("SELECT * FROM user_sessions_head_token");
          return token[0].token;
       } catch (error) {
          console.error('Erro ao processar sessões de usuários:', error);
@@ -2300,22 +2300,38 @@ LEFT OUTER JOIN
          await executeQuery("UPDATE user_sessions_head_token SET token = ?, update_data = NOW() WHERE (id = 1)", [response.data.refresh_token]);
          return response.data.access_token;
       } catch (error) {
-         let messageBody = `
-         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
-               <h1 style="margin: 0; font-size: 24px;">Opa! Parece que deu um erro ao pegar o token da API do Head!</h1>
-            </div>
-            <div style="padding: 20px; background-color: #f9f9f9;">
-               <p style="color: #333; font-size: 16px;">Olá,</p>
-               <p style="color: #333; font-size: 16px; line-height: 1.6;">Parece que aconteceu algum problema ao tentar realizar uma requisição da API de token do Head Cargo! 🥳</p>
-               <p style="color: #333; font-size: 16px; line-height: 1.6;">Recomendo acessar o servidor para analisar o que pode ter acontecido</p>
-            </div>
-            <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
-               <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
-            </div>
-         </div>`
 
-         await sendEmail('ti@conlinebr.com.br', 'Opa! Parece que deu um erro ao pegar o token da API do Head', messageBody)
+         // Verifica se ja foi enviado um email hoje
+         const today = new Date().toISOString().split('T')[0]; // Pega a data atual no formato YYYY-MM-DD
+         const [emailLog] = await executeQuery("SELECT last_sent_date FROM user_sessions_email_log_error WHERE email_type = 'token_error'")
+         const lastSendDate = new Date(emailLog.last_sent_date).toISOString().split('T')[0];
+
+         if (!emailLog || lastSendDate !== today) {
+            let messageBody = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+               <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+                  <h1 style="margin: 0; font-size: 24px;">Opa! Parece que deu um erro ao pegar o token da API do Head!</h1>
+               </div>
+               <div style="padding: 20px; background-color: #f9f9f9;">
+                  <p style="color: #333; font-size: 16px;">Olá,</p>
+                  <p style="color: #333; font-size: 16px; line-height: 1.6;">Parece que aconteceu algum problema ao tentar realizar uma requisição da API de token do Head Cargo! 🥳</p>
+                  <p style="color: #333; font-size: 16px; line-height: 1.6;">Recomendo acessar o servidor para analisar o que pode ter acontecido</p>
+               </div>
+               <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+                  <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+               </div>
+            </div>`
+            
+            await sendEmail('ti@conlinebr.com.br', 'Opa! Parece que deu um erro ao pegar o token da API do Head', messageBody)
+         }
+
+         // Atualiza a data de envio no banco de dados
+         if (emailLog) {
+            await executeQuery("UPDATE user_sessions_email_log_error SET last_sent_date = ? WHERE email_type = 'token_error'", [today])
+         } else {
+            await executeQuery("INSERT INTO user_sessions_email_log_error (email_type, last_sent_date) VALUES ('token_error', ?)", [today]);
+         }
+
       }
    },
    fetchLoggedDesktopUsers: async function(accessToken) {
@@ -2373,6 +2389,7 @@ LEFT OUTER JOIN
          console.error('Erro ao processar sessões de usuários:', error);
       }
    },
+
    GetFeesByProcess: async function(reference){
       const sql = `SELECT
             Lhs.IdLogistica_House as idProcessos,
@@ -2594,8 +2611,8 @@ LEFT OUTER JOIN
   }
 }
 
-// Configuração do cron para rodar a cada 10 minutos
-cron.schedule('*/5 * * * *', async () => {
+// Configuração do cron para rodar a cada 2 minutos
+cron.schedule('*/2 * * * *', async () => {
    try {
       const accessToken = await headcargo.getAccessToken();
       if (accessToken) {

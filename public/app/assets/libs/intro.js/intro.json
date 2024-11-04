@@ -267,23 +267,8 @@
   },
   {
     "element": ".intro-commercial-note",
-    "title": "Nota Comercial",
-    "intro": "Esta seção exibe o total de avaliações comerciais fornecidas pelos clientes."
-  },
-  {
-    "element": ".intro-operational-note",
-    "title": "Nota Operacional",
-    "intro": "Esta seção exibe o total de avaliações operacionais fornecidas pelos clientes."
-  },
-  {
-    "element": ".intro-financial-note",
-    "title": "Nota Financeiro",
-    "intro": "Esta seção exibe o total de avaliações financeiras fornecidas pelos clientes."
-  },
-  {
-    "element": ".intro-overall-average",
-    "title": "Média Geral",
-    "intro": "Esta seção exibe a média geral das avaliações fornecidas pelos clientes."
+    "title": "Notas setoriais",
+    "intro": "Aqui, você pode visualizar o nosso <strong>NPS (Net Promoter Score)</strong>, que coleta três notas: uma para o atendimento comercial, outra para o operacional e, por último, uma para o financeiro. Isso nos permite entender como os clientes percebem o atendimento em cada um dos três departamentos com os quais têm contato direto.<br>A média é calculada conforme a resposta satisfatória de cada cliente, onde:<br>• <strong>Notas entre 1-3:</strong> são consideradas como detratoras, clientes que veem a empresa de uma forma abaixo do esperado, servindo para ver pontos a melhorar.<br>• <strong>Notas 4:</strong> são notas de clientes passivos, um retorno de alguém que está satisfeito o suficiente para não comentar de forma negativa, porém não satisfeito o suficiente para recomendar como algo positivo.<br>• <strong>Notas 5:</strong> são entendidas como promotoras, votos de clientes que veem a empresa como algo positivo e recomendariam a novos possíveis clientes da empresa.<br>• <strong>Por último a média geral:</strong> ela é calculada com os resultados positivos e negativos das notas, fazemos a subtração entre eles onde é gerado a nota média geral."  
   },
   {
     "element": ".intro-summary-answers",
@@ -291,24 +276,9 @@
     "intro": "Este gráfico mostra um resumo das respostas recebidas de seus clientes ao longo de um período. Cada métrica está representada de forma clara para facilitar a análise.<br> <strong>Resp. Recebidas:</strong> Esta métrica exibe o número total de respostas que foram recebidas dos clientes.<br> <strong>Cli. Respondentes:</strong> Mostra a quantidade de clientes que responderam às suas solicitações.<br> <strong>Resp. com Feedback:</strong> Indica quantas respostas incluem feedback adicional dos clientes.<br> <strong>Respondentes Ativos:</strong> Exibe o número de clientes ativos que participaram do processo de feedback.<br> <strong>Gráfico:</strong> O gráfico abaixo ilustra a quantidade de respostas por mês. Ao passar o cursor sobre um ponto específico, você pode ver o número exato de respostas recebidas naquele período."
   },
   {
-    "element": "#intro-card-noteCommercial",
-    "title": "Nota Comercial",
-    "intro": "Aqui você pode visualizar a média desta categoria, ela é obtida dividindo a soma das notas da respectiva categoria pelo número total de respostas válidas."
-  },
-  {
-    "element": "#intro-card-noteOperational",
-    "title": "Nota Operacional",
-    "intro": "Aqui você pode visualizar a média desta categoria, ela é obtida dividindo a soma das notas da respectiva categoria pelo número total de respostas válidas."
-  },
-  {
-    "element": "#intro-card-noteFinancial",
-    "title": "Nota Financeiro",
-    "intro": "Aqui você pode visualizar a média desta categoria, ela é obtida dividindo a soma das notas da respectiva categoria pelo número total de respostas válidas."
-  },
-  {
-    "element": "#intro-card-overallAverage",
-    "title": "Média Geral",
-    "intro": "Aqui você pode visualizar a média geral, é calculada somando as médias das três categorias e dividindo o resultado por 3, resultando na média final de desempenho."
+    "element": ".intro-card-noteCommercial",
+    "title": "Notas setoriais",
+    "intro": "Aqui, você pode visualizar o nosso <strong>NPS (Net Promoter Score)</strong>, que coleta três notas: uma para o atendimento comercial, outra para o operacional e, por último, uma para o financeiro. Isso nos permite entender como os clientes percebem o atendimento em cada um dos três departamentos com os quais têm contato direto.<br>A média é calculada conforme a resposta satisfatória de cada cliente, onde:<br>• <strong>Notas entre 1-3:</strong> são consideradas como detratoras, clientes que veem a empresa de uma forma abaixo do esperado, servindo para ver pontos a melhorar.<br>• <strong>Notas 4:</strong> são notas de clientes passivos, um retorno de alguém que está satisfeito o suficiente para não comentar de forma negativa, porém não satisfeito o suficiente para recomendar como algo positivo.<br>• <strong>Notas 5:</strong> são entendidas como promotoras, votos de clientes que veem a empresa como algo positivo e recomendariam a novos possíveis clientes da empresa.<br>• <strong>Por último a média geral:</strong> ela é calculada com os resultados positivos e negativos das notas, fazemos a subtração entre eles, onde é gerado a nota média geral."
   },
   {
     "element": "#intro-listAnswers",
@@ -380,6 +350,62 @@
     "element": ".intro-btn-filter",
     "title": "Filtro Ano Atual",
     "intro":"Ao aplicar o filtro por uma data específica, os valores de <strong>Faturado</strong>, <strong>Faturamento Liberado</strong>, <strong>Vencidos</strong>, <strong>Total Recebido</strong> e <strong>Total Administrativo</strong> serão atualizados de acordo com o filtro selecionado. O filtro também será aplicado na seção 'Ver mais'. No gráfico, serão exibidos os valores mensais correspondentes à data escolhida. Ao lado, na lista de faturas, aparecerão apenas as faturas filtradas. Da mesma forma, na seção de despesas administrativas, serão mostradas apenas as despesas relacionadas ao filtro."
+  },
+  {
+    "element": "#intro_card_new",
+    "title": "Projetos Novos",
+    "intro":"Este card exibe a quantidade de Projetos/Chamados novos por mês."
+  },
+  {
+    "element": "#intro_card_analise",
+    "title": "Projetos Análise",
+    "intro":"Este card exibe a quantidade de Projetos/Chamados em análise por mês."
+  },
+  {
+    "element": "#intro_card_andamento",
+    "title": "Projetos Andamento",
+    "intro":"Este card exibe a quantidade de Projetos/Chamados em andamento por mês."
+  },
+  {
+    "element": "#intro_card_revisao",
+    "title": "Projetos Revisão",
+    "intro":"Este card exibe a quantidade de Projetos/Chamados em revisão por mês."
+  },
+  {
+    "element": "#intro_card_concluido",
+    "title": "Projetos Concluídos",
+    "intro":"Este card exibe a quantidade de Projetos/Chamados concluídos por mês."
+  },
+  {
+    "element": "#intro_card_totalProjects",
+    "title": "Total Projetos",
+    "intro":"Este card exibe a quantidade total de Projetos/Chamados por mês."
+  },
+  {
+    "element": ".intro_membersEquip",
+    "title": "Membros Equipe",
+    "intro":"Aqui você pode visualizar cada membro da equipe e a quantidade total de projetos/chamados que o membro possui, ao clicar no funcionário você poderá visualizar seu desempenho individualmente."
+  },
+  {
+    "element": ".intro_graphic_projects",
+    "title": "Análise de Projetos",
+    "intro":"No gráfico você visualizará uma análise por mês de quantos projetos/chamados foram concluídos e os que ainda estão pendentes."
+  },
+  {
+    "element": ".intro_task_pending",
+    "title": "Tarefas a Vencer",
+    "intro":"Aqui você pode visualizar os projetos/chamados que estão perto de vencer e ao clicar abrirá o chamado com as informações solicitantes."
+  },
+  {
+    "element": ".intro_last_messenger",
+    "title": "Últimas Mensagens",
+    "intro":"Aqui, você pode visualizar as últimas mensagens trocadas. Ao clicar no número correspondente ao ticket, o chamado será aberto com as informações do solicitante."
+  },
+  {
+    "element": ".intro_list_projects",
+    "title": "Resumo dos projetos",
+    "intro":"Aqui, você pode visualizar um resumo dos projetos e chamados, incluindo o número do ticket, título, responsável pelo chamado, solicitante, status e as datas correspondentes."
   }
+
   
 ]

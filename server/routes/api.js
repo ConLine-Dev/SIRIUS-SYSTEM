@@ -29,6 +29,7 @@ const api_performance_products = require('./api-performance-product');
 const api_nps = require('./api-nps');
 const api_cash_flow = require('./api-cash-flow');
 const dataDecurityHub = require('./api-data-security-hub');
+const api_pricing_main = require('./api-pricing-main');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -142,6 +143,9 @@ const setIO = (io) => {
   
   // Use as rotas do arquivo api-safety-inspection .js oi
   router.use('/data-security-hub', dataDecurityHub(io)); 
+  
+  // Use as rotas do arquivo api-pricing-main .js oi
+  router.use('/api-pricing-main', api_pricing_main(io)); 
 
   return router;
 };

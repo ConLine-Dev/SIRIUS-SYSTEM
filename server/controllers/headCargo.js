@@ -2303,7 +2303,7 @@ LEFT OUTER JOIN
 
          // Verifica se ja foi enviado um email hoje
          const today = new Date().toISOString().split('T')[0]; // Pega a data atual no formato YYYY-MM-DD
-         const [emailLog] = await executeQuery("SELECT last_sent_date FROM user_sessions_email_log_error WHERE email_type = 'token_error'")
+         const emailLog = await executeQuery("SELECT last_sent_date FROM user_sessions_email_log_error WHERE email_type = 'token_error'")
          const lastSendDate = new Date(emailLog.last_sent_date).toISOString().split('T')[0];
 
          if (!emailLog || lastSendDate !== today) {

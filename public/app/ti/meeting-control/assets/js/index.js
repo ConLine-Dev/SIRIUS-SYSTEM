@@ -210,8 +210,7 @@ async function printEventData(eventId) {
   
   let departmentsbyEvent = await makeRequest('/api/meeting-control/getDepartmentsbyEvent', 'POST', {id: eventId});
   let responsiblesbyEvent = await makeRequest('/api/meeting-control/getResponsiblesbyEvent', 'POST', {id: eventId});
-  
-  console.log(responsiblesbyEvent);
+
   const departments = departmentsbyEvent.map(department => department.department_id.toString());
   sAllDepartments.setChoiceByValue(departments);
 
@@ -344,16 +343,18 @@ function formatDateTime(initDate, endDate) {
 async function initializeCalendar(){
 
   const loggedData = await getInfosLogin();
-  const allEvents = await makeRequest(`/api/meeting-control/getEventsByUser`, 'POST', loggedData);
- 
-  let calendarEl = document.getElementById('calendar');
 
+  let calendarEl = document.getElementById('calendar');
   calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     locale: 'pt-br',
-    events: allEvents,
     editable: true,
     selectable: true,
+    events: async function (fetchInfo, successCallback, failureCallback) {
+      const loggedData = await getInfosLogin();
+      const events = await makeRequest(`/api/meeting-control/getEventsByUser`, 'POST', loggedData);
+      successCallback(events);
+    },
     eventDrop: function (info) {
       updateEventDate(info);
     },
@@ -364,14 +365,13 @@ async function initializeCalendar(){
       printEventsList(info.dateStr, 'day');
     }
   });
+
   calendar.render();
 }
 
 async function getInfosLogin() {
   const StorageGoogleData = localStorage.getItem('StorageGoogle');
   const StorageGoogle = JSON.parse(StorageGoogleData);
-
-  const categories = await makeRequest(`/api/meeting-control/notificateMessage`);
 
   return StorageGoogle;
 };
@@ -386,6 +386,12 @@ function initializeDatePicker() {
 document.addEventListener('DOMContentLoaded', async function () {
 
   const categoryCalendar = await makeRequest(`/api/meeting-control/getAllCategoryCalendar`);
+
+  const socket = io();
+
+  socket.on('updateCalendarEvents', (data) => {
+    calendar.refetchEvents();
+  })
 
   let date = new Date();
   date = formatDate(date);

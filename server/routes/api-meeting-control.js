@@ -44,6 +44,7 @@ module.exports = function(io) {
         try {
             const result = await meetingControl.saveEvent(req.body);
     
+            io.emit('updateCalendarEvents', '')
             res.status(200).json(result)
         } catch (error) {
             res.status(500).json(error);

@@ -140,7 +140,17 @@ const meetingControl = {
                 emailsArray[index] = responsibles[index].email_business;
             }
 
-            await executeQuery(`UPDATE calendar_events SET notificate = 1, notification_date = NOW() WHERE id = ${result[index].id}`);
+            const dataAtual = new Date();
+            const ano = dataAtual.getFullYear();
+            const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+            const dia = String(dataAtual.getDate()).padStart(2, '0');
+            const horas = String(dataAtual.getHours()).padStart(2, '0');
+            const minutos = String(dataAtual.getMinutes()).padStart(2, '0');
+            const segundos = String(dataAtual.getSeconds()).padStart(2, '0');
+          
+            const datetime = `${ano}-${mes}-${dia} ${horas}:${minutos}:${segundos}`;
+
+            await executeQuery(`UPDATE calendar_events SET notificate = 1, notification_date = '${datetime}' WHERE id = ${result[index].id}`);
 
             let mailBody = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
@@ -171,7 +181,7 @@ const meetingControl = {
                 </div>
             </div>`
     
-            sendEmail('lucas@conlinebr.com.br', '[Sirius System] Um evento se aproxima! ', mailBody);
+            sendEmail(emailsArray, '[Sirius System] Um evento se aproxima! ', mailBody);
         }
 
         return true;

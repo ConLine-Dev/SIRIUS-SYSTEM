@@ -86,7 +86,7 @@ async function showRepurchaseDetails(processId, status) {
         // Função auxiliar para formatar células com estilos específicos
         function formatValueCell(value, oldValue, currency, isPurchase) {
             const valueChanged = value !== oldValue;
-            const badgeClass = valueChanged ? 'badge bg-danger-transparent' : isPurchase ? 'text-danger' : 'text-muted';
+            const badgeClass = valueChanged ? 'text-danger' : isPurchase ? 'text-muted' : 'text-muted';
             const formattedValue = formatCurrency(value, currency);
             return `<span class="${badgeClass}">${formattedValue}</span>`;
         }
@@ -103,10 +103,10 @@ async function showRepurchaseDetails(processId, status) {
         const detailRows = details.map(fee => {
             const purchaseDifference = fee.purchase_value !== fee.old_purchase_value 
                 ? formatCurrency(fee.purchase_value - fee.old_purchase_value, fee.coin_purchase) 
-                : '-';
+                : '<span class="text-muted"> - <span>';
             const saleDifference = fee.sale_value !== fee.old_sale_value 
                 ? formatCurrency(fee.sale_value - fee.old_sale_value, fee.coin_sale) 
-                : '-';
+                : '<span class="text-muted"> - <span>';
 
             const oldPurchaseValueCell = formatValueCell(fee.old_purchase_value, fee.purchase_value, fee.coin_purchase, true);
             const newPurchaseValueCell = formatValueCell(fee.purchase_value, fee.old_purchase_value, fee.coin_purchase, true);

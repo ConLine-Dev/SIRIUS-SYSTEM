@@ -2304,7 +2304,7 @@ LEFT OUTER JOIN
          // Verifica se ja foi enviado um email hoje
          const today = new Date().toISOString().split('T')[0]; // Pega a data atual no formato YYYY-MM-DD
          const emailLog = await executeQuery("SELECT last_sent_date FROM user_sessions_email_log_error WHERE email_type = 'token_error'")
-         const lastSendDate = emailLog.last_sent_date ? new Date(emailLog.last_sent_date).toISOString().split('T')[0] : null;
+         const lastSendDate = emailLog.length > 0 && emailLog[0].last_sent_date ? new Date(emailLog[0].last_sent_date).toISOString().split('T')[0] : null;
 
          if (!emailLog || lastSendDate !== today) {
             let messageBody = `
@@ -2325,10 +2325,8 @@ LEFT OUTER JOIN
             await sendEmail('ti@conlinebr.com.br', 'Opa! Parece que deu um erro ao pegar o token da API do Head', messageBody)
          }
 
-         // Atualiza a data de envio no banco de dados
-         if (emailLog) {
-            await executeQuery("UPDATE user_sessions_email_log_error SET last_sent_date = ? WHERE email_type = 'token_error'", [today])
-         } else {
+         // Insere no banco de dados se ainda nao inseriu
+         if (lastSendDate !== today) {
             await executeQuery("INSERT INTO user_sessions_email_log_error (email_type, last_sent_date) VALUES ('token_error', ?)", [today]);
          }
 
@@ -2612,7 +2610,7 @@ LEFT OUTER JOIN
 }
 
 // Configuração do cron para rodar a cada 2 minutos
-cron.schedule('*/2 * * * *', async () => {
+cron.schedule('*/3 * * * *', async () => {
    try {
       const accessToken = await headcargo.getAccessToken();
       if (accessToken) {

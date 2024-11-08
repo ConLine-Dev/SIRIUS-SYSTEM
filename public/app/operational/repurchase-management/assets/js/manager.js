@@ -57,7 +57,7 @@ async function generateTable(status = 'PENDING') {
                 },
             }
         ],
-        createdRow: function(row, data, dataIndex) {
+        createdRow: function (row, data, dataIndex) {
             $(row).attr('data-process-id', data.process_id);
         },
         buttons: ['excel', 'pdf', 'print'],
@@ -68,7 +68,7 @@ async function generateTable(status = 'PENDING') {
         },
     });
 
-    table['table_repurchase_user'].on('xhr.dt', function() {
+    table['table_repurchase_user'].on('xhr.dt', function () {
         introMain();
     });
 }
@@ -101,11 +101,11 @@ async function showRepurchaseDetails(processId, status) {
 
         // Gera as linhas de detalhes
         const detailRows = details.map(fee => {
-            const purchaseDifference = fee.purchase_value !== fee.old_purchase_value 
-                ? formatCurrency(fee.purchase_value - fee.old_purchase_value, fee.coin_purchase) 
+            const purchaseDifference = fee.purchase_value !== fee.old_purchase_value
+                ? formatCurrency(fee.purchase_value - fee.old_purchase_value, fee.coin_purchase)
                 : '-';
-            const saleDifference = fee.sale_value !== fee.old_sale_value 
-                ? formatCurrency(fee.sale_value - fee.old_sale_value, fee.coin_sale) 
+            const saleDifference = fee.sale_value !== fee.old_sale_value
+                ? formatCurrency(fee.sale_value - fee.old_sale_value, fee.coin_sale)
                 : '-';
 
             const oldPurchaseValueCell = formatValueCell(fee.old_purchase_value, fee.purchase_value, fee.coin_purchase, true);
@@ -113,16 +113,14 @@ async function showRepurchaseDetails(processId, status) {
             const oldSaleValueCell = formatValueCell(fee.old_sale_value, fee.sale_value, fee.coin_sale, false);
             const newSaleValueCell = formatValueCell(fee.sale_value, fee.old_sale_value, fee.coin_sale, false);
 
-            
-            const actionButtons = fee.status === 'PENDING' 
-                    ? `
-                        <a href="javascript:void(0);" class="btn btn-sm btn-danger-light" title="Rejeitar" onclick="alterStatus(${fee.id},'REJECTED')">Rejeitar</a>
-                        <a href="javascript:void(0);" class="btn btn-sm btn-success-light" title="Aprovar" onclick="alterStatus(${fee.id},'APPROVED')">Aprovar</a>
-                    ` 
-                    : '';
 
-                return `
-                    <tr>
+            const actionButtons = fee.status === 'PENDING'
+                ? `<a href="javascript:void(0);" class="btn btn-sm btn-danger-light" title="Rejeitar" onclick="alterStatus(${fee.id},'REJECTED')">Rejeitar</a>
+                   <a href="javascript:void(0);" class="btn btn-sm btn-success-light" title="Aprovar" onclick="alterStatus(${fee.id},'APPROVED')">Aprovar</a>
+                   `
+                : '';
+
+            return `<tr>
                         <td>${fee.fee_name}</td>
                         <td>${oldPurchaseValueCell}</td>
                         <td>${newPurchaseValueCell}</td>
@@ -134,8 +132,8 @@ async function showRepurchaseDetails(processId, status) {
                         <td>${formatarData(fee.creation_date)}</td>
                         <td>${statusMap[fee.status]}</td>
                         <td>${actionButtons}</td>
-                    </tr>
-                `;
+                    </tr>`;
+                    
         }).join('');
 
         // Define a estrutura da tabela de detalhes
@@ -203,7 +201,7 @@ function formatarData(dataISO) {
     const data = new Date(dataISO);
     // Subtrai 3 horas da data
     data.setHours(data.getHours() - 3);
-    
+
     return data.toLocaleString('pt-BR', {
         day: '2-digit',
         month: '2-digit',

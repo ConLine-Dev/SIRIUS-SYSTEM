@@ -2321,15 +2321,11 @@ LEFT OUTER JOIN
                   <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
                </div>
             </div>`
-            
-            await sendEmail('ti@conlinebr.com.br', 'Opa! Parece que deu um erro ao pegar o token da API do Head', messageBody)
-         }
 
-         // Insere no banco de dados se ainda nao inseriu
-         if (lastSendDate !== today) {
             await executeQuery("INSERT INTO user_sessions_email_log_error (email_type, last_sent_date) VALUES ('token_error', ?)", [today]);
+            await sendEmail('ti@conlinebr.com.br', 'Opa! Parece que deu um erro ao pegar o token da API do Head', messageBody)
+            
          }
-
       }
    },
    fetchLoggedDesktopUsers: async function(accessToken) {

@@ -69,7 +69,8 @@ async function generateTable(status = 'PENDING') {
     });
 
     table['table_repurchase_user'].on('xhr.dt', function() {
-        introMain();
+    
+        // introMain();
     });
 }
 

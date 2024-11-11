@@ -2302,11 +2302,11 @@ LEFT OUTER JOIN
       } catch (error) {
 
          // Verifica se ja foi enviado um email hoje
-         const today = new Date().toISOString().split('T')[0]; // Pega a data atual no formato YYYY-MM-DD
-         const emailLog = await executeQuery("SELECT last_sent_date FROM user_sessions_email_log_error WHERE email_type = 'token_error'")
-         const lastSendDate = emailLog.length > 0 && emailLog[0].last_sent_date ? new Date(emailLog[0].last_sent_date).toISOString().split('T')[0] : null;
+         const today = new Date().toISOString().split('T')[0]; // Data atual no formato YYYY-MM-DD
+         const emailLog = await executeQuery("SELECT last_sent_date FROM user_sessions_email_log_error WHERE email_type = 'token_error' AND last_sent_date = ?", [today]);
 
-         if (!emailLog || lastSendDate !== today) {
+         if (emailLog.length === 0) {
+            // Envia o email e registra a data de envio
             let messageBody = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
                <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">

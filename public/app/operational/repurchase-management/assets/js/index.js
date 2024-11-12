@@ -1,11 +1,19 @@
 const table = [];
 const socket = io();
+let openedDetails = new Set();
+let pageStatus = 'PENDING'
+
+
 
 document.addEventListener("DOMContentLoaded", async () => {
     await generateTable();
     hideLoader();
 
+    // socket.on('updateRepurchase', (data) => {
+    //     table['table_repurchase_user'].ajax.reload(null, false);
+    // });
     socket.on('updateRepurchase', (data) => {
+        openedDetails = new Set([...document.querySelectorAll('.details-row')].map(row => row.previousSibling.dataset.processId));
         table['table_repurchase_user'].ajax.reload(null, false);
     });
 
@@ -22,6 +30,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // Esta função cria ou recria a tabela de controle de recompras
 async function generateTable(status = 'PENDING') {
+    openedDetails = new Set();
+    pageStatus = status
     if ($.fn.DataTable.isDataTable('#table_repurchase_user')) {
         $('#table_repurchase_user').DataTable().destroy();
     }
@@ -37,7 +47,7 @@ async function generateTable(status = 'PENDING') {
         scrollCollapse: false,
         order: [[0, 'asc']],
         ajax: {
-            url: `/api/headcargo/repurchase-management/GetRepurchases?userId=${userLogged.system_collaborator_id}&status=${status}`,
+            url: `/api/headcargo/repurchase-management/GetRepurchases?userID=${userLogged.system_collaborator_id}&status=${status}`,
             dataSrc: ''
         },
         columns: [
@@ -72,12 +82,19 @@ async function generateTable(status = 'PENDING') {
     
         // introMain();
     });
+
+    table['table_repurchase_user'].on('draw', function() {
+        openedDetails.forEach(processId => {
+            showRepurchaseDetails(processId, pageStatus);
+        });
+    });
 }
 
 // Função para mostrar os detalhes das taxas de recompra de um processo específico
 async function showRepurchaseDetails(processId, status) {
     try {
-        const details = await makeRequest(`/api/headcargo/repurchase-management/GetFeesByProcess`, 'POST', { processId, status });
+        const userLogged = await getInfosLogin();
+        const details = await makeRequest(`/api/headcargo/repurchase-management/GetFeesByProcess`, 'POST', { processId, status, userID: userLogged.system_collaborator_id });
 
         // Função auxiliar para formatar moeda BRL
         function formatCurrency(value, currency) {
@@ -85,9 +102,9 @@ async function showRepurchaseDetails(processId, status) {
         }
 
         // Função auxiliar para formatar células com estilos específicos
-        function formatValueCell(value, oldValue, currency, isPurchase) {
+        function formatValueCell(value, oldValue, currency, isPurchase, status) {
             const valueChanged = value !== oldValue;
-            const badgeClass = valueChanged ? 'text-danger' : isPurchase ? 'text-muted' : 'text-muted';
+            const badgeClass = valueChanged ? 'text-danger' : isPurchase ? status == 'PENDING' ? 'text-muted' : '' : status == 'PENDING' ? 'text-muted' : '';
             const formattedValue = formatCurrency(value, currency);
             return `<span class="${badgeClass}">${formattedValue}</span>`;
         }
@@ -102,31 +119,42 @@ async function showRepurchaseDetails(processId, status) {
 
         // Gera as linhas de detalhes
         const detailRows = details.map(fee => {
+
             const purchaseDifference = fee.purchase_value !== fee.old_purchase_value 
-                ? formatCurrency(fee.purchase_value - fee.old_purchase_value, fee.coin_purchase) 
-                : '<span class="text-muted"> - <span>';
+                ? formatCurrency(fee.old_purchase_value - fee.purchase_value, fee.coin_purchase) 
+                : `<span class="${fee.status == 'PENDING' ? 'text-muted' : ''}"> - <span>`;
             const saleDifference = fee.sale_value !== fee.old_sale_value 
                 ? formatCurrency(fee.sale_value - fee.old_sale_value, fee.coin_sale) 
-                : '<span class="text-muted"> - <span>';
+                : `<span class="${fee.status == 'PENDING' ? 'text-muted' : ''}"> - <span>`;
 
-            const oldPurchaseValueCell = formatValueCell(fee.old_purchase_value, fee.purchase_value, fee.coin_purchase, true);
-            const newPurchaseValueCell = formatValueCell(fee.purchase_value, fee.old_purchase_value, fee.coin_purchase, true);
-            const oldSaleValueCell = formatValueCell(fee.old_sale_value, fee.sale_value, fee.coin_sale, false);
-            const newSaleValueCell = formatValueCell(fee.sale_value, fee.old_sale_value, fee.coin_sale, false);
+            const oldPurchaseValueCell = formatValueCell(fee.old_purchase_value, fee.purchase_value, fee.coin_purchase, true, fee.status);
+            const newPurchaseValueCell = formatValueCell(fee.purchase_value, fee.old_purchase_value, fee.coin_purchase, true, fee.status);
+            const oldSaleValueCell = formatValueCell(fee.old_sale_value, fee.sale_value, fee.coin_sale, false, fee.status);
+            const newSaleValueCell = formatValueCell(fee.sale_value, fee.old_sale_value, fee.coin_sale, false, fee.status);
+
+
+            let buttons = '';
+            let styleDisabled = '';
+            if (fee.status == 'PENDING') {
+                
+                buttons = `<a href="javascript:void(0);" class="btn btn-sm btn-danger-light" title="Deletar" onclick="alterStatus(${fee.id},'CANCELED')">Cancelar</a>`;
+            }else{
+                styleDisabled = 'background-color: #8699a399;';
+            }
 
             return `
                 <tr>
-                    <td>${fee.fee_name}</td>
-                    <td>${oldPurchaseValueCell}</td>
-                    <td>${newPurchaseValueCell}</td>
-                    <td><span class="mb-0 fw-semibold">${purchaseDifference}</span></td>
-                    <td>${oldSaleValueCell}</td>
-                    <td>${newSaleValueCell}</td>
-                    <td><span class="mb-0 fw-semibold">${saleDifference}</span></td>
-                    <td>${fee.fullName}</td>
-                    <td>${formatarData(fee.creation_date)}</td>
-                    <td>${statusMap[fee.status]}</td>
-                    <td><a href="javascript:void(0);" class="btn btn-sm btn-danger-light" title="Deletar" onclick="alterStatus(${fee.id},'CANCELED')">Cancelar</a></td>
+                    <td style="${styleDisabled}">${fee.fee_name}</td>
+                    <td style="${styleDisabled}">${oldPurchaseValueCell}</td>
+                    <td style="${styleDisabled}">${newPurchaseValueCell}</td>
+                    <td style="${styleDisabled}"><span class="mb-0 fw-semibold">${purchaseDifference}</span></td>
+                    <td style="${styleDisabled}">${oldSaleValueCell}</td>
+                    <td style="${styleDisabled}">${newSaleValueCell}</td>
+                    <td style="${styleDisabled}"><span class="mb-0 fw-semibold">${saleDifference}</span></td>
+                    <td style="${styleDisabled}">${fee.fullName}</td>
+                    <td style="${styleDisabled}">${formatarData(fee.creation_date)}</td>
+                    <td style="${styleDisabled}">${statusMap[fee.status]}</td>
+                    <td style="${styleDisabled}">${buttons}</td>
                 </tr>
             `;
         }).join('');

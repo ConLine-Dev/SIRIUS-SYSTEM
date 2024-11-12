@@ -2483,63 +2483,116 @@ LEFT OUTER JOIN
 
    },
    // Função para obter recompras por processo
-   getRepurchases: async function (userId, status) {
+   getRepurchases: async function (userId, status, groupBy) {
       let where = '';
-
+  
       // Verifica se userId existe e adiciona a condição para ele
       if (userId) {
-         where += `created_by = ${userId}`;
+          where += `created_by = ${userId}`;
       }
-
+  
       // Verifica se o status é diferente de "ALL" e se deve filtrar por status
       if (status && status !== 'ALL') {
-         where += `${where ? ' AND ' : ''}status = '${status}'`;
+          where += `${where ? ' AND ' : ''}status = '${status}'`;
       }
+  
+      // Construção da query com base no parâmetro `groupBy`
+      let query = '';
+      if (groupBy === 'repurchases.created_by') {
+          // Agrupamento por `created_by`
+          query = `
+              SELECT 
+                  MAX(repurchases.id) AS id,
+                  MAX(repurchases.fee_id) AS fee_id,
+                  MAX(repurchases.fee_name) AS fee_name,
+                  MAX(repurchases.status) AS status,
+                  MAX(repurchases.purchase_value) AS purchase_value,
+                  MAX(repurchases.old_purchase_value) AS old_purchase_value,
+                  MAX(repurchases.sale_value) AS sale_value,
+                  MAX(repurchases.old_sale_value) AS old_sale_value,
+                  MAX(repurchases.creation_date) AS creation_date,
+                  MAX(repurchases.modification_date) AS modification_date,
+                  MAX(repurchases.approved_by) AS approved_by,
+                  MAX(repurchases.rejected_by) AS rejected_by,
+                  MAX(repurchases.canceled_by) AS canceled_by,
+                  MAX(repurchases.referenceProcess) AS referenceProcess,
+                  MAX(repurchases.observation) AS observation,
+                  repurchases.created_by,
+                  COUNT(repurchases.id) AS repurchase_count, -- Quantidade de recompras por criador
+                  MAX(CONCAT(clt.name, ' ', clt.family_name)) AS fullName -- Nome completo do criador
+              FROM 
+                  repurchases
+              LEFT JOIN 
+                  collaborators clt ON clt.id = repurchases.created_by
+              ${where ? 'WHERE ' + where : ''}
+              GROUP BY 
+                  repurchases.created_by
+              ORDER BY 
+                  creation_date DESC
+          `;
+      } else {
+          // Agrupamento por `process_id` (padrão)
+          query = `
+              SELECT 
+                  MAX(repurchases.id) AS id,
+                  MAX(repurchases.fee_id) AS fee_id,
+                  MAX(repurchases.fee_name) AS fee_name,
+                  repurchases.process_id,
+                  MAX(repurchases.status) AS status,
+                  MAX(repurchases.purchase_value) AS purchase_value,
+                  MAX(repurchases.old_purchase_value) AS old_purchase_value,
+                  MAX(repurchases.sale_value) AS sale_value,
+                  MAX(repurchases.old_sale_value) AS old_sale_value,
+                  MAX(repurchases.creation_date) AS creation_date,
+                  MAX(repurchases.modification_date) AS modification_date,
+                  MAX(repurchases.created_by) AS created_by,
+                  MAX(repurchases.approved_by) AS approved_by,
+                  MAX(repurchases.rejected_by) AS rejected_by,
+                  MAX(repurchases.canceled_by) AS canceled_by,
+                  MAX(repurchases.referenceProcess) AS referenceProcess,
+                  MAX(repurchases.observation) AS observation,
+                  COUNT(repurchases.id) AS repurchase_count, -- Quantidade de recompras por processo
+                  MAX(CONCAT(clt.name, ' ', clt.family_name)) AS fullName -- Nome completo do criador
+              FROM 
+                  repurchases
+              LEFT JOIN 
+                  collaborators clt ON clt.id = repurchases.created_by
+              ${where ? 'WHERE ' + where : ''}
+              GROUP BY 
+                  repurchases.process_id
+              ORDER BY 
+                  creation_date DESC
+          `;
+      }
+  
 
-      // Adiciona WHERE apenas se houver condições
-      const query = `
-         SELECT 
-            MAX(repurchases.id) AS id,
-            MAX(repurchases.fee_id) AS fee_id,
-            MAX(repurchases.fee_name) AS fee_name,
-            repurchases.process_id,
-            MAX(repurchases.status) AS status,
-            MAX(repurchases.purchase_value) AS purchase_value,
-            MAX(repurchases.old_purchase_value) AS old_purchase_value,
-            MAX(repurchases.sale_value) AS sale_value,
-            MAX(repurchases.old_sale_value) AS old_sale_value,
-            MAX(repurchases.creation_date) AS creation_date,
-            MAX(repurchases.modification_date) AS modification_date,
-            MAX(repurchases.created_by) AS created_by,
-            MAX(repurchases.approved_by) AS approved_by,
-            MAX(repurchases.rejected_by) AS rejected_by,
-            MAX(repurchases.canceled_by) AS canceled_by,
-            MAX(repurchases.referenceProcess) AS referenceProcess,
-            MAX(repurchases.observation) AS observation,
-            COUNT(repurchases.id) AS repurchase_count, -- Quantidade de recompras por processo
-            MAX(CONCAT(clt.name, ' ', clt.family_name)) AS fullName -- Nome completo do criador
-         FROM 
-            repurchases
-         LEFT JOIN 
-            collaborators clt ON clt.id = repurchases.created_by
-         ${where ? 'WHERE ' + where : ''}
-         GROUP BY 
-            repurchases.process_id
-         ORDER BY 
-            creation_date DESC
-      `;
-      
       const result = await executeQuery(query);
       
       return result;
-   },
+  },
+  
 
-   getRepurchasesByProcess: async function(processId, status){
+   getRepurchasesByProcess: async function(processId, status, userID, groupBy){
     // Construção da cláusula WHERE dinamicamente, levando em consideração o status
-    let whereClause = `WHERE repurchases.process_id = ?`;
+    let whereClause = `WHERE ${groupBy || 'repurchases.process_id'} = ?`;
     
     if (status && status !== 'ALL') {
         whereClause += ` AND repurchases.status = '${status}'`;
+    }
+
+    if (status && status === 'PENDING') {
+      whereClause = `WHERE ${groupBy ? groupBy : 'repurchases.process_id'} = ?`;
+    }
+
+    if (status && status === 'PENDING' && groupBy == 'repurchases.created_by') {
+      whereClause += ` AND repurchases.status = '${status}'`;
+    }
+
+
+
+    // Verifica se userId existe e adiciona a condição para ele
+    if (userID) {
+      whereClause += ` AND created_by = ${userID}`;
     }
 
     const query = `
@@ -2554,6 +2607,7 @@ LEFT OUTER JOIN
         ORDER BY 
             repurchases.creation_date DESC;
     `;
+
     
     const result = await executeQuery(query, [processId]);
   

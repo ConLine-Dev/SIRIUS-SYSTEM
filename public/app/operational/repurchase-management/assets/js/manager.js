@@ -1,13 +1,21 @@
 const table = [];
 const socket = io();
+let openedDetails = new Set();
+let pageStatus = 'PENDING'
+let currentGrouping = 'repurchases.process_id';
 
 document.addEventListener("DOMContentLoaded", async () => {
     await generateTable();
     hideLoader();
 
+    // socket.on('updateRepurchase', (data) => {
+    //     table['table_repurchase_user'].ajax.reload(null, false);
+    // });
     socket.on('updateRepurchase', (data) => {
+        openedDetails = new Set([...document.querySelectorAll('.details-row')].map(row => row.previousSibling.dataset.processId));
         table['table_repurchase_user'].ajax.reload(null, false);
     });
+
 
     const filesType = document.querySelectorAll('.files-type');
     filesType.forEach((element, index) => {
@@ -18,15 +26,32 @@ document.addEventListener("DOMContentLoaded", async () => {
             element.classList.add('active');
         });
     });
+
+    document.getElementById('groupByProcess').addEventListener('click', () => {
+        currentGrouping = 'repurchases.process_id';
+        generateTable(pageStatus, currentGrouping);
+    });
+    
+    document.getElementById('groupByResponsavel').addEventListener('click', () => {
+        currentGrouping = 'repurchases.created_by';
+        generateTable(pageStatus, currentGrouping);
+    });
 });
 
 // Esta função cria ou recria a tabela de controle de recompras
-async function generateTable(status = 'PENDING') {
+async function generateTable(status = 'PENDING', groupBy) {
+    openedDetails = new Set();
+    pageStatus = status
+    groupBy = currentGrouping
+
     if ($.fn.DataTable.isDataTable('#table_repurchase_user')) {
         $('#table_repurchase_user').DataTable().destroy();
     }
 
     const userLogged = await getInfosLogin();
+
+    // Define o título da coluna com base no agrupamento
+    const columnTitle = groupBy === 'repurchases.created_by' ? 'Responsável' : 'Processo';
 
     table['table_repurchase_user'] = $('#table_repurchase_user').DataTable({
         dom: 'frtip',
@@ -37,18 +62,18 @@ async function generateTable(status = 'PENDING') {
         scrollCollapse: false,
         order: [[0, 'asc']],
         ajax: {
-            url: `/api/headcargo/repurchase-management/GetRepurchases?status=${status}`,
+            url: `/api/headcargo/repurchase-management/GetRepurchases?status=${status}&groupBy=${groupBy}`,
             dataSrc: ''
         },
         columns: [
             {
                 data: null,
                 render: function (data, type, row) {
-                    return `<button class="btn btn-sm btn-primary" onclick="showRepurchaseDetails(${row.process_id}, '${status}')">Ver Taxas</button>`;
+                    return `<button class="btn btn-sm btn-primary" onclick="showRepurchaseDetails(${groupBy === 'repurchases.process_id' ? row.process_id : row.created_by}, '${status}')">Ver Taxas</button>`;
                 },
                 orderable: false
             },
-            { data: 'referenceProcess' },
+            { data: groupBy === 'repurchases.process_id' ? 'referenceProcess' : 'fullName', title: columnTitle },
             { data: 'repurchase_count' },
             {
                 data: 'creation_date',
@@ -58,7 +83,7 @@ async function generateTable(status = 'PENDING') {
             }
         ],
         createdRow: function (row, data, dataIndex) {
-            $(row).attr('data-process-id', data.process_id);
+            $(row).attr('data-process-id', groupBy === 'repurchases.process_id' ? data.process_id : data.created_by);
         },
         buttons: ['excel', 'pdf', 'print'],
         language: {
@@ -68,28 +93,38 @@ async function generateTable(status = 'PENDING') {
         },
     });
 
-    table['table_repurchase_user'].on('xhr.dt', function () {
-        introMain();
+    // table['table_repurchase_user'].on('xhr.dt', function () {
+    //     introMain();
+    // });
+
+    table['table_repurchase_user'].on('draw', function() {
+        openedDetails.forEach(processId => {
+            showRepurchaseDetails(processId, pageStatus);
+        });
     });
 }
 
 // Função para mostrar os detalhes das taxas de recompra de um processo específico
 async function showRepurchaseDetails(processId, status) {
     try {
-        const details = await makeRequest(`/api/headcargo/repurchase-management/GetFeesByProcess`, 'POST', { processId, status });
+        console.log(processId, status)
+        const userLogged = await getInfosLogin();
+        
+        const details = await makeRequest(`/api/headcargo/repurchase-management/GetFeesByProcess`, 'POST', { processId, status, groupBy:currentGrouping });
 
         // Função auxiliar para formatar moeda BRL
         function formatCurrency(value, currency) {
             return new Intl.NumberFormat('pt-BR', { style: 'currency', currency }).format(value);
         }
 
-        // Função auxiliar para formatar células com estilos específicos
-        function formatValueCell(value, oldValue, currency, isPurchase) {
+         // Função auxiliar para formatar células com estilos específicos
+         function formatValueCell(value, oldValue, currency, isPurchase, status) {
             const valueChanged = value !== oldValue;
-            const badgeClass = valueChanged ? 'badge bg-danger-transparent' : isPurchase ? 'text-danger' : 'text-muted';
+            const badgeClass = valueChanged ? 'text-danger' : isPurchase ? status == 'PENDING' ? 'text-muted' : '' : status == 'PENDING' ? 'text-muted' : '';
             const formattedValue = formatCurrency(value, currency);
             return `<span class="${badgeClass}">${formattedValue}</span>`;
         }
+
 
         // Mapeamento de status
         const statusMap = {
@@ -101,18 +136,22 @@ async function showRepurchaseDetails(processId, status) {
 
         // Gera as linhas de detalhes
         const detailRows = details.map(fee => {
-            const purchaseDifference = fee.purchase_value !== fee.old_purchase_value
-                ? formatCurrency(fee.purchase_value - fee.old_purchase_value, fee.coin_purchase)
-                : '-';
-            const saleDifference = fee.sale_value !== fee.old_sale_value
-                ? formatCurrency(fee.sale_value - fee.old_sale_value, fee.coin_sale)
-                : '-';
+            const purchaseDifference = fee.purchase_value !== fee.old_purchase_value 
+                ? formatCurrency(fee.old_purchase_value - fee.purchase_value, fee.coin_purchase) 
+                : `<span class="${fee.status == 'PENDING' ? 'text-muted' : ''}"> - <span>`;
+            const saleDifference = fee.sale_value !== fee.old_sale_value 
+                ? formatCurrency(fee.sale_value - fee.old_sale_value, fee.coin_sale) 
+                : `<span class="${fee.status == 'PENDING' ? 'text-muted' : ''}"> - <span>`;
 
-            const oldPurchaseValueCell = formatValueCell(fee.old_purchase_value, fee.purchase_value, fee.coin_purchase, true);
-            const newPurchaseValueCell = formatValueCell(fee.purchase_value, fee.old_purchase_value, fee.coin_purchase, true);
-            const oldSaleValueCell = formatValueCell(fee.old_sale_value, fee.sale_value, fee.coin_sale, false);
-            const newSaleValueCell = formatValueCell(fee.sale_value, fee.old_sale_value, fee.coin_sale, false);
+                const oldPurchaseValueCell = formatValueCell(fee.old_purchase_value, fee.purchase_value, fee.coin_purchase, true, fee.status);
+                const newPurchaseValueCell = formatValueCell(fee.purchase_value, fee.old_purchase_value, fee.coin_purchase, true, fee.status);
+                const oldSaleValueCell = formatValueCell(fee.old_sale_value, fee.sale_value, fee.coin_sale, false, fee.status);
+                const newSaleValueCell = formatValueCell(fee.sale_value, fee.old_sale_value, fee.coin_sale, false, fee.status);
 
+                let styleDisabled = '';
+                if (fee.status != 'PENDING') {
+                    styleDisabled = 'background-color: #8699a399;';
+                }
 
             const actionButtons = fee.status === 'PENDING'
                 ? `<a href="javascript:void(0);" class="btn btn-sm btn-danger-light" title="Rejeitar" onclick="alterStatus(${fee.id},'REJECTED')">Rejeitar</a>
@@ -120,19 +159,21 @@ async function showRepurchaseDetails(processId, status) {
                    `
                 : '';
 
-            return `<tr>
-                        <td>${fee.fee_name}</td>
-                        <td>${oldPurchaseValueCell}</td>
-                        <td>${newPurchaseValueCell}</td>
-                        <td><span class="mb-0 fw-semibold">${purchaseDifference}</span></td>
-                        <td>${oldSaleValueCell}</td>
-                        <td>${newSaleValueCell}</td>
-                        <td><span class="mb-0 fw-semibold">${saleDifference}</span></td>
-                        <td>${fee.fullName}</td>
-                        <td>${formatarData(fee.creation_date)}</td>
-                        <td>${statusMap[fee.status]}</td>
-                        <td>${actionButtons}</td>
-                    </tr>`;
+                return `
+                <tr>
+                    <td style="${styleDisabled}">${fee.fee_name}</td>
+                    <td style="${styleDisabled}">${oldPurchaseValueCell}</td>
+                    <td style="${styleDisabled}">${newPurchaseValueCell}</td>
+                    <td style="${styleDisabled}"><span class="mb-0 fw-semibold">${purchaseDifference}</span></td>
+                    <td style="${styleDisabled}">${oldSaleValueCell}</td>
+                    <td style="${styleDisabled}">${newSaleValueCell}</td>
+                    <td style="${styleDisabled}"><span class="mb-0 fw-semibold">${saleDifference}</span></td>
+                    <td style="${styleDisabled}">${fee.fullName}</td>
+                    <td style="${styleDisabled}">${formatarData(fee.creation_date)}</td>
+                    <td style="${styleDisabled}">${statusMap[fee.status]}</td>
+                    <td style="${styleDisabled}">${actionButtons}</td>
+                </tr>
+            `;
                     
         }).join('');
 

@@ -296,10 +296,9 @@ router.post('/CreateRepurchase', async (req, res, next) => {
 
 // Rota para obter recompras por processo
 router.get('/GetRepurchases', async (req, res, next) => {
-    const { process_id, status } = req.query;
-
+    const { userID, status, groupBy} = req.query;
     try {
-        const result = await headcargo.getRepurchases(process_id, status);
+        const result = await headcargo.getRepurchases(userID, status, groupBy);
         res.status(200).json(result);
     } catch (error) {
         console.log(error);
@@ -309,10 +308,10 @@ router.get('/GetRepurchases', async (req, res, next) => {
 
 // Rota para obter recompras por processo
 router.post('/GetFeesByProcess', async (req, res, next) => {
-    const { processId, status } = req.body;
+    const { processId, status, userID, groupBy } = req.body;
 
     try {
-        const result = await headcargo.getRepurchasesByProcess(processId, status);
+        const result = await headcargo.getRepurchasesByProcess(processId, status, userID, groupBy);
         res.status(200).json(result);
     } catch (error) {
         console.log(error);

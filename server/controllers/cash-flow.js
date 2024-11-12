@@ -115,19 +115,24 @@ const cashFlow = {
 
          SELECT
             Tfn.Data,
-            'TRANSFERÊNCIA PARA PAGAMENTO DE SALÁRIO' AS Cliente,
+            '' AS Cliente,
 
             'Quitada' AS Situacao_Fatura,
-            '' AS Historico_Resumo,
-            999999999 AS IdCategoria_Financeira,
-            'SALARIO' AS Categoria,
+            Tfn.Numero AS Historico_Resumo,
+            Cat.IdCategoria_Financeira,
+            Cat.Nome as Categoria,
 
-            Tfn.Valor_Destino AS Total_Pagamento_Estimado
+            Tfc.Valor_Destino AS Total_Pagamento_Estimado
          FROM
             mov_Transferencia_Financeira Tfn
+         LEFT OUTER JOIN
+            mov_Transferencia_Financeira_Categoria Tfc ON Tfc.IdTransferencia_Financeira = Tfn.IdTransferencia_Financeira
+         LEFT OUTER JOIN
+            cad_Categoria_Financeira Cat ON Cat.IdCategoria_Financeira = Tfc.IdCategoria_Financeira
          WHERE
             Tfn.IdConta_Origem = 10 -- Banco Bradesco
             AND Tfn.IdConta_Destino = 18 -- Banco Inter
+            AND Cat.IdCategoria_Financeira NOT IN (73 /*TRANSFERÊNCIA ENTRE CONTAS MESMA TITULARIDADE*/)
             ${dateFilterAdmSalary}
       `)
       return result;
@@ -182,20 +187,25 @@ const cashFlow = {
 
          SELECT
             Tfn.Data,
-            'TRANSFERÊNCIA PARA PAGAMENTO DE SALÁRIO' AS Cliente,
+            '' AS Cliente,
 
             2 AS Situacao_Fatura_Num, -- Retorna o número para consistência
-            'Quitada' AS Situacao_Fatura, -- Mantém o rótulo para exibição
-            '' AS Historico_Resumo,
-            999999999 AS IdCategoria_Financeira,
-            'SALARIO' AS Categoria,
+            'Quitada' AS Situacao_Fatura,
+            Tfn.Numero AS Historico_Resumo,
+            Cat.IdCategoria_Financeira,
+            Cat.Nome as Categoria,
 
-            Tfn.Valor_Destino AS Total_Pagamento_Estimado
+            Tfc.Valor_Destino AS Total_Pagamento_Estimado
          FROM
             mov_Transferencia_Financeira Tfn
+         LEFT OUTER JOIN
+            mov_Transferencia_Financeira_Categoria Tfc ON Tfc.IdTransferencia_Financeira = Tfn.IdTransferencia_Financeira
+         LEFT OUTER JOIN
+            cad_Categoria_Financeira Cat ON Cat.IdCategoria_Financeira = Tfc.IdCategoria_Financeira
          WHERE
             Tfn.IdConta_Origem = 10 -- Banco Bradesco
             AND Tfn.IdConta_Destino = 18 -- Banco Inter
+            AND Cat.IdCategoria_Financeira NOT IN (73 /*TRANSFERÊNCIA ENTRE CONTAS MESMA TITULARIDADE*/)
          )
          SELECT
             *

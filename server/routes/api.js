@@ -145,7 +145,7 @@ const setIO = (io) => {
   router.use('/data-security-hub', dataDecurityHub(io)); 
   
   // Use as rotas do arquivo api-pricing-main .js oi
-  router.use('/api-pricing-main', api_pricing_main(io)); 
+  router.use('/pricing-main', api_pricing_main(io)); 
 
   return router;
 };

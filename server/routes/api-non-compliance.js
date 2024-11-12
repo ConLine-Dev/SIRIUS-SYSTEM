@@ -264,6 +264,43 @@ module.exports = function(io) {
         });
     });
 
+
+    router.get('/view-evidence/:filename', (req, res) => {
+        const filename = req.params.filename;
+        const filePath = path.join(__dirname, '../../storageService/administration/non-compliance/evidence', filename);
+    
+        // Mapeamento das extensões para os tipos MIME
+        const mimeTypes = {
+            '.pdf': 'application/pdf',
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.png': 'image/png',
+            '.txt': 'text/plain',
+            '.html': 'text/html'
+        };
+        console.log(filePath)
+    
+        // Verifica se o arquivo existe
+        fs.access(filePath, fs.constants.F_OK, (err) => {
+            if (err) {
+                res.status(404).send('Arquivo não encontrado.');
+                return;
+            }
+    
+            // Define o cabeçalho para exibir o arquivo no navegador
+            res.setHeader('Content-Disposition', 'inline; filename="' + filename + '"');
+    
+            // Define o tipo de conteúdo baseado na extensão do arquivo
+            const ext = path.extname(filePath).toLowerCase();
+            const mimeType = mimeTypes[ext] || 'application/octet-stream'; // Tipo padrão para extensões desconhecidas
+            res.setHeader('Content-Type', mimeType);
+    
+            // Envia o arquivo como stream para visualização
+            const fileStream = fs.createReadStream(filePath);
+            fileStream.pipe(res);
+        });
+    });
+
     router.delete('/delete-evidence/:actionId/:filename', async (req, res) => {
         const actionId = req.params.actionId;
         const filename = req.params.filename;

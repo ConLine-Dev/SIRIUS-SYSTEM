@@ -1219,6 +1219,19 @@ async function getValuesOccurrence(e) {
 }
 
 
+function viewEvidence(filename) {
+
+    const url = `/api/non-compliance/view-evidence/${filename}`;
+
+    openWindow(url, 800, 600);
+
+}
+
+
+function openWindow(url, width, height) {
+    window.open(url, '_blank', `width=${width},height=${height},resizable=yes`);
+}
+
 /**
  * Função assíncrona para visualizar uma ação corretiva.
  */
@@ -1283,7 +1296,7 @@ async function viewActionCorrective(id) {
                                 </div>
                                 <div class="flex-fill">
                                     <a href="javascript:void(0);">
-                                        <span class="d-block fw-semibold" style="max-width: 15ch;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">
+                                        <span class="d-block fw-semibold" OnClick="viewEvidence('${element.filename}')" data-file="/api/non-compliance/view-evidence/${element.filename}" style="max-width: 15ch;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">
                                             ${element.originalname}
                                         </span>
                                     </a>

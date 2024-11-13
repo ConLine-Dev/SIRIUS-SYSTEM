@@ -278,7 +278,7 @@ async function occurrencesTypeChart(data) {
     const totalOccurrences = data.length;
     const typePercentages = Object.entries(typeCounts).map(([name, count]) => ({
         name,
-        percentage: ((count / totalOccurrences) * 100)
+        percentage: ((count / totalOccurrences) * 100).toFixed(2)
     }));
 
     // Configurações do gráfico

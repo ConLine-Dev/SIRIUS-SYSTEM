@@ -573,7 +573,7 @@ async function headerManagement(occurrence){
 
         document.querySelector('.btnAprove').classList.add('d-none')
         document.querySelector('.btnReprove').classList.add('d-none')
-        document.querySelector('.btnFinalize').classList.add('d-none')
+        // document.querySelector('.btnFinalize').classList.add('d-none')
         document.querySelector('.btnReset').classList.add('d-none')
         document.querySelector('.groupBlocks').classList.add('d-none')
 
@@ -595,7 +595,7 @@ async function headerManagement(occurrence){
 
         document.querySelector('.btnAprove').classList.add('disabled')
         document.querySelector('.btnReprove').classList.add('disabled')
-        document.querySelector('.btnFinalize').classList.add('disabled')
+        // document.querySelector('.btnFinalize').classList.add('disabled')
         // document.querySelector('.btnReset').classList.add('disabled')
         
     
@@ -628,7 +628,7 @@ async function headerManagement(occurrence){
         }else if(occurrence.status == 6 && occurrence.EffectivenesAllStatus == true){
             // 5 = Desenvolvimento - Ação Corretiva só libera após todas as açõe finalizadas
             // document.querySelector('.btnAprove').classList.remove('disabled')
-            document.querySelector('.btnFinalize').classList.remove('disabled')
+            // document.querySelector('.btnFinalize').classList.remove('disabled')
             // document.querySelector('.btnReset').classList.add('disabled')
         }
 

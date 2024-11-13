@@ -10,6 +10,121 @@ const emailCustom = {
             responsiblesHTML += `<span style="display: inline-block; background-color: #dc3545; color: #ffffff; padding: 5px 10px; border-radius: 3px; margin-right: 5px; margin-bottom: 5px;">${element.name}</span>` 
         }
 
+        let descriptionStatus = '';
+        if(occurrence.status == 0) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência foi aberta com sucesso!
+            <br>
+            - A partir deste momento, nossa equipe de Qualidade analisará e aprovará a ocorrência.
+            <br>
+            - Após a aprovação, você receberá um e-mail com informações detalhadas sobre os próximos passos.
+            </h4>`;
+        } else if(occurrence.status == 1) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência foi reprovada na 1ª etapa.
+            <br>
+            - Verificamos que ajustes são necessários para prosseguir.
+            <br>
+            - Por favor, revise as informações e faça as correções solicitadas. Após o ajuste, reenvie para aprovação.
+            </h4>`;
+        } else if(occurrence.status == 2) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência foi aprovada na 1ª etapa!
+            <br>
+            - Agora você pode prosseguir com o preenchimento das informações necessárias para a 2ª etapa.
+            <br>
+            - Certifique-se de preencher todos os campos solicitados para que possamos seguir com a análise.
+            </h4>`;
+        } else if(occurrence.status == 3) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência está aguardando aprovação na 2ª etapa.
+            <br>
+            - Nossa equipe de Qualidade está analisando as informações enviadas para confirmar a conformidade.
+            <br>
+            - Você receberá uma notificação por e-mail assim que a análise for concluída.
+            </h4>`;
+        } else if(occurrence.status == 4) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência foi reprovada na 2ª etapa.
+            <br>
+            - Foi identificado que ajustes adicionais são necessários para seguir com o processo.
+            <br>
+            - Por favor, revise e ajuste as informações conforme solicitado, e reenvie para nova análise.
+            </h4>`;
+        } else if(occurrence.status == 5) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência está em desenvolvimento para ação corretiva.
+            <br>
+            - Nossa equipe está trabalhando em uma solução para resolver a situação reportada.
+            <br>
+            - Você será notificado quando a ação corretiva for concluída e pronta para avaliação.
+            </h4>`;
+        } else if(occurrence.status == 6) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência está em avaliação de eficácia.
+            <br>
+            - A ação corretiva foi concluída e estamos agora analisando a sua eficácia.
+            <br>
+            - A equipe de Qualidade vai verificar se a solução atende aos critérios e resolve o problema definitivamente.
+            </h4>`;
+        } else if(occurrence.status == 7) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência foi finalizada com sucesso!
+            <br>
+            - A análise e ações corretivas foram concluídas com êxito, e o processo foi encerrado.
+            <br>
+            - Agradecemos a sua colaboração em ajudar a melhorar nossos processos de Qualidade.
+            </h4>`;
+        }
+
+
+
+        let analisecausa = ''
+        if(occurrence.manpower && occurrence.method && occurrence.material && occurrence.environment && occurrence.machine){
+            analisecausa = `<div style="margin-bottom: 20px;">
+            <h4 style="background-color: #f4f4f9; padding: 10px; border-left: 4px solid #007bff; margin-bottom: 10px;">Análise da Causa Método ISHIKAWA</h4>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; background-color: #f4f4f9;">Categoria</th>
+                        <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; background-color: #f4f4f9;">Detalhes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Mão de obra</td>
+                        <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${occurrence.manpower || ''}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Método</td>
+                        <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${occurrence.method || ''}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Material</td>
+                        <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${occurrence.material || ''}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Meio Ambiente</td>
+                        <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${occurrence.environment || ''}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Máquina</td>
+                        <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${occurrence.machine || ''}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>`;
+        }
+
+        let root_cause = '';
+        if(occurrence.root_cause){
+            root_cause = `<div style="margin-bottom: 20px;">
+            <h4 style="background-color: #f4f4f9; padding: 10px; border-left: 4px solid #007bff; margin-bottom: 10px;">Causa Raiz</h4>
+            <p>${occurrence.root_cause || ''}</p>
+        </div>`;
+        }
+        
+
         return `<!DOCTYPE html>
         <html lang="pt-BR">
         <head>
@@ -22,6 +137,7 @@ const emailCustom = {
                     <h1 style="margin: 0;">Ocorrência ${occurrence.reference}</h1>
                 </div>
                 <div style="padding: 20px;">
+                ${descriptionStatus}
                     <div style="margin-bottom: 20px;">
                         <h4 style="background-color: #f4f4f9; padding: 10px; border-left: 4px solid #007bff; margin-bottom: 10px;">Informações da Ocorrência</h4>
                         <p><strong>Ocorrência:</strong> ${occurrence.title}</p>
@@ -45,43 +161,8 @@ const emailCustom = {
                         <h4 style="background-color: #f4f4f9; padding: 10px; border-left: 4px solid #007bff; margin-bottom: 10px;">Correção (Ações já tomada(s))</h4>
                         <p>${occurrence.correction}</p>
                     </div>
-                    <div style="margin-bottom: 20px;">
-                        <h4 style="background-color: #f4f4f9; padding: 10px; border-left: 4px solid #007bff; margin-bottom: 10px;">Análise da Causa Método ISHIKAWA</h4>
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <thead>
-                                <tr>
-                                    <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; background-color: #f4f4f9;">Categoria</th>
-                                    <th style="border: 1px solid #dddddd; text-align: left; padding: 8px; background-color: #f4f4f9;">Detalhes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Mão de obra</td>
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${occurrence.manpower}</td>
-                                </tr>
-                                <tr>
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Método</td>
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${occurrence.method}</td>
-                                </tr>
-                                <tr>
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Material</td>
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${occurrence.material}</td>
-                                </tr>
-                                <tr>
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Meio Ambiente</td>
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${occurrence.environment}</td>
-                                </tr>
-                                <tr>
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">Máquina</td>
-                                    <td style="border: 1px solid #dddddd; text-align: left; padding: 8px;">${occurrence.machine}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div style="margin-bottom: 20px;">
-                        <h4 style="background-color: #f4f4f9; padding: 10px; border-left: 4px solid #007bff; margin-bottom: 10px;">Causa Raiz</h4>
-                        <p>${occurrence.root_cause}</p>
-                    </div>
+                    ${analisecausa}
+                    ${root_cause}
                 </div>
             </div>
         </body>
@@ -96,6 +177,90 @@ const emailCustom = {
             responsiblesHTML += `<span style="display: inline-block; background-color: #dc3545; color: #ffffff; padding: 5px 10px; border-radius: 3px; margin-right: 5px; margin-bottom: 5px;">${element.name}</span>` 
         }
 
+        // const status = {
+        //     0: 'Pendente - Aprovação 1ª etapa',
+        //     1: 'Reprovado - Aguardando Ajuste 1ª etapa',
+        //     2: 'Aprovado - Liberado Preenchimento 2ª etapa',
+        //     3: 'Pendente - aprovação 2ª etapa',
+        //     4: 'Reprovado - Aguardando Ajuste 2ª etapa',
+        //     5: 'Desenvolvimento - Ação Corretiva',
+        //     6: 'Desenvolvimento - Avaliação de Eficácia',
+        //     7: 'Finalizado'
+        // }
+
+        let descriptionStatus = '';
+        if(occurrence.status == 0) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência foi aberta com sucesso!
+            <br>
+            - A partir deste momento, nossa equipe de Qualidade analisará e aprovará a ocorrência.
+            <br>
+            - Após a aprovação, você receberá um e-mail com informações detalhadas sobre os próximos passos.
+            </h4>`;
+        } else if(occurrence.status == 1) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência foi reprovada na 1ª etapa.
+            <br>
+            - Verificamos que ajustes são necessários para prosseguir.
+            <br>
+            - Por favor, revise as informações e faça as correções solicitadas. Após o ajuste, reenvie para aprovação.
+            </h4>`;
+        } else if(occurrence.status == 2) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência foi aprovada na 1ª etapa!
+            <br>
+            - Agora você pode prosseguir com o preenchimento das informações necessárias para a 2ª etapa.
+            <br>
+            - Certifique-se de preencher todos os campos solicitados para que possamos seguir com a análise.
+            </h4>`;
+        } else if(occurrence.status == 3) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência está aguardando aprovação na 2ª etapa.
+            <br>
+            - Nossa equipe de Qualidade está analisando as informações enviadas para confirmar a conformidade.
+            <br>
+            - Você receberá uma notificação por e-mail assim que a análise for concluída.
+            </h4>`;
+        } else if(occurrence.status == 4) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência foi reprovada na 2ª etapa.
+            <br>
+            - Foi identificado que ajustes adicionais são necessários para seguir com o processo.
+            <br>
+            - Por favor, revise e ajuste as informações conforme solicitado, e reenvie para nova análise.
+            </h4>`;
+        } else if(occurrence.status == 5) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência está em desenvolvimento para ação corretiva.
+            <br>
+            - Nossa equipe está trabalhando em uma solução para resolver a situação reportada.
+            <br>
+            - Você será notificado quando a ação corretiva for concluída e pronta para avaliação.
+            </h4>`;
+        } else if(occurrence.status == 6) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência está em avaliação de eficácia.
+            <br>
+            - A ação corretiva foi concluída e estamos agora analisando a sua eficácia.
+            <br>
+            - A equipe de Qualidade vai verificar se a solução atende aos critérios e resolve o problema definitivamente.
+            </h4>`;
+        } else if(occurrence.status == 7) {
+            descriptionStatus = `<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+            Sua ocorrência foi finalizada com sucesso!
+            <br>
+            - A análise e ações corretivas foram concluídas com êxito, e o processo foi encerrado.
+            <br>
+            - Agradecemos a sua colaboração em ajudar a melhorar nossos processos de Qualidade.
+            </h4>`;
+        }
+        
+        // if(occurrence.status == 0){
+        //     descriptionStatus = '<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;"> </h4>';
+        // }else if(occurrence.status == 1){
+        //     descriptionStatus = '<h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;"> </h4>';
+        // }
+
         return `<!DOCTYPE html>
         <html lang="pt-BR">
         <head>
@@ -108,6 +273,7 @@ const emailCustom = {
                     <h1 style="margin: 0;">Ocorrência ${occurrence.reference}</h1>
                 </div>
                 <div style="padding: 20px;">
+                    ${descriptionStatus}
                     <div style="margin-bottom: 20px;">
                         <h4 style="background-color: #f4f4f9; padding: 10px; border-left: 4px solid #007bff; margin-bottom: 10px;">Informações da Ocorrência</h4>
                         <p><strong>Ocorrência:</strong> ${occurrence.title}</p>

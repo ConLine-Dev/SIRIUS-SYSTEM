@@ -629,7 +629,7 @@ const non_compliance = {
             
             // this.sendEmail(`[INTERNO] ${reference} - 1° Etapa da corrência foi alterada.`, null, 'open', null, occurrence_id)
         }
-        console.log(manpower || method || material || environment || machine || root_cause)
+        // console.log(manpower || method || material || environment || machine || root_cause)
         // Verificar se pelo menos um dos campos obrigatórios está presente e não está vazio
         if (manpower || method || material || environment || machine || root_cause) {
             console.log('dsadsaentrou')
@@ -900,7 +900,7 @@ const non_compliance = {
                                 </a>
                             </div>`
 
-                            console.log(statusTemp)
+                            // console.log(statusTemp)
             return {
                 ...item, // mantém todas as propriedades existentes
                 status: ` <span class="text-muted float-end fs-11 fw-normal"> ${status[statusTemp]}</span>`,

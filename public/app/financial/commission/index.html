@@ -928,48 +928,85 @@
      </span>
 
      <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
           <div class="modal-content">
             <div class="modal-header">
               <h6 class="modal-title" id="staticBackdropLabel">🦊 Olá! Eu sou o Mycon, seu assistente aqui no sistema!</h6>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                
 
                 <p>No módulo de Gerenciamento de Comissões, estou aqui para te ajudar a entender como as comissões são calculadas. ✨</p>
-                <p><b>🔎 O que você precisa saber?</b> <br>
-                    As comissões que você vê aqui são baseadas no <b>lucro efetivo</b> dos processos. Esse lucro pode variar conforme as taxas associadas ao processo estejam pagas ou não. Portanto, é importante ficar atento(a) ao status de pagamento das taxas para garantir que o valor da comissão seja o mais preciso possível.
+                
+                <p><b>🔎 O que você precisa saber?</b><br>
+                   As comissões que você vê aqui são baseadas no <b>lucro efetivo</b> dos processos. Esse lucro pode variar conforme as taxas associadas ao processo estejam pagas ou não. Portanto, é importante ficar atento(a) ao status de pagamento das taxas para garantir que o valor da comissão seja o mais preciso possível.
                 </p>
                 
-                
-                <p>
-                    <b>📊 Dica importante!</b> <br>
-                    Sempre utilize os filtros corretamente para visualizar as comissões da maneira mais precisa. Isso vai te ajudar a tomar decisões mais informadas e acompanhar melhor os resultados. 😎
+                <p><b>📊 Dica importante!</b><br>
+                   Sempre utilize os filtros corretamente para visualizar as comissões da maneira mais precisa. Isso vai te ajudar a tomar decisões mais informadas e acompanhar melhor os resultados. 😎
                 </p>
+                
+                <p><b>🚀 Novidade Importante!</b><br>
+                   Agora, os processos que possuem clientes, fornecedores ou parceiros com faturas em atraso são destacados em vermelho. Ao clicar em um processo com fatura em atraso, uma janela será aberta, mostrando todas as faturas pendentes, incluindo:
+                   <ul>
+                       <li><b>Dias de vencimento:</b> há quantos dias a fatura está atrasada.</li>
+                       <li><b>Devedor:</b> o nome do cliente/fornecedor com faturas em aberto.</li>
+                       <li><b>Valor:</b> o total pendente de pagamento.</li>
+                   </ul>
+                </p>
+                
+                <p><b>💡 Comissionamento com Base na Diferença do Lucro e Taxa de Incentivo</b><br>
+                   Nos casos onde o cálculo da comissão é baseado na diferença entre o lucro e a taxa de incentivo, o sistema considera as seguintes regras:
+                </p>
+                
+                <ul>
+                    <li><b>Lucro do Processo Inferior ao Valor da Taxa de Incentivo</b><br>
+                        Exemplo: Taxa de Incentivo de R$ 400,00.<br>
+                        Se o lucro total do processo for menor que o valor da taxa de incentivo, a comissão será calculada sobre o valor real do lucro, e a porcentagem de comissão será aplicada diretamente sobre esse valor.
+                    </li>
+                    <li><b>Lucro do Processo Superior ao Valor da Taxa de Incentivo</b><br>
+                        Exemplo: Taxa de Incentivo de R$ 400,00.<br>
+                        Se o lucro do processo for superior ao valor da taxa de incentivo, o sistema calculará a comissão apenas sobre a diferença entre o lucro total e o valor da taxa.
+                    </li>
+                    <li><b>Quando a Taxa de Incentivo não foi baixada</b><br>
+                        É somado o Valor de lucro + a taxa como lucro efetivo<br>
+                    </li>
+                    <li><b>Quando a Taxa de Incentivo ja foi baixada</b><br>
+                        É considerado o Lucro Real<br>
+                    </li>
+                </ul>
+                
+                <p><b>📈 Exemplos de Cálculo</b><br>
+                   <ul>
+                       <li>Lucro do Processo: R$ 399,00<br>
+                           Comissão do Vendedor: 10%<br>
+                           <b>O vendedor receberá R$ 39,90</b> (10% de R$ 399,00).
+                       </li>
+                       <li>Lucro do Processo: R$ 450,00<br>
+                           Comissão do Vendedor: 10%<br>
+                           <b>O vendedor receberá R$ 5,00</b>, calculado sobre a diferença entre o lucro (R$ 450,00) e a taxa de incentivo (R$ 400,00), multiplicada pela porcentagem de comissão.
+                       </li>
+                   </ul>
+                </p>
+            
                 <p>
-                    <b>🚀 Novidade Importante!</b> <br>
-                    Agora, os processos que possuem clientes, fornecedores ou parceiros com faturas em atraso são destacados em vermelho. Ao clicar em um processo com fatura em atraso, uma janela será aberta, mostrando todas as faturas pendentes, incluindo:
+                 
+                    ⚠️ Taxas levadas em consideração na hora de calcular a comissão:
+                   <ul>
+                       <li>Incentivo Ásia Marítimo</li>
+                       <li>Incentivo Terminal</li>
+                   </ul>
+                    ⚠️ Algumas taxas não são levadas em consideração na hora de calcular a comissão, como:
                     <ul>
-                        <li>Dias de vencimento: há quantos dias a fatura está atrasada.</li>
-                        <li>Devedor: o nome do cliente/fornecedor com faturas em aberto.</li>
-                        <li>Valor: o total pendente de pagamento.</li>
-                    </ul>
-                </p>
-                
-                <p>
-                    <b>⚠️ Atenção!</b> <br>
-                    Algumas taxas não são levadas em consideração na hora de calcular a comissão, como: <br>
-                    <ul>
-                        <li>Incentivo Asia</li>
-                        <li>Incentivo Asia Marítimo</li>
-                        <li>Incentivo Terminal</li>
-                    </ul>
+                       <li>Incentivo Ásia</li>
+                   </ul>
+
                 </p>
                 
                 <p>Se precisar de mim, estarei por aqui para te guiar! 🚀</p>
-
+            
             </div>
+            
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
 

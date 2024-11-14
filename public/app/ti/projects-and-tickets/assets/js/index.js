@@ -562,8 +562,14 @@ async function listAllTickets() {
     // Fazer a requisição dos tickets
     const tickets = await makeRequest('/api/called/tickets/listAll');
 
+    // Objeto para armazenar a contagem de chamados por status
+    const statusCounts = {};
+
     // Criar o HTML de cada ticket e adicionar ao container correspondente
     tickets.forEach(ticket => {
+        // Incrementar a contagem de chamados para o status atual
+        statusCounts[ticket.status] = (statusCounts[ticket.status] || 0) + 1;
+
         // Construir o HTML dos avatares de usuários atribuídos
         const users = ticket.atribuido.map(item => `
             <span class="avatar avatar-sm avatar-rounded userTiAtributed" title="${item.name}" data-collabID="${item.collaborator_id}" data-headcargoId="${item.id_headcargo}">
@@ -616,7 +622,16 @@ async function listAllTickets() {
         // Inserir o card no container correspondente
         container.insertAdjacentHTML('beforeend', cardHTML);
     });
+
+    // Atualizar o elemento de contagem para cada status
+    Object.keys(statusCounts).forEach(status => {
+        const countElement = document.querySelector(`#${status}-count`);
+        if (countElement) {
+            countElement.textContent = statusCounts[status];
+        }
+    });
 }
+
 
 
 // Função para rolar até o final de um elemento específico

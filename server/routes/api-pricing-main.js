@@ -4,13 +4,12 @@ const { pricingMain } = require('../controllers/pricing-main.js');
 
 module.exports = function(io) {
 
-    // Rota para listar todos os backups
-    router.get('/backups', async (req, res) => {
+    router.get('/getOffers', async (req, res, next) => {
         try {
-            const backups = await pricingMain.listBackups();
-            res.json(backups);
+            const result = await pricingMain.getOffers();
+            res.status(200).json(result);
         } catch (error) {
-            res.status(500).json({ error: 'Failed to fetch backups' });
+            res.status(404).json(error);
         }
     });
 

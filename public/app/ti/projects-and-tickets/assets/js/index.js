@@ -491,7 +491,7 @@ async function addMessage(){
 }
 
 // Lista todos os tickets
-async function listAllTickets() {
+async function listAllTickets_nao_usar() {
     const cards = document.querySelectorAll('.task-card')
     for (let index = 0; index < cards.length; index++) {
         const element = cards[index];
@@ -499,9 +499,8 @@ async function listAllTickets() {
         
     }
 
-
     const tickets = await makeRequest('/api/called/tickets/listAll');
-
+    
     for (let index = 0; index < tickets.length; index++) {
         const ticket = tickets[index];
 
@@ -551,8 +550,74 @@ async function listAllTickets() {
     const container = document.querySelector(`#${ticket.status}`) || document.querySelector('#new-tasks-draggable');
     container.innerHTML += card; 
     }
+
+    
    
 }
+
+async function listAllTickets() {
+    // Remover os cards atuais de todos os containers
+    document.querySelectorAll('.task-card').forEach(card => card.remove());
+
+    // Fazer a requisição dos tickets
+    const tickets = await makeRequest('/api/called/tickets/listAll');
+
+    // Criar o HTML de cada ticket e adicionar ao container correspondente
+    tickets.forEach(ticket => {
+        // Construir o HTML dos avatares de usuários atribuídos
+        const users = ticket.atribuido.map(item => `
+            <span class="avatar avatar-sm avatar-rounded userTiAtributed" title="${item.name}" data-collabID="${item.collaborator_id}" data-headcargoId="${item.id_headcargo}">
+                <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt="img">
+            </span>
+        `).join('');
+
+        // Determinar a data de conclusão ou previsão de conclusão
+        const dateEnd = ticket.finished_at 
+            ? `<span class="badge bg-success-transparent">${formatDateBR(ticket.finished_at)}</span>` 
+            : ticket.end_forecast 
+            ? `<span class="badge bg-danger-transparent">${formatDateBR(ticket.end_forecast)}</span>`
+            : '';
+
+        // Construir o HTML completo do card de ticket
+        const cardHTML = `
+            <div class="card custom-card task-card task-card-${ticket.id}" id="${ticket.id}">
+                <div class="card-body p-0">
+                    <div class="p-3 kanban-board-head">
+                        <div class="d-flex text-muted justify-content-between mb-1 fs-12 fw-semibold">
+                            <div><span class="badge bg-success-transparent">${ticket.start_forecast ? formatDateBR(ticket.start_forecast) : formatDateBR(ticket.created_at)}</span></div>
+                            <div>${dateEnd}</div>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="task-badges"></div>
+                        </div>
+                        <div class="kanban-content mt-2">
+                            <h6 class="fw-semibold mb-1 fs-15">${ticket.title} - Ticket #${ticket.id}</h6>
+                            <div class="kanban-task-description">${ticket.description.replace(/\n/g, '<br>')}</div>
+                        </div>
+                    </div>
+                    <div class="p-3 border-top border-block-start-dashed">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <a href="javascript:void(0);" class="text-muted">
+                                    <span class="me-1"><i class="ri-message-2-line align-middle fw-normal"></i></span>
+                                    <span class="fw-semibold fs-12">${ticket.messageCount}</span>
+                                </a>
+                            </div>
+                            <div style="display: none;">${ticket.responsible_name} ${ticket.responsible_family_name}</div>
+                            <div class="avatar-list-stacked">${users}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+        // Selecionar o container apropriado com base no status do ticket
+        const container = document.querySelector(`#${ticket.status}`) || document.querySelector('#new-tasks-draggable');
+
+        // Inserir o card no container correspondente
+        container.insertAdjacentHTML('beforeend', cardHTML);
+    });
+}
+
 
 // Função para rolar até o final de um elemento específico
 function scrollToBottom(selector) {

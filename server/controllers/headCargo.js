@@ -180,17 +180,17 @@ const headcargo = {
             Lhs.Data_Acerto_Agente AS Data_Agente,
       
             CASE
-               WHEN Incbai.Valor_Recebimento_Total > 0 /*Quitada*/ AND Lmo.Lucro_Estimado > COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Estimado - COALESCE(Incbai.Valor_Recebimento_Total, 0))
-               WHEN Incbai.Valor_Recebimento_Total > 0 /*Quitada*/ AND Lmo.Lucro_Estimado < COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Estimado)
-               WHEN Lmo.Lucro_Estimado > COALESCE(Inc.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Estimado - COALESCE(Inc.Valor_Recebimento_Total, 0))
-               WHEN Lmo.Lucro_Estimado < COALESCE(Inc.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Estimado)
+               WHEN Incbai.Valor_Recebimento_Total >= 0 /*Quitada*/ AND Lmo.Lucro_Estimado > COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Estimado - COALESCE(Incbai.Valor_Recebimento_Total, 0))
+               WHEN Incbai.Valor_Recebimento_Total >= 0 /*Quitada*/ AND Lmo.Lucro_Estimado < COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Estimado)
+               WHEN Lmo.Lucro_Estimado >= COALESCE(Inc.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Estimado - COALESCE(Inc.Valor_Recebimento_Total, 0))
+               WHEN Lmo.Lucro_Estimado < COALESCE(Inc.Valor_Recebimento_Total, 0) THEN ((Lmo.Lucro_Estimado) + COALESCE(Inc.Valor_Recebimento_Total, 0))
             END AS Valor_Estimado,
-      
+
             CASE
-               WHEN Incbai.Valor_Recebimento_Total > 0 /*Quitada*/ AND Lmo.Lucro_Efetivo > COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Efetivo - COALESCE(Incbai.Valor_Recebimento_Total, 0))
-               WHEN Incbai.Valor_Recebimento_Total > 0 /*Quitada*/ AND Lmo.Lucro_Efetivo < COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Efetivo)
-               WHEN Lmo.Lucro_Efetivo > COALESCE(Inc.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Efetivo - COALESCE(Inc.Valor_Recebimento_Total, 0))
-               WHEN Lmo.Lucro_Efetivo < COALESCE(Inc.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Efetivo)
+               WHEN Incbai.Valor_Recebimento_Total >= 0 /*Quitada*/ AND Lmo.Lucro_Efetivo > COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Efetivo - COALESCE(Incbai.Valor_Recebimento_Total, 0))
+               WHEN Incbai.Valor_Recebimento_Total >= 0 /*Quitada*/ AND Lmo.Lucro_Efetivo < COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Efetivo)
+               WHEN Lmo.Lucro_Efetivo >= COALESCE(Inc.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Efetivo - COALESCE(Inc.Valor_Recebimento_Total, 0))
+               WHEN Lmo.Lucro_Efetivo < COALESCE(Inc.Valor_Recebimento_Total, 0) THEN ((Lmo.Lucro_Efetivo) + COALESCE(Inc.Valor_Recebimento_Total, 0))
             END AS Valor_Efetivo,
       
             CASE
@@ -1577,17 +1577,17 @@ LEFT OUTER JOIN
             Lhs.Data_Acerto_Agente AS Data_Agente,
       
             CASE
-               WHEN Incbai.Valor_Recebimento_Total > 0 /*Quitada*/ AND Lmo.Lucro_Estimado > COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Estimado - COALESCE(Incbai.Valor_Recebimento_Total, 0))
-               WHEN Incbai.Valor_Recebimento_Total > 0 /*Quitada*/ AND Lmo.Lucro_Estimado < COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Estimado)
-               WHEN Lmo.Lucro_Estimado > COALESCE(Inc.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Estimado - COALESCE(Inc.Valor_Recebimento_Total, 0))
-               WHEN Lmo.Lucro_Estimado < COALESCE(Inc.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Estimado)
+               WHEN Incbai.Valor_Recebimento_Total >= 0 /*Quitada*/ AND Lmo.Lucro_Estimado > COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Estimado - COALESCE(Incbai.Valor_Recebimento_Total, 0))
+               WHEN Incbai.Valor_Recebimento_Total >= 0 /*Quitada*/ AND Lmo.Lucro_Estimado < COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Estimado)
+               WHEN Lmo.Lucro_Estimado >= COALESCE(Inc.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Estimado - COALESCE(Inc.Valor_Recebimento_Total, 0))
+               WHEN Lmo.Lucro_Estimado < COALESCE(Inc.Valor_Recebimento_Total, 0) THEN ((Lmo.Lucro_Estimado) + COALESCE(Inc.Valor_Recebimento_Total, 0))
             END AS Valor_Estimado,
-      
+
             CASE
-               WHEN Incbai.Valor_Recebimento_Total > 0 /*Quitada*/ AND Lmo.Lucro_Efetivo > COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Efetivo - COALESCE(Incbai.Valor_Recebimento_Total, 0))
-               WHEN Incbai.Valor_Recebimento_Total > 0 /*Quitada*/ AND Lmo.Lucro_Efetivo < COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Efetivo)
-               WHEN Lmo.Lucro_Efetivo > COALESCE(Inc.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Efetivo - COALESCE(Inc.Valor_Recebimento_Total, 0))
-               WHEN Lmo.Lucro_Efetivo < COALESCE(Inc.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Efetivo)
+               WHEN Incbai.Valor_Recebimento_Total >= 0 /*Quitada*/ AND Lmo.Lucro_Efetivo > COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Efetivo - COALESCE(Incbai.Valor_Recebimento_Total, 0))
+               WHEN Incbai.Valor_Recebimento_Total >= 0 /*Quitada*/ AND Lmo.Lucro_Efetivo < COALESCE(Incbai.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Efetivo)
+               WHEN Lmo.Lucro_Efetivo >= COALESCE(Inc.Valor_Recebimento_Total, 0) THEN (Lmo.Lucro_Efetivo - COALESCE(Inc.Valor_Recebimento_Total, 0))
+               WHEN Lmo.Lucro_Efetivo < COALESCE(Inc.Valor_Recebimento_Total, 0) THEN ((Lmo.Lucro_Efetivo) + COALESCE(Inc.Valor_Recebimento_Total, 0))
             END AS Valor_Efetivo,
       
             CASE

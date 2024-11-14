@@ -416,9 +416,9 @@ async function createTicket(settingsTicket) {
         </span>`).join('');
 
         const dateEnd = settingsTicket.finished_at 
-        ? `<span class="badge bg-success-transparent">${formatDate(settingsTicket.finished_at)}</span>` 
+        ? `<span class="badge bg-success-transparent">${formatDateBR(settingsTicket.finished_at)}</span>` 
         : settingsTicket.timeEnd 
-        ? `<span class="badge bg-danger-transparent">${formatDate(settingsTicket.timeEnd)}</span>`
+        ? `<span class="badge bg-danger-transparent">${formatDateBR(settingsTicket.timeEnd)}</span>`
         : '';
 
     const card = `
@@ -512,9 +512,9 @@ async function listAllTickets() {
 
 
     const dateEnd = ticket.finished_at 
-        ? `<span class="badge bg-success-transparent">${formatDate(ticket.finished_at)}</span>` 
+        ? `<span class="badge bg-success-transparent">${formatDateBR(ticket.finished_at)}</span>` 
         : ticket.end_forecast 
-        ? `<span class="badge bg-danger-transparent">${formatDate(ticket.end_forecast)}</span>`
+        ? `<span class="badge bg-danger-transparent">${formatDateBR(ticket.end_forecast)}</span>`
         : '';
 
     const card = `
@@ -522,7 +522,7 @@ async function listAllTickets() {
         <div class="card-body p-0">
             <div class="p-3 kanban-board-head">
                 <div class="d-flex text-muted justify-content-between mb-1 fs-12 fw-semibold">
-                    <div><span class="badge bg-success-transparent">${formatDate(ticket.start_forecast)}</span></div>
+                    <div><span class="badge bg-success-transparent">${ticket.start_forecast ? formatDateBR(ticket.start_forecast) : formatDateBR(ticket.created_at) }</span></div>
                     <div>${dateEnd}</div>
                 </div>
                 <div class="d-flex align-items-center justify-content-between">
@@ -628,6 +628,21 @@ async function editTask(taskId) {
         console.error('Error:', error);
     }
 }
+
+
+// Formata a data no estilo "DD/MM/YYYY HH:mm"
+function formatDateBR(value) {
+    const dataAtual = value ? new Date(value) : new Date();
+    const ano = dataAtual.getFullYear();
+    const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+    const dia = String(dataAtual.getDate()).padStart(2, '0');
+    const horas = String(dataAtual.getHours()).padStart(2, '0');
+    const minutos = String(dataAtual.getMinutes()).padStart(2, '0');
+
+    return `${dia}-${mes}-${ano} ${horas}:${minutos}`;
+}
+
+
 
 // Formata a data no estilo "DD/MM/YYYY HH:mm"
 function formatDate(value) {

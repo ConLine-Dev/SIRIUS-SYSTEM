@@ -109,6 +109,7 @@ const userTickets = {
       const minutos = String(hoje.getMinutes()).padStart(2, '0');
 
       const dataHoraFormatada = `${ano}-${mes}-${dia} - ${horas}:${minutos}`;
+      const dataHoraFormatadaBR = `${dia}-${mes}-${ano} - ${horas}:${minutos}`;
 
       let userBody = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
@@ -126,11 +127,11 @@ const userTickets = {
               </tr>
               <tr>
               <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
-              <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${description}</td>
+              <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${(description).replace(/\n/g, '<br>')}</td>
               </tr>
               <tr>
               <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Data da Abertura:</td>
-              <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${dataHoraFormatada}</td>
+              <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${dataHoraFormatadaBR}</td>
               </tr>
               </table>
               <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
@@ -160,11 +161,11 @@ const userTickets = {
             </tr>
             <tr>
             <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
-            <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${userDescription}</td>
+            <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${(userDescription).replace(/\n/g, '<br>')}</td>
             </tr>
             <tr>
             <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Data da Abertura:</td>
-            <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${dataHoraFormatada}</td>
+            <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${dataHoraFormatadaBR}</td>
             </tr>
             </table>
             <p style="color: #333; font-size: 16px; line-height: 1.6;">Boa sorte desde já! 🤠</p>

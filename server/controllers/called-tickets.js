@@ -13,7 +13,7 @@ const tickets = {
         const tickets = await executeQuery(`
         SELECT ct.*, collab.name, collab.family_name, collab.id_headcargo 
         FROM called_tickets ct
-        JOIN collaborators collab ON collab.id = ct.collaborator_id
+        JOIN collaborators collab ON collab.id = ct.collaborator_id ORDER BY created_at desc
         `);
 
         // Obter todos os dados relacionados a atribuições de uma vez
@@ -174,7 +174,8 @@ const tickets = {
                 </tr>
                 <tr>
                     <td colspan="2" style="font-weight: ${font}; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
-                        ${messagesByTicket[index].body}
+                        ${(messagesByTicket[index].body).replace(/\n/g, '<br>')}
+                        
                     </td>
                 </tr>`
         }
@@ -200,12 +201,13 @@ const tickets = {
                 <tr>
                     <td colspan="2" style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
                         <h5 style="margin: 0px; margin-bottom: 10px; font-weight: bold">Detalhes do Chamado:</h5>
-                        <h4 style="margin: 0px; font-weight: bold">${messagesByTicket[0].description}</h4>
+                        <h4 style="margin: 0px; font-weight: bold">${(messagesByTicket[0].description).replace(/\n/g, '<br>')}</h4>
                     </td>
                 </tr>
                 </table>
                 <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
                 ${allMessages}
+                
                 </table>
                 <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
             </div>
@@ -308,6 +310,7 @@ const tickets = {
         const minutos = String(hoje.getMinutes()).padStart(2, '0');
   
         const dataHoraFormatada = `${ano}-${mes}-${dia} - ${horas}:${minutos}`;
+        const dataHoraFormatadaBR = `${dia}-${mes}-${ano} - ${horas}:${minutos}`;
 
         let userBody = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
@@ -325,11 +328,11 @@ const tickets = {
                 </tr>
                 <tr>
                 <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
-                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${value.description}</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${(value.description).replace(/\n/g, '<br>')}</td>
                 </tr>
                 <tr>
                 <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Data da Abertura:</td>
-                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${dataHoraFormatada}</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${dataHoraFormatadaBR}</td>
                 </tr>
                 </table>
                 <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
@@ -359,11 +362,11 @@ const tickets = {
                 </tr>
                 <tr>
                 <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
-                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${userDescription}</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${(userDescription).replace(/\n/g, '<br>')}</td>
                 </tr>
                 <tr>
                 <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Data da Abertura:</td>
-                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${dataHoraFormatada}</td>
+                <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${dataHoraFormatadaBR}</td>
                 </tr>
                 </table>
                 <p style="color: #333; font-size: 16px; line-height: 1.6;">Boa sorte desde já! 🤠</p>
@@ -460,7 +463,7 @@ const tickets = {
                     </tr>
                     <tr>
                     <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
-                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${responsibleData[0].description}</td>
+                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${(responsibleData[0].description).replace(/\n/g, '<br>')}</td>
                     </tr>
                     <tr>
                     <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Previsão de Conclusão:</td>
@@ -539,7 +542,7 @@ const tickets = {
                     </tr>
                     <tr>
                     <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
-                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${responsibleData[0].description}</td>
+                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${ (responsibleData[0].description).replace(/\n/g, '<br>')}</td>
                     </tr>
                     </table>
                     <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
@@ -585,7 +588,7 @@ const tickets = {
                     </tr>
                     <tr>
                     <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
-                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${responsibleData[0].description}</td>
+                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${(responsibleData[0].description).replace(/\n/g, '<br>')}</td>
                     </tr>
                     </table>
                     <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
@@ -611,7 +614,7 @@ const tickets = {
                     </tr>
                     <tr>
                     <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
-                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${responsibleData[0].description}</td>
+                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${(responsibleData[0].description).replace(/\n/g, '<br>')}</td>
                     </tr>
                     </table>
                     <p style="color: #333; font-size: 16px; line-height: 1.6;">Agora bora pro próximo! 😝</p>
@@ -654,7 +657,7 @@ const tickets = {
                     </tr>
                     <tr>
                     <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
-                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${pendingTickets[index].description}</td>
+                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${(pendingTickets[index].description).replace(/\n/g, '<br>')}</td>
                     </tr>
                     </table>
                     <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>

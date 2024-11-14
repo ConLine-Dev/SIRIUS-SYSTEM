@@ -881,6 +881,43 @@
                     </div>
                 </div>
 
+                <!-- MODAL CONFIRMAR START_FORECAST -->
+                <div class="modal fade" id="edit-start-forecast" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title">Previsão de Início</h6>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body px-4">
+                                <div class="row gy-2">
+                                    <div class="col-xl-12">
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <div class="input-group-text text-muted">
+                                                    <i class="ri-calendar-line"></i>
+                                                </div>
+                                                <input type="text" class="form-control flatpickr-input targetDate" name="start_forecast_input" id="start_forecast_input" placeholder="Escolha a data e hora" readonly="readonly" >
+                                            </div>
+                                        </div>
+                                        <div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer row">
+                                <div class="col-8">
+                                    <label class="form-label">Caso o campo não seja preenchido a previsão de início será adicionada com data/hora atuais.</label>
+                                </div>
+                                <div class="col-3">
+                                    <button type="button" class="btn btn-primary" onclick="inputStartForecast()">Adicionar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- MODAL EDITAR CHAMADO -->
                 <div class="modal fade" id="edit-task" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered" style="max-width: 50%;">

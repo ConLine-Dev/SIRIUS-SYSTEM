@@ -418,6 +418,71 @@ const tickets = {
         return { id: value.id };
     },
 
+    updateStartForecast: async function (id, date) {
+        
+        if (date == ''){
+            const hoje = new Date();
+            const ano = hoje.getFullYear();
+            const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+            const dia = String(hoje.getDate()).padStart(2, '0');
+            const horas = String(hoje.getHours()).padStart(2, '0');
+            const minutos = String(hoje.getMinutes()).padStart(2, '0');
+            
+            date = `${ano}-${mes}-${dia} ${horas}:${minutos}`;
+        }
+
+        const newDate = new Date(date);
+        const day = String(newDate.getDate()).padStart(2, '0');
+        const month = String(newDate.getMonth() + 1).padStart(2, '0');
+        const year = newDate.getFullYear();
+        const hours = String(newDate.getHours()).padStart(2, '0');
+        const minutes = String(newDate.getMinutes()).padStart(2, '0');
+
+        let dateString = `${day}-${month}-${year} ${hours}:${minutes}`;
+
+        await executeQuery(`UPDATE called_tickets SET start_forecast = '${date}' WHERE id = ${id}`);
+
+        const responsibleData = await executeQuery(`
+            SELECT ct.*, usr.email
+            FROM called_tickets ct
+            LEFT OUTER JOIN users usr on usr.collaborator_id = ct.collaborator_id
+            WHERE ct.id = ${id}`);
+
+        let mailBody = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+                    <h1 style="margin: 0; font-size: 24px;">Verificando...</h1>
+                </div>
+                <div style="padding: 20px; background-color: #f9f9f9;">
+                    <p style="color: #333; font-size: 16px;">Olá,</p>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Já estamos pensando em como resolver seu problema 🕵️</p>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">E já trouxemos uma data prevista para dar início a este pedido.</p>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                    <tr>
+                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Assunto do Chamado:</td>
+                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${responsibleData[0].title}</td>
+                    </tr>
+                    <tr>
+                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
+                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${(responsibleData[0].description).replace(/\n/g, '<br>')}</td>
+                    </tr>
+                    <tr>
+                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Previsão de Início:</td>
+                    <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${dateString}</td>
+                    </tr>
+                    </table>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
+                </div>
+                <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+                    <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+                </div>
+            </div>`
+    
+            await sendEmail(responsibleData[0].email, '[Sirius System] Chamado em análise! ', mailBody);
+
+        return true;
+    },
+
     updateEndForecast: async function (id, date) {
         
         if (date == ''){
@@ -666,7 +731,7 @@ const tickets = {
                     <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
                 </div>
             </div>`
-            console.log(pendingTickets[index].email_business);
+            console.log('Ticket:', pendingTickets[index].id, pendingTickets[index].email_business);
             const teste = await sendEmail(pendingTickets[index].email_business, '[Sirius System] Seguimos no aguardo da sua aprovação! 🫠', mailBody);
             if (teste.success == true) {
                 await executeQuery(`UPDATE called_tickets SET review_notification = DATE_SUB(CURDATE(), INTERVAL 6 DAY) WHERE id = ${pendingTickets[index].id}`);

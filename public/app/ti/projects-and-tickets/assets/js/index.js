@@ -754,13 +754,32 @@ async function eventDragDrop(tickets) {
 
         if (newContainerId == 'inprogress-tasks-draggable') {
             const modalElement = document.getElementById('edit-end-forecast');
-            if (!myModal) {  // Verifica se a instância do modal já foi criada
-                myModal = new bootstrap.Modal(modalElement); // Cria a instância apenas uma vez
+            if (myModal) {
+                myModal = null;
             }
+            myModal = new bootstrap.Modal(modalElement);
             myModal.show();  // Exibe o modal
+            IdUpdate = cardId;
+        } else if (newContainerId == 'todo-tasks-draggable') {
+            const modalElement = document.getElementById('edit-start-forecast');
+            if (myModal) {
+                myModal = null;
+            }
+            myModal = new bootstrap.Modal(modalElement);
+            myModal.show();
             IdUpdate = cardId;
         }
     });
+}
+
+function inputStartForecast() {
+    const targetDate = document.getElementById('start_forecast_input').value;
+    
+    makeRequest('/api/called/tickets/updateStartForecast', 'POST', { id: IdUpdate, date: targetDate });
+
+    if (myModal) {
+        myModal.hide();
+    }
 }
 
 function inputEndForecast() {

@@ -1,0 +1,313 @@
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Chamados Membro Equipe</title>
+    <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
+    <meta name="Author" content="Spruko Technologies Private Limited">
+    <meta name="keywords"
+        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main JS -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="../../assets/libs/quill/quill.snow.css">
+
+    <link rel="stylesheet" href="../../assets/libs/quill/quill.bubble.css">
+    <!-- Color Picker Css -->
+    <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    
+
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+    
+    <!-- Loader -->
+    <!-- <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div> -->
+
+    <div class="">
+        <div class="">
+            <div class="">
+
+                <div class="card custom-card">
+                    <div class="card-header">
+                      <div class="card-title"> Novo chamado</div>
+                    </div>
+                    <div class="card-body">
+                      <div class="row gy-3">
+                        <div class="col-xl-12">
+                          <label for="input-label" class="form-label">Título :</label>
+                          <input type="text" class="form-control" id="input-label" placeholder="Título para o chamado">
+                        </div>
+                        <div class="col-xl-12">
+                          <label class="form-label">Descrição :</label>
+                         
+                          <div id="project-descriptioin-editor" class="ql-container ql-snow">
+                           
+                          </div>
+                        </div>
+                        <!-- <div class="col-xl-6" style="">
+                          <label class="form-label">Previsão de Inicio :</label>
+                          <div class="form-group">
+                            <div class="input-group">
+                              <div class="input-group-text text-muted">
+                                <i class="ri-calendar-line"></i>
+                              </div>
+                              <input type="text" class="form-control flatpickr-input" id="startDate" placeholder="Escolha data e hora" readonly="readonly">
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-xl-6">
+                          <label class="form-label">Previsão de Fim:</label>
+                          <div class="form-group">
+                            <div class="input-group">
+                              <div class="input-group-text text-muted">
+                                <i class="ri-calendar-line"></i>
+                              </div>
+                              <input type="text" class="form-control flatpickr-input" id="endDate" placeholder="Escolha data e hora" readonly="readonly">
+                            </div>
+                          </div>
+                        </div> -->
+                        <div class="col-xl-6">
+                          <label class="form-label">Status :</label>
+                          <div class="choices" data-type="select-one" tabindex="0" role="combobox" aria-autocomplete="list" aria-haspopup="true" aria-expanded="false">
+                            <div class="choices__inner">
+                              <select class="form-control choices__input" data-trigger="" name="choices-single-default1" id="choices-single-default1" hidden="" tabindex="-1" data-choice="active">
+                                <option value="Inprogress" data-custom-properties="[object Object]">Inprogress</option>
+                              </select>
+                              <div class="choices__list choices__list--single">
+                                <div class="choices__item choices__item--selectable" data-item="" data-id="1" data-value="Inprogress" data-custom-properties="[object Object]" aria-selected="true">Inprogress</div>
+                              </div>
+                            </div>
+                            <div class="choices__list choices__list--dropdown" aria-expanded="false">
+                              <input type="text" class="choices__input choices__input--cloned" autocomplete="off" autocapitalize="off" spellcheck="false" role="textbox" aria-autocomplete="list" aria-label="This is a placeholder set in the config" placeholder="Search">
+                              <div class="choices__list" role="listbox">
+                                <div id="choices--choices-single-default1-item-choice-1" class="choices__item choices__item--choice choices__item--selectable is-highlighted" role="option" data-choice="" data-id="1" data-value="Completed" data-select-text="Press to select" data-choice-selectable="" aria-selected="true">Completed</div>
+                                <div id="choices--choices-single-default1-item-choice-2" class="choices__item choices__item--choice is-selected choices__item--selectable" role="option" data-choice="" data-id="2" data-value="Inprogress" data-select-text="Press to select" data-choice-selectable="">Inprogress</div>
+                                <div id="choices--choices-single-default1-item-choice-3" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="3" data-value="On-hold" data-select-text="Press to select" data-choice-selectable="">On-hold</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-xl-6">
+                          <label class="form-label">Prioridade :</label>
+                          <div class="choices" data-type="select-one" tabindex="0" role="combobox" aria-autocomplete="list" aria-haspopup="true" aria-expanded="false">
+                            <div class="choices__inner">
+                              <select class="form-control choices__input" data-trigger="" name="choices-single-default" id="choices-single-default" hidden="" tabindex="-1" data-choice="active">
+                                <option value="High" data-custom-properties="[object Object]">High</option>
+                              </select>
+                              <div class="choices__list choices__list--single">
+                                <div class="choices__item choices__item--selectable" data-item="" data-id="1" data-value="High" data-custom-properties="[object Object]" aria-selected="true">High</div>
+                              </div>
+                            </div>
+                            <div class="choices__list choices__list--dropdown" aria-expanded="false">
+                              <input type="text" class="choices__input choices__input--cloned" autocomplete="off" autocapitalize="off" spellcheck="false" role="textbox" aria-autocomplete="list" aria-label="This is a placeholder set in the config" placeholder="Search">
+                              <div class="choices__list" role="listbox">
+                                <div id="choices--choices-single-default-item-choice-1" class="choices__item choices__item--choice is-selected choices__item--selectable is-highlighted" role="option" data-choice="" data-id="1" data-value="High" data-select-text="Press to select" data-choice-selectable="" aria-selected="true">High</div>
+                                <div id="choices--choices-single-default-item-choice-2" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="2" data-value="Low" data-select-text="Press to select" data-choice-selectable="">Low</div>
+                                <div id="choices--choices-single-default-item-choice-3" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="3" data-value="Medium" data-select-text="Press to select" data-choice-selectable="">Medium</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-4">
+                          <label class="form-label">Responsável</label>
+                          <div class="choices" data-type="select-multiple" role="combobox" aria-autocomplete="list" aria-haspopup="true" aria-expanded="false">
+                            <div class="choices__inner">
+                              <select class="form-control choices__input" name="assigned-team-members" id="assigned-team-members" multiple="" hidden="" tabindex="-1" data-choice="active">
+                                <option value="Choice 4" data-custom-properties="[object Object]">Alexa Biss</option>
+                                <option value="Choice 4" data-custom-properties="[object Object]">Alex Carey</option>
+                                <option value="Choice 1" data-custom-properties="[object Object]">Angelina May</option>
+                              </select>
+                              <div class="choices__list choices__list--multiple">
+                                <div class="choices__item choices__item--selectable" data-item="" data-id="1" data-value="Choice 4" data-custom-properties="[object Object]" aria-selected="true" data-deletable="">Alexa Biss <button type="button" class="choices__button" aria-label="Remove item: 'Choice 4'" data-button="">Remove item</button>
+                                </div>
+                                <div class="choices__item choices__item--selectable" data-item="" data-id="2" data-value="Choice 4" data-custom-properties="[object Object]" aria-selected="true" data-deletable="">Alex Carey <button type="button" class="choices__button" aria-label="Remove item: 'Choice 4'" data-button="">Remove item</button>
+                                </div>
+                                <div class="choices__item choices__item--selectable" data-item="" data-id="3" data-value="Choice 1" data-custom-properties="[object Object]" aria-selected="true" data-deletable="">Angelina May <button type="button" class="choices__button" aria-label="Remove item: 'Choice 1'" data-button="">Remove item</button>
+                                </div>
+                              </div>
+                              <input type="text" class="choices__input choices__input--cloned" autocomplete="off" autocapitalize="off" spellcheck="false" role="textbox" aria-autocomplete="list" aria-label="null">
+                            </div>
+                            <div class="choices__list choices__list--dropdown" aria-expanded="false">
+                              <div class="choices__list" aria-multiselectable="true" role="listbox">
+                                <div id="choices--assigned-team-members-item-choice-4" class="choices__item choices__item--choice choices__item--selectable is-highlighted" role="option" data-choice="" data-id="4" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="" aria-selected="true">Bear Gills</div>
+                                <div id="choices--assigned-team-members-item-choice-5" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="5" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Darren Sami</div>
+                                <div id="choices--assigned-team-members-item-choice-6" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="6" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Elizabeth</div>
+                                <div id="choices--assigned-team-members-item-choice-7" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="7" data-value="Choice 3" data-select-text="Press to select" data-choice-selectable="">Hercules Jhon</div>
+                                <div id="choices--assigned-team-members-item-choice-8" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="8" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Karley Dia</div>
+                                <div id="choices--assigned-team-members-item-choice-9" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="9" data-value="Choice 2" data-select-text="Press to select" data-choice-selectable="">Kiara advain</div>
+                                <div id="choices--assigned-team-members-item-choice-10" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="10" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Kim Jong</div>
+                                <div id="choices--assigned-team-members-item-choice-11" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="11" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Mayor Kim</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">Envolvidos</label>
+                            <div class="choices" data-type="select-multiple" role="combobox" aria-autocomplete="list" aria-haspopup="true" aria-expanded="false">
+                              <div class="choices__inner">
+                                <select class="form-control choices__input" name="assigned-team-members" id="assigned-team-members" multiple="" hidden="" tabindex="-1" data-choice="active">
+                                  <option value="Choice 4" data-custom-properties="[object Object]">Alexa Biss</option>
+                                  <option value="Choice 4" data-custom-properties="[object Object]">Alex Carey</option>
+                                  <option value="Choice 1" data-custom-properties="[object Object]">Angelina May</option>
+                                </select>
+                                <div class="choices__list choices__list--multiple">
+                                  <div class="choices__item choices__item--selectable" data-item="" data-id="1" data-value="Choice 4" data-custom-properties="[object Object]" aria-selected="true" data-deletable="">Alexa Biss <button type="button" class="choices__button" aria-label="Remove item: 'Choice 4'" data-button="">Remove item</button>
+                                  </div>
+                                  <div class="choices__item choices__item--selectable" data-item="" data-id="2" data-value="Choice 4" data-custom-properties="[object Object]" aria-selected="true" data-deletable="">Alex Carey <button type="button" class="choices__button" aria-label="Remove item: 'Choice 4'" data-button="">Remove item</button>
+                                  </div>
+                                  <div class="choices__item choices__item--selectable" data-item="" data-id="3" data-value="Choice 1" data-custom-properties="[object Object]" aria-selected="true" data-deletable="">Angelina May <button type="button" class="choices__button" aria-label="Remove item: 'Choice 1'" data-button="">Remove item</button>
+                                  </div>
+                                </div>
+                                <input type="text" class="choices__input choices__input--cloned" autocomplete="off" autocapitalize="off" spellcheck="false" role="textbox" aria-autocomplete="list" aria-label="null">
+                              </div>
+                              <div class="choices__list choices__list--dropdown" aria-expanded="false">
+                                <div class="choices__list" aria-multiselectable="true" role="listbox">
+                                  <div id="choices--assigned-team-members-item-choice-4" class="choices__item choices__item--choice choices__item--selectable is-highlighted" role="option" data-choice="" data-id="4" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="" aria-selected="true">Bear Gills</div>
+                                  <div id="choices--assigned-team-members-item-choice-5" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="5" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Darren Sami</div>
+                                  <div id="choices--assigned-team-members-item-choice-6" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="6" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Elizabeth</div>
+                                  <div id="choices--assigned-team-members-item-choice-7" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="7" data-value="Choice 3" data-select-text="Press to select" data-choice-selectable="">Hercules Jhon</div>
+                                  <div id="choices--assigned-team-members-item-choice-8" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="8" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Karley Dia</div>
+                                  <div id="choices--assigned-team-members-item-choice-9" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="9" data-value="Choice 2" data-select-text="Press to select" data-choice-selectable="">Kiara advain</div>
+                                  <div id="choices--assigned-team-members-item-choice-10" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="10" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Kim Jong</div>
+                                  <div id="choices--assigned-team-members-item-choice-11" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="11" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Mayor Kim</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        <div class="col-4">
+                            <label class="form-label">Atribuído a</label>
+                            <div class="choices" data-type="select-multiple" role="combobox" aria-autocomplete="list" aria-haspopup="true" aria-expanded="false">
+                              <div class="choices__inner">
+                                <select class="form-control choices__input" name="assigned-team-members" id="assigned-team-members" multiple="" hidden="" tabindex="-1" data-choice="active">
+                                  <option value="Choice 4" data-custom-properties="[object Object]">Alexa Biss</option>
+                                  <option value="Choice 4" data-custom-properties="[object Object]">Alex Carey</option>
+                                  <option value="Choice 1" data-custom-properties="[object Object]">Angelina May</option>
+                                </select>
+                                <div class="choices__list choices__list--multiple">
+                                  <div class="choices__item choices__item--selectable" data-item="" data-id="1" data-value="Choice 4" data-custom-properties="[object Object]" aria-selected="true" data-deletable="">Alexa Biss <button type="button" class="choices__button" aria-label="Remove item: 'Choice 4'" data-button="">Remove item</button>
+                                  </div>
+                                  <div class="choices__item choices__item--selectable" data-item="" data-id="2" data-value="Choice 4" data-custom-properties="[object Object]" aria-selected="true" data-deletable="">Alex Carey <button type="button" class="choices__button" aria-label="Remove item: 'Choice 4'" data-button="">Remove item</button>
+                                  </div>
+                                  <div class="choices__item choices__item--selectable" data-item="" data-id="3" data-value="Choice 1" data-custom-properties="[object Object]" aria-selected="true" data-deletable="">Angelina May <button type="button" class="choices__button" aria-label="Remove item: 'Choice 1'" data-button="">Remove item</button>
+                                  </div>
+                                </div>
+                                <input type="text" class="choices__input choices__input--cloned" autocomplete="off" autocapitalize="off" spellcheck="false" role="textbox" aria-autocomplete="list" aria-label="null">
+                              </div>
+                              <div class="choices__list choices__list--dropdown" aria-expanded="false">
+                                <div class="choices__list" aria-multiselectable="true" role="listbox">
+                                  <div id="choices--assigned-team-members-item-choice-4" class="choices__item choices__item--choice choices__item--selectable is-highlighted" role="option" data-choice="" data-id="4" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="" aria-selected="true">Bear Gills</div>
+                                  <div id="choices--assigned-team-members-item-choice-5" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="5" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Darren Sami</div>
+                                  <div id="choices--assigned-team-members-item-choice-6" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="6" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Elizabeth</div>
+                                  <div id="choices--assigned-team-members-item-choice-7" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="7" data-value="Choice 3" data-select-text="Press to select" data-choice-selectable="">Hercules Jhon</div>
+                                  <div id="choices--assigned-team-members-item-choice-8" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="8" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Karley Dia</div>
+                                  <div id="choices--assigned-team-members-item-choice-9" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="9" data-value="Choice 2" data-select-text="Press to select" data-choice-selectable="">Kiara advain</div>
+                                  <div id="choices--assigned-team-members-item-choice-10" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="10" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Kim Jong</div>
+                                  <div id="choices--assigned-team-members-item-choice-11" class="choices__item choices__item--choice choices__item--selectable" role="option" data-choice="" data-id="11" data-value="Choice 4" data-select-text="Press to select" data-choice-selectable="">Mayor Kim</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        <div class="col-xl-12">
+                          <label class="form-label">Anexos</label>
+                          <div class="filepond--root multiple-filepond filepond--hopper" data-style-button-remove-item-position="left" data-style-button-process-item-position="right" data-style-load-indicator-position="right" data-style-progress-indicator-position="right" data-style-button-remove-item-align="false" data-style-image-edit-button-edit-item-position="bottom center" style="height: 76px;">
+                            <input class="filepond--browser" type="file" id="filepond--browser-k833xs04n" name="filepond" aria-controls="filepond--assistant-k833xs04n" aria-labelledby="filepond--drop-label-k833xs04n" accept="" multiple="">
+                            <a class="filepond--credits" aria-hidden="true" href="https://pqina.nl/" target="_blank" rel="noopener noreferrer" style="transform: translateY(68px);">Powered by PQINA</a>
+                            <div class="filepond--drop-label" style="transform: translate3d(0px, 0px, 0px); opacity: 1;">
+                              <label for="filepond--browser-k833xs04n" id="filepond--drop-label-k833xs04n" aria-hidden="true">Drag &amp; Drop your files or <span class="filepond--label-action" tabindex="0">Browse</span>
+                              </label>
+                            </div>
+                            <div class="filepond--list-scroller" style="transform: translate3d(0px, 60px, 0px);">
+                              <ul class="filepond--list" role="list"></ul>
+                            </div>
+                            <div class="filepond--panel filepond--panel-root" data-scalable="true">
+                              <div class="filepond--panel-top filepond--panel-root"></div>
+                              <div class="filepond--panel-center filepond--panel-root" style="transform: translate3d(0px, 8px, 0px) scale3d(1, 0.6, 1);"></div>
+                              <div class="filepond--panel-bottom filepond--panel-root" style="transform: translate3d(0px, 68px, 0px);"></div>
+                            </div>
+                            <span class="filepond--assistant" id="filepond--assistant-k833xs04n" role="status" aria-live="polite" aria-relevant="additions"></span>
+                            <div class="filepond--drip"></div>
+                            <fieldset class="filepond--data"></fieldset>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-footer">
+                      <button class="btn btn-primary-light btn-wave ms-auto waves-effect waves-light" style="width: 100%;">Abrir Chamado</button>
+                    </div>
+                  </div>
+        </div>
+        </div>
+    </div>
+
+
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+    <!-- Jquery -->
+    <script src="../../assets/libs/jQuery/jquery-3.6.1.min.js"></script>
+    <!-- Popper JS -->
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Color Picker JS -->
+    <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+    <!-- Flat Picker JS -->
+    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+    <!-- ApexCharts JS -->
+    <script src="../../assets/libs/apexCharts/apexCharts.js"></script>
+    <!-- Xlsx -->
+    <script src="../../assets/libs/xlsx/xlsx.full.min.js"></script>
+
+    <script src="../../assets/libs/quill/quill.min.js"></script>
+
+    
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+
+    <script src="./assets/js/create-ticket.js"></script>
+
+</body>
+
+</html>

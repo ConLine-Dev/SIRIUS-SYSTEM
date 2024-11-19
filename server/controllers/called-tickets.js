@@ -239,6 +239,84 @@ const tickets = {
         return true
         
     },
+    createTicket: async function(data) {
+        try {
+            const { formData, files } = data;
+    
+            // Desestruturar os campos do formulário
+            const responsible = JSON.parse(formData.responsible);
+            const priority = JSON.parse(formData.priority);
+            const categories = JSON.parse(formData.categories);
+            const involved = JSON.parse(formData.involved);
+            const title = formData.title;
+            const description = formData.description;
+    
+            // Exemplo de estrutura para salvar os dados no banco
+            const ticket = {
+                responsibleId: responsible.id,
+                responsibleName: responsible.name,
+                priorityId: priority.id,
+                priorityName: priority.name,
+                categoryId: categories.id,
+                categoryName: categories.name,
+                title: title,
+                description: description,
+                involvedUsers: involved.map(user => ({ id: user.id, name: user.name })),
+                createdAt: new Date(),
+            };
+
+    
+            // Processar arquivos enviados
+            const uploadedFiles = files.map(file => ({
+                filename: file.originalname,
+                path: file.path,
+                mimetype: file.mimetype,
+                size: file.size
+            }));
+    
+            const result = await executeQuery(
+                'INSERT INTO called_tickets (title, status, description, collaborator_id, start_forecast, end_forecast, finished_at, approved_at, priority, files) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [ticket.title, 'new-tasks-draggable', ticket.description, ticket.responsibleId, null, null, null, null, ticket.priorityId, JSON.stringify(uploadedFiles)]
+              );
+            
+            await executeQuery(
+                'INSERT INTO called_ticket_categories (ticket_id, category_id) VALUES (?, ?)',
+                [result.insertId, ticket.categoryId]
+                );
+
+            // atribiu o chamado para os colaboradores do departamente de TI por padrão
+            await executeQuery(
+            'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
+            [result.insertId, 1]
+            );
+            await executeQuery(
+            'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
+            [result.insertId, 2]
+            );
+            await executeQuery(
+            'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
+            [result.insertId, 3]
+            );
+            await executeQuery(
+            'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
+            [result.insertId, 35]
+            );
+
+
+            for (let index = 0; index < ticket.involvedUsers.length; index++) {
+                const element = ticket.involvedUsers[index];
+                await executeQuery(
+                    'INSERT INTO called_tickets_involved (ticket_id, collaborator_id) VALUES (?, ?)',
+                    [result.insertId, element.id]
+                );
+            }
+    
+            return { message: 'Chamado criado com sucesso', ticket, uploadedFiles };
+        } catch (error) {
+            console.error('Erro ao criar chamado:', error);
+            throw error;
+        }
+    },
     create: async function(value){
         const timeInit = value.timeInit ? value.timeInit : null;
         const timeEnd = value.timeEnd ?  value.timeEnd : null;

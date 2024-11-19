@@ -1,4 +1,5 @@
 let choicesInstance, choicesInstanceEdit, SCategories, SEditing_Categories;
+let IdUpdate, myModal;
 
   // Verifica o localStorage para alterar a mensagem de boas vindas
   const StorageGoogleData = localStorage.getItem('StorageGoogle');
@@ -744,7 +745,7 @@ function selectFormatImg(client) {
     return $(`<span><img src="https://cdn.conlinebr.com.br/colaboradores/${headID}" /> ${client.text}</span>`);
 }
 
-let IdUpdate, myModal;
+
 
 async function eventDragDrop(tickets) {
     tickets.on('drop', async (el, target, source) => {
@@ -835,3 +836,13 @@ async function OpenReport() {
     }
     window.ipcRenderer.invoke('open-exWindow', body);
  };
+
+
+ function openNewCalling() {
+    openWindow('/app/ti/projects-and-tickets/create-ticket', 800, 600);
+}
+
+function openWindow(url, width, height) {
+    window.open(url, '_blank', `width=${width},height=${height},resizable=yes`);
+}
+

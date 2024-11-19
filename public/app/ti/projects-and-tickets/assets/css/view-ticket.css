@@ -1,0 +1,22 @@
+
+.headerButtons{
+    padding-bottom: 8px !important;
+    z-index: 100;
+    position: fixed !important;
+    top: -10px !important;
+    width: 100%;
+    color: var(--default-text-color);
+    background-color: var(--custom-white) !important;
+    padding: 1rem 1.25rem;
+    border-block-end: 3px solid var(--default-border);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .25rem;
+}
+
+.bodyWindows{
+    height: 100vh !important;
+    margin-top: 60px;
+    margin-bottom: 0px !important;
+}

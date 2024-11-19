@@ -21,9 +21,12 @@ const pricingMain = {
                 mov_Proposta_Frete prf
             LEFT OUTER JOIN
                 mov_Proposta_Frete_Carga pfc ON pfc.IdProposta_Frete = prf.IdProposta_Frete
+            LEFT OUTER JOIN
+                mov_Oferta_Frete oft ON oft.IdProposta_Frete = prf.IdProposta_Frete
             WHERE 
                 DATEPART(YEAR, prf.Data_Proposta) = 2024
                 AND pfc.Tipo_Carga IN (1, 3, 4)
+                AND oft.Tipo_Operacao = 2
             GROUP BY 
                 DATEPART(MONTH, prf.Data_Proposta),
                 pfc.Tipo_Carga

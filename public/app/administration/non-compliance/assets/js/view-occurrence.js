@@ -421,6 +421,8 @@ async function loadOccurence(occurrence) {
         if(user && user.department_ids && !user.department_ids.includes('8')){
             // sAllStatus.disable();
             document.querySelector('.groupBlocks').style.display = 'none'
+        }else{
+            document.querySelector('.btnFinalize').classList.add('disabled');
         }
    
     }

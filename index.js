@@ -31,6 +31,7 @@ app.use('/api', apiRoutes);
 app.use('/app', listApp);
 
 app.use('/storageService/collaborators', express.static('storageService/administration/collaborators'));
+app.use('/storageService/tickets/files', express.static('storageService/ti/tickets/files'));
 
 ControllerSocket(io)
 

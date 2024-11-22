@@ -1,0 +1,1039 @@
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Folha de Pagamento</title>
+    <meta name="Description" content="Controle de chamados & projetos TI">
+    <meta name="Author" content="ConLine">
+
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main JS -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    <!-- Color Picker Css -->
+    <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <!-- ApexCharts -->
+    <link rel="stylesheet" href="../../assets/libs/apexCharts/apexcharts.css">
+    <!-- flatpickr -->
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+
+    <!-- Tutorial -->
+    <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 0px; z-index: 100;"> 
+        <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+     </span>
+
+    <!-- LOADER -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <!-- BODY -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="file-manager-container p-2 gap-2 d-flex">
+                <div class="file-manager-navigation" style="min-height: 98vh !important; width: 22rem !important;">
+                    <div class="d-flex align-items-center justify-content-between w-100 p-0 border-bottom">
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <div class="card-title fw-semibold fs-14">Colaboradores</div>
+                            </div>
+                        </div>
+                    </div>
+
+                     <!--PESQUISAR-->
+                    <div class="d-flex align-items-center justify-content-between w-100 p-2 border-bottom">
+                        <div style="width: 100%;">
+                            <input class="form-control searchInput" type="text" placeholder="Pesquisar...">
+                        </div>
+                    </div>
+               
+                    <!--COLABORADORES-->
+                    <div class="card-body p-0" id="listAllUsers">
+                        <ul class="list-group list-group-flush listUsers">
+                            <!-- <li class="list-group-item">
+                                <div class="d-flex align-items-center justify-content-between  flex-wrap">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div> <span class="avatar bg-light"> <img src="https://cdn.conlinebr.com.br/colaboradores/61743" alt=""> </span> </div>
+                                        <div> 
+                                            <span class="d-block fw-semibold">Dayana Alves <i class="bi bi-patch-check-fill text-secondary ms-2"></i></span> 
+                                            <span class="d-block text-muted fs-12 fw-normal">-</span>
+                                         </div>
+                                    </div>
+                                </div>
+                            </li> -->
+                        </ul>
+                    </div>
+                </div>
+
+
+                 <!-- PAGINA DE DESCONTO FOLHA PAGAMENTO -->
+                <div class="row">
+                    <div class="col-xl-12">
+                      <div class="card custom-card" style="min-height: 98vh !important; width: 97rem !important;">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                          <div class="card-title fw-semibold fs-14">Desconto Folha Pagamento</div>
+                        
+                          <!-- Botões alinhados à direita -->
+                          <div class="d-flex">
+                            <button class="btn btn-primary me-2" onclick="createNewDiscount()">
+                              <i class="me-0 fw-normal align-middle"></i>Cadastro
+                            </button>
+                            <button class="btn btn-secondary" onclick="createNewDiscount()">
+                              <i class="me-0 fw-normal align-middle"></i>Cadastro em massa
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div class="card-body" style="padding: 5px !important;">
+                          <div class="table-container">
+                              <table id="table_control_password" class="table table-bordered text-nowrap w-100 dataTable table-hover">
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                      <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i>
+                                        </a>
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-secondary-light" title="Enviar e-mail">
+                                          <i class="ri-mail-line"></i>
+                                        </a>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
+                                                  <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar">
+                                                  <i class="ri-delete-bin-line"></i>
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+
+    <!-- Jquery -->
+    <script src="../../assets/libs/jQuery/jquery-3.6.1.min.js"></script>
+    <!-- Popper JS -->
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Color Picker JS -->
+    <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+    <!-- Flat Picker JS -->
+    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+    <!-- ApexCharts JS -->
+    <script src="../../assets/libs/apexCharts/apexCharts.js"></script>
+    <!-- Xlsx -->
+    <script src="../../assets/libs/xlsx/xlsx.full.min.js"></script>
+
+    <!-- Internal Task  JS -->
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="../../assets/libs/intro.js/intro.min.js"></script>
+    <script src="../../assets/libs/intro.js/intro.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+
+    <script src="./assets/js/index.js"></script>
+</body>
+
+</html>

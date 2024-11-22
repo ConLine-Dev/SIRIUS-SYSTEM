@@ -1,0 +1,328 @@
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Folha de Pagamento</title>
+    <meta name="Description" content="Controle de chamados & projetos TI">
+    <meta name="Author" content="ConLine">
+
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main JS -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    <!-- Color Picker Css -->
+    <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <!-- ApexCharts -->
+    <link rel="stylesheet" href="../../assets/libs/apexCharts/apexcharts.css">
+    <!-- flatpickr -->
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+
+    <!-- Tutorial -->
+    <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 0px; z-index: 100;"> 
+        <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+     </span>
+
+    <!-- LOADER -->
+    <!-- <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div> -->
+
+    <!-- BODY -->
+
+    <div class="">
+        <div class="main-content">
+            <div class="container-fluid">
+
+                <!-- Pagina Desconto Folha Pagamento -->
+                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                    
+                    <div class="card custom-card" style="margin-top: 6px;">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="card-title">Desconto Folha Pagamento</div> 
+                                                    
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de desconto na folha -->
+                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                    <div class="card custom-card border-top-card border-top-primary rounded-2" style="margin-bottom: 10px !important;">
+                        <div class="card-body">
+                            <div class="row">
+                              <div class="col-xl-12">
+                                <table id="table_control_password" class="table table-bordered text-nowrap w-100 dataTable table-hover" style="width: 1477px;">
+                                  <tbody class="files-list">
+                                    <tr data-process-id="10847" class="odd">
+                                      <td style="width: 15px !important;">
+                                        <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light"  title="Visualizar Detalhes">
+                                          <i class="ri-eye-close-line"></i>
+                                        </button>
+                                      </td>
+                                      <td>Dayana Alves</td>
+                                      <td>Novembro/2024</td>
+                                      <td>R$ 150,00</td>
+                                      <td>
+                                      <div class="hstack gap-2 fs-15">
+                                          <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light"  title="Baixar PDF">
+                                              <i class="ri-file-pdf-line"></i> 
+                                          </a>
+                                          </div>
+                                            
+                                      </td>
+                                    </tr>
+                                    <tr class="details-row">
+                                      <td colspan="10">
+                                        <table class="table table-sm table-bordered mt-2">
+                                          <thead>
+                                            <tr>
+                                              <th>Descrição</th>
+                                              <th>Data Consulta</th>
+                                              <th>Data Desconto</th>
+                                              <th>Valor R$</th>
+                                              <th>Ação</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            <tr>
+                                              <td>Odonto</td>
+                                              <td>12/11/2024, 16:48</td>
+                                              <td>12/11/2024, 16:48</td>
+                                              <td>R$ 15,00</td>
+                                              <td>
+                                                <div class="btn-list">
+                                                  <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light"  title="Baixar PDF">
+                                                      <i class="ri-file-pdf-line"></i> 
+                                                  </a>
+                                                </div>
+                                              </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Odonto - Dependente</td>
+                                                <td>12/11/2024, 16:48</td>
+                                                <td>12/11/2024, 16:48</td>
+                                                <td>R$ 50,00</td>
+                                                <td>
+                                                  <div class="btn-list">
+                                                    <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light"  title="Baixar PDF">
+                                                        <i class="ri-file-pdf-line"></i> 
+                                                    </a>
+                                                  </div>
+                                                </td>
+                                              </tr>
+                                          </tbody>
+                                        </table>
+                                      </td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                    </div>
+                </div>
+
+                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                  <div class="card custom-card border-top-card border-top-secondary rounded-2" style="margin-bottom: 10px !important;">
+                      <div class="card-body">
+                          <div class="row">
+                            <div class="col-xl-12">
+                              <table id="table_control_password" class="table table-bordered text-nowrap w-100 dataTable table-hover" style="width: 1477px;">
+                                <tbody class="files-list">
+                                  <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light"  title="Visualizar Detalhes">
+                                        <i class="ri-eye-close-line"></i>
+                                      </button>
+                                    </td>
+                                    <td>Dayana Alves</td>
+                                    <td>Novembro/2024</td>
+                                    <td>R$ 150,00</td>
+                                    <td>
+                                    <div class="hstack gap-2 fs-15">
+                                        <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light"  title="Baixar PDF">
+                                            <i class="ri-file-pdf-line"></i> 
+                                        </a>
+                                        </div>
+                                          
+                                    </td>
+                                  </tr>
+                                  <tr class="details-row">
+                                    <td colspan="10">
+                                      <table class="table table-sm table-bordered mt-2">
+                                        <thead>
+                                          <tr>
+                                            <th>Descrição</th>
+                                            <th>Data Consulta</th>
+                                            <th>Data Desconto</th>
+                                            <th>Valor R$</th>
+                                            <th>Ação</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Odonto</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 15,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light"  title="Baixar PDF">
+                                                    <i class="ri-file-pdf-line"></i> 
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                  </div>
+                </div>
+
+                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                <div class="card custom-card border-top-card border-top-success rounded-2" style="margin-bottom: 10px !important;">
+                    <div class="card-body">
+                        <div class="row">
+                          <div class="col-xl-12">
+                            <table id="table_control_password" class="table table-bordered text-nowrap w-100 dataTable table-hover" style="width: 1477px;">
+                              <tbody class="files-list">
+                                <tr data-process-id="10847" class="odd">
+                                  <td style="width: 15px !important;">
+                                    <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light"  title="Visualizar Detalhes">
+                                      <i class="ri-eye-close-line"></i>
+                                    </button>
+                                  </td>
+                                  <td>Dayana Alves</td>
+                                  <td>Novembro/2024</td>
+                                  <td>R$ 150,00</td>
+                                  <td>
+                                  <div class="hstack gap-2 fs-15">
+                                      <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light"  title="Baixar PDF">
+                                          <i class="ri-file-pdf-line"></i> 
+                                      </a>
+                                      </div>
+                                        
+                                  </td>
+                                </tr>
+                                <tr class="details-row">
+                                  <td colspan="10">
+                                    <table class="table table-sm table-bordered mt-2">
+                                      <thead>
+                                        <tr>
+                                          <th>Descrição</th>
+                                          <th>Data Consulta</th>
+                                          <th>Data Desconto</th>
+                                          <th>Valor R$</th>
+                                          <th>Ação</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr>
+                                          <td>Odonto</td>
+                                          <td>12/11/2024, 16:48</td>
+                                          <td>12/11/2024, 16:48</td>
+                                          <td>R$ 15,00</td>
+                                          <td>
+                                            <div class="btn-list">
+                                              <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light"  title="Baixar PDF">
+                                                  <i class="ri-file-pdf-line"></i> 
+                                              </a>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                        <tr>
+                                            <td>Odonto - Dependente</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>12/11/2024, 16:48</td>
+                                            <td>R$ 50,00</td>
+                                            <td>
+                                              <div class="btn-list">
+                                                <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light"  title="Baixar PDF">
+                                                    <i class="ri-file-pdf-line"></i> 
+                                                </a>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                      </tbody>
+                                    </table>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+    
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+
+    <!-- Jquery -->
+    <script src="../../assets/libs/jQuery/jquery-3.6.1.min.js"></script>
+    <!-- Popper JS -->
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Color Picker JS -->
+    <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+    <!-- Flat Picker JS -->
+    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+    <!-- ApexCharts JS -->
+    <script src="../../assets/libs/apexCharts/apexCharts.js"></script>
+    <!-- Xlsx -->
+    <script src="../../assets/libs/xlsx/xlsx.full.min.js"></script>
+
+    <!-- Internal Task  JS -->
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="../../assets/libs/intro.js/intro.min.js"></script>
+    <script src="../../assets/libs/intro.js/intro.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+
+    <script src="./assets/js/index.js"></script>
+</body>
+
+</html>

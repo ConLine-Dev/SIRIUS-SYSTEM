@@ -1,18 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const { rhPayroll } = require('../controllers/rh-payroll');
+const path = require("path");
+const fs = require('fs');
+const { rhPayroll } = require('../controllers/rh-payroll.js');
 
 module.exports = function(io) {
 
-    // Rota para obter módulos de um usuário agrupados por categoria
-    router.get('/getUserModulesByCategory/:userId', async (req, res, next) => {
+    router.get('/getAllUsers', async (req, res, next) => {
         try {
-            const userId = req.params.userId;
-            const result = await rhPayroll.getUserModulesByCategory(userId);
-            res.status(200).json(result); // 200 OK
+            const result = await rhPayroll.getAllUsers();
+    
+            res.status(200).json(result)
         } catch (error) {
-            console.log(error)
-            res.status(400).json(error); // 400 Bad Request
+    
+            res.status(404).json('Erro')   
         }
     });
 

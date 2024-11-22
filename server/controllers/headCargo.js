@@ -1978,6 +1978,8 @@ LEFT OUTER JOIN
    return result_commission;
    },
    filterLog: async function(body){
+      console.log(body);
+      
    const sql = `Declare
    @IdUsuario IdCurto,
    @Primary_Keys Xml,
@@ -2672,15 +2674,38 @@ LEFT OUTER JOIN
    await executeQuery(queryInsertHistory, [repurchase_id, user_id, actionType]);
 
    return { message: `Recompra ${status.toLowerCase()} com sucesso` };
-  },
-  // Função para obter o histórico de uma recompra específica
-  getRepurchaseHistory: async function(repurchase_id){
-   const query = `
-        SELECT * FROM repurchase_history WHERE repurchase_id = ? ORDER BY action_date DESC
-    `;
-    const result = await executeQuery(query, [repurchase_id]);
-    return result;
-  }
+   },
+   // Função para obter o histórico de uma recompra específica
+   getRepurchaseHistory: async function(repurchase_id){
+      const query = `
+         SELECT * FROM repurchase_history WHERE repurchase_id = ? ORDER BY action_date DESC
+      `;
+      const result = await executeQuery(query, [repurchase_id]);
+      return result;
+   },
+
+   // Função para pegar as tabelas do head
+   getTables: async function(){
+      const sql = `SELECT TABLE_NAME
+      FROM information_schema.tables
+      WHERE TABLE_TYPE = 'BASE TABLE'
+      ORDER BY TABLE_NAME`;
+   
+      const result = await executeQuerySQL(sql)
+      
+      return result;
+   },
+
+   // Função para pegar as tabelas do head
+   getColumns: async function(table){
+      const sql = `SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = '${table}' AND column_name LIKE 'Id%'`;
+   
+      const result = await executeQuerySQL(sql)
+      
+      return result;
+   },
 }
 
 // Configuração do cron para rodar a cada 2 minutos

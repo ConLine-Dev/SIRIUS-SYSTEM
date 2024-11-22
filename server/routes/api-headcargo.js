@@ -55,6 +55,8 @@ router.post('/filter', async (req, res, next) => {
 
     try {
         const result = await headcargo.filterLog(filters);
+        console.log(result);
+        
 
         res.status(200).json(result)
     } catch (error) {
@@ -345,6 +347,34 @@ router.post('/GetRepurchaseHistory', async (req, res, next) => {
     } catch (error) {
         console.log(error);
         res.status(404).json('Erro ao buscar o histórico da recompra');
+    }
+});
+
+
+// Rota para pegar as tabelas do Head
+router.post('/getTables', async (req, res, next) => {
+
+    try {
+        const result = await headcargo.getTables();
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+        res.status(404).json('Erro')   
+    }
+});
+
+// Rota para pegar as tabelas do Head
+router.post('/getColumns', async (req, res, next) => {
+    const { table } = req.body;
+
+    try {
+        const result = await headcargo.getColumns(table);
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+        res.status(404).json('Erro')   
     }
 });
 

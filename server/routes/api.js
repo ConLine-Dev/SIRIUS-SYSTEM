@@ -31,6 +31,7 @@ const api_cash_flow = require('./api-cash-flow');
 const dataDecurityHub = require('./api-data-security-hub');
 const api_pricing_main = require('./api-pricing-main');
 const api_rh_payroll = require('./api-rh-payroll');
+const api_internal_comments = require('./api-internal-comments');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -150,6 +151,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-rh-payroll .js oi
   router.use('/api-rh-payroll', api_rh_payroll(io)); 
+
+  // Use as rotas do arquivo api-internal-comments .js oi
+  router.use('/internal-comments', api_internal_comments(io)); 
 
   return router;
 };

@@ -32,9 +32,10 @@ async function getReport() {
     const currentDate = new Date();
 
     const filteredDates = projects.filter(project => {
+        if(project.end_forecast == null) return false;
         const projectDate = new Date(project.end_forecast);
-        const isDateValid = projectDate <= currentDate;
-        const isStatusValid = project.status !== 'completed-tasks-draggable' && project.status !== 'inreview-tasks-draggable';
+        const isDateValid = projectDate < currentDate;
+        const isStatusValid = project.status !== 'completed-tasks-draggable' && project.status !== 'inreview-tasks-draggable' && project.status !== 'new-tasks-draggable';
         return isDateValid && isStatusValid;
     });
 
@@ -81,6 +82,7 @@ async function getReport() {
                                 </div>
                             </div>
                             <div> ${statusProjets[element.status]} </div>
+                            
                         </div>
                     </li>`
     }

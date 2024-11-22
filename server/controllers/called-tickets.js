@@ -73,7 +73,13 @@ const tickets = {
     },
     getById: async function(id){
         const ticketsList = []
-        const tickets = await executeQuery(`SELECT ct.*,cc.name as categorie,cc.id as categorieID, collab.name,collab.family_name,collab.family_name, collab.id_headcargo 
+        const tickets = await executeQuery(`SELECT 
+            ct.*,cc.name as categorie,
+            cc.id as categorieID, 
+            collab.name,
+            collab.family_name,
+            collab.id_headcargo,
+           CONCAT(collab.name, ' ', collab.family_name) AS fullName -- Nome completo do criador
         FROM called_tickets ct
         JOIN collaborators collab ON collab.id = ct.collaborator_id
         JOIN called_ticket_categories ctc ON ctc.ticket_id = ct.id
@@ -106,7 +112,10 @@ const tickets = {
                 atribuido:atribuido,
                 priority:element.priority,
                 created_at:element.created_at,
+                name:element.name,
+                fullName:element.fullName,
                 steps:steps,
+                id_headcargo:element.id_headcargo,
                 files:JSON.parse(element.files),
             })
         }
@@ -245,6 +254,85 @@ const tickets = {
         return true
         
     },
+    uploadFileTicket: async function (ticketId, Files) {
+        // Recupera os dados atuais do ticket
+        let currentTicket = await this.getById(ticketId); // Certifique-se de que `getById` está implementado
+        currentTicket = currentTicket[0]
+      
+        // Verifica se há arquivos atuais
+        let currentFiles = [];
+        if (currentTicket && currentTicket.files) {
+            currentFiles = currentTicket.files
+        }
+   
+    
+        // Prepara os novos dados de arquivos
+        let newFilesData = [];
+        if (Files && Files.length > 0) {
+            newFilesData = Files.map(file => ({
+                filename: file.filename,
+                originalname: file.originalname,
+                mimetype: file.mimetype,
+                path: file.path,
+                size: file.size
+            }));
+        }
+    
+        // Combina os dados atuais com os novos dados de arquivos
+        const combinedFiles = [...currentFiles, ...newFilesData];
+    
+        // Monta a query SQL para atualizar os arquivos do ticket
+        const sql = `UPDATE called_tickets SET files = ? WHERE id = ?`;
+    
+        const values = [
+            JSON.stringify(combinedFiles),
+            ticketId
+        ];
+    
+        try {
+            // Executa a query SQL
+            await executeQuery(sql, values);
+            return newFilesData; // Retorna os arquivos combinados para exibição no frontend
+        } catch (error) {
+            throw new Error('Erro ao atualizar os arquivos no banco de dados.');
+        }
+    },
+    removeFileFromTicket: async function (ticketId, filename) {
+        // Recupera os dados atuais do ticket
+        let currentTicket = await this.getById(ticketId); // Certifique-se de que `getById` está implementado
+        currentTicket = currentTicket[0];
+    
+        if (!currentTicket || !currentTicket.files) {
+            throw new Error('Ticket ou arquivos não encontrados.');
+        }
+    
+        // Filtra os arquivos, removendo o arquivo especificado
+        const updatedFiles = currentTicket.files.filter(file => file.filename !== filename);
+    
+        // Atualiza o banco de dados com os arquivos restantes
+        const sql = `UPDATE called_tickets SET files = ? WHERE id = ?`;
+        const values = [
+            JSON.stringify(updatedFiles),
+            ticketId
+        ];
+    
+        try {
+            await executeQuery(sql, values);
+    
+            // Opcional: Remova o arquivo do sistema de arquivos
+            const fileToRemove = currentTicket.files.find(file => file.filename === filename);
+            if (fileToRemove) {
+                const fs = require('fs');
+                fs.unlink(fileToRemove.path, (err) => {
+                    if (err) console.error('Erro ao remover o arquivo do sistema de arquivos:', err);
+                });
+            }
+    
+            return updatedFiles;
+        } catch (error) {
+            throw new Error('Erro ao remover o arquivo no banco de dados.');
+        }
+    },
     createTicket: async function(data) {
         try {
             const { formData, files } = data;
@@ -274,9 +362,10 @@ const tickets = {
     
             // Processar arquivos enviados
             const uploadedFiles = files.map(file => ({
-                filename: file.originalname,
-                path: file.path,
+                filename: file.filename,
+                originalname: file.originalname,
                 mimetype: file.mimetype,
+                path: file.path,
                 size: file.size
             }));
     

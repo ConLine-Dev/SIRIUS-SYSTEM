@@ -163,6 +163,44 @@ router.post('/create-ticket', upload.array('attachments'), async (req, res, next
     }
 });
 
+router.post('/upload-file-ticket', upload.array('filepond'), async (req, res) => {
+    const { ticketId } = req.body;
+
+    if (!ticketId || !req.files) {
+        return res.status(400).json({ success: false, message: 'ticketId ou arquivos não fornecidos.' });
+    }
+
+    try {
+        const Files = req.files;
+        const result = await tickets.uploadFileTicket(ticketId, Files);
+
+        res.status(200).json({ success: true, message: 'Arquivo(s) adicionado(s) com sucesso!', data: result });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Erro ao adicionar arquivos.', error });
+    }
+});
+
+router.delete('/reverse-file-ticket', async (req, res, next) => {
+    const { ticketId, filename } = req.body;
+    console.log(ticketId, filename)
+
+    if (!ticketId || !filename) {
+        return res.status(400).json({ success: false, message: 'ticketId ou filename não fornecidos.' });
+    }
+
+    try {
+        
+        const updatedFiles = await tickets.removeFileFromTicket(ticketId, filename);
+
+        res.status(200).json({ success: true, message: 'Arquivo removido com sucesso!', data: updatedFiles });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Erro ao remover o arquivo.', error });
+    }
+});
+
+
 router.post('/create', async (req, res, next) => {
     try {
         const result = await tickets.create(req.body);

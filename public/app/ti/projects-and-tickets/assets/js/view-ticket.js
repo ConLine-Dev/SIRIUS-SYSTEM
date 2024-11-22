@@ -1,9 +1,11 @@
+let GticketId;
+
 /**
  * Evento principal ao carregar o DOM.
  */
 document.addEventListener('DOMContentLoaded', async () => {
 
-
+    await initializeComponents();
     await loadTicket();
     document.querySelector('#loader').classList.add('d-none');
 
@@ -20,8 +22,8 @@ async function getParams(param) {
 };
 
 async function loadTicket() {
-    const ticketId = await getParams('id');
-    let ticket = await makeRequest('/api/called/tickets/getById', 'POST', { id: ticketId });
+    GticketId = await getParams('id');
+    let ticket = await makeRequest('/api/called/tickets/getById', 'POST', { id: GticketId });
 
     await toFillTicket(ticket[0]);
 }
@@ -66,6 +68,10 @@ async function toFillTicket(ticket){
     document.querySelector('.end_forecast').innerHTML = ticket.end_forecast ? formatDateBR(ticket.end_forecast) : 'Não informado';
     document.querySelector('.status_text').innerHTML = status[ticket.status];
     document.querySelector('.priority_text').innerHTML = priority[ticket.priority];
+    document.querySelector('.category_text').innerHTML = ticket.categorieName;
+    document.querySelector('.responsibleName').innerHTML = ticket.name;
+    document.querySelector('.responsibleIMG').setAttribute('src', 'https://cdn.conlinebr.com.br/colaboradores/'+ticket.id_headcargo)
+    document.querySelector('#ticket_id').innerHTML = ticket.id;
 
     // Atualiza a classe do elemento priority_text
     const priorityElement = document.querySelector('.priority_text');
@@ -83,20 +89,6 @@ async function toFillTicket(ticket){
     statusElement.classList.add(statusClasses[ticket.status]);
 
 
-    // const involved = settingsTicket.users.map(user => `
-    // <span class="avatar avatar-sm avatar-rounded" title="${user.name}" data-collabID="${user.id}" data-headcargoId="${user.dataHead}">
-    //     <img src="https://cdn.conlinebr.com.br/colaboradores/${user.dataHead}" alt="img">
-    // </span>`).join('');
-
-   
-
-
-
-
-
-
-
-
 
     await writeFiles(ticket.files);
     await writeSteps(ticket.steps);
@@ -107,12 +99,110 @@ async function toFillTicket(ticket){
 }
 
 
+/**
+ * Inicializa os componentes do editor de texto Quill e FilePond.
+ */
+async function initializeComponents() {
+    // Configuração do FilePond
+    FilePond.registerPlugin(
+        // FilePondPluginImagePreview,
+        FilePondPluginImageExifOrientation,
+        FilePondPluginFileValidateSize,
+        FilePondPluginFileEncode,
+        FilePondPluginImageEdit,
+        FilePondPluginFileValidateType,
+        FilePondPluginImageCrop,
+        FilePondPluginImageResize,
+        FilePondPluginImageTransform
+    );
+
+    const inputElement = document.querySelector('.multiple-filepond-Attachments');
+    if (inputElement) {
+        fileAttachments = FilePond.create(inputElement, {
+            maxFiles: 5,
+            allowProcess: true,
+            server: {
+                process: {
+                    url: '/api/called/tickets/upload-file-ticket',
+                    method: 'POST',
+                    headers: {
+                        'x-csrf-token': '' // Caso use um token CSRF
+                    },
+                    ondata: (formData) => {
+                        formData.append('ticketId', GticketId); // Substitua por um ID dinâmico
+                        return formData;
+                    },
+                    onload: async (response) => {
+                        // Manipule a resposta do servidor aqui
+                        const serverResponse = JSON.parse(response); // Parse a resposta, caso seja JSON
+                        console.log('Resposta do servidor:', serverResponse);
+
+                        if (serverResponse.success) {
+                            await addFiles(serverResponse.data)
+                           
+                        } else {
+                            console.log('Erro ao enviar arquivo: ' + serverResponse.message);
+                        }
+
+                        return serverResponse; // Opcional, retorna para manipulação adicional
+                    },
+                    onerror: (response) => {
+                        console.error('Erro do servidor ao processar o arquivo:', response);
+                        alert('Erro no upload do arquivo.');
+                    }
+                }
+            },
+            labelIdle: 'Arraste e solte seus arquivos aqui ou <span class="filepond--label-action">Procure</span>',
+            labelFileProcessingComplete: 'Upload concluído',
+            labelFileProcessingError: 'Erro ao fazer upload',
+            labelButtonProcessItem: 'Fazer Upload',
+        });
+
+        // Evento ao adicionar arquivo
+        fileAttachments.on('addfile', (error, file) => {
+            if (error) {
+                console.error('Erro ao adicionar arquivo:', error);
+            } else {
+                console.log('Arquivo adicionado:', file.filename);
+            }
+        });
+
+        // Evento ao concluir o processamento de um arquivo
+        fileAttachments.on('processfile', (error, file) => {
+            if (error) {
+                console.error('Erro no processamento do arquivo:', error);
+            } else {
+                console.log('Arquivo processado com sucesso:', file.filename);
+                console.log(file);
+                // Remove apenas o arquivo que foi processado com sucesso
+                fileAttachments.removeFile(file.id);
+            }
+        });
+    }
+}
+
+async function removeFile(filename, buttonElement) {
+
+    try {
+        const result = await makeRequest(`/api/called/tickets/reverse-file-ticket`, 'DELETE', {ticketId: GticketId,filename: filename});
+
+        console.log('Arquivo removido com sucesso:', result);
+
+        // Remover o elemento <li> correspondente
+        const liElement = buttonElement.closest('.list-group-item');
+        if (liElement) {
+            liElement.remove();
+        }
+        return result; // Retorna a resposta, caso necessário
+    } catch (error) {
+        console.error('Erro ao remover o arquivo:', error);
+        throw error;
+    }
+}
+
 function viewFile(filename) {
 
-    const url = `/api/called/tickets/view-file/${filename}`;
-
-    openWindow(url, 800, 600);
-
+    openWindow(`/api/called/tickets/view-file/${filename}`, 800, 600);
 }
 
 function openWindow(url, width, height) {
@@ -147,6 +237,7 @@ function splitFilename(path) {
 }
 
 async function writeFiles(Files) {
+    console.log(Files)
     // Mapeamento de extensões MIME para ícones
     const iconMap = {
         'application/pdf': '../../assets/images/media/files/pdf.png',
@@ -178,7 +269,7 @@ async function writeFiles(Files) {
             </div>
             <div class="flex-fill">
               <a href="javascript:void(0);">
-                <span class="d-block fw-semibold" OnClick="viewFile('${splitFilename(file.path)}')">${shortenFilename(file.filename)}</span>
+                <span class="d-block fw-semibold" OnClick="viewFile('${splitFilename(file.path)}')">${shortenFilename(file.originalname)}</span>
               </a>
               <span class="d-block text-muted fs-12 fw-normal">${convertToMB(file.size)} MB</span>
             </div>
@@ -186,7 +277,7 @@ async function writeFiles(Files) {
               <a href="/api/called/tickets/download-file/${splitFilename(file.path)}" class="btn btn-sm btn-icon btn-info-light btn-wave waves-effect waves-light">
                 <i class="ri-download-cloud-2-line"></i>
               </a>
-              <button class="btn btn-sm btn-icon btn-danger-light btn-wave waves-effect waves-light">
+              <button onclick="removeFile('${splitFilename(file.path)}', this)" class="btn btn-sm btn-icon btn-danger-light btn-wave waves-effect waves-light">
                 <i class="ri-delete-bin-line"></i>
               </button>
             </div>
@@ -197,6 +288,58 @@ async function writeFiles(Files) {
     // Adiciona o HTML ao container
     document.querySelector('.files').innerHTML = HTMLfiles;
 }
+
+async function addFiles(Files) {
+    // Mapeamento de extensões MIME para ícones
+    const iconMap = {
+        'application/pdf': '../../assets/images/media/files/pdf.png',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '../../assets/images/media/files/xls.png',
+        'application/msword': '../../assets/images/media/files/doc.png',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '../../assets/images/media/files/doc.png',
+        'text/csv': '../../assets/images/media/files/csv-file.png',
+        'image/png': '', // Exibirá a imagem diretamente
+        'image/jpeg': '', // Exibirá a imagem diretamente
+        'image/jpg': '', // Exibirá a imagem diretamente
+        'application/zip': '../../assets/images/media/files/zip.png',
+        'video/mp4': '../../assets/images/media/files/video.png',
+    };
+
+    const HTMLfiles = Files.map(file => {
+        // Determina o ícone ou usa a própria imagem
+        const fileIcon = iconMap[file.mimetype] !== '' 
+            ? `<img src="${iconMap[file.mimetype] || '../assets/images/media/files/file.png'}" alt="">`
+            : `<img src="/storageService/tickets/files/${splitFilename(file.path)}" alt="" style="max-width: 50px;">`;
+
+        return `
+        <li class="list-group-item">
+          <div class="d-flex align-items-center flex-wrap gap-2">
+            <div class="lh-1">
+              <span class="avatar avatar-rounded p-1 bg-light">
+                ${fileIcon}
+              </span>
+            </div>
+            <div class="flex-fill">
+              <a href="javascript:void(0);">
+                <span class="d-block fw-semibold" OnClick="viewFile('${splitFilename(file.path)}')">${shortenFilename(file.originalname)}</span>
+              </a>
+              <span class="d-block text-muted fs-12 fw-normal">${convertToMB(file.size)} MB</span>
+            </div>
+            <div class="btn-list">
+              <a href="/api/called/tickets/download-file/${splitFilename(file.path)}" class="btn btn-sm btn-icon btn-info-light btn-wave waves-effect waves-light">
+                <i class="ri-download-cloud-2-line"></i>
+              </a>
+              <button onclick="removeFile('${splitFilename(file.path)}', this)" class="btn btn-sm btn-icon btn-danger-light btn-wave waves-effect waves-light">
+                <i class="ri-delete-bin-line"></i>
+              </button>
+            </div>
+          </div>
+        </li>`;
+    }).join('');
+
+    // Adiciona o HTML ao container
+    document.querySelector('.files').innerHTML += HTMLfiles;
+}
+
 
 async function writeSteps(steps){
     const HTMLsteps = steps.map(step => `<li class="list-group-item">

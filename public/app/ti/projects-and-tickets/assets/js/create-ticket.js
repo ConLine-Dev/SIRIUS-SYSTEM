@@ -258,7 +258,6 @@ async function getFormValues() {
     }
 }
 
-
 /**
  * Evento principal ao carregar o DOM.
  */

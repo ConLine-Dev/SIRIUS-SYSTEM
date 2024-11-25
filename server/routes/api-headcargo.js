@@ -55,8 +55,6 @@ router.post('/filter', async (req, res, next) => {
 
     try {
         const result = await headcargo.filterLog(filters);
-        console.log(result);
-        
 
         res.status(200).json(result)
     } catch (error) {

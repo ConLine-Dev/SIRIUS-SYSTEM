@@ -1980,99 +1980,100 @@ LEFT OUTER JOIN
    filterLog: async function(body){
       console.log(body);
       
-   const sql = `Declare
-   @IdUsuario IdCurto,
-   @Primary_Keys Xml,
-   @Data_Inicio Data,
-   @Data_Termino Data,
-   @Tabela VarChar(Max),
-   @Tipo TipoFixo,
-   @SQL nVarChar(Max)
-   
-   Set @Data_Inicio = CONVERT(date,'${body.dataDe}')
-   Set @Data_Termino = CONVERT(date,'${body.dataAte}')
-   Set @IdUsuario = 0
-   Set @Tabela = '${body.tabela}'
-   Set @Primary_Keys = '<PrimaryKeys><Item Nome="${body.coluna}" Value="${body.valor}"/></PrimaryKeys>'
-   Set @Tipo = 0
-   
-   Declare
-   @Filtro_Tabela VarChar(Max),
-   @Filtro_Campo VarChar(Max),
-   @Filtro_Tipo VarChar(Max)
-   
-   Set @Filtro_Tabela = ''
-   If Nullif(LTrim(@Tabela), '') Is Not Null
-   Set @Filtro_Tabela = '[@Nome="'+@Tabela+'"]'
-   
-   Declare Campos Cursor For
-   Select
-   Pks.value('@Nome', 'VarChar(Max)') as Nome,
-   Pks.value('@Value', 'VarChar(Max)') as Value
-   From
-   @Primary_Keys.nodes('/PrimaryKeys/Item') as PrimaryKeys(Pks)
-   
-   Open Campos
-   
-   Declare
-   @Campo_Nome VarChar(Max),
-   @Campo_Value VarChar(Max)
-   
-   Fetch Next From Campos Into
-   @Campo_Nome,
-   @Campo_Value
-   
-   Set @Filtro_Campo = ''
-   While @@FETCH_STATUS = 0
-   Begin
-   Set @Filtro_Campo = @Filtro_Campo + '[Campo[@Nome="'+@Campo_Nome+'"][@Value="'+@Campo_Value+'"]]'
-   
-   Fetch Next From Campos Into
+      const sql = `Declare
+      @IdUsuario IdCurto,
+      @Primary_Keys Xml,
+      @Data_Inicio Data,
+      @Data_Termino Data,
+      @Tabela VarChar(Max),
+      @Tipo TipoFixo,
+      @SQL nVarChar(Max)
+
+      Set @Data_Inicio = CONVERT(date, '${body.dataDe}')
+      Set @Data_Termino = CONVERT(date, '${body.dataAte}')
+      Set @IdUsuario = 0
+      Set @Tabela = '${body.tabela}'
+      Set @Primary_Keys = '<PrimaryKeys><Item Nome="${body.coluna}" Value="${body.valor}"/></PrimaryKeys>'
+      Set @Tipo = 0
+
+      Declare
+      @Filtro_Tabela VarChar(Max),
+      @Filtro_Campo VarChar(Max),
+      @Filtro_Tipo VarChar(Max)
+
+      Set @Filtro_Tabela = ''
+      If Nullif(LTrim(@Tabela), '') Is Not Null
+      Set @Filtro_Tabela = '[@Nome="'+@Tabela+'"]'
+
+      Declare Campos Cursor For
+      Select
+      Pks.value('@Nome', 'VarChar(Max)') as Nome,
+      Pks.value('@Value', 'VarChar(Max)') as Value
+      From
+      @Primary_Keys.nodes('/PrimaryKeys/Item') as PrimaryKeys(Pks)
+
+      Open Campos
+
+      Declare
+      @Campo_Nome VarChar(Max),
+      @Campo_Value VarChar(Max)
+
+      Fetch Next From Campos Into
       @Campo_Nome,
       @Campo_Value
-   end
-   
-   Close Campos
-   Deallocate Campos
-   
-   Set @Filtro_Tipo = ''
-   If @Tipo <> 0
-   Set @Filtro_Tipo = '[@Tipo="'+Cast(@Tipo as VarChar(Max))+'"]'
-   
-   Set @SQL = 'Select
-   Usr.Nome as Usuario,
-   Ltb.Data_Inicio as Data_Inicio_Transacao,
-   Ltb.Data_Termino as Data_Termino_Transacao,
-   DateDiff(second, Ltb.Data_Inicio, Ltb.Data_Termino) as Tempo_Transacao,
-   Dlg.value(''../@WindowsUser'', ''VarChar(Max)'') as Usuario_Windows,
-   Dlg.value(''../@ComputerName'', ''VarChar(Max)'') as Computador,
-   Dlg.value(''@Nome'', ''VarChar(Max)'') as Tabela,
-   Dlg.value(''@Tipo'', ''smallint'') as Tipo,
-   Convert(DateTime, Dlg.value(''@Data'', ''VarChar(max)''), 101) as Data,
-   Dlg.value(''@Indice'', ''int'') as Indice,
-   Dlg.query(''<Campos>{Campo}</Campos>'') as Campos
-   From
-   sys_Log_Tabela Ltb
-   Cross Apply
-   Ltb.Dados_Log.nodes(''/Log/Tabela'+@Filtro_Tabela+@Filtro_Tipo+@Filtro_Campo+''') as DadosLog(Dlg)
-   Join
-   sys_Usuario Usr on Usr.IdUsuario = Ltb.IdUsuario
-   Where
-   ((@IdUsuario = 0) or (Ltb.IdUsuario = @IdUsuario))
-   And
-   (((@Data_Inicio Is Null) And (@Data_Termino Is Null))
-      Or ((Ltb.Data_Inicio Between @Data_Inicio And @Data_Termino)
-      Or (Ltb.Data_Termino Between @Data_Inicio And @Data_Termino)))
-   Order By
-   Ltb.Data_Inicio,
-   Dlg.value(''@Indice'', ''int'')'
-   
-   exec sp_executesql @SQL, N'@Data_Inicio Data, @Data_Termino Data, @IdUsuario IdCurto', @Data_Inicio=@Data_Inicio, @Data_Termino=@Data_Termino, @IdUsuario=@IdUsuario`;
 
+      Set @Filtro_Campo = ''
+      While @@FETCH_STATUS = 0
+      Begin
+      Set @Filtro_Campo = @Filtro_Campo + '[Campo[@Nome="'+@Campo_Nome+'"][@Value="'+@Campo_Value+'"]]'
 
-   const result = await executeQuerySQL(sql)
+      Fetch Next From Campos Into
+         @Campo_Nome,
+         @Campo_Value
+      end
 
-   return result
+      Close Campos
+      Deallocate Campos
+
+      Set @Filtro_Tipo = ''
+      If @Tipo <> 0
+      Set @Filtro_Tipo = '[@Tipo="'+Cast(@Tipo as VarChar(Max))+'"]'
+
+      Set @SQL = 'Select
+      Usr.Nome as Usuario,
+      Ltb.Data_Inicio as Data_Inicio_Transacao,
+      Ltb.Data_Termino as Data_Termino_Transacao,
+      DateDiff(second, Ltb.Data_Inicio, Ltb.Data_Termino) as Tempo_Transacao,
+      Dlg.value(''../@WindowsUser'', ''VarChar(Max)'') as Usuario_Windows,
+      Dlg.value(''../@ComputerName'', ''VarChar(Max)'') as Computador,
+      Dlg.value(''@Nome'', ''VarChar(Max)'') as Tabela,
+      Dlg.value(''@Tipo'', ''smallint'') as Tipo,
+      Convert(DateTime, Dlg.value(''@Data'', ''VarChar(max)''), 101) as Data,
+      Dlg.value(''@Indice'', ''int'') as Indice,
+      Dlg.query(''<Campos>{Campo}</Campos>'') as Campos
+      From
+      sys_Log_Tabela Ltb
+      Cross Apply
+      Ltb.Dados_Log.nodes(''/Log/Tabela'+@Filtro_Tabela+@Filtro_Tipo+@Filtro_Campo+''') as DadosLog(Dlg)
+      Join
+      sys_Usuario Usr on Usr.IdUsuario = Ltb.IdUsuario
+      Where
+      ((@IdUsuario = 0) or (Ltb.IdUsuario = @IdUsuario))
+      And
+      (((@Data_Inicio Is Null) And (@Data_Termino Is Null))
+         Or ((Ltb.Data_Inicio Between @Data_Inicio And @Data_Termino)
+         Or (Ltb.Data_Termino Between @Data_Inicio And @Data_Termino)))
+      Order By
+      Ltb.Data_Inicio,
+      Dlg.value(''@Indice'', ''int'')'
+
+      exec sp_executesql @SQL, N'@Data_Inicio Data, @Data_Termino Data, @IdUsuario IdCurto', @Data_Inicio=@Data_Inicio, @Data_Termino=@Data_Termino, @IdUsuario=@IdUsuario`;
+
+      console.log(sql);
+      const result = await executeQuerySQL(sql)
+      console.log(result);
+
+      return result
    },
    formatarNome: function(nome) {
       const preposicoes = new Set(["de", "do", "da", "dos", "das"]);

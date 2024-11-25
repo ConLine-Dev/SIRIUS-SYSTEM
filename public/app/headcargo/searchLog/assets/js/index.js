@@ -20,9 +20,7 @@ async function submitLog() {
         valor: document.querySelector('#valor').value,
     }
 
-    console.log(filters)
     const dados = await makeRequest(`/api/headcargo/searchLog/filter`, 'POST', { filters });
-    console.log(dados)
 
     // Destruir a tabela existente, se houver
     if ($.fn.DataTable.isDataTable('#table_result_log')) {
@@ -38,17 +36,37 @@ async function submitLog() {
         order: [[0, 'desc']],
         data: dados, // Define os dados da tabela
         columns: [
-            { data: 'Usuario' }, // Coluna de modal
-            { data: 'Data' }, // Coluna de importador
-            { data: 'Data_Inicio_Transacao' }, // Coluna de processo
-            { data: 'Data_Termino_Transacao' }, // Coluna de abertura
-            { data: 'Tempo_Transacao' }, // Coluna de data de compensação
-            { data: 'Usuario_Windows' }, // Coluna de tipo
-            { data: 'Computador' }, // Coluna de cliente
-            { data: 'Tabela' }, // Coluna de vendedor
-            { data: 'Tipo' }, // Coluna de inside
-            { data: 'Indice' }, // Coluna de exportador
-            { data: 'Campos' }, // Coluna de comissão de vendedor
+            { data: 'Usuario' },
+            { data: 
+                'Data',
+                render: function(data) {
+                    return formatDate(data)
+                }
+            },
+            { data: 
+                'Data_Inicio_Transacao',
+                render: function(data) {
+                    return formatDate(data)
+                }
+            },
+            { data: 
+                'Data_Termino_Transacao',
+                render: function(data) {
+                    return formatDate(data)
+                }
+            },
+            { data: 'Tempo_Transacao' },
+            { data: 'Usuario_Windows' },
+            { data: 'Computador' },
+            { data: 'Tabela' },
+            { data: 'Tipo' },
+            { data: 'Indice' },
+            {
+                data: 'Campos',
+                render: function (data, type, row) {
+                    return `<a href="#" class="btn-view-xml" data-xml='${encodeURIComponent(data)}'>Visualizar XML</a>`;
+                },
+            },
         ],
         language: {
             url: "../../assets/libs/datatables/pt-br.json",
@@ -59,6 +77,21 @@ async function submitLog() {
 
     document.querySelector('#loader').classList.add('d-none'); // Esconde o loader
 };
+
+function formatDate(dateString) {
+    const options = {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+    };
+
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('pt-BR', options).format(date).replace(',', '');
+}
 
 let selectTable, selectColumn;
 async function createSelectWithChoices() {
@@ -207,13 +240,93 @@ document.querySelector('#selectColumn').addEventListener('showDropdown', async f
     }
 });
 
-/**
- * Evento que será disparado quando o DOM estiver completamente carregado,
- * mas antes que recursos adicionais (como imagens e folhas de estilo) sejam carregados.
- */
-window.addEventListener("load", async () => {
-    await createSelectWithChoices(); // Cria o choices
+// Adiciona evento de click
+document.addEventListener('click', function (event) {
+    // Verifica se o click foi no item de visualizar
+    if (event.target.classList.contains('btn-view-xml')) {
+        event.preventDefault();
 
+        // Obtém o conteúdo XML do atributo data-xml
+        const xmlContent = decodeURIComponent(event.target.getAttribute('data-xml'));
+
+        // Formata o XML com indentação
+        const formattedXml = formatXml(xmlContent);
+
+        // Abre uma nova janela
+        const openWindow = window.open('', '_blank', 'scrollbars=no,resizable=no');
+
+        // Insere o conteúdo na nova janela
+        openWindow.document.write(`
+            <!DOCTYPE html>
+            <html lang="pt-br">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Visualizador de Log</title>
+                <link href="../../assets/libs/prisma.code/prism-tomorrow.min.css" rel="stylesheet">
+                <style>
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        font-size: 0.9rem;
+                        background-color: #2d2d2d;
+                        color: #f8f8f2;
+                    }
+                    pre {
+                        margin: 0;
+                        padding: 15px;
+                        background-color: #2d2d2d;
+                        color: #f8f8f2;
+                        border-radius: 5px;
+                        white-space: pre-wrap;
+                        word-wrap: break-word;
+                    }
+                </style>
+            </head>
+            <body>
+                <pre><code id="xmlCode" class="language-xml">${formattedXml.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+                <script src="../../assets/libs/prisma.code/prism.min.js"></script>
+                <script>
+                    Prism.highlightAll();
+
+                    // Calcula o tamanho do conteúdo
+                    const preElement = document.querySelector('pre');
+                    const contentWidth = preElement.offsetWidth;
+                    const contentHeight = preElement.offsetHeight;
+
+                    // Redimensiona a janela para o tamanho do conteúdo, com margens adicionais
+                    window.resizeTo(contentWidth + 40, contentHeight + 40); // Inclui margens e padding
+                </script>
+            </body>
+            </html>
+        `);
+
+        openWindow.document.close();
+    }
+});
+
+// Função para formatar o XML com indentação
+function formatXml(xml) {
+    const PADDING = '    '; // Define o número de espaços para cada nível de indentação
+    let formatted = '';
+    let pad = 0;
+
+    xml.split(/>\s*</).forEach(function (node) {
+        if (node.match(/^\/\w/)) {
+            pad -= 1;
+        }
+        formatted += PADDING.repeat(pad) + '<' + node + '>\n';
+        if (node.match(/^<?\w[^>]*[^\/]$/) && !node.startsWith('?')) {
+            pad += 1;
+        }
+    });
+
+    return formatted.trim();
+};
+
+window.addEventListener("load", async () => {
+
+    await createSelectWithChoices(); // Cria o choices
     await loadSelectTable(); // Cria as opções das tabelas no select
 
     // Esconder o loader

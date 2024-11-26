@@ -11,12 +11,14 @@ async function submitLog() {
 
     const selectedTable = await getSelectTable();
     const selectedColumn = await getSelectColumn();
+    const selectedType = await getSelectType();
     
     const filters = {
         dataAte: document.querySelector('#dataAte').value,
         dataDe: document.querySelector('#dataDe').value,
         tabela: selectedTable,
         coluna: selectedColumn,
+        tipo: selectedType,
         valor: document.querySelector('#valor').value,
     }
 
@@ -93,7 +95,7 @@ function formatDate(dateString) {
     return new Intl.DateTimeFormat('pt-BR', options).format(date).replace(',', '');
 }
 
-let selectTable, selectColumn;
+let selectTable, selectColumn, selectType;
 async function createSelectWithChoices() {
     // renderiza o select com as opções formatadas
     selectTable = new Choices('#selectTable', {
@@ -108,6 +110,17 @@ async function createSelectWithChoices() {
 
     // renderiza o select com as opções formatadas
     selectColumn = new Choices('#selectColumn', {
+        allowHTML: true,
+        allowSearch: true,
+        shouldSort: false,
+        removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis',
+        noResultsText: 'Não há opções disponíveis',
+        position: 'bottom'
+    });
+
+    // renderiza o select com as opções formatadas
+    selectType = new Choices('#selectType', {
         allowHTML: true,
         allowSearch: true,
         shouldSort: false,
@@ -240,6 +253,32 @@ document.querySelector('#selectColumn').addEventListener('showDropdown', async f
     }
 });
 
+async function createSelectPeopleType() {
+    // Dados do select
+    const options = [
+       { value: 0, label: 'Todos' },
+       { value: 1, label: 'Inserção' },
+       { value: 2, label: 'Excluido' },
+       { value: 3, label: 'Atualização' }
+    ];
+ 
+    selectType.clearChoices();
+    selectType.setChoices(options, 'value', 'label', true);
+};
+
+async function getSelectType() {
+    if (selectType) {
+        const values = selectType.getValue(true);
+        if (values && values.length === 0) {
+            return undefined;
+        } else {
+            return values;
+        }
+    } else {
+        return undefined;
+    }
+};
+
 // Adiciona evento de click
 document.addEventListener('click', function (event) {
     // Verifica se o click foi no item de visualizar
@@ -327,6 +366,7 @@ function formatXml(xml) {
 window.addEventListener("load", async () => {
 
     await createSelectWithChoices(); // Cria o choices
+    await createSelectPeopleType(); // Cria o choices de tipo
     await loadSelectTable(); // Cria as opções das tabelas no select
 
     // Esconder o loader

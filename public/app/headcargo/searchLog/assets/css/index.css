@@ -65,3 +65,7 @@
 .dataTables_filter {
     display: none !important;
 }
+
+.choices__inner {
+    min-height: 41px !important;
+}

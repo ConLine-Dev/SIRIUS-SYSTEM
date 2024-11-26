@@ -67,9 +67,9 @@ const cashFlow = {
 
    // Lista todas as faturas
    totalAdm: async function (startDateGlobal, endDateGlobal, situacao) {
-      const dateFilterAdm = startDateGlobal && endDateGlobal ? `AND (Fin.Data BETWEEN '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Fin.Data) = DATEPART(YEAR, GETDATE())`
+      const dateFilterAdm = startDateGlobal && endDateGlobal ? `AND (Fin.Data_Pagamento BETWEEN '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Fin.Data_Pagamento) = DATEPART(YEAR, GETDATE())`
       const situacaoHtml = situacao ? `AND Fin.Situacao IN (${situacao})` : `AND Fin.Situacao IN (1,2,3,4,5,6,7,8,9,10)`
-      const dateFilterAdmSalary = startDateGlobal && endDateGlobal ? `AND (Tfn.Data BETWEEN '${startDateGlobal}' AND '${endDateGlobal}')` : `AND (Tfn.Data BETWEEN '2024-05-01' AND '2024-12-31')`
+      const dateFilterAdmSalary = startDateGlobal && endDateGlobal ? `AND (Mfn.Data_Compensacao BETWEEN '${startDateGlobal}' AND '${endDateGlobal}')` : `AND (Mfn.Data_Compensacao BETWEEN '2024-05-01' AND '2024-12-31')`
       let result = await executeQuerySQL(`
          SELECT
             Fin.Data,
@@ -114,7 +114,7 @@ const cashFlow = {
          UNION ALL
 
          SELECT
-            Tfn.Data,
+            Mfn.Data_Compensacao AS Data,
             '' AS Cliente,
 
             'Quitada' AS Situacao_Fatura,
@@ -129,10 +129,12 @@ const cashFlow = {
             mov_Transferencia_Financeira_Categoria Tfc ON Tfc.IdTransferencia_Financeira = Tfn.IdTransferencia_Financeira
          LEFT OUTER JOIN
             cad_Categoria_Financeira Cat ON Cat.IdCategoria_Financeira = Tfc.IdCategoria_Financeira
+         LEFT OUTER JOIN
+            mov_Movimentacao_Financeira Mfn ON Mfn.IdMovimentacao_Financeira = Tfn.IdMovimentacao_Debito
          WHERE
             Tfn.IdConta_Origem = 10 -- Banco Bradesco
             AND Tfn.IdConta_Destino = 18 -- Banco Inter
-            AND Cat.IdCategoria_Financeira NOT IN (73 /*TRANSFERÊNCIA ENTRE CONTAS MESMA TITULARIDADE*/)
+            AND Tfc.IdCategoria_Financeira NOT IN (73 /*TRANSFERÊNCIA ENTRE CONTAS MESMA TITULARIDADE*/)
             ${dateFilterAdmSalary}
       `)
       return result;
@@ -145,7 +147,7 @@ const cashFlow = {
       let result = await executeQuerySQL(`
          WITH invoiceAdm AS (
             SELECT
-            Fin.Data,
+            Fin.Data_Pagamento AS Data,
             Pss.Nome as Cliente,
 
             Fin.Situacao as Situacao_Fatura_Num,
@@ -186,7 +188,7 @@ const cashFlow = {
          UNION ALL
 
          SELECT
-            Tfn.Data,
+            Mfn.Data_Compensacao AS Data,
             '' AS Cliente,
 
             2 AS Situacao_Fatura_Num, -- Retorna o número para consistência
@@ -202,6 +204,8 @@ const cashFlow = {
             mov_Transferencia_Financeira_Categoria Tfc ON Tfc.IdTransferencia_Financeira = Tfn.IdTransferencia_Financeira
          LEFT OUTER JOIN
             cad_Categoria_Financeira Cat ON Cat.IdCategoria_Financeira = Tfc.IdCategoria_Financeira
+         LEFT OUTER JOIN
+            mov_Movimentacao_Financeira Mfn ON Mfn.IdMovimentacao_Financeira = Tfn.IdMovimentacao_Debito
          WHERE
             Tfn.IdConta_Origem = 10 -- Banco Bradesco
             AND Tfn.IdConta_Destino = 18 -- Banco Inter

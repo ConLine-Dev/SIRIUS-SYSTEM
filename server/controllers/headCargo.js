@@ -1978,7 +1978,12 @@ LEFT OUTER JOIN
    return result_commission;
    },
    filterLog: async function(body){
-      console.log(body);
+      let coluna;
+      if (!body.coluna || body.coluna === '' || !body.valor || body.valor === '') {
+         coluna = '<PrimaryKeys/>'
+      } else {
+         coluna = `<PrimaryKeys><Item Nome="${body.coluna}" Value="${body.valor}"/></PrimaryKeys>`
+      }
       
       const sql = `Declare
       @IdUsuario IdCurto,
@@ -1993,8 +1998,19 @@ LEFT OUTER JOIN
       Set @Data_Termino = CONVERT(date, '${body.dataAte}')
       Set @IdUsuario = 0
       Set @Tabela = '${body.tabela}'
-      Set @Primary_Keys = '<PrimaryKeys><Item Nome="${body.coluna}" Value="${body.valor}"/></PrimaryKeys>'
-      Set @Tipo = 0
+      Set @Primary_Keys = '${coluna}'
+      Set @Tipo = ${body.tipo}
+
+      /*
+      Set @Data_Inicio = NULL
+      Set @Data_Termino = NULL
+      Set @IdUsuario = 0
+      Set @Tabela = 'arq_Arquivo'
+      Set @Primary_Keys = '<PrimaryKeys>
+      <Item Nome="IdArquivo" Value="49"/>
+      </PrimaryKeys>'
+      Set @Tipo = 1
+      */
 
       Declare
       @Filtro_Tabela VarChar(Max),
@@ -2069,9 +2085,7 @@ LEFT OUTER JOIN
 
       exec sp_executesql @SQL, N'@Data_Inicio Data, @Data_Termino Data, @IdUsuario IdCurto', @Data_Inicio=@Data_Inicio, @Data_Termino=@Data_Termino, @IdUsuario=@IdUsuario`;
 
-      console.log(sql);
       const result = await executeQuerySQL(sql)
-      console.log(result);
 
       return result
    },

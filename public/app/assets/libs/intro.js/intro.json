@@ -405,6 +405,41 @@
     "element": ".intro_list_projects",
     "title": "Resumo dos projetos",
     "intro":"Aqui, você pode visualizar um resumo dos projetos e chamados, incluindo o número do ticket, título, responsável pelo chamado, solicitante, status e as datas correspondentes."
+  },
+  {
+    "element": ".intro_title_ticket",
+    "title": "Título",
+    "intro":"Aqui, você pode inserir um assunto breve do chamado solicitado."
+  },
+  {
+    "element": ".intro_category_ticket",
+    "title": "Categoria",
+    "intro":"Aqui, você pode selecionar o tipo de categoria para o seu chamado."
+  },
+  {
+    "element": ".intro_priority_ticket",
+    "title": "Prioridade",
+    "intro":"Aqui, você pode selecionar o tipo de prioridade para o seu chamado."
+  },
+  {
+    "element": ".intro_reponsible_ticket",
+    "title": "Responsável",
+    "intro":"Por padrão, você será selecionado como responsável. No entanto, se desejar abrir um chamado para outro colaborador, basta alterar o nome do responsável."
+  },
+  {
+    "element": ".intro_involved_ticket",
+    "title": "Envolvidos",
+    "intro":"Nesta seção, você pode adicionar os envolvidos no chamado solicitado."
+  },
+  {
+    "element": ".intro_description_ticket",
+    "title": "Descrição",
+    "intro":"Na descrição, agora você pode adicionar texto, incluir prints e personalizar o conteúdo alterando a cor, fonte, tamanho e outros estilos."
+  },
+  {
+    "element": "#intro_attachment_ticket",
+    "title": "Anexar Documentos",
+    "intro":"Nesta seção, você pode anexar qualquer tipo de arquivo, como imagens, planilhas Excel, PDFs e outros formatos."
   }
 
   

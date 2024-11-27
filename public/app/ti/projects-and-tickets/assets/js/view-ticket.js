@@ -574,7 +574,7 @@ async function initializeComponents() {
 
     document.querySelector('#new-step').addEventListener('keydown', async (e) => {
         const step = document.querySelector('#new-step').value;
-        if (e.key === 'Enter' && comment.trim() && step) {
+        if (e.key === 'Enter' && step.trim() && step) {
             e.preventDefault(); // Impede o comportamento padrão de inserir uma nova linha
             document.querySelector('#add-step-btn').click(); // Simula o clique no botão
         }

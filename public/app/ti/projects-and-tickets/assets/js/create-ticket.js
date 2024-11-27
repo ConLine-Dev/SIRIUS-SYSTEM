@@ -268,6 +268,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadInvolvedUsers();
     await initializeDefaultValues();
     adjustEditorSize();
+    introMain();
     document.querySelector('#loader').classList.add('d-none');
     window.addEventListener('resize', adjustEditorSize);
 });

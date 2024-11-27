@@ -1,17 +1,301 @@
-let GticketId;
+
+
+let GticketId, itUserSelect, selectedColumn, selectedValueChange, responsibleSelect, involvedSelect;
+
+const socket = io();
 
 /**
  * Evento principal ao carregar o DOM.
  */
 document.addEventListener('DOMContentLoaded', async () => {
 
+    await loadItTeam();
     await initializeComponents();
     await loadTicket();
+    await verifyAcess();
+    await loadResponsibleUsers();
+    await loadInvolved();
+
+
+    socket.on('new-message-ticket', async (data) => {
+        if(data.default_msg.ticket_id == GticketId){
+            await addComments(data.default_msg);
+        }
+        
+    })
+
+    socket.on('changeColumn', async (data) => {
+        console.log(data)
+        const priority = {
+            'low': 'Baixa',
+            'medium': 'Média',
+            'high': 'Alta',
+            'critical': 'Critica',
+        }
+
+        // Define as classes correspondentes às prioridades
+        const priorityClasses = {
+            'low': 'bg-info-transparent',    // Baixa
+            'medium': 'bg-success-transparent', // Média
+            'high': 'bg-warning-transparent',    // Alta
+            'critical': 'bg-danger-transparent' // Crítica (exemplo)
+        };
+
+        let ticket = await makeRequest('/api/called/tickets/getById', 'POST', { id: GticketId });
+        ticket = ticket[0];
+        document.querySelector('.start_forecast').innerHTML = ticket.start_forecast ? formatDateBR(ticket.start_forecast) : 'Não informado';
+        document.querySelector('.end_forecast').innerHTML = ticket.end_forecast ? formatDateBR(ticket.end_forecast) : 'Não informado';
+        document.querySelector('.priority_text').innerHTML = priority[ticket.priority];
+        document.querySelector('.category_text').innerHTML = ticket.categorieName;
+        document.querySelector('.responsibleName').innerHTML = ticket.name;
+        document.querySelector('.responsibleIMG').setAttribute('src', 'https://cdn.conlinebr.com.br/colaboradores/' + ticket.id_headcargo)
+
+        // Atualiza a classe do elemento priority_text
+        const priorityElement = document.querySelector('.priority_text');
+        // Remove todas as classes de prioridade existentes
+        Object.values(priorityClasses).forEach(cls => priorityElement.classList.remove(cls));
+        // Adiciona a nova classe baseada na prioridade
+        priorityElement.classList.add(priorityClasses[ticket.priority]);
+
+
+
+        await writeInvolved(ticket.involved);
+        
+    })
+
+    socket.on('update-step-status', async (data) => {
+        const stepsList = document.getElementById('steps-list');
+   
+        const stepItem = stepsList.querySelector(`[data-id="${parseInt(data.stepId)}"]`);
+        const stepCheckbox = stepItem.querySelector('.step-checkbox');
+        stepCheckbox.checked = data.completed;
+        console.log(data, 'update-step-status');
+    })
+
+    socket.on('delete-step-status', async (data) => {
+        const stepsList = document.getElementById('steps-list');
+        console.log(data)
+        const stepItem = stepsList.querySelector(`[data-id="${parseInt(data.stepId)}"]`);
+
+        if(stepItem){
+            stepItem.remove();
+        }
+        
+    })
+
+    socket.on('create-step', async (data) => {
+        const result = data.result;
+        const stepsList = document.getElementById('steps-list');
+
+        // Adiciona o novo item à lista usando innerHTML
+        stepsList.innerHTML += `
+            <li class="list-group-item" data-id="${result.insertId}">
+                <div class="d-flex align-items-center">
+                    <!-- Conteúdo à esquerda -->
+                    <div class="me-auto d-flex align-items-center">
+                    <input data-id="${result.insertId}" class="form-check-input form-checked-success me-2 step-checkbox" type="checkbox" value="">
+                        <span class="fw-semibold">${data.step}</span>
+                    </div>
+                    <!-- Botão à direita -->
+                    <button data-id="${result.insertId}" class="btn btn-sm btn-danger remove-btn">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </li>
+        `;
+
+        verifyAcess();
+    })
+
+    
+    socket.on('new-file-ticket', async (data) => {
+        if(data.id == GticketId){
+            await addFiles([data.data[0]]);
+        }
+        verifyAcess();
+    })
+
+    socket.on('remove-file-ticket', async (data) => {
+
+
+        if(data.ticketId == GticketId){
+            document.querySelector('[data-id-ref="'+data.filename+'"]').remove();
+        }
+    
+        
+    })
+
+    socket.on('update-team', async (data) => {
+
+
+        if(data[0].ticket_id == GticketId){
+            await writeAssigned(data);
+        }
+        verifyAcess();
+        
+    })
+
+    
+
+    socket.on('remove-assigned', async (data) => {
+        console.log(data)
+        const btnRemoveAssigned = document.querySelector('.btn-remove-assigned[data-id="'+data.userId+'"]');
+
+        if(btnRemoveAssigned){
+            btnRemoveAssigned.closest('tr').remove();
+        }
+        
+    })
+    
+
+
     document.querySelector('#loader').classList.add('d-none');
 
 });
 
+async function verifyAcess(){
 
+
+    const user = await getInfosLogin();
+
+    console.log(user)
+
+    if(user && user.department_ids && user.department_ids == 7){
+        // document.querySelector('.buttonComment').removeAttribute('disabled');
+        // document.querySelector('.inputComment').removeAttribute('disabled');
+        // document.querySelector('#new-step').removeAttribute('disabled');
+        // document.querySelector('#add-step-btn').removeAttribute('disabled');
+        // document.querySelector('.multiple-filepond-Attachments').removeAttribute('disabled');
+
+        addClickEventsToTI()
+
+    }else{
+        document.querySelector('.btnControleTeam').setAttribute('disabled', true);
+
+        const setps = document.querySelectorAll('.step-checkbox');
+        setps.forEach(step => {
+            step.setAttribute('disabled', true);
+        })
+
+        const removebtn = document.querySelectorAll('.remove-btn');
+        removebtn.forEach(step => {
+            step.setAttribute('disabled', true);
+        })
+
+        const removebtnFiles = document.querySelectorAll('.files button');
+        removebtnFiles.forEach(step => {
+            step.setAttribute('disabled', true);
+        })
+
+        const btnRemoveAssigned = document.querySelectorAll('.btn-remove-assigned');
+        btnRemoveAssigned.forEach(step => {
+            step.setAttribute('disabled', true);
+        })
+        
+        document.querySelector('#new-step').setAttribute('disabled', true);
+        
+        
+
+        
+    }
+}
+
+/**
+ * Carrega os responsáveis e popula o select correspondente.
+ */
+async function loadResponsibleUsers() {
+    const users = await makeRequest('/api/users/listAllUsers');
+
+    const selectElement = document.querySelector('select[name="change_responsible"]');
+    selectElement.innerHTML = '';
+
+    users.forEach(user => {
+        selectElement.innerHTML += `
+            <option 
+                data-headcargoID="${user.id_headcargo}" 
+                id="${user.id_colab}" 
+                value="${user.id_colab}">
+                ${user.username} ${user.familyName}
+            </option>`;
+    });
+
+    responsibleSelect = $(`select[name="change_responsible"]`).select2({
+        templateResult: formatSelectWithImages,
+        templateSelection: formatSelectWithImages,
+        placeholder: "Selecione o colaborador",
+        escapeMarkup: markup => markup,
+        allowClear: true
+    });
+
+    responsibleSelect.val(null).trigger('change');
+}
+
+// async function loadInvolved() {
+//     const users = await makeRequest('/api/users/listAllUsers');
+
+//     const selectElement = document.querySelector('select[name="change_involved"]');
+//     selectElement.innerHTML = '';
+
+//     users.forEach(user => {
+//         selectElement.innerHTML += `
+//             <option 
+//                 data-headcargoID="${user.id_headcargo}" 
+//                 id="${user.id_colab}" 
+//                 value="${user.id_colab}">
+//                 ${user.username} ${user.familyName}
+//             </option>`;
+//     });
+
+//     involvedSelect = $(`select[name="change_involved"]`).select2({
+//         templateResult: formatSelectWithImages,
+//         templateSelection: formatSelectWithImages,
+//         placeholder: "Selecione o colaborador",
+//         escapeMarkup: markup => markup,
+//         allowClear: true
+//     });
+
+//     involvedSelect.val(null).trigger('change');
+// }
+
+async function loadInvolved() {
+    const users = await makeRequest('/api/users/listAllUsers');
+
+    // Formatar dados para o Choices.js
+    const options = users.map(user => ({
+        value: `${user.id_colab}`,
+        label: `${user.username} ${user.familyName}`
+    }));
+
+    // Verificar se o Choices.js já está inicializado
+    if (involvedSelect) {
+        involvedSelect.destroy();
+    }
+
+    // Inicializar Choices.js
+    involvedSelect = new Choices('select[name="change_involved"]', {
+        choices: options,
+        shouldSort: false,
+        removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis'
+    });
+}
+
+function getSelectedInvolved() {
+    if (!involvedSelect) return [];
+
+    // Obter os valores selecionados do Choices.js
+    return involvedSelect.getValue(true); // Retorna os valores como um array de strings
+}
+
+/**
+ * Formata o select para incluir imagens dos usuários.
+ */
+function formatSelectWithImages(option) {
+    if (!option.id) return option.text;
+    const element = option.element;
+    const headId = element.getAttribute('data-headcargoID');
+    return $(`<span><img src="https://cdn.conlinebr.com.br/colaboradores/${headId}" /> ${option.text}</span>`);
+}
 
 
 async function getParams(param) {
@@ -90,12 +374,67 @@ async function toFillTicket(ticket){
 
 
 
+    
+
+
     await writeFiles(ticket.files);
     await writeSteps(ticket.steps);
     await writeAssigned(ticket.atribuido);
     await writeDescription(ticket.description);
+    await writeComments(ticket.comments);
+    await writeInvolved(ticket.involved);
     
 
+}
+
+async function writeInvolved(involved){
+    const HTMLinvolved = involved.map(user => `<span title="${user.fullName}" class="avatar avatar-sm avatar-rounded" data-bs-toggle="tooltip" data-bs-custom-class="tooltip-primary" data-bs-original-title="${user.fullName}">
+    <img src="https://cdn.conlinebr.com.br/colaboradores/${user.id_headcargo}" alt="img">
+  </span>`).join('');
+
+    document.querySelector('.involved').innerHTML = HTMLinvolved;
+
+}
+
+async function setTeam(){
+
+    const teamByTicket =  await makeRequest(`/api/called/tickets/teamByTicket`, 'POST', {ticketId: GticketId});
+
+    // Verifica se o `itUserSelect` já está inicializado
+    if (!itUserSelect) {
+        console.error('itUserSelect não foi inicializado.');
+        return;
+    }
+
+    // Limpa as seleções existentes no select
+    itUserSelect.removeActiveItems();
+
+    // Define os membros do time como selecionados no select
+    (teamByTicket.data).forEach(member => {
+        itUserSelect.setChoiceByValue(member.collaborator_id); // Certifique-se de que o ID seja uma string
+    });
+
+}
+
+/**
+ * Carrega os usuários do departamento de TI e preenche o select correspondente.
+ */
+async function loadItTeam() {
+    const users = await makeRequest('/api/users/ListUserByDep/7');
+
+    const options = users.map(user => ({
+        customProperties: { dataHead: user.id_headcargo },
+        value: user.collab_id,
+        label: `${user.username} ${user.familyName}`
+    }));
+
+    itUserSelect = new Choices('select[name="input-add-team"]', {
+        choices: options,
+        allowHTML: true,
+        removeItemButton: true,
+        shouldSort: false,
+        noChoicesText: 'Não há opções disponíveis'
+    });
 }
 
 
@@ -121,6 +460,8 @@ async function initializeComponents() {
         fileAttachments = FilePond.create(inputElement, {
             maxFiles: 5,
             allowProcess: true,
+            allowMultiple: true, // Permitir múltiplos arquivos
+            instantUpload: true, // Esperar antes de enviar
             server: {
                 process: {
                     url: '/api/called/tickets/upload-file-ticket',
@@ -135,13 +476,13 @@ async function initializeComponents() {
                     onload: async (response) => {
                         // Manipule a resposta do servidor aqui
                         const serverResponse = JSON.parse(response); // Parse a resposta, caso seja JSON
-                        console.log('Resposta do servidor:', serverResponse);
+                        // console.log('Resposta do servidor:', serverResponse);
 
                         if (serverResponse.success) {
-                            await addFiles(serverResponse.data)
+                            // await addFiles(serverResponse.data)
                            
                         } else {
-                            console.log('Erro ao enviar arquivo: ' + serverResponse.message);
+                            // console.log('Erro ao enviar arquivo: ' + serverResponse.message);
                         }
 
                         return serverResponse; // Opcional, retorna para manipulação adicional
@@ -172,12 +513,164 @@ async function initializeComponents() {
             if (error) {
                 console.error('Erro no processamento do arquivo:', error);
             } else {
-                console.log('Arquivo processado com sucesso:', file.filename);
-                console.log(file);
+                // console.log('Arquivo processado com sucesso:', file.filename);
+                // console.log(file);
                 // Remove apenas o arquivo que foi processado com sucesso
                 fileAttachments.removeFile(file.id);
             }
         });
+    }
+
+
+
+
+
+    document.querySelector('.buttonComment').addEventListener('click', async (e) => {
+        document.querySelector('.buttonComment').setAttribute('disabled', true);
+        const comment = document.querySelector('.inputComment').value;
+        const user = await getInfosLogin();
+
+        if (comment) {
+            document.querySelector('.inputComment').value = '';
+            await makeRequest('/api/called/tickets/createMessage', 'POST', {ticketId: GticketId, collab_id: user.system_collaborator_id, name: user.system_name, body: comment});
+            document.querySelector('.buttonComment').removeAttribute('disabled');
+        }
+    });
+
+    document.querySelector('.inputComment').addEventListener('keydown', async (e) => {
+        const comment = document.querySelector('.inputComment').value;
+        if (e.key === 'Enter' && comment && !e.shiftKey) {
+            e.preventDefault(); // Impede o comportamento padrão de inserir uma nova linha
+            document.querySelector('.buttonComment').click(); // Simula o clique no botão
+        }
+    });
+
+    document.querySelector('#new-step').addEventListener('keydown', async (e) => {
+        const step = document.querySelector('#new-step').value;
+        if (e.key === 'Enter' && step) {
+            e.preventDefault(); // Impede o comportamento padrão de inserir uma nova linha
+            document.querySelector('#add-step-btn').click(); // Simula o clique no botão
+        }
+    });
+
+
+    // Pega o valor do input
+    const input = document.getElementById('new-step');
+    const stepsList = document.getElementById('steps-list');
+
+    // Adiciona uma etapa
+    document.getElementById('add-step-btn').addEventListener('click', async function () {
+        const newStepText = input.value.trim(); // Remove espaços extras
+
+        if (newStepText === '') {
+            alert('Por favor, insira uma etapa.');
+            return;
+        }
+
+        input.value = '';
+        // Faz a requisição para criar uma nova etapa no servidor
+        const result = await makeRequest('/api/called/tickets/create-step', 'POST', { 
+            ticketId: GticketId, 
+            step: newStepText 
+        });
+
+        
+    });
+
+    // Event delegation para remover etapas
+    stepsList.addEventListener('click', async function (event) {
+        if (event.target.classList.contains('remove-btn') || event.target.closest('.remove-btn')) {
+            const listItem = event.target.closest('li'); // Encontra o <li> pai do botão
+            listItem.remove(); // Remove o <li> da lista
+            await makeRequest('/api/called/tickets/delete-step-status', 'POST', {
+                stepId: listItem.getAttribute('data-id')
+            });
+        }
+    });
+
+    // Escuta eventos nos checkboxes usando event delegation
+    stepsList.addEventListener('change', async function (event) {
+        if (event.target.classList.contains('step-checkbox')) {
+            const checkbox = event.target;
+            const stepId = checkbox.getAttribute('data-id'); // ID da etapa
+            const isChecked = checkbox.checked; // Verifica se está marcado ou desmarcado
+
+            try {
+                // Envia para o servidor o estado do checkbox
+                await makeRequest('/api/called/tickets/update-step-status', 'POST', {
+                    stepId: stepId,
+                    completed: isChecked
+                });
+                console.log(`Etapa ${stepId} atualizada para ${isChecked ? 'concluída' : 'não concluída'}.`);
+            } catch (error) {
+                console.error('Erro ao atualizar o status da etapa:', error);
+            }
+        }
+    });
+
+
+    // Escuta cliques nos botões de remoção de usuários
+    document.querySelector('.assigned').addEventListener('click', async function (event) {
+        if (event.target.closest('.btn-remove-assigned')) {
+            const button = event.target.closest('.btn-remove-assigned');
+            const userId = button.getAttribute('data-id'); // Obtém o ID do usuário a ser removido
+
+            // Confirmação opcional
+            const confirmRemoval = confirm('Tem certeza que deseja remover este usuário da equipe?');
+            if (!confirmRemoval) return;
+
+            try {
+              
+                // Faz uma requisição ao servidor para remover o usuário
+                const response = await makeRequest('/api/called/tickets/remove-assigned', 'POST', { userId:userId, ticketId: GticketId, });
+                
+                if (response.success) {
+                    // Remove a linha do usuário do DOM
+                    // const row = button.closest('tr');
+                    // row.remove();
+                    console.log(`Usuário com ID ${userId} removido com sucesso.`);
+                } else {
+                    console.error('Erro ao remover o usuário:', response.message);
+                    alert('Não foi possível remover o usuário. Tente novamente.');
+                }
+            } catch (error) {
+                console.error('Erro ao remover o usuário:', error);
+                alert('Ocorreu um erro ao tentar remover o usuário.');
+            }
+        }
+    });
+
+    // Escuta cliques nos botões de remoção de usuários
+    document.querySelector('.btnControleTeam').addEventListener('click', async function (event) {
+        await setTeam();
+        $('#add-team').modal('show');
+    })
+
+    
+
+}
+
+async function sendNewTeam(){
+    const team = itUserSelect.getValue();
+    const teamIds = team.map(member => member.value);
+
+    try {
+        const response = await makeRequest('/api/called/tickets/update-team', 'POST', {
+            ticketId: GticketId,
+            teamIds: teamIds
+        });
+
+        if (response.success) {
+            // await writeAssigned(response.data);
+            console.log('Time atualizado com sucesso:', response.message);
+            $('#add-team').modal('hide');
+        } else {
+            console.error('Erro ao atualizar o time:', response.message);
+            alert('Não foi possível atualizar o time. Tente novamente.');
+        }
+    } catch (error) {
+        console.error('Erro ao atualizar o time:', error);
+        alert('Ocorreu um erro ao tentar atualizar o time.');
     }
 }
 
@@ -189,10 +682,10 @@ async function removeFile(filename, buttonElement) {
         console.log('Arquivo removido com sucesso:', result);
 
         // Remover o elemento <li> correspondente
-        const liElement = buttonElement.closest('.list-group-item');
-        if (liElement) {
-            liElement.remove();
-        }
+        // const liElement = buttonElement.closest('.list-group-item');
+        // if (liElement) {
+        //     liElement.remove();
+        // }
         return result; // Retorna a resposta, caso necessário
     } catch (error) {
         console.error('Erro ao remover o arquivo:', error);
@@ -260,7 +753,7 @@ async function writeFiles(Files) {
 
             console.log(fileIcon)
         return `
-        <li class="list-group-item">
+        <li class="list-group-item" data-id-ref="${file.filename}">
           <div class="d-flex align-items-center flex-wrap gap-2">
             <div class="lh-1">
               <span class="avatar avatar-rounded p-1 bg-light">
@@ -311,7 +804,7 @@ async function addFiles(Files) {
             : `<img src="/storageService/tickets/files/${splitFilename(file.path)}" alt="" style="max-width: 50px;">`;
 
         return `
-        <li class="list-group-item">
+        <li class="list-group-item" data-id-ref="${file.filename}">
           <div class="d-flex align-items-center flex-wrap gap-2">
             <div class="lh-1">
               <span class="avatar avatar-rounded p-1 bg-light">
@@ -342,21 +835,29 @@ async function addFiles(Files) {
 
 
 async function writeSteps(steps){
-    const HTMLsteps = steps.map(step => `<li class="list-group-item">
-    <div class="d-flex align-items-center">
-      <div class="me-2">
-        <input class="form-check-input form-checked-success" type="checkbox" value="" id="successChecked1" ${ step.status != 'pending' ? 'checked' : '' }>
-      </div>
-      <div class="fw-semibold">${step.step_name}</div>
-    </div>
-  </li>`).join('');
+    const HTMLsteps = steps.map(step => `
+    <li class="list-group-item" data-id="${step.id}">
+        <div class="d-flex align-items-center">
+            <!-- Conteúdo à esquerda -->
+            <div class="me-auto d-flex align-items-center">
+                <input data-id="${step.id}" class="form-check-input form-checked-success me-2 step-checkbox" type="checkbox" value="" ${ step.status != 'pending' ? 'checked' : '' }>
+                <span class="fw-semibold">${step.step_name}</span>
+            </div>
+            <!-- Botão à direita -->
+            <button data-id="${step.id}" class="btn btn-sm btn-danger remove-btn">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    </li>`).join('');
+
+
+ 
 
     document.querySelector('.steps').innerHTML = HTMLsteps;
 }
 
 async function writeAssigned(assigned){
-
-    const HTMLassigned = assigned.map(user => `<tr>
+    const HTMLassigned = assigned.map(user => `<tr data-id="${user.id}"> 
     <td>
         <div class="d-flex align-items-center">
         <div class="me-2 lh-1">
@@ -372,7 +873,7 @@ async function writeAssigned(assigned){
     </td>
     <td>
         <div class="btn-list">
-        <button class="btn btn-sm btn-icon btn-danger-light btn-wave waves-effect waves-light">
+        <button data-id="${user.id}" class="btn-remove-assigned btn btn-sm btn-icon btn-danger-light btn-wave waves-effect waves-light">
             <i class="ri-delete-bin-line"></i>
         </button>
         </div>
@@ -427,3 +928,224 @@ function formatDateBR(value) {
 
     return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
 }
+
+// Verifica informações no localStorage do usuario logado
+async function getInfosLogin() {
+    const StorageGoogleData = localStorage.getItem('StorageGoogle');
+    const StorageGoogle = JSON.parse(StorageGoogleData);
+    return StorageGoogle;
+};
+
+
+async function addComments(comment){
+    const user = await getInfosLogin();
+
+    const HTMLcomments = `<li>
+        <div>
+        <span class="avatar avatar-sm bg-primary-transparent avatar-rounded profile-timeline-avatar"> 
+        <img src="https://cdn.conlinebr.com.br/colaboradores/${comment.id_headcargo}" />
+        </span>
+        <p class="mb-2">
+            <b>${user && user.system_collaborator_id == comment.collab_id ? 'Você' : comment.name}</b> comentou
+            
+            </a> <span class="float-end fs-11 text-muted">${formatDateBR(comment.create_at)}</span>
+        </p>
+        <p class="text-muted mb-0"> ${(comment.body).replace(/\n/g, '<br>')}</p>
+        </div>
+    </li>`
+
+
+    document.querySelector('.profile-timeline').innerHTML += HTMLcomments;
+
+    // rolar o profile-timeline até o final
+    const profileTimeline = document.querySelector('.profile-timeline');
+    profileTimeline.scrollTop = profileTimeline.scrollHeight;
+}
+async function writeComments(comments){
+    const user = await getInfosLogin();
+
+    const HTMLcomments = comments.map(comment => `<li>
+        <div>
+        <span class="avatar avatar-sm bg-primary-transparent avatar-rounded profile-timeline-avatar"> 
+        <img src="https://cdn.conlinebr.com.br/colaboradores/${comment.id_headcargo}" />
+        </span>
+        <p class="mb-2">
+            <b>${user && user.system_collaborator_id == comment.collab_id ? 'Você' : comment.name}</b> comentou
+            
+            </a> <span class="float-end fs-11 text-muted">${formatDateBR(comment.create_at)}</span>
+        </p>
+        <p class="text-muted mb-0"> ${(comment.body).replace(/\n/g, '<br>')}</p>
+        </div>
+    </li>`).join('');
+
+  
+    document.querySelector('.profile-msg').setAttribute('src', 'https://cdn.conlinebr.com.br/colaboradores/'+user.system_id_headcargo)
+
+    document.querySelector('.profile-timeline').innerHTML = HTMLcomments;
+
+    // rolar o profile-timeline até o final
+    const profileTimeline = document.querySelector('.profile-timeline');
+    profileTimeline.scrollTop = profileTimeline.scrollHeight;
+}
+
+
+async function loadInfosTickets(){
+    let ticket = await makeRequest('/api/called/tickets/getById', 'POST', { id: GticketId });
+    return ticket[0];
+}
+
+function formatDateForDatetimeLocal(dateString) {
+
+    if(!dateString){ return ''}
+
+    const date = new Date(dateString); // Cria um objeto Date a partir da string ISO
+    
+    const year = date.getFullYear(); // Obtém o ano
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Obtém o mês (ajustando de 0-11 para 1-12)
+    const day = String(date.getDate()).padStart(2, '0'); // Obtém o dia do mês
+
+    const hours = String(date.getHours()).padStart(2, '0'); // Obtém a hora
+    const minutes = String(date.getMinutes()).padStart(2, '0'); // Obtém os minutos
+
+    // Concatena no formato 'YYYY-MM-DDTHH:mm'
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+function addClickEventsToTI() {
+    const startForecastButton = document.querySelector('.start_forecast');
+    const endForecastButton = document.querySelector('.end_forecast');
+    const categoryButton = document.querySelector('.category_text');
+    const priorityButton = document.querySelector('.priority_text');
+    const responsibleButton = document.querySelector('.responsibleName');
+    const involvedButton = document.querySelector('.involved span,.involved, .involved img');
+
+    startForecastButton.addEventListener('click', async () => {
+        const modal = document.querySelector('#changePrevInicio');
+        // Abra o modal aqui
+        selectedColumn = 'start_forecast';
+        selectedValueChange = '#inputPrevInicio'
+
+        const ticket = await loadInfosTickets();
+        console.log(ticket)
+
+        document.querySelector(selectedValueChange).value = formatDateForDatetimeLocal(ticket.start_forecast);
+        $(modal).modal('show');
+
+    });
+
+    endForecastButton.addEventListener('click', async () => {
+        const modal = document.querySelector('#changePrevFim');
+        // Abra o modal aqui
+        selectedColumn = 'end_forecast';
+        selectedValueChange = '#inputPrevFim'
+
+        const ticket = await loadInfosTickets();
+        console.log(ticket)
+        document.querySelector(selectedValueChange).value = formatDateForDatetimeLocal(ticket.end_forecast);
+        $(modal).modal('show');
+    });
+
+    categoryButton.addEventListener('click', async () => {
+        const modal = document.querySelector('#changeCategory');
+        // Abra o modal aqui
+        selectedColumn = 'categories_id';
+        selectedValueChange = '#inputCategories'
+
+        const ticket = await loadInfosTickets();
+        document.querySelector(selectedValueChange).value = ticket.categorieID;
+        
+        $(modal).modal('show');
+    });
+
+    priorityButton.addEventListener('click', async () => {
+        const modal = document.querySelector('#changePriority');
+        // Abra o modal aqui
+        selectedColumn = 'priority';
+        selectedValueChange = '#inputPriority'
+
+        const ticket = await loadInfosTickets();
+        document.querySelector(selectedValueChange).value = ticket.priority;
+
+        $(modal).modal('show');
+    });
+
+    responsibleButton.addEventListener('click', async () => {
+        const modal = document.querySelector('#changeResponsible');
+        // Abra o modal aqui
+        selectedColumn = 'collaborator_id';
+        selectedValueChange = '#inputResponsible'
+        const ticket = await loadInfosTickets();
+        responsibleSelect.val(null).trigger('change');
+        responsibleSelect.val(ticket.responsible).trigger('change');
+        $(modal).modal('show');
+    });
+
+    involvedButton.addEventListener('click', async () => {
+        const modal = document.querySelector('#changeInvolved');
+        // Abra o modal aqui
+        selectedColumn = 'called_tickets_involved';
+        selectedValueChange = '#inputInvolved'
+        const ticket = await loadInfosTickets();
+
+        // // Capturar os IDs dos colaboradores selecionados
+        // const selectedInvolved = getSelectedInvolved();
+
+        // involvedSelect.val(selectedInvolved).trigger('change');
+
+        // Pré-selecionar os envolvidos
+        const selectedValues = (ticket.involved).map(item => item.collaborator_id); // IDs dos envolvidos
+        involvedSelect.setChoiceByValue(selectedValues.map(String)); // Converte para string e pré-seleciona
+
+        $(modal).modal('show');
+    });
+
+
+    
+
+
+
+
+
+}
+
+
+async function updateChangeColunm(){
+    let value = '';
+
+    if(selectedColumn == 'called_tickets_involved'){
+
+        value = $(selectedValueChange).val();
+      
+    }else{
+        value = document.querySelector(selectedValueChange).value;
+    }
+
+
+
+    try {
+        const response = await makeRequest('/api/called/tickets/changeColumn', 'POST', {
+            ticketId: GticketId,
+            value: value == '' ? null : value,
+            column: selectedColumn
+        });
+
+        if (response.success) {
+            // await writeAssigned(response.data);
+            console.log('Time atualizado com sucesso:', response.message);
+            $('#changePrevInicio, #changePrevFim, #changeCategory, #changePriority, #changeResponsible').modal('hide');
+        } else {
+            console.error('Erro ao atualizar o time:', response.message);
+            alert('Não foi possível atualizar o time. Tente novamente.');
+        }
+    } catch (error) {
+        console.error('Erro ao atualizar o time:', error);
+        alert('Ocorreu um erro ao tentar atualizar o time.');
+    }
+}
+
+
+
+
+
+
+

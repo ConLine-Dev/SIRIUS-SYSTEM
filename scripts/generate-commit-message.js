@@ -94,8 +94,23 @@ function askUserForPush() {
     });
 }
 
+async function saveChangesToFile(changes) {
+    try {
+        if (changes) {
+            const filePath = './commit_message.txt'; // Caminho do arquivo onde será salvo
+            fs.writeFileSync(filePath, changes, 'utf8');
+            console.log(`Mensagem de commit salva em: ${filePath}`);
+        } else {
+            console.error('Nenhuma mensagem de commit foi retornada.');
+        }
+    } catch (error) {
+        console.error('Erro ao salvar as mudanças no arquivo de texto:', error.message);
+    }
+}
+
 // Função para enviar as alterações para a API do Google Generative AI e gerar a mensagem de commit
 async function sendToGoogleGenerativeAI(changes) {
+    await saveChangesToFile(changes);
     const prompt = `
     NÃO FAÇA NENHUM TIPO DE MARCAÇÃO OU ROTULO APENAS NA PRIMEIRA LINHA DA RESPOSTA RETORNE O TITULO DO COMMIT E NAS LINHAS SUBSEQUENTES A DESCRIÇÃO.
     Não inclua nenhum tipo de rótulos, apenas forneça o texto final que será utilizado para o commit.

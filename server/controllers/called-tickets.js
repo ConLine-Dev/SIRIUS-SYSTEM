@@ -4,6 +4,9 @@ const { executeQuery } = require('../connect/mysql');
 const ExcelJS = require('exceljs');
 // Importa a função sendEmail do arquivo emailService.js
 const { sendEmail } = require('../support/send-email');
+const fs = require('fs/promises');
+const path = require('path');
+const crypto = require('crypto');
 
 
 const tickets = {
@@ -97,6 +100,24 @@ const tickets = {
 
             const steps = await executeQuery(`SELECT * FROM called_ticket_steps WHERE call_id = ${element.id}`);
 
+
+            const msg = await executeQuery(`SELECT clm.*,collab.name, collab.family_name,collab.family_name, collab.id_headcargo 
+                FROM called_messages clm
+                JOIN collaborators collab ON collab.id = clm.collab_id 
+                WHERE clm.ticket_id = ${element.id} ORDER BY id ASC`);
+
+
+            const involved = await executeQuery(`
+                            SELECT cti.*, 
+                            collab.name, 
+                            collab.family_name,
+                            collab.family_name, 
+                            CONCAT(collab.name, ' ', collab.family_name) AS fullName,
+                            collab.id_headcargo FROM 
+                            called_tickets_involved  cti
+                            JOIN collaborators collab ON collab.id = cti.collaborator_id 
+                            WHERE ticket_id = ${element.id}`);
+
             ticketsList.push({
                 id:element.id,
                 title:element.title,
@@ -117,6 +138,8 @@ const tickets = {
                 steps:steps,
                 id_headcargo:element.id_headcargo,
                 files:JSON.parse(element.files),
+                comments:msg,
+                involved:involved
             })
         }
 
@@ -137,50 +160,111 @@ const tickets = {
 
         return msg
     },
-    createMessage: async function (body) {
+    saveBase64Image: async function(base64String, ticketId) {
+        const matches = base64String.match(/^data:(.+);base64,(.+)$/);
+        if (!matches) throw new Error('Formato Base64 inválido');
+    
+        const ext = matches[1].split('/')[1];
+        const data = matches[2];
+    
+        // Gerar um hash único para a imagem
+        const hash = crypto.createHash('sha256').update(data).digest('hex');
+    
+        // Nome do arquivo baseado no ticketId e no hash da imagem
+        const fileName = `${ticketId}_${hash}.${ext}`;
+    
+        // Ajuste o caminho base para salvar na pasta correta
+        const uploadsDir = path.join(__dirname, '../../uploads'); // Ajuste conforme necessário
+        const filePath = path.join(uploadsDir, fileName);
+    
+        // Verificar se o arquivo já existe
+        try {
+            await fs.access(filePath, fs.constants.F_OK);
+            // Arquivo existe, retornar URL
+            return `https://sirius-system.conlinebr.com.br/uploads/${fileName}`;
+        } catch (err) {
+            // Arquivo não existe, prosseguir para salvar
+        }
+    
+        // Garantir que o diretório 'uploads' exista
+        await fs.mkdir(uploadsDir, { recursive: true }); // Criar pasta se não existir
+    
+        // Salvar o arquivo no servidor
+        await fs.writeFile(filePath, Buffer.from(data, 'base64'));
+    
+        // Retornar o caminho ou URL público da imagem
+        return `https://sirius-system.conlinebr.com.br/uploads/${fileName}`;
+    },
+    createMessage_sendEmails: async function(body){
 
-        const date = new Date()
+        // Função para processar e substituir imagens Base64 no texto
+        async function processBase64Images(text) {
+            // Atualizar a regex para capturar qualquer src com Base64
+            const base64Regex = /src="data:image\/(png|jpeg|jpg|gif|bmp);base64,([^"]+)"/gi;
+            let match;
+            const promises = [];
 
-        const addmsg = await executeQuery(
-            'INSERT INTO called_messages (ticket_id, body, create_at, collab_id) VALUES (?, ?, ?, ?)',
-            [body.ticketId, body.body, date, body.collab_id]
-        );
+            while ((match = base64Regex.exec(text)) !== null) {
+                const fullMatch = match[0]; // O texto completo que será substituído
+                const base64String = `data:image/${match[1]};base64,${match[2]}`; // String completa Base64
 
-        const colaboradores = await executeQuery(`SELECT * FROM collaborators WHERE id = ${body.collab_id}`)
+                // Salvar imagem e substituir no texto
+                const promise = tickets.saveBase64Image(base64String, body.ticketId).then((url) => {
+                    text = text.replace(fullMatch, `src="${url}"`); // Substituir pelo URL gerado
+                });
 
-        const messagesByTicket = await executeQuery(`
-            SELECT ct.title, ct.description, cm.body, cm.create_at, cl.name, cl.family_name, rs.email_business as 'responsible_email', rs.name as 'responsible_name', rs.family_name as 'responsible_family_name'
-            FROM called_messages cm
-            LEFT OUTER JOIN collaborators cl ON cl.id = cm.collab_id
-            LEFT OUTER JOIN called_tickets ct ON ct.id = cm.ticket_id
-            LEFT OUTER JOIN collaborators rs ON rs.id = ct.collaborator_id
-            WHERE cm.ticket_id = ${body.ticketId}
-            ORDER BY create_at DESC`)
-
-        let allMessages = '';
-        let font = '';
-        for (let index = 0; index < messagesByTicket.length; index++) {
-
-            if (index == 0) {
-                font = 'bold'
-            } else {
-                font = 'normal'
+                promises.push(promise);
             }
 
-            let date = messagesByTicket[index].create_at;
-            const formattedDate = date.toLocaleString("pt-BR", {
+            // Aguarde todas as promessas
+            await Promise.all(promises);
+
+            // Verificar se ainda restam imagens Base64 não processadas
+            if (base64Regex.test(text)) {
+                return processBase64Images(text); // Reaplicar até processar todas
+            }
+
+            return text;
+        }
+
+
+        // Realizar as consultas SQL otimizadas
+        const messagesByTicket = await executeQuery(`
+            SELECT 
+                cm.id,
+                cm.body,
+                cm.create_at,
+                cl.name,
+                cl.family_name,
+                ct.title,
+                ct.description,
+                rs.email_business AS responsible_email,
+                rs.name AS responsible_name,
+                rs.family_name AS responsible_family_name
+            FROM called_messages cm
+            LEFT JOIN collaborators cl ON cl.id = cm.collab_id
+            LEFT JOIN called_tickets ct ON ct.id = cm.ticket_id
+            LEFT JOIN collaborators rs ON rs.id = ct.collaborator_id
+            WHERE cm.ticket_id = ?
+            ORDER BY cm.create_at DESC
+        `, [body.ticketId]);
+    
+        // Gerar HTML otimizado
+        const allMessages = messagesByTicket.map((msg, index) => {
+            const font = index === 0 ? 'bold' : 'normal';
+            const formattedDate = new Date(msg.create_at).toLocaleString("pt-BR", {
                 day: '2-digit',
                 month: '2-digit',
                 year: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
             });
-
-            allMessages += `
+    
+            return `
                 <tr>
                     <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
                         <h6 style="margin: 0px; font-weight: ${font}">Remetente:</h6>
-                        <h4 style="margin: 0px; font-weight: ${font}">${messagesByTicket[index].name} ${messagesByTicket[index].family_name}</h4>
+                        <h4 style="margin: 0px; font-weight: ${font}">${msg.name} ${msg.family_name}</h4>
                     </td>
                     <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
                         <h6 style="margin: 0px; font-weight: ${font}">Data:</h6>
@@ -189,62 +273,102 @@ const tickets = {
                 </tr>
                 <tr>
                     <td colspan="2" style="font-weight: ${font}; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
-                        ${(messagesByTicket[index].body).replace(/\n/g, '<br>')}
-                        
+                        ${msg.body.replace(/\n/g, '<br>')}
                     </td>
-                </tr>`
-        }
+                </tr>`;
+        }).join('');
 
-        let mailBody = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
-                <h1 style="margin: 0; font-size: 24px;">Nova mensagem no seu ticket!</h1>
-            </div>
-            <div style="padding: 20px; background-color: #f9f9f9;">
-                <p style="color: #333; font-size: 16px;">Olá,</p>
-                <p style="color: #333; font-size: 16px; line-height: 1.6;">Alguém escreveu em um chamado que você está envolvido. 📩</p>
-                <p style="color: #333; font-size: 16px; line-height: 1.6;">Aqui está todo o loop de mensagens, já para adiantar as novidades:</p>
-                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-                <tr>
-                    <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Funcionário Responsável:</td>
-                    <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">${messagesByTicket[0].responsible_name} ${messagesByTicket[0].responsible_family_name}</td>
-                </tr>
-                <tr>
-                    <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Assunto do Chamado:</td>
-                    <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">${messagesByTicket[0].title}</td>
-                </tr>
-                <tr>
-                    <td colspan="2" style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
-                        <h5 style="margin: 0px; margin-bottom: 10px; font-weight: bold">Detalhes do Chamado:</h5>
-                        <h4 style="margin: 0px; font-weight: bold">${(messagesByTicket[0].description).replace(/\n/g, '<br>')}</h4>
-                    </td>
-                </tr>
-                </table>
-                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-                ${allMessages}
-                
-                </table>
-                <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
-            </div>
-            <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
-                <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
-            </div>
-        </div>`
+      // Uso na função principal
+        let description = await processBase64Images(messagesByTicket[0].description);
 
-        if (messagesByTicket[0].name != messagesByTicket[0].responsible_name && messagesByTicket[0].family_name != messagesByTicket[0].responsible_family_name){
-            sendEmail(messagesByTicket[0].responsible_email, '[Sirius System] Viemos com atualizações 🫡', mailBody);
-            
+    
+        // Construir o corpo do e-mail
+        const mailBody = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+                    <h1 style="margin: 0; font-size: 24px;">Nova mensagem no seu ticket!</h1>
+                </div>
+                <div style="padding: 20px; background-color: #f9f9f9;">
+                    <p style="color: #333; font-size: 16px;">Olá,</p>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Alguém escreveu em um chamado que você está envolvido. 📩</p>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Aqui está todo o loop de mensagens, já para adiantar as novidades:</p>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                    <tr>
+                        <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Funcionário Responsável:</td>
+                        <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">${messagesByTicket[0].responsible_name} ${messagesByTicket[0].responsible_family_name}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Assunto do Chamado:</td>
+                        <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">${messagesByTicket[0].title}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                            <h5 style="margin: 0px; margin-bottom: 10px; font-weight: bold">Detalhes do Chamado:</h5>
+                            <h4 style="margin: 0px; font-weight: bold">${(description).replace(/\n/g, '<br>')}</h4>
+                        </td>
+                    </tr>
+                    </table>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                    ${allMessages}
+                    </table>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
+                </div>
+                <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+                    <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+                </div>
+            </div>`;
+    
+        // Enviar e-mails somente quando necessário
+        if (
+            messagesByTicket[0].name !== messagesByTicket[0].responsible_name || 
+            messagesByTicket[0].family_name !== messagesByTicket[0].responsible_family_name
+        ) {
+             sendEmail(
+                messagesByTicket[0].responsible_email, 
+                '[Sirius System] Viemos com atualizações 🫡', 
+                mailBody
+            );
         }
-        sendEmail('ti@conlinebr.com.br', '[Sirius System] Viemos com atualizações 🫡', mailBody);
-        
-        return {
-            colab_name: tickets.formatarNome(colaboradores[0].name),
-            colab_id: body.collab_id,
-            id: addmsg.insertId,
-            date: date
-        }
-
+    
+         sendEmail(
+            'ti@conlinebr.com.br', 
+            '[Sirius System] Viemos com atualizações 🫡', 
+            mailBody
+        );
     },
+    createMessage: async function (body) {
+
+        const date = new Date();
+        console.time('createMessage')
+        // Inserir a nova mensagem no banco de dados
+        const addMsg = await executeQuery(
+            'INSERT INTO called_messages (ticket_id, body, create_at, collab_id) VALUES (?, ?, ?, ?)',
+            [body.ticketId, body.body, date, body.collab_id]
+        );
+   
+        this.createMessage_sendEmails(body);
+
+        // Retornar a mensagem criada
+        const msg = await executeQuery(`
+            SELECT clm.*, collab.name, collab.family_name, collab.id_headcargo 
+            FROM called_messages clm
+            JOIN collaborators collab ON collab.id = clm.collab_id 
+            WHERE clm.id = ?
+        `, [addMsg.insertId]);
+
+
+        console.timeEnd('createMessage')
+
+        return {
+            colab_name: tickets.formatarNome(msg[0].name),
+            colab_id: body.collab_id,
+            id: addMsg.insertId,
+            date: date,
+            ticketId:body.ticketId,
+            default_msg: msg[0],
+        };
+    },
+    
     removeTicket: async function(id){
 
         await executeQuery(`DELETE FROM called_assigned_relations WHERE (ticket_id = ${id})`);
@@ -255,6 +379,7 @@ const tickets = {
         
     },
     uploadFileTicket: async function (ticketId, Files) {
+        console.log(Files)
         // Recupera os dados atuais do ticket
         let currentTicket = await this.getById(ticketId); // Certifique-se de que `getById` está implementado
         currentTicket = currentTicket[0]
@@ -277,6 +402,8 @@ const tickets = {
                 size: file.size
             }));
         }
+
+        // console.log(newFilesData.length, newFilesData)
     
         // Combina os dados atuais com os novos dados de arquivos
         const combinedFiles = [...currentFiles, ...newFilesData];
@@ -328,10 +455,32 @@ const tickets = {
                 });
             }
     
-            return updatedFiles;
+            return {ticketId, filename};
         } catch (error) {
             throw new Error('Erro ao remover o arquivo no banco de dados.');
         }
+    },
+    teamByTicket: async function(id){
+        const team = await executeQuery(`SELECT car.*, collab.name, collab.family_name, collab.id_headcargo FROM called_assigned_relations car
+        JOIN collaborators collab ON collab.id = car.collaborator_id WHERE ticket_id = ${id}`);
+
+        return team
+    },
+    updateTeam: async function(value){
+        await executeQuery(`DELETE FROM called_assigned_relations WHERE (ticket_id = ${value.ticketId})`);
+        
+        for (let index = 0; index < value.teamIds.length; index++) {
+            const element = value.teamIds[index];
+            await executeQuery(
+                'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
+                [value.ticketId, element]
+            );
+        }
+
+        const atribuido = await executeQuery(`SELECT car.*, collab.name,collab.family_name,collab.family_name, collab.id_headcargo FROM called_assigned_relations car
+        JOIN collaborators collab ON collab.id = car.collaborator_id WHERE ticket_id = ${value.ticketId}`);
+
+        return atribuido
     },
     createTicket: async function(data) {
         try {
@@ -553,6 +702,81 @@ const tickets = {
         await sendEmail('ti@conlinebr.com.br', '[Sirius System] Um novo chamado foi aberto!', devBody);
         return { id: result.insertId};
     },
+    removeAssigned: async function(AssignedId){
+        const result = await executeQuery(
+            'DELETE FROM called_assigned_relations WHERE id = ?',
+            [AssignedId]
+        );
+
+        return result;
+    },
+    deleteStepStatus: async function(stepId){
+        const result = await executeQuery(
+            'DELETE FROM called_ticket_steps WHERE id = ?',
+            [stepId]
+        );
+
+        return result;
+    },
+    updateStepStatus: async function(stepId, status){
+        const result = await executeQuery(
+            'UPDATE called_ticket_steps SET status = ? WHERE id = ?',
+            [status, stepId]
+        );
+
+        return result;
+    },
+    createStep: async function(ticketId, step){
+        const result = await executeQuery(
+            'INSERT INTO called_ticket_steps (call_id, step_name) VALUES (?, ?)',
+            [ticketId, step]
+            );
+
+            return result;
+    },
+    changeColumn: async function (column, value, ticketId) {
+        if (column === 'categories_id') {
+            // Atualiza a categoria do ticket na tabela called_ticket_categories
+            const result = await executeQuery(
+                'UPDATE called_ticket_categories SET category_id = ? WHERE ticket_id = ?',
+                [value, ticketId]
+            );
+    
+            return result;
+        } else if (column === 'called_tickets_involved') {
+    
+            // Remove os colaboradores existentes para o ticket
+            await executeQuery(
+                'DELETE FROM called_tickets_involved WHERE ticket_id = ?',
+                [ticketId]
+            );
+    
+            if(Array.isArray(value)){
+                // Insere os novos colaboradores
+                const insertPromises = value.map(collaboratorId =>
+                    executeQuery(
+                        'INSERT INTO called_tickets_involved (ticket_id, collaborator_id) VALUES (?, ?)',
+                        [ticketId, collaboratorId]
+                    )
+                );
+
+                const insertResults = await Promise.all(insertPromises);
+            }
+           
+    
+            
+    
+            return true;
+        } else {
+            // Atualiza a coluna na tabela called_tickets
+            const result = await executeQuery(
+                `UPDATE called_tickets SET ${column} = ? WHERE id = ?`,
+                [value, ticketId]
+            );
+    
+            return result;
+        }
+    },
     saveTicket: async function(value){
         const timeInit = value.timeInit ? value.timeInit : null;
         const timeEnd = value.timeEnd ? value.timeEnd : null;
@@ -590,7 +814,6 @@ const tickets = {
 
         return { id: value.id };
     },
-
     updateStartForecast: async function (id, date) {
         
         if (date == ''){
@@ -655,7 +878,6 @@ const tickets = {
 
         return true;
     },
-
     updateEndForecast: async function (id, date) {
         
         if (date == ''){

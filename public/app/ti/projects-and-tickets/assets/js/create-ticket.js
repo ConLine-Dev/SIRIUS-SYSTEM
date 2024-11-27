@@ -252,6 +252,7 @@ async function getFormValues() {
         const result = await makeRequest(`/api/called/tickets/create-ticket`, 'POST', formData);
 
         console.log('Dados enviados com sucesso:', result);
+        window.close();
         
     } catch (error) {
         console.error('Erro ao enviar o formulário:', error);

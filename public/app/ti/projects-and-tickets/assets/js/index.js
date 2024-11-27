@@ -253,8 +253,22 @@ function initializeTaskCardEvents() {
             const taskId = this.getAttribute('id');
 
             document.getElementById('ButtonAddMessage').setAttribute('data-id', taskId)
+
+             // Obtém o tamanho do monitor do usuário
+                const screenWidth = window.screen.width;
+                const screenHeight = window.screen.height;
             
-            await editTask(taskId);
+                // Define largura e altura como metade do tamanho do monitor
+                const windowWidth = screenWidth / 2;
+                const windowHeight = screenHeight / 2;
+
+                // Calcula a posição para centralizar a janela
+                const left = (screenWidth - windowWidth) / 2;
+                const top = (screenHeight - windowHeight) / 2;
+
+                window.open('./view-ticket?id='+taskId, '_blank', `width=${screenWidth},height=${screenHeight},resizable=yes,scrollbars=yes`);
+            
+            // await editTask(taskId);
         });
     });
 }
@@ -839,10 +853,33 @@ async function OpenReport() {
 
 
  function openNewCalling() {
-    openWindow('/app/ti/projects-and-tickets/create-ticket', 800, 600);
+    // Obtém o tamanho do monitor do usuário
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+
+    // Define largura e altura como metade do tamanho do monitor
+    const windowWidth = screenWidth / 1.3;
+    const windowHeight = screenHeight / 1.3;
+
+   
+
+    openWindow('/app/ti/projects-and-tickets/create-ticket', windowWidth, windowHeight);
 }
 
 function openWindow(url, width, height) {
-    window.open(url, '_blank', `width=${width},height=${height},resizable=yes`);
+
+     // Obtém o tamanho do monitor do usuário
+     const screenWidth = window.screen.width;
+     const screenHeight = window.screen.height;
+ 
+     // Define largura e altura como metade do tamanho do monitor
+     const windowWidth = screenWidth / 2;
+     const windowHeight = screenHeight / 2;
+
+     // Calcula a posição para centralizar a janela
+     const left = (screenWidth - windowWidth) / 2;
+     const top = (screenHeight - windowHeight) / 2;
+
+    window.open(url, '_blank', `width=${width},height=${height},resizable=yes,scrollbars=yes`);
 }
 

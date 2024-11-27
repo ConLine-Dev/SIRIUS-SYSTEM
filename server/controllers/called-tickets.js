@@ -13,11 +13,23 @@ const tickets = {
     listAll: async function(value){
         const ticketsList = [];
 
-        const tickets = await executeQuery(`
-        SELECT ct.*, collab.name, collab.family_name, collab.id_headcargo 
-        FROM called_tickets ct
-        JOIN collaborators collab ON collab.id = ct.collaborator_id ORDER BY created_at desc
-        `);
+        const tickets = await executeQuery(`SELECT 
+                ct.id,
+                ct.title,
+                SUBSTRING(ct.description, 1, 300) AS description, -- Limita a descrição a 100 caracteres
+                ct.status,
+                ct.collaborator_id,
+                ct.start_forecast,
+                ct.end_forecast,
+                ct.created_at,
+                ct.finished_at,
+                ct.approved_at,
+                collab.name,
+                collab.family_name,
+                collab.id_headcargo 
+            FROM called_tickets ct
+            JOIN collaborators collab ON collab.id = ct.collaborator_id 
+            ORDER BY created_at DESC`);
 
         // Obter todos os dados relacionados a atribuições de uma vez
         const allAtribuidos = await executeQuery(`

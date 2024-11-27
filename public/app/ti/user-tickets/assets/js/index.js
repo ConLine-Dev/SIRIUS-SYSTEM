@@ -99,6 +99,20 @@ async function handleAddTicket(event) {
    
 }
 
+function openNewCalling() {
+    // Obtém o tamanho do monitor do usuário
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+
+    // Define largura e altura como metade do tamanho do monitor
+    const windowWidth = screenWidth / 1.3;
+    const windowHeight = screenHeight / 1.3;
+
+   
+    const newWindow = window.open('/app/ti/projects-and-tickets/create-ticket', '_blank', `width=${windowWidth},height=${windowHeight},resizable=yes,scrollbars=yes`);
+
+}
+
 async function handleAddSimplifiedTicket(event) {
     event.preventDefault();
 
@@ -292,9 +306,19 @@ function initializeTaskCardEvents() {
             document.querySelector(`.chat-ticket`).innerHTML = ''
             const taskId = this.getAttribute('id');
 
-            document.getElementById('ButtonAddMessage').setAttribute('data-id', taskId)
-
-            await editTask(taskId);
+                         // Obtém o tamanho do monitor do usuário
+                         const screenWidth = window.screen.width;
+                         const screenHeight = window.screen.height;
+                     
+                         // Define largura e altura como metade do tamanho do monitor
+                         const windowWidth = screenWidth / 2;
+                         const windowHeight = screenHeight / 2;
+         
+                         // Calcula a posição para centralizar a janela
+                         const left = (screenWidth - windowWidth) / 2;
+                         const top = (screenHeight - windowHeight) / 2;
+         
+                         window.open('/app/ti/projects-and-tickets/view-ticket?id='+taskId, '_blank', `width=${screenWidth},height=${screenHeight},resizable=yes,scrollbars=yes`);
         });
     });
 }

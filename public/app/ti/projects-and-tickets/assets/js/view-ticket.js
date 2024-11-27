@@ -307,6 +307,7 @@ async function getParams(param) {
 
 async function loadTicket() {
     GticketId = await getParams('id');
+
     let ticket = await makeRequest('/api/called/tickets/getById', 'POST', { id: GticketId });
 
     await toFillTicket(ticket[0]);
@@ -730,7 +731,9 @@ function splitFilename(path) {
 }
 
 async function writeFiles(Files) {
-    console.log(Files)
+    if (!Files || !Files.length) {
+        return;
+    }
     // Mapeamento de extensões MIME para ícones
     const iconMap = {
         'application/pdf': '../../assets/images/media/files/pdf.png',

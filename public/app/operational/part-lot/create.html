@@ -59,15 +59,15 @@
                         <!-- AREA PARA PESQUISAR E INSERIR INFORMAÇÕES DO PART LOT -->
                         <div class="d-flex align-items-center justify-content-start w-100 p-2">
                            <div style="width: 20%; margin-right: 10px;">
-                              <input class="form-control searchInput" type="text" placeholder="Referência Externa...">
+                              <input class="form-control searchInput" id="searchInput" type="text" placeholder="Referência Externa...">
                            </div>
-                           <button class="btn btn-primary me-2">
+                           <button class="btn btn-primary me-2" id="searchProcess">
                               <i class="me-0 fw-normal align-middle"></i>Buscar
                            </button>
                         </div>
 
                         <div class="d-flex align-items-bottom justify-content-start w-100 p-2 border-bottom">
-                           <div style="width: 15%; margin-right: 10px;">
+                           <div style="width: 17%; margin-right: 10px;">
                               <label for="selectPrincipalProcess" class="form-label">Processo Principal:</label> 
                               <br>
                               <select class="form-control" id="selectPrincipalProcess" name="selectPrincipalProcess">
@@ -140,9 +140,13 @@
                         </div>
                         <!-- / AREA PARA PESQUISAR E INSERIR INFORMAÇÕES DO PART LOT -->
 
-                        <div class="table-container" style="margin-top: 20px !important;">
-                           <table id="table_control_password" class="table table-bordered text-nowrap w-100 dataTable table-hover">
+                        <div class="table-container" style="margin-top: 20px !important; position: relative !important; min-height: 72vh;">
+                           <!-- LOADER -->
+                           <div id="loader" class="d-none">
+                              <img src="../../assets/images/media/loader.svg" alt="">
+                           </div>
 
+                           <table id="tableControlProcess" class="table table-bordered text-nowrap w-100 dataTable table-hover">
                               <!-- PROCESSO PART LOT -->
                               <!-- <tbody class="files-list">
                                  <tr data-process-id="10847" class="odd">

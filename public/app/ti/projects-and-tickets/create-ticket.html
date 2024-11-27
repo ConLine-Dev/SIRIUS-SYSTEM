@@ -19,6 +19,8 @@
   <!-- <script src="../../assets/js/main.js"></script> -->
   <!-- Bootstrap Css -->
   <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Intro Css -->
+  <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
   <!-- Style Css -->
   <link href="../../assets/css/styles.min.css" rel="stylesheet">
   <!-- Icons Css -->
@@ -46,14 +48,17 @@
 </head>
 
 <body>
-  <!-- Start Switcher -->
+  <!-- Tutorial -->
+  <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 0px; z-index: 100;"> 
+    <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+  </span>
 
-  <!-- End Switcher -->
+  <!-- Loader -->
   <div id="loader">
     <img src="../../assets/images/media/loader.svg" alt="">
   </div>
 
-  <!-- Loader -->
+  <!-- Body -->
         <div class="row">
           <div class="col-xl-12">
             <div class="card custom-card bodyWindows">
@@ -80,12 +85,12 @@
                 <div class="row gy-3">
                   <div class="col-xl-7 col-lg-7 col-md-7 col-sm-12">
                     <label for="input-label" class="form-label">Título</label>
-                    <input type="text" name="title" class="form-control form-input">
+                    <input type="text" name="title" class="form-control form-input intro_title_ticket">
                   </div>
         
                   <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12">
                     <label for="input-label" class="form-label">Categoria</label>
-                    <select class="form-control form-input" name="categories" tabindex="-1">
+                    <select class="form-control form-input intro_category_ticket" name="categories" tabindex="-1">
                       <option value="2">Chamado</option>
                       <option value="1">Projeto</option>
                     </select>
@@ -93,7 +98,7 @@
                   </div>
                   <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12">
                     <label for="input-label" class="form-label">Prioridade</label>
-                    <select class="form-control form-input" name="priority" tabindex="-1">
+                    <select class="form-control form-input intro_priority_ticket" name="priority" tabindex="-1">
                       <option value="low">Baixa</option>
                       <option value="medium">Média</option>
                       <option value="high">Alta</option>
@@ -101,24 +106,24 @@
                     </select>
                   </div>
         
-                  <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
+                  <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 intro_reponsible_ticket">
                     <label for="input-label" class="form-label">Responsável</label>
                     <select class="form-control form-input" name="responsible"></select>
                   </div>
         
         
-                  <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
+                  <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 intro_involved_ticket">
                     <label for="input-label" class="form-label">Envolvidos</label>
                     <select class="form-control form-input" name="involved" multiple></select>
                   </div>
         
-                  <div class="col-12">
+                  <div class="col-12 intro_description_ticket">
                     <label for="input-label" class="form-label">Descrição</label>
                     <div id="project-descriptioin-editor" class="ql-container ql-snow"></div>
                   </div>
         
         
-                  <input type="file" class="multiple-filepond-Attachments" multiple />
+                  <input type="file" class="multiple-filepond-Attachments" id="intro_attachment_ticket" multiple />
                 </div>
         
               </div>
@@ -155,6 +160,8 @@
 
   <script src="../../assets/js/main.js"></script>
   <script src="../../assets/js/fetchAPI.js"></script>
+  <script src="../../assets/libs/intro.js/intro.min.js"></script>
+    <script src="../../assets/libs/intro.js/intro.js"></script>
 
 
   <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>

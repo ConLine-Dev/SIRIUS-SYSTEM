@@ -844,11 +844,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 // Função que envia para a proxima janela o id da senha clicada
 async function OpenReport() {
 
-    const body = {
-        url: `/app/ti/projects-and-tickets/report`,
-        max:true
-    }
-    window.ipcRenderer.invoke('open-exWindow', body);
+    // const body = {
+    //     url: `/app/ti/projects-and-tickets/report`,
+    //     max:true
+    // }
+    // window.ipcRenderer.invoke('open-exWindow', body);
+
+    // Obtém o tamanho do monitor do usuário
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+
+    openWindow('/app/ti/projects-and-tickets/report', screenWidth, screenHeight);
  };
 
 

@@ -5,7 +5,7 @@
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <title>Part Lot</title>
+   <title>Part Lot - Criar</title>
    <meta name="Description" content="Controle de chamados & projetos TI">
    <meta name="Author" content="ConLine">
 
@@ -38,1074 +38,633 @@
 
    <!-- BODY -->
    <div class="main-content">
-      <div class="container-fluid">
-         <div class="file-manager-container p-2 gap-2 d-flex">
+      <div class="container-fluid"></div>
+         <div class="file-manager-container p-2 gap-2 d-flex" style="margin: 0 -0.5rem !important;">
             <!-- PAGINA PARA CRIAR UM NOVO PART LOT -->
             <div class="row">
                <div class="col-xl-12">
                   <div class="card custom-card" style="min-height: 98vh !important; width: 99vw !important;">
-                  <div class="card-header d-flex justify-content-between align-items-center">
-                     <div class="card-title fw-semibold fs-14">Parametrização do Processo</div>
+                     <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="card-title fw-semibold fs-14">Parametrização do Processo</div>
 
-                     <!-- Botões alinhados à direita -->
-                     <div class="d-flex">
-                        <button class="btn btn-primary me-2">
-                           <i class="me-0 fw-normal align-middle"></i>Salvar
-                        </button>
+                        <!-- Botões alinhados à direita -->
+                        <div class="d-flex">
+                           <button class="btn btn-primary me-2">
+                              <i class="me-0 fw-normal align-middle"></i>Salvar
+                           </button>
+                        </div>
                      </div>
-                  </div>
                   
-                  <div class="card-body" style="padding: 5px !important;">
-                     <div class="table-container">
+                     <div class="card-body" style="padding: 5px !important;">
+                        <!-- AREA PARA PESQUISAR E INSERIR INFORMAÇÕES DO PART LOT -->
+                        <div class="d-flex align-items-center justify-content-start w-100 p-2">
+                           <div style="width: 20%; margin-right: 10px;">
+                              <input class="form-control searchInput" type="text" placeholder="Referência Externa...">
+                           </div>
+                           <button class="btn btn-primary me-2">
+                              <i class="me-0 fw-normal align-middle"></i>Buscar
+                           </button>
+                        </div>
 
-                        <table id="table_control_password" class="table table-bordered text-nowrap w-100 dataTable table-hover">
+                        <div class="d-flex align-items-bottom justify-content-start w-100 p-2 border-bottom">
+                           <div style="width: 15%; margin-right: 10px;">
+                              <label for="selectPrincipalProcess" class="form-label">Processo Principal:</label> 
+                              <br>
+                              <select class="form-control" id="selectPrincipalProcess" name="selectPrincipalProcess">
+                                 <option value="" disabled selected>Selecione o Processo Principal</option>
+                              </select> 
+                           </div>
 
-                           <tbody class="files-list">
-                              <tr data-process-id="10847" class="odd">
-                                 <td style="width: 15px !important;">
-                                    <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
-                                       <i class="ri-eye-close-line"></i>
-                                    </button>
-                                 </td>
-                                 <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                    <div>
-                                       <span class="d-block fw-normal">Processo:</span> 
-                                       <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">IM3393-24</span> 
-                                    </div>
-                                 </td>
-                                 <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                    <div>
-                                       <span class="d-block fw-normal">Quantidade Container(s): 1</span> 
-                                       <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">PCIU8518953</span> 
-                                    </div>
-                                 </td>
-                                 <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                    <div>
-                                       <span class="d-block fw-normal">Quantidade HBL(s): 1</span> 
-                                       <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">KDRX24090021A</span> 
-                                    </div>
-                                 </td>
-                              </tr>
+                           <div style="width: 25%; margin-right: 10px;">
+                              <label for="selectRates" class="form-label">Taxa:</label> 
+                              <br>
+                              <select class="form-control" id="selectRates" name="selectRates">
+                                 <option value="" disabled selected>Selecione uma Taxa</option>
+                              </select> 
+                           </div>
 
-                              <tr class="details-row">
-                                 <td colspan="10">
-                                    <table class="table table-sm table-bordered mt-2">
-                                       <thead>
-                                          <tr>
-                                             <th>Taxa</th>
-                                             <th>Tipo</th>
-                                             <th>Forma de Cobrança</th>
-                                             <th>Moeda</th>
-                                             <th>Quantidade</th>
-                                             <th>Valor Unitário</th>
-                                             <th>Valor Total</th>
-                                          </tr>
-                                       </thead>
-                                       <tbody>
-                                          <tr>
-                                             <td>FRETE MARITIMO - FCL</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>2.251,36</td>
-                                             <td>2.251,36</td>
-                                          </tr>
-                                          <tr>
-                                             <td>LIBERAÇÃO DE BL</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Conhecimento</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>620,00</td>
-                                             <td>620,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>CAPATAZIA</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>355,75</td>
-                                             <td>355,75</td>
-                                          </tr>
-                                          <tr>
-                                             <td>DESCONSOLIDAÇÃO</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Conhecimento</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>70,00</td>
-                                             <td>70,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>DPP</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>0,33</td>
-                                             <td>152,00</td>
-                                             <td>50,16</td>
-                                          </tr>
-                                          <tr>
-                                             <td>ISPS</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>35,00</td>
-                                             <td>11,55</td>
-                                          </tr>
-                                          <tr>
-                                             <td>IOF</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Percentual</td>
-                                             <td>USD</td>
-                                             <td></td>
-                                             <td>0,38</td>
-                                             <td>9,55</td>
-                                          </tr>
-                                          <tr>
-                                             <td>EHCD - EQUIPMENT HANDOVER CHARGE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>15,00</td>
-                                             <td>4,95</td>
-                                          </tr>
-                                          <tr>
-                                             <td>TERMINAL SECURITY CHARGE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO INTERMEDIARIO</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO AGENTE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>COURIER FEE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>FRETE MARITIMO - FCL</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>2.234,17</td>
-                                             <td>2.234,17</td>
-                                          </tr>
-                                          <tr>
-                                             <td>LIBERAÇÃO DE BL</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>0,10</td>
-                                             <td>620,00</td>
-                                             <td>62,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>CAPATAZIA</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>355,75</td>
-                                             <td>355,75</td>
-                                          </tr>
-                                          <tr>
-                                             <td>DESCONSOLIDAÇÃO</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>DPP</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>0,33</td>
-                                             <td>150,00</td>
-                                             <td>49,50</td>
-                                          </tr>
-                                          <tr>
-                                             <td>ISPS</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>15,00</td>
-                                             <td>4,95</td>
-                                          </tr>
-                                          <tr>
-                                             <td>IOF</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>EHCD - EQUIPMENT HANDOVER CHARGE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>35,00</td>
-                                             <td>11,55</td>
-                                          </tr>
-                                          <tr>
-                                             <td>TERMINAL SECURITY CHARGE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>21,00</td>
-                                             <td>6,93</td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO INTERMEDIARIO</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Processo</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>50,00</td>
-                                             <td>50,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO AGENTE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>50,00</td>
-                                             <td>16,50</td>
-                                          </tr>
-                                          <tr>
-                                             <td>COURIER FEE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Conhecimento</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>14,51</td>
-                                             <td>14,51</td>
-                                          </tr>
-                                       </tbody>
-                                    </table>
-                                 </td>
-                              </tr>
-                           </tbody>
+                           <div style="width: 20%; margin-right: 10px;">
+                              <label for="selectType" class="form-label">Tipo de Cobrança:</label> 
+                              <br>
+                              <select class="form-control" id="selectType" name="selectType">
+                                 <option value="" disabled selected>Selecione o Tipo de Cobrança</option>
+                                 <option value="0">Pagamento</option>
+                                 <option value="1">Recebimento</option>
+                              </select> 
+                           </div>
 
-                           <tbody class="files-list">
-                              <tr data-process-id="10847" class="odd">
-                                 <td style="width: 15px !important;">
-                                    <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
-                                       <i class="ri-eye-close-line"></i>
-                                    </button>
-                                 </td>
-                                 <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                    <div>
-                                       <span class="d-block fw-normal">Processo:</span> 
-                                       <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">IM3393-24</span> 
-                                    </div>
-                                 </td>
-                                 <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                    <div>
-                                       <span class="d-block fw-normal">Quantidade Container(s): 1</span> 
-                                       <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">PCIU8518953</span> 
-                                    </div>
-                                 </td>
-                                 <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                    <div>
-                                       <span class="d-block fw-normal">Quantidade HBL(s): 1</span> 
-                                       <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">KDRX24090021A</span> 
-                                    </div>
-                                 </td>
-                              </tr>
+                           <div style="width: 20%; margin-right: 10px;">
+                              <label for="selectFormCob" class="form-label">Forma de Cobrança:</label> 
+                              <br>
+                              <select class="form-control" id="selectFormCob" name="selectFormCob">
+                                 <option value="" disabled selected>Selecione a Forma de Cobrança</option>
+                                 <option value="1">(Sem cobrança)</option>
+                                 <option value="19">Carreta</option>
+                                 <option value="7">Conhecimento</option>
+                                 <option value="10">Container</option>
+                                 <option value="8">Invoice</option>
+                                 <option value="14">Livre</option>
+                                 <option value="6">Metro Cúbico</option>
+                                 <option value="13">Percentual</option>
+                                 <option value="5">Peso Bruto</option>
+                                 <option value="17">Peso Considerado</option>
+                                 <option value="2">Processo</option>
+                                 <option value="12">TEU</option>
+                                 <option value="11">Tipo de Equipamento</option>
+                                 <option value="20">U.N. (Nações Unidas)</option>
+                                 <option value="9">Volume</option>
+                                 <option value="21">% Sobre Importância Segurada</option>
+                                 <option value="22">% Sobre Valor Mercadoria</option>
+                              </select> 
+                           </div>
 
-                              <tr class="details-row">
-                                 <td colspan="10">
-                                    <table class="table table-sm table-bordered mt-2">
-                                       <thead>
-                                          <tr>
-                                             <th>Taxa</th>
-                                             <th>Tipo</th>
-                                             <th>Forma de Cobrança</th>
-                                             <th>Moeda</th>
-                                             <th>Quantidade</th>
-                                             <th>Valor Unitário</th>
-                                             <th>Valor Total</th>
-                                          </tr>
-                                       </thead>
-                                       <tbody>
-                                          <tr>
-                                             <td>FRETE MARITIMO - FCL</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>2.251,36</td>
-                                             <td>2.251,36</td>
-                                          </tr>
-                                          <tr>
-                                             <td>LIBERAÇÃO DE BL</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Conhecimento</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>620,00</td>
-                                             <td>620,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>CAPATAZIA</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>355,75</td>
-                                             <td>355,75</td>
-                                          </tr>
-                                          <tr>
-                                             <td>DESCONSOLIDAÇÃO</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Conhecimento</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>70,00</td>
-                                             <td>70,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>DPP</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>0,33</td>
-                                             <td>152,00</td>
-                                             <td>50,16</td>
-                                          </tr>
-                                          <tr>
-                                             <td>ISPS</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>35,00</td>
-                                             <td>11,55</td>
-                                          </tr>
-                                          <tr>
-                                             <td>IOF</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Percentual</td>
-                                             <td>USD</td>
-                                             <td></td>
-                                             <td>0,38</td>
-                                             <td>9,55</td>
-                                          </tr>
-                                          <tr>
-                                             <td>EHCD - EQUIPMENT HANDOVER CHARGE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>15,00</td>
-                                             <td>4,95</td>
-                                          </tr>
-                                          <tr>
-                                             <td>TERMINAL SECURITY CHARGE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO INTERMEDIARIO</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO AGENTE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>COURIER FEE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>FRETE MARITIMO - FCL</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>2.234,17</td>
-                                             <td>2.234,17</td>
-                                          </tr>
-                                          <tr>
-                                             <td>LIBERAÇÃO DE BL</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>0,10</td>
-                                             <td>620,00</td>
-                                             <td>62,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>CAPATAZIA</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>355,75</td>
-                                             <td>355,75</td>
-                                          </tr>
-                                          <tr>
-                                             <td>DESCONSOLIDAÇÃO</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>DPP</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>0,33</td>
-                                             <td>150,00</td>
-                                             <td>49,50</td>
-                                          </tr>
-                                          <tr>
-                                             <td>ISPS</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>15,00</td>
-                                             <td>4,95</td>
-                                          </tr>
-                                          <tr>
-                                             <td>IOF</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>EHCD - EQUIPMENT HANDOVER CHARGE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>35,00</td>
-                                             <td>11,55</td>
-                                          </tr>
-                                          <tr>
-                                             <td>TERMINAL SECURITY CHARGE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>21,00</td>
-                                             <td>6,93</td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO INTERMEDIARIO</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Processo</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>50,00</td>
-                                             <td>50,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO AGENTE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>50,00</td>
-                                             <td>16,50</td>
-                                          </tr>
-                                          <tr>
-                                             <td>COURIER FEE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Conhecimento</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>14,51</td>
-                                             <td>14,51</td>
-                                          </tr>
-                                       </tbody>
-                                    </table>
-                                 </td>
-                              </tr>
-                           </tbody>
+                           <div style="width: 20%; margin-right: 10px;">
+                              <label for="selectDivRep" class="form-label">Dividir ou Replicar:</label> 
+                              <br>
+                              <select class="form-control" id="selectDivRep" name="selectDivRep">
+                                 <option value="" style="width: 100% !important;">Selecione uma Opção</option>
+                              </select> 
+                           </div>
 
-                           <tbody class="files-list">
-                              <tr data-process-id="10847" class="odd">
-                                 <td style="width: 15px !important;">
-                                    <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
-                                       <i class="ri-eye-close-line"></i>
-                                    </button>
-                                 </td>
-                                 <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                    <div>
-                                       <span class="d-block fw-normal">Processo:</span> 
-                                       <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">IM3393-24</span> 
-                                    </div>
-                                 </td>
-                                 <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                    <div>
-                                       <span class="d-block fw-normal">Quantidade Container(s): 1</span> 
-                                       <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">PCIU8518953</span> 
-                                    </div>
-                                 </td>
-                                 <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                    <div>
-                                       <span class="d-block fw-normal">Quantidade HBL(s): 1</span> 
-                                       <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">KDRX24090021A</span> 
-                                    </div>
-                                 </td>
-                              </tr>
+                           <div style="width: 15%; margin-right: 10px;">
+                              <label for="inputValue" class="form-label">Valor a ser Rateado/Replicado:</label> 
+                              <br>
+                              <input class="form-control" id="inputValue" name="inputValue" type="number" placeholder="Valor a ser Rateado/Replicado">
+                           </div>
 
-                              <tr class="details-row">
-                                 <td colspan="10">
-                                    <table class="table table-sm table-bordered mt-2">
-                                       <thead>
-                                          <tr>
-                                             <th>Taxa</th>
-                                             <th>Tipo</th>
-                                             <th>Forma de Cobrança</th>
-                                             <th>Moeda</th>
-                                             <th>Quantidade</th>
-                                             <th>Valor Unitário</th>
-                                             <th>Valor Total</th>
-                                          </tr>
-                                       </thead>
-                                       <tbody>
-                                          <tr>
-                                             <td>FRETE MARITIMO - FCL</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>2.251,36</td>
-                                             <td>2.251,36</td>
-                                          </tr>
-                                          <tr>
-                                             <td>LIBERAÇÃO DE BL</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Conhecimento</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>620,00</td>
-                                             <td>620,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>CAPATAZIA</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>355,75</td>
-                                             <td>355,75</td>
-                                          </tr>
-                                          <tr>
-                                             <td>DESCONSOLIDAÇÃO</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Conhecimento</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>70,00</td>
-                                             <td>70,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>DPP</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>0,33</td>
-                                             <td>152,00</td>
-                                             <td>50,16</td>
-                                          </tr>
-                                          <tr>
-                                             <td>ISPS</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>35,00</td>
-                                             <td>11,55</td>
-                                          </tr>
-                                          <tr>
-                                             <td>IOF</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Percentual</td>
-                                             <td>USD</td>
-                                             <td></td>
-                                             <td>0,38</td>
-                                             <td>9,55</td>
-                                          </tr>
-                                          <tr>
-                                             <td>EHCD - EQUIPMENT HANDOVER CHARGE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>15,00</td>
-                                             <td>4,95</td>
-                                          </tr>
-                                          <tr>
-                                             <td>TERMINAL SECURITY CHARGE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO INTERMEDIARIO</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO AGENTE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>COURIER FEE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>FRETE MARITIMO - FCL</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>2.234,17</td>
-                                             <td>2.234,17</td>
-                                          </tr>
-                                          <tr>
-                                             <td>LIBERAÇÃO DE BL</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>0,10</td>
-                                             <td>620,00</td>
-                                             <td>62,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>CAPATAZIA</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>355,75</td>
-                                             <td>355,75</td>
-                                          </tr>
-                                          <tr>
-                                             <td>DESCONSOLIDAÇÃO</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>DPP</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>0,33</td>
-                                             <td>150,00</td>
-                                             <td>49,50</td>
-                                          </tr>
-                                          <tr>
-                                             <td>ISPS</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>15,00</td>
-                                             <td>4,95</td>
-                                          </tr>
-                                          <tr>
-                                             <td>IOF</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>EHCD - EQUIPMENT HANDOVER CHARGE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>35,00</td>
-                                             <td>11,55</td>
-                                          </tr>
-                                          <tr>
-                                             <td>TERMINAL SECURITY CHARGE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>21,00</td>
-                                             <td>6,93</td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO INTERMEDIARIO</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Processo</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>50,00</td>
-                                             <td>50,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO AGENTE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>50,00</td>
-                                             <td>16,50</td>
-                                          </tr>
-                                          <tr>
-                                             <td>COURIER FEE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Conhecimento</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>14,51</td>
-                                             <td>14,51</td>
-                                          </tr>
-                                       </tbody>
-                                    </table>
-                                 </td>
-                              </tr>
-                           </tbody>
+                           <div style="margin-right: 10px; display: flex; align-items: flex-end;">
+                              <button class="btn btn-primary me-2" disabled="true">
+                                 <i class="me-0 fw-normal align-middle"></i>Inserir
+                              </button>
+                           </div>
+                        </div>
+                        <!-- / AREA PARA PESQUISAR E INSERIR INFORMAÇÕES DO PART LOT -->
 
-                           <tbody class="files-list">
-                              <tr>
-                                 <td class="bg-success-transparent" style="width: 15px !important;">
-                                    <button onclick="toggleDetails(this)" class="btn btn-icon btn-success-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
-                                       <i class="ri-eye-close-line"></i>
-                                    </button>
-                                 </td>
-                                 <td colspan="3" class="bg-success-transparent" style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                    <div>
-                                       <span class="d-block fw-bold">Totalizador:</span> 
-                                    </div>
-                                 </td>
-                              </tr>
+                        <div class="table-container" style="margin-top: 20px !important;">
+                           <table id="table_control_password" class="table table-bordered text-nowrap w-100 dataTable table-hover">
 
-                              <tr class="details-row">
-                                 <td colspan="10">
-                                    <table class="table table-sm table-bordered mt-2">
-                                       <thead>
-                                          <tr>
-                                             <th>Taxa</th>
-                                             <th>Tipo</th>
-                                             <th>Forma de Cobrança</th>
-                                             <th>Moeda</th>
-                                             <th>Quantidade</th>
-                                             <th>Valor Unitário</th>
-                                             <th>Valor Total</th>
-                                          </tr>
-                                       </thead>
-                                       <tbody>
-                                          <tr>
-                                             <td>FRETE MARITIMO - FCL</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>2.251,36</td>
-                                             <td>2.251,36</td>
-                                          </tr>
-                                          <tr>
-                                             <td>LIBERAÇÃO DE BL</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Conhecimento</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>620,00</td>
-                                             <td>620,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>CAPATAZIA</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>355,75</td>
-                                             <td>355,75</td>
-                                          </tr>
-                                          <tr>
-                                             <td>DESCONSOLIDAÇÃO</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Conhecimento</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>70,00</td>
-                                             <td>70,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>DPP</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>0,33</td>
-                                             <td>152,00</td>
-                                             <td>50,16</td>
-                                          </tr>
-                                          <tr>
-                                             <td>ISPS</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>35,00</td>
-                                             <td>11,55</td>
-                                          </tr>
-                                          <tr>
-                                             <td>IOF</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Percentual</td>
-                                             <td>USD</td>
-                                             <td></td>
-                                             <td>0,38</td>
-                                             <td>9,55</td>
-                                          </tr>
-                                          <tr>
-                                             <td>EHCD - EQUIPMENT HANDOVER CHARGE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>15,00</td>
-                                             <td>4,95</td>
-                                          </tr>
-                                          <tr>
-                                             <td>TERMINAL SECURITY CHARGE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO INTERMEDIARIO</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO AGENTE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>COURIER FEE</td>
-                                             <td><span class="badge bg-success-transparent">Recebimento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>FRETE MARITIMO - FCL</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>2.234,17</td>
-                                             <td>2.234,17</td>
-                                          </tr>
-                                          <tr>
-                                             <td>LIBERAÇÃO DE BL</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>0,10</td>
-                                             <td>620,00</td>
-                                             <td>62,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>CAPATAZIA</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>355,75</td>
-                                             <td>355,75</td>
-                                          </tr>
-                                          <tr>
-                                             <td>DESCONSOLIDAÇÃO</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>DPP</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>BRL</td>
-                                             <td>0,33</td>
-                                             <td>150,00</td>
-                                             <td>49,50</td>
-                                          </tr>
-                                          <tr>
-                                             <td>ISPS</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>15,00</td>
-                                             <td>4,95</td>
-                                          </tr>
-                                          <tr>
-                                             <td>IOF</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>(Sem Cobrança)</td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                             <td></td>
-                                          </tr>
-                                          <tr>
-                                             <td>EHCD - EQUIPMENT HANDOVER CHARGE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>35,00</td>
-                                             <td>11,55</td>
-                                          </tr>
-                                          <tr>
-                                             <td>TERMINAL SECURITY CHARGE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>21,00</td>
-                                             <td>6,93</td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO INTERMEDIARIO</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Processo</td>
-                                             <td>USD</td>
-                                             <td>1,00</td>
-                                             <td>50,00</td>
-                                             <td>50,00</td>
-                                          </tr>
-                                          <tr>
-                                             <td>COMISSAO AGENTE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Livre</td>
-                                             <td>USD</td>
-                                             <td>0,33</td>
-                                             <td>50,00</td>
-                                             <td>16,50</td>
-                                          </tr>
-                                          <tr>
-                                             <td>COURIER FEE</td>
-                                             <td><span class="badge bg-danger-transparent">Pagamento</span></td>
-                                             <td>Conhecimento</td>
-                                             <td>BRL</td>
-                                             <td>1,00</td>
-                                             <td>14,51</td>
-                                             <td>14,51</td>
-                                          </tr>
-                                       </tbody>
-                                    </table>
-                                 </td>
-                              </tr>
-                           </tbody>
+                              <!-- PROCESSO PART LOT -->
+                              <!-- <tbody class="files-list">
+                                 <tr data-process-id="10847" class="odd">
+                                    <td style="width: 15px !important;">
+                                       <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                          <i class="ri-eye-close-line"></i>
+                                       </button>
+                                    </td>
+                                    <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                       <div>
+                                          <span class="d-block fw-normal">Processo:</span> 
+                                          <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">IM3393-24</span> 
+                                       </div>
+                                    </td>
+                                    <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                       <div>
+                                          <span class="d-block fw-normal">Quantidade Container(s): 1</span> 
+                                          <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">PCIU8518953</span> 
+                                       </div>
+                                    </td>
+                                    <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                       <div>
+                                          <span class="d-block fw-normal">Quantidade HBL(s): 1</span> 
+                                          <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">KDRX24090021A</span> 
+                                       </div>
+                                    </td>
+                                 </tr>
 
-                        </table>
+                                 <tr class="details-row">
+                                    <td colspan="10">
+                                       <table class="table table-sm table-bordered mt-2">
+                                          <thead>
+                                             <tr>
+                                                <th>Taxa</th>
+                                                <th>Tipo</th>
+                                                <th>Forma de Cobrança</th>
+                                                <th>Moeda</th>
+                                                <th>Quantidade</th>
+                                                <th>Valor Unitário</th>
+                                                <th>Valor Total</th>
+                                             </tr>
+                                          </thead>
+                                          <tbody>
+                                             <tr>
+                                                <td>FRETE MARITIMO - FCL</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>1,00</td>
+                                                <td>2.251,36</td>
+                                                <td>2.251,36</td>
+                                             </tr>
+                                             <tr>
+                                                <td>LIBERAÇÃO DE BL</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Conhecimento</td>
+                                                <td>BRL</td>
+                                                <td>1,00</td>
+                                                <td>620,00</td>
+                                                <td>620,00</td>
+                                             </tr>
+                                             <tr>
+                                                <td>CAPATAZIA</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Livre</td>
+                                                <td>BRL</td>
+                                                <td>1,00</td>
+                                                <td>355,75</td>
+                                                <td>355,75</td>
+                                             </tr>
+                                             <tr>
+                                                <td>DESCONSOLIDAÇÃO</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Conhecimento</td>
+                                                <td>USD</td>
+                                                <td>1,00</td>
+                                                <td>70,00</td>
+                                                <td>70,00</td>
+                                             </tr>
+                                             <tr>
+                                                <td>DPP</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Livre</td>
+                                                <td>BRL</td>
+                                                <td>0,33</td>
+                                                <td>152,00</td>
+                                                <td>50,16</td>
+                                             </tr>
+                                             <tr>
+                                                <td>ISPS</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>0,33</td>
+                                                <td>35,00</td>
+                                                <td>11,55</td>
+                                             </tr>
+                                             <tr>
+                                                <td>IOF</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Percentual</td>
+                                                <td>USD</td>
+                                                <td></td>
+                                                <td>0,38</td>
+                                                <td>9,55</td>
+                                             </tr>
+                                             <tr>
+                                                <td>EHCD - EQUIPMENT HANDOVER CHARGE</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>0,33</td>
+                                                <td>15,00</td>
+                                                <td>4,95</td>
+                                             </tr>
+                                             <tr>
+                                                <td>TERMINAL SECURITY CHARGE</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>(Sem Cobrança)</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                             </tr>
+                                             <tr>
+                                                <td>COMISSAO INTERMEDIARIO</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>(Sem Cobrança)</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                             </tr>
+                                             <tr>
+                                                <td>COMISSAO AGENTE</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>(Sem Cobrança)</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                             </tr>
+                                             <tr>
+                                                <td>COURIER FEE</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>(Sem Cobrança)</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                             </tr>
+                                             <tr>
+                                                <td>FRETE MARITIMO - FCL</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>1,00</td>
+                                                <td>2.234,17</td>
+                                                <td>2.234,17</td>
+                                             </tr>
+                                             <tr>
+                                                <td>LIBERAÇÃO DE BL</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>BRL</td>
+                                                <td>0,10</td>
+                                                <td>620,00</td>
+                                                <td>62,00</td>
+                                             </tr>
+                                             <tr>
+                                                <td>CAPATAZIA</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>BRL</td>
+                                                <td>1,00</td>
+                                                <td>355,75</td>
+                                                <td>355,75</td>
+                                             </tr>
+                                             <tr>
+                                                <td>DESCONSOLIDAÇÃO</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>(Sem Cobrança)</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                             </tr>
+                                             <tr>
+                                                <td>DPP</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>BRL</td>
+                                                <td>0,33</td>
+                                                <td>150,00</td>
+                                                <td>49,50</td>
+                                             </tr>
+                                             <tr>
+                                                <td>ISPS</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>0,33</td>
+                                                <td>15,00</td>
+                                                <td>4,95</td>
+                                             </tr>
+                                             <tr>
+                                                <td>IOF</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>(Sem Cobrança)</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                             </tr>
+                                             <tr>
+                                                <td>EHCD - EQUIPMENT HANDOVER CHARGE</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>0,33</td>
+                                                <td>35,00</td>
+                                                <td>11,55</td>
+                                             </tr>
+                                             <tr>
+                                                <td>TERMINAL SECURITY CHARGE</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>0,33</td>
+                                                <td>21,00</td>
+                                                <td>6,93</td>
+                                             </tr>
+                                             <tr>
+                                                <td>COMISSAO INTERMEDIARIO</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Processo</td>
+                                                <td>USD</td>
+                                                <td>1,00</td>
+                                                <td>50,00</td>
+                                                <td>50,00</td>
+                                             </tr>
+                                             <tr>
+                                                <td>COMISSAO AGENTE</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>0,33</td>
+                                                <td>50,00</td>
+                                                <td>16,50</td>
+                                             </tr>
+                                             <tr>
+                                                <td>COURIER FEE</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Conhecimento</td>
+                                                <td>BRL</td>
+                                                <td>1,00</td>
+                                                <td>14,51</td>
+                                                <td>14,51</td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+                              </tbody> -->
+                              <!-- / PROCESSO PART LOT -->
+
+                              <!-- TOTALIZADOR -->
+                              <!-- <tbody class="files-list">
+                                 <tr>
+                                    <td class="bg-success-transparent" style="width: 15px !important;">
+                                       <button onclick="toggleDetails(this)" class="btn btn-icon btn-success-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                                          <i class="ri-eye-close-line"></i>
+                                       </button>
+                                    </td>
+                                    <td colspan="3" class="bg-success-transparent" style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                       <div>
+                                          <span class="d-block fw-bold">Totalizador:</span> 
+                                       </div>
+                                    </td>
+                                 </tr>
+
+                                 <tr class="details-row">
+                                    <td colspan="10">
+                                       <table class="table table-sm table-bordered mt-2">
+                                          <thead>
+                                             <tr>
+                                                <th>Taxa</th>
+                                                <th>Tipo</th>
+                                                <th>Forma de Cobrança</th>
+                                                <th>Moeda</th>
+                                                <th>Quantidade</th>
+                                                <th>Valor Unitário</th>
+                                                <th>Valor Total</th>
+                                             </tr>
+                                          </thead>
+                                          <tbody>
+                                             <tr>
+                                                <td>FRETE MARITIMO - FCL</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>1,00</td>
+                                                <td>2.251,36</td>
+                                                <td>2.251,36</td>
+                                             </tr>
+                                             <tr>
+                                                <td>LIBERAÇÃO DE BL</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Conhecimento</td>
+                                                <td>BRL</td>
+                                                <td>1,00</td>
+                                                <td>620,00</td>
+                                                <td>620,00</td>
+                                             </tr>
+                                             <tr>
+                                                <td>CAPATAZIA</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Livre</td>
+                                                <td>BRL</td>
+                                                <td>1,00</td>
+                                                <td>355,75</td>
+                                                <td>355,75</td>
+                                             </tr>
+                                             <tr>
+                                                <td>DESCONSOLIDAÇÃO</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Conhecimento</td>
+                                                <td>USD</td>
+                                                <td>1,00</td>
+                                                <td>70,00</td>
+                                                <td>70,00</td>
+                                             </tr>
+                                             <tr>
+                                                <td>DPP</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Livre</td>
+                                                <td>BRL</td>
+                                                <td>0,33</td>
+                                                <td>152,00</td>
+                                                <td>50,16</td>
+                                             </tr>
+                                             <tr>
+                                                <td>ISPS</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>0,33</td>
+                                                <td>35,00</td>
+                                                <td>11,55</td>
+                                             </tr>
+                                             <tr>
+                                                <td>IOF</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Percentual</td>
+                                                <td>USD</td>
+                                                <td></td>
+                                                <td>0,38</td>
+                                                <td>9,55</td>
+                                             </tr>
+                                             <tr>
+                                                <td>EHCD - EQUIPMENT HANDOVER CHARGE</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>0,33</td>
+                                                <td>15,00</td>
+                                                <td>4,95</td>
+                                             </tr>
+                                             <tr>
+                                                <td>TERMINAL SECURITY CHARGE</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>(Sem Cobrança)</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                             </tr>
+                                             <tr>
+                                                <td>COMISSAO INTERMEDIARIO</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>(Sem Cobrança)</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                             </tr>
+                                             <tr>
+                                                <td>COMISSAO AGENTE</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>(Sem Cobrança)</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                             </tr>
+                                             <tr>
+                                                <td>COURIER FEE</td>
+                                                <td><span class="badge bg-success-transparent">Recebimento</span></td>
+                                                <td>(Sem Cobrança)</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                             </tr>
+                                             <tr>
+                                                <td>FRETE MARITIMO - FCL</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>1,00</td>
+                                                <td>2.234,17</td>
+                                                <td>2.234,17</td>
+                                             </tr>
+                                             <tr>
+                                                <td>LIBERAÇÃO DE BL</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>BRL</td>
+                                                <td>0,10</td>
+                                                <td>620,00</td>
+                                                <td>62,00</td>
+                                             </tr>
+                                             <tr>
+                                                <td>CAPATAZIA</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>BRL</td>
+                                                <td>1,00</td>
+                                                <td>355,75</td>
+                                                <td>355,75</td>
+                                             </tr>
+                                             <tr>
+                                                <td>DESCONSOLIDAÇÃO</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>(Sem Cobrança)</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                             </tr>
+                                             <tr>
+                                                <td>DPP</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>BRL</td>
+                                                <td>0,33</td>
+                                                <td>150,00</td>
+                                                <td>49,50</td>
+                                             </tr>
+                                             <tr>
+                                                <td>ISPS</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>0,33</td>
+                                                <td>15,00</td>
+                                                <td>4,95</td>
+                                             </tr>
+                                             <tr>
+                                                <td>IOF</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>(Sem Cobrança)</td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                             </tr>
+                                             <tr>
+                                                <td>EHCD - EQUIPMENT HANDOVER CHARGE</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>0,33</td>
+                                                <td>35,00</td>
+                                                <td>11,55</td>
+                                             </tr>
+                                             <tr>
+                                                <td>TERMINAL SECURITY CHARGE</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>0,33</td>
+                                                <td>21,00</td>
+                                                <td>6,93</td>
+                                             </tr>
+                                             <tr>
+                                                <td>COMISSAO INTERMEDIARIO</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Processo</td>
+                                                <td>USD</td>
+                                                <td>1,00</td>
+                                                <td>50,00</td>
+                                                <td>50,00</td>
+                                             </tr>
+                                             <tr>
+                                                <td>COMISSAO AGENTE</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Livre</td>
+                                                <td>USD</td>
+                                                <td>0,33</td>
+                                                <td>50,00</td>
+                                                <td>16,50</td>
+                                             </tr>
+                                             <tr>
+                                                <td>COURIER FEE</td>
+                                                <td><span class="badge bg-danger-transparent">Pagamento</span></td>
+                                                <td>Conhecimento</td>
+                                                <td>BRL</td>
+                                                <td>1,00</td>
+                                                <td>14,51</td>
+                                                <td>14,51</td>
+                                             </tr>
+                                          </tbody>
+                                       </table>
+                                    </td>
+                                 </tr>
+                              </tbody> -->
+                              <!-- / TOTALIZADOR -->
+
+                           </table>
+                        </div>
                      </div>
-                  </div>
                   </div>
                </div>
             </div>

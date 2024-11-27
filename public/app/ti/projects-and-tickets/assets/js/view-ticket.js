@@ -144,6 +144,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if(btnRemoveAssigned){
             btnRemoveAssigned.closest('tr').remove();
         }
+
+        verifyAcess();
         
     })
     
@@ -160,6 +162,12 @@ async function verifyAcess(){
 
     console.log(user)
 
+    if(user.department_ids == 7){
+        console.log(true)
+    }else{
+        console.log(false)
+    }
+
     if(user && user.department_ids && user.department_ids == 7){
         // document.querySelector('.buttonComment').removeAttribute('disabled');
         // document.querySelector('.inputComment').removeAttribute('disabled');
@@ -168,6 +176,7 @@ async function verifyAcess(){
         // document.querySelector('.multiple-filepond-Attachments').removeAttribute('disabled');
 
         addClickEventsToTI()
+       
 
     }else{
         document.querySelector('.btnControleTeam').setAttribute('disabled', true);
@@ -181,6 +190,13 @@ async function verifyAcess(){
         removebtn.forEach(step => {
             step.setAttribute('disabled', true);
         })
+
+        const ButtonRemoveTicket = document.querySelectorAll('#ButtonRemoveTicket');
+        ButtonRemoveTicket.forEach(step => {
+            step.setAttribute('disabled', true);
+        })
+
+        
 
         const removebtnFiles = document.querySelectorAll('.files button');
         removebtnFiles.forEach(step => {
@@ -347,6 +363,7 @@ async function toFillTicket(ticket){
 
 
     console.log(ticket)
+
     document.querySelector('.task-title').innerHTML = ticket.title;
     document.querySelector('.created_at').innerHTML = formatDateBR(ticket.created_at);
     document.querySelector('.start_forecast').innerHTML = ticket.start_forecast ? formatDateBR(ticket.start_forecast) : 'Não informado';
@@ -357,6 +374,7 @@ async function toFillTicket(ticket){
     document.querySelector('.responsibleName').innerHTML = ticket.name;
     document.querySelector('.responsibleIMG').setAttribute('src', 'https://cdn.conlinebr.com.br/colaboradores/'+ticket.id_headcargo)
     document.querySelector('#ticket_id').innerHTML = ticket.id;
+    document.querySelector('#ButtonRemoveTicket').setAttribute('data-id', ticket.id)
 
     // Atualiza a classe do elemento priority_text
     const priorityElement = document.querySelector('.priority_text');
@@ -538,9 +556,17 @@ async function initializeComponents() {
         }
     });
 
+
+    document.querySelector('#ButtonRemoveTicket').addEventListener('click', async (e) => {
+        e.preventDefault();
+        const ticketId = document.querySelector('#ButtonRemoveTicket').getAttribute('data-id');
+        makeRequest('/api/called/tickets/removeTicket', 'POST', {id:ticketId});
+        window.close();
+    });
+
     document.querySelector('.inputComment').addEventListener('keydown', async (e) => {
         const comment = document.querySelector('.inputComment').value;
-        if (e.key === 'Enter' && comment && !e.shiftKey) {
+        if (e.key === 'Enter' && comment && comment.trim() !== '' && !e.shiftKey) {
             e.preventDefault(); // Impede o comportamento padrão de inserir uma nova linha
             document.querySelector('.buttonComment').click(); // Simula o clique no botão
         }
@@ -548,7 +574,7 @@ async function initializeComponents() {
 
     document.querySelector('#new-step').addEventListener('keydown', async (e) => {
         const step = document.querySelector('#new-step').value;
-        if (e.key === 'Enter' && step) {
+        if (e.key === 'Enter' && comment.trim() && step) {
             e.preventDefault(); // Impede o comportamento padrão de inserir uma nova linha
             document.querySelector('#add-step-btn').click(); // Simula o clique no botão
         }

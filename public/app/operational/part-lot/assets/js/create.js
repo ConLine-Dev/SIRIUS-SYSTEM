@@ -1,3 +1,5 @@
+let searchedProcess; // Armazena os processos que retornaram da pesquisa
+
 // Função para abrir uma nova janela
 function openWindow(url, width, height) {
    // Alvo da janela (nova aba/janela)
@@ -36,14 +38,33 @@ document.getElementById('searchProcess').addEventListener('click', async functio
 
    const tableControlProcess = document.getElementById('tableControlProcess'); // Div que vai inserir os processos dentro
    const searchInput = document.getElementById('searchInput').value;
-   
+
+   searchedProcess = ''; // Limpa a variavel a cada consulta para poder inserir novos valores
+
+   const process = await makeRequest(`/api/part-lot/processByRef`, 'POST', { externalRef: searchInput});
+   searchedProcess = process; // Atualizado os valores da variavel
+   console.log(searchedProcess);
+
+   // Insere os processos na tela
    tableControlProcess.innerHTML = '';
    let processHTML = '';
 
-   const process = await makeRequest(`/api/part-lot/processByRef`, 'POST', { externalRef: searchInput});
+   // Insere os processos no selectPrincipalProcess
+   const selectPrincipalProcess = document.getElementById('selectPrincipalProcess');
+   // Mantém o placeholder no select
+   const placeHolderOption = selectPrincipalProcess.querySelector('option[disabled]');
+   const placeholderHTML = placeHolderOption ? placeHolderOption.outerHTML : '<option value="" disabled selected>Selecione um processo</option>';
+   // Remove as opções existentes
+   selectPrincipalProcess.innerHTML = placeholderHTML;
 
    for (let i = 0; i < process.length; i++) {
-      const item = process[i];      
+      const item = process[i];
+
+      // Adiciona um indicador de carregamento
+      const option = document.createElement('option');
+      option.value = item.IdLogistica_House;
+      option.textContent = item.Numero_Processo;
+      selectPrincipalProcess.appendChild(option);
    
       processHTML += `<tbody class="files-list">
                         <tr data-process-id="${item.IdLogistica_House}" class="odd">
@@ -82,8 +103,19 @@ document.getElementById('searchProcess').addEventListener('click', async functio
    };
    
    tableControlProcess.innerHTML = processHTML;
+   // FIM - Insere os processos na tela
 
    document.querySelector('#loader').classList.add('d-none');
+});
+
+// Adiciona um evento para carregar as opções quando o dropdown do select é exibido
+document.querySelector('#selectRates').addEventListener('focus', async function() {
+   const selectElement = document.getElementById('selectPrincipalProcess');
+   const selectedValue = selectElement.value;
+   if (selectedValue) {
+      //  await loadSelectColumn();
+      console.log(selectedValue);
+   }
 });
 
 document.addEventListener("DOMContentLoaded", async () => {

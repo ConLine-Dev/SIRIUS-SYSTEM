@@ -11,14 +11,17 @@ const partLot = {
             Lmc.Containers,
             Lmc.Qtd_Containers,
             Lhs.Conhecimentos,
-            Cem.Qtd_Conhecimentos
+            Cem.Qtd_Conhecimentos,
+            Lhs.Peso_Considerado,
+            Lmc.Peso_Cubado
          FROM
             mov_Logistica_House Lhs
          LEFT OUTER JOIN (
             SELECT
                Lmc.IdLogistica_House,
                STRING_AGG(Lmc.Number, ', ') AS Containers,
-               COUNT(Lmc.IdLogistica_Maritima_Container) AS Qtd_Containers
+               COUNT(Lmc.IdLogistica_Maritima_Container) AS Qtd_Containers,
+               SUM(Lmc.Measurement) AS Peso_Cubado
             FROM
                mov_Logistica_Maritima_Container Lmc
             GROUP BY

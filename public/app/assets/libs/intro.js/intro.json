@@ -440,7 +440,21 @@
     "element": "#intro_attachment_ticket",
     "title": "Anexar Documentos",
     "intro":"Nesta seção, você pode anexar qualquer tipo de arquivo, como imagens, planilhas Excel, PDFs e outros formatos."
+  },
+  {
+    "element": ".intro_events_calendar",
+    "title": "Eventos",
+    "intro":"Nesta seção, você pode adicionar novos eventos clicando no botão '+'. Ao selecionar um evento, os detalhes dos dias correspondentes ao evento escolhido serão exibidos logo abaixo."
+  },
+  {
+    "element": ".intro_event_day",
+    "title": "Eventos do dia",
+    "intro":"Aqui serão exibidos os eventos do dia, caso nenhum tipo de evento seja selecionado acima."
+  },
+  {
+    "element": ".intro_calendar",
+    "title": "Calendário",
+    "intro":"Nesta seção, você pode visualizar o calendário completo. Por padrão, o mês atual será exibido, e cada evento criado aparecerá na respectiva data. Após criar um evento, você pode editá-lo clicando na caixa do dia correspondente ou arrastá-lo para outra data, caso seja necessário alterar o dia."
   }
 
-  
 ]

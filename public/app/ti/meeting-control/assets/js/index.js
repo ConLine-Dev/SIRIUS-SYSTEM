@@ -385,6 +385,8 @@ function initializeDatePicker() {
 
 document.addEventListener('DOMContentLoaded', async function () {
 
+  introMain();
+
   const categoryCalendar = await makeRequest(`/api/meeting-control/getAllCategoryCalendar`);
 
   const socket = io();

@@ -19,5 +19,33 @@ module.exports = function(io) {
       }
    });
 
+   // Lista as taxas por processo
+   router.post('/listRatesByProcess', async (req, res, next) => {
+      const { IdLogistica_House } = req.body;
+      
+      try {
+         const result = await partLot.listRatesByProcess(IdLogistica_House);
+
+         res.status(200).json(result)
+      } catch (error) {
+
+         res.status(404).json('Erro')
+      }
+   });
+
+   // Lista as taxas de todos os processos
+   router.post('/listAllRates', async (req, res, next) => {
+      const { IdLogistica_House } = req.body;
+      
+      try {
+         const result = await partLot.listAllRates(IdLogistica_House);
+
+         res.status(200).json(result)
+      } catch (error) {
+
+         res.status(404).json('Erro')
+      }
+   });
+
    return router;
 }

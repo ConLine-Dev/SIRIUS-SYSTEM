@@ -71,7 +71,7 @@
                               <label for="selectPrincipalProcess" class="form-label">Processo Principal:</label> 
                               <br>
                               <select class="form-control" id="selectPrincipalProcess" name="selectPrincipalProcess">
-                                 <option value="" disabled selected>Selecione o Processo Principal</option>
+                                 <option value="" disabled selected>Selecione uma Opção</option>
                               </select> 
                            </div>
 
@@ -79,7 +79,7 @@
                               <label for="selectRates" class="form-label">Taxa:</label> 
                               <br>
                               <select class="form-control" id="selectRates" name="selectRates">
-                                 <option value="" disabled selected>Selecione uma Taxa</option>
+                                 <option value="" disabled selected>Selecione uma Opção</option>
                               </select> 
                            </div>
 
@@ -87,9 +87,9 @@
                               <label for="selectType" class="form-label">Tipo de Cobrança:</label> 
                               <br>
                               <select class="form-control" id="selectType" name="selectType">
-                                 <option value="" disabled selected>Selecione o Tipo de Cobrança</option>
-                                 <option value="0">Pagamento</option>
-                                 <option value="1">Recebimento</option>
+                                 <option value="" disabled selected>Selecione uma Opção</option>
+                                 <!-- <option value="0">Pagamento</option>
+                                 <option value="1">Recebimento</option> -->
                               </select> 
                            </div>
 
@@ -97,19 +97,19 @@
                               <label for="selectFormCob" class="form-label">Forma de Cobrança:</label> 
                               <br>
                               <select class="form-control" id="selectFormCob" name="selectFormCob">
-                                 <option value="" disabled selected>Selecione a Forma de Cobrança</option>
-                                 <option value="7">Conhecimento</option>
-                                 <option value="14">Livre</option>
-                                 <option value="17">Peso Considerado</option>
-                                 <option value="99">Peso Cubado</option>
+                                 <option value="" disabled selected>Selecione uma Opção</option>
+                                 <option value="0">Conhecimento</option>
+                                 <option value="1">Container</option>
+                                 <option value="2">Peso Considerado</option>
+                                 <option value="3">Peso Cubado</option>
                               </select> 
                            </div>
 
                            <div style="width: 20%; margin-right: 10px;">
-                              <label for="selectDivRep" class="form-label">Dividir ou Replicar:</label> 
+                              <label for="selectDivRep" class="form-label">Forma de Cobrança:</label> 
                               <br>
                               <select class="form-control" id="selectDivRep" name="selectDivRep">
-                                 <option value="" style="width: 100% !important;">Selecione uma Opção</option>
+                                 <option value="" disabled selected>Selecione uma Opção</option>
                                  <option value="0">Dividir</option>
                                  <option value="1">Replicar</option>
                               </select> 
@@ -118,11 +118,11 @@
                            <div style="width: 15%; margin-right: 10px;">
                               <label for="inputValue" class="form-label">Valor a ser Rateado/Replicado:</label> 
                               <br>
-                              <input class="form-control" id="inputValue" name="inputValue" type="number" placeholder="Valor a ser Rateado/Replicado">
+                              <input class="form-control" id="inputValue" name="inputValue" type="number" placeholder="Valor a ser Rateado/Replicado" disabled>
                            </div>
 
                            <div style="margin-right: 10px; display: flex; align-items: flex-end;">
-                              <button class="btn btn-primary me-2" disabled="true">
+                              <button class="btn btn-primary me-2" id="insertRate">
                                  <i class="me-0 fw-normal align-middle"></i>Inserir
                               </button>
                            </div>
@@ -676,6 +676,8 @@
     <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- Flat Picker JS -->
     <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+    <!-- SweetAlert JS -->
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
 
     <!-- Internal Task  JS -->
     <script src="../../assets/js/fetchAPI.js"></script>

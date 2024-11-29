@@ -43,6 +43,126 @@ const partLot = {
       `)
       return result;
    },
+
+   // Lista as taxas por processo
+   listRatesByProcess: async function (IdLogistica_House) {
+      let result = await executeQuerySQL(`
+         SELECT
+            Ltx.IdLogistica_Taxa,
+            Ltx.IdTaxa_Logistica_Exibicao,
+            Tle.Nome AS Taxa,
+            Ltx.IdLogistica_House,
+            Ltx.IdRegistro_Pagamento,
+            Ltx.IdRegistro_Recebimento,
+            Ltx.Quantidade_Pagamento,
+            Ltx.Valor_Pagamento_Unitario,
+            Ltx.Valor_Pagamento_Total,
+            Ltx.Quantidade_Recebimento,
+            Ltx.Valor_Recebimento_Unitario,
+            Ltx.Valor_Recebimento_Total
+         FROM
+            mov_Logistica_Taxa Ltx
+         LEFT OUTER JOIN
+            cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
+         WHERE
+            Ltx.IdLogistica_House = ${IdLogistica_House}
+      `)
+      return result;
+   },
+
+   // Lista as taxas de todos os processos
+   listAllRates: async function (IdLogistica_House) {      
+      let result = await executeQuerySQL(`
+         SELECT
+            Ltx.IdLogistica_Taxa,
+            Ltx.IdLogistica_House,
+            Ltx.IdRegistro_Recebimento AS IdRegistro_Financeiro,
+            'Recebimento' AS Tipo,
+            CASE Ltx.Tipo_Recebimento
+               WHEN 1 THEN '(Sem cobrança)'
+               WHEN 2 THEN 'Processo'
+               WHEN 3 THEN 'Peso Cubado'
+               WHEN 4 THEN 'Peso Taxado House'
+               WHEN 5 THEN 'Peso Bruto'
+               WHEN 6 THEN 'Metro Cúbico'
+               WHEN 7 THEN 'Conhecimento'
+               WHEN 8 THEN 'Invoice'
+               WHEN 9 THEN 'Volume'
+               WHEN 10 THEN 'Container'
+               WHEN 11 THEN 'Tipo de Equipamento'
+               WHEN 12 THEN 'TEU'
+               WHEN 13 THEN 'Percentual'
+               WHEN 14 THEN 'Livre'
+               WHEN 15 THEN 'Via Master'
+               WHEN 16 THEN 'Via House'
+               WHEN 17 THEN 'Peso Considerado'
+               WHEN 18 THEN 'Peso Taxado Master'
+               WHEN 19 THEN 'Carreta'
+               WHEN 20 THEN 'U.N. (Nações Unidas)'
+               WHEN 21 THEN '% Sobre Importância Segurada'
+               WHEN 22 THEN '% Sobre Valor Mercadoria'
+            END AS Forma_Cobranca,
+            Tle.Nome AS Taxa,
+            Mda.Sigla AS Moeda,
+            Ltx.Quantidade_Recebimento AS Quantidade,
+            Ltx.Valor_Recebimento_Unitario AS Valor_Unitario,
+            Ltx.Valor_Recebimento_Total AS Valor_Total
+         FROM
+            mov_Logistica_Taxa Ltx
+         LEFT OUTER JOIN
+            cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
+         LEFT OUTER JOIN
+            cad_Moeda Mda ON Mda.IdMoeda = Ltx.IdMoeda_Recebimento
+         WHERE
+            Ltx.IdLogistica_House IN (${IdLogistica_House.join(',')})
+            AND Ltx.IdRegistro_Recebimento IS NOT NULL
+         UNION ALL
+         SELECT
+            Ltx.IdLogistica_Taxa,
+            Ltx.IdLogistica_House,
+            Ltx.IdRegistro_Pagamento AS IdRegistro_Financeiro,
+            'Pagamento' AS Tipo,
+            CASE Ltx.Tipo_Recebimento
+               WHEN 1 THEN '(Sem cobrança)'
+               WHEN 2 THEN 'Processo'
+               WHEN 3 THEN 'Peso Cubado'
+               WHEN 4 THEN 'Peso Taxado House'
+               WHEN 5 THEN 'Peso Bruto'
+               WHEN 6 THEN 'Metro Cúbico'
+               WHEN 7 THEN 'Conhecimento'
+               WHEN 8 THEN 'Invoice'
+               WHEN 9 THEN 'Volume'
+               WHEN 10 THEN 'Container'
+               WHEN 11 THEN 'Tipo de Equipamento'
+               WHEN 12 THEN 'TEU'
+               WHEN 13 THEN 'Percentual'
+               WHEN 14 THEN 'Livre'
+               WHEN 15 THEN 'Via Master'
+               WHEN 16 THEN 'Via House'
+               WHEN 17 THEN 'Peso Considerado'
+               WHEN 18 THEN 'Peso Taxado Master'
+               WHEN 19 THEN 'Carreta'
+               WHEN 20 THEN 'U.N. (Nações Unidas)'
+               WHEN 21 THEN '% Sobre Importância Segurada'
+               WHEN 22 THEN '% Sobre Valor Mercadoria'
+            END AS Forma_Cobranca,
+            Tle.Nome AS Taxa,
+            Mda.Sigla AS Moeda,
+            Ltx.Quantidade_Pagamento AS Quantidade,
+            Ltx.Valor_Pagamento_Unitario AS Valor_Unitario,
+            Ltx.Valor_Pagamento_Total AS Valor_Total
+         FROM
+            mov_Logistica_Taxa Ltx
+         LEFT OUTER JOIN
+            cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
+         LEFT OUTER JOIN
+            cad_Moeda Mda ON Mda.IdMoeda = Ltx.IdMoeda_Pagamento
+         WHERE
+            Ltx.IdLogistica_House IN (${IdLogistica_House.join(',')})
+            AND Ltx.IdRegistro_Pagamento IS NOT NULL
+      `)
+      return result;
+   },
 }
 
 module.exports = {

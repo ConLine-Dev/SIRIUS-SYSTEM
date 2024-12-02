@@ -64,8 +64,7 @@ async function loadRatesByProcess(IdLogistica_House) {
       acc[rate.IdLogistica_House].push(rate);
       return acc;
    }, {});
-}
-
+};
 
 // Função para os valores de qualquer selected
 function getSelectValues(selectName) {
@@ -81,7 +80,7 @@ function getSelectValues(selectName) {
    } else {
       return undefined;
    }
-}
+};
 
 // Função para verificar se os selects estão preenchidos
 function getValuesFromSelects() {
@@ -109,82 +108,288 @@ function getValuesFromSelects() {
    return allValid;
 };
 
-// Função para calcular e distribuir o valor proporcional da taxa
-function distributeRateByWeight(rateId, rateType, totalRateValue, processes, ratesByProcess) {
-   const totalWeight = processes.reduce((sum, process) => sum + parseFloat(process.Peso_Cubado || 0), 0);
-
-   if (totalWeight === 0) {
-       alert('O peso cubado total é zero. Verifique os dados dos processos.');
-       return;
-   }
+// Função para calcular e distribuir o valor proporcional de acordo com o peso cubado
+function distributeRateByCubedWeight(rateId, rateType, totalRateValue, processes) {
+   const totalWeight = processes.reduce((sum, process) => sum + parseFloat(process.Peso_Cubado || 0), 0);   
 
    processes.forEach((process) => {
-       const proportion = parseFloat(process.Peso_Cubado || 0) / totalWeight;
-       const distributedValue = (proportion * totalRateValue).toFixed(2);
+      const proportion = parseFloat(process.Peso_Cubado || 0) / totalWeight;
+      const distributedValue = (proportion * totalRateValue).toFixed(2);      
 
-       const processRates = ratesByProcess[process.IdLogistica_House] || [];
-       processRates.forEach((rate) => {
-           const typeElement = document.querySelector(`tr td input[name="unit-${rate.IdTaxa_Logistica_Exibicao}"]`)?.closest("tr")?.querySelector("td span.badge");
-           const tipoFromHTML = typeElement?.textContent.trim() || '';
+      // Localizar o `tr` principal do processo
+      const processRow = document.querySelector(`tr[data-process-id="${process.IdLogistica_House}"]`);
 
-           const normalizedHTMLType = tipoFromHTML.toLowerCase();
-           const normalizedRateType = rateType.toLowerCase();
+      // Navegar para o próximo `tr` (detalhes-row) que contém os inputs
+      const detailsRow = processRow.nextElementSibling;
 
-           if (String(rate.IdTaxa_Logistica_Exibicao) === String(rateId) && normalizedHTMLType === normalizedRateType) {
-               const unitInput = document.querySelector(`input[name="unit-${rate.IdTaxa_Logistica_Exibicao}"]`);
-               const totalInput = document.querySelector(`input[name="total-${rate.IdTaxa_Logistica_Exibicao}"]`);
+      // Localizar o `tbody` dentro do `detailsRow`
+      const detailsTbody = detailsRow.querySelector('tbody');
 
-               if (unitInput) {
-                   unitInput.value = distributedValue;
-               } else {
-                   console.error(`Input Unitário não encontrado para unit-${rate.IdTaxa_Logistica_Exibicao}`);
-               }
+      // Atualizar os inputs correspondentes dentro do `tbody`
+      const rateRows = detailsTbody.querySelectorAll('tr');
+      rateRows.forEach((rateRow) => {
+         const badge = rateRow.querySelector('span.badge');
+         const badgeType = badge ? badge.textContent.trim().toLowerCase() : null;
 
-               if (totalInput) {
-                   totalInput.value = distributedValue;
-               } else {
-                   console.error(`Input Total não encontrado para total-${rate.IdTaxa_Logistica_Exibicao}`);
-               }
-           }
-       });
-   });
-}
-
-// Função para replicar o valor da taxa para todos os processos com a taxa selecionada
-function replicateRateValue(rateId, rateType, totalRateValue, processes, ratesByProcess) {
-   console.log("Iniciando replicação...");
-   console.log("Rate ID:", rateId);
-   console.log("Rate Type:", rateType);
-   console.log("Total Rate Value:", totalRateValue);
-   console.log("Processes:", processes);
-   console.log("Rates By Process:", ratesByProcess);
-
-   processes.forEach((process) => {
-      const processRates = ratesByProcess[process.IdLogistica_House] || [];
-      processRates.forEach((rate, index) => {
-         if (rate.IdLogistica_Taxa === rateId && rate.Tipo === rateType) {
-            // Atualiza os inputs de valor unitário e total
-            const unitInput = document.querySelector(`input[name="unit-${process.IdLogistica_House}-${index}"]`);
-            const totalInput = document.querySelector(`input[name="total-${process.IdLogistica_House}-${index}"]`);
-
-            console.log(unitInput);
-            console.log(totalInput);
+         // Verificar se a taxa e o tipo correspondem
+         if ((rateType === "Pagamento" && badgeType === "pagamento") || (rateType === "Recebimento" && badgeType === "recebimento")) {
+            const unitInput = rateRow.querySelector(`input[name="unit-${rateId}"]`);
+            const totalInput = rateRow.querySelector(`input[name="total-${rateId}"]`);
             
-
-            console.log("Encontrada taxa correspondente no processo:", process.IdLogistica_House);
+            const formCob = rateRow.querySelector(`td[name="formCob=${rateId}"]`)
+            const quant = rateRow.querySelector(`td[name="quant=${rateId}"]`)
 
             if (unitInput) {
-               unitInput.value = totalRateValue.toFixed(2);
-               console.log("Input Unitário Atualizado:", unitInput.value);
+               unitInput.value = distributedValue;
             }
+
             if (totalInput) {
-               totalInput.value = totalRateValue.toFixed(2);
-               console.log("Input Total Atualizado:", totalInput.value);
+               totalInput.value = distributedValue;
+            }
+
+            if (formCob) {
+               formCob.textContent = 'Livre';
+            }
+
+            if (quant) {
+               quant.textContent = 1;
             }
          }
       });
    });
-}
+};
+
+// Função para calcular e distribuir o valor proporcional de acordo com o peso Considerado
+function distributeRateByConsideredWeight(rateId, rateType, totalRateValue, processes) {
+   const totalWeight = processes.reduce((sum, process) => sum + parseFloat(process.Peso_Considerado || 0), 0);   
+
+   processes.forEach((process) => {
+      const proportion = parseFloat(process.Peso_Considerado || 0) / totalWeight;
+      const distributedValue = (proportion * totalRateValue).toFixed(2);
+
+      // Localizar o `tr` principal do processo
+      const processRow = document.querySelector(`tr[data-process-id="${process.IdLogistica_House}"]`);
+
+      // Navegar para o próximo `tr` (detalhes-row) que contém os inputs
+      const detailsRow = processRow.nextElementSibling;
+
+      // Localizar o `tbody` dentro do `detailsRow`
+      const detailsTbody = detailsRow.querySelector('tbody');
+
+      // Atualizar os inputs correspondentes dentro do `tbody`
+      const rateRows = detailsTbody.querySelectorAll('tr');
+      rateRows.forEach((rateRow) => {
+         const badge = rateRow.querySelector('span.badge');
+         const badgeType = badge ? badge.textContent.trim().toLowerCase() : null;
+
+         // Verificar se a taxa e o tipo correspondem
+         if ((rateType === "Pagamento" && badgeType === "pagamento") || (rateType === "Recebimento" && badgeType === "recebimento")) {
+            const unitInput = rateRow.querySelector(`input[name="unit-${rateId}"]`);
+            const totalInput = rateRow.querySelector(`input[name="total-${rateId}"]`);
+
+            const formCob = rateRow.querySelector(`td[name="formCob=${rateId}"]`)
+            const quant = rateRow.querySelector(`td[name="quant=${rateId}"]`)
+
+            if (unitInput) {
+               unitInput.value = distributedValue;
+            }
+
+            if (totalInput) {
+               totalInput.value = distributedValue;
+            }
+
+            if (formCob) {
+               formCob.textContent = 'Livre';
+            }
+
+            if (quant) {
+               quant.textContent = 1;
+            }
+         }
+      });
+   });
+};
+
+// Função para calcular e distribuir o valor proporcional de acordo com a participação de container por processo
+function distributeRateByContainers(rateId, rateType, totalRateValue, process) {
+   const containerMap = {}; // Mapa para rastrear a quantidade de processos por container
+
+   // Passo 1: Criar o mapa de container
+   process.forEach(process => {
+      const containers = process.Containers.split(',').map(c => c.trim()); // Lista de containers do processo
+      containers.forEach(container => {
+         if(!containerMap[container]) {
+            containerMap[container] = 0
+         }
+         containerMap[container] += 1; // Incrementa o contador de processos que compartilham o container
+      })
+   })
+
+   // Passo 2: Calcular a proporção de cada container
+   const containerValues = {}; // Mapa para armazenar o valor proporcional de cada container
+   const totalContainers = Object.keys(containerMap).length;
+   const containerUnitValue = totalRateValue / totalContainers;
+
+   Object.keys(containerMap).forEach(container => {
+      containerValues[container] = containerUnitValue / containerMap[container];
+   })
+
+   // Passo 3: Distribuir o valor para os processos
+   process.forEach(process => {
+      const containers = process.Containers.split(',').map(c => c.trim());
+      let processValue = 0;
+
+      containers.forEach(container => {
+         processValue += containerValues[container] || 0;
+      });
+
+      processValue = processValue.toFixed(2); // Adiciona as casas decimais
+
+      // Atualizar os inputs correspondentes no DOM
+      const processRow = document.querySelector(`tr[data-process-id="${process.IdLogistica_House}"]`);
+      const detailsRow = processRow.nextElementSibling;
+      const detailsTbody = detailsRow.querySelector('tbody');
+
+      const rateRows = detailsTbody.querySelectorAll('tr');
+      rateRows.forEach(rateRow => {
+         const badge = rateRow.querySelector('span.badge');
+         const badgeType = badge ? badge.textContent.trim().toLowerCase() : null;
+
+         if ((rateType === "Pagamento" && badgeType === "pagamento") || (rateType === "Recebimento" && badgeType === "recebimento")) {
+            const unitInput = rateRow.querySelector(`input[name="unit-${rateId}"]`);
+            const totalInput = rateRow.querySelector(`input[name="total-${rateId}"]`);
+
+            const formCob = rateRow.querySelector(`td[name="formCob=${rateId}"]`)
+            const quant = rateRow.querySelector(`td[name="quant=${rateId}"]`)
+
+            if (unitInput) {
+               unitInput.value = processValue;
+            }
+
+            if (totalInput) {
+               totalInput.value = processValue;
+            }
+
+            if (formCob) {
+               formCob.textContent = 'Livre';
+            }
+
+            if (quant) {
+               quant.textContent = 1;
+            }
+         }
+      });
+   })
+};
+
+// Função para calcular e distribuir o valor proporcional de acordo com a participação de container por processo
+function distributeRateByConhecimentos(rateId, rateType, totalRateValue, process) {
+   const conhecimentoMap = {}; // Mapa para rastrear a quantidade de processos por conhecimento
+
+   // Passo 1: Criar o mapa de conhecimento
+   process.forEach(process => {
+      const conhecimentos = process.Conhecimentos.split(',').map(c => c.trim()); // Lista de conhecimentos do processo
+      conhecimentos.forEach(conhecimento => {
+         if(!conhecimentoMap[conhecimento]) {
+            conhecimentoMap[conhecimento] = 0
+         }
+         conhecimentoMap[conhecimento] += 1; // Incrementa o contador de processos que compartilham o conhecimento
+      })
+   })
+
+   // Passo 2: Calcular a proporção de cada Conhecimento
+   const ConhecimentoValues = {}; // Mapa para armazenar o valor proporcional de cada Conhecimento
+   const totalConhecimentos = Object.keys(conhecimentoMap).length;
+   const ConhecimentoUnitValue = totalRateValue / totalConhecimentos;
+
+   Object.keys(conhecimentoMap).forEach(conhecimento => {
+      ConhecimentoValues[conhecimento] = ConhecimentoUnitValue / conhecimentoMap[conhecimento];
+   })
+
+   // Passo 3: Distribuir o valor para os processos
+   process.forEach(process => {
+      const containers = process.Conhecimentos.split(',').map(c => c.trim());
+      let processValue = 0;
+
+      containers.forEach(conhecimento => {
+         processValue += ConhecimentoValues[conhecimento] || 0;
+      });
+
+      processValue = processValue.toFixed(2); // Adiciona as casas decimais
+
+      // Atualizar os inputs correspondentes no DOM
+      const processRow = document.querySelector(`tr[data-process-id="${process.IdLogistica_House}"]`);
+      const detailsRow = processRow.nextElementSibling;
+      const detailsTbody = detailsRow.querySelector('tbody');
+
+      const rateRows = detailsTbody.querySelectorAll('tr');
+      rateRows.forEach(rateRow => {
+         const badge = rateRow.querySelector('span.badge');
+         const badgeType = badge ? badge.textContent.trim().toLowerCase() : null;
+
+         if ((rateType === "Pagamento" && badgeType === "pagamento") || (rateType === "Recebimento" && badgeType === "recebimento")) {
+            const unitInput = rateRow.querySelector(`input[name="unit-${rateId}"]`);
+            const totalInput = rateRow.querySelector(`input[name="total-${rateId}"]`);
+
+            const formCob = rateRow.querySelector(`td[name="formCob=${rateId}"]`)
+            const quant = rateRow.querySelector(`td[name="quant=${rateId}"]`)
+
+            if (unitInput) {
+               unitInput.value = processValue;
+            }
+
+            if (totalInput) {
+               totalInput.value = processValue;
+            }
+
+            if (formCob) {
+               formCob.textContent = 'Livre';
+            }
+
+            if (quant) {
+               quant.textContent = 1;
+            }
+         }
+      });
+   })
+};
+
+function replicateRateToAllProcesses(rateId, rateType, rateValue) {
+   // Percorre todos os processos exibidos na tabela
+   const processRows = document.querySelectorAll('.files-list');
+
+   processRows.forEach(processRow => {
+      const detailsRow = processRow.querySelector('.details-row');
+
+      if (detailsRow) {
+         const detailsTbody = detailsRow.querySelector('tbody');
+
+         if (detailsTbody) {
+            const rateRows = detailsTbody.querySelectorAll('tr');
+
+            rateRows.forEach(rateRow => {
+                  const badge = rateRow.querySelector('span.badge');
+                  const badgeType = badge ? badge.textContent.trim().toLowerCase() : null;
+
+                  // Verificar se o tipo de cobrança corresponde
+                  if ((rateType === "Pagamento" && badgeType === "pagamento") || (rateType === "Recebimento" && badgeType === "recebimento")) {
+                     const unitInput = rateRow.querySelector(`input[name="unit-${rateId}"]`);
+                     const totalInput = rateRow.querySelector(`input[name="total-${rateId}"]`);
+
+                     // Atualizar os inputs com o valor replicado
+                     if (unitInput) {
+                        unitInput.value = rateValue.toFixed(2);
+                     }
+
+                     if (totalInput) {
+                        totalInput.value = rateValue.toFixed(2);
+                     }
+                  }
+            });
+         }
+      }
+   });
+};
 
 // Busca os processos pela referencia externa e insere na tela
 document.getElementById('searchProcess').addEventListener('click', async function () {
@@ -195,6 +400,7 @@ document.getElementById('searchProcess').addEventListener('click', async functio
 
    searchedProcess = ''; // Limpa a variavel a cada consulta para poder inserir novos valores
    searchedRates = ''; // Limpa a variavel a cada consulta para poder inserir novos valores
+   usedRates = {}; // Limpa a variavel a cada consulta para poder inserir novos valores
    const process = await makeRequest(`/api/part-lot/processByRef`, 'POST', { externalRef: searchInput});
    const processIds = process.map(p => p.IdLogistica_House); // Pega o ID de todos os processos
    const rates = await makeRequest(`/api/part-lot/listAllRates`, 'POST', { IdLogistica_House: processIds }); // Busca todas as taxas em uma única consulta
@@ -235,9 +441,9 @@ document.getElementById('searchProcess').addEventListener('click', async functio
          <tr>
             <td>${rate.Taxa}</td>
             <td><span class="badge bg-${rate.Tipo === 'Recebimento' ? 'success' : 'danger'}-transparent">${rate.Tipo}</span></td>
-            <td>${rate.Forma_Cobranca || '(Sem Cobrança)'}</td>
+            <td name="formCob=${rate.IdTaxa_Logistica_Exibicao}">${rate.Forma_Cobranca || '(Sem Cobrança)'}</td>
             <td>${rate.Moeda || ''}</td>
-            <td>${rate.Quantidade || ''}</td>
+            <td name="quant=${rate.IdTaxa_Logistica_Exibicao}">${rate.Quantidade || ''}</td>
             <td><input class="form-control" name="unit-${rate.IdTaxa_Logistica_Exibicao}" type="number" step="0.01" value="${(rate.Valor_Unitario || 0).toFixed(2)}" placeholder="Insira um Valor"/></td>
             <td><input class="form-control" name="total-${rate.IdTaxa_Logistica_Exibicao}" type="number" step="0.01" value="${(rate.Valor_Total || 0).toFixed(2)}" placeholder="Insira um Valor"/></td>
          </tr>
@@ -342,35 +548,49 @@ document.getElementById('selectType').addEventListener('change', function () {
    const rateId = selectRates.value; // Este é o IdTaxa_Logistica_Exibicao
    const rateType = this.value === "0" ? "Pagamento" : this.value === "1" ? "Recebimento" : '';
 
+   // Verifica se os campos obrigatórios estão preenchidos
    if (!processId || !rateId || !rateType) {
       inputValue.value = '';
+      console.error('Processo, taxa ou tipo não selecionado corretamente.');
       return;
    }
 
    // Busca os detalhes da taxa selecionada
-   console.log("Process ID:", processId);
-   console.log("Searched Process:", searchedProcess);
-   console.log("Searched Rates:", searchedRates);
-
-   const selectedProcess = searchedProcess.find(p => p.IdLogistica_House == processId);
-   if (!selectedProcess) {
-      console.error('Processo não encontrado');
-      inputValue.value = '';
-      return;
-   }
-
-   const selectedRate = searchedRates.find(rate => rate.IdTaxa_Logistica_Exibicao == rateId); // Ajuste aqui
+   const selectedRate = searchedRates.find(rate => rate.IdTaxa_Logistica_Exibicao == rateId && rate.Tipo == rateType);
    if (!selectedRate) {
       console.error('Taxa não encontrada');
       inputValue.value = '';
       return;
    }
 
-   // Define o valor correspondente no campo input
+   // Verifica qual valor usar com base no tipo selecionado
+   let valueToInsert = 0;
    if (rateType === "Pagamento") {
-      inputValue.value = (selectedRate.Valor_Total || 0).toFixed(2);
+      // Certifique-se de que o campo correto está sendo usado
+      valueToInsert = selectedRate.Valor_Pagamento || selectedRate.Valor_Total || 0; 
    } else if (rateType === "Recebimento") {
-      inputValue.value = (selectedRate.Valor_Total || 0).toFixed(2);
+      valueToInsert = selectedRate.Valor_Recebimento || selectedRate.Valor_Total || 0; 
+   }
+
+   // Atualiza o input com o valor correspondente
+   inputValue.value = valueToInsert.toFixed(2);
+});
+
+// Adiciona evento ao selecionar a forma de cobrança
+document.getElementById('selectFormCob').addEventListener('change', function () {
+   const selectDivRep = document.getElementById('selectDivRep');
+   const formCobId = this.value;
+   
+   const placeholderHTML = '<option value="" disabled selected>Selecione uma Opção</option>';
+   selectDivRep.innerHTML = placeholderHTML;
+
+   if (formCobId == 0) {
+      selectDivRep.innerHTML += '<option value="0">Dividir</option>';
+      selectDivRep.innerHTML += '<option value="1">Replicar</option>';
+   }
+
+   if (formCobId != 0) {
+      selectDivRep.innerHTML += '<option value="0">Dividir</option>';
    }
 });
 
@@ -390,49 +610,43 @@ document.getElementById('insertRate').addEventListener('click', async function (
    const divOrRepId = selectDivRep.value;
    const totalRateValue = parseFloat(inputValue.value);
 
-   console.log("Inserção de Taxa - Dados Selecionados:");
-   console.log("Process ID:", processId);
-   console.log("Rate ID:", rateId);
-   console.log("Rate Type:", rateType);
-   console.log("Form Cob ID:", formCobId);
-   console.log("Div or Rep ID:", divOrRepId);
-   console.log("Total Rate Value:", totalRateValue);
-
    // Validações obrigatórias
    if (!processId || !rateId || !rateType || !formCobId || !divOrRepId || isNaN(totalRateValue)) {
-       getValuesFromSelects(); // Mostra alertas para campos faltantes
-       return;
+      getValuesFromSelects(); // Mostra alertas para campos faltantes
+      return;
    }
 
    // Atualiza o objeto usedRates
    if (!usedRates[processId]) {
-       usedRates[processId] = {};
+      usedRates[processId] = {};
    }
 
    if (!usedRates[processId][rateId]) {
-       usedRates[processId][rateId] = [];
+      usedRates[processId][rateId] = [];
    }
 
    usedRates[processId][rateId].push(rateType);
 
-   // Lógica para divisão proporcional baseada na forma de cobrança
-   if (divOrRepId === "0" && formCobId === "3") { // Dividir e Peso Cubado
-       distributeRateByWeight(rateId, rateType, totalRateValue, searchedProcess, ratesByProcess);
-   } else if (divOrRepId === "1") { // Replicar
-       replicateRateValue(rateId, rateType, totalRateValue, searchedProcess, ratesByProcess);
-   } else {
-       alert("Forma de cobrança ou ação selecionada não suportada atualmente.");
-       return;
+   if (divOrRepId == 0 /* Dividir */ && formCobId == 3 /* Peso Cubado */) {
+      distributeRateByCubedWeight(rateId, rateType, totalRateValue, searchedProcess);
+   } else if (divOrRepId == 0 /* Dividir */ && formCobId == 2 /* Peso Considerado */) {
+      distributeRateByConsideredWeight(rateId, rateType, totalRateValue, searchedProcess);
+   } else if (divOrRepId == 0 /* Dividir */ && formCobId == 1 /* Container */) {
+      distributeRateByContainers(rateId, rateType, totalRateValue, searchedProcess);
+   } else if (divOrRepId == 0 /* Dividir */ && formCobId == 0 /* Conhecimento */) {
+      distributeRateByConhecimentos(rateId, rateType, totalRateValue, searchedProcess);
+   } else if (divOrRepId == 1 /* Replicar */ && formCobId == 0) {
+      replicateRateToAllProcesses(rateId, rateType, totalRateValue, searchedProcess);
    }
 
    // Recarrega as taxas disponíveis para o processo principal
    await loadRatesByProcess(processId);
 
    // Reseta os selects (exceto o processo principal)
-   document.getElementById('selectRates').innerHTML = '<option value="" disabled selected>Selecione uma Opção</option>';
-   document.getElementById('selectType').innerHTML = '<option value="" disabled selected>Selecione uma Opção</option>';
-   document.getElementById('selectFormCob').innerHTML = '<option value="" disabled selected>Selecione uma Opção</option>';
-   document.getElementById('selectDivRep').innerHTML = '<option value="" disabled selected>Selecione uma Opção</option>';
+   document.getElementById('selectRates').value = '';
+   document.getElementById('selectType').value = '';
+   document.getElementById('selectFormCob').value = '';
+   document.getElementById('selectDivRep').value = '';
    document.getElementById('inputValue').value = '';
 });
 

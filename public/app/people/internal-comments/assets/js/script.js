@@ -178,7 +178,7 @@ async function listAccordion(collabId) {
 
 async function initializeDatePicker() {
     flatpickr("#commentDate", {
-        dateFormat: "d M Y",
+        dateFormat: "d-m-Y",
     });
 };
 

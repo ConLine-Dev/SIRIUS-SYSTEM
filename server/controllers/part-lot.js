@@ -51,12 +51,27 @@ const partLot = {
             Ltx.IdLogistica_Taxa,
             Ltx.IdTaxa_Logistica_Exibicao,
             Tle.Nome AS Taxa,
+            'Pagamento' AS Tipo,
             Ltx.IdLogistica_House,
             Ltx.IdRegistro_Pagamento,
-            Ltx.IdRegistro_Recebimento,
             Ltx.Quantidade_Pagamento,
             Ltx.Valor_Pagamento_Unitario,
-            Ltx.Valor_Pagamento_Total,
+            Ltx.Valor_Pagamento_Total
+         FROM
+            mov_Logistica_Taxa Ltx
+         LEFT OUTER JOIN
+            cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
+         WHERE
+            Ltx.IdLogistica_House = ${IdLogistica_House}
+            AND Ltx.IdRegistro_Pagamento IS NOT NULL
+         UNION ALL
+         SELECT
+            Ltx.IdLogistica_Taxa,
+            Ltx.IdTaxa_Logistica_Exibicao,
+            Tle.Nome AS Taxa,
+            'Recebimento' AS Tipo,
+            Ltx.IdLogistica_House,
+            Ltx.IdRegistro_Recebimento,
             Ltx.Quantidade_Recebimento,
             Ltx.Valor_Recebimento_Unitario,
             Ltx.Valor_Recebimento_Total
@@ -66,6 +81,7 @@ const partLot = {
             cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
          WHERE
             Ltx.IdLogistica_House = ${IdLogistica_House}
+            AND Ltx.IdRegistro_Recebimento IS NOT NULL
       `)
       return result;
    },
@@ -76,6 +92,7 @@ const partLot = {
          SELECT
             Ltx.IdLogistica_Taxa,
             Ltx.IdLogistica_House,
+            Ltx.IdTaxa_Logistica_Exibicao,
             Ltx.IdRegistro_Recebimento AS IdRegistro_Financeiro,
             'Recebimento' AS Tipo,
             CASE Ltx.Tipo_Recebimento
@@ -120,6 +137,7 @@ const partLot = {
          SELECT
             Ltx.IdLogistica_Taxa,
             Ltx.IdLogistica_House,
+            Ltx.IdTaxa_Logistica_Exibicao,
             Ltx.IdRegistro_Pagamento AS IdRegistro_Financeiro,
             'Pagamento' AS Tipo,
             CASE Ltx.Tipo_Recebimento

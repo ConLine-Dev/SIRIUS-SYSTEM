@@ -127,7 +127,7 @@ const dataSecurityHub = {
                     status = 'Complete'; // Simula que as tentativas subsequentes têm maior probabilidade de sucesso
                 } while (attempts < 3);
 
-                console.log(`Backup criado para ${backupDate}.`);
+                // console.log(`Backup criado para ${backupDate}.`);
             }
 
             size += dailyIncrement;
@@ -229,7 +229,7 @@ async checkBackupExists(date) {
 //     dataSecurityHub.generateDailyBackups();
 // });
 
-// dataSecurityHub.generateDailyBackups();
+dataSecurityHub.generateDailyBackups();
 
 module.exports = {
     dataSecurityHub,

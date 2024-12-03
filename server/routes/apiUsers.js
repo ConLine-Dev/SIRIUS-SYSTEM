@@ -28,6 +28,17 @@ router.get('/listAllUsers', async (req, res, next) => {
     }
 });
 
+router.get('/listAllUsersActive', async (req, res, next) => {
+    try {
+        const result = await Users.listAllUsersActive();
+
+        res.status(200).json(result)
+    } catch (error) {
+
+        res.status(404).json('Erro')   
+    }
+});
+
 router.get('/getAllColab', async (req, res, next) => {
     try {
         const result = await Users.getAllColab();

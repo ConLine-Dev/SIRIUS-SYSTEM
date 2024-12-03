@@ -41,6 +41,24 @@ const Users = {
     
         return result;
     },
+    listAllUsersActive: async function(){
+ 
+        let result = await executeQuery(`SELECT
+                            users.id AS 'userID',
+                            colab.id_headcargo AS 'id_headcargo',
+                            colab.id AS 'id_colab',
+                            colab.name AS 'username',
+                            colab.image AS 'image',
+                            colab.family_name AS 'familyName'
+                        FROM
+                            users
+                        join collaborators colab ON colab.id = users.collaborator_id
+                        WHERE colab.resignation_date is null
+                        ORDER BY
+                            colab.name ASC`);
+    
+        return result;
+    },
     ListUserByEmail: async function(email){
  
         let result = await executeQuery(`SELECT

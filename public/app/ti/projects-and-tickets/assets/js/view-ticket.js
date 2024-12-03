@@ -179,6 +179,7 @@ async function verifyAcess(){
        
 
     }else{
+
         document.querySelector('.btnControleTeam').setAttribute('disabled', true);
 
         const setps = document.querySelectorAll('.step-checkbox');
@@ -376,6 +377,16 @@ async function toFillTicket(ticket){
     document.querySelector('#ticket_id').innerHTML = ticket.id;
     document.querySelector('#ButtonRemoveTicket').setAttribute('data-id', ticket.id)
 
+    if(ticket.status == 'inreview-tasks-draggable'){
+        document.querySelector('#ButtonApproveTicket').removeAttribute('disabled');
+        document.querySelector('#ButtonReviewTicket').removeAttribute('disabled');
+        
+    }else{
+        document.querySelector('#ButtonApproveTicket').setAttribute('disabled', true);
+        document.querySelector('#ButtonReviewTicket').setAttribute('disabled', true);
+    }
+
+
     // Atualiza a classe do elemento priority_text
     const priorityElement = document.querySelector('.priority_text');
     // Remove todas as classes de prioridade existentes
@@ -541,7 +552,31 @@ async function initializeComponents() {
     }
 
 
-
+    
+    document.querySelector('#ButtonReviewTicket').addEventListener('click', async (e) => {
+        const confirmation = window.confirm("Você tem certeza que deseja revisar este ticket?");
+        if (!confirmation) {
+            return; // Cancela a execução se o usuário não confirmar
+        }
+    
+        document.querySelector('#ButtonReviewTicket').setAttribute('disabled', true);
+    
+        await makeRequest('/api/user-tickets/updateStatus', 'POST', { id: GticketId, status: 'todo-tasks-draggable' });
+        window.close();
+    });
+    
+    document.querySelector('#ButtonApproveTicket').addEventListener('click', async (e) => {
+        const confirmation = window.confirm("Você tem certeza que deseja aprovar este ticket?");
+        if (!confirmation) {
+            return; // Cancela a execução se o usuário não confirmar
+        }
+    
+        document.querySelector('#ButtonApproveTicket').setAttribute('disabled', true);
+    
+        const arrayResult = { id: GticketId, status: 'completed-tasks-draggable' };
+        await makeRequest('/api/user-tickets/updateStatus', 'POST', arrayResult);
+        window.close();
+    });
 
 
     document.querySelector('.buttonComment').addEventListener('click', async (e) => {
@@ -559,8 +594,19 @@ async function initializeComponents() {
 
     document.querySelector('#ButtonRemoveTicket').addEventListener('click', async (e) => {
         e.preventDefault();
+    
+        // Exibe uma mensagem de confirmação
+        const confirmation = window.confirm("Você tem certeza que deseja remover este ticket?");
+        if (!confirmation) {
+            return; // Cancela a execução se o usuário não confirmar
+        }
+    
         const ticketId = document.querySelector('#ButtonRemoveTicket').getAttribute('data-id');
-        makeRequest('/api/called/tickets/removeTicket', 'POST', {id:ticketId});
+        
+        // Faz a requisição para remover o ticket
+        await makeRequest('/api/called/tickets/removeTicket', 'POST', { id: ticketId });
+    
+        // Fecha a janela após a ação
         window.close();
     });
 

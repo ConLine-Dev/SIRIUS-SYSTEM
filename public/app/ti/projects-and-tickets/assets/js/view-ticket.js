@@ -601,10 +601,9 @@ async function initializeComponents() {
             return; // Cancela a execução se o usuário não confirmar
         }
     
-        const ticketId = document.querySelector('#ButtonRemoveTicket').getAttribute('data-id');
         
         // Faz a requisição para remover o ticket
-        await makeRequest('/api/called/tickets/removeTicket', 'POST', { id: ticketId });
+        await makeRequest('/api/called/tickets/removeTicket', 'POST', { id: GticketId });
     
         // Fecha a janela após a ação
         window.close();

@@ -190,6 +190,8 @@ window.addEventListener("load", async () => {
     await getModules(login.system_userID);
     await listAccordion(login.system_collaborator_id);
 
+    introMain();
+
     document.querySelector('#loader2').classList.add('d-none')
 
 })

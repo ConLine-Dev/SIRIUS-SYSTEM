@@ -18,6 +18,8 @@
     <script src="../../assets/js/main.js"></script>
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
     <!-- Style Css -->
     <link href="../../assets/css/styles.min.css" rel="stylesheet">
     <!-- Icons Css -->
@@ -38,6 +40,11 @@
 </head>
 
 <body>
+
+    <!-- Tutorial -->
+    <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 0px; z-index: 100;"> 
+        <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+    </span>
 
     <!-- LOADER -->
     <div id="loader2">
@@ -178,9 +185,9 @@
                                         aria-label="scrollable content" style="height: auto; overflow: scroll;">
                                         <div class="simplebar-content" style="padding: 16px;">
                                             <div class="card custom-card">
-                                                <div class="card-header py-1 pb-3 justify-content-between">
+                                                <div class="card-header py-1 pb-3 justify-content-between intro_internal_commments">
                                                     <div class="card-title fw-semibold fs-14">Comentários Internos</div>
-                                                    <div class="input-group" style="width: 150px; gap: 20px;">
+                                                    <div class="input-group intro_btn_comments" style="width: 150px; gap: 20px;">
                                                         <a class="btn btn-primary" id="createPeople"
                                                             style="width: 150px; border-radius: 5px;"
                                                             onclick="sendComment()">Enviar Comentário</a>
@@ -192,32 +199,32 @@
                                                 <div class="container mt-4">
                                                     <div class="row mb-3">
                                                         <div class="col-6">
-                                                            <input type="text" class="form-control" id="title"
+                                                            <input type="text" class="form-control intro_tittle_comments" id="title"
                                                                 name="title" placeholder="Título">
                                                         </div>
                                                         <div class="col-2">
                                                             <input type="text"
-                                                                class="form-control flatpickr-input targetDate"
+                                                                class="form-control flatpickr-input targetDate intro_date_comments"
                                                                 name="commentDate" id="commentDate" placeholder="Data"
                                                                 readonly="readonly">
                                                         </div>
-                                                        <div class="col-2">
+                                                        <div class="col-2 intro_depts_comments">
                                                             <select name="depts" id="depts"></select>
                                                         </div>
-                                                        <div class="col-2">
+                                                        <div class="col-2 intro_modules_comments">
                                                             <select name="modules" id="modules"></select>
                                                         </div>
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-12">
-                                                            <textarea class="form-control" id="comment" name="comment"
+                                                            <textarea class="form-control intro_comment" id="comment" name="comment"
                                                                 style="height: 150px;"
                                                                 placeholder="Escreva seu comentário"></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="row gy-3" id="listAccordion" style="margin: 0 10px 0 10px;">
+                                            <div class="row gy-3 intro_list_Accordion" id="listAccordion" style="margin: 0 10px 0 10px;">
                                                 <div class="tab-pane show active fade p-0 border-0" id="activity-tab-pane" role="tabpanel"
                                                     aria-labelledby="activity-tab" tabindex="0">
                                                     <ul class="list-unstyled profile-timeline">
@@ -263,6 +270,9 @@
 
     <!-- Internal Task  JS -->
     <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="../../assets/libs/intro.js/intro.min.js"></script>
+    <script src="../../assets/libs/intro.js/intro.js"></script>
+
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script src="./assets/js/script.js"></script>
 </body>

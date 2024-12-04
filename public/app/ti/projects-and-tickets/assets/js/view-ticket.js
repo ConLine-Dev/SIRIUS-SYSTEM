@@ -10,6 +10,7 @@ const socket = io();
 document.addEventListener('DOMContentLoaded', async () => {
 
     await loadItTeam();
+    await listCategories();
     await initializeComponents();
     await loadTicket();
     await verifyAcess();
@@ -154,6 +155,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.querySelector('#loader').classList.add('d-none');
 
 });
+
+async function listCategories() {
+    const categories = await makeRequest('/api/called/categories');
+
+    const selectElement = document.querySelector('select[name="inputCategories"]');
+    selectElement.innerHTML = '';
+
+    categories.forEach(category => {
+        selectElement.innerHTML += `
+            <option title="${category.desc}"
+                id="${category.id}" 
+                value="${category.id}">
+                ${category.name}
+            </option>`;
+    });
+ 
+}
 
 async function verifyAcess(){
 

@@ -136,6 +136,13 @@ async function showRepurchaseDetails(processId, status) {
 
         // Gera as linhas de detalhes
         const detailRows = details.map(fee => {
+            fee.old_sale_value = fee.old_sale_value ? fee.old_sale_value : 0;
+            fee.old_purchase_value = fee.old_purchase_value ? fee.old_purchase_value : 0;
+            fee.sale_value = fee.sale_value ? fee.sale_value : 0;
+            fee.purchase_value = fee.purchase_value ? fee.purchase_value : 0;
+            fee.coin_sale = fee.coin_sale ? fee.coin_sale : 'BRL';
+            fee.coin_purchase = fee.coin_purchase ? fee.coin_purchase : 'BRL';
+            
             const purchaseDifference = fee.purchase_value !== fee.old_purchase_value 
                 ? formatCurrency(fee.old_purchase_value - fee.purchase_value, fee.coin_purchase) 
                 : `<span class="${fee.status == 'PENDING' ? 'text-muted' : ''}"> - <span>`;

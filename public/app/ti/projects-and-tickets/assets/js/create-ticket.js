@@ -259,11 +259,30 @@ async function getFormValues() {
     }
 }
 
+
+async function listCategories() {
+    const categories = await makeRequest('/api/called/categories');
+
+    const selectElement = document.querySelector('select[name="categories"]');
+    selectElement.innerHTML = '';
+
+    categories.forEach(category => {
+        selectElement.innerHTML += `
+            <option title="${category.desc}"
+                id="${category.id}" 
+                value="${category.id}">
+                ${category.name}
+            </option>`;
+    });
+ 
+}
+
 /**
  * Evento principal ao carregar o DOM.
  */
 document.addEventListener('DOMContentLoaded', async () => {
     await initializeComponents();
+    await listCategories();
     await loadResponsibleUsers();
     await loadInvolvedUsers();
     await initializeDefaultValues();

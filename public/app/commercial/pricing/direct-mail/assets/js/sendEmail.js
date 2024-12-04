@@ -1084,7 +1084,7 @@ async function substituirValoresNaString(str, parametros) {
             }
             
             if(chave == 'Mercadoria'){
-                if(contemPalavra(parametros[chave])){
+                if(contemPalavra(parametros[chave]) || contemPalavraPerigosa(parametros[chave])){
                     valor = '<strong style="color: rgb(230, 0, 0);">'+parametros[chave]+'</strong>';
                 }else{
                     valor = parametros[chave];
@@ -1097,6 +1097,7 @@ async function substituirValoresNaString(str, parametros) {
                 }
                 
             }else if(chave == 'NCM_Descricao'){
+
                 if(parametros['NCM_Descricao'] != null){
                     valor = parametros[chave];
                 }else{
@@ -1123,6 +1124,11 @@ async function substituirValoresNaString(str, parametros) {
 
 function contemPalavra(str) {
     const regex = /\bNAO EMPILHAVEL\b/;
+    return regex.test(str);
+}
+
+function contemPalavraPerigosa(str) {
+    const regex = /\bPERIGOSA\b/;
     return regex.test(str);
 }
 

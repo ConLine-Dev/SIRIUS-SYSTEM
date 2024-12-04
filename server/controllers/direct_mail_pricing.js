@@ -15,7 +15,7 @@ const direct_mail_pricing = {
         return result;
     },
     editingNameGroup: async function(body){
-        console.log(body)
+        // console.log(body)
         const id = body.id
         const name = body.name;
 
@@ -515,7 +515,7 @@ const direct_mail_pricing = {
                 }
             }else if(chave == 'Valor_Mercadoria'){
                 valor = parametros[chave].toLocaleString('pt-BR', { style: 'currency', currency: parametros['Moeda_Mercadoria'] });
-                console.log('valor formatado', valor)
+                // console.log('valor formatado', valor)
             }else{
                 valor = parametros[chave];
             }

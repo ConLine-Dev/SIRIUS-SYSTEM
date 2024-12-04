@@ -77,7 +77,7 @@ router.post('/getAllProposalByRef', async (req, res, next) => {
         const refProposalDecoded = decodeURIComponent(body);
         let result = await direct_mail_pricing.getAllProposalByRef(refProposalDecoded);
         
-        console.log(result)
+        // console.log(result)
    
         let result_files = await direct_mail_pricing.getAllFilesProposalByRef(refProposalDecoded)
 
@@ -151,7 +151,7 @@ router.get('/downloadPDF', async (req, res, next) => {
 
             SELECT @DadosArquivo AS DadosArquivo;
         `)
-    console.log(result)
+    // console.log(result)
         // Obtenha os dados do arquivo do resultado da consulta
     // const dadosArquivo = result[0].DadosArquivo;
     // console.log(dadosArquivo)

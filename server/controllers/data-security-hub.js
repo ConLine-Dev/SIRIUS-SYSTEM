@@ -61,7 +61,7 @@ const dataSecurityHub = {
         today.setDate(today.getDate() - 1); // Data final: hoje - 1
 
         const initialSize = 0.2; // Tamanho inicial em janeiro (200 MB)
-        const finalSize = 4.8; // Tamanho final em outubro (4.8 TB)
+        const finalSize = 6.5; // Tamanho final em outubro (4.8 TB)
         const totalDays = (today - currentDate) / (1000 * 60 * 60 * 24); // Número total de dias entre as datas
         const dailyIncrement = (finalSize - initialSize) / totalDays; // Incremento diário para o tamanho
 
@@ -77,7 +77,7 @@ const dataSecurityHub = {
 
         while (currentDate <= today) {
             const backupDate = currentDate.toISOString().split('T')[0];
-
+      
             // Ajusta o horário para 18:30
             currentDate.setHours(18, 30, 0, 0);
 

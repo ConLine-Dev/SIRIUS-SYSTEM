@@ -1128,7 +1128,7 @@ function contemPalavra(str) {
 }
 
 function contemPalavraPerigosa(str) {
-    const regex = /\bPERIGOSA\b/;
+    const regex = /\bCARGA PERIGOSA\b/;
     return regex.test(str);
 }
 

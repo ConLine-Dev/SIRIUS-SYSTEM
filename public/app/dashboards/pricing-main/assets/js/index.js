@@ -243,7 +243,20 @@ function createChart(dataArray, totalArray, goal, div) {
 
   var chart = new ApexCharts(document.querySelector(div), chartData);
   chart.render();
+}
 
+async function openComments(){
+  const screenWidth = window.screen.width;
+  const screenHeight = window.screen.height;
+
+  const windowWidth = screenWidth / 1.3;
+  const windowHeight = screenHeight / 1.3;
+  
+  openWindow('/app/people/internal-comments/moduleComments', windowWidth, windowHeight);
+}
+
+function openWindow(url, width, height) {
+  window.open(url, '_blank', `width=${width},height=${height},resizable=yes,scrollbars=yes`);
 }
 
 document.addEventListener('DOMContentLoaded', async function () {

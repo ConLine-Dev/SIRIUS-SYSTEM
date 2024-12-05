@@ -151,7 +151,7 @@ const setIO = (io) => {
   router.use('/pricing-main', api_pricing_main(io)); 
 
   // Use as rotas do arquivo api-rh-payroll .js oi
-  router.use('/api-rh-payroll', api_rh_payroll(io)); 
+  router.use('/rh-payroll', api_rh_payroll(io)); 
 
   // Use as rotas do arquivo api-internal-comments .js oi
   router.use('/internal-comments', api_internal_comments(io)); 

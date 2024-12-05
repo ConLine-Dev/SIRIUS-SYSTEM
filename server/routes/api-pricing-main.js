@@ -13,5 +13,16 @@ module.exports = function(io) {
         }
     });
 
+    router.post('/commentsByModule', async (req, res, next) => {
+
+        try {
+              const result = await pricingMain.commentsByModule(req.body.moduleId);
+              res.status(200).json(result)
+        } catch (error) {
+  
+              res.status(404).json('Erro')
+        }
+     });
+
     return router;
 };

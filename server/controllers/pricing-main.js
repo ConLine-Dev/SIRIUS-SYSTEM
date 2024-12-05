@@ -35,6 +35,19 @@ const pricingMain = {
 
         return result;
     },
+    commentsByModule: async function (moduleId) {
+
+        let result = await executeQuery(`
+           SELECT ic.title, ic.description, ic.comment_date,
+           cl.id_headcargo, cl.name, cl.family_name, md.title as 'module'
+           FROM internal_comments ic
+           LEFT OUTER JOIN collaborators cl on cl.id = ic.collab_id
+           LEFT OUTER JOIN modules md on md.id = ic.module_id
+           WHERE module_id = ${moduleId}
+           ORDER BY ic.comment_date DESC`)
+
+        return result;
+     },
 
 };
 

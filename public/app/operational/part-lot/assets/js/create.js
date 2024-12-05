@@ -1,5 +1,6 @@
 let searchedProcess, searchedRates, ratesByProcess = {}; // Armazena os processos e taxas que retornaram da pesquisa
 let usedRates = {}; // Armazena as taxas já usadas para cada tipo de cobrança
+let originalRates = {}; // Armazena os valores originais das taxas modificadas
 
 // Função para abrir uma nova janela
 function openWindow(url, width, height) {
@@ -44,17 +45,31 @@ async function loadRatesByProcess(IdLogistica_House) {
    // Remove as opções existentes
    selectRates.innerHTML = placeholderHTML;
 
-   // Filtra as taxas não utilizadas completamente
-   const availableRates = rates.filter(rate => {
-      const used = usedRates[IdLogistica_House]?.[rate.IdTaxa_Logistica_Exibicao] || [];
-      return !(used.includes('Pagamento') && used.includes('Recebimento')); // Exclui taxas com ambos os tipos usados
+   // Agrupa as taxas por `IdTaxa_Logistica_Exibicao` para evitar duplicatas
+   const groupedRates = rates.reduce((acc, rate) => {
+      if (!acc[rate.IdTaxa_Logistica_Exibicao]) {
+         acc[rate.IdTaxa_Logistica_Exibicao] = rate; // Usa o primeiro encontrado como referência
+         acc[rate.IdTaxa_Logistica_Exibicao].TiposDisponiveis = []; // Inicializa um array para os tipos disponíveis
+      }
+      acc[rate.IdTaxa_Logistica_Exibicao].TiposDisponiveis.push(rate.Tipo); // Adiciona o tipo (Pagamento ou Recebimento)
+      return acc;
+   }, {});
+
+   // Filtra as taxas disponíveis e adiciona ao select
+   const availableRates = Object.values(groupedRates).filter(rate => {
+      const isUsed = usedRates[IdLogistica_House]?.[rate.IdTaxa_Logistica_Exibicao] || [];
+      const tiposDisponiveis = rate.TiposDisponiveis;
+
+      // Verifica se todos os tipos disponíveis da taxa já foram usados
+      const isFullyUsed = tiposDisponiveis.every(tipo => isUsed.includes(tipo));
+      return !isFullyUsed; // Inclui somente taxas não totalmente utilizadas
    });
 
-   // Adiciona as taxas disponíveis ao select usando IdTaxa_Logistica_Exibicao
+   // Adiciona as taxas únicas ao select
    for (let i = 0; i < availableRates.length; i++) {
       const item = availableRates[i];
       const option = document.createElement('option');
-      option.value = item.IdTaxa_Logistica_Exibicao; // Agora usamos IdTaxa_Logistica_Exibicao
+      option.value = item.IdTaxa_Logistica_Exibicao;
       option.textContent = item.Taxa;
       selectRates.appendChild(option);
    }
@@ -127,21 +142,16 @@ function distributeRateByCubedWeight(rateId, rateType, totalRateValue, processes
 
       // Atualizar os inputs correspondentes dentro do `tbody`
       const rateRows = detailsTbody.querySelectorAll('tr');
-      rateRows.forEach((rateRow) => {
+      rateRows.forEach((rateRow) => {         
          const badge = rateRow.querySelector('span.badge');
          const badgeType = badge ? badge.textContent.trim().toLowerCase() : null;
 
          // Verificar se a taxa e o tipo correspondem
          if ((rateType === "Pagamento" && badgeType === "pagamento") || (rateType === "Recebimento" && badgeType === "recebimento")) {
-            const unitInput = rateRow.querySelector(`input[name="unit-${rateId}"]`);
             const totalInput = rateRow.querySelector(`input[name="total-${rateId}"]`);
             
             const formCob = rateRow.querySelector(`td[name="formCob=${rateId}"]`)
             const quant = rateRow.querySelector(`td[name="quant=${rateId}"]`)
-
-            if (unitInput) {
-               unitInput.value = distributedValue;
-            }
 
             if (totalInput) {
                totalInput.value = distributedValue;
@@ -184,15 +194,10 @@ function distributeRateByConsideredWeight(rateId, rateType, totalRateValue, proc
 
          // Verificar se a taxa e o tipo correspondem
          if ((rateType === "Pagamento" && badgeType === "pagamento") || (rateType === "Recebimento" && badgeType === "recebimento")) {
-            const unitInput = rateRow.querySelector(`input[name="unit-${rateId}"]`);
             const totalInput = rateRow.querySelector(`input[name="total-${rateId}"]`);
 
             const formCob = rateRow.querySelector(`td[name="formCob=${rateId}"]`)
             const quant = rateRow.querySelector(`td[name="quant=${rateId}"]`)
-
-            if (unitInput) {
-               unitInput.value = distributedValue;
-            }
 
             if (totalInput) {
                totalInput.value = distributedValue;
@@ -256,15 +261,9 @@ function distributeRateByContainers(rateId, rateType, totalRateValue, process) {
          const badgeType = badge ? badge.textContent.trim().toLowerCase() : null;
 
          if ((rateType === "Pagamento" && badgeType === "pagamento") || (rateType === "Recebimento" && badgeType === "recebimento")) {
-            const unitInput = rateRow.querySelector(`input[name="unit-${rateId}"]`);
             const totalInput = rateRow.querySelector(`input[name="total-${rateId}"]`);
-
             const formCob = rateRow.querySelector(`td[name="formCob=${rateId}"]`)
             const quant = rateRow.querySelector(`td[name="quant=${rateId}"]`)
-
-            if (unitInput) {
-               unitInput.value = processValue;
-            }
 
             if (totalInput) {
                totalInput.value = processValue;
@@ -312,9 +311,11 @@ function distributeRateByConhecimentos(rateId, rateType, totalRateValue, process
       let processValue = 0;
 
       containers.forEach(conhecimento => {
+         console.log(ConhecimentoValues, 'ConhecimentoValues');
+         
          processValue += ConhecimentoValues[conhecimento] || 0;
       });
-
+      
       processValue = processValue.toFixed(2); // Adiciona as casas decimais
 
       // Atualizar os inputs correspondentes no DOM
@@ -328,15 +329,9 @@ function distributeRateByConhecimentos(rateId, rateType, totalRateValue, process
          const badgeType = badge ? badge.textContent.trim().toLowerCase() : null;
 
          if ((rateType === "Pagamento" && badgeType === "pagamento") || (rateType === "Recebimento" && badgeType === "recebimento")) {
-            const unitInput = rateRow.querySelector(`input[name="unit-${rateId}"]`);
             const totalInput = rateRow.querySelector(`input[name="total-${rateId}"]`);
-
             const formCob = rateRow.querySelector(`td[name="formCob=${rateId}"]`)
             const quant = rateRow.querySelector(`td[name="quant=${rateId}"]`)
-
-            if (unitInput) {
-               unitInput.value = processValue;
-            }
 
             if (totalInput) {
                totalInput.value = processValue;
@@ -373,13 +368,7 @@ function replicateRateToAllProcesses(rateId, rateType, rateValue) {
 
                   // Verificar se o tipo de cobrança corresponde
                   if ((rateType === "Pagamento" && badgeType === "pagamento") || (rateType === "Recebimento" && badgeType === "recebimento")) {
-                     const unitInput = rateRow.querySelector(`input[name="unit-${rateId}"]`);
                      const totalInput = rateRow.querySelector(`input[name="total-${rateId}"]`);
-
-                     // Atualizar os inputs com o valor replicado
-                     if (unitInput) {
-                        unitInput.value = rateValue.toFixed(2);
-                     }
 
                      if (totalInput) {
                         totalInput.value = rateValue.toFixed(2);
@@ -390,6 +379,305 @@ function replicateRateToAllProcesses(rateId, rateType, rateValue) {
       }
    });
 };
+
+// Calcula a quantidade e o valor total por taxa, separado por pagamento e recebimento
+function calculateTotalsRates() {
+   const totals = {
+      Pagamento: {},
+      Recebimento: {}
+   };
+
+   // Itera sobre todas as linhas de taxas nos detalhes dos processos
+   document.querySelectorAll('.files-list .details-row tbody tr').forEach(rateRow => {
+      const taxa = rateRow.querySelector('td:nth-child(1)').textContent.trim(); // Nome da taxa
+      const taxaId = rateRow.querySelector('td:nth-child(1)').getAttribute('data-rateid'); // ID da taxa
+      const typeBadge = rateRow.querySelector('td:nth-child(2) span.badge'); // Tipo (Pagamento/Recebimento)
+      const type = typeBadge ? typeBadge.textContent.trim() : null;
+
+      const formCobElement = rateRow.querySelector('td:nth-child(3)'); // Forma de Cobrança
+      const formaCobranca = formCobElement ? formCobElement.textContent.trim() : '(Sem Cobrança)';
+
+      const moedaElement = rateRow.querySelector('td:nth-child(4)'); // Moeda
+      const moeda = moedaElement ? moedaElement.textContent.trim() : '';
+
+      const quantityElement = rateRow.querySelector('td:nth-child(5)'); // Quantidade
+      const quantity = quantityElement ? parseFloat(quantityElement.textContent.trim()) || 0 : 0;
+
+      const totalInput = rateRow.querySelector('td:nth-child(6) input'); // Valor total
+      const total = totalInput ? parseFloat(totalInput.value.trim()) || 0 : 0;
+
+      if (!type || (type !== "Pagamento" && type !== "Recebimento")) {
+         return; // Ignorar se o tipo não for válido
+      }
+
+      // Inicializa os dados da taxa caso não existam
+      if (!totals[type][taxaId]) {
+         totals[type][taxaId] = {
+            taxaId: taxaId,
+            taxaName: taxa,
+            quantity: 0,
+            total: 0,
+            type: type,
+            currency: moeda,
+            formaCobranca: formaCobranca
+         };
+      }
+
+      // Acumula os valores
+      totals[type][taxaId].quantity += quantity;
+      totals[type][taxaId].total += total;
+   });
+
+   return totals;
+};
+
+function calculateTotalProcess() {
+   const totals = {
+      totalProcesses: 0,
+      totalPesoCubado: 0,
+      totalPesoConsiderado: 0
+   };
+
+   // Itera sobre cada linha de processo
+   document.querySelectorAll('.files-list tr[data-process-id]').forEach(process => {
+      // Incrementa o número total de processos
+      totals.totalProcesses += 1;
+
+      // Obtém o valor do peso cubado e considerado como números
+      const pesoCubadoElement = process.querySelector('.data-peso-cubado');
+      const pesoConsideradoElement = process.querySelector('.data-peso-considerado');
+
+      const pesoCubado = pesoCubadoElement ? parseFloat(pesoCubadoElement.textContent.trim()) || 0 : 0;
+      const pesoConsiderado = pesoConsideradoElement ? parseFloat(pesoConsideradoElement.textContent.trim()) || 0 : 0;
+
+      // Acumula os valores no objeto totals
+      totals.totalPesoCubado += pesoCubado;
+      totals.totalPesoConsiderado += pesoConsiderado;
+   });
+
+   return totals;
+};
+
+function createTotalizer() {
+   const totals = calculateTotalsRates();
+   const totalsProcesses = calculateTotalProcess();
+
+   let ratesHTML = '';
+
+   // Recebimentos
+   for (const [taxa, item] of Object.entries(totals.Recebimento)) {
+       ratesHTML += `
+           <tr rateIdAndType="${item.taxaId}-${item.type}">
+               <td>${item.taxaName}</td>
+               <td><span class="badge bg-success-transparent" data-type="Recebimento">Recebimento</span></td>
+               <td>${item.formaCobranca}</td>
+               <td>${item.currency}</td>
+               <td>${item.quantity || ''}</td>
+               <td><input class="form-control" type="number" data-taxa="${taxa}" data-type="${item.type}" step="0.01" value="${(item.total || 0).toFixed(2)}" placeholder="Insira um Valor" disabled/></td>
+           </tr>`;
+   }
+
+   // Pagamentos
+   for (const [taxa, item] of Object.entries(totals.Pagamento)) {
+       ratesHTML += `
+           <tr rateIdAndType="${item.taxaId}-${item.type}">
+               <td>${item.taxaName}</td>
+               <td><span class="badge bg-danger-transparent" data-type="Pagamento">Pagamento</span></td>
+               <td>${item.formaCobranca}</td>
+               <td>${item.currency}</td>
+               <td>${item.quantity || ''}</td>
+               <td><input class="form-control" type="number" data-taxa="${taxa}" data-type="${item.type}" step="0.01" value="${(item.total || 0).toFixed(2)}" placeholder="Insira um Valor" disabled/></td>
+           </tr>`;
+   }
+
+   const tableTotalizer = `
+       <tbody class="files-list">
+           <tr>
+               <td class="bg-success-transparent" style="width: 15px !important;">
+                   <button onclick="toggleDetails(this)" class="btn btn-icon btn-success-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                       <i class="ri-eye-close-line"></i>
+                   </button>
+               </td>
+               <td class="bg-success-transparent">
+                   <div>
+                       <span class="d-block fw-normal">Quantidade Processos:</span> 
+                       <span class="d-block fw-bold">${totalsProcesses.totalProcesses}</span>
+                   </div>
+               </td>
+               <td class="bg-success-transparent">
+                   <div>
+                       <span class="d-block fw-normal">Total Peso Cubado:</span> 
+                       <span class="d-block fw-bold">${totalsProcesses.totalPesoCubado}</span>
+                   </div>
+               </td>
+               <td class="bg-success-transparent">
+                   <div>
+                       <span class="d-block fw-normal">Total Peso Considerado:</span> 
+                       <span class="d-block fw-bold">${totalsProcesses.totalPesoConsiderado}</span>
+                   </div>
+               </td>
+           </tr>
+           <tr class="details-row totalizador" style="display: none;">
+               <td colspan="10">
+                   <table class="table table-sm table-bordered mt-2">
+                       <thead>
+                           <tr>
+                               <th>Taxa</th>
+                               <th>Tipo</th>
+                               <th>Forma de Cobrança</th>
+                               <th>Moeda</th>
+                               <th>Quantidade</th>
+                               <th>Valor Total</th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           ${ratesHTML}
+                       </tbody>
+                   </table>
+               </td>
+           </tr>
+       </tbody>`;
+
+   const tableControlProcess = document.getElementById('tableControlProcess');
+   tableControlProcess.insertAdjacentHTML('beforeend', tableTotalizer);
+};
+
+function updateTotalizerInputs() {
+   const totals = calculateTotalsRates();
+
+   // Atualiza os valores de pagamento e recebimento no totalizador
+   for (const [type, rates] of Object.entries(totals)) {
+      for (const [taxa, item] of Object.entries(rates)) {
+         const inputTotal = document.querySelector(`input[data-taxa="${taxa}"][data-type="${type}"]`);
+         const quantityElement = document.querySelector(`td[data-taxa="${taxa}"][data-type="${type}"]`);
+
+         if (inputTotal) {
+            inputTotal.value = item.total.toFixed(2);
+         }
+
+         if (quantityElement) {
+            quantityElement.textContent = item.quantity;
+         }
+      }
+   }
+};
+
+function monitorTotalInputs() {
+   const container = document.getElementById('tableControlProcess');
+
+   // Adiciona o evento 'input' ao contêiner
+   container.addEventListener('input', (event) => {
+      if (
+         event.target &&
+         event.target.tagName === 'INPUT' &&
+         event.target.type === 'number'
+      ) {
+         // Atualiza o totalizador apenas para a taxa correspondente
+         updateTotalizerInputs();
+      }
+   });
+};
+
+function addUndoButton(rateId, rateType) {
+   const rowSelector = document.querySelector(`.totalizador [rateIdAndType="${rateId}-${rateType}"]`);
+   const rateRow = rowSelector ? rowSelector.closest('tr') : null;
+
+   if (rateRow) {
+      let undoCell = rateRow.querySelector(`.undo-button-cell-${rateType}`);
+      if (!undoCell) {
+         undoCell = document.createElement('td');
+         undoCell.className = `undo-button-cell-${rateType}`;
+         undoCell.style.textAlign = 'center';
+
+         const undoButton = document.createElement('button');
+         undoButton.className = 'btn btn-warning btn-sm';
+         undoButton.textContent = `Desfazer ${rateType}`;
+
+         // Adiciona o evento de clique com a lógica para remover o botão após clicar
+         undoButton.onclick = () => {
+            undoChanges(rateId, rateType); // Chama a função para desfazer
+            undoCell.remove(); // Remove a célula contendo o botão
+         };
+
+         undoCell.appendChild(undoButton);
+         rateRow.appendChild(undoCell);
+      }
+   }
+};
+
+function undoChanges(rateId, rateType) {
+   // Localizar os processos relacionados à taxa e ao tipo
+   const processes = searchedProcess.filter(process => {
+       const detailsRow = document.querySelector(`tr[data-process-id="${process.IdLogistica_House}"]`).nextElementSibling;
+       const detailsTbody = detailsRow?.querySelector("tbody");
+       return detailsTbody?.querySelector(`[rateIdAndType='${rateId}-${rateType}']`);
+   });
+
+   if (!processes || processes.length === 0 || !originalRates[rateId]) {
+       console.error("Processos ou valores originais não encontrados.");
+       return;
+   }
+
+   // Restaurar os valores originais nos inputs e remover classes destacadas
+   processes.forEach(process => {
+       const processRow = document.querySelector(`tr[data-process-id="${process.IdLogistica_House}"]`);
+       const detailsRow = processRow.nextElementSibling;
+       const detailsTbody = detailsRow.querySelector("tbody");
+       const rateRows = detailsTbody.querySelectorAll(`[rateIdAndType='${rateId}-${rateType}']`);
+
+       rateRows.forEach(rateRow => {
+           const inputElement = rateRow.querySelector("input");
+           const originalEntry = originalRates[rateId].find(entry => entry.element === rateRow);
+
+           if (inputElement && originalEntry) {
+               inputElement.value = parseFloat(originalEntry.originalValue).toFixed(2);
+           }
+
+           // Remove a classe de destaque
+           rateRow.classList.remove("bg-warning-transparent");
+       });
+   });
+
+   // Atualizar o objeto `usedRates` removendo o tipo de cobrança
+   const processId = processes[0]?.IdLogistica_House; // Assume que todos os processos são do mesmo grupo
+   if (processId && usedRates[processId]?.[rateId]) {
+       const index = usedRates[processId][rateId].indexOf(rateType);
+       if (index > -1) {
+           usedRates[processId][rateId].splice(index, 1);
+           if (usedRates[processId][rateId].length === 0) {
+               delete usedRates[processId][rateId];
+           }
+       }
+   }
+
+   // Atualizar o totalizador
+   updateTotalizerInputs();
+
+   // Remover o botão "Desfazer"
+   const rateRow = document.querySelector(`.totalizador [rateIdAndType="${rateId}-${rateType}"]`)?.closest("tr");
+   if (rateRow) {
+       const undoCell = rateRow.querySelector(`.undo-button-cell-${rateType}`);
+       if (undoCell) {
+           undoCell.remove();
+       }
+   }
+
+   // Limpar o registro de valores originais para o tipo atual
+   originalRates[rateId] = originalRates[rateId].filter(entry => {
+       const badge = entry.element.querySelector("span.badge");
+       const entryType = badge ? badge.textContent.trim().toLowerCase() : null;
+       return entryType !== rateType.toLowerCase();
+   });
+
+   // Remover do objeto `originalRates` se não houver mais registros
+   if (originalRates[rateId].length === 0) {
+       delete originalRates[rateId];
+   }
+
+   // Exibir log de sucesso
+   console.log(`Valores originais restaurados para a taxa ${rateId}`);
+}
+
 
 // Busca os processos pela referencia externa e insere na tela
 document.getElementById('searchProcess').addEventListener('click', async function () {
@@ -439,20 +727,20 @@ document.getElementById('searchProcess').addEventListener('click', async functio
       // Gera o HTML para as taxas
       let ratesHTML = processRates.map((rate) => `
          <tr>
-            <td>${rate.Taxa}</td>
-            <td><span class="badge bg-${rate.Tipo === 'Recebimento' ? 'success' : 'danger'}-transparent">${rate.Tipo}</span></td>
-            <td name="formCob=${rate.IdTaxa_Logistica_Exibicao}">${rate.Forma_Cobranca || '(Sem Cobrança)'}</td>
-            <td>${rate.Moeda || ''}</td>
-            <td name="quant=${rate.IdTaxa_Logistica_Exibicao}">${rate.Quantidade || ''}</td>
-            <td><input class="form-control" name="unit-${rate.IdTaxa_Logistica_Exibicao}" type="number" step="0.01" value="${(rate.Valor_Unitario || 0).toFixed(2)}" placeholder="Insira um Valor"/></td>
-            <td><input class="form-control" name="total-${rate.IdTaxa_Logistica_Exibicao}" type="number" step="0.01" value="${(rate.Valor_Total || 0).toFixed(2)}" placeholder="Insira um Valor"/></td>
+            <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}" data-rateId="${rate.IdTaxa_Logistica_Exibicao}" data-name-taxa="${rate.Taxa}" data-IdLogistica-House="${rate.IdLogistica_House}">${rate.Taxa}</td>
+            <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}"><span class="badge bg-${rate.Tipo === 'Recebimento' ? 'success' : 'danger'}-transparent" data-type="${rate.Tipo}">${rate.Tipo}</span></td>
+            <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}" name="formCob=${rate.IdTaxa_Logistica_Exibicao}" data-IdTaxa-Logistica-Exibicao="${rate.IdTaxa_Logistica_Exibicao}">${rate.Forma_Cobranca || '(Sem Cobrança)'}</td>
+            <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}" data-coin=""${rate.Moeda}>${rate.Moeda || ''}</td>
+            <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}" name="quant=${rate.IdTaxa_Logistica_Exibicao}" data-quant="${rate.Quantidade}">${rate.Quantidade || ''}</td>
+            <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}"><input class="form-control" name="total-${rate.IdTaxa_Logistica_Exibicao}" type="number" step="0.01" value="${(rate.Valor_Total || 0).toFixed(2)}" placeholder="Insira um Valor"/></td>
          </tr>
       `).join('');
-   
 
       processHTML += `
          <tbody class="files-list">
             <tr data-process-id="${item.IdLogistica_House}" class="odd">
+               <td class="data-peso-cubado d-none">${item.Peso_Cubado}</td>
+               <td class="data-peso-considerado d-none">${item.Peso_Considerado}</td>
                <td style="width: 15px !important;">
                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
                         <i class="ri-eye-close-line"></i>
@@ -461,19 +749,19 @@ document.getElementById('searchProcess').addEventListener('click', async functio
                <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                      <div>
                         <span class="d-block fw-normal">Processo:</span> 
-                        <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.Numero_Processo}</span> 
+                        <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" data-process-number="${item.Numero_Processo}">${item.Numero_Processo}</span> 
                      </div>
                </td>
                <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                      <div>
-                        <span class="d-block fw-normal">Quantidade Container(s): ${item.Qtd_Containers}</span> 
-                        <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.Containers}</span> 
+                        <span class="d-block fw-normal" data-quant-containers="${item.Qtd_Containers}">Quantidade Container(s): ${item.Qtd_Containers}</span> 
+                        <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" data-containers="${item.Containers}">${item.Containers}</span> 
                      </div>
                </td>
                <td style="max-width: 130px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                      <div>
-                        <span class="d-block fw-normal">Quantidade HBL(s): ${item.Qtd_Conhecimentos}</span> 
-                        <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.Conhecimentos}</span> 
+                        <span class="d-block fw-normal" data-quant-conhecimentos="${item.Qtd_Conhecimentos}">Quantidade HBL(s): ${item.Qtd_Conhecimentos}</span> 
+                        <span class="d-block fw-bold" style="max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" data-conhecimentos="${item.Conhecimentos}">${item.Conhecimentos}</span> 
                      </div>
                </td>
             </tr>
@@ -487,7 +775,6 @@ document.getElementById('searchProcess').addEventListener('click', async functio
                               <th>Forma de Cobrança</th>
                               <th>Moeda</th>
                               <th>Quantidade</th>
-                              <th>Valor Unitário</th>
                               <th>Valor Total</th>
                            </tr>
                         </thead>
@@ -502,6 +789,11 @@ document.getElementById('searchProcess').addEventListener('click', async functio
    
    tableControlProcess.innerHTML = processHTML;
    // FIM - Insere os processos na tela
+
+   // Atualiza o totalizador ao final
+   createTotalizer();
+
+   calculateTotalProcess()
 
    document.querySelector('#loader').classList.add('d-none');
 });
@@ -529,11 +821,18 @@ document.getElementById('selectType').addEventListener('focus', function () {
    const placeholderHTML = '<option value="" disabled selected>Selecione uma Opção</option>';
    selectType.innerHTML = placeholderHTML;
 
+   // Obtém os tipos de cobrança já usados para a taxa selecionada
    const used = usedRates[processId]?.[rateId] || [];
-   if (!used.includes('Pagamento')) {
+   const availableRates = searchedRates.filter(rate => rate.IdTaxa_Logistica_Exibicao == rateId);
+
+   // Garantir que o tipo de cobrança correto seja adicionado
+   const hasPagamento = availableRates.some(rate => rate.Tipo === "Pagamento" && !used.includes("Pagamento"));
+   const hasRecebimento = availableRates.some(rate => rate.Tipo === "Recebimento" && !used.includes("Recebimento"));
+
+   if (hasPagamento) {
       selectType.innerHTML += '<option value="0">Pagamento</option>';
    }
-   if (!used.includes('Recebimento')) {
+   if (hasRecebimento) {
       selectType.innerHTML += '<option value="1">Recebimento</option>';
    }
 });
@@ -616,6 +915,17 @@ document.getElementById('insertRate').addEventListener('click', async function (
       return;
    }
 
+   // Salvar valores originais antes de modificar
+   if (!originalRates[rateId]) {
+      originalRates[rateId] = [];
+   }
+   document.querySelectorAll(`[rateIdAndType='${rateId}-${rateType}']`).forEach(td => {
+      originalRates[rateId].push({
+         element: td,
+         originalValue: td.querySelector('input') ? td.querySelector('input').value : td.textContent.trim()
+      });
+   });
+
    // Atualiza o objeto usedRates
    if (!usedRates[processId]) {
       usedRates[processId] = {};
@@ -627,6 +937,7 @@ document.getElementById('insertRate').addEventListener('click', async function (
 
    usedRates[processId][rateId].push(rateType);
 
+   // Aplicar as alterações
    if (divOrRepId == 0 /* Dividir */ && formCobId == 3 /* Peso Cubado */) {
       distributeRateByCubedWeight(rateId, rateType, totalRateValue, searchedProcess);
    } else if (divOrRepId == 0 /* Dividir */ && formCobId == 2 /* Peso Considerado */) {
@@ -642,6 +953,17 @@ document.getElementById('insertRate').addEventListener('click', async function (
    // Recarrega as taxas disponíveis para o processo principal
    await loadRatesByProcess(processId);
 
+   // Adiciona a classe 'bg-warning-transparent' aos <td> correspondentes à taxa alterada
+   document.querySelectorAll(`[rateIdAndType='${rateId}-${rateType}']`).forEach(td => {
+      td.classList.add('bg-warning-transparent');
+   });
+
+   // Adiciona o botão "Desfazer" no totalizador
+   addUndoButton(rateId, rateType);
+
+   // Função de atualizar os inputs do totalizador
+   updateTotalizerInputs();
+
    // Reseta os selects (exceto o processo principal)
    document.getElementById('selectRates').value = '';
    document.getElementById('selectType').value = '';
@@ -652,5 +974,6 @@ document.getElementById('insertRate').addEventListener('click', async function (
 
 document.addEventListener("DOMContentLoaded", async () => {
 
+   monitorTotalInputs();
    document.querySelector('#loader2').classList.add('d-none');
 });

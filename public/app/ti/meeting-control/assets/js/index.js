@@ -291,6 +291,8 @@ async function printEventsList(date, param){
   
   if (param == 'category') {
     const category = date;
+    const actualMonth = new Date().getMonth() + 1;
+    
 
     for (let index = 0; index < categoryCalendar.length; index++) {
       if(categoryCalendar[index].id == category) {
@@ -299,14 +301,17 @@ async function printEventsList(date, param){
     }
     for (let index = 0; index < allEvents.length; index++) {
       if (allEvents[index].id_category == category) {
-        let datetime = formatDateTime(allEvents[index].init_date, allEvents[index].end_date);
-        divEventsList += `<li>
-                            <div class="d-flex align-items-center justify-content-between flex-wrap">
-                              <p class="mb-1 fw-semibold"> ${datetime.formattedDate} </p>
-                              <span class="badge bg-light text-default mb-1"> ${datetime.formattedTime} </span>
-                            </div>
-                            <p class="mb-0 text-muted fs-12" style="color:${allEvents[index].color}!important"> ${allEvents[index].category} </p>
-                          </li>`
+        const eventMonth = new Date(allEvents[index].start).getMonth() + 1;
+        if (eventMonth == actualMonth) {
+          let datetime = formatDateTime(allEvents[index].init_date, allEvents[index].end_date);
+          divEventsList += `<li>
+                              <div class="d-flex align-items-center justify-content-between flex-wrap">
+                                <p class="mb-1 fw-semibold"> ${datetime.formattedDate} </p>
+                                <span class="badge bg-light text-default mb-1"> ${datetime.formattedTime} </span>
+                              </div>
+                              <p class="mb-0 text-muted fs-12" style="color:${allEvents[index].color}!important"> ${allEvents[index].category} </p>
+                            </li>`
+        }
       }
     }
   }

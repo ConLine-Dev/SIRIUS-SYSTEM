@@ -1115,10 +1115,6 @@ async function substituirValoresNaString(str, parametros) {
         }
     }
 
-
-
-
-
     return str;
 }
 

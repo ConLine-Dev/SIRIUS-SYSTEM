@@ -373,16 +373,16 @@ async function saveRates() {
    const processId = document.getElementById('selectPrincipalProcess').value;
 
    if (!processId) {
-       Swal.fire('Selecione um processo principal antes de salvar!');
-       return;
+      Swal.fire('Selecione um processo principal antes de salvar!');
+      return;
    }
 
    // Recupera as taxas selecionadas para o processo atual
    const savedRates = selectedRates[processId];
 
    if (!savedRates) {
-       Swal.fire('Erro!', 'As taxas do processo selecionado não foram encontradas. Tente novamente.', 'error');
-       return;
+      Swal.fire('Erro!', 'As taxas do processo selecionado não foram encontradas. Tente novamente.', 'error');
+      return;
    }
 
    // Calcula os valores totais no totalizador
@@ -393,58 +393,56 @@ async function saveRates() {
 
    // Verifica discrepâncias para pagamentos
    for (const [taxaId, item] of Object.entries(totals.Pagamento)) {
-       const savedRate = savedRates.find(rate =>
-           rate.IdTaxa_Logistica_Exibicao == taxaId &&
-           rate.Tipo === "Pagamento"
-       );
+      const savedRate = savedRates.find(rate =>
+         rate.IdTaxa_Logistica_Exibicao == taxaId &&
+         rate.Tipo === "Pagamento"
+      );
 
-       if (!savedRate) continue;
+      if (!savedRate) continue;
 
-       const totalValue = parseFloat(item.total || 0);
-       const originalValue = parseFloat(savedRate.ValorTotal || 0); // Valor da taxa salvo originalmente
-       const difference = totalValue - originalValue; // Calcula a diferença
+      const totalValue = parseFloat(item.total || 0);
+      const originalValue = parseFloat(savedRate.ValorTotal || 0); // Valor da taxa salvo originalmente
+      const difference = totalValue - originalValue; // Calcula a diferença
 
-       if (Math.abs(difference) > 0.01) { // Apenas diferenças acima de 1 centavo
-           hasDifferences = true;
-           message += `Taxa: ${item.taxaName} (Pagamento) - Diferença: R$ ${difference.toFixed(2)}\n`;
-       }
+      if (Math.abs(difference) > 0.01) { // Apenas diferenças acima de 1 centavo
+         hasDifferences = true;
+         message += `Taxa: ${item.taxaName} (Pagamento) - Diferença: R$ ${difference.toFixed(2)}\n`;
+      }
    }
 
    // Verifica discrepâncias para recebimentos
    for (const [taxaId, item] of Object.entries(totals.Recebimento)) {
-       const savedRate = savedRates.find(rate =>
-           rate.IdTaxa_Logistica_Exibicao == taxaId &&
-           rate.Tipo === "Recebimento"
-       );
+      const savedRate = savedRates.find(rate =>
+         rate.IdTaxa_Logistica_Exibicao == taxaId &&
+         rate.Tipo === "Recebimento"
+      );
 
-       if (!savedRate) continue;
+      if (!savedRate) continue;
 
-       const totalValue = parseFloat(item.total || 0);
-       const originalValue = parseFloat(savedRate.ValorTotal || 0); // Valor da taxa salvo originalmente
-       const difference = totalValue - originalValue; // Calcula a diferença
+      const totalValue = parseFloat(item.total || 0);
+      const originalValue = parseFloat(savedRate.ValorTotal || 0); // Valor da taxa salvo originalmente
+      const difference = totalValue - originalValue; // Calcula a diferença
 
-       if (Math.abs(difference) > 0.01) { // Apenas diferenças acima de 1 centavo
-           hasDifferences = true;
-           message += `Taxa: ${item.taxaName} (Recebimento) - Diferença: R$ ${difference.toFixed(2)}\n`;
-       }
+      if (Math.abs(difference) > 0.01) { // Apenas diferenças acima de 1 centavo
+         hasDifferences = true;
+         message += `Taxa: ${item.taxaName} (Recebimento) - Diferença: R$ ${difference.toFixed(2)}\n`;
+      }
    }
 
    if (hasDifferences) {
-       Swal.fire({
-           title: 'Atenção!',
-           text: message,
-           icon: 'warning',
-           confirmButtonText: 'Ok'
-       });
+      Swal.fire({
+         title: 'Atenção!',
+         text: message,
+         icon: 'warning',
+         confirmButtonText: 'Ok'
+      });
    } else {
-       Swal.fire('Sucesso!', 'Valores das taxas estão corretos e foram salvos!', 'success');
+      Swal.fire('Sucesso!', 'Valores das taxas estão corretos e foram salvos!', 'success');
 
-       // Enviar dados para o backend, se necessário
-       // await saveToBackend(processId, totals);
+      // Enviar dados para o backend, se necessário
+      // await saveToBackend(processId, totals);
    }
-}
-
-
+};
 
 // Calcula a quantidade e o valor total por taxa, separado por pagamento e recebimento
 function calculateTotalsRates() {

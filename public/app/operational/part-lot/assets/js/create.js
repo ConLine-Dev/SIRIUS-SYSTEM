@@ -391,38 +391,41 @@ async function saveRates() {
    let hasDifferences = false;
    let message = "As seguintes discrepâncias foram encontradas:\n";
 
-   // Compara os valores totais do totalizador com os valores salvos
+   // Verifica discrepâncias para pagamentos
    for (const [taxaId, item] of Object.entries(totals.Pagamento)) {
-       const savedRate = savedRates.find(rate => 
-           rate.IdTaxa_Logistica_Exibicao == taxaId && 
+       const savedRate = savedRates.find(rate =>
+           rate.IdTaxa_Logistica_Exibicao == taxaId &&
            rate.Tipo === "Pagamento"
        );
 
        if (!savedRate) continue;
 
        const totalValue = parseFloat(item.total || 0);
-       const originalValue = parseFloat(savedRate.ValorTotal || 0);
+       const originalValue = parseFloat(savedRate.ValorTotal || 0); // Valor da taxa salvo originalmente
+       const difference = totalValue - originalValue; // Calcula a diferença
 
-       if (totalValue !== originalValue) {
+       if (Math.abs(difference) > 0.01) { // Apenas diferenças acima de 1 centavo
            hasDifferences = true;
-           message += `Taxa: ${item.taxaName} (Pagamento) - Valor Original: R$ ${originalValue.toFixed(2)} | Totalizador: R$ ${totalValue.toFixed(2)}\n`;
+           message += `Taxa: ${item.taxaName} (Pagamento) - Diferença: R$ ${difference.toFixed(2)}\n`;
        }
    }
 
+   // Verifica discrepâncias para recebimentos
    for (const [taxaId, item] of Object.entries(totals.Recebimento)) {
-       const savedRate = savedRates.find(rate => 
-           rate.IdTaxa_Logistica_Exibicao == taxaId && 
+       const savedRate = savedRates.find(rate =>
+           rate.IdTaxa_Logistica_Exibicao == taxaId &&
            rate.Tipo === "Recebimento"
        );
 
        if (!savedRate) continue;
 
        const totalValue = parseFloat(item.total || 0);
-       const originalValue = parseFloat(savedRate.ValorTotal || 0);
+       const originalValue = parseFloat(savedRate.ValorTotal || 0); // Valor da taxa salvo originalmente
+       const difference = totalValue - originalValue; // Calcula a diferença
 
-       if (totalValue !== originalValue) {
+       if (Math.abs(difference) > 0.01) { // Apenas diferenças acima de 1 centavo
            hasDifferences = true;
-           message += `Taxa: ${item.taxaName} (Recebimento) - Valor Original: R$ ${originalValue.toFixed(2)} | Totalizador: R$ ${totalValue.toFixed(2)}\n`;
+           message += `Taxa: ${item.taxaName} (Recebimento) - Diferença: R$ ${difference.toFixed(2)}\n`;
        }
    }
 
@@ -430,7 +433,7 @@ async function saveRates() {
        Swal.fire({
            title: 'Atenção!',
            text: message,
-           icon: 'error',
+           icon: 'warning',
            confirmButtonText: 'Ok'
        });
    } else {
@@ -440,6 +443,8 @@ async function saveRates() {
        // await saveToBackend(processId, totals);
    }
 }
+
+
 
 // Calcula a quantidade e o valor total por taxa, separado por pagamento e recebimento
 function calculateTotalsRates() {

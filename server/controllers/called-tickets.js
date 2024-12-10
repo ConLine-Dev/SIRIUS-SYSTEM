@@ -13,7 +13,8 @@ const tickets = {
     listAll: async function(value){
         const ticketsList = [];
 
-        const tickets = await executeQuery(`SELECT 
+        const tickets = await executeQuery(`
+            SELECT 
                 ct.id,
                 ct.title,
                 SUBSTRING(ct.description, 1, 300) AS description, -- Limita a descrição a 100 caracteres
@@ -24,12 +25,20 @@ const tickets = {
                 ct.created_at,
                 ct.finished_at,
                 ct.approved_at,
+                ct.priority,
                 collab.name,
                 collab.family_name,
                 collab.id_headcargo 
             FROM called_tickets ct
             JOIN collaborators collab ON collab.id = ct.collaborator_id 
-            ORDER BY created_at DESC`);
+            ORDER BY
+                CASE ct.priority
+                    WHEN 'critical' THEN 1
+                    WHEN 'high' THEN 2
+                    WHEN 'medium' THEN 3
+                    WHEN 'low' THEN 4
+                    ELSE 5
+                END`);
 
         // Obter todos os dados relacionados a atribuições de uma vez
         const allAtribuidos = await executeQuery(`
@@ -77,6 +86,7 @@ const tickets = {
             created_at: ticket.created_at,
             finished_at: ticket.finished_at,
             approved_at: ticket.approved_at,
+            priority: ticket.priority,
             atribuido: atribuidoMap[ticket.id] || [],
             messageCount: messageMap[ticket.id] ? messageMap[ticket.id].length : 0,
             responsible_name: ticket.name,

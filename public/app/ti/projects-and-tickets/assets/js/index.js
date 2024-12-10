@@ -582,6 +582,27 @@ async function listAllTickets() {
 
     // Criar o HTML de cada ticket e adicionar ao container correspondente
     tickets.forEach(ticket => {
+
+        let priority = '';
+        let color = '';
+
+        if (ticket.priority == 'low'){
+            priority = 'Baixa';
+            color = 'info-rgb';
+        }
+        if (ticket.priority == 'medium'){
+            priority = 'Média';
+            color = 'success-rgb';
+        }
+        if (ticket.priority == 'high'){
+            priority = 'Alta';
+            color = 'warning-rgb';
+        }
+        if (ticket.priority == 'critical'){
+            priority = 'Crítica';
+            color = 'danger-rgb';
+        }
+
         // Incrementar a contagem de chamados para o status atual
         statusCounts[ticket.status] = (statusCounts[ticket.status] || 0) + 1;
 
@@ -625,17 +646,18 @@ async function listAllTickets() {
                                 </a>
                             </div>
                             <div style="display: none;">${ticket.responsible_name} ${ticket.responsible_family_name}</div>
+                            <div class="priority_text" style="color: rgb(var(--${color})) !important;">${priority}</div>
                             <div class="avatar-list-stacked">${users}</div>
                         </div>
                     </div>
                 </div>
             </div>`;
 
-        // Selecionar o container apropriado com base no status do ticket
-        const container = document.querySelector(`#${ticket.status}`) || document.querySelector('#new-tasks-draggable');
-
-        // Inserir o card no container correspondente
-        container.insertAdjacentHTML('beforeend', cardHTML);
+            // Selecionar o container apropriado com base no status do ticket
+            const container = document.querySelector(`#${ticket.status}`) || document.querySelector('#new-tasks-draggable');
+            
+            // Inserir o card no container correspondente
+            container.insertAdjacentHTML('beforeend', cardHTML);
     });
 
     // Atualizar o elemento de contagem para cada status

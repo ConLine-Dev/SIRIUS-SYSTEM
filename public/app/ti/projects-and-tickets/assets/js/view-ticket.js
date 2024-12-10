@@ -394,14 +394,18 @@ async function toFillTicket(ticket){
     document.querySelector('.responsibleIMG').setAttribute('src', 'https://cdn.conlinebr.com.br/colaboradores/'+ticket.id_headcargo)
     document.querySelector('#ticket_id').innerHTML = ticket.id;
     document.querySelector('#ButtonRemoveTicket').setAttribute('data-id', ticket.id)
+    const blockChat = document.getElementById('blockChat');
+
 
     if(ticket.status == 'inreview-tasks-draggable'){
         document.querySelector('#ButtonApproveTicket').removeAttribute('disabled');
         document.querySelector('#ButtonReviewTicket').removeAttribute('disabled');
+        blockChat.style.display = 'flex';
         
     }else{
         document.querySelector('#ButtonApproveTicket').setAttribute('disabled', true);
         document.querySelector('#ButtonReviewTicket').setAttribute('disabled', true);
+        blockChat.style.display = 'none';
     }
 
 
@@ -569,33 +573,47 @@ async function initializeComponents() {
         });
     }
 
-
-    
     document.querySelector('#ButtonReviewTicket').addEventListener('click', async (e) => {
-        const confirmation = window.confirm("Você tem certeza que deseja revisar este ticket?");
-        if (!confirmation) {
-            return; // Cancela a execução se o usuário não confirmar
-        }
-    
-        document.querySelector('#ButtonReviewTicket').setAttribute('disabled', true);
-    
-        await makeRequest('/api/user-tickets/updateStatus', 'POST', { id: GticketId, status: 'todo-tasks-draggable' });
-        window.close();
-    });
-    
-    document.querySelector('#ButtonApproveTicket').addEventListener('click', async (e) => {
-        const confirmation = window.confirm("Você tem certeza que deseja aprovar este ticket?");
-        if (!confirmation) {
-            return; // Cancela a execução se o usuário não confirmar
-        }
-    
-        document.querySelector('#ButtonApproveTicket').setAttribute('disabled', true);
-    
-        const arrayResult = { id: GticketId, status: 'completed-tasks-draggable' };
-        await makeRequest('/api/user-tickets/updateStatus', 'POST', arrayResult);
-        window.close();
+        Swal.fire({
+            title: "Deseja revisar este chamado?",
+            showDenyButton: true,
+            confirmButtonText: "Sim",
+            denyButtonText: `Ainda não`
+        }).then((result) => {
+            if (result.isDenied) {
+                return;
+            } else if (result.isConfirmed) {
+                document.querySelector('#ButtonReviewTicket').setAttribute('disabled', true);
+                document.querySelector('#ButtonApproveTicket').setAttribute('disabled', true);
+            
+                makeRequest('/api/user-tickets/updateStatus', 'POST', { id: GticketId, status: 'todo-tasks-draggable' });
+                
+                const blockChat = document.getElementById('blockChat');
+                blockChat.style.display = 'none';
+                document.querySelector('.inputComment').focus()
+            }
+        });
     });
 
+    document.querySelector('#ButtonApproveTicket').addEventListener('click', async (e) => {
+        Swal.fire({
+            title: "Confirma a aprovação do chamado?",
+            showDenyButton: true,
+            confirmButtonText: "Sim",
+            denyButtonText: `Ainda não`
+        }).then((result) => {
+            if (result.isDenied) {
+                return;
+            } else if (result.isConfirmed) {
+                document.querySelector('#ButtonReviewTicket').setAttribute('disabled', true);
+                document.querySelector('#ButtonApproveTicket').setAttribute('disabled', true);
+
+                const arrayResult = { id: GticketId, status: 'completed-tasks-draggable' };
+                makeRequest('/api/user-tickets/updateStatus', 'POST', arrayResult);
+                window.close();
+            }
+        });
+    });
 
     document.querySelector('.buttonComment').addEventListener('click', async (e) => {
         document.querySelector('.buttonComment').setAttribute('disabled', true);
@@ -609,22 +627,22 @@ async function initializeComponents() {
         }
     });
 
-
     document.querySelector('#ButtonRemoveTicket').addEventListener('click', async (e) => {
         e.preventDefault();
-    
-        // Exibe uma mensagem de confirmação
-        const confirmation = window.confirm("Você tem certeza que deseja remover este ticket?");
-        if (!confirmation) {
-            return; // Cancela a execução se o usuário não confirmar
-        }
-    
-        
-        // Faz a requisição para remover o ticket
-        await makeRequest('/api/called/tickets/removeTicket', 'POST', { id: GticketId });
-    
-        // Fecha a janela após a ação
-        window.close();
+
+        Swal.fire({
+            title: "Deseja excluir este chamado?",
+            showDenyButton: true,
+            confirmButtonText: "Sim",
+            denyButtonText: `Não`
+        }).then((result) => {
+            if (result.isDenied) {
+                return;
+            } else if (result.isConfirmed) {
+                makeRequest('/api/called/tickets/removeTicket', 'POST', { id: GticketId });
+                window.close();
+            }
+        });
     });
 
     document.querySelector('.inputComment').addEventListener('keydown', async (e) => {
@@ -843,7 +861,6 @@ async function writeFiles(Files) {
             ? `<img src="${iconMap[file.mimetype] || '../assets/images/media/files/file.png'}" alt="">`
             : `<img src="/storageService/tickets/files/${splitFilename(file.path)}" alt="" style="max-width: 50px;">`;
 
-            console.log(fileIcon)
         return `
         <li class="list-group-item" data-id-ref="${file.filename}">
           <div class="d-flex align-items-center flex-wrap gap-2">

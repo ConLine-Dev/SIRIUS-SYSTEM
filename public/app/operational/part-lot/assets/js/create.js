@@ -1,6 +1,7 @@
 let searchedProcess, searchedRates, ratesByProcess = {}; // Armazena os processos e taxas que retornaram da pesquisa
 let usedRates = {}; // Armazena as taxas já usadas para cada tipo de cobrança
 let originalRates = {}; // Armazena os valores originais das taxas modificadas
+let selectedRates = {}; // Armazena as taxas selecionadas junto com seus valores
 
 // Função para abrir uma nova janela
 function openWindow(url, width, height) {
@@ -38,34 +39,29 @@ function toggleDetails(button) {
 async function loadRatesByProcess(IdLogistica_House) {
    const rates = await makeRequest(`/api/part-lot/listRatesByProcess`, 'POST', { IdLogistica_House: IdLogistica_House });
 
+   // O restante da função permanece inalterado, com a criação do selectRates e agrupamento das taxas
    const selectRates = document.getElementById('selectRates');
-   // Mantém o placeholder no select
    const placeHolderOption = selectRates.querySelector('option[disabled]');
    const placeholderHTML = placeHolderOption ? placeHolderOption.outerHTML : '<option value="" disabled selected>Selecione uma Taxa</option>';
-   // Remove as opções existentes
    selectRates.innerHTML = placeholderHTML;
 
-   // Agrupa as taxas por `IdTaxa_Logistica_Exibicao` para evitar duplicatas
+   // Agrupa as taxas e insere no selectRates (sem mudanças)
    const groupedRates = rates.reduce((acc, rate) => {
       if (!acc[rate.IdTaxa_Logistica_Exibicao]) {
-         acc[rate.IdTaxa_Logistica_Exibicao] = rate; // Usa o primeiro encontrado como referência
-         acc[rate.IdTaxa_Logistica_Exibicao].TiposDisponiveis = []; // Inicializa um array para os tipos disponíveis
+         acc[rate.IdTaxa_Logistica_Exibicao] = rate;
+         acc[rate.IdTaxa_Logistica_Exibicao].TiposDisponiveis = [];
       }
-      acc[rate.IdTaxa_Logistica_Exibicao].TiposDisponiveis.push(rate.Tipo); // Adiciona o tipo (Pagamento ou Recebimento)
+      acc[rate.IdTaxa_Logistica_Exibicao].TiposDisponiveis.push(rate.Tipo);
       return acc;
    }, {});
 
-   // Filtra as taxas disponíveis e adiciona ao select
    const availableRates = Object.values(groupedRates).filter(rate => {
       const isUsed = usedRates[IdLogistica_House]?.[rate.IdTaxa_Logistica_Exibicao] || [];
       const tiposDisponiveis = rate.TiposDisponiveis;
-
-      // Verifica se todos os tipos disponíveis da taxa já foram usados
       const isFullyUsed = tiposDisponiveis.every(tipo => isUsed.includes(tipo));
-      return !isFullyUsed; // Inclui somente taxas não totalmente utilizadas
+      return !isFullyUsed;
    });
 
-   // Adiciona as taxas únicas ao select
    for (let i = 0; i < availableRates.length; i++) {
       const item = availableRates[i];
       const option = document.createElement('option');
@@ -73,12 +69,6 @@ async function loadRatesByProcess(IdLogistica_House) {
       option.textContent = item.Taxa;
       selectRates.appendChild(option);
    }
-
-   ratesByProcess = rates.reduce((acc, rate) => {
-      if (!acc[rate.IdLogistica_House]) acc[rate.IdLogistica_House] = [];
-      acc[rate.IdLogistica_House].push(rate);
-      return acc;
-   }, {});
 };
 
 // Função para os valores de qualquer selected
@@ -311,8 +301,6 @@ function distributeRateByConhecimentos(rateId, rateType, totalRateValue, process
       let processValue = 0;
 
       containers.forEach(conhecimento => {
-         console.log(ConhecimentoValues, 'ConhecimentoValues');
-         
          processValue += ConhecimentoValues[conhecimento] || 0;
       });
       
@@ -378,6 +366,82 @@ function replicateRateToAllProcesses(rateId, rateType, rateValue) {
          }
       }
    });
+};
+
+// Função para salvar taxas e verificar discrepâncias
+async function saveRates() {
+   const processId = document.getElementById('selectPrincipalProcess').value;
+
+   if (!processId) {
+      Swal.fire('Selecione um processo principal antes de salvar!');
+      return;
+   }
+
+   // Recupera as taxas selecionadas para o processo atual
+   const savedRates = selectedRates[processId];
+
+   if (!savedRates) {
+      Swal.fire('Erro!', 'As taxas do processo selecionado não foram encontradas. Tente novamente.', 'error');
+      return;
+   }
+
+   // Calcula os valores totais no totalizador
+   const totals = calculateTotalsRates();
+
+   let hasDifferences = false;
+   let message = "As seguintes discrepâncias foram encontradas:\n";
+
+   // Verifica discrepâncias para pagamentos
+   for (const [taxaId, item] of Object.entries(totals.Pagamento)) {
+      const savedRate = savedRates.find(rate =>
+         rate.IdTaxa_Logistica_Exibicao == taxaId &&
+         rate.Tipo === "Pagamento"
+      );
+
+      if (!savedRate) continue;
+
+      const totalValue = parseFloat(item.total || 0);
+      const originalValue = parseFloat(savedRate.ValorTotal || 0); // Valor da taxa salvo originalmente
+      const difference = totalValue - originalValue; // Calcula a diferença
+
+      if (Math.abs(difference) > 0.01) { // Apenas diferenças acima de 1 centavo
+         hasDifferences = true;
+         message += `Taxa: ${item.taxaName} (Pagamento) - Diferença: R$ ${difference.toFixed(2)}\n`;
+      }
+   }
+
+   // Verifica discrepâncias para recebimentos
+   for (const [taxaId, item] of Object.entries(totals.Recebimento)) {
+      const savedRate = savedRates.find(rate =>
+         rate.IdTaxa_Logistica_Exibicao == taxaId &&
+         rate.Tipo === "Recebimento"
+      );
+
+      if (!savedRate) continue;
+
+      const totalValue = parseFloat(item.total || 0);
+      const originalValue = parseFloat(savedRate.ValorTotal || 0); // Valor da taxa salvo originalmente
+      const difference = totalValue - originalValue; // Calcula a diferença
+
+      if (Math.abs(difference) > 0.01) { // Apenas diferenças acima de 1 centavo
+         hasDifferences = true;
+         message += `Taxa: ${item.taxaName} (Recebimento) - Diferença: R$ ${difference.toFixed(2)}\n`;
+      }
+   }
+
+   if (hasDifferences) {
+      Swal.fire({
+         title: 'Atenção!',
+         text: message,
+         icon: 'warning',
+         confirmButtonText: 'Ok'
+      });
+   } else {
+      Swal.fire('Sucesso!', 'Valores das taxas estão corretos e foram salvos!', 'success');
+
+      // Enviar dados para o backend, se necessário
+      // await saveToBackend(processId, totals);
+   }
 };
 
 // Calcula a quantidade e o valor total por taxa, separado por pagamento e recebimento
@@ -608,46 +672,41 @@ function addUndoButton(rateId, rateType) {
 function undoChanges(rateId, rateType) {
    // Localizar os processos relacionados à taxa e ao tipo
    const processes = searchedProcess.filter(process => {
-       const detailsRow = document.querySelector(`tr[data-process-id="${process.IdLogistica_House}"]`).nextElementSibling;
-       const detailsTbody = detailsRow?.querySelector("tbody");
-       return detailsTbody?.querySelector(`[rateIdAndType='${rateId}-${rateType}']`);
+      const detailsRow = document.querySelector(`tr[data-process-id="${process.IdLogistica_House}"]`).nextElementSibling;
+      const detailsTbody = detailsRow?.querySelector("tbody");
+      return detailsTbody?.querySelector(`[rateIdAndType='${rateId}-${rateType}']`);
    });
-
-   if (!processes || processes.length === 0 || !originalRates[rateId]) {
-       console.error("Processos ou valores originais não encontrados.");
-       return;
-   }
 
    // Restaurar os valores originais nos inputs e remover classes destacadas
    processes.forEach(process => {
-       const processRow = document.querySelector(`tr[data-process-id="${process.IdLogistica_House}"]`);
-       const detailsRow = processRow.nextElementSibling;
-       const detailsTbody = detailsRow.querySelector("tbody");
-       const rateRows = detailsTbody.querySelectorAll(`[rateIdAndType='${rateId}-${rateType}']`);
+      const processRow = document.querySelector(`tr[data-process-id="${process.IdLogistica_House}"]`);
+      const detailsRow = processRow.nextElementSibling;
+      const detailsTbody = detailsRow.querySelector("tbody");
+      const rateRows = detailsTbody.querySelectorAll(`[rateIdAndType='${rateId}-${rateType}']`);
 
-       rateRows.forEach(rateRow => {
-           const inputElement = rateRow.querySelector("input");
-           const originalEntry = originalRates[rateId].find(entry => entry.element === rateRow);
+      rateRows.forEach(rateRow => {
+         const inputElement = rateRow.querySelector("input");
+         const originalEntry = originalRates[rateId].find(entry => entry.element === rateRow);
 
-           if (inputElement && originalEntry) {
-               inputElement.value = parseFloat(originalEntry.originalValue).toFixed(2);
-           }
+         if (inputElement && originalEntry) {
+            inputElement.value = parseFloat(originalEntry.originalValue).toFixed(2);
+         }
 
-           // Remove a classe de destaque
-           rateRow.classList.remove("bg-warning-transparent");
-       });
+         // Remove a classe de destaque
+         rateRow.classList.remove("bg-warning-transparent");
+      });
    });
 
    // Atualizar o objeto `usedRates` removendo o tipo de cobrança
    const processId = processes[0]?.IdLogistica_House; // Assume que todos os processos são do mesmo grupo
    if (processId && usedRates[processId]?.[rateId]) {
-       const index = usedRates[processId][rateId].indexOf(rateType);
-       if (index > -1) {
-           usedRates[processId][rateId].splice(index, 1);
-           if (usedRates[processId][rateId].length === 0) {
-               delete usedRates[processId][rateId];
-           }
-       }
+      const index = usedRates[processId][rateId].indexOf(rateType);
+      if (index > -1) {
+         usedRates[processId][rateId].splice(index, 1);
+         if (usedRates[processId][rateId].length === 0) {
+            delete usedRates[processId][rateId];
+         }
+      }
    }
 
    // Atualizar o totalizador
@@ -656,28 +715,24 @@ function undoChanges(rateId, rateType) {
    // Remover o botão "Desfazer"
    const rateRow = document.querySelector(`.totalizador [rateIdAndType="${rateId}-${rateType}"]`)?.closest("tr");
    if (rateRow) {
-       const undoCell = rateRow.querySelector(`.undo-button-cell-${rateType}`);
-       if (undoCell) {
-           undoCell.remove();
-       }
+      const undoCell = rateRow.querySelector(`.undo-button-cell-${rateType}`);
+      if (undoCell) {
+         undoCell.remove();
+      }
    }
 
    // Limpar o registro de valores originais para o tipo atual
    originalRates[rateId] = originalRates[rateId].filter(entry => {
-       const badge = entry.element.querySelector("span.badge");
-       const entryType = badge ? badge.textContent.trim().toLowerCase() : null;
-       return entryType !== rateType.toLowerCase();
+      const badge = entry.element.querySelector("span.badge");
+      const entryType = badge ? badge.textContent.trim().toLowerCase() : null;
+      return entryType !== rateType.toLowerCase();
    });
 
    // Remover do objeto `originalRates` se não houver mais registros
    if (originalRates[rateId].length === 0) {
-       delete originalRates[rateId];
+      delete originalRates[rateId];
    }
-
-   // Exibir log de sucesso
-   console.log(`Valores originais restaurados para a taxa ${rateId}`);
-}
-
+};
 
 // Busca os processos pela referencia externa e insere na tela
 document.getElementById('searchProcess').addEventListener('click', async function () {
@@ -971,6 +1026,29 @@ document.getElementById('insertRate').addEventListener('click', async function (
    document.getElementById('selectDivRep').value = '';
    document.getElementById('inputValue').value = '';
 });
+
+document.getElementById('selectPrincipalProcess').addEventListener('change', async function () {
+   const processId = this.value; // Obtém o ID do processo selecionado
+
+   // Chama o endpoint para obter as taxas do processo
+   const rates = await makeRequest(`/api/part-lot/listRatesByProcess`, 'POST', { IdLogistica_House: processId });
+
+   // Log de depuração para verificar os dados recebidos
+   console.log("Dados retornados pelo endpoint:", rates);
+
+   // Salva as taxas no selectedRates para comparação futura
+   selectedRates[processId] = rates.map(rate => ({
+      IdTaxa_Logistica_Exibicao: rate.IdTaxa_Logistica_Exibicao,
+      Tipo: rate.Tipo,
+      ValorTotal: rate.Valor_Pagamento_Total || 0
+   }));
+
+   // Log de depuração para verificar o armazenamento
+   console.log(`Taxas salvas para o processo ${processId}:`, selectedRates[processId]);
+});
+
+// Evento para salvar as taxas ao clicar no botão "Salvar"
+document.getElementById('saveButton').addEventListener('click', saveRates);
 
 document.addEventListener("DOMContentLoaded", async () => {
 

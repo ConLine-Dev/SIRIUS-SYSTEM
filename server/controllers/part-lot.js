@@ -95,6 +95,7 @@ const partLot = {
             Ltx.IdTaxa_Logistica_Exibicao,
             Ltx.IdRegistro_Recebimento AS IdRegistro_Financeiro,
             'Recebimento' AS Tipo,
+            Ltx.Tipo_Recebimento AS Tipo_Cobrança,
             CASE Ltx.Tipo_Recebimento
                WHEN 1 THEN '(Sem cobrança)'
                WHEN 2 THEN 'Processo'
@@ -120,6 +121,7 @@ const partLot = {
                WHEN 22 THEN '% Sobre Valor Mercadoria'
             END AS Forma_Cobranca,
             Tle.Nome AS Taxa,
+            Mda.IdMoeda,
             Mda.Sigla AS Moeda,
             Ltx.Quantidade_Recebimento AS Quantidade,
             Ltx.Valor_Recebimento_Unitario AS Valor_Unitario,
@@ -140,7 +142,8 @@ const partLot = {
             Ltx.IdTaxa_Logistica_Exibicao,
             Ltx.IdRegistro_Pagamento AS IdRegistro_Financeiro,
             'Pagamento' AS Tipo,
-            CASE Ltx.Tipo_Recebimento
+            Ltx.Tipo_Pagamento AS Tipo_Cobrança,
+            CASE Ltx.Tipo_Pagamento
                WHEN 1 THEN '(Sem cobrança)'
                WHEN 2 THEN 'Processo'
                WHEN 3 THEN 'Peso Cubado'
@@ -165,6 +168,7 @@ const partLot = {
                WHEN 22 THEN '% Sobre Valor Mercadoria'
             END AS Forma_Cobranca,
             Tle.Nome AS Taxa,
+            Mda.IdMoeda,
             Mda.Sigla AS Moeda,
             Ltx.Quantidade_Pagamento AS Quantidade,
             Ltx.Valor_Pagamento_Unitario AS Valor_Unitario,

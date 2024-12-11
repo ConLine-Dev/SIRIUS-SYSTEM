@@ -373,7 +373,7 @@ async function saveRates() {
    const processId = document.getElementById('selectPrincipalProcess').value;
 
    if (!processId) {
-      Swal.fire('Selecione um processo principal antes de salvar!');
+      Swal.fire('Selecione um PROCESSO PRINCIPAL antes de salvar!');
       return;
    }
 
@@ -389,26 +389,7 @@ async function saveRates() {
    const totals = calculateTotalsRates();
 
    let hasDifferences = false;
-   let message = "As seguintes discrepâncias foram encontradas:\n";
-
-   // Verifica discrepâncias para pagamentos
-   for (const [taxaId, item] of Object.entries(totals.Pagamento)) {
-      const savedRate = savedRates.find(rate =>
-         rate.IdTaxa_Logistica_Exibicao == taxaId &&
-         rate.Tipo === "Pagamento"
-      );
-
-      if (!savedRate) continue;
-
-      const totalValue = parseFloat(item.total || 0);
-      const originalValue = parseFloat(savedRate.ValorTotal || 0); // Valor da taxa salvo originalmente
-      const difference = totalValue - originalValue; // Calcula a diferença
-
-      if (Math.abs(difference) > 0.01) { // Apenas diferenças acima de 1 centavo
-         hasDifferences = true;
-         message += `Taxa: ${item.taxaName} (Pagamento) - Diferença: R$ ${difference.toFixed(2)}\n`;
-      }
-   }
+   let message = "As seguintes discrepâncias foram encontradas:<br><br>";
 
    // Verifica discrepâncias para recebimentos
    for (const [taxaId, item] of Object.entries(totals.Recebimento)) {
@@ -425,22 +406,45 @@ async function saveRates() {
 
       if (Math.abs(difference) > 0.01) { // Apenas diferenças acima de 1 centavo
          hasDifferences = true;
-         message += `Taxa: ${item.taxaName} (Recebimento) - Diferença: R$ ${difference.toFixed(2)}\n`;
+         message += `Taxa: <strong>${item.taxaName}</strong> <span class="badge bg-success-transparent">Recebimento</span> - Diferença: <strong>${difference.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong><br>`;
+      }
+   }
+
+   // Verifica discrepâncias para pagamentos
+   for (const [taxaId, item] of Object.entries(totals.Pagamento)) {
+      const savedRate = savedRates.find(rate =>
+         rate.IdTaxa_Logistica_Exibicao == taxaId &&
+         rate.Tipo === "Pagamento"
+      );
+
+      if (!savedRate) continue;
+
+      const totalValue = parseFloat(item.total || 0);
+      const originalValue = parseFloat(savedRate.ValorTotal || 0); // Valor da taxa salvo originalmente
+      const difference = totalValue - originalValue; // Calcula a diferença
+
+      if (Math.abs(difference) > 0.01) { // Apenas diferenças acima de 1 centavo
+         hasDifferences = true;
+         message += `Taxa: <strong>${item.taxaName}</strong> <span class="badge bg-danger-transparent">Pagamento</span> - Diferença: <strong>${difference.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong><br>`;
       }
    }
 
    if (hasDifferences) {
       Swal.fire({
-         title: 'Atenção!',
-         text: message,
-         icon: 'warning',
-         confirmButtonText: 'Ok'
+         title: "Atenção!",
+         html: message,
+         icon: "warning",
+         showCancelButton: true,
+         confirmButtonColor: "#3085d6",
+         cancelButtonColor: "#d33",
+         confirmButtonText: "Confirmar"
+      }).then((result) => {
+         if (result.isConfirmed) {
+            getProcessData();
+         }
       });
    } else {
       Swal.fire('Sucesso!', 'Valores das taxas estão corretos e foram salvos!', 'success');
-
-      // Enviar dados para o backend, se necessário
-      // await saveToBackend(processId, totals);
    }
 };
 
@@ -536,7 +540,7 @@ function createTotalizer() {
                <td><span class="badge bg-success-transparent" data-type="Recebimento">Recebimento</span></td>
                <td>${item.formaCobranca}</td>
                <td>${item.currency}</td>
-               <td>${item.quantity || ''}</td>
+               <td>${(item.quantity).toFixed(2) || ''}</td>
                <td><input class="form-control" type="number" data-taxa="${taxa}" data-type="${item.type}" step="0.01" value="${(item.total || 0).toFixed(2)}" placeholder="Insira um Valor" disabled/></td>
            </tr>`;
    }
@@ -549,7 +553,7 @@ function createTotalizer() {
                <td><span class="badge bg-danger-transparent" data-type="Pagamento">Pagamento</span></td>
                <td>${item.formaCobranca}</td>
                <td>${item.currency}</td>
-               <td>${item.quantity || ''}</td>
+               <td>${(item.quantity).toFixed(2) || ''}</td>
                <td><input class="form-control" type="number" data-taxa="${taxa}" data-type="${item.type}" step="0.01" value="${(item.total || 0).toFixed(2)}" placeholder="Insira um Valor" disabled/></td>
            </tr>`;
    }
@@ -571,13 +575,13 @@ function createTotalizer() {
                <td class="bg-success-transparent">
                    <div>
                        <span class="d-block fw-normal">Total Peso Cubado:</span> 
-                       <span class="d-block fw-bold">${totalsProcesses.totalPesoCubado}</span>
+                       <span class="d-block fw-bold data-peso-cubado">${totalsProcesses.totalPesoCubado}</span>
                    </div>
                </td>
                <td class="bg-success-transparent">
                    <div>
                        <span class="d-block fw-normal">Total Peso Considerado:</span> 
-                       <span class="d-block fw-bold">${totalsProcesses.totalPesoConsiderado}</span>
+                       <span class="d-block fw-bold data-peso-considerado">${totalsProcesses.totalPesoConsiderado}</span>
                    </div>
                </td>
            </tr>
@@ -734,6 +738,82 @@ function undoChanges(rateId, rateType) {
    }
 };
 
+// Funcao que retorna o total de processos, containers, conhecimentos e taxas
+function getProcessData() {
+   const table = document.getElementById('tableControlProcess');
+   const processes = [];
+   const containersSet = new Set();
+   const conhecimentosSet = new Set();
+   
+   const externalReference = document.getElementById('searchInput')?.value || null;
+
+   // Seleciona todas as linhas principais com data-process-id
+   const processRows = table.querySelectorAll('tr[data-process-id]');
+   
+   processRows.forEach(processRow => {
+      const processId = processRow.getAttribute('data-process-id');
+      const processNumber = processRow.querySelector('[data-process-number]')?.getAttribute('data-process-number') || null;
+      const totalPesoCubado = parseFloat(processRow.querySelector('.data-peso-cubado')?.textContent || 0);
+      const totalPesoConsiderado = parseFloat(processRow.querySelector('.data-peso-considerado')?.textContent || 0);
+      const detailsRow = processRow.nextElementSibling; // Pega a linha de detalhes (a próxima linha)
+      const rates = [];
+
+      // Captura os contêineres e conhecimentos distintos
+      const container = processRow.querySelector('[data-containers]')?.getAttribute('data-containers');
+      const conhecimento = processRow.querySelector('[data-conhecimentos]')?.getAttribute('data-conhecimentos');
+      if (container) containersSet.add(container);
+      if (conhecimento) conhecimentosSet.add(conhecimento);
+
+      // Verifica e coleta taxas
+      if (detailsRow && detailsRow.querySelector('tbody')) {
+         const rateRows = detailsRow.querySelectorAll('tr[data-rateid-line]');
+         
+         rateRows.forEach(rateRow => {
+            const rate = {
+               processId: processId,
+               rateId: rateRow.getAttribute('data-rateid-line'),
+               dataRateId: rateRow.querySelector('[data-rateid]')?.getAttribute('data-rateid') || null,
+               dataIdRegistroFinanceiro: rateRow.querySelector('[data-idregistro-financeiro]')?.getAttribute('data-idregistro-financeiro') || null,
+               dataTipoCobranca: rateRow.querySelector('[data-tipo_cobrança]')?.getAttribute('data-tipo_cobrança') || null,
+               dataIdMoeda: rateRow.querySelector('[data-idmoeda]')?.getAttribute('data-idmoeda') || null,
+               dataQuant: rateRow.querySelector('[data-quant]')?.getAttribute('data-quant') || null,
+               value: rateRow.querySelector('input.form-control')?.value || null
+            };
+
+            rates.push(rate);
+         });
+      }
+
+      if (rates.length > 0) {
+         processes.push({ 
+            processId, 
+            processNumber, 
+            totalPesoCubado, 
+            totalPesoConsiderado, 
+            rates 
+         });
+      }
+   }); 
+   
+   const result = {
+      totalProcesses: processRows.length,
+      totalDistinctContainers: containersSet.size,
+      totalDistinctConhecimentos: conhecimentosSet.size,
+      externalReference, // Apenas uma vez aqui
+      processes
+   };
+
+   console.log(result);
+
+   return result;
+}
+
+
+// Exemplo de uso
+const processData = getProcessData();
+console.log(processData);
+
+
 // Busca os processos pela referencia externa e insere na tela
 document.getElementById('searchProcess').addEventListener('click', async function () {
    document.querySelector('#loader').classList.remove('d-none');
@@ -779,13 +859,16 @@ document.getElementById('searchProcess').addEventListener('click', async functio
       // Obtem as taxas do processo atual
       const processRates = ratesByProcess[item.IdLogistica_House] || [];
 
+      console.log(processRates, 'processRates');
+      
+
       // Gera o HTML para as taxas
       let ratesHTML = processRates.map((rate) => `
-         <tr>
+         <tr data-rateId-Line="${rate.IdLogistica_Taxa}">
             <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}" data-rateId="${rate.IdTaxa_Logistica_Exibicao}" data-name-taxa="${rate.Taxa}" data-IdLogistica-House="${rate.IdLogistica_House}">${rate.Taxa}</td>
-            <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}"><span class="badge bg-${rate.Tipo === 'Recebimento' ? 'success' : 'danger'}-transparent" data-type="${rate.Tipo}">${rate.Tipo}</span></td>
-            <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}" name="formCob=${rate.IdTaxa_Logistica_Exibicao}" data-IdTaxa-Logistica-Exibicao="${rate.IdTaxa_Logistica_Exibicao}">${rate.Forma_Cobranca || '(Sem Cobrança)'}</td>
-            <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}" data-coin=""${rate.Moeda}>${rate.Moeda || ''}</td>
+            <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}" data-IdRegistro-Financeiro="${rate.IdRegistro_Financeiro}"><span class="badge bg-${rate.Tipo === 'Recebimento' ? 'success' : 'danger'}-transparent" data-type="${rate.Tipo}">${rate.Tipo}</span></td>
+            <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}" name="formCob=${rate.IdTaxa_Logistica_Exibicao}" data-IdTaxa-Logistica-Exibicao="${rate.IdTaxa_Logistica_Exibicao}" data-Tipo_Cobrança="${rate.Tipo_Cobrança}">${rate.Forma_Cobranca || '(Sem Cobrança)'}</td>
+            <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}" data-IdMoeda="${rate.IdMoeda}">${rate.Moeda || ''}</td>
             <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}" name="quant=${rate.IdTaxa_Logistica_Exibicao}" data-quant="${rate.Quantidade}">${rate.Quantidade || ''}</td>
             <td rateIdAndType="${rate.IdTaxa_Logistica_Exibicao}-${rate.Tipo}"><input class="form-control" name="total-${rate.IdTaxa_Logistica_Exibicao}" type="number" step="0.01" value="${(rate.Valor_Total || 0).toFixed(2)}" placeholder="Insira um Valor"/></td>
          </tr>
@@ -1033,18 +1116,12 @@ document.getElementById('selectPrincipalProcess').addEventListener('change', asy
    // Chama o endpoint para obter as taxas do processo
    const rates = await makeRequest(`/api/part-lot/listRatesByProcess`, 'POST', { IdLogistica_House: processId });
 
-   // Log de depuração para verificar os dados recebidos
-   console.log("Dados retornados pelo endpoint:", rates);
-
    // Salva as taxas no selectedRates para comparação futura
    selectedRates[processId] = rates.map(rate => ({
       IdTaxa_Logistica_Exibicao: rate.IdTaxa_Logistica_Exibicao,
       Tipo: rate.Tipo,
       ValorTotal: rate.Valor_Pagamento_Total || 0
    }));
-
-   // Log de depuração para verificar o armazenamento
-   console.log(`Taxas salvas para o processo ${processId}:`, selectedRates[processId]);
 });
 
 // Evento para salvar as taxas ao clicar no botão "Salvar"

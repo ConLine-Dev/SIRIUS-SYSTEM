@@ -38,7 +38,8 @@ function createDatatable(data) {
             {
                 data: 'idTaxa',
                 render: function(data, type, row) {
-                    return `<input type="checkbox" class="form-check-input checkbox-row" id="${data}">`;
+                    return `<input type="checkbox" class="form-check-input checkbox-row" id="${data}">
+                            <input type="checkbox" class="form-check-input checkbox-zero" id="zero-${data}" style="margin-left: 10px;" title="Zerar valores antigos">`;
                 },
                 orderable: false,
             },
@@ -75,6 +76,41 @@ function createDatatable(data) {
             hideDetails(row);
         }
     });
+
+    $('#tableTaxasProcessos tbody').on('change', '.checkbox-zero', function() {
+        const checkbox = $(this);
+        const row = checkbox.closest('tr');
+        const rowData = table['tableTaxasProcessos'].row(row).data();
+    
+        if (checkbox.is(':checked')) {
+            // Zera os valores no objeto original
+            rowData.Valor_Pagamento_Total = 0;
+            rowData.Valor_Recebimento_Total = 0;
+    
+            // Atualiza o array de taxas alteradas
+            const alteredIndex = alteredFees.findIndex(item => item.idTaxa === rowData.idTaxa);
+            if (alteredIndex > -1) {
+                alteredFees[alteredIndex].oldValorCompra = 0;
+                alteredFees[alteredIndex].oldValorVenda = 0;
+            } else {
+                alteredFees.push({
+                    idProcessos: rowData.idProcessos,
+                    idTaxa: rowData.idTaxa,
+                    Nome_Taxa: rowData.Nome_Taxa,
+                    referenceProcess: document.querySelector('[name=referenceProcess]').value,
+                    moedaCompra: rowData.Moeda_Pgto,
+                    oldValorCompra: 0,
+                    oldValorVenda: 0,
+                    moedaVenda: rowData.Moeda_Receb,
+                    newValorCompra: null,
+                    newValorVenda: null,
+                });
+            }
+        }
+    });
+
+  
+    
 }
 
 function showDetails(row) {
@@ -140,29 +176,49 @@ async function collectAndSendAlteredFees() {
         return;
     }
 
+    // Atualiza os valores preenchidos antes de enviar
+    checkedRows.each(function() {
+        const row = $(this);
+        const rowData = table['tableTaxasProcessos'].row(row).data();
+        const detailsRow = row.next('.details-row');
+
+        if (detailsRow.length) {
+            const newValorCompra = detailsRow.find('.newValorCompra').val();
+            const newValorVenda = detailsRow.find('.newValorVenda').val();
+
+            const alteredIndex = alteredFees.findIndex(item => item.idTaxa === rowData.idTaxa);
+            if (alteredIndex > -1) {
+                alteredFees[alteredIndex].newValorCompra = newValorCompra ? parseFloat(newValorCompra) : null;
+                alteredFees[alteredIndex].newValorVenda = newValorVenda ? parseFloat(newValorVenda) : null;
+            }
+        }
+    });
+
     const selectedAlteredFees = alteredFees.filter(item =>
         Array.from(checkedRows).some(row => {
             const rowData = table['tableTaxasProcessos'].row(row).data();
             return item.idTaxa === rowData.idTaxa;
         })
     );
-    
+
     const observation = document.querySelector('[name=observation]').value;
-    const user = await getInfosLogin()
-    const idCollaborator = parseInt(user.system_collaborator_id)
+    const user = await getInfosLogin();
+    const idCollaborator = parseInt(user.system_collaborator_id);
+
     try {
-        const response = await makeRequest('/api/headcargo/repurchase-management/CreateRepurchase', 'POST', { alteredFees: selectedAlteredFees, observation:observation, idCollaborator:idCollaborator });
+        const response = await makeRequest('/api/headcargo/repurchase-management/CreateRepurchase', 'POST', { alteredFees: selectedAlteredFees, observation, idCollaborator });
         console.log('Alterações enviadas:', response);
         alert("Taxas enviadas para aprovação com sucesso!");
-        window.close()
+        window.close();
     } catch (error) {
         console.error('Erro ao enviar taxas para aprovação:', error);
         alert("Erro ao enviar as taxas para aprovação.");
     }
-    console.log(selectedAlteredFees)
+
     // Limpa a lista de taxas alteradas após o envio
     alteredFees.length = 0;
 }
+
 
 // Verifica informações no localStorage do usuario logado
 async function getInfosLogin() {

@@ -14,7 +14,7 @@ const tickets = {
         const ticketsList = [];
 
         const tickets = await executeQuery(`
-            SELECT 
+            SELECT
                 ct.id,
                 ct.title,
                 SUBSTRING(ct.description, 1, 300) AS description, -- Limita a descrição a 100 caracteres
@@ -26,20 +26,24 @@ const tickets = {
                 ct.finished_at,
                 ct.approved_at,
                 ct.priority,
+                ctg.name as 'category',
                 collab.name,
                 collab.family_name,
                 collab.id_headcargo 
             FROM called_tickets ct
-            JOIN collaborators collab ON collab.id = ct.collaborator_id 
+            JOIN collaborators collab ON collab.id = ct.collaborator_id
+            JOIN called_ticket_categories ctc ON ctc.ticket_id = ct.id
+            JOIN called_categories ctg ON ctg.id = ctc.category_id
             ORDER BY
-                CASE ct.priority
-                    WHEN 'critical' THEN 1
-                    WHEN 'high' THEN 2
-                    WHEN 'medium' THEN 3
-                    WHEN 'low' THEN 4
-                    ELSE 5
-                END`);
-
+            CASE ct.priority
+                WHEN 'critical' THEN 1
+                WHEN 'high' THEN 2
+                WHEN 'medium' THEN 3
+                WHEN 'low' THEN 4
+                ELSE 5
+            END,
+            ctg.id ASC,
+            ct.created_at`);
         // Obter todos os dados relacionados a atribuições de uma vez
         const allAtribuidos = await executeQuery(`
         SELECT car.*, collab.name, collab.family_name, collab.id_headcargo 
@@ -87,6 +91,7 @@ const tickets = {
             finished_at: ticket.finished_at,
             approved_at: ticket.approved_at,
             priority: ticket.priority,
+            category: ticket.category,
             atribuido: atribuidoMap[ticket.id] || [],
             messageCount: messageMap[ticket.id] ? messageMap[ticket.id].length : 0,
             responsible_name: ticket.name,
@@ -1256,6 +1261,63 @@ const tickets = {
                 await executeQuery(`UPDATE called_tickets SET review_notification = DATE_SUB(CURDATE(), INTERVAL 6 DAY) WHERE id = ${pendingTickets[index].id}`);
             }
         }
+        return true;
+    },
+    notificateExpiringTickets: async function(){
+
+        // VERIFICAR ONDE PUXA O NOTIFICATEPENDINGTICKETS, PUXAR ESSA FUNÇÃO DO MESMO LUGAR ---------------
+
+        const expiringTickets = await executeQuery(`
+            SELECT *
+            FROM siriusDBO.called_tickets
+            WHERE status NOT LIKE '%completed%'
+            AND week(end_forecast) = week(now())`);
+
+        const startingTickets = await executeQuery(`
+            SELECT *
+            FROM siriusDBO.called_tickets
+            WHERE status NOT LIKE '%completed%'
+            AND week(start_forecast) = week(now())`);
+
+        const ticketsByDev = await executeQuery(`
+            SELECT *
+            FROM siriusDBO.called_tickets
+            WHERE status LIKE '%progress%'`); 
+            // AQUI AINDA FALTA PEGAR O TI DE CADA TICKET
+
+        // for (let index = 0; index < pendingTickets.length; index++) {
+
+        //     let mailBody = `
+        //     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+        //         <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+        //             <h1 style="margin: 0; font-size: 24px;">Só precisamos do seu OK!</h1>
+        //         </div>
+        //         <div style="padding: 20px; background-color: #f9f9f9;">
+        //             <p style="color: #333; font-size: 16px;">Olá,</p>
+        //             <p style="color: #333; font-size: 16px; line-height: 1.6;">Viemos te lembrar que tem um chamado aguardando aprovação! ⏳</p>
+        //             <p style="color: #333; font-size: 16px; line-height: 1.6;">Para continuar melhorando o sistema precisamos que dê uma atenção neste aqui:</p>
+        //             <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+        //             <tr>
+        //             <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Assunto do Chamado:</td>
+        //             <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${pendingTickets[index].title}</td>
+        //             </tr>
+        //             <tr>
+        //             <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
+        //             <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${(pendingTickets[index].description).replace(/\n/g, '<br>')}</td>
+        //             </tr>
+        //             </table>
+        //             <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
+        //         </div>
+        //         <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+        //             <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+        //         </div>
+        //     </div>`
+        //     console.log('Ticket:', pendingTickets[index].id, pendingTickets[index].email_business);
+        //     const teste = await sendEmail(pendingTickets[index].email_business, '[Sirius System] Seguimos no aguardo da sua aprovação! 🫠', mailBody);
+        //     if (teste.success == true) {
+        //         await executeQuery(`UPDATE called_tickets SET review_notification = DATE_SUB(CURDATE(), INTERVAL 6 DAY) WHERE id = ${pendingTickets[index].id}`);
+        //     }
+        // }
         return true;
     },
     formatarNome: function(nome) {

@@ -638,16 +638,19 @@ async function listAllTickets() {
                         </div>
                     </div>
                     <div class="p-3 border-top border-block-start-dashed">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
+                    <div style="display: none;">${ticket.responsible_name} ${ticket.responsible_family_name}</div>
+                        <div class="row d-flex align-items-center justify-content-between">
+                            <div class="col-3 d-flex" style="justify-content: left;">
                                 <a href="javascript:void(0);" class="text-muted">
                                     <span class="me-1"><i class="ri-message-2-line align-middle fw-normal"></i></span>
                                     <span class="fw-semibold fs-12">${ticket.messageCount}</span>
                                 </a>
                             </div>
-                            <div style="display: none;">${ticket.responsible_name} ${ticket.responsible_family_name}</div>
-                            <div class="priority_text" style="color: rgb(var(--${color})) !important;">${priority}</div>
-                            <div class="avatar-list-stacked">${users}</div>
+                            <div class="col-6 d-flex" style="justify-content: center;align-items: center;flex-direction: column;">
+                                <div style="color: rgb(var(--${color})) !important;">${priority}</div>
+                                <div style="color: rgb(var(--${color})) !important; font-size: 9px;">${ticket.category}</div>
+                            </div>
+                            <div class="col-3 avatar-list-stacked d-flex" style="justify-content: right; padding-right: 1%;">${users}</div>
                         </div>
                     </div>
                 </div>

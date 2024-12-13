@@ -2,7 +2,7 @@ const { executeQuery } = require('../connect/mysql');
 
 const rhPayroll = {
 
-    // Esta função cria uma nova entrada de senha no banco de dados
+    // Esta função cria uma nova entrada de desconto no banco de dados
     create: async function (form) {
         const create_at = new Date();
         const formattedCreateAt = rhPayroll.formatDateForDatabase(create_at);
@@ -31,7 +31,7 @@ const rhPayroll = {
         return result;
     },
 
-    // Esta função cria uma nova entrada de senha no banco de dados
+    // Esta função cria uma nova entrada de desconto em massa no banco de dados
     createBulk: async function (form) {
         const create_at = new Date();
         const formattedCreateAt = rhPayroll.formatDateForDatabase(create_at);
@@ -64,25 +64,27 @@ const rhPayroll = {
     getAllByUser: async function (collaborator_id) {
         const result = await executeQuery(`
             SELECT 
-                rp.*, 
-                c.name as ResponsibleName, 
-                c.id_headcargo, 
-                c.family_name as ResponsibleFamilyName
-            FROM 
-                rh_payroll rp
-            JOIN 
-                collaborators c 
-                ON c.id = rp.responsible_id
-            LEFT JOIN 
-                rh_payroll_discount rpd
-                ON rpd.rh_payroll_id = rp.id
-            LEFT JOIN 
-                rh_payroll_category rpc
-                ON rpc.id = rpd.rh_payroll_category_id
-            WHERE 
-                c.id = ${collaborator_id}
-            GROUP BY
-                rp.id
+            MIN(rp.id) AS id, -- Seleciona o menor ID para representar o grupo
+            rp.month_year, 
+            ANY_VALUE(c.name) AS ResponsibleName, 
+            ANY_VALUE(c.id_headcargo) AS id_headcargo, 
+            ANY_VALUE(c.family_name) AS ResponsibleFamilyName
+        FROM 
+            rh_payroll rp
+        JOIN 
+            collaborators c 
+            ON c.id = rp.responsible_id
+        LEFT JOIN 
+            rh_payroll_discount rpd
+            ON rpd.rh_payroll_id = rp.id
+        LEFT JOIN 
+            rh_payroll_category rpc
+            ON rpc.id = rpd.rh_payroll_category_id
+        WHERE 
+            c.id = ${collaborator_id}
+        GROUP BY
+            rp.month_year;
+
         `);
     
         // Use Promise.all para lidar com operações assíncronas
@@ -98,7 +100,7 @@ const rhPayroll = {
                             </div>`;
     
             const users = `${item.ResponsibleName} ${item.ResponsibleFamilyName}`;
-            const monthYear = new Date(item.month_year).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+            const monthYear = new Date(item.month_year+'-05').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
             const categoryDiscount = item.rh_payroll_category_id || 'Sem Categoria';
             const effectiveDate = new Date(item.effective_date).toLocaleDateString('pt-BR');
             const observation = item.observation || 'Nenhuma Observação';
@@ -137,20 +139,24 @@ const rhPayroll = {
 
      // Função para obter os dados dos tipos de descontos
     getDiscountById: async function (id) {
+        console.log(id)
 
         const resultDiscount = await executeQuery(`
-            SELECT 
-                *
-            FROM 
-                rh_payroll rp
-            LEFT JOIN 
+            select
+                rpd.*,
+                rp.responsible_id,
+                rp.month_year,
+                rp.effective_date,
+                rp.observation,
+                rpc.name_discount
+            from
                 rh_payroll_discount rpd
-                ON rpd.rh_payroll_id = rp.id
-            LEFT JOIN 
-                rh_payroll_category rpc
-                ON rpc.id = rpd.rh_payroll_category_id
-            WHERE 
-                rpd.rh_payroll_id = ${id}
+            left outer join 
+                rh_payroll rp on rp.id = rpd.rh_payroll_id
+            left outer join 
+                rh_payroll_category rpc on rpc.id = rpd.rh_payroll_category_id
+            where
+                rp.month_year = '${id}'
         `);
 
         return resultDiscount;
@@ -158,7 +164,7 @@ const rhPayroll = {
         
     },
 
-    // Função para buscar os tipos de categorias
+    // Função para buscar os tipos de descontos
     categoryDiscount: async function () {
         const result = await executeQuery(`SELECT * FROM rh_payroll_category`)
 
@@ -166,7 +172,7 @@ const rhPayroll = {
         
     },
 
-    // Esta função atualiza/Edita os detalhes de uma senha existente no banco de dados com base nas informações fornecidas
+    // Esta função Edita os detalhes do desconto no banco de dados
     update: async function(form) {
         const update_at = new Date();
         const formattedCreateAt = rhPayroll.formatDateForDatabase(update_at);
@@ -189,7 +195,7 @@ const rhPayroll = {
                 ]
         )
 
-        let delete_relation = await executeQuery(`DELETE FROM password_relation_department WHERE (password_id = ?)`, [form.id])
+        let delete_discount = await executeQuery(`DELETE FROM rh_payroll_discount WHERE (id = ?)`, [id])
 
         // Agora, insere na tabela password_relation_department para cada departamento
         const departmentInsertQueries = form.departments.map(departmentId => {
@@ -210,8 +216,22 @@ const rhPayroll = {
 
     // Deletar
     delete: async function(id) {
-        let delete_discount = await executeQuery(`DELETE FROM rh_payroll_discount WHERE (rh_payroll_category_id = ?)`, [id])
+        let delete_discount = await executeQuery(`DELETE FROM rh_payroll_discount WHERE (id = ?)`, [id])
         return {delete_discount};
+    },
+
+    //Esta função formata um objeto `Date` para o formato de data e hora aceito pelo banco de dados
+    formatDateForDatabase: function(date){
+        const padToTwoDigits = (num) => num.toString().padStart(2, '0');
+        
+        const day = padToTwoDigits(date.getDate());
+        const month = padToTwoDigits(date.getMonth() + 1); // getMonth() retorna o mês de 0 a 11
+        const year = date.getFullYear();
+        const hours = padToTwoDigits(date.getHours());
+        const minutes = padToTwoDigits(date.getMinutes());
+        const seconds = padToTwoDigits(date.getSeconds());
+        
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     },
     
 }

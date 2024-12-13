@@ -21,11 +21,13 @@ module.exports = function(io) {
     // Rota para obter o cadastro
     router.post('/create', async (req, res, next) => {
         const form = req.body
+
         try {
             const result = await rhPayroll.create(form);
             io.emit('updateRhPayroll', '')
             res.status(200).json(result);   
         } catch (error) {
+            console.log(error)
             res.status(404).json(error);
         }
     });
@@ -67,6 +69,7 @@ module.exports = function(io) {
     // Rota para deletar
     router.post('/delete', async (req, res, next) => {
         const {id} = req.body
+        console.log(id)
         try {
             const result = await rhPayroll.delete(id);
             io.emit('updateRhPayroll', '')

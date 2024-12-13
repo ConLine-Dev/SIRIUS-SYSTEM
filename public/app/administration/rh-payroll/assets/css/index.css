@@ -92,7 +92,7 @@ body {
 }
 
 .details-row {
-    display: none; /* Oculta a linha inicialmente */
+    /* display: none;  */
 }
 
 #defaultEmailsSelecte img {

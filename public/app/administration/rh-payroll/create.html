@@ -15,7 +15,7 @@
     <script src="../../assets/js/main.js"></script>
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Flatpickr CSS -->
+    <!-- Estilos do Flatpickr e Plugin -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
     <!-- Style Css -->
@@ -56,7 +56,7 @@
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
                                 <label class="form-label">Responsável</label>
                                 <select class="form-control" name="responsible">
-                                    <option value="">Selecione um responsável</option>
+                                    <option value="">Selecione um responsável...</option>
                                 </select>
                             </div>
                         </div>
@@ -66,39 +66,32 @@
                         <div class="row">
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
                                 <label class="form-label">Mês/Ano</label>
-                                <input type="month" class="form-control flatpickr-mes-ano" name="mes_ano" placeholder="Selecione o mês e ano do desconto">
+                                <input type="text" name="monthYear" id="monthYear" class="form-control flatpickr-input targetDate" placeholder="Selecione o mês e ano do desconto...">
                             </div>
                             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
                                 <label class="form-label">Data Vigência</label>
-                                <input type="text" name="data_consulta" class="form-control flatpickr-input" placeholder="Selecione uma data"> 
+                                <input type="text" name="effectiveDate" id="effectiveDate" class="form-control flatpickr-input targetDate" placeholder="DD/MM/AAAA"> 
                             </div>
                         </div>                        
                         
                         <br>
                         
                         <div id="descricao-container">
-                            <div class="row descricao-row">
+                            <div class="row descricao-row row_1">
                                 <div class="col-xl-3 col-lg-4 col-md-4 col-sm-12">
                                     <label class="form-label">Desconto</label>
-                                    <select class="form-control" name="descricao[]">
+                                    <select class="form-control list_1" name="discount">
                                       <option value="">Selecione um desconto</option>
-                                      <option value="odonto">Odonto</option>
-                                      <option value="odonto_dependente">Odonto - Dependente</option>
-                                      <option value="unimed">Unimed Coparticipação</option>
-                                      <option value="unimed_dependente">Unimed - Dependente</option>
-                                      <option value="farmais">Farmais</option>
-                                      <option value="farma_sesi">FarmaSesi</option>
-                                      <option value="farma_farma">Farma & Farma</option>
-                                      <option value="outros">Outros</option>
+                                      <!-- Descontos criados no banco de dados -->
                                     </select>
                                   </div>                                  
                                 <div class="col-xl-3 col-lg-4 col-md-4 col-sm-12">
                                     <label class="form-label">Valor R$</label>
-                                    <input type="number" step="0.01" name="valor[]" class="form-control campo-valor" placeholder="Digite um valor">
+                                    <input type="number" step="0.01" name="value" class="form-control campo-valor list_1" placeholder="Digite um valor...">
                                 </div>                                
                                 <div class="col-xl-3 col-lg-4 col-md-4 col-sm-12">
                                     <label class="form-label">Anexar Documento</label>
-                                    <input type="file" name="documento[]" class="form-control">
+                                    <input type="file" name="document" class="form-control list_1">
                                 </div>
                                 <div class="col-xl-3 col-lg-4 col-md-4 col-sm-12 d-flex align-items-end">
                                     <button type="button" class="btn btn-primary" onclick="adicionarDescricao()">Adicionar</button>
@@ -111,7 +104,7 @@
                         <div class="row">
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12"> 
                                 <label class="form-label d-flex justify-content-center">Observações</label> 
-                                <textarea name="observation" class="form-control form-input" cols="30" rows="5" placeholder="Insira uma observação"></textarea>
+                                <textarea name="observation" class="form-control form-input" cols="30" rows="5" placeholder="Insira uma observação..." maxlength="255"></textarea>
                             </div>
                         </div>
                     </div>
@@ -124,21 +117,25 @@
     <!-- Scroll To Top -->
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
     <div id="responsive-overlay"></div>
-    <!-- Scroll To Top -->
-    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+   
+    <!-- Jquery -->
+    <script src="../../assets/libs/jQuery/jquery-3.6.1.min.js"></script>
+    <!-- Popper JS -->
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- Flatpickr -->
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <!-- Color Picker JS -->
+    <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+    <!-- Flat Picker JS -->
+    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
-
-    <script src="../../assets/js/fetchAPI.js"></script>
-
-
-    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-
+    <!-- SweetAlert JS -->
     <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
 
+    <!-- Internal Task  JS -->
+    <script src="../../assets/js/fetchAPI.js"></script>
+
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script src="./assets/js/create.js"></script>
 
 

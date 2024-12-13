@@ -109,10 +109,10 @@ async function generateTable(id) {
         },
         columns: [
             {
-                data: 'id',
+                data: 'month_year',
                 render: function(data, type, row) {
                     return `
-                        <button onclick="showDiscountDetails(${data})" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
+                        <button onclick="showDiscountDetails('${data}')" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
                             <i class="ri-eye-close-line"></i>
                         </button>`;
                 },
@@ -143,7 +143,7 @@ async function generateTable(id) {
             }
         ],
         createdRow: function(row, data, dataIndex) {
-            $(row).attr('discount-id', data.id);
+            $(row).attr('discount-id', data.month_year);
         },
         buttons: ['excel', 'pdf', 'print'],
         language: {
@@ -158,6 +158,7 @@ async function generateTable(id) {
 
 // Função para exibir os detalhes abaixo dos descontos
 async function showDiscountDetails(discountId) {
+    console.log(discountId)
     try {
 
         // Função auxiliar para formatar moeda BRL
@@ -248,6 +249,21 @@ function formatarData(dataISO) {
     });
 };
 
+//Função para editar os descontos
+function editDiscount() {
+    // URL da página que será aberta
+    const url = '/app/administration/rh-payroll/update';
+
+    // Alvo da janela (nova aba/janela)
+    const target = '_blank';
+
+    // Configurações da nova janela
+    const features = 'width=1700,height=600,resizable=yes,scrollbars=yes,toolbar=no,menubar=no';
+
+    // Abrir a nova janela com os parâmetros definidos
+    window.open(url, target, features);
+};
+
 // Função que confirma a deleção
 function confirmarDelecao(id) {
     // Mostrar alerta de confirmação
@@ -263,9 +279,10 @@ function confirmarDelecao(id) {
     }).then(async (result) => {
         if (result.isConfirmed) {
             const delete_discount = await makeRequest(`/api/rh-payroll/delete`, 'POST', {id: id});
+            console.log(delete_discount)
         }
     })
-}
+};
 
 
 

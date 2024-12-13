@@ -61,5 +61,18 @@ module.exports = function(io) {
       }
    });
 
+   // Lista todos os parte lotes que encontrar no Sirius
+   router.post('/listAllParteLote', async (req, res, next) => {
+      
+      try {
+         const result = await partLot.listAllParteLote();
+
+         res.status(200).json(result)
+      } catch (error) {
+
+         res.status(404).json('Erro')
+      }
+   });
+
    return router;
 }

@@ -248,9 +248,23 @@ const partLot = {
          console.error('Erro ao inserir dados:', error);
          return error;
       }
-   }
-  
-  
+   },
+
+   listAllParteLote: async function () {      
+      let result = await executeQuery(`
+         SELECT
+            id,
+            external_reference,
+            total_process,
+            total_containers,
+            total_hbl,
+            cubed_weight,
+            gross_weight
+         FROM 
+            parte_lote
+      `)
+      return result;
+   },  
 }
 
 module.exports = {

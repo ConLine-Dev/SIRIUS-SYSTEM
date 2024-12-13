@@ -850,6 +850,14 @@ document.getElementById('searchProcess').addEventListener('click', async functio
    searchedRates = ''; // Limpa a variavel a cada consulta para poder inserir novos valores
    usedRates = {}; // Limpa a variavel a cada consulta para poder inserir novos valores
    const process = await makeRequest(`/api/part-lot/processByRef`, 'POST', { externalRef: searchInput});
+
+   if (!process || process.length === 0) {
+      document.querySelector('#loader').classList.add('d-none');
+      Swal.fire('Erro!', 'Nenhum processo localizado com a referência informada.', 'error');
+      tableControlProcess.innerHTML = ''; // Limpa o campo onde é inserido os processos e taxas
+      return;
+   }
+
    const processIds = process.map(p => p.IdLogistica_House); // Pega o ID de todos os processos
    const rates = await makeRequest(`/api/part-lot/listAllRates`, 'POST', { IdLogistica_House: processIds }); // Busca todas as taxas em uma única consulta
    searchedProcess = process; // Atualizado os valores da variavel

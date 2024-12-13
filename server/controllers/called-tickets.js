@@ -7,6 +7,7 @@ const { sendEmail } = require('../support/send-email');
 const fs = require('fs/promises');
 const path = require('path');
 const crypto = require('crypto');
+const { exec } = require('child_process');
 
 
 const tickets = {
@@ -1264,60 +1265,179 @@ const tickets = {
         return true;
     },
     notificateExpiringTickets: async function(){
+        // const today = new Date();
+        // const weekDay = today.getDay();
+        // if (weekDay != 1){
+        //     return false;
+        // }
 
-        // VERIFICAR ONDE PUXA O NOTIFICATEPENDINGTICKETS, PUXAR ESSA FUNÇÃO DO MESMO LUGAR ---------------
+        const pendingTickets = await executeQuery(`
+            SELECT *
+            FROM pending_tickets
+            WHERE date = DATE(NOW())`);
+
 
         const expiringTickets = await executeQuery(`
             SELECT *
             FROM siriusDBO.called_tickets
             WHERE status NOT LIKE '%completed%'
-            AND week(end_forecast) = week(now())`);
+            AND status NOT LIKE '%progress%'
+            AND status NOT LIKE '%review%'
+            AND week(end_forecast) = week(now())
+            ORDER BY end_forecast`);
 
         const startingTickets = await executeQuery(`
             SELECT *
             FROM siriusDBO.called_tickets
             WHERE status NOT LIKE '%completed%'
-            AND week(start_forecast) = week(now())`);
+            AND status NOT LIKE '%progress%'
+            AND status NOT LIKE '%review%'
+            AND week(start_forecast) = week(now())
+            ORDER BY start_forecast`);
 
         const ticketsByDev = await executeQuery(`
+            SELECT ct.id, ct.title, ct.priority, rp.name as 'resp_name', rp.family_name as 'resp_family_name',
+            cl.name, cl.family_name, cl.email_business, ct.end_forecast, cr.collaborator_id
+            FROM called_tickets ct
+            LEFT OUTER JOIN called_assigned_relations cr on cr.ticket_id = ct.id
+            LEFT OUTER JOIN collaborators cl on cl.id = cr.collaborator_id
+            LEFT OUTER JOIN collaborators rp on rp.id = ct.collaborator_id
+            WHERE status LIKE '%progress%'
+            ORDER BY cr.collaborator_id
+            AND ct.end_forecast`);
+
+        if (pendingTickets.length != 0) {
+            return;
+        }
+        await executeQuery(`
+                INSERT INTO pending_tickets (expiringTickets, startingTickets, progressTickets, date)
+                VALUES (${expiringTickets.length}, ${startingTickets.length}, ${ticketsByDev.length}, DATE(NOW()))`
+            );
+
+        const devTeam = await executeQuery(`
             SELECT *
-            FROM siriusDBO.called_tickets
-            WHERE status LIKE '%progress%'`); 
-            // AQUI AINDA FALTA PEGAR O TI DE CADA TICKET
+            FROM departments_relations
+            WHERE department_id = 7`);
 
-        // for (let index = 0; index < pendingTickets.length; index++) {
+        let expiringLine = '';
+        for (let index = 0; index < expiringTickets.length; index++) {
+            const formattedTitle = expiringTickets[index].title.charAt(0).toUpperCase() + expiringTickets[index].title.slice(1).toLowerCase();
+            const formattedDate = new Date(expiringTickets[index].end_forecast).toLocaleString("pt-BR", {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+            expiringLine += `
+                <tr>
+                    <td style="width: 75%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                        <h6 style="margin: 0px;">Título:</h6>
+                        <h4 style="margin: 0px; font-weight: normal;">${formattedTitle}</h4>
+                    </td>
+                    <td style="width: 25%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                        <h6 style="margin: 0px;">Previsão de Conclusão:</h6>
+                        <h4 style="margin: 0px; font-weight: normal;">${formattedDate}</h4>
+                    </td>
+                </tr>`;
+        }
 
-        //     let mailBody = `
-        //     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-        //         <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
-        //             <h1 style="margin: 0; font-size: 24px;">Só precisamos do seu OK!</h1>
-        //         </div>
-        //         <div style="padding: 20px; background-color: #f9f9f9;">
-        //             <p style="color: #333; font-size: 16px;">Olá,</p>
-        //             <p style="color: #333; font-size: 16px; line-height: 1.6;">Viemos te lembrar que tem um chamado aguardando aprovação! ⏳</p>
-        //             <p style="color: #333; font-size: 16px; line-height: 1.6;">Para continuar melhorando o sistema precisamos que dê uma atenção neste aqui:</p>
-        //             <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-        //             <tr>
-        //             <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Assunto do Chamado:</td>
-        //             <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${pendingTickets[index].title}</td>
-        //             </tr>
-        //             <tr>
-        //             <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Descrição do Pedido:</td>
-        //             <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">${(pendingTickets[index].description).replace(/\n/g, '<br>')}</td>
-        //             </tr>
-        //             </table>
-        //             <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
-        //         </div>
-        //         <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
-        //             <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
-        //         </div>
-        //     </div>`
-        //     console.log('Ticket:', pendingTickets[index].id, pendingTickets[index].email_business);
-        //     const teste = await sendEmail(pendingTickets[index].email_business, '[Sirius System] Seguimos no aguardo da sua aprovação! 🫠', mailBody);
-        //     if (teste.success == true) {
-        //         await executeQuery(`UPDATE called_tickets SET review_notification = DATE_SUB(CURDATE(), INTERVAL 6 DAY) WHERE id = ${pendingTickets[index].id}`);
-        //     }
-        // }
+        let startingLine = '';
+        for (let index = 0; index < startingTickets.length; index++) {
+            const formattedTitle = startingTickets[index].title.charAt(0).toUpperCase() + startingTickets[index].title.slice(1).toLowerCase();
+            const formattedDate = new Date(startingTickets[index].start_forecast).toLocaleString("pt-BR", {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+            startingLine += `
+                <tr>
+                    <td style="width: 75%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                        <h6 style="margin: 0px;">Título:</h6>
+                        <h4 style="margin: 0px; font-weight: normal;">${formattedTitle}</h4>
+                    </td>
+                    <td style="width: 25%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                        <h6 style="margin: 0px;">Previsão de Início:</h6>
+                        <h4 style="margin: 0px; font-weight: normal;">${formattedDate}</h4>
+                    </td>
+                </tr>`;
+        }
+
+        let devBody = '';
+        for (let i = 0; i < devTeam.length; i++) {
+            let assignedLine = '';
+            let devLine = '';
+            for (let index = 0; index < ticketsByDev.length; index++) {
+                if (ticketsByDev[index].collaborator_id == devTeam[i].collaborator_id) {
+                    devLine = `
+                        <tr>
+                            <td colspan="2" style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                                <h4 style="margin: 0px;">Chamados em andamento - ${ticketsByDev[index].name} ${ticketsByDev[index].family_name}</h4>
+                            </td>
+                        </tr>`
+                    const formattedTitle = ticketsByDev[index].title.charAt(0).toUpperCase() + ticketsByDev[index].title.slice(1).toLowerCase();
+                    const formattedDate = new Date(ticketsByDev[index].end_forecast).toLocaleString("pt-BR", {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                    });
+                    assignedLine += `
+                        <tr>
+                            <td style="width: 75%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                                <h6 style="margin: 0px;">Título:</h6>
+                                <h4 style="margin: 0px; font-weight: normal;">${formattedTitle}</h4>
+                            </td>
+                            <td style="width: 25%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                                <h6 style="margin: 0px;">Previsão de Conclusão:</h6>
+                                <h4 style="margin: 0px; font-weight: normal;">${formattedDate}</h4>
+                            </td>
+                        </tr>`;
+                }
+            }
+            devBody += `${devLine} ${assignedLine} <br>`;
+        }
+
+        const mailBody = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+                    <h1 style="margin: 0; font-size: 24px;">Tickets da Semana</h1>
+                </div>
+                <div style="padding: 20px; background-color: #f9f9f9;">
+                    <p style="color: #333; font-size: 16px;">Olá,</p>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Estes são alguns dos chamados em aberto. 🤯</p>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Os que devemos iniciar ou concluir essa semana e os que estão em andamento:</p>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <tr>
+                            <td colspan="2" style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                                <h4 style="margin: 0px;">Chamados para começar essa semana:</h4>
+                            </td>
+                        </tr>
+                        ${startingLine}
+                    </table>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <tr>
+                            <td colspan="2" style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                                <h4 style="margin: 0px;">Chamados para concluir essa semana:</h4>
+                            </td>
+                        </tr>
+                        ${expiringLine}
+                    </table>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                    ${devBody}
+                    </table>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
+                </div>
+                <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+                    <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+                </div>
+            </div>`;
+
+        await sendEmail('ti@conlinebr.com.br', '[Sirius System] Só um lembrete 💭', mailBody);
+
         return true;
     },
     formatarNome: function(nome) {

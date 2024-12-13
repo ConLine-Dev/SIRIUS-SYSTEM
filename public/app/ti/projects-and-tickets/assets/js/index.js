@@ -1,5 +1,5 @@
 let choicesInstance, choicesInstanceEdit, SCategories, SEditing_Categories;
-let IdUpdate, myModal;
+let IdUpdate, myModal, actualDate;
 
   // Verifica o localStorage para alterar a mensagem de boas vindas
   const StorageGoogleData = localStorage.getItem('StorageGoogle');
@@ -834,7 +834,7 @@ function inputEndForecast() {
 
 async function notificatePendingTickets() {
     await makeRequest('/api/called/tickets/notificatePendingTickets');
-
+    await makeRequest('/api/called/tickets/notificateExpiringTickets');
 }
 
 // Função principal executada ao carregar o DOM

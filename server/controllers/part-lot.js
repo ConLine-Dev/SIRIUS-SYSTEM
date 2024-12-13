@@ -185,6 +185,72 @@ const partLot = {
       `)
       return result;
    },
+
+   // Lista as taxas por processo
+   createParteLote: async function (processData) {
+      const processes = processData.processes;
+  
+      // Contagem de tipos
+      const totalPesoCubado = processes.reduce((sum, process) => sum + parseFloat(process.totalPesoCubado || 0), 0);
+      const totalPesoConsiderado = processes.reduce((sum, process) => sum + parseFloat(process.totalPesoConsiderado || 0), 0);
+  
+      try {
+         // Insere os dados totalizador na tabela parte_lote
+         const insertParteLote = await executeQuery(`
+            INSERT INTO parte_lote (external_reference, total_process, total_containers, total_hbl, cubed_weight, gross_weight) 
+            VALUES ('${processData.externalReference}', ${processData.totalProcesses}, ${processData.totalDistinctContainers}, ${processData.totalDistinctConhecimentos}, ${totalPesoCubado}, ${totalPesoConsiderado})
+         `);
+
+         // Mapa para associar processId ao ID da tabela parte_lote_processes
+         const processIdToParteLoteProcessIdMap = {};
+
+         // Insere os processos e mapeia os IDs
+         for (let i = 0; i < processes.length; i++) {
+            const process = processes[i];
+
+            const insertParteLoteProcesses = await executeQuery(`
+               INSERT INTO parte_lote_processes (parte_lote_id, process_id, process_number, total_hbl, total_containers, containers, hbls) 
+               VALUES (${insertParteLote.insertId}, ${process.processId}, '${process.processNumber}', ${process.quantHbl}, ${process.quantContainers}, '${process.containerNumber}', '${process.hblNumber}')
+            `);
+
+            // Mapear o processId para o ID gerado
+            processIdToParteLoteProcessIdMap[process.processId] = insertParteLoteProcesses.insertId;
+         }
+
+         // Insere as taxas no banco
+         for (let i = 0; i < processes.length; i++) {
+            const process = processes[i];
+            const rates = process.rates;
+
+            for (let j = 0; j < rates.length; j++) {
+               const rate = rates[j];
+
+               // Obtém o parte_lote_process_id correto do mapa
+               const parteLoteProcessId = processIdToParteLoteProcessIdMap[rate.processId];
+
+               // Faz o insert de cada taxa
+               await executeQuery(`
+                     INSERT INTO parte_lote_rates (
+                        parte_lote_processes_id, process_id, process_number, coin_id, coin, type, register_financial_id, quantity, mov_rate_id, rate_id, rate, type_charge_id, type_charge, value
+                     ) 
+                     VALUES (
+                        ${parteLoteProcessId}, ${rate.processId}, '${rate.processNumber}', ${rate.dataIdMoeda}, '${rate.dataMoeda}', '${rate.type}', 
+                        ${rate.dataIdRegistroFinanceiro}, ${rate.dataQuant}, ${rate.movRateId}, 
+                        ${rate.dataRateId}, '${rate.dataRate}', ${rate.dataTipoCobrancaId}, '${rate.dataTipoCobranca}', 
+                        ${rate.value}
+                     )
+               `);
+            }
+         }
+
+         return 'Inserido';
+      } catch (error) {
+         console.error('Erro ao inserir dados:', error);
+         return error;
+      }
+   }
+  
+  
 }
 
 module.exports = {

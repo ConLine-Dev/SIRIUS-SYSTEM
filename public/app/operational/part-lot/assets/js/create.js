@@ -438,14 +438,28 @@ async function saveRates() {
          confirmButtonColor: "#3085d6",
          cancelButtonColor: "#d33",
          confirmButtonText: "Confirmar"
-      }).then((result) => {
+      }).then(async (result) => { // Torna a função assíncrona aqui
          if (result.isConfirmed) {
-            getProcessData();
+            try {
+               document.querySelector('#loader2').classList.remove('d-none');
+               const processData = getProcessData();
+               const createParteLote = await makeRequest(`/api/part-lot/createParteLote`, 'POST', { processData: processData });
+               
+               if (createParteLote && createParteLote === 'Inserido') {
+                  document.querySelector('#loader2').classList.add('d-none');
+                  window.close();
+               }
+               
+            } catch (error) {
+               document.querySelector('#loader2').classList.add('d-none');
+               Swal.fire('Erro!', 'Erro na solicitação ao servidor.', 'error');
+            }
          }
       });
    } else {
       Swal.fire('Sucesso!', 'Valores das taxas estão corretos e foram salvos!', 'success');
    }
+  
 };
 
 // Calcula a quantidade e o valor total por taxa, separado por pagamento e recebimento
@@ -499,6 +513,7 @@ function calculateTotalsRates() {
    return totals;
 };
 
+// Função que calcula o total de processos, peso cubado e considerado
 function calculateTotalProcess() {
    const totals = {
       totalProcesses: 0,
@@ -526,6 +541,7 @@ function calculateTotalProcess() {
    return totals;
 };
 
+// Função para criar o totalizador
 function createTotalizer() {
    const totals = calculateTotalsRates();
    const totalsProcesses = calculateTotalProcess();
@@ -610,6 +626,7 @@ function createTotalizer() {
    tableControlProcess.insertAdjacentHTML('beforeend', tableTotalizer);
 };
 
+// Função para alterar o totalizador
 function updateTotalizerInputs() {
    const totals = calculateTotalsRates();
 
@@ -630,6 +647,7 @@ function updateTotalizerInputs() {
    }
 };
 
+// Função para monitorar o valor alterado nos INPUTS para atualizar o totalizador
 function monitorTotalInputs() {
    const container = document.getElementById('tableControlProcess');
 
@@ -646,6 +664,7 @@ function monitorTotalInputs() {
    });
 };
 
+// Botão que surge ao adicionar uma taxa, no totalizar vai criar um botao de desfazer para reverter o lançamento
 function addUndoButton(rateId, rateType) {
    const rowSelector = document.querySelector(`.totalizador [rateIdAndType="${rateId}-${rateType}"]`);
    const rateRow = rowSelector ? rowSelector.closest('tr') : null;
@@ -673,6 +692,7 @@ function addUndoButton(rateId, rateType) {
    }
 };
 
+// Função que fazer reverter todo o lançamento a partir do click no botão criado pela funcao "addUndoButton"
 function undoChanges(rateId, rateType) {
    // Localizar os processos relacionados à taxa e ao tipo
    const processes = searchedProcess.filter(process => {
@@ -753,6 +773,10 @@ function getProcessData() {
    processRows.forEach(processRow => {
       const processId = processRow.getAttribute('data-process-id');
       const processNumber = processRow.querySelector('[data-process-number]')?.getAttribute('data-process-number') || null;
+      const quantContainers = processRow.querySelector('[data-quant-containers]')?.getAttribute('data-quant-containers') || 0;
+      const containerNumber = processRow.querySelector('[data-containers]')?.textContent || null;
+      const quantHbl = processRow.querySelector('[data-quant-conhecimentos]')?.getAttribute('data-quant-conhecimentos') || 0;
+      const hblNumber = processRow.querySelector('[data-conhecimentos]')?.textContent || null;
       const totalPesoCubado = parseFloat(processRow.querySelector('.data-peso-cubado')?.textContent || 0);
       const totalPesoConsiderado = parseFloat(processRow.querySelector('.data-peso-considerado')?.textContent || 0);
       const detailsRow = processRow.nextElementSibling; // Pega a linha de detalhes (a próxima linha)
@@ -771,13 +795,18 @@ function getProcessData() {
          rateRows.forEach(rateRow => {
             const rate = {
                processId: processId,
-               rateId: rateRow.getAttribute('data-rateid-line'),
-               dataRateId: rateRow.querySelector('[data-rateid]')?.getAttribute('data-rateid') || null,
-               dataIdRegistroFinanceiro: rateRow.querySelector('[data-idregistro-financeiro]')?.getAttribute('data-idregistro-financeiro') || null,
-               dataTipoCobranca: rateRow.querySelector('[data-tipo_cobrança]')?.getAttribute('data-tipo_cobrança') || null,
+               processNumber: processNumber,
                dataIdMoeda: rateRow.querySelector('[data-idmoeda]')?.getAttribute('data-idmoeda') || null,
-               dataQuant: rateRow.querySelector('[data-quant]')?.getAttribute('data-quant') || null,
-               value: rateRow.querySelector('input.form-control')?.value || null
+               dataMoeda: rateRow.querySelector('[data-idmoeda]').textContent || null,
+               type: rateRow.querySelector('[data-type]').textContent || null,
+               dataIdRegistroFinanceiro: rateRow.querySelector('[data-idregistro-financeiro]')?.getAttribute('data-idregistro-financeiro') || null,
+               dataQuant: rateRow.querySelector('[data-quant]')?.getAttribute('data-quant') || 0,
+               movRateId: rateRow.getAttribute('data-rateid-line'),
+               dataRateId: rateRow.querySelector('[data-rateid]')?.getAttribute('data-rateid') || null,
+               dataRate: rateRow.querySelector('[data-rateid]').textContent || null,
+               dataTipoCobrancaId: rateRow.querySelector('[data-tipo_cobrança]')?.getAttribute('data-tipo_cobrança') || null,
+               dataTipoCobranca: rateRow.querySelector('[data-tipo_cobrança]').textContent || null,
+               value: rateRow.querySelector('input.form-control')?.value || 0
             };
 
             rates.push(rate);
@@ -787,7 +816,11 @@ function getProcessData() {
       if (rates.length > 0) {
          processes.push({ 
             processId, 
-            processNumber, 
+            processNumber,
+            quantContainers,
+            containerNumber,
+            quantHbl,
+            hblNumber,
             totalPesoCubado, 
             totalPesoConsiderado, 
             rates 
@@ -803,16 +836,8 @@ function getProcessData() {
       processes
    };
 
-   console.log(result);
-
    return result;
-}
-
-
-// Exemplo de uso
-const processData = getProcessData();
-console.log(processData);
-
+};
 
 // Busca os processos pela referencia externa e insere na tela
 document.getElementById('searchProcess').addEventListener('click', async function () {
@@ -858,9 +883,6 @@ document.getElementById('searchProcess').addEventListener('click', async functio
 
       // Obtem as taxas do processo atual
       const processRates = ratesByProcess[item.IdLogistica_House] || [];
-
-      console.log(processRates, 'processRates');
-      
 
       // Gera o HTML para as taxas
       let ratesHTML = processRates.map((rate) => `

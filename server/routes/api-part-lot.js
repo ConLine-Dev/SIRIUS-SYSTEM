@@ -47,5 +47,19 @@ module.exports = function(io) {
       }
    });
 
+   // Lista as taxas por processo
+   router.post('/createParteLote', async (req, res, next) => {
+      const { processData } = req.body;
+      
+      try {
+         const result = await partLot.createParteLote(processData);
+
+         res.status(200).json(result)
+      } catch (error) {
+
+         res.status(404).json('Erro')
+      }
+   });
+
    return router;
 }

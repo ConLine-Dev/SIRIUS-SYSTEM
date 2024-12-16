@@ -131,6 +131,9 @@ async function generateTable(id) {
                 render: function(data, type, row) {
                     return `
                         <div class="hstack gap-2 fs-15">
+                            <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar" onclick="editDiscount(${data.id})">
+                                <i class="ri-pencil-line"></i>
+                            </a>
                             <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Visualizar PDF">
                             <i class="ri-file-pdf-line"></i>
                             </a>
@@ -189,9 +192,6 @@ async function showDiscountDetails(discountId) {
                         <div class="btn-list">
                             <a href="javascript:void(0);" class="btn btn-icon btn-wave waves-effect waves-light btn-sm btn-primary-light" title="Visualizar PDF">
                                 <i class="ri-file-pdf-line"></i>
-                            </a>
-                            <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light" title="Editar">
-                                <i class="ri-pencil-line"></i>
                             </a>
                             <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-purple-light" title="Deletar" onclick="confirmarDelecao(${fee.id})">
                                 <i class="ri-delete-bin-line"></i>
@@ -252,7 +252,7 @@ function formatarData(dataISO) {
 //Função para editar os descontos
 function editDiscount() {
     // URL da página que será aberta
-    const url = '/app/administration/rh-payroll/update';
+    const url = '/app/administration/rh-payroll/edit';
 
     // Alvo da janela (nova aba/janela)
     const target = '_blank';

@@ -104,7 +104,7 @@ function configurarFormatacaoValor() {
 
 };
 
-// Esta função coleta dados de um formulário HTML, realiza validações no campo de link, e faz uma requisição para criar uma nova entrada no sistema de controle de senhas
+// Esta função coleta dados de um formulário HTML, realiza validações no campo de link
 async function getDiscount() {
     const listDiscount = document.querySelectorAll('.descricao-row');
     const discount = [];

@@ -161,7 +161,8 @@ function distributeRateByCubedWeight(rateId, rateType, totalRateValue, processes
 
 // Função para calcular e distribuir o valor proporcional de acordo com o peso Considerado
 function distributeRateByConsideredWeight(rateId, rateType, totalRateValue, processes) {
-   const totalWeight = processes.reduce((sum, process) => sum + parseFloat(process.Peso_Considerado || 0), 0);   
+   const totalWeight = processes.reduce((sum, process) => sum + parseFloat(process.Peso_Considerado || 0), 0);  
+   console.log(processes);
 
    processes.forEach((process) => {
       const proportion = parseFloat(process.Peso_Considerado || 0) / totalWeight;
@@ -513,12 +514,12 @@ function calculateTotalsRates() {
    return totals;
 };
 
-// Função que calcula o total de processos, peso cubado e considerado
+// Função que calcula o total de processos, peso cubado e Bruto
 function calculateTotalProcess() {
    const totals = {
       totalProcesses: 0,
       totalPesoCubado: 0,
-      totalPesoConsiderado: 0
+      totalPesoBruto: 0
    };
 
    // Itera sobre cada linha de processo
@@ -526,16 +527,16 @@ function calculateTotalProcess() {
       // Incrementa o número total de processos
       totals.totalProcesses += 1;
 
-      // Obtém o valor do peso cubado e considerado como números
+      // Obtém o valor do peso cubado e bruto como números
       const pesoCubadoElement = process.querySelector('.data-peso-cubado');
-      const pesoConsideradoElement = process.querySelector('.data-peso-considerado');
+      const pesoBrutoElement = process.querySelector('.data-peso-bruto');
 
       const pesoCubado = pesoCubadoElement ? parseFloat(pesoCubadoElement.textContent.trim()) || 0 : 0;
-      const pesoConsiderado = pesoConsideradoElement ? parseFloat(pesoConsideradoElement.textContent.trim()) || 0 : 0;
+      const pesoBruto = pesoBrutoElement ? parseFloat(pesoBrutoElement.textContent.trim()) || 0 : 0;
 
       // Acumula os valores no objeto totals
       totals.totalPesoCubado += pesoCubado;
-      totals.totalPesoConsiderado += pesoConsiderado;
+      totals.totalPesoBruto += pesoBruto;
    });
 
    return totals;
@@ -596,8 +597,8 @@ function createTotalizer() {
                </td>
                <td class="bg-success-transparent">
                    <div>
-                       <span class="d-block fw-normal">Total Peso Considerado:</span> 
-                       <span class="d-block fw-bold data-peso-considerado">${totalsProcesses.totalPesoConsiderado}</span>
+                       <span class="d-block fw-normal">Total Peso Bruto:</span> 
+                       <span class="d-block fw-bold data-peso-bruto">${totalsProcesses.totalPesoBruto}</span>
                    </div>
                </td>
            </tr>
@@ -778,7 +779,7 @@ function getProcessData() {
       const quantHbl = processRow.querySelector('[data-quant-conhecimentos]')?.getAttribute('data-quant-conhecimentos') || 0;
       const hblNumber = processRow.querySelector('[data-conhecimentos]')?.textContent || null;
       const totalPesoCubado = parseFloat(processRow.querySelector('.data-peso-cubado')?.textContent || 0);
-      const totalPesoConsiderado = parseFloat(processRow.querySelector('.data-peso-considerado')?.textContent || 0);
+      const totalPesoBruto = parseFloat(processRow.querySelector('.data-peso-bruto')?.textContent || 0);
       const detailsRow = processRow.nextElementSibling; // Pega a linha de detalhes (a próxima linha)
       const rates = [];
 
@@ -812,6 +813,8 @@ function getProcessData() {
             rates.push(rate);
          });
       }
+      console.log(processes, 'processes');
+      
 
       if (rates.length > 0) {
          processes.push({ 
@@ -822,7 +825,7 @@ function getProcessData() {
             quantHbl,
             hblNumber,
             totalPesoCubado, 
-            totalPesoConsiderado, 
+            totalPesoBruto, 
             rates 
          });
       }
@@ -908,7 +911,7 @@ document.getElementById('searchProcess').addEventListener('click', async functio
          <tbody class="files-list">
             <tr data-process-id="${item.IdLogistica_House}" class="odd">
                <td class="data-peso-cubado d-none">${item.Peso_Cubado}</td>
-               <td class="data-peso-considerado d-none">${item.Peso_Considerado}</td>
+               <td class="data-peso-bruto d-none">${item.Peso_Bruto}</td>
                <td style="width: 15px !important;">
                      <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
                         <i class="ri-eye-close-line"></i>
@@ -1108,7 +1111,7 @@ document.getElementById('insertRate').addEventListener('click', async function (
    // Aplicar as alterações
    if (divOrRepId == 0 /* Dividir */ && formCobId == 3 /* Peso Cubado */) {
       distributeRateByCubedWeight(rateId, rateType, totalRateValue, searchedProcess);
-   } else if (divOrRepId == 0 /* Dividir */ && formCobId == 2 /* Peso Considerado */) {
+   } else if (divOrRepId == 0 /* Dividir */ && formCobId == 2 /* Peso Consoderado */) {
       distributeRateByConsideredWeight(rateId, rateType, totalRateValue, searchedProcess);
    } else if (divOrRepId == 0 /* Dividir */ && formCobId == 1 /* Container */) {
       distributeRateByContainers(rateId, rateType, totalRateValue, searchedProcess);

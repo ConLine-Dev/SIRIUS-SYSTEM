@@ -58,8 +58,8 @@
          
                <!-- LISTA DE PROCESSOS -->
                <div class="card-body p-0" id="listAllProcess">
-                  <ul class="list-group list-group-flush listUsers">
-                     <li class="list-group-item" data_userid="22" data-username="adriani da silveira">
+                  <ul class="list-group list-group-flush listParteLote">
+                     <!-- <li class="list-group-item" data_userid="22" data-username="adriani da silveira">
                         <div class="d-flex align-items-center justify-content-between flex-wrap">
                               <div class="d-flex w-100 justify-content-between align-items-center">
                                  <div> 
@@ -72,7 +72,7 @@
                                  </div>
                               </div>
                         </div>
-                    </li>
+                    </li> -->
                   </ul>
                </div>
             </div>
@@ -92,12 +92,14 @@
                      </div>
                   </div>
                   
-                  <div class="card-body" style="padding: 5px !important;">
+                  <div class="card-body" style="padding: 5px !important; position: relative;">
+                     <div id="loader" class="d-none">
+                        <img src="../../assets/images/media/loader.svg" alt="">
+                     </div>
+
                      <div class="table-container">
-
-                        <table id="table_control_password" class="table table-bordered text-nowrap w-100 dataTable table-hover">
-
-                           <tbody class="files-list">
+                        <table id="tableControlProcess" class="table table-bordered text-nowrap w-100 dataTable table-hover">
+                           <!-- <tbody class="files-list">
                               <tr data-process-id="10847" class="odd">
                                  <td style="width: 15px !important;">
                                     <button onclick="toggleDetails(this)" class="btn btn-icon btn-primary-transparent rounded-pill btn-wave waves-effect waves-light" title="Visualizar Detalhes">
@@ -1151,8 +1153,7 @@
                                     </table>
                                  </td>
                               </tr>
-                           </tbody>
-
+                           </tbody> -->
                         </table>
                      </div>
                   </div>

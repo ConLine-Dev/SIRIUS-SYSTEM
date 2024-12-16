@@ -162,7 +162,6 @@ function distributeRateByCubedWeight(rateId, rateType, totalRateValue, processes
 // Função para calcular e distribuir o valor proporcional de acordo com o peso Considerado
 function distributeRateByConsideredWeight(rateId, rateType, totalRateValue, processes) {
    const totalWeight = processes.reduce((sum, process) => sum + parseFloat(process.Peso_Considerado || 0), 0);  
-   console.log(processes);
 
    processes.forEach((process) => {
       const proportion = parseFloat(process.Peso_Considerado || 0) / totalWeight;
@@ -813,8 +812,6 @@ function getProcessData() {
             rates.push(rate);
          });
       }
-      console.log(processes, 'processes');
-      
 
       if (rates.length > 0) {
          processes.push({ 

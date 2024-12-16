@@ -12,7 +12,7 @@ const partLot = {
             Lmc.Qtd_Containers,
             Lhs.Conhecimentos,
             Cem.Qtd_Conhecimentos,
-            Lhs.Peso_Considerado,
+            Lhs.Peso_Bruto,
             Lmc.Peso_Cubado
          FROM
             mov_Logistica_House Lhs
@@ -192,13 +192,13 @@ const partLot = {
   
       // Contagem de tipos
       const totalPesoCubado = processes.reduce((sum, process) => sum + parseFloat(process.totalPesoCubado || 0), 0);
-      const totalPesoConsiderado = processes.reduce((sum, process) => sum + parseFloat(process.totalPesoConsiderado || 0), 0);
+      const totalPesoBruto = processes.reduce((sum, process) => sum + parseFloat(process.totalPesoBruto || 0), 0);
   
       try {
          // Insere os dados totalizador na tabela parte_lote
          const insertParteLote = await executeQuery(`
             INSERT INTO parte_lote (external_reference, total_process, total_containers, total_hbl, cubed_weight, gross_weight) 
-            VALUES ('${processData.externalReference}', ${processData.totalProcesses}, ${processData.totalDistinctContainers}, ${processData.totalDistinctConhecimentos}, ${totalPesoCubado}, ${totalPesoConsiderado})
+            VALUES ('${processData.externalReference}', ${processData.totalProcesses}, ${processData.totalDistinctContainers}, ${processData.totalDistinctConhecimentos}, ${totalPesoCubado}, ${totalPesoBruto})
          `);
 
          // Mapa para associar processId ao ID da tabela parte_lote_processes
@@ -231,10 +231,10 @@ const partLot = {
                // Faz o insert de cada taxa
                await executeQuery(`
                      INSERT INTO parte_lote_rates (
-                        parte_lote_processes_id, process_id, process_number, coin_id, coin, type, register_financial_id, quantity, mov_rate_id, rate_id, rate, type_charge_id, type_charge, value
+                        parte_lote_id, parte_lote_processes_id, process_id, process_number, coin_id, coin, type, register_financial_id, quantity, mov_rate_id, rate_id, rate, type_charge_id, type_charge, value
                      ) 
                      VALUES (
-                        ${parteLoteProcessId}, ${rate.processId}, '${rate.processNumber}', ${rate.dataIdMoeda}, '${rate.dataMoeda}', '${rate.type}', 
+                        ${insertParteLote.insertId}, ${parteLoteProcessId}, ${rate.processId}, '${rate.processNumber}', ${rate.dataIdMoeda}, '${rate.dataMoeda}', '${rate.type}', 
                         ${rate.dataIdRegistroFinanceiro}, ${rate.dataQuant}, ${rate.movRateId}, 
                         ${rate.dataRateId}, '${rate.dataRate}', ${rate.dataTipoCobrancaId}, '${rate.dataTipoCobranca}', 
                         ${rate.value}
@@ -264,7 +264,39 @@ const partLot = {
             parte_lote
       `)
       return result;
-   },  
+   }, 
+
+   // Lista todas as faturas
+   listProcessesParteLoteById: async function (id) {
+      let result = await executeQuery(`
+         SELECT
+            plp.*,
+            pl.cubed_weight,
+            pl.gross_weight
+         FROM
+            parte_lote_processes plp
+         LEFT OUTER JOIN
+            parte_lote pl ON pl.id = plp.parte_lote_id
+         WHERE
+            plp.parte_lote_id = ${id}
+      `)
+      return result;
+   },
+   
+   // Lista todas as faturas
+   listAllRatesByParteLote: async function (IdLogistica_House, parte_lote_id) {
+      let result = await executeQuery(`
+         SELECT DISTINCT
+            *
+         FROM 
+            parte_lote_rates
+         WHERE
+            process_id IN (${IdLogistica_House.join(',')})
+            AND parte_lote_id = ${parte_lote_id}
+      `)
+
+      return result;
+   },
 }
 
 module.exports = {

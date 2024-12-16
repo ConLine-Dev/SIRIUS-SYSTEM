@@ -66,10 +66,33 @@ module.exports = function(io) {
         }
     });
 
+    // Rota para obter a visualização
+    router.post('/getView', async (req, res, next) => {
+        const form = req.body
+        try {
+            const result = await rhPayroll.getView(form.id);
+            res.status(200).json(result);   
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    }); 
+
+    // Rota para deletar
+    router.post('/update', async (req, res, next) => {
+        const {id} = req.body
+        try {
+            const result = await rhPayroll.update(id);
+            io.emit('updateRhPayroll', '')
+            res.status(200).json(result);   
+        } catch (error) {
+            res.status(404).json(error);
+        }
+        
+    });
+
     // Rota para deletar
     router.post('/delete', async (req, res, next) => {
         const {id} = req.body
-        console.log(id)
         try {
             const result = await rhPayroll.delete(id);
             io.emit('updateRhPayroll', '')

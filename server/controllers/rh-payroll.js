@@ -77,7 +77,7 @@ const rhPayroll = {
         LEFT JOIN 
             rh_payroll_discount rpd
             ON rpd.rh_payroll_id = rp.id
-        LEFT JOIN 
+        LEFT JOIN  
             rh_payroll_category rpc
             ON rpc.id = rpd.rh_payroll_category_id
         WHERE 
@@ -137,9 +137,81 @@ const rhPayroll = {
         return formattedDiscount;
     },
 
+    getView: async function (id) {
+        const result = await executeQuery(`
+            select
+                rpd.*,
+                rp.responsible_id,
+                rp.month_year,
+                rp.effective_date,
+                rp.observation,
+                rpc.name_discount
+            from
+                rh_payroll_discount rpd
+            left outer join 
+                rh_payroll rp on rp.id = rpd.rh_payroll_id
+            left outer join 
+                rh_payroll_category rpc on rpc.id = rpd.rh_payroll_category_id
+            where
+                rp.month_year = '${id}'
+
+        `);
+        console.log(result)
+    
+        // Use Promise.all para lidar com operações assíncronas
+        const formattedDiscount = await Promise.all(result.map(async item => {
+            // Botões de ação
+            const buttons = `<div class="btn-list">
+                                <a href="javascript:void(0);" class="btn btn-sm btn-icon btn-warning-light edit_discount" title="Editar" data-id="${item.id}">
+                                <i class="ri-pencil-line"></i>
+                                </a>
+                            </div>`;
+    
+            
+            const discount = await rhPayroll.getDiscountById(item.id);          
+            const users = `${item.ResponsibleName} ${item.ResponsibleFamilyName}`;
+            const monthYear = new Date(item.month_year+'-05').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+            const categoryDiscount = item.rh_payroll_category_id || 'Sem Categoria';
+            const effectiveDate = new Date(item.effective_date).toLocaleDateString('pt-BR');
+            const observation = item.observation || 'Nenhuma Observação';
+            const ValueDiscount = item.discount || 0;
+    
+            // Executa consulta para obter os descontos
+            const resultDiscount = await executeQuery(`
+                SELECT 
+                    *
+                FROM 
+                    rh_payroll_discount 
+                WHERE 
+                    rh_payroll_id = ${item.id}
+            `);
+    
+            // Soma os valores dos descontos
+            const totalValue = resultDiscount.reduce((total, discount) => {
+                return total + discount.value;
+            }, 0);
+    
+            return {
+                ...item,
+                responsibleName: users,
+                monthYear: monthYear,
+                totalValue: totalValue,
+                categoryDiscount: categoryDiscount,
+                effectiveDate: effectiveDate,
+                observation: observation,
+                ValueDiscount: ValueDiscount,
+                action: buttons
+            };
+        }));
+    
+        return formattedDiscount;
+            
+       
+        
+    },
+
      // Função para obter os dados dos tipos de descontos
     getDiscountById: async function (id) {
-        console.log(id)
 
         const resultDiscount = await executeQuery(`
             select
@@ -197,16 +269,16 @@ const rhPayroll = {
 
         let delete_discount = await executeQuery(`DELETE FROM rh_payroll_discount WHERE (id = ?)`, [id])
 
-        // Agora, insere na tabela password_relation_department para cada departamento
-        const departmentInsertQueries = form.departments.map(departmentId => {
+        // Agora, insere na tabela rh_payroll_discount para cada departamento
+        const discountInsertQueries = form.discount.map(discountId => {
             return `
-                INSERT INTO password_relation_department (password_id, department_id) 
-                VALUES (${form.id}, ${departmentId})
+                INSERT INTO rh_payroll_discount (rh_payroll_id, rh_payroll_category_id) 
+                VALUES (${form.id}, ${discountId})
             `;
         });
 
-        // Executa todas as inserções de departamento
-        for (const query of departmentInsertQueries) {
+        // Executa todas as inserções de desconto
+        for (const query of discountInsertQueries) {
             await executeQuery(query);
         }
 

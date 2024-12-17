@@ -47,12 +47,26 @@ module.exports = function(io) {
       }
    });
 
-   // Lista as taxas por processo
+   // Cria o parte lote
    router.post('/createParteLote', async (req, res, next) => {
       const { processData } = req.body;
       
       try {
          const result = await partLot.createParteLote(processData);
+
+         res.status(200).json(result)
+      } catch (error) {
+
+         res.status(404).json('Erro')
+      }
+   });
+
+   // Atualiza os dados no head
+   router.post('/updateParteLote', async (req, res, next) => {
+      const { processData } = req.body;
+      
+      try {
+         const result = await partLot.updateParteLote(processData);
 
          res.status(200).json(result)
       } catch (error) {

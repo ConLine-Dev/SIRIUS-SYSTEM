@@ -250,6 +250,50 @@ const partLot = {
       }
    },
 
+   updateParteLote: async function (processData) {
+      const processes = processData.processes;
+
+      try {
+         // Itera pelos processos para realizar os updates
+         for (let i = 0; i < processes.length; i++) {
+            const process = processes[i];
+            const rates = process.rates;
+            
+            for (let j = 0; j < rates.length; j++) {
+               const rate = rates[j];
+
+               // Determina os valores de acordo com o tipo (Pagamento ou Recebimento)
+               const isPagamento = rate.type === 'Pagamento';
+
+               const quantidadeColuna = isPagamento ? 'Quantidade_Pagamento' : 'Quantidade_Recebimento';
+               const valorUnitarioColuna = isPagamento ? 'Valor_Pagamento_Unitario' : 'Valor_Recebimento_Unitario';
+               const valorTotalColuna = isPagamento ? 'Valor_Pagamento_Total' : 'Valor_Recebimento_Total';
+               const tipoColuna = isPagamento ? 'Tipo_Pagamento' : 'Tipo_Recebimento';
+
+               // Monta a query de update
+               const updateQuery = `
+                     UPDATE mov_Logistica_Taxa
+                     SET 
+                        ${quantidadeColuna} = ${rate.dataQuant},
+                        ${valorUnitarioColuna} = ${rate.value},
+                        ${valorTotalColuna} = ${rate.value},
+                        ${tipoColuna} = ${rate.dataTipoCobrancaId}
+                     WHERE 
+                        IdLogistica_Taxa = ${rate.movRateId}
+               `;
+
+               // Executa o update no banco de dados
+               await executeQuerySQL(updateQuery);
+            }
+         }
+
+         return 'Atualizado com sucesso';
+      } catch (error) {
+         console.error('Erro ao atualizar dados:', error);
+         return error;
+      }
+   },
+
    listAllParteLote: async function () {      
       let result = await executeQuery(`
          SELECT

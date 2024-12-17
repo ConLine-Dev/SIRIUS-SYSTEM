@@ -149,6 +149,7 @@ function distributeRateByCubedWeight(rateId, rateType, totalRateValue, processes
 
             if (formCob) {
                formCob.textContent = 'Livre';
+               formCob.setAttribute('data-tipo_cobrança', '14'); // Define o valor no atributo
             }
 
             if (quant) {
@@ -195,6 +196,7 @@ function distributeRateByConsideredWeight(rateId, rateType, totalRateValue, proc
 
             if (formCob) {
                formCob.textContent = 'Livre';
+               formCob.setAttribute('data-tipo_cobrança', '14'); // Define o valor no atributo
             }
 
             if (quant) {
@@ -261,6 +263,7 @@ function distributeRateByContainers(rateId, rateType, totalRateValue, process) {
 
             if (formCob) {
                formCob.textContent = 'Livre';
+               formCob.setAttribute('data-tipo_cobrança', '14'); // Define o valor no atributo
             }
 
             if (quant) {
@@ -327,6 +330,7 @@ function distributeRateByConhecimentos(rateId, rateType, totalRateValue, process
 
             if (formCob) {
                formCob.textContent = 'Livre';
+               formCob.setAttribute('data-tipo_cobrança', '14'); // Define o valor no atributo
             }
 
             if (quant) {
@@ -444,6 +448,7 @@ async function saveRates() {
                document.querySelector('#loader2').classList.remove('d-none');
                const processData = getProcessData();
                const createParteLote = await makeRequest(`/api/part-lot/createParteLote`, 'POST', { processData: processData });
+               const updateParteLote = await makeRequest(`/api/part-lot/updateParteLote`, 'POST', { processData: processData });
                
                if (createParteLote && createParteLote === 'Inserido') {
                   document.querySelector('#loader2').classList.add('d-none');

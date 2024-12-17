@@ -11,7 +11,7 @@ const userTickets = {
 
    simplifiedTicketSubcategories: async function () {
       let result = await executeQuery(
-         `SELECT * FROM simplified_ticket_subcategories;;`)
+         `SELECT * FROM simplified_ticket_subcategories`)
       return result;
    },
 

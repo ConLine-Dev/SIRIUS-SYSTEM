@@ -33,6 +33,7 @@ const api_pricing_main = require('./api-pricing-main');
 const api_rh_payroll = require('./api-rh-payroll');
 const api_internal_comments = require('./api-internal-comments');
 const api_part_lot = require('./api-part-lot');
+const api_external_systems = require('./api-external-systems');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -109,55 +110,58 @@ const setIO = (io) => {
   router.use('/incentive-management', api_incentive_management(io));
   
   // Use as rotas do arquivo api_incentive_management.js
-  router.use('/stock', api_stock(io)); 
+  router.use('/stock', api_stock(io));
 
   // Use as rotas do arquivo api_incentive_management.js
   router.use('/executive-analytics-dashboard', api_executive_analytics_dashboard(io)); 
 
   // Use as rotas do arquivo api_report_pricing.js
-  router.use('/report-pricing', api_report_pricing(io)); 
+  router.use('/report-pricing', api_report_pricing(io));
 
   // Use as rotas do arquivo api_incentive_management.js
-  router.use('/financial-indicators', api_financial_indicators(io)); 
+  router.use('/financial-indicators', api_financial_indicators(io));
 
   // Use as rotas do arquivo api_collaborators_by_certificates.js
   router.use('/collaborators-certificates', api_collaborators_certificates(io)); 
 
   // Use as rotas do arquivo api_meeting_control .js
-  router.use('/meeting-control', api_meeting_control(io)); 
+  router.use('/meeting-control', api_meeting_control(io));
 
   // Use as rotas do arquivo api_user_tickets .js
-  router.use('/user-tickets', api_user_tickets(io)); 
+  router.use('/user-tickets', api_user_tickets(io));
 
   // Use as rotas do arquivo api-perfomance-product .js
-  router.use('/performance-products', api_performance_products(io)); 
+  router.use('/performance-products', api_performance_products(io));
 
   // Use as rotas do arquivo api-perfomance-product .js
   router.use('/nps', api_nps(io));
 
   // Use as rotas do arquivo api-perfomance-product .js
-  router.use('/cash-flow', api_cash_flow(io)); 
+  router.use('/cash-flow', api_cash_flow(io));
 
   // Use as rotas do arquivo api-product .js oi
-  router.use('/product', api_product(io)); 
+  router.use('/product', api_product(io));
 
   // Use as rotas do arquivo api-safety-inspection .js oi
-  router.use('/safety-inspection', api_safety_inspection(io)); 
+  router.use('/safety-inspection', api_safety_inspection(io));
   
   // Use as rotas do arquivo api-safety-inspection .js oi
-  router.use('/data-security-hub', dataDecurityHub(io)); 
+  router.use('/data-security-hub', dataDecurityHub(io));
   
   // Use as rotas do arquivo api-pricing-main .js oi
-  router.use('/pricing-main', api_pricing_main(io)); 
+  router.use('/pricing-main', api_pricing_main(io));
 
   // Use as rotas do arquivo api-rh-payroll .js oi
-  router.use('/rh-payroll', api_rh_payroll(io)); 
+  router.use('/rh-payroll', api_rh_payroll(io));
 
   // Use as rotas do arquivo api-internal-comments .js oi
-  router.use('/internal-comments', api_internal_comments(io)); 
+  router.use('/internal-comments', api_internal_comments(io));
 
   // Use as rotas do arquivo api-part-lot .js oi
-  router.use('/part-lot', api_part_lot(io)); 
+  router.use('/part-lot', api_part_lot(io));
+
+  // Use as rotas do arquivo api-external-systems.js oi
+  router.use('/external-systems', api_external_systems(io));
 
   return router;
 };

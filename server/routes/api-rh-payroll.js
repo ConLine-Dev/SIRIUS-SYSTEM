@@ -33,10 +33,10 @@ module.exports = function(io) {
     });
 
     // Rota para obter o cadastro
-    router.post('/createBulk', async (req, res, next) => {
+    router.post('/fixedDiscount', async (req, res, next) => {
         const form = req.body
         try {
-            const result = await rhPayroll.createBulk(form);
+            const result = await rhPayroll.fixedDiscount(form);
             io.emit('updateRhPayroll', '')
             res.status(200).json(result);   
         } catch (error) {

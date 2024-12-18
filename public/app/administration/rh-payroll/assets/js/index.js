@@ -15,16 +15,16 @@ function createNewDiscount() {
     window.open(url, target, features);
 };
 
-//Função para cadastrar em massa desconto folha pagamento
-function annualCreateDiscount() {
+//Função Para abrir a janela de discontos fixos
+function fixedDiscount() {
     // URL da página que será aberta
-    const url = '/app/administration/rh-payroll/create-bulk';
+    const url = '/app/administration/rh-payroll/fixed-discounts';
 
     // Alvo da janela (nova aba/janela)
     const target = '_blank';
 
     // Configurações da nova janela
-    const features = 'width=1500,height=550,resizable=yes,scrollbars=yes,toolbar=no,menubar=no';
+    const features = 'width=1920,height=974,resizable=yes,scrollbars=yes,toolbar=no,menubar=no';
 
     // Abrir a nova janela com os parâmetros definidos
     window.open(url, target, features);

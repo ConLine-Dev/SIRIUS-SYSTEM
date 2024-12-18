@@ -1,0 +1,14 @@
+.flatpickr-input {
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 5px;
+  width: 100%;
+}
+
+.headerButtons {
+cursor: pointer;
+}
+
+.flatpickr-input {
+  padding: 8px;
+}

@@ -32,7 +32,7 @@ const rhPayroll = {
     },
 
     // Esta função cria uma nova entrada de desconto em massa no banco de dados
-    createBulk: async function (form) {
+    fixedDiscount: async function (form) {
         const create_at = new Date();
         const formattedCreateAt = rhPayroll.formatDateForDatabase(create_at);
     

@@ -29,7 +29,8 @@
 }
 
 body {
-    overflow: hidden !important;
+    /* overflow-y: hidden !important; Impede a rolagem vertical */
+    overflow-x: auto !important; /* Permite rolagem no corpo */
 }
 
 td {
@@ -38,5 +39,40 @@ td {
 
 #table_control_password_filter {
     padding-bottom: 10px !important;
+}
+
+.container-fluid {
+    display: flex;
+    overflow-x: auto; /* Garante a rolagem horizontal */
+    white-space: nowrap;
+    height: 100%; /* Ajusta a altura do contêiner */
+    scrollbar-width: auto; /* Barra de rolagem padrão no Firefox */
+    scrollbar-color: #ccc #f1f1f1; /* Cor da barra de rolagem no Firefox */
+}
+
+.container-fluid::-webkit-scrollbar {
+    z-index: 9999; /* Z-index para garantir que a barra de rolagem seja exibida */
+    height: 8px; /* Altura do scroll horizontal */
+}
+
+.container-fluid::-webkit-scrollbar-thumb {
+    background-color: #ccc; /* Cor do "polegar" do scroll */
+    border-radius: 4px; /* Bordas arredondadas */
+}
+
+.container-fluid::-webkit-scrollbar-track {
+    background-color: transparent; /* Fundo do track do scroll */
+}
+
+.row {
+    display: flex; /* Mantém os cartões lado a lado */
+    flex-wrap: nowrap; /* Evita quebra de linha */
+    overflow-x: auto; /* Adiciona scroll horizontal */
+    gap: 10px; /* Espaçamento entre os cartões */
+}
+
+.col-xl-3 {
+    flex: 0 0 auto; /* Impede que os cartões se redimensionem */
+    min-width: 300px; /* Define uma largura mínima para os cartões */
 }
 

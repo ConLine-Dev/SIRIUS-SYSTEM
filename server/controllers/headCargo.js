@@ -5,6 +5,8 @@ const { sendEmail } = require('../support/send-email');
 const fs = require('fs');
 const cron = require('node-cron');
 const axios = require('axios');
+const { v4: uuidv4 } = require('uuid'); // Biblioteca para gerar UUID
+
 
 const headcargo = {
    // INICIO API CONTROLE DE COMISSÃO
@@ -2455,29 +2457,35 @@ LEFT OUTER JOIN
    
    },
    getTaxasProcessByRef: async function(reference){
-      const sql = `SELECT
-            Lhs.IdLogistica_House as idProcessos,
+      const sql = `
+        SELECT
+            Lhs.IdLogistica_House AS idProcessos,
             Lhs.Numero_Processo,
             Tle.Nome AS Nome_Taxa,
-            Ltx.IdTaxa_Logistica_Exibicao as idTaxa,
+            Ltx.IdTaxa_Logistica_Exibicao AS idTaxa,
             Ltx.Valor_Pagamento_Total,
             Pag.Sigla AS Moeda_Pgto,
             Ltx.Valor_Recebimento_Total,
-            Rec.Sigla AS Moeda_Receb
-      
-      FROM
-            mov_Logistica_House Lhs 
-      LEFT OUTER JOIN 
+            Rec.Sigla AS Moeda_Receb,
+            Lmd.Lucro_Estimado,
+            Lmd.Lucro_Efetivo,
+            Lmd.Lucro_Abertura
+        FROM
+            mov_Logistica_House Lhs
+        LEFT OUTER JOIN 
             mov_Logistica_Taxa Ltx ON Ltx.IdLogistica_House = Lhs.IdLogistica_House
-      LEFT OUTER JOIN
+        LEFT OUTER JOIN
             cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
-      LEFT OUTER JOIN
+        LEFT OUTER JOIN
             cad_Moeda Pag ON Pag.IdMoeda = Ltx.IdMoeda_Pagamento 
-      LEFT OUTER JOIN
+        LEFT OUTER JOIN
             cad_Moeda Rec ON Rec.IdMoeda = Ltx.IdMoeda_Recebimento
-      WHERE
-            Lhs.Numero_Processo = '${reference}'`;
-   
+        LEFT OUTER JOIN
+            mov_Logistica_Moeda Lmd ON Lmd.IdLogistica_House = Lhs.IdLogistica_House AND Lmd.IdMoeda = 110 /* Real */
+        WHERE
+            Lhs.Numero_Processo = '${reference}'
+    `;
+
       const registers = await executeQuerySQL(sql)
       
       return registers;
@@ -2605,14 +2613,735 @@ LEFT OUTER JOIN
                   creation_date DESC
           `;
       }
-  
+      
 
       const result = await executeQuery(query);
       
       return result;
-  },
-  
+   },
+   getValueAndRate: async function (userId, status = 'APPROVED'){
 
+      // Mapeamento de status
+      const statusMap = {
+         'PENDING': 'Pendente',
+         'APPROVED': 'Aprovado',
+         'REJECTED': 'Rejeitado',
+         'CANCELED': 'Cancelado',
+         'PAID': 'Pago',
+      };
+
+      // Função auxiliar para formatar moeda BRL
+      function formatCurrency(value, currency) {
+         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency }).format(value);
+      }
+      
+      // Função auxiliar para formatar células com estilos específicos
+      function formatValueCell(value, oldValue, currency, isPurchase, status) {
+         const valueChanged = value !== oldValue;
+         const badgeClass = valueChanged ? 'text-danger' : isPurchase ? status == 'PENDING' ? 'text-muted' : '' : status == 'PENDING' ? 'text-muted' : '';
+         const formattedValue = formatCurrency(value, currency);
+         return `<span class="${badgeClass}">${formattedValue}</span>`;
+      }
+
+    const query = `
+         SELECT
+         repurchases.*,
+         CONCAT(clt.name, ' ', clt.family_name) AS fullNameAproved,
+         CONCAT(cltAproved.name, ' ', cltAproved.family_name) AS fullName
+      FROM
+         repurchases
+      LEFT JOIN
+         collaborators clt ON clt.id = repurchases.created_by
+      LEFT JOIN
+      collaborators cltAproved ON cltAproved.id = repurchases.approved_by
+      WHERE repurchases.created_by = ? AND repurchases.status = '${status}'
+      ORDER BY
+         repurchases.creation_date DESC;`;
+
+   
+
+    
+    const result = await executeQuery(query, [userId]);
+
+
+    // Extrair apenas os fee_id e transformá-los em uma string
+   const feeIdsString = result.map(fee => fee.fee_id).join(',');
+   const processIdsString = result.map(fee => fee.process_id).join(',');
+
+   const resultFee = await executeQuerySQL(`SELECT
+         Ltx.IdLogistica_House,
+         Ltx.IdTaxa_Logistica_Exibicao,
+         Tle.Nome AS Taxa,
+         Mda.Sigla,
+         'Recebimento' AS Tipo,
+         COALESCE(Lfc.Fator_Conversao, 1) AS Fator_Conversao,
+         CASE
+            WHEN Ltx.IdMoeda_Recebimento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Recebimento_Total * Lfc.Fator_Conversao), 2)
+            ELSE Ltx.Valor_Recebimento_Total
+         END AS Valor_Total_Convertido
+      FROM
+         mov_Logistica_Taxa Ltx
+      LEFT OUTER JOIN
+         vis_Logistica_Fatura Vlf ON Vlf.IdRegistro_Financeiro = Ltx.IdRegistro_Recebimento
+      LEFT OUTER JOIN
+         mov_Logistica_Fatura_Conversao Lfc ON Lfc.IdLogistica_Fatura = Vlf.IdRegistro_Financeiro AND Ltx.IdMoeda_Recebimento = Lfc.IdMoeda_Origem
+      LEFT OUTER JOIN
+         cad_Moeda Mda ON Mda.IdMOeda = Ltx.IdMoeda_Recebimento
+      LEFT OUTER JOIN
+         cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
+      WHERE
+         Ltx.IdLogistica_House IN (${processIdsString})
+         AND Ltx.IdTaxa_Logistica_Exibicao IN (${feeIdsString})
+         AND Ltx.IdRegistro_Recebimento IS NOT NULL
+      UNION ALL
+      SELECT
+         Ltx.IdLogistica_House,
+         Ltx.IdTaxa_Logistica_Exibicao,
+         Tle.Nome AS Taxa,
+         Mda.Sigla,
+         'Pagamento' AS Tipo,
+         COALESCE(Lfc.Fator_Conversao, 1) AS Fator_Conversao,
+         CASE
+            WHEN Ltx.IdMoeda_Pagamento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Pagamento_Total * Lfc.Fator_Conversao), 2)
+            ELSE Ltx.Valor_Pagamento_Total
+         END AS Valor_Total_Convertido
+      FROM
+         mov_Logistica_Taxa Ltx
+      LEFT OUTER JOIN
+         vis_Logistica_Fatura Vlf ON Vlf.IdRegistro_Financeiro = Ltx.IdRegistro_Pagamento
+      LEFT OUTER JOIN
+         mov_Logistica_Fatura_Conversao Lfc ON Lfc.IdLogistica_Fatura = Vlf.IdRegistro_Financeiro AND Ltx.IdMoeda_Pagamento = Lfc.IdMoeda_Origem
+      LEFT OUTER JOIN
+         cad_Moeda Mda ON Mda.IdMOeda = Ltx.IdMoeda_Pagamento
+      LEFT OUTER JOIN
+         cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
+      WHERE
+         Ltx.IdLogistica_House IN (${processIdsString})
+         AND Ltx.IdTaxa_Logistica_Exibicao IN (${feeIdsString})
+         AND Ltx.IdRegistro_Pagamento IS NOT NULL`);
+         
+
+         const process = await executeQuerySQL(`SELECT
+         Lmd.IdLogistica_House,
+         Lmd.Lucro_Estimado,
+         Lmd.Lucro_Efetivo
+      FROM
+         mov_Logistica_Moeda Lmd
+      WHERE
+         Lmd.IdMoeda = 110 /* Real */
+         AND Lmd.IdLogistica_House IN (${processIdsString})`);
+
+         const processFullPaid = await executeQuerySQL(`SELECT
+         Lft.IdLogistica_House,
+         CASE 
+             WHEN Lft.Situacao NOT IN (2) THEN COUNT(Lft.IdRegistro_Financeiro)
+             ELSE 0
+               END AS Qtd_Fatura_Aberta
+         FROM
+               vis_Logistica_Fatura Lft
+         WHERE
+             Lft.IdLogistica_House IN (${processIdsString})
+         GROUP BY
+               Lft.IdLogistica_House,
+               Lft.Situacao`);
+
+               console.log(processFullPaid)
+
+
+         
+
+      
+      
+    let totalRepurchase = 0;
+    const fees = [];
+    for (let index = 0; index < result.length; index++) {
+      const fee = result[index];
+            fee.old_sale_value = fee.old_sale_value ? fee.old_sale_value : 0;
+            fee.old_purchase_value = fee.old_purchase_value ? fee.old_purchase_value : 0;
+            fee.sale_value = fee.sale_value ? fee.sale_value : 0;
+            fee.purchase_value = fee.purchase_value ? fee.purchase_value : 0;
+            fee.coin_sale = fee.coin_sale ? fee.coin_sale : 'BRL';
+            fee.coin_purchase = fee.coin_purchase ? fee.coin_purchase : 'BRL';
+
+      const purchaseDifferenceFormated = formatCurrency(fee.old_purchase_value - fee.purchase_value, fee.coin_purchase);
+      const saleDifferenceFormated  = formatCurrency(fee.sale_value - fee.old_sale_value, fee.coin_sale);
+      const purchaseDifference = (fee.old_purchase_value - fee.purchase_value);
+      const saleDifference  = (fee.sale_value - fee.old_sale_value);
+
+
+      const oldPurchaseValueCell = formatValueCell(fee.old_purchase_value, fee.purchase_value, fee.coin_purchase, true, fee.status);
+      const newPurchaseValueCell = formatValueCell(fee.purchase_value, fee.old_purchase_value, fee.coin_purchase, true, fee.status);
+      const oldSaleValueCell = formatValueCell(fee.old_sale_value, fee.sale_value, fee.coin_sale, false, fee.status);
+      const newSaleValueCell = formatValueCell(fee.sale_value, fee.old_sale_value, fee.coin_sale, false, fee.status);
+      // ${statusMap[fee.status]}
+
+      const purchaseFormated = fee.coin_purchase != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Pagamento').Valor_Total_Convertido : null;
+      const purchaseFactor = fee.coin_purchase != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Pagamento').Fator_Conversao : 1;
+      const purchaseDifferenceConverted = parseFloat((purchaseDifference * purchaseFactor).toFixed(2));
+      const purchaseDifferenceConvertedFormated = formatCurrency(purchaseDifferenceConverted, 'BRL')
+
+      const saleFormated = fee.coin_sale != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Recebimento').Valor_Total_Convertido : null;
+      const saleFactor = fee.coin_sale != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Recebimento').Fator_Conversao : 1;
+      const saleDifferenceConverted = parseFloat((saleDifference * saleFactor).toFixed(2));
+      const saleDifferenceConvertedFormated = formatCurrency(saleDifferenceConverted, 'BRL')
+      
+      const fullpaid = process.find(item => item.IdLogistica_House == fee.process_id).Lucro_Efetivo;
+      const fullpaidFormated = formatCurrency(fullpaid, 'BRL');
+       
+      // purchaseDifferenceConverted
+      // purchaseFactor
+      // saleDifferenceConverted
+      // saleFactor
+      const totalPurchase = purchaseFactor != 'Sem Fator' ? purchaseDifferenceConverted :  purchaseDifference;
+      const totalSale = saleFactor != 'Sem Fator' ? saleDifferenceConverted :  saleDifference;
+
+      const Processfullpaid = processFullPaid.find(item => item.IdLogistica_House == fee.process_id).Qtd_Fatura_Aberta;
+
+
+      if(fullpaid > 0 && Processfullpaid == 0){
+         totalRepurchase += totalPurchase + totalSale;
+         RepurchaseComission = totalPurchase + totalSale;
+         fees.push({
+            totalPurchase:totalPurchase,
+            totalSale:totalSale,
+            processFullPaid:processFullPaid,
+            totalSaleFormated:formatCurrency(totalSale, 'BRL'),
+            totalRepurchaseFomated:formatCurrency(totalPurchase, 'BRL'),
+            percentRepurchaseComission: (RepurchaseComission * 4) / 100,
+            percentRepurchaseComissionFormated: formatCurrency((RepurchaseComission * 4) / 100, 'BRL'),
+            valueRepurchaseComission: RepurchaseComission,
+            fullpaid:fullpaid,
+            fullpaidFormated:fullpaidFormated,
+            saleFormated:saleFormated || 0,
+            purchaseFormated:purchaseFormated || 0,
+            purchaseFactor:purchaseFactor || 'Sem Fator',
+            saleFactor:saleFactor || 'Sem Fator',
+            id: fee.id,
+            fee_id: fee.fee_id,
+            fee_name: fee.fee_name,
+            process_id: fee.process_id,
+            creation_date: headcargo.FormattedDateTime(fee.creation_date),
+            approved_date: fee.approved_date ? headcargo.FormattedDateTime(fee.approved_date) : '', 
+            fullName: fee.fullName,
+            fullNameAproved: fee.fullNameAproved,
+            referenceProcess: fee.referenceProcess,
+            observation: fee.observation,
+            oldPurchaseValueCell,
+            newPurchaseValueCell,
+            purchaseDifferenceFormated,
+            purchaseDifference,
+            oldSaleValueCell,
+            newSaleValueCell,
+            saleDifferenceFormated,
+            saleDifference,
+            purchaseDifferenceConverted,
+            purchaseDifferenceConvertedFormated,
+            saleDifferenceConverted,
+            saleDifferenceConvertedFormated,
+            status: fullpaid > 0 ? statusMap[fee.status] : 'Processo Negativo',
+         });
+      }
+      
+    
+    }
+
+  
+    return {fees, totalRepurchase: totalRepurchase, totalRepurchaseFomated:formatCurrency(totalRepurchase, 'BRL'), commision: (totalRepurchase * 4) / 100, commisionFormated:formatCurrency((totalRepurchase * 4) / 100, 'BRL')};
+   },
+   getValueAndRateById: async function (repurchaseID){
+
+      // Mapeamento de status
+      const statusMap = {
+         'PENDING': 'Pendente',
+         'APPROVED': 'Aprovado',
+         'REJECTED': 'Rejeitado',
+         'CANCELED': 'Cancelado',
+         'PAID': 'Pago',
+      };
+
+      // Função auxiliar para formatar moeda BRL
+      function formatCurrency(value, currency) {
+         return new Intl.NumberFormat('pt-BR', { style: 'currency', currency }).format(value);
+      }
+      
+      // Função auxiliar para formatar células com estilos específicos
+      function formatValueCell(value, oldValue, currency, isPurchase, status) {
+         const valueChanged = value !== oldValue;
+         const badgeClass = valueChanged ? 'text-danger' : isPurchase ? status == 'PENDING' ? 'text-muted' : '' : status == 'PENDING' ? 'text-muted' : '';
+         const formattedValue = formatCurrency(value, currency);
+         return `<span class="${badgeClass}">${formattedValue}</span>`;
+      }
+
+    const query = `
+         SELECT
+         repurchases.*,
+         CONCAT(clt.name, ' ', clt.family_name) AS fullNameAproved,
+         CONCAT(clt.name, ' ', clt.family_name) AS fullName -- Nome completo do colaborador  
+      FROM
+         repurchases
+      LEFT JOIN
+         collaborators clt ON clt.id = repurchases.created_by
+      LEFT JOIN
+      collaborators cltAproved ON cltAproved.id = repurchases.approved_by
+      WHERE repurchases.id IN (?)
+      ORDER BY
+         repurchases.creation_date DESC;`;
+
+ 
+    const result = await executeQuery(query, [repurchaseID]);
+
+
+    // Extrair apenas os fee_id e transformá-los em uma string
+   const feeIdsString = result.map(fee => fee.fee_id).join(',');
+   const processIdsString = result.map(fee => fee.process_id).join(',');
+
+   const resultFee = await executeQuerySQL(`SELECT
+         Ltx.IdLogistica_House,
+         Ltx.IdTaxa_Logistica_Exibicao,
+         Tle.Nome AS Taxa,
+         Mda.Sigla,
+         'Recebimento' AS Tipo,
+         COALESCE(Lfc.Fator_Conversao, 1) AS Fator_Conversao,
+         CASE
+            WHEN Ltx.IdMoeda_Recebimento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Recebimento_Total * Lfc.Fator_Conversao), 2)
+            ELSE Ltx.Valor_Recebimento_Total
+         END AS Valor_Total_Convertido
+      FROM
+         mov_Logistica_Taxa Ltx
+      LEFT OUTER JOIN
+         vis_Logistica_Fatura Vlf ON Vlf.IdRegistro_Financeiro = Ltx.IdRegistro_Recebimento
+      LEFT OUTER JOIN
+         mov_Logistica_Fatura_Conversao Lfc ON Lfc.IdLogistica_Fatura = Vlf.IdRegistro_Financeiro AND Ltx.IdMoeda_Recebimento = Lfc.IdMoeda_Origem
+      LEFT OUTER JOIN
+         cad_Moeda Mda ON Mda.IdMOeda = Ltx.IdMoeda_Recebimento
+      LEFT OUTER JOIN
+         cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
+      WHERE
+         Ltx.IdLogistica_House IN (${processIdsString})
+         AND Ltx.IdTaxa_Logistica_Exibicao IN (${feeIdsString})
+         AND Ltx.IdRegistro_Recebimento IS NOT NULL
+      UNION ALL
+      SELECT
+         Ltx.IdLogistica_House,
+         Ltx.IdTaxa_Logistica_Exibicao,
+         Tle.Nome AS Taxa,
+         Mda.Sigla,
+         'Pagamento' AS Tipo,
+         COALESCE(Lfc.Fator_Conversao, 1) AS Fator_Conversao,
+         CASE
+            WHEN Ltx.IdMoeda_Pagamento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Pagamento_Total * Lfc.Fator_Conversao), 2)
+            ELSE Ltx.Valor_Pagamento_Total
+         END AS Valor_Total_Convertido
+      FROM
+         mov_Logistica_Taxa Ltx
+      LEFT OUTER JOIN
+         vis_Logistica_Fatura Vlf ON Vlf.IdRegistro_Financeiro = Ltx.IdRegistro_Pagamento
+      LEFT OUTER JOIN
+         mov_Logistica_Fatura_Conversao Lfc ON Lfc.IdLogistica_Fatura = Vlf.IdRegistro_Financeiro AND Ltx.IdMoeda_Pagamento = Lfc.IdMoeda_Origem
+      LEFT OUTER JOIN
+         cad_Moeda Mda ON Mda.IdMOeda = Ltx.IdMoeda_Pagamento
+      LEFT OUTER JOIN
+         cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
+      WHERE
+         Ltx.IdLogistica_House IN (${processIdsString})
+         AND Ltx.IdTaxa_Logistica_Exibicao IN (${feeIdsString})
+         AND Ltx.IdRegistro_Pagamento IS NOT NULL`);
+         
+
+         const process = await executeQuerySQL(`SELECT
+         Lmd.IdLogistica_House,
+         Lmd.Lucro_Estimado,
+         Lmd.Lucro_Efetivo
+      FROM
+         mov_Logistica_Moeda Lmd
+      WHERE
+         Lmd.IdMoeda = 110 /* Real */
+         AND Lmd.IdLogistica_House IN (${processIdsString})`);
+
+      
+
+      let totalRepurchase = 0;
+    const fees = [];
+    for (let index = 0; index < result.length; index++) {
+      const fee = result[index];
+            fee.old_sale_value = fee.old_sale_value ? fee.old_sale_value : 0;
+            fee.old_purchase_value = fee.old_purchase_value ? fee.old_purchase_value : 0;
+            fee.sale_value = fee.sale_value ? fee.sale_value : 0;
+            fee.purchase_value = fee.purchase_value ? fee.purchase_value : 0;
+            fee.coin_sale = fee.coin_sale ? fee.coin_sale : 'BRL';
+            fee.coin_purchase = fee.coin_purchase ? fee.coin_purchase : 'BRL';
+
+      const purchaseDifferenceFormated = formatCurrency(fee.old_purchase_value - fee.purchase_value, fee.coin_purchase);
+      const saleDifferenceFormated  = formatCurrency(fee.sale_value - fee.old_sale_value, fee.coin_sale);
+      const purchaseDifference = (fee.old_purchase_value - fee.purchase_value);
+      const saleDifference  = (fee.sale_value - fee.old_sale_value);
+
+      const oldPurchaseValueCell = formatValueCell(fee.old_purchase_value, fee.purchase_value, fee.coin_purchase, true, fee.status);
+      const newPurchaseValueCell = formatValueCell(fee.purchase_value, fee.old_purchase_value, fee.coin_purchase, true, fee.status);
+      const oldSaleValueCell = formatValueCell(fee.old_sale_value, fee.sale_value, fee.coin_sale, false, fee.status);
+      const newSaleValueCell = formatValueCell(fee.sale_value, fee.old_sale_value, fee.coin_sale, false, fee.status);
+      // ${statusMap[fee.status]}
+
+      const purchaseFormated = fee.coin_purchase != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Pagamento').Valor_Total_Convertido : null;
+      const purchaseFactor = fee.coin_purchase != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Pagamento').Fator_Conversao : 1;
+      const purchaseDifferenceConverted = parseFloat((purchaseDifference * purchaseFactor).toFixed(2));
+      const purchaseDifferenceConvertedFormated = formatCurrency(purchaseDifferenceConverted, 'BRL')
+
+      const saleFormated = fee.coin_sale != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Recebimento').Valor_Total_Convertido : null;
+      const saleFactor = fee.coin_sale != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Recebimento').Fator_Conversao : 1;
+      const saleDifferenceConverted = parseFloat((saleDifference * saleFactor).toFixed(2));
+      const saleDifferenceConvertedFormated = formatCurrency(saleDifferenceConverted, 'BRL')
+      
+      const fullpaid = process.find(item => item.IdLogistica_House == fee.process_id).Lucro_Efetivo;
+      const fullpaidFormated = formatCurrency(fullpaid, 'BRL');
+       
+      // purchaseDifferenceConverted
+      // purchaseFactor
+      // saleDifferenceConverted
+      // saleFactor
+
+      const totalPurchase = purchaseFactor != 'Sem Fator' ? purchaseDifferenceConverted :  purchaseDifference;
+      const totalSale = saleFactor != 'Sem Fator' ? saleDifferenceConverted :  saleDifference;
+
+
+      if(fullpaid > 0){
+         totalRepurchase += totalPurchase + totalSale;
+         RepurchaseComission = totalPurchase + totalSale;
+         fees.push({
+            totalPurchase:totalPurchase,
+            totalSale:totalSale,
+            totalSaleFormated:formatCurrency(totalSale, 'BRL'),
+            totalRepurchaseFomated:formatCurrency(totalPurchase, 'BRL'),
+            percentRepurchaseComission: (RepurchaseComission * 4) / 100,
+            percentRepurchaseComissionFormated: formatCurrency((RepurchaseComission * 4) / 100, 'BRL'),
+            valueRepurchaseComission: RepurchaseComission,
+            fullpaid:fullpaid,
+            fullpaidFormated:fullpaidFormated,
+            saleFormated:saleFormated || 0,
+            purchaseFormated:purchaseFormated || 0,
+            purchaseFactor:purchaseFactor || 'Sem Fator',
+            saleFactor:saleFactor || 'Sem Fator',
+            id: fee.id,
+            fee_id: fee.fee_id,
+            fee_name: fee.fee_name,
+            process_id: fee.process_id,
+            creation_date: headcargo.FormattedDateTime(fee.creation_date),
+            approved_date: fee.approved_date ? headcargo.FormattedDateTime(fee.approved_date) : '', 
+            fullName: fee.fullName,
+            fullNameAproved: fee.fullNameAproved,
+            referenceProcess: fee.referenceProcess,
+            observation: fee.observation,
+            oldPurchaseValueCell,
+            newPurchaseValueCell,
+            purchaseDifferenceFormated,
+            purchaseDifference,
+            oldSaleValueCell,
+            newSaleValueCell,
+            saleDifferenceFormated,
+            saleDifference,
+            purchaseDifferenceConverted,
+            purchaseDifferenceConvertedFormated,
+            saleDifferenceConverted,
+            saleDifferenceConvertedFormated,
+            status: fullpaid > 0 ? statusMap[fee.status] : 'Processo Negativo',
+         });
+      }
+      
+    
+    }
+
+  
+    return {fees, totalRepurchase: totalRepurchase, totalRepurchaseFomated:formatCurrency(totalRepurchase, 'BRL'), commision: (totalRepurchase * 4) / 100, commisionFormated:formatCurrency((totalRepurchase * 4) / 100, 'BRL')};
+   },
+   sendEmailRepurchasePreview: async function (userId, recipient) {
+      const repuchases = await this.getValueAndRate(userId)
+      const repurchase = repuchases.fees;
+      const total = repuchases.totalRepurchaseFomated;
+      const commision = repuchases.commisionFormated;
+
+      const rows = repurchase.map(item => {
+         return `
+         <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.referenceProcess}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.fee_name}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.oldPurchaseValueCell}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.newPurchaseValueCell}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.oldSaleValueCell}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.newSaleValueCell}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.percentRepurchaseComissionFormated}</td>
+         </tr> `
+      }).join('');
+
+         const name = repurchase[0].fullName;
+      // const user = await executeQuery("SELECT name, family_name FROM collaborators WHERE id = ?", [userId]);
+      // const userName = user[0].name + ' ' + user[0].family_name;
+      // const userEmail = email;
+   
+      
+      const htmlContent = `
+      <body style="
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+  ">
+  <div style="
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    ">
+    <!-- Cabeçalho -->
+    <div style="
+      background-color: #f9423a;
+      color: #ffffff;
+      padding: 20px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      ">
+      Recompras - Prévia de Comissão
+    </div>
+
+    <!-- Totalizadores -->
+    <div style="background-color:#fdf2f2;border-bottom:2px solid #f9423a;padding:15px 0;">
+    <table align="center" width="100%" cellpadding="0" cellspacing="0" style="text-align:center;">
+      <tr>
+      <!-- Quantidade de Recompras -->
+        <td style="border-right:1px solid #f9423a; padding:5px; font-family: Arial, sans-serif;">
+          <p style="margin:0; font-size:16px; font-weight:bold; color:#333;">
+            Recompras
+          </p>
+          <p style="margin:5px 0 0; font-size:20px; color:#f9423a; font-weight:bold;">
+            ${repurchase.length}
+          </p>
+        </td>
+        <!-- Total de Recompras -->
+        <td style="border-right:1px solid #f9423a; padding:5px; font-family: Arial, sans-serif;">
+          <p style="margin:0; font-size:16px; font-weight:bold; color:#333;">
+            Total de Recompras
+          </p>
+          <p style="margin:5px 0 0; font-size:20px; color:#f9423a; font-weight:bold;">
+            ${total}
+          </p>
+        </td>
+        <!-- Valor Comissão -->
+        <td style="padding:5px; font-family: Arial, sans-serif;">
+          <p style="margin:0; font-size:16px; font-weight:bold; color:#333;">
+            Valor Comissão
+          </p>
+          <p style="margin:5px 0 0; font-size:20px; color:#f9423a; font-weight:bold;">
+            ${commision}
+          </p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+    <!-- Conteúdo -->
+    <div style="padding: 20px;">
+      <p style="font-size: 16px; color: #333333; margin: 0 0 15px;">
+        Olá, <strong>${name}</strong>,
+      </p>
+      <p style="font-size: 14px; color: #555555; margin: 0 0 20px;">
+        Abaixo, segue a prévia dos valores de comissão referentes às operações
+        de recompra:
+      </p>
+
+      <!-- Tabela -->
+      <table style="
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 14px;
+          color: #555555;
+        ">
+        <thead>
+          <tr>
+            <th style="
+                background-color: #f9423a;
+                color: #ffffff;
+                padding: 8px;
+                text-align: left;
+              ">
+              Processo
+            </th>
+            <th style="
+                background-color: #f9423a;
+                color: #ffffff;
+                padding: 8px;
+                text-align: left;
+              ">
+              Taxa
+            </th>
+            <th style="
+                background-color: #f9423a;
+                color: #ffffff;
+                padding: 8px;
+                text-align: left;
+              ">
+              Compra
+            </th>
+            <th style="
+                background-color: #f9423a;
+                color: #ffffff;
+                padding: 8px;
+                text-align: left;
+              ">
+              Nova Compra
+            </th>
+            <th style="
+                background-color: #f9423a;
+                color: #ffffff;
+                padding: 8px;
+                text-align: left;
+              ">
+              Venda
+            </th>
+            <th style="
+                background-color: #f9423a;
+                color: #ffffff;
+                padding: 8px;
+                text-align: left;
+              ">
+              Nova Venda
+            </th>
+            <th style="
+                background-color: #f9423a;
+                color: #ffffff;
+                padding: 8px;
+                text-align: left;
+              ">
+              Comissão
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Rodapé -->
+    <div style="
+        background-color: #f4f4f4;
+        text-align: center;
+        padding: 10px;
+        font-size: 12px;
+        color: #777777;
+      ">
+      Este é um e-mail automático. Por favor, não responda.
+    </div>
+  </div>
+</body>
+    `
+   // Transforma o array de destinatários em uma string separada por vírgula
+   const recipientsList = recipient.join(',');
+  
+    await sendEmail(recipientsList, `Recompra: Prévia de Comissão | ${name}`, htmlContent);
+   },
+   markaspaid: async function (ids) {
+      const query = `UPDATE repurchases SET status = 'PAID' WHERE id IN (?)`;
+      await executeQuery(query, [ids]);
+
+      const repurchases = await this.getValueAndRateById(ids);
+      const fees = repurchases.fees;
+
+
+
+      // Gerar o unique_id uma vez para o pagamento
+      const uniqueId = uuidv4();
+
+      const insertQuery = `
+      INSERT INTO repurchase_payments (
+        id, 
+        unique_id, 
+        fee_id, 
+        process_id, 
+        fee_name, 
+        total_purchase, 
+        total_sale,
+        total_sale_formated, 
+        total_repurchase_formated, 
+        percent_repurchase_comission,
+        percent_repurchase_comission_formated, 
+        value_repurchase_comission, 
+        fullpaid,
+        fullpaid_formated, 
+        sale_formated, 
+        purchase_formated, 
+        purchase_factor,
+        sale_factor, 
+        creation_date, 
+        responsible, 
+        fullNameAproved,
+        reference_process, 
+        observation,
+        old_purchase_value_cell, 
+        new_purchase_value_cell, 
+        purchase_difference_formated,
+        purchase_difference, 
+        old_sale_value_cell, 
+        new_sale_value_cell,
+        sale_difference_formated, 
+        sale_difference, 
+        purchase_difference_converted,
+        purchase_difference_converted_formated, 
+        sale_difference_converted,
+        sale_difference_converted_formated, 
+        status
+      ) VALUES ?`;
+
+       // Mapeando o array de fees para um formato que pode ser inserido
+      const values = fees.map(fee => [
+         fee.id,
+         uniqueId,
+         fee.fee_id,
+         fee.process_id,
+         fee.fee_name,
+         fee.totalPurchase,
+         fee.totalSale,
+         fee.totalSaleFormated,
+         fee.totalRepurchaseFomated,
+         fee.percentRepurchaseComission,
+         fee.percentRepurchaseComissionFormated,
+         fee.valueRepurchaseComission,
+         fee.fullpaid,
+         fee.fullpaidFormated,
+         fee.saleFormated,
+         fee.purchaseFormated,
+         fee.purchaseFactor,
+         fee.saleFactor,
+         new Date(fee.creation_date), // Convertendo a data no formato correto
+         fee.fullName,
+         fee.fullNameAproved,
+         fee.referenceProcess,
+         fee.observation,
+         fee.oldPurchaseValueCell,
+         fee.newPurchaseValueCell,
+         fee.purchaseDifferenceFormated,
+         fee.purchaseDifference,
+         fee.oldSaleValueCell,
+         fee.newSaleValueCell,
+         fee.saleDifferenceFormated,
+         fee.saleDifference,
+         fee.purchaseDifferenceConverted,
+         fee.purchaseDifferenceConvertedFormated,
+         fee.saleDifferenceConverted,
+         fee.saleDifferenceConvertedFormated,
+         fee.status
+      ]);
+
+        // Executando a query
+      try {
+         await executeQuery(insertQuery, [values]);
+         console.log('Dados inseridos com sucesso!');
+      } catch (error) {
+         console.error('Erro ao inserir dados:', error);
+      }
+   },
    getRepurchasesByProcess: async function(processId, status, userID, groupBy){
     // Construção da cláusula WHERE dinamicamente, levando em consideração o status
     let whereClause = `WHERE ${groupBy || 'repurchases.process_id'} = ?`;
@@ -2628,8 +3357,6 @@ LEFT OUTER JOIN
     if (status && status === 'PENDING' && groupBy == 'repurchases.created_by') {
       whereClause += ` AND repurchases.status = '${status}'`;
     }
-
-
 
     // Verifica se userId existe e adiciona a condição para ele
     if (userID) {
@@ -2649,10 +3376,37 @@ LEFT OUTER JOIN
             repurchases.creation_date DESC;
     `;
 
-    
     const result = await executeQuery(query, [processId]);
   
     return result;
+   },
+   GetRepurchasesPayment: async function () {
+      const query = `SELECT 
+      unique_id,
+      MIN(responsible) as responsible,
+      MIN(payment_date) as payment_date,
+      MIN(fullNameAproved) as fullNameAproved,
+      SUM(total_purchase + total_sale) AS total_recompra,
+      SUM(percent_repurchase_comission) AS valor_comissao,
+      COUNT(*) AS quant_recompras
+  FROM 
+      repurchase_payments
+  GROUP BY 
+      unique_id
+  ORDER BY 
+      MAX(payment_date) DESC`;
+
+      const result = await executeQuery(query);
+      return result;
+   },
+   GetRepurchasesPaymentDetails: async function (unique_id) {
+      const query = `SELECT *
+      FROM 
+            repurchase_payments
+      WHERE unique_id = '${unique_id}'`;
+
+      const result = await executeQuery(query);
+      return result;
    },
    // Função para atualizar o status de uma recompra (aprovar ou rejeitar)
    updateRepurchaseStatus: async function ({ repurchase_id, status, user_id }) {
@@ -2673,10 +3427,15 @@ LEFT OUTER JOIN
       throw new Error('Status inválido');
    }
 
+   let timeAproved = '';
+   if(status === 'APPROVED'){
+      timeAproved = ', approved_date = CURRENT_TIMESTAMP';
+   }
+
    // Atualiza o status da recompra e o colaborador responsável pela ação
    const queryUpdateStatus = `
       UPDATE repurchases 
-      SET status = ?, modification_date = CURRENT_TIMESTAMP, ${actionColumn} = ?
+      SET status = ?, modification_date = CURRENT_TIMESTAMP, ${actionColumn} = ? ${timeAproved}
       WHERE id = ?
    `;
    await executeQuery(queryUpdateStatus, [status, user_id, repurchase_id]);

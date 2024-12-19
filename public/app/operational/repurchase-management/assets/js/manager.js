@@ -69,7 +69,7 @@ async function generateTable(status = 'PENDING', groupBy) {
             {
                 data: null,
                 render: function (data, type, row) {
-                    return `<button class="btn btn-sm btn-primary" onclick="showRepurchaseDetails(${groupBy === 'repurchases.process_id' ? row.process_id : row.created_by}, '${status}')">Ver Taxas</button>`;
+                    return `<button class="btn btn-sm btn-primary" onclick="showRepurchaseDetails(${groupBy === 'repurchases.process_id' ? row.process_id : row.created_by}, '${status}', this)">Ver Taxas</button>`;
                 },
                 orderable: false
             },
@@ -105,8 +105,11 @@ async function generateTable(status = 'PENDING', groupBy) {
 }
 
 // Função para mostrar os detalhes das taxas de recompra de um processo específico
-async function showRepurchaseDetails(processId, status) {
+async function showRepurchaseDetails(processId, status, button) {
     try {
+        if(button){
+            button.setAttribute('disabled', 'true');
+        }
         console.log(processId, status)
         const userLogged = await getInfosLogin();
         
@@ -125,6 +128,20 @@ async function showRepurchaseDetails(processId, status) {
             return `<span class="${badgeClass}">${formattedValue}</span>`;
         }
 
+        function generateActionButtons(fee) {
+            if (fee.status === 'PENDING') {
+                return `
+                    <a href="javascript:void(0);" class="btn btn-sm btn-danger" title="Rejeitar" onclick="alterStatus(${fee.id},'REJECTED')">Rejeitar</a>
+                    <a href="javascript:void(0);" class="btn btn-sm btn-success" title="Aprovar" onclick="alterStatus(${fee.id},'APPROVED')">Aprovar</a>
+                `;
+            }else if(fee.status === 'APPROVED'){
+                return `
+                    <a href="javascript:void(0);" class="btn btn-sm btn-danger" title="Cancelar" onclick="alterStatus(${fee.id},'REJECTED')">Rejeitar</a>
+                `;
+            }
+            return '';
+        }
+
 
         // Mapeamento de status
         const statusMap = {
@@ -132,6 +149,7 @@ async function showRepurchaseDetails(processId, status) {
             'APPROVED': 'Aprovado',
             'REJECTED': 'Rejeitado',
             'CANCELED': 'Cancelado',
+            'PAID': 'Pago',
         };
 
         // Gera as linhas de detalhes
@@ -159,12 +177,9 @@ async function showRepurchaseDetails(processId, status) {
                 if (fee.status != 'PENDING') {
                     styleDisabled = 'background-color: #8699a399;';
                 }
+      
 
-            const actionButtons = fee.status === 'PENDING'
-                ? `<a href="javascript:void(0);" class="btn btn-sm btn-danger-light" title="Rejeitar" onclick="alterStatus(${fee.id},'REJECTED')">Rejeitar</a>
-                   <a href="javascript:void(0);" class="btn btn-sm btn-success-light" title="Aprovar" onclick="alterStatus(${fee.id},'APPROVED')">Aprovar</a>
-                   `
-                : '';
+            const actionButtons = generateActionButtons(fee);
 
                 return `
                 <tr>
@@ -209,11 +224,26 @@ async function showRepurchaseDetails(processId, status) {
         // Exibe a tabela de detalhes abaixo da linha do processo
         const tableRow = $(`#table_repurchase_user tr[data-process-id="${processId}"]`);
         if (tableRow.next().hasClass('details-row')) {
-            tableRow.next().remove(); // Remove a linha se já estiver exibida
+            
+            if(button){
+                tableRow.next().remove(); // Remove a linha se já estiver exibida
+                button.removeAttribute('disabled');
+                button.innerHTML = 'Ver Taxas';
+            }
         } else {
             tableRow.after(`<tr class="details-row"><td colspan="10">${detailTable}</td></tr>`);
+            if(button){
+                button.removeAttribute('disabled');
+                button.innerHTML = 'Ocultar Taxas';
+            }
         }
+
+        
     } catch (error) {
+       
+        if(button){
+            button.removeAttribute('disabled');
+        }
         console.error('Erro ao buscar detalhes das taxas:', error);
     }
 }
@@ -229,8 +259,34 @@ async function getInfosLogin() {
 }
 
 async function alterStatus(id, status) {
-    const userLogged = await getInfosLogin();
-    await makeRequest('/api/headcargo/repurchase-management/UpdateRepurchaseStatus', 'POST', { repurchase_id: id, status: status, user_id: userLogged.system_collaborator_id });
+    // Mapeamento de status
+    const statusMap = {
+        'PENDING': 'Pendente',
+        'APPROVED': 'Aprovado',
+        'REJECTED': 'Rejeitado',
+        'CANCELED': 'Cancelado',
+        'PAID': 'Pago',
+    };
+
+    if(status != 'APPROVED'){
+        Swal.fire({
+            title: `Deseja realmente alterar o status para ${statusMap[status]}?`,
+            showDenyButton: true,
+            confirmButtonText: "Sim",
+            denyButtonText: `Não`
+        }).then(async (result) => {
+            if (result.isDenied) {
+                return;
+            } else if (result.isConfirmed) {
+                const userLogged = await getInfosLogin();
+                await makeRequest('/api/headcargo/repurchase-management/UpdateRepurchaseStatus', 'POST', { repurchase_id: id, status: status, user_id: userLogged.system_collaborator_id });
+            }
+        });
+    }else{
+        const userLogged = await getInfosLogin();
+        await makeRequest('/api/headcargo/repurchase-management/UpdateRepurchaseStatus', 'POST', { repurchase_id: id, status: status, user_id: userLogged.system_collaborator_id });
+    }
+ 
 }
 
 function hideLoader() {

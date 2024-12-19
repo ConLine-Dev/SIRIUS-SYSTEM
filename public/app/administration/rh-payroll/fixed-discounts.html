@@ -35,127 +35,119 @@
 
 <body>
     <div class="main-content">
-        <div class="container-fluid"></div>
-        <div class="file-manager-container p-2 gap-2 d-flex" style="margin: 0 -0.5rem !important;">
-            <!-- PAGINA PARA CRIAR OS DESCONTOS FIXOS-->
-            <div class="row">
-                <div class="col-xl-12">
-                    <div class="card custom-card" style="min-height: 98vh !important; width: 99vw !important;">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <div class="card-title fw-semibold fs-14">Descontos Fixos</div>
+        <div class="">
+            <div class="file-manager-container p-2 gap-2 d-flex" style="margin: 0 -0.5rem !important;">
 
-                            <!-- Botões alinhados à direita -->
-                            <div class="d-flex">
-                                <button class="btn btn-primary me-2" id="saveButton">
-                                    <i class="me-0 fw-normal align-middle"></i>Salvar
-                                </button>
+                <!-- PAGINA PARA CRIAR OS DESCONTOS FIXOS-->
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card custom-card" style="min-height: 98vh !important; width: 99vw !important;">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <div class="card-title fw-semibold fs-14">Descontos Fixos</div>
+
+                                <!-- Botões alinhados à direita -->
+                                <div class="d-flex">
+                                    <button class="btn btn-primary me-2" id="saveButton">
+                                        <i class="me-0 fw-normal align-middle"></i>Salvar
+                                    </button>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="card-body" style="padding: 5px !important;">
-                            <!-- AREA PARA PESQUISAR E INSERIR INFORMAÇÕES DO PART LOT -->
-                            <!-- <div class="d-flex align-items-center justify-content-start w-100 p-2">
-                             <div style="width: 20%; margin-right: 10px;">
-                                <input class="form-control searchInput" id="searchInput" type="text" placeholder="Referência Externa...">
-                             </div>
-                             <button class="btn btn-primary me-2" id="searchProcess">
-                                <i class="me-0 fw-normal align-middle"></i>Buscar
-                             </button>
-                          </div> -->
-
-                          <div class="row p-3 border-bottom align-items-end">
-                            <!-- Responsável -->
-                            <div class="col-4 mb-2">
-                                <label class="form-label">Responsável:</label>
-                                <select class="form-control" multiple name="responsible">
-                                    <option value="">Selecione um responsável...</option>
-                                </select>
-                            </div>
-                        
-                            <!-- Desconto e Valor -->
-                            <div id="descricao-container" class="col-6 mb-2">
-                                <div class="row row_1">
-                                    <!-- Desconto -->
-                                    <div class="col-6">
-                                        <label class="form-label">Desconto:</label>
-                                        <select class="form-control flatpickr-input list_1" name="discount">
-                                            <option value="">Selecione um desconto</option>
-                                            <!-- Descontos criados no banco de dados -->
-                                        </select>
-                                    </div>
-                                    <!-- Valor -->
-                                    <div class="col-5">
-                                        <label class="form-label">Valor R$:</label>
-                                        <input type="number" step="0.01" name="value"
-                                               class="form-control flatpickr-input campo-valor list_1"
-                                               placeholder="Digite um valor...">
-                                    </div>
-                                    <!-- Botão Inserir -->
-                                    <div class="col-1 align-self-end">
-                                        <button class="btn btn-danger" id="insertDiscount"> Inserir </button>
+                            <div class="card-body" style="padding: 5px !important;">
+                            <div class="row p-3 border-bottom align-items-end">
+                                <!-- Responsável -->
+                                <div class="col-4 mb-2">
+                                    <label class="form-label">Responsável:</label>
+                                    <select class="form-control" multiple name="responsible">
+                                        <option value="">Selecione um responsável...</option>
+                                    </select>
+                                </div>
+                            
+                                <!-- Desconto e Valor -->
+                                <div id="descricao-container" class="col-6 mb-2">
+                                    <div class="row row_1">
+                                        <!-- Desconto -->
+                                        <div class="col-6">
+                                            <label class="form-label">Desconto:</label>
+                                            <select class="form-control flatpickr-input list_1" name="discount">
+                                                <option value="">Selecione um desconto</option>
+                                                <!-- Descontos criados no banco de dados -->
+                                            </select>
+                                        </div>
+                                        <!-- Valor -->
+                                        <div class="col-5">
+                                            <label class="form-label">Valor R$:</label>
+                                            <input type="number" step="0.01" name="value"
+                                                class="form-control flatpickr-input campo-valor list_1"
+                                                placeholder="Digite um valor...">
+                                        </div>
+                                        <!-- Botão Inserir -->
+                                        <div class="col-1 align-self-end">
+                                            <button class="btn btn-danger" id="insertDiscount"> Inserir </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        
-
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <table id="table_control_password"
-                                        class="table table-bordered text-nowrap w-100 dataTable table-hover"
-                                        aria-describedby="hidden-columns_info" style="width: 1477px;">
-                                        <thead>
-                                            <tr>
-                                                <th>Responsável</th>
-                                                <th>Mês/Ano</th>
-                                                <th>Desconto</th>
-                                                <th>Valor R$</th>
-                                                <th class="intro-btn-action">Ação</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="files-list">
-                                            <tr>
-                                                <td>Dayana Alves</td>
-                                                <td>Novembro/2024</td>
-                                                <td>Odonto</td>
-                                                <td>150,00</td>
-                                                <td>
-                                                    <div class="btn-list">
-                                                        <a href="javascript:void(0);"
-                                                            class="btn btn-sm btn-icon btn-secondary-light"
-                                                            title="Editar">
-                                                            <i class="ri-pencil-line"></i>
-                                                        </a>
-                                                        <a href="javascript:void(0);"
-                                                            class="btn btn-icon btn-sm btn-warning-light"
-                                                            title="Deletar">
-                                                            <i class="ri-delete-bin-line"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Dayana Alves</td>
-                                                <td>Novembro/2024</td>
-                                                <td>Odonto</td>
-                                                <td>150,00</td>
-                                                <td>
-                                                    <div class="btn-list">
-                                                        <a href="javascript:void(0);"
-                                                            class="btn btn-sm btn-icon btn-secondary-light"
-                                                            title="Editar">
-                                                            <i class="ri-pencil-line"></i>
-                                                        </a>
-                                                        <a href="javascript:void(0);"
-                                                            class="btn btn-icon btn-sm btn-warning-light"
-                                                            title="Deletar">
-                                                            <i class="ri-delete-bin-line"></i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
+                            
+                            
+                            <!-- Tabela de criação dos descontos fixos -->
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <table id="table_control_password"
+                                            class="table table-bordered text-nowrap w-100 dataTable table-hover"
+                                            aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Responsável</th>
+                                                    <th>Mês/Ano</th>
+                                                    <th>Desconto</th>
+                                                    <th>Valor R$</th>
+                                                    <th class="intro-btn-action">Ação</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="files-list">
+                                                <tr>
+                                                    <td>Dayana Alves</td>
+                                                    <td>Novembro/2024</td>
+                                                    <td>Odonto</td>
+                                                    <td>150,00</td>
+                                                    <td>
+                                                        <div class="btn-list">
+                                                            <a href="javascript:void(0);"
+                                                                class="btn btn-sm btn-icon btn-secondary-light"
+                                                                title="Editar">
+                                                                <i class="ri-pencil-line"></i>
+                                                            </a>
+                                                            <a href="javascript:void(0);"
+                                                                class="btn btn-icon btn-sm btn-warning-light"
+                                                                title="Deletar">
+                                                                <i class="ri-delete-bin-line"></i>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Dayana Alves</td>
+                                                    <td>Novembro/2024</td>
+                                                    <td>Odonto</td>
+                                                    <td>150,00</td>
+                                                    <td>
+                                                        <div class="btn-list">
+                                                            <a href="javascript:void(0);"
+                                                                class="btn btn-sm btn-icon btn-secondary-light"
+                                                                title="Editar">
+                                                                <i class="ri-pencil-line"></i>
+                                                            </a>
+                                                            <a href="javascript:void(0);"
+                                                                class="btn btn-icon btn-sm btn-warning-light"
+                                                                title="Deletar">
+                                                                <i class="ri-delete-bin-line"></i>
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                    </div>
                                 </div>
                             </div>
                         </div>

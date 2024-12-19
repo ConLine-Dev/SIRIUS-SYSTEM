@@ -12,3 +12,8 @@ cursor: pointer;
 .flatpickr-input {
   padding: 8px;
 }
+
+#insertDiscount {
+  padding: 10px;
+  width: 100px;
+}

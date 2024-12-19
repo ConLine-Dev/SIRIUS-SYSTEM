@@ -63,41 +63,42 @@
                              </button>
                           </div> -->
 
-                            <div class="d-flex align-items-bottom justify-content-start w-100 p-3 border-bottom">
-                                <div style="width: 30%; margin-right: 10px;">
-                                    <label class="form-label">Responsável:</label>
-                                    <select class="form-control" multiple name="responsible">
-                                        <option value="">Selecione um responsável...</option>
-                                    </select>
-                                </div>
-
-                                <div style="width: 25%; margin-right: 10px;">
-                                    <label class="form-label">Mês/Ano:</label>
-                                    <input type="text" name="monthYear" id="monthYear"
-                                        class="form-control flatpickr-input targetDate"
-                                        placeholder="Selecione o mês e ano do desconto..." >
-                                </div>
-
-                                <div style="width: 20%; margin-right: 10px;">
-                                    <label class="form-label">Desconto:</label>
-                                    <select class="form-control flatpickr-input list_1" name="discount">
-                                        <option value="">Selecione um desconto</option>
-                                        <!-- Descontos criados no banco de dados -->
-                                    </select>
-                                </div>
-
-                                <div style="width: 20%; margin-right: 10px;">
-                                    <label class="form-label">Valor R$:</label>
-                                    <input type="number" step="0.01" name="value"
-                                        class="form-control flatpickr-input campo-valor list_1" placeholder="Digite um valor...">
-                                </div>
-
-                                <div style="margin-right: 10px; display: flex; align-items: flex-end; margin-bottom: 3px;">
-                                    <button class="btn btn-primary me-4" id="insertRate">
-                                        <i class="me-0 fw-normal align-middle"></i>Inserir
-                                    </button>
+                          <div class="row p-3 border-bottom align-items-end">
+                            <!-- Responsável -->
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Responsável:</label>
+                                <select class="form-control" multiple name="responsible">
+                                    <option value="">Selecione um responsável...</option>
+                                </select>
+                            </div>
+                        
+                            <!-- Desconto e Valor -->
+                            <div id="descricao-container" class="col-6 mb-2">
+                                <div class="row row_1">
+                                    <!-- Desconto -->
+                                    <div class="col-6">
+                                        <label class="form-label">Desconto:</label>
+                                        <select class="form-control flatpickr-input list_1" name="discount">
+                                            <option value="">Selecione um desconto</option>
+                                            <!-- Descontos criados no banco de dados -->
+                                        </select>
+                                    </div>
+                                    <!-- Valor -->
+                                    <div class="col-5">
+                                        <label class="form-label">Valor R$:</label>
+                                        <input type="number" step="0.01" name="value"
+                                               class="form-control flatpickr-input campo-valor list_1"
+                                               placeholder="Digite um valor...">
+                                    </div>
+                                    <!-- Botão Inserir -->
+                                    <div class="col-1 align-self-end">
+                                        <button class="btn btn-danger" id="insertDiscount"> Inserir </button>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+                        
+                        
 
                             <div class="row">
                                 <div class="col-sm-12">

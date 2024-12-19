@@ -91,8 +91,12 @@ async function generateTable(status = 'PENDING') {
 }
 
 // Função para mostrar os detalhes das taxas de recompra de um processo específico
-async function showRepurchaseDetails(processId, status) {
+async function showRepurchaseDetails(processId, status, button) {
     try {
+        if(button){
+            button.setAttribute('disabled', 'true');
+        }
+        
         const userLogged = await getInfosLogin();
         const details = await makeRequest(`/api/headcargo/repurchase-management/GetFeesByProcess`, 'POST', { processId, status, userID: userLogged.system_collaborator_id });
 
@@ -109,12 +113,28 @@ async function showRepurchaseDetails(processId, status) {
             return `<span class="${badgeClass}">${formattedValue}</span>`;
         }
 
+        function generateActionButtons(fee) {
+            if (fee.status === 'PENDING') {
+                return `<a href="javascript:void(0);" class="btn btn-sm btn-danger-light" title="Cancelar" onclick="alterStatus(${fee.id},'CANCELED')">Cancelar</a>`;
+
+            }else if(fee.status === 'CANCELED'){
+                return `
+                    <a href="javascript:void(0);" class="btn btn-sm btn-danger" title="Desfazer" onclick="alterStatus(${fee.id},'PENDING')">Desfazer</a>
+                `;
+            }
+            return '';
+        }
+
+        
+
+
         // Mapeamento de status
         const statusMap = {
             'PENDING': 'Pendente',
             'APPROVED': 'Aprovado',
             'REJECTED': 'Rejeitado',
             'CANCELED': 'Cancelado',
+            'PAID': 'Pago',
         };
         console.log(details)
 
@@ -141,14 +161,14 @@ async function showRepurchaseDetails(processId, status) {
             const newSaleValueCell = formatValueCell(fee.sale_value, fee.old_sale_value, fee.coin_sale, false, fee.status);
 
 
-            let buttons = '';
+    
             let styleDisabled = '';
             if (fee.status == 'PENDING') {
-                
-                buttons = `<a href="javascript:void(0);" class="btn btn-sm btn-danger-light" title="Deletar" onclick="alterStatus(${fee.id},'CANCELED')">Cancelar</a>`;
             }else{
                 styleDisabled = 'background-color: #8699a399;';
             }
+
+            const buttons = generateActionButtons(fee);
 
             return `
                 <tr>
@@ -193,10 +213,23 @@ async function showRepurchaseDetails(processId, status) {
         const tableRow = $(`#table_repurchase_user tr[data-process-id="${processId}"]`);
         if (tableRow.next().hasClass('details-row')) {
             tableRow.next().remove(); // Remove a linha se já estiver exibida
+            if(button){
+                button.removeAttribute('disabled');
+                button.innerHTML = 'Ver Taxas';
+            }
+           
         } else {
             tableRow.after(`<tr class="details-row"><td colspan="10">${detailTable}</td></tr>`);
+           
+            if(button){
+                button.removeAttribute('disabled');
+                button.innerHTML = 'Ocultar Taxas';
+            }
         }
     } catch (error) {
+        if(button){
+            button.removeAttribute('disabled');
+        }
         console.error('Erro ao buscar detalhes das taxas:', error);
     }
 }

@@ -31,9 +31,11 @@
     <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
     <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
     <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
     
 
-    <link rel="stylesheet" href="./assets/css/manager.css">
+    <link rel="stylesheet" href="./assets/css/financial.css">
     <meta http-equiv="imagetoolbar" content="no">
 </head>
 
@@ -53,14 +55,14 @@
         <div class="file-manager-container p-2 gap-2 d-sm-flex">
           <div class="file-manager-navigation">
            
-            <!-- <div class="p-3 border-bottom">
+            <div class="p-3 border-bottom">
               <div class="input-group">
                 <input type="text" class="form-control bg-light border-0" placeholder="Search Files" aria-describedby="button-addon2">
                 <button class="btn btn-light" type="button" id="button-addon2">
                   <i class="ri-search-line text-muted"></i>
                 </button>
               </div>
-            </div> -->
+            </div>
             <div>
               <ul class="list-unstyled files-main-nav" id="files-main-nav" data-simplebar="init">
                 <div class="simplebar-wrapper" style="margin: -16px;">
@@ -72,17 +74,6 @@
                       <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content" style="height: auto; overflow: hidden scroll;">
                         <div class="simplebar-content" style="padding: 16px;">
                           <li class="active files-type">
-                            <a href="javascript:void(0)" onclick="generateTable('PENDING')">
-                              <div class="d-flex align-items-center">
-                                <div class="me-2">
-                                  <i class="ri-folder-2-line fs-16"></i>
-                                </div>
-                                <span class="flex-fill text-nowrap"> Recompras Pendentes</span>
-                                <!-- <span class="badge bg-primary">322</span> -->
-                              </div>
-                            </a>
-                          </li>
-                          <li class=" files-type">
                             <a href="javascript:void(0)" onclick="generateTable('APPROVED')">
                               <div class="d-flex align-items-center">
                                 <div class="me-2">
@@ -94,45 +85,12 @@
                             </a>
                           </li>
                           <li class=" files-type">
-                            <a href="javascript:void(0)" onclick="generateTable('CANCELED')">
-                              <div class="d-flex align-items-center">
-                                <div class="me-2">
-                                  <i class="ri-folder-2-line fs-16"></i>
-                                </div>
-                                <span class="flex-fill text-nowrap"> Recompras Canceladas</span>
-                                <!-- <span class="badge bg-primary">322</span> -->
-                              </div>
-                            </a>
-                          </li>
-                          <li class=" files-type">
-                            <a href="javascript:void(0)" onclick="generateTable('REJECTED')">
-                              <div class="d-flex align-items-center">
-                                <div class="me-2">
-                                  <i class="ri-folder-2-line fs-16"></i>
-                                </div>
-                                <span class="flex-fill text-nowrap"> Recompras Rejeitadas</span>
-                                <!-- <span class="badge bg-primary">322</span> -->
-                              </div>
-                            </a>
-                          </li>
-                          <li class=" files-type">
-                            <a href="javascript:void(0)" onclick="generateTable('PAID')">
+                            <a href="javascript:void(0)" onclick="generateTablePayment()">
                               <div class="d-flex align-items-center">
                                 <div class="me-2">
                                   <i class="ri-folder-2-line fs-16"></i>
                                 </div>
                                 <span class="flex-fill text-nowrap"> Recompras Pagas</span>
-                                <!-- <span class="badge bg-primary">322</span> -->
-                              </div>
-                            </a>
-                          </li>
-                          <li class=" files-type">
-                            <a href="javascript:void(0)" onclick="generateTable('ALL')">
-                              <div class="d-flex align-items-center">
-                                <div class="me-2">
-                                  <i class="ri-folder-2-line fs-16"></i>
-                                </div>
-                                <span class="flex-fill text-nowrap"> Todas Recompras</span>
                                 <!-- <span class="badge bg-primary">322</span> -->
                               </div>
                             </a>
@@ -208,7 +166,7 @@
           <div class="file-manager-folders">
             <div class="d-flex p-3 flex-wrap gap-2 align-items-center justify-content-between border-bottom">
               <div>
-                <h6 class="fw-semibold mb-0">Gestão de Aprovação - Recompra Operacional</h6>
+                <h6 class="fw-semibold mb-0">Gestão de Recompras - Aprovação e Pagamento</h6>
               </div>
               <div class="d-flex gap-2">
                 <button id="folders-close-btn" class="d-sm-none d-block btn btn-icon btn-sm btn-danger-light">
@@ -234,12 +192,9 @@
                      
                       
                         <div class="d-flex mb-3 align-items-center justify-content-between">
-                          <p class="mb-0 fw-semibold fs-14">Recompras Pendentes</p>
+                          <p class="mb-0 fw-semibold fs-14 text_recompra">Recompras Pendentes</p>
                           <!-- <button class="btn btn-sm btn-primary-light">Ver todos</button> -->
-                          <div>
-                            <button id="groupByProcess" class="btn btn-primary">Agrupar por Processo</button>
-                            <button id="groupByResponsavel" class="btn btn-secondary">Agrupar por Responsável</button>
-                        </div>
+                        
                         </div>
                         <div class="row">
                           <div class="col-xl-12">
@@ -250,7 +205,7 @@
                                     <th scope="col">#</th>
                                     <th scope="col">Processo</th>
                                     <th scope="col">Recompras</th>
-                                    <th scope="col">Ultimo Lançamento</th>
+                                    <th scope="col">Ação</th>
                                   </tr>
                                 </thead>
                
@@ -280,6 +235,8 @@
         
         </div>
       </div>
+
+
     
 
    
@@ -315,7 +272,10 @@
     <!-- SweetAlert JS -->
    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
 
-    <script src="./assets/js/manager.js"></script>
+    <!-- Choices JS -->
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <script src="./assets/js/financial.js"></script>
 
 </body>
 

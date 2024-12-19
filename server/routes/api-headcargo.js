@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const path = require("path");
 const fs = require('fs');
+const html_to_pdf = require('html-pdf-node');
 const { headcargo } = require('../controllers/headCargo');
 
 
@@ -307,6 +308,29 @@ router.get('/GetRepurchases', async (req, res, next) => {
 });
 
 // Rota para obter recompras por processo
+router.get('/GetRepurchasesPayment', async (req, res, next) => {
+    try {
+        const result = await headcargo.GetRepurchasesPayment();
+        res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        res.status(404).json('Erro ao buscar recompras');
+    }
+});
+
+// Rota para obter recompras por processo
+router.post('/GetRepurchasesPaymentDetails', async (req, res, next) => {
+    const { unique_id } = req.body;
+    try {
+        const result = await headcargo.GetRepurchasesPaymentDetails(unique_id);
+        res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        res.status(404).json('Erro ao buscar recompras');
+    }
+});
+
+// Rota para obter recompras por processo
 router.post('/GetFeesByProcess', async (req, res, next) => {
     const { processId, status, userID, groupBy } = req.body;
 
@@ -318,6 +342,179 @@ router.post('/GetFeesByProcess', async (req, res, next) => {
         res.status(404).json('Erro ao buscar recompras');
     }
 });
+
+// Rota para obter a taxa do dia de uma recompra e o lucro atual do processo
+router.post('/get-value-and-rate-by-repurchase', async (req, res, next) => {
+    const { userID, status } = req.body;
+
+
+    try {
+        const result = await headcargo.getValueAndRate(userID, status);
+        res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        res.status(404).json('Erro ao buscar informações da recompra');
+    }
+});
+
+// send-preview
+router.post('/send-preview', async (req, res, next) => {
+    const { userID, destination } = req.body;
+
+    try {
+        const result = await headcargo.sendEmailRepurchasePreview(userID, destination);
+        res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        res.status(404).json('Erro ao enviar o preview');
+    }
+});
+
+// Rota para gerar o PDF com formatação correta
+router.post('/generate-pdf', async (req, res) => {
+    const { userID } = req.body;
+
+    try {
+        // Obtenha os dados necessários
+        const repuchases = await headcargo.getValueAndRate(userID, 'APPROVED');
+        const repurchase = repuchases.fees;
+        const total = repuchases.totalRepurchaseFomated;
+        const commision = repuchases.commisionFormated;
+
+          // Gerar as linhas da tabela
+          const rows = repurchase.map(item => `
+          <tr>
+              <td>${item.referenceProcess}</td>
+              <td>${item.fee_name}</td>
+              <td>${item.oldPurchaseValueCell}</td>
+              <td>${item.newPurchaseValueCell}</td>
+              <td>${item.oldSaleValueCell}</td>
+              <td>${item.newSaleValueCell}</td>
+              <td>${item.percentRepurchaseComissionFormated}</td>
+          </tr>`).join('');
+
+        const name = repurchase[0].fullName;
+
+        // HTML com o mesmo estilo que o e-mail
+        const htmlContent = `<head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+              
+            }
+            .container {
+                max-width: 800px;
+                margin: 20px auto;
+                overflow: hidden;
+            }
+            .header {
+                background-color: #f9423a;
+                color: #ffffff;
+                text-align: center;
+                padding: 20px;
+                font-size: 24px;
+                font-weight: bold;
+            }
+            .summary-table, .table {
+                width: 90%;
+                margin: 0 auto;
+                border-collapse: collapse;
+                text-align: center;
+            }
+            .summary-table td, .table th, .table td {
+                border: 1px solid #ddd;
+                padding: 10px;
+            }
+            .summary-table {
+                margin: 20px auto;
+                font-size: 16px;
+                font-weight: bold;
+            }
+            .summary-table td span {
+                color: #f9423a;
+                font-size: 18px;
+            }
+            .table th {
+                background-color: #f9423a;
+                color: #fff;
+                padding: 10px;
+                font-size: 10px;
+            }
+            .table {
+                font-size: 10px !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- Cabeçalho -->
+            <div class="header">Recompras - ${name}</div>
+    
+            <!-- Summary como tabela -->
+            <table class="summary-table">
+                <tr>
+                    <td>Recompras: <p><span>${repurchase.length}</span></p></td>
+                    <td>Total em Recompras: <p><span>${total}</span></p></td>
+                    <td>Valor Comissão: <p><span>${commision}</span></p></td>
+                </tr>
+            </table>
+    
+            <!-- Tabela de recompras -->
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Processo</th>
+                        <th>Taxa</th>
+                        <th>Compra</th>
+                        <th>Nova Compra</th>
+                        <th>Venda</th>
+                        <th>Nova Venda</th>
+                        <th>Comissão</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+        </div>
+    </body>`;
+
+        // Opções do PDF
+        const options = { format: 'A4', printBackground: true };
+
+        // Criar o PDF
+        const file = { content: htmlContent };
+        const pdfBuffer = await html_to_pdf.generatePdf(file, options);
+
+        // Configurar o cabeçalho e enviar o PDF
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': 'inline; filename="'+'Recompras - '+name+'.pdf"',
+        });
+        res.send(pdfBuffer);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Erro ao gerar o PDF.');
+    }
+});
+
+router.post('/mark-as-paid', async (req, res) => {
+    const { ids } = req.body;
+
+    if (!ids || !Array.isArray(ids)) {
+        return res.status(400).json({ error: 'IDs inválidos' });
+    }
+
+    try {
+        await headcargo.markaspaid(ids);
+        res.status(200).json({ success: true, message: 'Recompras atualizadas para PAID.' });
+    } catch (error) {
+        res.status(500).json({ error: 'Erro ao atualizar recompra(s).' });
+    }
+});
+
 
 
 // Rota para aprovar ou rejeitar uma recompra

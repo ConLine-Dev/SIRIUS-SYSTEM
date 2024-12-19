@@ -65,13 +65,17 @@
                                 <select class="form-control choices__input" name="referenceProcess" >
                                 </select>
                             </div>
-                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
+                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
                                 <label for="input-label" class="form-label">Lucro Abertura</label> 
-                                <input type="text" name="OpeningProfit" disabled class="form-control form-input" value="67,04"> 
+                                <input type="text" name="OpeningProfit" disabled class="form-control form-input" value="0"> 
                             </div>
-                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
+                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
                                 <label for="input-label" class="form-label">Lucro Estimado</label> 
-                                <input type="text" name="EstimatedProfit" disabled class="form-control form-input" value="71,18"> 
+                                <input type="text" name="EstimatedProfit" disabled class="form-control form-input" value="0"> 
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
+                                <label for="input-label" class="form-label">Lucro Efetivo</label> 
+                                <input type="text" name="EfetiveProfit" disabled class="form-control form-input" value="0"> 
                             </div>
                            
                         </div>
@@ -81,7 +85,10 @@
                             <table id="tableTaxasProcessos" class="table text-nowrap table-hover">
                               <thead>
                                 <tr>
-                                <th scope="col"><input type="checkbox" disabled class="form-check-input" id="check1"></th>
+                                <th scope="col">
+                                    <input type="checkbox" disabled class="form-check-input" id="check1">
+                                </th>
+                                <th scope="col">Nova</th>
                                   <th scope="col">Taxa</th>
                                   <th scope="col">Compra</th>
                                   <th scope="col">Venda</th>

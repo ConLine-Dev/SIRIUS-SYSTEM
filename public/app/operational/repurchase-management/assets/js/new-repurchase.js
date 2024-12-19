@@ -5,17 +5,30 @@ const alteredFees = []; // Array para armazenar as taxas alteradas
 document.addEventListener('DOMContentLoaded', async function() {
     await getAllProcessByRef()
     createDatatable([]);
-    
-    // document.querySelector('[name=referenceProcess]').addEventListener('input', async function() {
-    //     if (this.value.length > 6) {
-    //         const data = await getfees(this.value);
-    //         createDatatable(data);
-    //     }
-    // });
 
+    // Verifica se existe um parâmetro 'reference' na URL
+    const paramValue = getUrlParameter('reference');
+
+    if (paramValue) {
+        try {
+            inputSelectProposal.setChoices([{ value: paramValue, label: paramValue, selected: true }], 'value', 'label', true);
+        } catch (error) {
+            
+        }
+        setTimeout(async () => {
+            const data = await getfees(paramValue);
+            createDatatable(data);
+        }, 200);
+        
+}
     // Adiciona o evento de clique para o botão Enviar
     document.querySelector('#sendButton').addEventListener('click', collectAndSendAlteredFees);
 });
+
+function getUrlParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search); // Obtém os parâmetros da URL
+    return urlParams.has(name) ? urlParams.get(name) : null; // Retorna o valor se existir, caso contrário null
+}
 
 async function getfees(reference) {
     const response = await makeRequest('/api/headcargo/repurchase-management/getTaxasProcessByRef', 'POST', { reference });
@@ -23,6 +36,13 @@ async function getfees(reference) {
 }
 
 function createDatatable(data) {
+
+    if (data.length > 0) {
+        document.querySelector('[name=EstimatedProfit]').value = data[0].Lucro_Estimado;
+        document.querySelector('[name=OpeningProfit]').value = data[0].Lucro_Abertura;
+        document.querySelector('[name=EfetiveProfit]').value = data[0].Lucro_Efetivo;
+    }
+
     if (table['tableTaxasProcessos']) {
         table['tableTaxasProcessos'].destroy();
     }
@@ -38,8 +58,14 @@ function createDatatable(data) {
             {
                 data: 'idTaxa',
                 render: function(data, type, row) {
-                    return `<input type="checkbox" class="form-check-input checkbox-row" id="${data}">
-                            <input type="checkbox" class="form-check-input checkbox-zero" id="zero-${data}" style="margin-left: 10px;" title="Zerar valores antigos">`;
+                    return `<input type="checkbox" class="form-check-input checkbox-row" id="${data}">`;
+                },
+                orderable: false,
+            },
+            {
+                data: 'idTaxa',
+                render: function(data, type, row) {
+                    return `<input type="checkbox" class="form-check-input checkbox-zero" id="zero-${data}" style="margin-left: 10px;" title="Zerar valores antigos">`;
                 },
                 orderable: false,
             },
@@ -120,6 +146,7 @@ function showDetails(row) {
     const detailsRow = document.createElement('tr');
     detailsRow.className = 'details-row';
     detailsRow.innerHTML = `
+        <td></td>
        <td></td>
        <td></td>
        <td><input type="text" class="form-control newValorCompra" value="${rowData.Valor_Pagamento_Total || ''}"></td>
@@ -128,10 +155,39 @@ function showDetails(row) {
 
     row.after(detailsRow);
 
-    // Adiciona eventos de mudança nos inputs de valor
-    detailsRow.querySelector('.newValorCompra').addEventListener('input', () => trackChanges(rowData, detailsRow));
-    detailsRow.querySelector('.newValorVenda').addEventListener('input', () => trackChanges(rowData, detailsRow));
+    // Função de validação para valores numéricos com ponto flutuante
+    const validateFloatInput = (event) => {
+        const input = event.target;
+        let value = input.value;
+
+        // Remove caracteres inválidos
+        value = value.replace(/[^0-9.]/g, '');
+
+        // Garante que só haja um ponto decimal
+        const parts = value.split('.');
+        if (parts.length > 2) {
+            value = `${parts[0]}.${parts.slice(1).join('')}`;
+        }
+
+        // Atualiza o valor do input
+        input.value = value;
+    };
+
+    // Adiciona eventos de validação aos inputs
+    const newValorCompra = detailsRow.querySelector('.newValorCompra');
+    const newValorVenda = detailsRow.querySelector('.newValorVenda');
+
+    newValorCompra.addEventListener('input', (event) => {
+        validateFloatInput(event);
+        trackChanges(rowData, detailsRow);
+    });
+
+    newValorVenda.addEventListener('input', (event) => {
+        validateFloatInput(event);
+        trackChanges(rowData, detailsRow);
+    });
 }
+
 
 function hideDetails(row) {
     row.next('.details-row').remove();

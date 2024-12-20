@@ -2,63 +2,61 @@ const { executeQuery } = require('../connect/mysql');
 // Importa a função sendEmail do arquivo emailService.js
 const { sendEmail } = require('../support/send-email');
 
-const internalComments = {
-   deptsByUser: async function (collabId) {
+const externalSystems = {
+    getServices: async function () {
+        let result = await executeQuery(`
+            SELECT *
+            FROM external_systems`);
 
-      let result = await executeQuery(`
-         SELECT dr.department_id, dp.name
-         FROM departments_relations dr
-         LEFT OUTER JOIN departments dp ON dp.id = dr.department_id
-         WHERE dr.collaborator_id = ${collabId}`)
+        return result;
+    },
 
-      return result;
-   },
-   modulesByUser: async function (userId) {
+    getRecords: async function () {
+        let result = await executeQuery(`
+            SELECT esr.id, esm.name, esr.description, esr.date_start, esr.date_end
+            FROM external_systems_records esr
+            LEFT OUTER JOIN external_systems esm on esm.id = esr.id_system`);
 
-      let result = await executeQuery(`
-         SELECT ma.modules_id, ma.user_id, md.title
-         FROM modules_acess ma
-         LEFT OUTER JOIN modules md ON md.id = ma.modules_id
-         WHERE ma.user_id = ${userId}`)
+        return result;
+    },
 
-      return result;
-   },
-   commentsByDept: async function (deptId) {
+    saveRecord: async function (answer) {
 
-      let result = await executeQuery(`
-         SELECT ic.title, ic.description, ic.comment_date,
-         cl.id_headcargo, cl.name, cl.family_name, md.title as 'module'
-         FROM internal_comments ic
-         LEFT OUTER JOIN collaborators cl on cl.id = ic.collab_id
-         LEFT OUTER JOIN modules md on md.id = ic.module_id
-         WHERE department_id = ${deptId}
-         ORDER BY ic.comment_date DESC`)
+        if (!answer.endDate) {
+            answer.endDate = null;
+        }
+        await executeQuery(`
+            INSERT INTO external_systems_records (id_system, description, date_start, date_end, id_collaborator) VALUES (?, ?, ?, ?, ?)`,
+            [answer.service, answer.description, answer.startDate, answer.endDate, answer.collabId]);
 
-      return result;
-   },
-   saveComment: async function (answer) {
+        return true;
+    },
 
-      const date = new Date(answer.date);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      answer.date = `${year}-${month}-${day}`;
+    getById: async function (id) {
 
-      if (!answer.modules) {
-         answer.modules = null;
-      }
-      if (!answer.dept) {
-         answer.dept = null;
-      }
+        let result = await executeQuery(`
+            SELECT esr.id, esm.name, esr.description, esr.date_start, esr.date_end
+            FROM external_systems_records esr
+            LEFT OUTER JOIN external_systems esm on esm.id = esr.id_system
+            WHERE esr.id = ${id}`);
 
-      await executeQuery(`
-      INSERT INTO internal_comments (title, description, module_id, department_id, comment_date, collab_id) VALUES (?, ?, ?, ?, ?, ?)`,
-      [answer.title, answer.comment, answer.modules, answer.dept, answer.date, answer.collabId]);
+        return result;
+    },
 
-      return true;
-   },
+    updateServiceRecord: async function (lineData) {
+        
+        await executeQuery(`
+            UPDATE external_systems_records
+            SET description = '${lineData.description}',
+            date_start = '${lineData.startDate}',
+            date_end = '${lineData.endDate}'
+            WHERE id = ${lineData.lineId}`);
+
+        return true;
+    },
+
 }
 
 module.exports = {
-   internalComments,
+    externalSystems,
 };

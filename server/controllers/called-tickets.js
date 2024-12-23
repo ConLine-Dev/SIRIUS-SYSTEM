@@ -507,7 +507,7 @@ const tickets = {
         
     },
     uploadFileTicket: async function (ticketId, Files) {
-        console.log(Files)
+        // console.log(Files)
         // Recupera os dados atuais do ticket
         let currentTicket = await this.getById(ticketId); // Certifique-se de que `getById` está implementado
         currentTicket = currentTicket[0]

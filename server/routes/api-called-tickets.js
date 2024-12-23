@@ -134,7 +134,6 @@ module.exports = function(io) {
     router.get('/download-file/:filename', (req, res) => {
         const filename = req.params.filename;
         const filePath = path.join(__dirname, '../../storageService/ti/tickets/files', filename);
-    w
         res.download(filePath, (err) => {
             if (err) {
                 res.status(500).send('Erro ao baixar o arquivo.');

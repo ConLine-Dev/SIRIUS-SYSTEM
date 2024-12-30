@@ -1,0 +1,175 @@
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>|</title>
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
+    <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
+    
+    <link rel="stylesheet" href="./assets/css/open-process.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+      <!-- Loader -->
+      <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div class="">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card custom-card bodyWindows">
+
+                  
+                    
+
+                    <!-- CADASTRO NOVA SENHA -->
+                    <!-- <div class="card-header justify-content-between">
+                        <div class="card-title"> Cadastro Nova Senha </div>
+                    </div> -->
+                    
+                    <div class="card-body">
+                     
+
+                        <div class="row">
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
+                                <label for="input-label" class="form-label">Nº do Processo</label> 
+                                <input type="text" name="NumeroProcesso" disabled class="form-control form-input" placeholder="IM0000-00"> 
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
+                                <label for="input-label" class="form-label">Vendedor</label> 
+                                <input type="text" name="Vendedor" disabled class="form-control form-input" value="0"> 
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
+                                <label for="input-label" class="form-label">Lucro Abertura</label> 
+                                <input type="text" name="OpeningProfit" disabled class="form-control form-input" value="0"> 
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
+                                <label for="input-label" class="form-label">Lucro Estimado</label> 
+                                <input type="text" name="EstimatedProfit" disabled class="form-control form-input" value="0"> 
+                            </div>
+                            <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
+                                <label for="input-label" class="form-label">Lucro Efetivo</label> 
+                                <input type="text" name="EfetiveProfit" disabled class="form-control form-input" value="0"> 
+                            </div>
+                           
+                        </div>
+                        
+                        <br>
+                        <div class="row">
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
+                                <label for="input-label" class="form-label">Cliente</label> 
+                                <input type="text" name="Cliente" class="form-control form-input" placeholder="IM0000-00"> 
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
+                                <label for="input-label" class="form-label">Exportado</label> 
+                                <input type="text" name="Exportador" disabled class="form-control form-input" value="0"> 
+                            </div>
+                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
+                                <label for="input-label" class="form-label">Importador</label> 
+                                <input type="text" name="Importador" disabled class="form-control form-input" value="0"> 
+                            </div>
+                            
+                        </div>
+                        <br>
+
+                        
+                        <div class="table-responsive border border-bottom-0">
+                            <table id="tableTaxasProcessos" class="table text-nowrap table-hover table-bordered">
+                                <thead>
+                                    <!-- Cabeçalhos agrupados -->
+                                    <tr>
+                                        <th colspan="1">Informações</th>
+                                        <th colspan="2">Pagamento</th>
+                                        <th colspan="2">Recebimento</th>
+                                    </tr>
+                                    <!-- Subcabeçalhos -->
+                                    <tr>
+                                        <th>Taxa</th>
+                                        <th>Moeda</th>
+                                        <th>Valor Total</th>
+                                        <th>Moeda</th>
+                                        <th>Valor Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="files-list">
+                                    <!-- Linha de exemplo -->
+                                    <tr>
+                                  
+                                        <td>LIBERAÇÃO DE BL</td>
+                                        <td>BRL</td>
+                                        <td>618,00</td>
+                                        <td>BRL</td>
+                                        <td>620,00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        
+                  
+   
+                        <br>
+
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    
+    </div>
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+    <!-- Scroll To Top -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../../assets/js/fetchAPI.js"></script>
+
+
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+
+    <script src="./assets/js/open-process.js"></script>
+
+
+
+    <!-- Custom JS -->
+    <noscript>
+        <p>To display this page you need a browser that supports JavaScript.</p>
+    </noscript>
+    <!-- <script src="../../assets/js/custom.js"></script> -->
+
+</body>
+
+</html>

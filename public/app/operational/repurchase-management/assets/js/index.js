@@ -90,6 +90,34 @@ async function generateTable(status = 'PENDING') {
     });
 }
 
+async function viewRejectionReason(reason) {
+    try {
+        if (reason) {
+            Swal.fire({
+                title: 'Motivo da Rejeição',
+                text: reason,
+                icon: 'info',
+                confirmButtonText: 'Fechar'
+            });
+        } else {
+            Swal.fire({
+                title: 'Motivo não encontrado',
+                text: 'Nenhum motivo registrado para esta rejeição.',
+                icon: 'warning',
+                confirmButtonText: 'Fechar'
+            });
+        }
+    } catch (error) {
+        console.error('Erro ao buscar motivo da rejeição:', error);
+        Swal.fire({
+            title: 'Erro',
+            text: 'Não foi possível buscar o motivo da rejeição.',
+            icon: 'error',
+            confirmButtonText: 'Fechar'
+        });
+    }
+}
+
 // Função para mostrar os detalhes das taxas de recompra de um processo específico
 async function showRepurchaseDetails(processId, status, button) {
     try {
@@ -120,6 +148,10 @@ async function showRepurchaseDetails(processId, status, button) {
             }else if(fee.status === 'CANCELED'){
                 return `
                     <a href="javascript:void(0);" class="btn btn-sm btn-danger" title="Desfazer" onclick="alterStatus(${fee.id},'PENDING')">Desfazer</a>
+                `;
+            } else if (fee.status === 'REJECTED') {
+                return `
+                    <a href="javascript:void(0);" class="btn btn-sm btn-primary" title="Visualizar Motivo" onclick="viewRejectionReason('${fee.reason}')">Motivo</a>
                 `;
             }
             return '';

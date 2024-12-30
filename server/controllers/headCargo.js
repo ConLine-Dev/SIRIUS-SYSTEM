@@ -3256,7 +3256,7 @@ LEFT OUTER JOIN
 
       const insertQuery = `
       INSERT INTO repurchase_payments (
-        id, 
+        repurchase_id, 
         unique_id, 
         fee_id, 
         process_id, 
@@ -3342,6 +3342,27 @@ LEFT OUTER JOIN
          console.error('Erro ao inserir dados:', error);
       }
    },
+   revertPayment: async function (ids, uniques) {
+      // Atualiza o status das recompras para 'REVERTED'
+      const querySelect = `SELECT * FROM repurchase_payments WHERE unique_id IN (?)`;
+      const process = await executeQuery(querySelect, [uniques]);
+      const repurchaseId = Array.from(process).map(row => row.repurchase_id);
+
+      const queryUpdate = `UPDATE repurchases SET status = 'APPROVED' WHERE id IN (?)`;
+      await executeQuery(queryUpdate, [repurchaseId]);
+  
+      // Remove ou registra a reversão no histórico de pagamentos
+      const deleteQuery = `DELETE FROM repurchase_payments WHERE unique_id IN (?)`;
+  
+      try {
+          await executeQuery(deleteQuery, [uniques]);
+          console.log('Pagamento revertido com sucesso!');
+      } catch (error) {
+          console.error('Erro ao reverter pagamento:', error);
+          throw new Error('Erro ao reverter pagamento.');
+      }
+  },
+  
    getRepurchasesByProcess: async function(processId, status, userID, groupBy){
     // Construção da cláusula WHERE dinamicamente, levando em consideração o status
     let whereClause = `WHERE ${groupBy || 'repurchases.process_id'} = ?`;
@@ -3350,11 +3371,17 @@ LEFT OUTER JOIN
         whereClause += ` AND repurchases.status = '${status}'`;
     }
 
-    if (status && status === 'PENDING') {
+    if (status && status === 'PENDING' ) {
+      console.log('trueee---')
       whereClause = `WHERE ${groupBy ? groupBy : 'repurchases.process_id'} = ?`;
+      whereClause += ` AND repurchases.status = '${status}'`;
     }
 
     if (status && status === 'PENDING' && groupBy == 'repurchases.created_by') {
+      whereClause += ` AND repurchases.status = '${status}'`;
+    }
+    
+    if (status && status === 'PENDING' && groupBy == undefined) {
       whereClause += ` AND repurchases.status = '${status}'`;
     }
 
@@ -3408,47 +3435,139 @@ LEFT OUTER JOIN
       const result = await executeQuery(query);
       return result;
    },
-   // Função para atualizar o status de uma recompra (aprovar ou rejeitar)
-   updateRepurchaseStatus: async function ({ repurchase_id, status, user_id }) {
-   // Determina a coluna para o usuário que realiza a ação, baseada no status
-   let actionColumn;
-   let actionType;
+   GetRepurchasesInfoProcess: async function (process_id) {
+      const processValues = await executeQuerySQL(`SELECT
+         Lmd.IdLogistica_House,
+         Lmd.Lucro_Estimado,
+         Lmd.Lucro_Efetivo,
+         Lmd.Lucro_Abertura,
+         Pss.Nome AS Cliente,
+         Imp.Nome AS Importador,
+         Exp.Nome AS Exportador,
+         Vem.Nome AS Vendedor,
+         Lhs.Numero_Processo
+      FROM
+         mov_Logistica_Moeda Lmd
+         LEFT OUTER JOIN mov_Logistica_House Lhs ON Lhs.IdLogistica_House = Lmd.IdLogistica_House
+         LEFT OUTER JOIN cad_pessoa Pss ON Pss.IdPessoa = Lhs.IdCliente
+         LEFT OUTER JOIN cad_pessoa Imp ON Imp.IdPessoa = Lhs.IdImportador
+         LEFT OUTER JOIN cad_pessoa Exp ON Exp.IdPessoa = Lhs.IdExportador
+         LEFT OUTER JOIN cad_pessoa Vem ON Vem.IdPessoa = Lhs.IdVendedor
+      WHERE
+         Lmd.IdMoeda = 110 /* Real */
+         AND Lmd.IdLogistica_House = ${process_id}`);
 
-   if (status === 'APPROVED') {
-      actionColumn = 'approved_by';
-      actionType = 'APPROVAL';
-   } else if (status === 'REJECTED') {
-      actionColumn = 'rejected_by';
-      actionType = 'REJECTION';
-   } else if (status === 'CANCELED') {
-      actionColumn = 'canceled_by';
-      actionType = 'CANCELLATION';
-   } else {
-      throw new Error('Status inválido');
-   }
+      const fees = await executeQuerySQL(`SELECT
+      Ltx.IdLogistica_House,
+      Ltx.IdTaxa_Logistica_Exibicao,
+      Tle.Nome AS Taxa,
+      Mda.Sigla,
+      'Recebimento' AS Tipo,
+      COALESCE(Lfc.Fator_Conversao, 1) AS Fator_Conversao,
+      CASE
+         WHEN Ltx.IdMoeda_Recebimento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Recebimento_Total * Lfc.Fator_Conversao), 2)
+         ELSE Ltx.Valor_Recebimento_Total
+      END AS Valor_Total_Convertido
+   FROM
+      mov_Logistica_Taxa Ltx
+   LEFT OUTER JOIN
+      vis_Logistica_Fatura Vlf ON Vlf.IdRegistro_Financeiro = Ltx.IdRegistro_Recebimento
+   LEFT OUTER JOIN
+      mov_Logistica_Fatura_Conversao Lfc ON Lfc.IdLogistica_Fatura = Vlf.IdRegistro_Financeiro AND Ltx.IdMoeda_Recebimento = Lfc.IdMoeda_Origem
+   LEFT OUTER JOIN
+      cad_Moeda Mda ON Mda.IdMOeda = Ltx.IdMoeda_Recebimento
+   LEFT OUTER JOIN
+      cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
+   WHERE
+      Ltx.IdLogistica_House = ${process_id}
+      AND Ltx.IdRegistro_Recebimento IS NOT NULL
+   UNION ALL
+   SELECT
+      Ltx.IdLogistica_House,
+      Ltx.IdTaxa_Logistica_Exibicao,
+      Tle.Nome AS Taxa,
+      Mda.Sigla,
+      'Pagamento' AS Tipo,
+      COALESCE(Lfc.Fator_Conversao, 1) AS Fator_Conversao,
+      CASE
+         WHEN Ltx.IdMoeda_Pagamento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Pagamento_Total * Lfc.Fator_Conversao), 2)
+         ELSE Ltx.Valor_Pagamento_Total
+      END AS Valor_Total_Convertido
+   FROM
+      mov_Logistica_Taxa Ltx
+   LEFT OUTER JOIN
+      vis_Logistica_Fatura Vlf ON Vlf.IdRegistro_Financeiro = Ltx.IdRegistro_Pagamento
+   LEFT OUTER JOIN
+      mov_Logistica_Fatura_Conversao Lfc ON Lfc.IdLogistica_Fatura = Vlf.IdRegistro_Financeiro AND Ltx.IdMoeda_Pagamento = Lfc.IdMoeda_Origem
+   LEFT OUTER JOIN
+      cad_Moeda Mda ON Mda.IdMOeda = Ltx.IdMoeda_Pagamento
+   LEFT OUTER JOIN
+      cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
+   WHERE
+      Ltx.IdLogistica_House = ${process_id}
+      AND Ltx.IdRegistro_Pagamento IS NOT NULL`);
 
-   let timeAproved = '';
-   if(status === 'APPROVED'){
-      timeAproved = ', approved_date = CURRENT_TIMESTAMP';
-   }
+      return {processValues, fees};
 
-   // Atualiza o status da recompra e o colaborador responsável pela ação
-   const queryUpdateStatus = `
-      UPDATE repurchases 
-      SET status = ?, modification_date = CURRENT_TIMESTAMP, ${actionColumn} = ? ${timeAproved}
-      WHERE id = ?
-   `;
-   await executeQuery(queryUpdateStatus, [status, user_id, repurchase_id]);
-
-   // Insere a ação no histórico
-   const queryInsertHistory = `
-      INSERT INTO repurchase_history (repurchase_id, collaborator_id, action_type)
-      VALUES (?, ?, ?)
-   `;
-   await executeQuery(queryInsertHistory, [repurchase_id, user_id, actionType]);
-
-   return { message: `Recompra ${status.toLowerCase()} com sucesso` };
    },
+   // Função para atualizar o status de uma recompra (aprovar ou rejeitar)
+   updateRepurchaseStatus: async function ({ repurchase_id, status, user_id, reason }) {
+      // Determina a coluna para o usuário que realiza a ação, baseada no status
+      let actionColumn;
+      let actionType;
+  
+      if (status === 'APPROVED') {
+          actionColumn = 'approved_by';
+          actionType = 'APPROVAL';
+      } else if (status === 'REJECTED') {
+          actionColumn = 'rejected_by';
+          actionType = 'REJECTION';
+      } else if (status === 'CANCELED') {
+          actionColumn = 'canceled_by';
+          actionType = 'CANCELLATION';
+      } else if (status === 'PENDING') {
+         actionColumn = 'canceled_by';
+         actionType = 'MODIFICATION';
+      } else {
+          throw new Error('Status inválido');
+      }
+  
+      let timeApproved = '';
+      if (status === 'APPROVED') {
+          timeApproved = ', approved_date = CURRENT_TIMESTAMP';
+      }
+  
+      // Atualiza o status da recompra, o colaborador responsável e o motivo (se houver)
+      const queryUpdateStatus = `
+          UPDATE repurchases 
+          SET status = ?, modification_date = CURRENT_TIMESTAMP, ${actionColumn} = ?
+          ${reason && status === 'REJECTED' ? ', reason = ?' : ''}
+          ${timeApproved}
+          WHERE id = ?
+      `;
+      const queryParams = [status, user_id];
+      if (reason && status === 'REJECTED') {
+          queryParams.push(reason);
+      }
+      queryParams.push(repurchase_id);
+  
+      await executeQuery(queryUpdateStatus, queryParams);
+  
+      // Insere a ação no histórico, incluindo o motivo, se aplicável
+      const queryInsertHistory = `
+          INSERT INTO repurchase_history (repurchase_id, collaborator_id, action_type, reason)
+          VALUES (?, ?, ?, ?)
+      `;
+      await executeQuery(queryInsertHistory, [
+          repurchase_id,
+          user_id,
+          actionType,
+          reason || null
+      ]);
+  
+      return { message: `Recompra ${status.toLowerCase()} com sucesso` };
+   },
+  
    // Função para obter o histórico de uma recompra específica
    getRepurchaseHistory: async function(repurchase_id){
       const query = `

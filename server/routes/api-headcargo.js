@@ -319,6 +319,18 @@ router.get('/GetRepurchasesPayment', async (req, res, next) => {
 });
 
 // Rota para obter recompras por processo
+router.get('/GetRepurchasesInfoProcess', async (req, res, next) => {
+    const { process_id } = req.query;
+    try {
+        const result = await headcargo.GetRepurchasesInfoProcess(process_id);
+        res.status(200).json(result);
+    } catch (error) {
+        console.log(error);
+        res.status(404).json('Erro ao buscar recompras');
+    }
+});
+
+// Rota para obter recompras por processo
 router.post('/GetRepurchasesPaymentDetails', async (req, res, next) => {
     const { unique_id } = req.body;
     try {
@@ -515,15 +527,32 @@ router.post('/mark-as-paid', async (req, res) => {
     }
 });
 
+router.post('/revert-payment', async (req, res) => {
+    const { ids, uniques } = req.body;
+
+
+    if (!ids || !Array.isArray(ids)) {
+        return res.status(400).json({ error: 'IDs inválidos' });
+    }
+
+    try {
+        await headcargo.revertPayment(ids, uniques);
+        res.status(200).json({ success: true, message: 'Pagamentos revertidos com sucesso.' });
+    } catch (error) {
+        console.error('Erro ao reverter pagamentos:', error);
+        res.status(500).json({ error: 'Erro ao reverter pagamento(s).' });
+    }
+});
+
+
 
 
 // Rota para aprovar ou rejeitar uma recompra
 router.post('/UpdateRepurchaseStatus', async (req, res, next) => {
-    const { repurchase_id, status, user_id } = req.body;
-
+    const { repurchase_id, status, user_id, reason = null } = req.body;
 
     try {
-        const result = await headcargo.updateRepurchaseStatus({ repurchase_id, status, user_id });
+        const result = await headcargo.updateRepurchaseStatus({ repurchase_id, status, user_id, reason });
         io.emit('updateRepurchase', '')
         res.status(200).json(result);
     } catch (error) {

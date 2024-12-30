@@ -104,16 +104,47 @@ async function generateTable(status = 'PENDING', groupBy) {
     });
 }
 
+
+async function viewRejectionReason(reason) {
+    try {
+        if (reason) {
+            Swal.fire({
+                title: 'Motivo da Rejeição',
+                text: reason,
+                icon: 'info',
+                confirmButtonText: 'Fechar'
+            });
+        } else {
+            Swal.fire({
+                title: 'Motivo não encontrado',
+                text: 'Nenhum motivo registrado para esta rejeição.',
+                icon: 'warning',
+                confirmButtonText: 'Fechar'
+            });
+        }
+    } catch (error) {
+        console.error('Erro ao buscar motivo da rejeição:', error);
+        Swal.fire({
+            title: 'Erro',
+            text: 'Não foi possível buscar o motivo da rejeição.',
+            icon: 'error',
+            confirmButtonText: 'Fechar'
+        });
+    }
+}
+
+
 // Função para mostrar os detalhes das taxas de recompra de um processo específico
 async function showRepurchaseDetails(processId, status, button) {
     try {
         if(button){
             button.setAttribute('disabled', 'true');
         }
-        console.log(processId, status)
         const userLogged = await getInfosLogin();
         
         const details = await makeRequest(`/api/headcargo/repurchase-management/GetFeesByProcess`, 'POST', { processId, status, groupBy:currentGrouping });
+
+        console.log(details)
 
         // Função auxiliar para formatar moeda BRL
         function formatCurrency(value, currency) {
@@ -137,6 +168,10 @@ async function showRepurchaseDetails(processId, status, button) {
             }else if(fee.status === 'APPROVED'){
                 return `
                     <a href="javascript:void(0);" class="btn btn-sm btn-danger" title="Cancelar" onclick="alterStatus(${fee.id},'REJECTED')">Rejeitar</a>
+                `;
+            } else if (fee.status === 'REJECTED') {
+                return `
+                    <a href="javascript:void(0);" class="btn btn-sm btn-primary" title="Visualizar Motivo" onclick="viewRejectionReason('${fee.reason}')">Motivo</a>
                 `;
             }
             return '';
@@ -183,6 +218,7 @@ async function showRepurchaseDetails(processId, status, button) {
 
                 return `
                 <tr>
+                    <td style="${styleDisabled}"><span style="cursor: pointer" class="d-block fw-bold fs-15 text-warning" onclick="OpenDetailsProcess('${fee.process_id}',this)">${fee.referenceProcess}</span></td>
                     <td style="${styleDisabled}">${fee.fee_name}</td>
                     <td style="${styleDisabled}">${oldPurchaseValueCell}</td>
                     <td style="${styleDisabled}">${newPurchaseValueCell}</td>
@@ -204,6 +240,7 @@ async function showRepurchaseDetails(processId, status, button) {
             <table class="table table-sm table-bordered mt-2">
                 <thead>
                     <tr>
+                        <th>Processo</th>
                         <th>Nome da Taxa</th>
                         <th>Antiga Compra</th>
                         <th>Nova Compra</th>
@@ -250,8 +287,21 @@ async function showRepurchaseDetails(processId, status, button) {
 
 
 
+async function OpenDetailsProcess(process_id){
+    // Obtém o tamanho da tela
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
 
+    // Calcula a posição central
+    const width = screenWidth / 1.8;
+    const height = screenHeight / 1.2;
 
+    openWindow('/app/operational/repurchase-management/open-process?processId='+process_id, width, height);
+    // const process = await makeRequest('/api/headcargo/repurchase-management/GetRepurchasesInfoProcess?process_id='+process_id);
+    // console.log(process)
+    
+    
+}
 
 async function getInfosLogin() {
     const StorageGoogleData = localStorage.getItem('StorageGoogle');
@@ -268,7 +318,45 @@ async function alterStatus(id, status) {
         'PAID': 'Pago',
     };
 
-    if(status != 'APPROVED'){
+    const userLogged = await getInfosLogin();
+
+    if (status === 'APPROVED') {
+        await makeRequest('/api/headcargo/repurchase-management/UpdateRepurchaseStatus', 'POST', {
+            repurchase_id: id,
+            status: status,
+            user_id: userLogged.system_collaborator_id
+        });
+    } else if (status === 'REJECTED') {
+        Swal.fire({
+            title: `Deseja realmente rejeitar a recompra?`,
+            input: 'textarea',
+            inputLabel: 'Motivo da rejeição',
+            inputPlaceholder: 'Escreva o motivo aqui...',
+            inputAttributes: {
+                'aria-label': 'Escreva o motivo da rejeição'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Rejeitar',
+            cancelButtonText: 'Cancelar',
+            preConfirm: (reason) => {
+                if (!reason) {
+                    Swal.showValidationMessage('O motivo da rejeição é obrigatório.');
+                }
+                return reason;
+            }
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const reason = result.value; // Motivo inserido pelo usuário
+                await makeRequest('/api/headcargo/repurchase-management/UpdateRepurchaseStatus', 'POST', {
+                    repurchase_id: id,
+                    status: status,
+                    reason: reason, // Inclua o motivo no payload
+                    user_id: userLogged.system_collaborator_id
+                });
+                Swal.fire('Rejeitado!', 'A recompra foi rejeitada com sucesso.', 'success');
+            }
+        });
+    } else {
         Swal.fire({
             title: `Deseja realmente alterar o status para ${statusMap[status]}?`,
             showDenyButton: true,
@@ -278,15 +366,14 @@ async function alterStatus(id, status) {
             if (result.isDenied) {
                 return;
             } else if (result.isConfirmed) {
-                const userLogged = await getInfosLogin();
-                await makeRequest('/api/headcargo/repurchase-management/UpdateRepurchaseStatus', 'POST', { repurchase_id: id, status: status, user_id: userLogged.system_collaborator_id });
+                await makeRequest('/api/headcargo/repurchase-management/UpdateRepurchaseStatus', 'POST', {
+                    repurchase_id: id,
+                    status: status,
+                    user_id: userLogged.system_collaborator_id
+                });
             }
         });
-    }else{
-        const userLogged = await getInfosLogin();
-        await makeRequest('/api/headcargo/repurchase-management/UpdateRepurchaseStatus', 'POST', { repurchase_id: id, status: status, user_id: userLogged.system_collaborator_id });
     }
- 
 }
 
 function hideLoader() {

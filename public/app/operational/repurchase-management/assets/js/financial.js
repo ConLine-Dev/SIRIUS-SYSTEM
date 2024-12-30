@@ -377,12 +377,12 @@ async function showRepurchaseDetailsPayment(unique_id, button) {
         
         const AllRepurchase = await makeRequest(`/api/headcargo/repurchase-management/GetRepurchasesPaymentDetails`, 'POST', { unique_id:unique_id});
 
-
+        console.log(AllRepurchase)
         // Gera as linhas de detalhes
         let detailRows = AllRepurchase.map(fee => {
 
                 return `
-                <tr data-id="${fee.fee_id}">
+                <tr data-id="${fee.fee_id}" data-repurchasesID="${fee.id}" data-unique_id="${fee.unique_id}">
                     <td>${fee.reference_process}</td>
                     <td>${fee.fullpaid_formated}</td>
                     <td>${fee.fee_name}</td>
@@ -397,6 +397,7 @@ async function showRepurchaseDetailsPayment(unique_id, button) {
                     <td>${fee.fullNameAproved}</td>
                     <td>${formatarData(fee.payment_date)}</td>
                     <td>${fee.percent_repurchase_comission_formated}</td>
+                    
                    
                 </tr>
             `;
@@ -404,6 +405,17 @@ async function showRepurchaseDetailsPayment(unique_id, button) {
 
                     
         }).join('');
+
+        detailRows += `
+        <tr>
+        <td colspan="13" style="text-align: left; color: gray; font-style: italic;">
+             
+        </td>
+        <td colspan="1" style="text-align: left; color: gray; font-style: italic;">
+        <button style="width: 100%" class="btn btn-sm btn-primary" onclick="revertPayment(this)">Reverter Baixa</button>
+        </td>
+    </tr>
+    `;
 
    
 
@@ -601,6 +613,51 @@ async function generatePDF(userID, e) {
         console.error('Erro:', error);
     }
 }
+
+async function revertPayment(button) {
+    try {
+        // Desabilita o botão
+        button.setAttribute('disabled', 'true');
+        button.innerText = 'Processando...';
+
+        // Captura todos os IDs das recompras listadas na tabela
+        const rows = button.closest('table').querySelectorAll('tr[data-repurchasesID]');
+        const repurchaseIds = Array.from(rows).map(row => row.dataset.repurchasesID);
+        const repurchaseUniques = Array.from(rows).map(row => row.dataset.unique_id);
+
+        if (repurchaseUniques.length === 0) {
+            alert('Nenhuma recompra disponível para reversão.');
+            return;
+        }
+
+        if (repurchaseIds.length === 0) {
+            alert('Nenhuma recompra disponível para reversão.');
+            return;
+        }
+
+        // Envia os IDs ao servidor
+        const response = await fetch('/api/headcargo/repurchase-management/revert-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids: repurchaseIds, uniques:repurchaseUniques })
+        });
+
+        if (response.ok) {
+            alert('Pagamentos revertidos com sucesso!');
+            button.innerText = 'Concluído';
+            table['table_repurchase_user'].ajax.reload(null, false); // Atualiza a tabela
+        } else {
+            alert('Erro ao reverter pagamento(s).');
+            button.removeAttribute('disabled');
+            button.innerText = 'Reverter Pagamento';
+        }
+    } catch (error) {
+        console.error('Erro ao reverter pagamento(s):', error);
+        button.removeAttribute('disabled');
+        button.innerText = 'Reverter Pagamento';
+    }
+}
+
 
 
 

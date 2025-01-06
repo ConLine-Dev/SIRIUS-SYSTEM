@@ -36,11 +36,12 @@ async function getfees(reference) {
 }
 
 function createDatatable(data) {
-
+  
     if (data.length > 0) {
-        document.querySelector('[name=EstimatedProfit]').value = data[0].Lucro_Estimado;
-        document.querySelector('[name=OpeningProfit]').value = data[0].Lucro_Abertura;
-        document.querySelector('[name=EfetiveProfit]').value = data[0].Lucro_Efetivo;
+        
+        document.querySelector('[name=EstimatedProfit]').value = (data[0].Lucro_Estimado).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        document.querySelector('[name=OpeningProfit]').value = (data[0].Lucro_Abertura).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        document.querySelector('[name=EfetiveProfit]').value = (data[0].Lucro_Efetivo).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
     if (table['tableTaxasProcessos']) {
@@ -58,18 +59,24 @@ function createDatatable(data) {
             {
                 data: 'idTaxa',
                 render: function(data, type, row) {
-                    return `<input type="checkbox" class="form-check-input checkbox-row" id="${data}">`;
+                    return `<input type="checkbox" ${row.inativo ? `disabled` : ''} class="form-check-input checkbox-row" id="${data}">`;
                 },
                 orderable: false,
             },
             {
                 data: 'idTaxa',
                 render: function(data, type, row) {
-                    return `<input type="checkbox" class="form-check-input checkbox-zero" id="zero-${data}" style="margin-left: 10px;" title="Zerar valores antigos">`;
+                    return `<input type="checkbox" ${row.inativo ? `disabled` : ''} class="form-check-input checkbox-zero" id="zero-${data}" style="margin-left: 10px;" title="Zerar valores antigos">`;
                 },
                 orderable: false,
             },
-            { data: 'Nome_Taxa' },
+            {
+                data: 'Nome_Taxa',
+                render: function(data, type, row) {
+                    // Adiciona a indicação "Taxa em aberto" ao lado do nome da taxa, se estiver inativa
+                    return row.inativo ? `${data} <span class="text-danger">(Taxa em aberto)</span>` : data;
+                }
+            },
             {
                 data: 'Valor_Pagamento_Total',
                 render: function(data, type, row) {
@@ -85,12 +92,19 @@ function createDatatable(data) {
                 },
             }
         ],
+        createdRow: function(row, data, dataIndex) {
+            // Adiciona a classe 'row-inativo' se a taxa for inativa
+            if (data.inativo) {
+                $(row).addClass('row-inativo');
+            }
+        },
         language: {
             searchPlaceholder: 'Pesquisar...',
             sSearch: '',
             url: '../../assets/libs/datatables/pt-br.json'
         }
     });
+    
 
     $('#tableTaxasProcessos tbody').on('change', '.checkbox-row', function() {
         const checkbox = $(this);

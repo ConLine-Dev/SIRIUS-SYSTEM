@@ -2487,8 +2487,22 @@ LEFT OUTER JOIN
     `;
 
       const registers = await executeQuerySQL(sql)
+
+      const repurchase = await executeQuery(`SELECT * FROM repurchases WHERE referenceProcess = '${reference}'`);
+
+
+      // Adiciona o status inativo às recompensas relevantes
+      const updatedRegisters = registers.map(item => {
+         const repurchaseItem = repurchase.find(
+            r => r.fee_id === item.idTaxa && r.status !== 'CANCELED' && r.status !== 'REJECTED'
+         );
+         if (repurchaseItem) {
+            return { ...item, inativo: true };
+         }
+         return item;
+      });
       
-      return registers;
+      return updatedRegisters;
    
    },
    getAllProcessByRef: async function(reference){
@@ -3068,7 +3082,10 @@ LEFT OUTER JOIN
             <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.newPurchaseValueCell}</td>
             <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.oldSaleValueCell}</td>
             <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.newSaleValueCell}</td>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.percentRepurchaseComissionFormated}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${new Intl.NumberFormat('pt-BR', { 
+               style: 'currency', 
+               currency: 'BRL' 
+           }).format(item.valueRepurchaseComission)}</td>
          </tr> `
       }).join('');
 
@@ -3129,14 +3146,7 @@ LEFT OUTER JOIN
           </p>
         </td>
         <!-- Valor Comissão -->
-        <td style="padding:5px; font-family: Arial, sans-serif;">
-          <p style="margin:0; font-size:16px; font-weight:bold; color:#333;">
-            Valor Comissão
-          </p>
-          <p style="margin:5px 0 0; font-size:20px; color:#f9423a; font-weight:bold;">
-            ${commision}
-          </p>
-        </td>
+       
       </tr>
     </table>
   </div>
@@ -3214,7 +3224,7 @@ LEFT OUTER JOIN
                 padding: 8px;
                 text-align: left;
               ">
-              Comissão
+              Total
             </th>
           </tr>
         </thead>
@@ -3361,7 +3371,7 @@ LEFT OUTER JOIN
           console.error('Erro ao reverter pagamento:', error);
           throw new Error('Erro ao reverter pagamento.');
       }
-  },
+   },
   
    getRepurchasesByProcess: async function(processId, status, userID, groupBy){
     // Construção da cláusula WHERE dinamicamente, levando em consideração o status

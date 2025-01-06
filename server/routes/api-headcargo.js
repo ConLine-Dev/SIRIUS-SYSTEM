@@ -402,8 +402,13 @@ router.post('/generate-pdf', async (req, res) => {
               <td>${item.newPurchaseValueCell}</td>
               <td>${item.oldSaleValueCell}</td>
               <td>${item.newSaleValueCell}</td>
-              <td>${item.percentRepurchaseComissionFormated}</td>
+              <td>${new Intl.NumberFormat('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL' 
+            }).format(item.valueRepurchaseComission)}</td>
           </tr>`).join('');
+
+          ;
 
         const name = repurchase[0].fullName;
 
@@ -469,7 +474,7 @@ router.post('/generate-pdf', async (req, res) => {
                 <tr>
                     <td>Recompras: <p><span>${repurchase.length}</span></p></td>
                     <td>Total em Recompras: <p><span>${total}</span></p></td>
-                    <td>Valor Comissão: <p><span>${commision}</span></p></td>
+                
                 </tr>
             </table>
     
@@ -483,7 +488,7 @@ router.post('/generate-pdf', async (req, res) => {
                         <th>Nova Compra</th>
                         <th>Venda</th>
                         <th>Nova Venda</th>
-                        <th>Comissão</th>
+                        <th>Total</th>
                     </tr>
                 </thead>
                 <tbody>

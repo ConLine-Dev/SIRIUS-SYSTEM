@@ -146,8 +146,10 @@ async function showRepurchaseDetails(processId, status, button) {
                 return `<a href="javascript:void(0);" class="btn btn-sm btn-danger-light" title="Cancelar" onclick="alterStatus(${fee.id},'CANCELED')">Cancelar</a>`;
 
             }else if(fee.status === 'CANCELED'){
+
+                return ``;
                 return `
-                    <a href="javascript:void(0);" class="btn btn-sm btn-danger" title="Desfazer" onclick="alterStatus(${fee.id},'PENDING')">Desfazer</a>
+                    // <a href="javascript:void(0);" class="btn btn-sm btn-danger" title="Desfazer" onclick="alterStatus(${fee.id},'PENDING')">Desfazer</a>
                 `;
             } else if (fee.status === 'REJECTED') {
                 return `
@@ -202,21 +204,37 @@ async function showRepurchaseDetails(processId, status, button) {
 
             const buttons = generateActionButtons(fee);
 
-            return `
+             // Linha principal
+            let row = `
+            <tr>
+                <td style="${styleDisabled}">${fee.fee_name}</td>
+                <td style="${styleDisabled}">${oldPurchaseValueCell}</td>
+                <td style="${styleDisabled}">${newPurchaseValueCell}</td>
+                <td style="${styleDisabled}"><span class="mb-0 fw-semibold">${purchaseDifference}</span></td>
+                <td style="${styleDisabled}">${oldSaleValueCell}</td>
+                <td style="${styleDisabled}">${newSaleValueCell}</td>
+                <td style="${styleDisabled}"><span class="mb-0 fw-semibold">${saleDifference}</span></td>
+                <td style="${styleDisabled}">${fee.fullName}</td>
+                <td style="${styleDisabled}">${formatarData(fee.creation_date)}</td>
+                <td style="${styleDisabled}">${statusMap[fee.status]}</td>
+                <td style="${styleDisabled}">${buttons}</td>
+            </tr>
+        `;
+
+        // Linha adicional para 'reason', se existir
+        if (fee.reason) {
+            row += `
                 <tr>
-                    <td style="${styleDisabled}">${fee.fee_name}</td>
-                    <td style="${styleDisabled}">${oldPurchaseValueCell}</td>
-                    <td style="${styleDisabled}">${newPurchaseValueCell}</td>
-                    <td style="${styleDisabled}"><span class="mb-0 fw-semibold">${purchaseDifference}</span></td>
-                    <td style="${styleDisabled}">${oldSaleValueCell}</td>
-                    <td style="${styleDisabled}">${newSaleValueCell}</td>
-                    <td style="${styleDisabled}"><span class="mb-0 fw-semibold">${saleDifference}</span></td>
-                    <td style="${styleDisabled}">${fee.fullName}</td>
-                    <td style="${styleDisabled}">${formatarData(fee.creation_date)}</td>
-                    <td style="${styleDisabled}">${statusMap[fee.status]}</td>
-                    <td style="${styleDisabled}">${buttons}</td>
+                    <td colspan="11" style="border-left: 4px solid #28a745; text-align: center; padding: 10px;">
+                        <strong style="font-size: 0.8em; display: block; margin-bottom: 2px;opacity:0.5">↑ Observação da Recompra ↑</strong>
+                        <span style="font-size: 1em;">${fee.reason}</span>
+                    </td>
                 </tr>
             `;
+        }
+        
+
+        return row;
         }).join('');
 
         // Define a estrutura da tabela de detalhes

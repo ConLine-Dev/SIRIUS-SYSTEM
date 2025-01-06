@@ -260,9 +260,9 @@ async function showRepurchaseDetails(processId, status, button) {
 
                 totalPurchase += (fee.sale_value - fee.old_sale_value) + (fee.old_purchase_value - fee.purchase_value)
 
-                return `
+                let row = `
                 <tr data-id="${fee.id}">
-                    <td style="${styleDisabled}">${fee.referenceProcess}</td>
+                    <td style="${styleDisabled}"><span style="cursor: pointer" class="d-block fw-bold fs-15 text-warning" onclick="OpenDetailsProcess('${fee.process_id}',this)">${fee.referenceProcess}</span></td>
                     <td style="${styleDisabled}">${fee.fullpaidFormated}</td>
                     <td style="${styleDisabled}">${fee.fee_name}</td>
                     <td style="${styleDisabled}">${fee.oldPurchaseValueCell}</td>
@@ -280,6 +280,19 @@ async function showRepurchaseDetails(processId, status, button) {
             `;
 
 
+            // Linha adicional para 'reason', se existir
+            if (fee.reason) {
+                row += `
+                    <tr>
+                        <td colspan="14" style="border-left: 4px solid #28a745; text-align: center; padding: 10px;">
+                            <strong style="font-size: 0.8em; display: block; margin-bottom: 2px;opacity:0.5">↑ Observação da Recompra ↑</strong>
+                            <span style="font-size: 1em;">${fee.reason}</span>
+                        </td>
+                    </tr>
+                `;
+            }
+
+            return row;
                     
         }).join('');
 
@@ -296,17 +309,7 @@ async function showRepurchaseDetails(processId, status, button) {
                     ${AllRepurchase.totalRepurchaseFomated}
                 </td>
             </tr>
-            <tr>
-                <td colspan="12" style="text-align: left; color: gray; font-style: italic;">
-                     
-                </td>
-                <td colspan="1" style="text-align: right; color: gray; font-style: italic;">
-                      Valor Comissão
-                </td>
-                <td colspan="1" style="text-align: left; color: gray; font-style: italic;">
-                    ${AllRepurchase.commisionFormated}
-                </td>
-            </tr>
+          
             <tr>
             <td colspan="13" style="text-align: left; color: gray; font-style: italic;">
                  
@@ -364,6 +367,22 @@ async function showRepurchaseDetails(processId, status, button) {
             button.removeAttribute('disabled');
         }
     }
+}
+
+async function OpenDetailsProcess(process_id){
+    // Obtém o tamanho da tela
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    // Calcula a posição central
+    const width = screenWidth / 1.8;
+    const height = screenHeight / 1.2;
+
+    openWindow('/app/operational/repurchase-management/open-process?processId='+process_id, width, height);
+    // const process = await makeRequest('/api/headcargo/repurchase-management/GetRepurchasesInfoProcess?process_id='+process_id);
+    // console.log(process)
+    
+    
 }
 
 // Função para mostrar os detalhes das taxas de recompra de um processo específico

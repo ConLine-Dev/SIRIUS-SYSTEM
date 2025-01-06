@@ -216,7 +216,7 @@ async function showRepurchaseDetails(processId, status, button) {
 
             const actionButtons = generateActionButtons(fee);
 
-                return `
+            let row = `
                 <tr>
                     <td style="${styleDisabled}"><span style="cursor: pointer" class="d-block fw-bold fs-15 text-warning" onclick="OpenDetailsProcess('${fee.process_id}',this)">${fee.referenceProcess}</span></td>
                     <td style="${styleDisabled}">${fee.fee_name}</td>
@@ -232,7 +232,20 @@ async function showRepurchaseDetails(processId, status, button) {
                     <td style="${styleDisabled}">${actionButtons}</td>
                 </tr>
             `;
-                    
+
+            // Linha adicional para 'reason', se existir
+            if (fee.reason) {
+                row += `
+                    <tr>
+                        <td colspan="12" style="border-left: 4px solid #28a745; text-align: center; padding: 10px;">
+                            <strong style="font-size: 0.8em; display: block; margin-bottom: 2px;opacity:0.5">↑ Observação da Recompra ↑</strong>
+                            <span style="font-size: 1em;">${fee.reason}</span>
+                        </td>
+                    </tr>
+                `;
+            }
+        
+            return row;  
         }).join('');
 
         // Define a estrutura da tabela de detalhes

@@ -34,6 +34,7 @@ const api_rh_payroll = require('./api-rh-payroll');
 const api_internal_comments = require('./api-internal-comments');
 const api_part_lot = require('./api-part-lot');
 const api_external_systems = require('./api-external-systems');
+const api_maritime_import_main = require('./api-maritime-import-main');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -162,6 +163,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-external-systems.js oi
   router.use('/external-systems', api_external_systems(io));
+
+  // Use as rotas do arquivo api-maritime-import-main.js oi
+  router.use('/maritime-import-main', api_maritime_import_main(io));
 
   return router;
 };

@@ -60,6 +60,7 @@ const cashFlow = {
          WHERE
             Lmo.IdMoeda = 110 -- BRL
             AND Lhs.Numero_Processo NOT LIKE '%test%'
+            AND Lhs.Situacao_Agenciamento NOT IN (7)
             ${dateFilter}
       `)
       return result;

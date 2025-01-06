@@ -1,6 +1,84 @@
-/**
- * Inicializa os componentes do editor de texto Quill e FilePond.
- */
+let sAllResponsible
+
+// Função para listar os responsáveis
+async function getAllUsersActive() {
+    const listAllUsersActive = await makeRequest(`/api/users/listAllUsersActive`);
+
+    const listUsers = listAllUsersActive.map(function (element) {
+        return {
+            value: `${element.id_colab}`,
+            label: `${element.username + ' ' + element.familyName}`,
+        }
+    });
+
+    if (sAllResponsible) {
+        sAllResponsible.destroy();
+    }
+
+    sAllResponsible = new Choices('select[name="responsible"]', {
+        choices: listUsers,
+        shouldSort: false,
+        removeItemButton: false,
+        noChoicesText: 'Não há opções disponíveis',
+    });
+};
+
+// Função para preenchimento automático dos responsáveis
+async function setDefaultValues() {
+    const user = await getInfosLogin()
+    const idCollaborator = (user.system_collaborator_id).toString();
+
+    sAllResponsible.setChoicesByValue(idCollaborator)
+};
+
+// Verifica informações no localStorage do usuario logado
+async function getInfosLogin() {
+    const StorageGoogleData = localStorage.getItem('StorageGoogle');
+    const StorageGoogle = JSON.parse(StorageGoogleData);
+    return StorageGoogle;
+};
+
+// Função para os valores de qualquer selected
+async function getSelectValues(selectName) {
+    const selectElement = document.querySelector(`select[name="${selectName}"]`);
+    if (selectElement) {
+       const selectedOptions = Array.from(selectElement.selectedOptions);
+       if (!selectedOptions || selectedOptions.length === 0 || selectedOptions[0].value === '') {
+          return undefined;
+       } else {
+          const selectedValues = selectedOptions.map(option => option.value);
+          return selectedValues;
+       }
+    } else {
+       return undefined;
+    }
+};
+
+// Função para verificar se os selects estão preenchidos
+async function getValuesFromSelects() {
+
+    let selectNames = [
+        {name: 'responsible', message: 'O campo RESPONSÁVEL é obrigatório.'},
+    ];
+
+    let allValid = true;
+
+    for (let i = 0; i < selectNames.length; i++) {
+        const selectName = selectNames[i];
+        const values = await getSelectValues(selectName.name);
+        if (!values || values.length === 0) {
+            Swal.fire(`${selectName.message}`);
+            allValid = false;
+            break;
+        }
+        
+    }
+
+    return allValid;
+    
+};
+
+// Inicializa os componentes do editor de texto Quill e FilePond.
 async function initializeComponents() {
     // Configuração do editor Quill
     const toolbarOptions = [
@@ -51,9 +129,29 @@ async function initializeComponents() {
             }
         });
     }
-}
+};
+
+// Esta função adiciona um evento de clique ao botão de salvar
+async function eventClick() {
+    // ==== Salvar ==== //
+    document.getElementById('btn-save').addEventListener('click', async function (){
+        const inputsValid = await getValuesFromInputs();
+        const selectsValid = await getValuesFromSelects();
+
+        if (inputsValid && selectsValid) {
+            await getForm();
+        }
+        
+    })
+    // ==== /Salvar ==== //
+};
+
 
 document.addEventListener("DOMContentLoaded", async () => {
+
+    await getAllUsersActive();
+    await setDefaultValues();
+    await eventClick();
 
     await initializeComponents();
 

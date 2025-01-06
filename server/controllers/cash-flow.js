@@ -4,7 +4,8 @@ const { executeQuery } = require('../connect/mysql');
 const cashFlow = {
    // Lista todas as faturas
    totalOperation: async function (startDateGlobal, endDateGlobal) {
-      const dateFilter = startDateGlobal && endDateGlobal ? `AND (Lhs.Data_Abertura_Processo BETWEEN '${startDateGlobal}' AND '${endDateGlobal}')` : `AND DATEPART(YEAR, Lhs.Data_Abertura_Processo) = DATEPART(YEAR, GETDATE())`
+      const endDateAdjusted = endDateGlobal ? new Date(new Date(endDateGlobal).setDate(new Date(endDateGlobal).getDate() + 1)).toISOString().split('T')[0] : null;
+      const dateFilter = startDateGlobal && endDateGlobal ? `AND (Lhs.Data_Abertura_Processo >= '${startDateGlobal}' AND Lhs.Data_Abertura_Processo < '${endDateAdjusted}')` : `AND DATEPART(YEAR, Lhs.Data_Abertura_Processo) = DATEPART(YEAR, GETDATE())`
 
       let result = await executeQuerySQL(`
          SELECT

@@ -131,6 +131,66 @@ async function initializeComponents() {
     }
 };
 
+// Função para aplicar máscara dinâmica nos campos de CPF, CNPJ e telefone
+function aplicarMascara(input, tipo) {
+    const valor = input.value.replace(/\D/g, ""); // Remove caracteres não numéricos
+    let resultado = "";
+
+    if (tipo === "documento") {
+        if (valor.length <= 11) {
+            // Máscara para CPF: XXX.XXX.XXX-XX
+            resultado = valor
+                .replace(/(\d{3})(\d)/, "$1.$2")
+                .replace(/(\d{3})(\d)/, "$1.$2")
+                .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        } else {
+            // Máscara para CNPJ: XX.XXX.XXX/XXXX-XX
+            resultado = valor
+                .replace(/(\d{2})(\d)/, "$1.$2")
+                .replace(/(\d{3})(\d)/, "$1.$2")
+                .replace(/(\d{3})(\d)/, "$1/$2")
+                .replace(/(\d{4})(\d{1,2})$/, "$1-$2");
+        }
+    } else if (tipo === "telefone") {
+        if (valor.length <= 10) {
+            // Máscara para telefone fixo: (XX) XXXX-XXXX
+            resultado = valor
+                .replace(/(\d{2})(\d)/, "($1) $2")
+                .replace(/(\d{4})(\d{1,4})$/, "$1-$2");
+        } else {
+            // Máscara para celular: (XX) XXXXX-XXXX
+            resultado = valor
+                .replace(/(\d{2})(\d)/, "($1) $2")
+                .replace(/(\d{5})(\d{1,4})$/, "$1-$2");
+        }
+    }
+
+    input.value = resultado;
+}
+
+// Adiciona eventos nos campos
+document.getElementById("documento").addEventListener("input", function () {
+    aplicarMascara(this, "documento");
+});
+
+document.getElementById("telefone").addEventListener("input", function () {
+    aplicarMascara(this, "telefone");
+});
+
+// Função para formatar campos específicos
+document.getElementById("cpf").addEventListener("input", function () {
+    aplicarMascara(this, "XXX.XXX.XXX-XX");
+});
+
+document.getElementById("cnpj").addEventListener("input", function () {
+    aplicarMascara(this, "XX.XXX.XXX/XXXX-XX");
+});
+
+document.getElementById("telefone").addEventListener("input", function () {
+    aplicarMascara(this, "(XX) XXXXX-XXXX");
+});
+
+
 // Esta função adiciona um evento de clique ao botão de salvar
 async function eventClick() {
     // ==== Salvar ==== //

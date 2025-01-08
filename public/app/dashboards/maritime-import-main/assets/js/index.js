@@ -1,0 +1,265 @@
+async function printProcesses() {
+  let divNoETD = document.getElementById('noETD');
+  let printNoETD = '';
+  let divNoETA = document.getElementById('noETA');
+  let printNoETA = '';
+  let divWithETA = document.getElementById('withETA');
+  let printWithETA = '';
+  let divTotal = document.getElementById('total');
+  let printTotal = '';
+
+  printNoETD = `<h2>1</h2>`
+  printNoETA = `<h2>2</h2>`
+  printWithETA = `<h2>3</h2>`
+  printTotal = `<h2>4</h2>`
+
+  divNoETD.innerHTML = printNoETD;
+  divNoETA.innerHTML = printNoETA;
+  divWithETA.innerHTML = printWithETA;
+  divTotal.innerHTML = printTotal;
+
+  let userId = '58885';
+
+  let processes = await makeRequest(`/api/maritime-import-main/openedProcesses`, 'POST', {userId})
+
+  console.log(processes)
+}
+
+function createMailChart() {
+  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  var chartData = {
+
+    series: [{
+      name: 'Enviados',
+      data: [44, 55, 41, 64, 22, 43, 21]
+    }, {
+      name: 'Recebidos',
+      data: [53, 32, 33, 52, 13, 44, 32]
+    }],
+    chart: {
+      height: 600,
+      type: "bar",
+      stacked: false,
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        borderRadius: 2,
+        columnWidth: "40%",
+        dataLabels: {
+          position: 'top',
+        },
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      offsetX: -15,
+      style: {
+        fontSize: '12px',
+        colors: ['#fff']
+      }
+    },
+    tooltip: {
+      enabled: false
+    },
+    colors: ["#F9423A", "#3f2021"],
+    markers: {
+      size: [0, 0],
+      strokeColors: ["#F9423A", "#3f2021"],
+      strokeWidth: 2,
+      strokeOpacity: 0.9,
+      fillOpacity: 1,
+      shape: "circle",
+      showNullDataPoints: true,
+    },
+    stroke: {
+      width: [0, 5],
+      curve: "smooth",
+    },
+
+    xaxis: {
+      categories: months,
+      position: "bottom",
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+  };
+
+  var chart = new ApexCharts(document.querySelector('#mails-chart'), chartData);
+  chart.render();
+}
+
+function createCancelChart() {
+  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  var chartData = {
+
+    series: [{
+      data: [44, 55, 41, 64, 22, 43, 21]
+    }, {
+      data: [5, 2, 3, 2, 3, 4, 2]
+    }],
+    chart: {
+      height: 600,
+      type: "bar",
+      stacked: true,
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        borderRadius: 0,
+        columnWidth: "40%",
+        dataLabels: {
+          position: 'top',
+        },
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      enabledOnSeries: [0],
+      offsetX: -15,
+      style: {
+        fontSize: '12px',
+        colors: ['#fff']
+      },
+    },
+    tooltip: {
+      enabled: true,
+      shared: false,  // Mostra o tooltip para ambas as séries ao passar o mouse
+      custom: function({ series, seriesIndex, dataPointIndex, w }) {
+        const seriesAValue = series[0][dataPointIndex];
+        const seriesBValue = series[1][dataPointIndex];
+        const percentage = ((seriesBValue / seriesAValue) * 100).toFixed(2);
+    
+        return `
+          <div style="padding: 10px; font-size: 12px; border-radius: 5px; background: rgba(0, 0, 0, 0.7); color: #fff;">
+            <strong>${w.globals.labels[dataPointIndex]}</strong><br>
+            Processos abertos: ${seriesAValue}<br>
+            Processos cancelados: ${seriesBValue}<br>
+            Porcentagem de Cancelamento: ${percentage}%
+          </div>
+        `;
+      }
+    },
+    colors: ["#F9423A", "#3f2021"],
+    markers: {
+      size: [0, 0],
+      strokeColors: ["#F9423A", "#3f2021"],
+      strokeWidth: 2,
+      strokeOpacity: 0.9,
+      fillOpacity: 1,
+      shape: "circle",
+      showNullDataPoints: true,
+    },
+
+    xaxis: {
+      categories: months,
+      position: "bottom",
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+    legend: {
+      show: false
+    }
+
+  };
+
+  var chart = new ApexCharts(document.querySelector('#cancels-chart'), chartData);
+  chart.render();
+}
+
+function createRepurchaseChart() {
+  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  var chartData = {
+    series: [{
+      name: 'Inflation',
+      data: ['15.541.22', '16.412.12', '10.341.20', '16.412.12', '14.232.43', '21.333.00', '14.232.65']
+    }],
+    chart: {
+      height: 600,
+      type: 'bar',
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        borderRadius: 3,
+        dataLabels: {
+          position: 'center',
+        },
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: function (val) {
+        return "R$ " + val;
+      },
+      style: {
+        fontSize: '12px',
+        colors: ['#fff'],
+        fontWeight: 'bold',
+      },
+      offsetY: 0,
+      offsetX: 0,
+      textAnchor: 'middle'
+    },
+    tooltip: {
+      enabled: false,
+    },
+    xaxis: {
+      categories: months,
+      position: 'bottom',
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      },
+    },
+    yaxis: {
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+    colors: ["#F9423A"],
+  };
+  
+  
+
+  var chart = new ApexCharts(document.querySelector('#repurchase-chart'), chartData);
+  chart.render();
+}
+
+function openWindow(url, width, height) {
+  window.open(url, '_blank', `width=${width},height=${height},resizable=yes,scrollbars=yes`);
+}
+
+document.addEventListener('DOMContentLoaded', async function () {
+
+  await printProcesses();
+  createMailChart();
+  createCancelChart();
+  createRepurchaseChart();
+
+});

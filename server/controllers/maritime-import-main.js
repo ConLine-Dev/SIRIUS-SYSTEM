@@ -36,7 +36,6 @@ const IMMain = {
         return result;
     },
     commentsByModule: async function (moduleId) {
-
         let result = await executeQuery(`
            SELECT ic.title, ic.description, ic.comment_date,
            cl.id_headcargo, cl.name, cl.family_name, md.title as 'module'
@@ -45,6 +44,41 @@ const IMMain = {
            LEFT OUTER JOIN modules md on md.id = ic.module_id
            WHERE module_id = ${moduleId}
            ORDER BY ic.comment_date DESC`)
+
+        return result;
+     },
+     openedProcesses: async function (userId) {
+
+        console.log(userId);
+
+        return false;
+        `SELECT 
+            DATEPART(month, lhs.Data_Cancelamento) AS mes,
+            COUNT(*) AS TotalProcessosCancelados
+        FROM 
+            mov_Logistica_House lhs
+        WHERE 
+            DATEPART(year, lhs.Data_Cancelamento) = 2024
+            AND lhs.Situacao_Agenciamento = 7
+        GROUP BY 
+            DATEPART(month, lhs.Data_Cancelamento)
+        ORDER BY 
+            mes;`
+
+        let result = await executeQuery(`
+           SELECT 
+            DATEPART(month, lhs.Data_Abertura_Processo) AS mes,
+            COUNT(*) AS TotalProcessosAbertos
+        FROM 
+            mov_Logistica_House lhs
+        LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Par ON Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Par.IdPapel_Projeto = 2)
+        WHERE 
+            DATEPART(year, lhs.Data_Abertura_Processo) = 2024
+            -- AND Par.IdResponsavel = 52713
+        GROUP BY 
+            DATEPART(month, lhs.Data_Abertura_Processo)
+        ORDER BY 
+            mes;`)
 
         return result;
      },

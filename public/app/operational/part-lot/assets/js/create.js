@@ -596,13 +596,13 @@ function createTotalizer() {
                <td class="bg-success-transparent">
                    <div>
                        <span class="d-block fw-normal">Total Peso Cubado:</span> 
-                       <span class="d-block fw-bold data-peso-cubado">${totalsProcesses.totalPesoCubado}</span>
+                       <span class="d-block fw-bold data-peso-cubado">${totalsProcesses.totalPesoCubado.toFixed(3)}</span>
                    </div>
                </td>
                <td class="bg-success-transparent">
                    <div>
                        <span class="d-block fw-normal">Total Peso Bruto:</span> 
-                       <span class="d-block fw-bold data-peso-bruto">${totalsProcesses.totalPesoBruto}</span>
+                       <span class="d-block fw-bold data-peso-bruto">${totalsProcesses.totalPesoBruto.toFixed(3)}</span>
                    </div>
                </td>
            </tr>

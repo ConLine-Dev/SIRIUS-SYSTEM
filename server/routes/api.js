@@ -35,6 +35,7 @@ const api_internal_comments = require('./api-internal-comments');
 const api_part_lot = require('./api-part-lot');
 const api_external_systems = require('./api-external-systems');
 const api_maritime_import_main = require('./api-maritime-import-main');
+const api_part_lot_financial = require('./api-part-lot-financial');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -160,12 +161,15 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-part-lot .js oi
   router.use('/part-lot', api_part_lot(io));
-
+  
   // Use as rotas do arquivo api-external-systems.js oi
   router.use('/external-systems', api_external_systems(io));
-
+  
   // Use as rotas do arquivo api-maritime-import-main.js oi
   router.use('/maritime-import-main', api_maritime_import_main(io));
+  
+  // Use as rotas do arquivo api-part-lot-financial .js oi
+  router.use('/part-lot-financial', api_part_lot_financial(io));
 
   return router;
 };

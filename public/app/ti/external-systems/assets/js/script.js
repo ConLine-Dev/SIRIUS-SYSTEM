@@ -89,9 +89,25 @@ function formatDateTime(datetime) {
 
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
 
-    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
+function getDisponibility(dateStart, dateEnd) {
+    const start = new Date(dateStart);
+    const end = new Date(dateEnd);
+
+    let hourStart = start.getHours()
+    let hourEnd = end.getHours()
+
+    let minStart = start.getMinutes() + (hourStart*60)
+    let minEnd = end.getMinutes() + (hourEnd*60);
+    
+    let minResult = minEnd - minStart
+
+    let workday = 600 //minutos do dia trabalhado (8h30) + horário de almoço (1h30)
+
+    return (((workday - minResult)/workday)*100).toFixed(2);
 }
 
 async function createTable() {
@@ -100,24 +116,26 @@ async function createTable() {
     const tableData = await makeRequest(`/api/external-systems/getRecords`);
     const divFullTable = document.getElementById('fullTable');
     let printFullTable = '';
-    let availability = 0;
+    let availability = '';
 
     printFullTable = `
         <thead>
             <tr>
                 <th scope="col" class="col-1">Sistema</th>
-                <th scope="col" class="col-6">Descrição</th>
-                <th scope="col" class="col-2">Início da indisponibilidade</th>
-                <th scope="col" class="col-2">Fim da indisponibilidade</th>
+                <th scope="col" class="col-7">Descrição</th>
+                <th scope="col" class="col-1">Início da indisponibilidade</th>
+                <th scope="col" class="col-1">Fim da indisponibilidade</th>
+                <th scope="col" class="col-1">Disponibilidade/Dia</th>
             </tr>
         </thead>`
 
     for (let i = 0; i < tableData.length; i++) {
         const item = tableData[i];
         item.date_start = formatDateTime(item.date_start);
-        
+
         if (item.date_end) {
             item.date_end = formatDateTime(item.date_end);
+            availability = `${getDisponibility(item.date_start, item.date_end)}%`;
         }
 
         printData.push({
@@ -126,6 +144,7 @@ async function createTable() {
             description: item.description,
             startDate: item.date_start,
             endDate: item.date_end,
+            disponibility: availability,
         });
     }
 
@@ -143,6 +162,7 @@ async function createTable() {
             { "data": "description" },
             { "data": "startDate" },
             { "data": "endDate" },
+            { "data": "disponibility"},
         ],
         "language": {
             url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json' // Tradução para o português do Brasil

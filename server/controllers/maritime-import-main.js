@@ -5,7 +5,7 @@ const path = require('path');
 
 const IMMain = {
 
-    getOffers: async function() {
+    getOffers: async function () {
         const result = executeQuerySQL(`
             SELECT
                 DATEPART(MONTH, prf.Data_Proposta) AS 'mes',
@@ -46,42 +46,106 @@ const IMMain = {
            ORDER BY ic.comment_date DESC`)
 
         return result;
-     },
-     openedProcesses: async function (userId) {
+    },
+    openedProcesses: async function (userId) {
 
-        console.log(userId);
+        let userFilter = ''
 
-        return false;
-        `SELECT 
-            DATEPART(month, lhs.Data_Cancelamento) AS mes,
-            COUNT(*) AS TotalProcessosCancelados
-        FROM 
-            mov_Logistica_House lhs
-        WHERE 
-            DATEPART(year, lhs.Data_Cancelamento) = 2024
-            AND lhs.Situacao_Agenciamento = 7
-        GROUP BY 
-            DATEPART(month, lhs.Data_Cancelamento)
-        ORDER BY 
-            mes;`
-
-        let result = await executeQuery(`
-           SELECT 
-            DATEPART(month, lhs.Data_Abertura_Processo) AS mes,
-            COUNT(*) AS TotalProcessosAbertos
-        FROM 
-            mov_Logistica_House lhs
-        LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Par ON Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Par.IdPapel_Projeto = 2)
-        WHERE 
-            DATEPART(year, lhs.Data_Abertura_Processo) = 2024
-            -- AND Par.IdResponsavel = 52713
-        GROUP BY 
-            DATEPART(month, lhs.Data_Abertura_Processo)
-        ORDER BY 
-            mes;`)
+        if (userId) {
+            userFilter = `AND Par.IdResponsavel = ${userId}`
+        }
+        let result = await executeQuerySQL(`
+            SELECT 
+                DATEPART(month, lhs.Data_Abertura_Processo) AS mes,
+                COUNT(*) AS TotalProcessosAbertos
+            FROM 
+                mov_Logistica_House lhs
+            LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Par ON Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Par.IdPapel_Projeto = 2)
+            WHERE 
+                DATEPART(year, lhs.Data_Abertura_Processo) = 2024
+                ${userFilter}
+            GROUP BY 
+                DATEPART(month, lhs.Data_Abertura_Processo)
+            ORDER BY 
+                mes;`)
 
         return result;
-     },
+    },
+    canceledProcesses: async function (userId) {
+
+        let userFilter = ''
+
+        if (userId) {
+            userFilter = `AND Par.IdResponsavel = ${userId}`
+        }
+        let result = await executeQuerySQL(`
+            SELECT 
+                DATEPART(month, lhs.Data_Cancelamento) AS mes,
+                COUNT(*) AS TotalProcessosCancelados
+            FROM 
+                mov_Logistica_House lhs
+            LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Par ON Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Par.IdPapel_Projeto = 2)
+            WHERE 
+                DATEPART(year, lhs.Data_Cancelamento) = 2024
+                AND lhs.Situacao_Agenciamento = 7
+                ${userFilter}
+            GROUP BY 
+                DATEPART(month, lhs.Data_Cancelamento)
+            ORDER BY 
+                mes;`)
+
+        return result;
+    },
+
+    totalEmails: async function (email) {
+
+        emailFilter = ''
+
+        if (email) {
+            emailFilter = `WHERE email = '${email}'`
+        }
+        const result = await executeQuery(`
+            SELECT *
+            FROM SIRIUS.email_metrics
+            ${emailFilter}
+            ORDER BY mes`)
+
+        return result;
+    },
+
+    totalProcesses: async function (userId) {
+
+        let userFilter = ''
+
+        if (userId) {
+            userFilter = `AND Par.IdResponsavel = ${userId}`
+        }
+        const result = await executeQuerySQL(`
+            SELECT
+                lhs.Numero_Processo,
+                lms.Data_Embarque,
+                lms.Data_Desembarque
+            FROM mov_Logistica_House lhs
+            LEFT OUTER JOIN
+                mov_Logistica_Master lms on lms.IdLogistica_Master = lhs.IdLogistica_Master
+            LEFT OUTER JOIN
+                mov_Logistica_Maritima_Container lmc on lmc.IdLogistica_House = lhs.IdLogistica_House
+            LEFT OUTER JOIN
+                mov_Projeto_Atividade_Responsavel Par on Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade and (Par.IdPapel_Projeto = 2)
+            WHERE
+                lhs.Situacao_Agenciamento != 7
+                ${userFilter}
+                AND lhs.Numero_Processo not like '%DEMU%'
+                AND lhs.Numero_Processo not like '%test%'
+            GROUP BY
+                lhs.Numero_Processo,
+                lms.Data_Embarque,
+                lms.Data_Desembarque
+            HAVING
+                COALESCE(STRING_AGG(lmc.Data_Devolucao, ', '), '0') = '0'`)
+
+        return result;
+    },
 
 };
 

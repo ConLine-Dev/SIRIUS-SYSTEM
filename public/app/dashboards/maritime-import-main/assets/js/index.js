@@ -1,28 +1,95 @@
-async function printProcesses() {
-  let divNoETD = document.getElementById('noETD');
-  let printNoETD = '';
-  let divNoETA = document.getElementById('noETA');
-  let printNoETA = '';
-  let divWithETA = document.getElementById('withETA');
-  let printWithETA = '';
-  let divTotal = document.getElementById('total');
-  let printTotal = '';
+let openedArray = [];
+let canceledArray = [];
+let sentMailArray = [];
+let receivedMailArray = [];
 
-  printNoETD = `<h2>1</h2>`
-  printNoETA = `<h2>2</h2>`
-  printWithETA = `<h2>3</h2>`
-  printTotal = `<h2>4</h2>`
+async function printProcesses() {
+
+  let loggedData = await getInfosLogin();
+  let userId = loggedData.system_id_headcargo;
+  let processes = await makeRequest(`/api/maritime-import-main/totalProcesses`, 'POST', { userId });
+
+  let divNoETD = document.getElementById('noETD');
+  let countNoETD = 0;
+
+  let divNoETA = document.getElementById('noETA');
+  let countNoETA = 0;
+
+  let divWithETA = document.getElementById('withETA');
+  let countWithETA = 0;
+
+  let divTotal = document.getElementById('total');
+  let countTotal = processes.length;
+
+  for (let index = 0; index < processes.length; index++) {
+    if (processes[index].Data_Desembarque) {
+      countWithETA++;
+    } else if (processes[index].Data_Embarque) {
+      countNoETA++;
+    } else {
+      countNoETD++;
+    }
+  }
+
+  let printNoETD = `<h2>${countNoETD}</h2>`
+  let printNoETA = `<h2>${countNoETA}</h2>`
+  let printWithETA = `<h2>${countWithETA}</h2>`
+  let printTotal = `<h2>${countTotal}</h2>`
 
   divNoETD.innerHTML = printNoETD;
   divNoETA.innerHTML = printNoETA;
   divWithETA.innerHTML = printWithETA;
   divTotal.innerHTML = printTotal;
 
-  let userId = '58885';
+}
 
-  let processes = await makeRequest(`/api/maritime-import-main/openedProcesses`, 'POST', {userId})
+async function getInfosLogin() {
+  const StorageGoogleData = localStorage.getItem('StorageGoogle');
+  const StorageGoogle = JSON.parse(StorageGoogleData);
 
-  console.log(processes)
+  return StorageGoogle;
+};
+
+async function createCancelArrays() {
+
+  let loggedData = await getInfosLogin();
+
+  let userId = loggedData.system_id_headcargo;
+
+  let openedProcesses = await makeRequest(`/api/maritime-import-main/openedProcesses`, 'POST', { userId })
+  let canceledProcesses = await makeRequest(`/api/maritime-import-main/canceledProcesses`, 'POST', { userId })
+
+  for (let index = 0; index < openedProcesses.length; index++) {
+    if (openedProcesses[index].mes - 1 == index) {
+      openedArray[index] = openedProcesses[index].TotalProcessosAbertos
+    }
+  }
+
+  for (let index = 0; index < canceledProcesses.length; index++) {
+    for (let index2 = 0; index2 < 12; index2++) {
+      if (canceledProcesses[index].mes - 1 == index2) {
+        canceledArray[index2] = canceledProcesses[index].TotalProcessosCancelados
+      } else if (canceledArray[index2] == null) {
+        canceledArray[index2] = 0;
+      }
+    }
+  }
+}
+
+async function createMailArrays() {
+  let loggedData = await getInfosLogin();
+
+  let email = loggedData.email
+
+  let emailsList = await makeRequest(`/api/maritime-import-main/totalEmails`, 'POST', { email });
+
+  for (let index = 0; index < emailsList.length; index++) {
+    if (emailsList[index].mes - 1 == index) {
+      sentMailArray[index] = emailsList[index].enviados;
+      receivedMailArray[index] = emailsList[index].recebidos;
+    }
+  }
+
 }
 
 function createMailChart() {
@@ -32,10 +99,10 @@ function createMailChart() {
 
     series: [{
       name: 'Enviados',
-      data: [44, 55, 41, 64, 22, 43, 21]
+      data: sentMailArray
     }, {
       name: 'Recebidos',
-      data: [53, 32, 33, 52, 13, 44, 32]
+      data: receivedMailArray
     }],
     chart: {
       height: 600,
@@ -77,7 +144,7 @@ function createMailChart() {
       showNullDataPoints: true,
     },
     stroke: {
-      width: [0, 5],
+      width: [0, 0],
       curve: "smooth",
     },
 
@@ -103,9 +170,9 @@ function createCancelChart() {
   var chartData = {
 
     series: [{
-      data: [44, 55, 41, 64, 22, 43, 21]
+      data: openedArray
     }, {
-      data: [5, 2, 3, 2, 3, 4, 2]
+      data: canceledArray
     }],
     chart: {
       height: 600,
@@ -137,11 +204,11 @@ function createCancelChart() {
     tooltip: {
       enabled: true,
       shared: false,  // Mostra o tooltip para ambas as séries ao passar o mouse
-      custom: function({ series, seriesIndex, dataPointIndex, w }) {
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
         const seriesAValue = series[0][dataPointIndex];
         const seriesBValue = series[1][dataPointIndex];
         const percentage = ((seriesBValue / seriesAValue) * 100).toFixed(2);
-    
+
         return `
           <div style="padding: 10px; font-size: 12px; border-radius: 5px; background: rgba(0, 0, 0, 0.7); color: #fff;">
             <strong>${w.globals.labels[dataPointIndex]}</strong><br>
@@ -244,8 +311,8 @@ function createRepurchaseChart() {
     },
     colors: ["#F9423A"],
   };
-  
-  
+
+
 
   var chart = new ApexCharts(document.querySelector('#repurchase-chart'), chartData);
   chart.render();
@@ -258,7 +325,9 @@ function openWindow(url, width, height) {
 document.addEventListener('DOMContentLoaded', async function () {
 
   await printProcesses();
+  await createMailArrays();
   createMailChart();
+  await createCancelArrays();
   createCancelChart();
   createRepurchaseChart();
 

@@ -35,6 +35,7 @@ const api_internal_comments = require('./api-internal-comments');
 const api_part_lot = require('./api-part-lot');
 const api_external_systems = require('./api-external-systems');
 const api_maritime_import_main = require('./api-maritime-import-main');
+const api_maritime_import_adm = require('./api-maritime-import-adm');
 const api_part_lot_financial = require('./api-part-lot-financial');
 
 const apiAppMonitor = require('./apiAppMonitor');
@@ -110,12 +111,12 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api_incentive_management.js
   router.use('/incentive-management', api_incentive_management(io));
-  
+
   // Use as rotas do arquivo api_incentive_management.js
   router.use('/stock', api_stock(io));
 
   // Use as rotas do arquivo api_incentive_management.js
-  router.use('/executive-analytics-dashboard', api_executive_analytics_dashboard(io)); 
+  router.use('/executive-analytics-dashboard', api_executive_analytics_dashboard(io));
 
   // Use as rotas do arquivo api_report_pricing.js
   router.use('/report-pricing', api_report_pricing(io));
@@ -124,7 +125,7 @@ const setIO = (io) => {
   router.use('/financial-indicators', api_financial_indicators(io));
 
   // Use as rotas do arquivo api_collaborators_by_certificates.js
-  router.use('/collaborators-certificates', api_collaborators_certificates(io)); 
+  router.use('/collaborators-certificates', api_collaborators_certificates(io));
 
   // Use as rotas do arquivo api_meeting_control .js
   router.use('/meeting-control', api_meeting_control(io));
@@ -146,10 +147,10 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-safety-inspection .js oi
   router.use('/safety-inspection', api_safety_inspection(io));
-  
+
   // Use as rotas do arquivo api-safety-inspection .js oi
   router.use('/data-security-hub', dataDecurityHub(io));
-  
+
   // Use as rotas do arquivo api-pricing-main .js oi
   router.use('/pricing-main', api_pricing_main(io));
 
@@ -161,13 +162,16 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-part-lot .js oi
   router.use('/part-lot', api_part_lot(io));
-  
+
   // Use as rotas do arquivo api-external-systems.js oi
   router.use('/external-systems', api_external_systems(io));
-  
+
   // Use as rotas do arquivo api-maritime-import-main.js oi
   router.use('/maritime-import-main', api_maritime_import_main(io));
-  
+
+  // Use as rotas do arquivo api-maritime-import-main.js oi
+  router.use('/maritime-import-adm', api_maritime_import_adm(io));
+
   // Use as rotas do arquivo api-part-lot-financial .js oi
   router.use('/part-lot-financial', api_part_lot_financial(io));
 

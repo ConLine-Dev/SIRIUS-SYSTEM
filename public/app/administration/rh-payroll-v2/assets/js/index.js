@@ -1,3 +1,4 @@
+import { makeRequest, showToast } from './modules/utils.js';
 // Variável para armazenar a instância do DataTable
 let discountTable;
 
@@ -97,6 +98,20 @@ async function initializeDataTable() {
                 }
             },
             { data: 'description' },
+            {
+                data: 'attachment_path',
+                render: (data) => {
+                    if (!data) return '-';
+                    const icon = data.toLowerCase().endsWith('.pdf') ? 'fa-file-pdf' :
+                               data.toLowerCase().endsWith('.doc') || data.toLowerCase().endsWith('.docx') ? 'fa-file-word' :
+                               data.match(/\.(jpg|jpeg|png)$/i) ? 'fa-file-image' : 'fa-file';
+                    return `
+                        <button class="btn btn-sm btn-link view-attachment" onclick="window.open('/api/rh-payroll/view-file/${data}', '_blank', 'width=800,height=600,resizable=yes')">
+                            <i class="fas ${icon}"></i>
+                        </button>
+                    `;
+                }
+            },
             { 
                 data: 'status',
                 render: function(data) {
@@ -127,6 +142,7 @@ async function initializeDataTable() {
                 data: null,
                 orderable: false,
                 render: function(data) {
+                    console.log(data)
                     const buttons = [];
                     
                     // Botão de visualizar
@@ -180,11 +196,11 @@ async function initializeDataTable() {
 
     $('#discount-list').on('click', '.btn-cancel', async function() {
         const data = discountTable.row($(this).closest('tr')).data();
+        console.log(data)
         if (confirm('Tem certeza que deseja cancelar este desconto?')) {
             try {
                 const response = await makeRequest('/api/rh-payroll/discount/cancel', 'POST', {
-                    id: data.id,
-                    type: data.type
+                    id: data.id
                 });
 
                 if (response.success) {
@@ -200,6 +216,9 @@ async function initializeDataTable() {
         }
     });
 }
+
+
+
 
 // Funções para manipular descontos
 async function viewDiscount(data) {

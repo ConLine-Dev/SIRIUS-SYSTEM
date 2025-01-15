@@ -116,6 +116,7 @@ async function handleSubmit(e) {
             amount: parseFloat(formData.get('value').replace(/\D/g, '')) / 100,
             description: formData.get('description'),
             discount_type: 'fixed',
+            date: formData.get('date'),
             reference_month: formData.get('reference_month'),
             status: 'pending',
             collaborators: Array.from(selectedEmployees).map(emp => ({

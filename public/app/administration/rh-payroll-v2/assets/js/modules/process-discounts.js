@@ -68,6 +68,20 @@ async function initializeDataTable() {
                     }
                 },
                 { data: 'description' },
+                {
+                    data: 'attachment_path',
+                    render: (data) => {
+                        if (!data) return '-';
+                        const icon = data.toLowerCase().endsWith('.pdf') ? 'fa-file-pdf' :
+                                   data.toLowerCase().endsWith('.doc') || data.toLowerCase().endsWith('.docx') ? 'fa-file-word' :
+                                   data.match(/\.(jpg|jpeg|png)$/i) ? 'fa-file-image' : 'fa-file';
+                        return `
+                            <button class="btn btn-sm btn-link view-attachment" onclick="window.open('/api/rh-payroll/view-file/${data}', '_blank', 'width=800,height=600,resizable=yes')">
+                                <i class="fas ${icon}"></i>
+                            </button>
+                        `;
+                    }
+                },
                 { 
                     data: 'status',
                     render: function(data) {
@@ -232,7 +246,8 @@ async function processSelectedDiscounts() {
         const data = {
             discounts: selectedRows.map(row => ({
                 id: row.id,
-                type: row.type === 'individual' ? 'individual' : 'batch'
+                type: row.type === 'individual' ? 'individual' : 'batch',
+                processed_by: userLogin.system_collaborator_id
             }))
         };
 

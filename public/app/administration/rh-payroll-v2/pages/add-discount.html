@@ -111,25 +111,17 @@
                                 <input type="date" class="form-control" id="date" name="date" required>
                             </div>
                         </div>
+
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="frequency" class="form-label">Frequência</label>
-                                <select class="form-select" id="frequency" name="frequency" required>
-                                    <option value="">Selecione...</option>
-                                    <option value="UNICO">Único</option>
-                                    <option value="MENSAL">Mensal</option>
-                                    <option value="ANUAL">Anual</option>
-                                </select>
+                                <label class="form-label">Mês de Referência</label>
+                                <input type="month" class="form-control" id="reference_month" name="reference_month" required>
                             </div>
                         </div>
+                        
                     </div>
 
-                    <div class="row">
-                        <div class="col-12 mb-3">
-                            <label class="form-label">Mês de Referência</label>
-                            <input type="month" class="form-control" id="reference_month" name="reference_month" required>
-                        </div>
-                    </div>
+                  
 
                     <div class="mb-3">
                         <label for="description" class="form-label">Descrição</label>
@@ -139,7 +131,7 @@
                    <!-- Campo de Anexo -->
                    <div class="mb-3">
                     <label class="form-label">Anexos</label>
-                    <input type="file" class="filepond" name="attachments[]" multiple 
+                    <input type="file" class="filepond" name="attachments[]"  
                            accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*">
                     <small class="text-muted">Formatos aceitos: PDF, DOC, DOCX, Imagens. Tamanho máximo: 5MB por arquivo</small>
                 </div>

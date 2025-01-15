@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const rhPayroll = require('../controllers/rh-payroll');
 
 // Configuração do multer para upload de arquivos
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, path.join(__dirname, '../../uploads/discounts'));
+        cb(null, path.join(__dirname, '../../storageService/administration/rh-payroll/discounts'));
     },
     filename: function (req, file, cb) {
         cb(null, Date.now() + '-' + file.originalname);
@@ -33,7 +34,7 @@ module.exports = function (io) {
         try {
             const data = req.body;
             if (req.file) {
-                data.attachment_path = `/uploads/discounts/${req.file.filename}`;
+                data.attachment_path = `${req.file.filename}`;
             }
             
             const result = await rhPayroll.createDiscount(data);
@@ -74,7 +75,6 @@ module.exports = function (io) {
             const data = {
                 ...req.body
             };
-            console.log(data)
             const result = await rhPayroll.processDiscounts(data);
             io.emit('updateDiscounts');
             res.status(200).json(result);
@@ -120,6 +120,53 @@ module.exports = function (io) {
             console.error('Erro ao cancelar desconto:', error);
             res.status(500).json({ error: 'Erro ao cancelar desconto' });
         }
+    });
+
+
+    router.get('/download-file/:filename', (req, res) => {
+        const filename = req.params.filename;
+        const filePath = path.join(__dirname, '../../storageService/administration/rh-payroll/discounts', filename);
+        res.download(filePath, (err) => {
+            if (err) {
+                res.status(500).send('Erro ao baixar o arquivo.');
+            }
+        });
+    });
+    
+    router.get('/view-file/:filename', (req, res) => {
+        const filename = req.params.filename;
+        const filePath = path.join(__dirname, '../../storageService/administration/rh-payroll/discounts', filename);
+    
+        // Mapeamento das extensões para os tipos MIME
+        const mimeTypes = {
+            '.pdf': 'application/pdf',
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.png': 'image/png',
+            '.txt': 'text/plain',
+            '.html': 'text/html'
+        };
+
+    
+        // Verifica se o arquivo existe
+        fs.access(filePath, fs.constants.F_OK, (err) => {
+            if (err) {
+                res.status(404).send('Arquivo não encontrado.');
+                return;
+            }
+    
+            // Define o cabeçalho para exibir o arquivo no navegador
+            res.setHeader('Content-Disposition', 'inline; filename="' + filename + '"');
+    
+            // Define o tipo de conteúdo baseado na extensão do arquivo
+            const ext = path.extname(filePath).toLowerCase();
+            const mimeType = mimeTypes[ext] || 'application/octet-stream'; // Tipo padrão para extensões desconhecidas
+            res.setHeader('Content-Type', mimeType);
+    
+            // Envia o arquivo como stream para visualização
+            const fileStream = fs.createReadStream(filePath);
+            fileStream.pipe(res);
+        });
     });
 
     return router;

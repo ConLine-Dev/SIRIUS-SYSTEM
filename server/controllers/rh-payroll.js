@@ -10,22 +10,22 @@ const rhPayroll = {
 
     // Cria um novo desconto individual
     createDiscount: async function (data) {
+        console.log(data, 'createDiscount')
         try {
             const result = await executeQuery(`
                 INSERT INTO rh_payroll_discount_individual 
-                (collaborator_id, category_id, amount, description, status, 
-                attachment_path, reference_month, payment_date, discount_type) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                (collaborator_id, category_id, amount, date, description, status, 
+                attachment_path, reference_month) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     data.collaborator_id,
                     data.category_id,
                     data.amount,
+                    data.date,
                     data.description,
                     'pending',
                     data.attachment_path || null,
-                    data.reference_month,
-                    data.payment_date,
-                    data.discount_type
+                    data.reference_month
                 ]
             );
             return { success: true, id: result.insertId };
@@ -41,38 +41,27 @@ const rhPayroll = {
             // Inicia uma transação
             await executeQuery('START TRANSACTION');
 
-            // Insere o desconto em lote
-            const batchResult = await executeQuery(`
-                INSERT INTO rh_payroll_discount_batch 
-                (category_id, amount, description, status, reference_month, 
-                payment_date, discount_type) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    data.category_id,
-                    data.amount,
-                    data.description,
-                    'pending',
-                    data.reference_month,
-                    data.payment_date,
-                    data.discount_type
-                ]
-            );
 
-            const batchId = batchResult.insertId;
-
-            // Insere os colaboradores do lote
-            for (const collaborator of data.collaborators) {
+           for (const collaborator of data.collaborators) {
                 await executeQuery(`
-                    INSERT INTO rh_payroll_discount_batch_collaborators 
-                    (batch_discount_id, collaborator_id, status) 
-                    VALUES (?, ?, 'pending')`,
-                    [batchId, collaborator.collaborator_id]
+                    INSERT INTO rh_payroll_discount_individual 
+                    (collaborator_id, category_id, amount,date, description, status, reference_month) 
+                    VALUES (?, ?, ?, ?, ?,?, ?)`,
+                    [
+                        collaborator.collaborator_id,
+                        data.category_id,
+                        data.amount,
+                        data.date,
+                        data.description,
+                        'pending',
+                        data.reference_month
+                    ]
                 );
             }
-
+        
             // Confirma a transação
             await executeQuery('COMMIT');
-            return { success: true, id: batchId };
+            return { success: true };
         } catch (error) {
             // Em caso de erro, reverte a transação
             await executeQuery('ROLLBACK');
@@ -93,8 +82,9 @@ const rhPayroll = {
                     d.amount,
                     d.description,
                     d.status,
+                    d.attachment_path,
                     d.reference_month,
-                    d.payment_date,
+                    d.date,
                     c.name_discount as category_name,
                     CONCAT(col.name, ' ', col.family_name) as collaborator_name,
                     'individual' as type
@@ -104,28 +94,7 @@ const rhPayroll = {
                 WHERE d.status = 'pending'
             `);
 
-            // Busca descontos em lote pendentes
-            const batchDiscounts = await executeQuery(`
-                SELECT 
-                    b.id,
-                    bc.collaborator_id,
-                    b.category_id,
-                    b.amount,
-                    b.description,
-                    b.status,
-                    b.reference_month,
-                    b.payment_date,
-                    c.name_discount as category_name,
-                    CONCAT(col.name, ' ', col.family_name) as collaborator_name,
-                    'batch' as type
-                FROM rh_payroll_discount_batch b
-                JOIN rh_payroll_discount_batch_collaborators bc ON bc.batch_discount_id = b.id
-                JOIN rh_payroll_discount_categories c ON c.id = b.category_id
-                JOIN collaborators col ON col.id = bc.collaborator_id
-                WHERE b.status = 'pending' AND bc.status = 'pending'
-            `);
-
-            return [...individualDiscounts, ...batchDiscounts];
+            return [...individualDiscounts];
         } catch (error) {
             console.error('Erro ao buscar descontos pendentes:', error);
             throw error;
@@ -136,90 +105,39 @@ const rhPayroll = {
     processDiscounts: async function (data) {
         try {
             await executeQuery('START TRANSACTION');
-
-            
             const processingDate = new Date();
-
+            console.log(data, 'processDiscounts')
             for (const item of data.discounts) {
                 const processedBy = item.processed_by;
-                console.log(item.type === 'individual')
-                if (item.type === 'individual') {
-                    // Processa desconto individual
-                    await executeQuery(`
-                        UPDATE rh_payroll_discount_individual 
-                        SET status = 'processed', 
-                            processed_by = ?,
-                            processing_date = ?
-                        WHERE id = ?`,
-                        [processedBy, processingDate, item.id]
-                    );
+                 // Processa desconto individual
+                 await executeQuery(`
+                    UPDATE rh_payroll_discount_individual 
+                    SET status = 'processed', 
+                        processed_by = ?,
+                        processing_date = ?
+                    WHERE id = ?`,
+                    [processedBy, processingDate, item.id]
+                );
 
-                    // Registra no histórico
-                    const discount = await executeQuery(
-                        'SELECT * FROM rh_payroll_discount_individual WHERE id = ?',
-                        [item.id]
-                    );
+                // Registra no histórico
+                const discount = await executeQuery(
+                    'SELECT * FROM rh_payroll_discount_individual WHERE id = ?',
+                    [item.id]
+                );
 
-                    await executeQuery(`
-                        INSERT INTO rh_payroll_discount_processing_history
-                        (discount_id, collaborator_id, processed_amount, processed_by, 
-                        status, reference_month)
-                        VALUES (?, ?, ?, ?, 'success', ?)`,
-                        [
-                            item.id,
-                            discount[0].collaborator_id,
-                            discount[0].amount,
-                            processedBy,
-                            discount[0].reference_month
-                        ]
-                    );
-                } else {
-                    // Processa desconto em lote
-                    await executeQuery(`
-                        UPDATE rh_payroll_discount_batch 
-                        SET status = 'processed',
-                            processed_by = ?,
-                            processing_date = ?
-                        WHERE id = ?`,
-                        [processedBy, processingDate, item.id]
-                    );
-
-                    // Atualiza status dos colaboradores do lote
-                    await executeQuery(`
-                        UPDATE rh_payroll_discount_batch_collaborators
-                        SET status = 'processed'
-                        WHERE batch_discount_id = ?`,
-                        [item.id]
-                    );
-
-                    // Registra no histórico para cada colaborador do lote
-                    const batchCollaborators = await executeQuery(`
-                        SELECT * FROM rh_payroll_discount_batch_collaborators
-                        WHERE batch_discount_id = ?`,
-                        [item.id]
-                    );
-
-                    const batchDiscount = await executeQuery(
-                        'SELECT * FROM rh_payroll_discount_batch WHERE id = ?',
-                        [item.id]
-                    );
-
-                    for (const collab of batchCollaborators) {
-                        await executeQuery(`
-                            INSERT INTO rh_payroll_discount_processing_history
-                            (batch_discount_id, collaborator_id, processed_amount, 
-                            processed_by, status, reference_month)
-                            VALUES (?, ?, ?, ?, 'success', ?)`,
-                            [
-                                item.id,
-                                collab.collaborator_id,
-                                batchDiscount[0].amount,
-                                processedBy,
-                                batchDiscount[0].reference_month
-                            ]
-                        );
-                    }
-                }
+                await executeQuery(`
+                    INSERT INTO rh_payroll_discount_processing_history
+                    (discount_id, collaborator_id, processed_amount, processed_by, 
+                    status, reference_month)
+                    VALUES (?, ?, ?, ?, 'success', ?)`,
+                    [
+                        item.id,
+                        discount[0].collaborator_id,
+                        discount[0].amount,
+                        processedBy,
+                        discount[0].reference_month
+                    ]
+                );
             }
 
             await executeQuery('COMMIT');
@@ -244,9 +162,10 @@ const rhPayroll = {
                     d.description,
                     d.status,
                     d.reference_month,
-                    d.payment_date,
+                    d.date,
                     d.processing_date,
                     d.processed_by,
+                    d.attachment_path,
                     c.name_discount as category_name,
                     CONCAT(col.name, ' ', col.family_name) as collaborator_name,
                     CONCAT(proc.name, ' ', proc.family_name) as processed_by_name,
@@ -258,32 +177,8 @@ const rhPayroll = {
                 ORDER BY d.reference_month DESC, col.name ASC
             `);
 
-            // Busca descontos em lote
-            const batchDiscounts = await executeQuery(`
-                SELECT 
-                    b.id,
-                    bc.collaborator_id,
-                    b.category_id,
-                    b.amount,
-                    b.description,
-                    b.status,
-                    b.reference_month,
-                    b.payment_date,
-                    b.processing_date,
-                    b.processed_by,
-                    c.name_discount as category_name,
-                    CONCAT(col.name, ' ', col.family_name) as collaborator_name,
-                    CONCAT(proc.name, ' ', proc.family_name) as processed_by_name,
-                    'batch' as type
-                FROM rh_payroll_discount_batch b
-                JOIN rh_payroll_discount_batch_collaborators bc ON bc.batch_discount_id = b.id
-                JOIN rh_payroll_discount_categories c ON c.id = b.category_id
-                JOIN collaborators col ON col.id = bc.collaborator_id
-                LEFT JOIN collaborators proc ON proc.id = b.processed_by
-                ORDER BY b.reference_month DESC, col.name ASC
-            `);
-
-            return { success: true, data: [...individualDiscounts, ...batchDiscounts] };
+           
+            return { success: true, data: [...individualDiscounts] };
         } catch (error) {
             console.error('Erro ao buscar descontos:', error);
             throw error;
@@ -295,30 +190,12 @@ const rhPayroll = {
         try {
             await executeQuery('START TRANSACTION');
 
-            if (data.type === 'individual') {
-                await executeQuery(`
-                    UPDATE rh_payroll_discount_individual 
-                    SET status = 'cancelled'
-                    WHERE id = ? AND status = 'pending'`,
-                    [data.id]
-                );
-            } else {
-                // Cancela o desconto em lote
-                await executeQuery(`
-                    UPDATE rh_payroll_discount_batch 
-                    SET status = 'cancelled'
-                    WHERE id = ? AND status = 'pending'`,
-                    [data.id]
-                );
-
-                // Cancela para todos os colaboradores do lote
-                await executeQuery(`
-                    UPDATE rh_payroll_discount_batch_collaborators
-                    SET status = 'cancelled'
-                    WHERE batch_discount_id = ? AND status = 'pending'`,
-                    [data.id]
-                );
-            }
+            await executeQuery(`
+                UPDATE rh_payroll_discount_individual 
+                SET status = 'cancelled'
+                WHERE id = ? AND status = 'pending'`,
+                [data.id]
+            );
 
             await executeQuery('COMMIT');
             return { success: true };
@@ -334,7 +211,7 @@ const rhPayroll = {
         try {
             // Aqui você implementaria a lógica de upload do arquivo
             // Por exemplo, salvando em um diretório específico e retornando o caminho
-            const filePath = `/uploads/${file.filename}`;
+            const filePath = `${file.filename}`;
             return { success: true, filePath };
         } catch (error) {
             console.error('Erro no upload do arquivo:', error);

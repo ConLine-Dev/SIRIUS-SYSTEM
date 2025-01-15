@@ -77,8 +77,8 @@ function setupFilePond() {
     const inputElement = document.querySelector('input[type="file"].filepond');
     
     pond = FilePond.create(inputElement, {
-        allowMultiple: true,
-        maxFiles: 5,
+        allowMultiple: false,
+        maxFiles: 1,
         labelIdle: 'Arraste e solte seus arquivos ou <span class="filepond--label-action">Procure</span>',
         labelFileProcessing: 'Carregando',
         labelFileProcessingComplete: 'Upload Completo',
@@ -239,6 +239,7 @@ async function handleSubmit(e) {
             category_id: formData.get('type'),
             amount: parseFloat(formData.get('amount').replace(/\D/g, '')) / 100, // Converte para número
             description: formData.get('description'),
+            date: formData.get('date'),
             discount_type: 'fixed', // Por padrão será fixo
             reference_month: formData.get('reference_month'),
             status: 'pending'

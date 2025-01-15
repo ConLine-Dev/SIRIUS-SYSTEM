@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Desconto</title>
+    
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../../assets/css/icons.css" rel="stylesheet">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+
+    <!-- Main Theme Js -->
+    <script src="../../../assets/js/main.js"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- FilePond CSS -->
+    <link rel="stylesheet" href="../../../assets/libs/filepond/filepond.min.css">
+    <link rel="stylesheet" href="../../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
+    <link rel="stylesheet" href="../../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
+
+    <link href="../assets/css/edit-discount.css" rel="stylesheet">
+    
+    <style>
+        .card {
+            margin-block-end: 0px;
+        }
+        .container-fluid {
+            padding: 0px;
+        }
+        #attachment-preview .card {
+            background-color: #f8f9fa;
+        }
+        .remove-attachment {
+            padding: 0;
+            color: #dc3545;
+        }
+        .remove-attachment:hover {
+            color: #bb2d3b;
+        }
+        /* Estilo personalizado para o FilePond */
+        .filepond--root {
+            margin-bottom: 0;
+        }
+        .filepond--panel-root {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+        }
+        .filepond--drop-label {
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+      <!-- LOADER -->
+      <div id="loader2">
+        <img src="../../../assets/images/media/loader.svg" alt="">
+    </div>
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <form id="add-discount-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="type" class="form-label">Tipo de Desconto</label>
+                                <select class="form-select" id="type" name="type" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="INSS">INSS</option>
+                                    <option value="IRRF">IRRF</option>
+                                    <option value="VT">Vale Transporte</option>
+                                    <option value="VA">Vale Alimentação</option>
+                                    <option value="VR">Vale Refeição</option>
+                                    <option value="PLANO_SAUDE">Plano de Saúde</option>
+                                    <option value="OUTROS">Outros</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="employee" class="form-label">Colaborador</label>
+                                <select class="form-select" id="employee" name="employee" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="1">João Silva</option>
+                                    <option value="2">Maria Santos</option>
+                                    <option value="3">Pedro Souza</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Valor</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <input type="text" class="form-control" id="amount" name="amount" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="date" class="form-label">Data</label>
+                                <input type="date" class="form-control" id="date" name="date" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Mês de Referência</label>
+                                <input type="month" class="form-control" id="reference_month" name="reference_month" required>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                  
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+
+                   <!-- Campo de Anexo -->
+                   <div class="mb-3">
+                    <label class="form-label">Anexos</label>
+                    <input type="file" class="filepond" name="attachments[]"  
+                           accept="application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*">
+                    <small class="text-muted">Formatos aceitos: PDF, DOC, DOCX, Imagens. Tamanho máximo: 5MB por arquivo</small>
+                </div>
+
+                    <div class="text-end mt-4">
+                        <button type="button" class="btn btn-secondary me-2" onclick="window.close()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Alterar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- FilePond JS -->
+    <script src="../../../assets/libs/filepond/filepond.min.js"></script>
+    <script src="../../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js"></script>
+    <script src="../../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.js"></script>
+    <script src="../../../assets/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js"></script>
+    <script src="../../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
+    
+    <!-- Scripts -->
+   <script type="module" src="../assets/js/modules/edit-discount.js"></script>
+</body>
+</html>

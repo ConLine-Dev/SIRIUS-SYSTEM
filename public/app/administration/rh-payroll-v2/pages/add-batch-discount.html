@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Desconto em Lote</title>
+    
+     <!-- Bootstrap Css -->
+     <link id="style" href="../../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+     <!-- Style Css -->
+     <link href="../../../assets/css/styles.min.css" rel="stylesheet">
+     <!-- Icons Css -->
+     <link href="../../../assets/css/icons.css" rel="stylesheet">
+     <!-- Choices Css -->
+     <link rel="stylesheet" href="../../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+ 
+     <!-- Main Theme Js -->
+     <script src="../../../assets/js/main.js"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Choices CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" rel="stylesheet">
+
+    <link href="../assets/css/add-batch-discount.css" rel="stylesheet">
+    
+    <style>
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .employees-container {
+            height: 300px;
+            display: flex;
+        }
+        .employees-container div{
+            max-height: 300px;
+        }
+        .employees-list {
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .list-group {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+        .list-group-item {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .list-group-item.active {
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+            color: inherit;
+        }
+        .employee-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .employee-card .card-body {
+            padding: 0;
+            flex: 1;
+            overflow: hidden;
+        }
+        .container-fluid{
+            padding: 0px;
+        }
+        .card {
+            margin-block-end: 0px;
+        }
+    </style>
+</head>
+<body >
+     <!-- LOADER -->
+     <div id="loader2">
+        <img src="../../../assets/images/media/loader.svg" alt="">
+    </div>
+    <div class="container-fluid">
+        <form id="batch-discount-form">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <!-- Descrição -->
+                                <div class="col-12">
+                                    <label class="form-label" for="description">Descrição</label>
+                                    <input type="text" class="form-control" id="description" name="description" required>
+                                </div>
+
+                                <!-- Tipo de Desconto -->
+                                <div class="col-md-6">
+                                    <label class="form-label" for="type">Tipo de Desconto</label>
+                                    <select class="form-select" id="type" name="type" required>
+                                        <option value="fixed">Valor Fixo</option>
+                                        <option value="percentage">Percentual</option>
+                                    </select>
+                                </div>
+
+                                <!-- Valor -->
+                                <div class="col-md-6">
+                                    <label class="form-label" for="value">Valor</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="value-prefix">R$</span>
+                                        <input type="text" class="form-control" id="value" name="value" step="0.01" required>
+                                        <span class="input-group-text d-none" id="value-suffix">%</span>
+                                    </div>
+                                </div>
+
+                                <!-- Mês de Referência -->
+                                <div class="col-md-6">
+                                    <label class="form-label" for="reference_month">Mês de Referência</label>
+                                    <input type="month" class="form-control" id="reference_month" name="reference_month" required>
+                                </div>
+
+                                <!-- Data de Pagamento -->
+                                <div class="col-md-6">
+                                    <label class="form-label" for="payment_date">Data de Pagamento</label>
+                                    <input type="date" class="form-control" id="payment_date" name="payment_date" required>
+                                </div>
+
+                                <!-- Filtros e Lista de Colaboradores -->
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h6 class="mb-0">Selecionar Colaboradores</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <!-- Filtros -->
+                                            <div class="row g-3 mb-3">
+                                                <div class="col-md-4">
+                                                    <label class="form-label" for="department">Departamento</label>
+                                                    <select class="form-select" id="department" name="department">
+                                                        <option value="">Todos</option>
+                                                        <option value="ti">TI</option>
+                                                        <option value="rh">RH</option>
+                                                        <option value="financeiro">Financeiro</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label" for="role">Cargo</label>
+                                                    <select class="form-select" id="role" name="role">
+                                                        <option value="">Todos</option>
+                                                        <option value="desenvolvedor">Desenvolvedor</option>
+                                                        <option value="analista">Analista</option>
+                                                        <option value="gerente">Gerente</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label" for="search">Buscar</label>
+                                                    <input type="text" class="form-control" id="search" placeholder="Nome do colaborador...">
+                                                </div>
+                                            </div>
+
+                                            <!-- Lista de Colaboradores -->
+                                            <div class="row employees-container">
+                                                <div class="col-md-6">
+                                                    <div class="card employee-card">
+                                                        <div class="card-header bg-light">
+                                                            <h6 class="mb-0">Disponíveis</h6>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="list-group" id="available-employees">
+                                                                <!-- Lista de funcionários disponíveis será preenchida via JavaScript -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="card employee-card">
+                                                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                                            <h6 class="mb-0">Selecionados</h6>
+                                                            <span class="badge bg-primary selected-count">0</span>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="list-group" id="selected-employees">
+                                                                <!-- Lista de funcionários selecionados será preenchida via JavaScript -->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <button type="button" class="btn btn-secondary me-2" onclick="window.close()">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Adicionar Desconto</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/js/modules/add-batch-discount.js" type="module"></script>
+</body>
+</html>

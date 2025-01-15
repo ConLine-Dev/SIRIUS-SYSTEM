@@ -1,0 +1,320 @@
+/* CSS file for rh-payroll module */
+#loader2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--custom-white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Estilos específicos para o módulo RH Payroll */
+html{
+    overflow: hidden;
+}
+
+/* Ajuste para o app-header */
+.main-content {
+    padding-top: 42px; /* Ajuste esse valor conforme a altura do seu header */
+    margin-top: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.app-header {
+    padding-inline-start: 0px !important;
+}
+
+
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: auto;
+    /* background: var(--custom-white); */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Ajustes para os cards do dashboard */
+.card {
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    color: var(--default-text-color);
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); */
+}
+
+/* Ajustes para a tabela */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+/* Ajustes para os modais */
+.modal-content {
+    border-radius: 8px;
+}
+
+.modal-header {
+    /* background-color: #f8f9fa; */
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+/* Ajustes para os formulários */
+.form-control {
+    border-radius: 4px;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    /* border-color: var(--primary); */
+}
+
+/* Ajustes para os botões */
+.btn {
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+}
+
+/* Toast notifications */
+#toast-container {
+    position: fixed;
+    top: 80px; /* Ajustado para ficar abaixo do header */
+    right: 20px;
+    z-index: 1050;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: 60px;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .table-responsive {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Ajustes para o tema escuro */
+[data-theme-mode="dark"] {
+    /* .app-header {
+        background: var(--dark-theme);
+    }
+    
+    .card {
+        background: var(--dark-theme);
+    } */
+    
+    .table th {
+        background-color: var(--dark-theme);
+    }
+    
+    /* .modal-content {
+        background: var(--dark-theme);
+    }
+    
+    .modal-header {
+        background-color: var(--dark-theme);
+    } */
+}
+
+/* Add your CSS styles here */
+
+main.container-fluid {
+    margin-top: 60px; /* Ajuste conforme a altura do app-header */
+}
+
+
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+/* Ajustes mínimos para a navegação */
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.2rem;
+}
+.nav-link i {
+    margin-right: 0.5rem;
+}
+@media (max-width: 768px) {
+    .nav-link {
+        justify-content: flex-start;
+        width: 100%;
+    }
+}
+
+/* Layout base */
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Sidebar */
+#sidebar {
+    width: 300px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: -300px;
+    /* background: var(--ct-secondary-bg);
+    border-right: 1px solid var(--ct-border-color); */
+    transition: 0.3s;
+    z-index: 1000;
+    overflow-y: auto;
+    background-color: var(--custom-white);
+}
+
+#sidebar.active {
+    left: 0;
+}
+
+/* Conteúdo principal */
+#content {
+    flex: 1;
+    min-width: 0; /* Importante para evitar overflow */
+    transition: 0.3s;
+    
+}
+
+#content.active {
+    margin-left: 300px;
+}
+
+/* Card e Tabela */
+.card {
+    margin: 0;
+    width: 100%;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+.table-responsive {
+    margin: 0;
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Layout base */
+    .wrapper {
+        display: flex;
+        min-height: 100vh;
+        position: relative;
+        width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* Sidebar */
+    #sidebar {
+        width: 300px;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: -300px;
+        transition: 0.3s;
+        z-index: 1000;
+        overflow-y: auto;
+    }
+    
+    #sidebar.active {
+        left: 0;
+    }
+
+    #pending-discounts-table_filter label {
+    color: transparent;
+    user-select: none;
+    }
+
+    #pending-discounts-table_filter label input {
+        color: var(--default-text-color);
+        visibility: visible;
+        margin-left: 0;
+    }
+
+    
+    /* Conteúdo principal */
+    #content {
+        flex: 1;
+        min-width: 0;
+        transition: 0.3s;
+    }
+    
+    #content.active {
+        margin-left: 300px;
+    }
+    
+    /* Card e Tabela */
+    .card {
+        margin: 0;
+        width: 100%;
+    }
+    
+    .card-body {
+        padding: 1.25rem;
+    }
+    
+    .table-responsive {
+        margin: 0;
+        width: 100%;
+        overflow-x: auto;
+    }
+    
+    #pending-discounts-table {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    
+    #pending-discounts-table th,
+    #pending-discounts-table td {
+        white-space: nowrap;
+        padding: 0.75rem;
+    }
+    
+    .row {
+        margin: 0;
+        width: 100%;
+    }
+    
+    .col-12 {
+        padding: 0;
+    }
+
+
+    #loader2 {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--custom-white);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    
+    

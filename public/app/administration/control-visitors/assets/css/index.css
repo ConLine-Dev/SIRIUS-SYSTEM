@@ -1,3 +1,57 @@
-body {
-    overflow: hidden !important; /* Remove todas as barras de rolagem */
+.table {
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.table thead th {
+    /* background-color: #f8f9fa; */
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table tbody tr:hover {
+    /* background-color: #f5f5f5; */
+}
+
+.action-buttons {
+    white-space: nowrap;
+}
+
+.action-buttons .btn {
+    margin: 0 2px;
+}
+
+.modal-header {
+    /* background-color: #f8f9fa; */
+    border-bottom: 2px solid #dee2e6;
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+/* Animações */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .action-buttons .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
 }

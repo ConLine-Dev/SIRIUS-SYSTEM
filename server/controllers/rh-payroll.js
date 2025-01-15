@@ -185,6 +185,30 @@ const rhPayroll = {
         }
     },
 
+    // Busca um desconto específico por ID
+    getDiscountById: async function (discountId) {
+        try {
+            const result = await executeQuery(`
+                SELECT 
+                    d.*,
+                    CONCAT(c.name, ' ', c.family_name) as collaborator_name,
+                    cat.name_discount AS category_name
+                FROM 
+                    rh_payroll_discount_individual d
+                JOIN 
+                    collaborators c ON d.collaborator_id = c.id
+                JOIN 
+                    rh_payroll_discount_categories cat ON d.category_id = cat.id
+                WHERE 
+                    d.id = ?
+            `, [discountId]);
+            
+            return result.length > 0 ? result[0] : null;
+        } catch (error) {
+            console.error('Erro ao buscar desconto:', error);
+            throw error;
+        }
+    },
     // Cancela um desconto
     cancelDiscount: async function (data) {
         try {
@@ -217,7 +241,60 @@ const rhPayroll = {
             console.error('Erro no upload do arquivo:', error);
             throw error;
         }
-    }
+    },
+
+    // Atualiza um desconto existente
+    updateDiscount: async function (data) {
+        try {
+            // Verifica se o desconto existe
+            const existingDiscount = await executeQuery(
+                'SELECT * FROM rh_payroll_discount_individual WHERE id = ?', 
+                [data.id]
+            );
+
+            if (existingDiscount.length === 0) {
+                throw new Error('Desconto não encontrado');
+            }
+
+            // Prepara os campos para atualização
+            const updateFields = {
+                collaborator_id: data.collaborator_id,
+                category_id: data.category_id,
+                amount: data.amount,
+                date: data.date,
+                description: data.description,
+                reference_month: data.reference_month
+            };
+
+            // Adiciona o caminho do anexo se um novo arquivo foi enviado
+            if (data.attachment_path) {
+                updateFields.attachment_path = data.attachment_path;
+            }
+
+            // Constrói a query de atualização dinamicamente
+            const updateQuery = `
+                UPDATE rh_payroll_discount_individual 
+                SET ${Object.keys(updateFields).map(key => `${key} = ?`).join(', ')}
+                WHERE id = ?
+            `;
+
+            const queryParams = [
+                ...Object.values(updateFields),
+                data.id
+            ];
+
+            await executeQuery(updateQuery, queryParams);
+
+            return { 
+                success: true, 
+                message: 'Desconto atualizado com sucesso',
+                id: data.id 
+            };
+        } catch (error) {
+            console.error('Erro ao atualizar desconto:', error);
+            throw error;
+        }
+    },
 };
 
 module.exports = rhPayroll;

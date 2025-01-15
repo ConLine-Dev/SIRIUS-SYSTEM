@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     setupFilePond();
     initializeEventListeners();
     setupCurrencyInput();
+    
+    // Carrega os detalhes do desconto após inicializar os campos
+    await loadDiscountDetails();
+    
     document.querySelector('#loader2').classList.add('d-none');
 });
 
@@ -34,7 +38,7 @@ async function listEmployees(){
 }
 
 // Carrega lista de tipos
- async function displayTypes() {
+async function displayTypes() {
     try {
         const types = await loadTypes();
 
@@ -225,55 +229,94 @@ function setupCurrencyInput() {
     }
 }
 
+// Carrega os detalhes do desconto
+async function loadDiscountDetails() {
+    try {
+        // Obtém o ID do desconto da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const discountId = urlParams.get('id');
+
+        if (!discountId) {
+            showToast('ID do desconto não encontrado', 'error');
+            return;
+        }
+
+        // Busca os detalhes do desconto
+        const response = await makeRequest(`/api/rh-payroll/discount/${discountId}`, 'GET');
+        
+        if (!response) {
+            showToast('Erro ao carregar detalhes do desconto', 'error');
+            return;
+        }
+
+        // Popula os campos do formulário
+        document.getElementById('employee').value = response.collaborator_id;
+        document.getElementById('type').value = response.category_id;
+        document.getElementById('amount').value = formatCurrency(response.amount);
+        document.getElementById('date').value = response.date ? response.date.split('T')[0] : '';
+        document.getElementById('reference_month').value = response.reference_month;
+        document.getElementById('description').value = response.description || '';
+
+        // Se houver anexo, configura o FilePond
+        if (response.attachment_path) {
+            const attachmentLink = document.createElement('a');
+            attachmentLink.href = `/api/rh-payroll/download-file/${response.attachment_path}`;
+            attachmentLink.textContent = 'Baixar Anexo Atual';
+            attachmentLink.classList.add('btn', 'btn-primary', 'mt-2');
+            document.getElementById('attachment-container').appendChild(attachmentLink);
+        }
+
+    } catch (error) {
+        console.error('Erro ao carregar detalhes do desconto:', error);
+        showToast('Erro ao carregar detalhes do desconto', 'error');
+    }
+}
+
 // Função para enviar o formulário
 async function handleSubmit(e) {
     e.preventDefault();
-    
     try {
-        const form = document.getElementById('add-discount-form');
-        const formData = new FormData(form);
-        
-        // Obtém os valores dos campos
-        const data = {
-            collaborator_id: formData.get('employee'),
-            category_id: formData.get('type'),
-            amount: parseFloat(formData.get('amount').replace(/\D/g, '')) / 100, // Converte para número
-            description: formData.get('description'),
-            date: formData.get('date'),
-            discount_type: 'fixed', // Por padrão será fixo
-            reference_month: formData.get('reference_month'),
-            status: 'pending'
-        };
+        const urlParams = new URLSearchParams(window.location.search);
+        const discountId = urlParams.get('id');
 
-        // Se houver arquivo anexado
-        if (pond && pond.getFiles().length > 0) {
-            const file = pond.getFiles()[0].file;
-            const fileData = new FormData();
-            fileData.append('file', file);
-            
-            // Primeiro faz upload do arquivo
-            const uploadResponse = await makeRequest('/api/rh-payroll/upload', 'POST', fileData);
-            if (uploadResponse.success) {
-                data.attachment_path = uploadResponse.filePath;
-            }
+        const formData = new FormData();
+        formData.append('collaborator_id', document.getElementById('employee').value);
+        formData.append('category_id', document.getElementById('type').value);
+        formData.append('amount', parseAmountValue(document.getElementById('amount').value));
+        formData.append('date', document.getElementById('date').value);
+        formData.append('reference_month', document.getElementById('reference_month').value);
+        formData.append('description', document.getElementById('description').value);
+
+        // Adiciona o arquivo se estiver presente
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput.files.length > 0) {
+            formData.append('attachment', fileInput.files[0]);
         }
 
-        // Envia os dados do desconto
-        const response = await makeRequest('/api/rh-payroll/discount/create', 'POST', data);
+        // Adiciona o ID do desconto para identificar a edição
+        formData.append('id', discountId);
 
-        if (response.success) {
-            showToast('success', 'Desconto adicionado com sucesso!');
-            form.reset();
-            if (pond) {
-                pond.removeFiles();
-            }
+        const response = await fetch('/api/rh-payroll/discount/update', {
+            method: 'POST',
+            body: formData
+        });
 
+        const result = await response.json();
+
+        if (result.success) {
+            showToast('Desconto atualizado com sucesso', 'success');
+            // Opcional: redirecionar ou fechar a janela
             window.close();
         } else {
-            throw new Error(response.message || 'Erro ao adicionar desconto');
+            showToast('Erro ao atualizar desconto', 'error');
         }
     } catch (error) {
-        console.error('Erro:', error);
-        showToast('error', error.message || 'Erro ao adicionar desconto');
+        console.error('Erro ao atualizar desconto:', error);
+        showToast('Erro ao atualizar desconto', 'error');
     }
+}
+
+// Função para parsear o valor do input de moeda
+function parseAmountValue(value) {
+    return parseFloat(value.replace(/\D/g, '')) / 100;
 }

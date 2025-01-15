@@ -122,6 +122,42 @@ module.exports = function (io) {
         }
     });
 
+    // Rota para buscar um desconto específico
+    router.get('/discount/:id', async (req, res) => {
+        try {
+            const discountId = req.params.id;
+            const result = await rhPayroll.getDiscountById(discountId);
+            
+            if (!result) {
+                return res.status(404).json({ error: 'Desconto não encontrado' });
+            }
+            
+            res.status(200).json(result);
+        } catch (error) {
+            console.error('Erro ao buscar desconto:', error);
+            res.status(500).json({ error: 'Erro ao buscar desconto' });
+        }
+    });
+
+    // Rota para atualizar um desconto
+    router.post('/discount/update', upload.single('attachment'), async (req, res) => {
+        try {
+            const data = req.body;
+            
+            // Se um novo arquivo foi enviado, atualiza o caminho do anexo
+            if (req.file) {
+                data.attachment_path = `${req.file.filename}`;
+            }
+            
+            const result = await rhPayroll.updateDiscount(data);
+            
+            io.emit('updateDiscounts');
+            res.status(200).json(result);
+        } catch (error) {
+            console.error('Erro ao atualizar desconto:', error);
+            res.status(500).json({ error: 'Erro ao atualizar desconto' });
+        }
+    });
 
     router.get('/download-file/:filename', (req, res) => {
         const filename = req.params.filename;

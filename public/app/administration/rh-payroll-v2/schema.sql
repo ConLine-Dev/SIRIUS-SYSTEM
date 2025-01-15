@@ -85,36 +85,6 @@ CREATE TABLE rh_payroll_discount_individual (
     FOREIGN KEY (processed_by) REFERENCES collaborators(id)
 );
 
--- Tabela de Descontos em Lote
-CREATE TABLE rh_payroll_discount_batch (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    category_id INT NOT NULL,
-    amount DECIMAL(10,2) NOT NULL,
-    description TEXT,
-    status ENUM('pending', 'processed', 'cancelled') DEFAULT 'pending',
-    processing_date DATE DEFAULT NULL,
-    processed_by INT DEFAULT NULL,
-    reference_month DATE DEFAULT NULL,
-    payment_date DATE DEFAULT NULL,
-    discount_type ENUM('fixed', 'percentage') DEFAULT 'fixed',
-    observations TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (category_id) REFERENCES rh_payroll_discount_categories(id),
-    FOREIGN KEY (processed_by) REFERENCES collaborators(id)
-);
-
--- Tabela de Relação entre Desconto em Lote e Colaboradores
-CREATE TABLE rh_payroll_discount_batch_collaborators (
-    batch_discount_id INT,
-    collaborator_id INT,
-    status ENUM('pending', 'processed', 'cancelled') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (batch_discount_id, collaborator_id),
-    FOREIGN KEY (batch_discount_id) REFERENCES rh_payroll_discount_batch(id),
-    FOREIGN KEY (collaborator_id) REFERENCES collaborators(id)
-);
 
 -- Tabela de Anexos
 CREATE TABLE rh_payroll_discount_attachments (
@@ -151,20 +121,13 @@ CREATE TABLE rh_payroll_discount_processing_history (
 CREATE INDEX idx_rh_payroll_discount_individual_status 
 ON rh_payroll_discount_individual(status);
 
-CREATE INDEX idx_rh_payroll_discount_batch_status 
-ON rh_payroll_discount_batch(status);
 
 CREATE INDEX idx_rh_payroll_discount_date 
 ON rh_payroll_discount_individual(created_at);
 
-CREATE INDEX idx_rh_payroll_discount_batch_date 
-ON rh_payroll_discount_batch(created_at);
 
 CREATE INDEX idx_discount_reference_month 
 ON rh_payroll_discount_individual(reference_month);
-
-CREATE INDEX idx_batch_reference_month 
-ON rh_payroll_discount_batch(reference_month);
 
 CREATE INDEX idx_processing_history_date 
 ON rh_payroll_discount_processing_history(processing_date);

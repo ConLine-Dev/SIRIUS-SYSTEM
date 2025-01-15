@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', async function() {
     setupFilePond();
     initializeEventListeners();
     setupCurrencyInput();
+    
+    // Carrega os detalhes do desconto após inicializar os campos
+    await loadDiscountDetails();
+    
     document.querySelector('#loader2').classList.add('d-none');
 });
 
@@ -275,5 +279,54 @@ async function handleSubmit(e) {
     } catch (error) {
         console.error('Erro:', error);
         showToast('error', error.message || 'Erro ao adicionar desconto');
+    }
+}
+
+// Carrega os detalhes do desconto
+async function loadDiscountDetails() {
+    try {
+        // Obtém o ID do desconto da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const discountId = urlParams.get('id');
+
+        if (!discountId) {
+            showToast('ID do desconto não encontrado', 'error');
+            return;
+        }
+
+        // Busca os detalhes do desconto
+        const response = await makeRequest(`/api/rh-payroll/discount/${discountId}`, 'GET');
+        
+        if (!response) {
+            showToast('Erro ao carregar detalhes do desconto', 'error');
+            return;
+        }
+
+        // Popula os campos do formulário
+        document.getElementById('employee').value = response.collaborator_id;
+        document.getElementById('type').value = response.category_id;
+        document.getElementById('amount').value = formatCurrency(response.amount);
+        document.getElementById('date').value = response.date ? response.date.split('T')[0] : '';
+        document.getElementById('reference_month').value = response.reference_month;
+        document.getElementById('description').value = response.description || '';
+        
+        // Desabilita todos os campos para modo de visualização
+        const formFields = document.querySelectorAll('input, select, textarea');
+        formFields.forEach(field => {
+            field.disabled = true;
+        });
+
+        // Se houver anexo, mostra o link de download
+        if (response.attachment_path) {
+            const attachmentLink = document.createElement('a');
+            attachmentLink.href = `/api/rh-payroll/download-file/${response.attachment_path}`;
+            attachmentLink.textContent = 'Baixar Anexo';
+            attachmentLink.classList.add('btn', 'btn-primary', 'mt-2');
+            document.getElementById('attachment-container').appendChild(attachmentLink);
+        }
+
+    } catch (error) {
+        console.error('Erro ao carregar detalhes do desconto:', error);
+        showToast('Erro ao carregar detalhes do desconto', 'error');
     }
 }

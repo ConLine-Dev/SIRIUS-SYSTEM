@@ -159,6 +159,26 @@ module.exports = function (io) {
         }
     });
 
+    // Rota para buscar descontos processados do colaborador
+    router.get('/collaborator/discounts', async (req, res) => {
+        console.log(req.query)
+        try {
+            // Obtém o ID do colaborador do token de autenticação
+            const collaboratorId = req.query.id_colab;
+
+            if (!collaboratorId) {
+                return res.status(401).json({ error: 'Colaborador não autenticado' });
+            }
+
+            const result = await rhPayroll.getCollaboratorProcessedDiscounts(collaboratorId);
+            
+            res.status(200).json(result);
+        } catch (error) {
+            console.error('Erro ao buscar descontos do colaborador:', error);
+            res.status(500).json({ error: 'Erro ao buscar descontos do colaborador' });
+        }
+    });
+
     router.get('/download-file/:filename', (req, res) => {
         const filename = req.params.filename;
         const filePath = path.join(__dirname, '../../storageService/administration/rh-payroll/discounts', filename);

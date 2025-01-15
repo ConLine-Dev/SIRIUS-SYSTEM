@@ -295,6 +295,58 @@ const rhPayroll = {
             throw error;
         }
     },
+
+    // Busca descontos processados de um colaborador agrupados por mês de referência
+    getCollaboratorProcessedDiscounts: async function (collaboratorId) {
+        try {
+            // Busca os meses de referência com descontos processados
+            const referenceMonths = await executeQuery(`
+                SELECT DISTINCT reference_month
+                FROM rh_payroll_discount_individual
+                WHERE collaborator_id = ? AND status = 'processed'
+                ORDER BY reference_month DESC
+            `, [collaboratorId]);
+
+            // Para cada mês de referência, busca os descontos processados
+            const discountsByMonth = await Promise.all(
+                referenceMonths.map(async (monthData) => {
+                    const monthDiscounts = await executeQuery(`
+                        SELECT 
+                            d.id,
+                            d.amount,
+                            d.date,
+                            d.description,
+                            d.reference_month,
+                            cat.name_discount AS category_name
+                        FROM 
+                            rh_payroll_discount_individual d
+                        JOIN 
+                            rh_payroll_discount_categories cat ON d.category_id = cat.id
+                        WHERE 
+                            d.collaborator_id = ? 
+                            AND d.reference_month = ?
+                            AND d.status = 'processed'
+                        ORDER BY 
+                            d.date
+                    `, [collaboratorId, monthData.reference_month]);
+
+                    // Calcula o total de descontos para o mês
+                    const totalDiscount = monthDiscounts.reduce((sum, discount) => sum + parseFloat(discount.amount), 0);
+
+                    return {
+                        reference_month: monthData.reference_month,
+                        total_discount: totalDiscount.toFixed(2),
+                        discounts: monthDiscounts
+                    };
+                })
+            );
+
+            return discountsByMonth;
+        } catch (error) {
+            console.error('Erro ao buscar descontos do colaborador:', error);
+            throw error;
+        }
+    },
 };
 
 module.exports = rhPayroll;

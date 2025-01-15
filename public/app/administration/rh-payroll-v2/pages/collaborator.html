@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Descontos</title>
+    
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../../assets/css/icons.css" rel="stylesheet">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+
+    <!-- Main Theme Js -->
+    <script src="../../../assets/js/main.js"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        .discount-month {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .discount-month:hover {
+            background-color: #f0f0f0;
+        }
+        .modal-dialog {
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body>
+    <!-- LOADER -->
+    <div id="loader2">
+        <img src="../../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Meus Descontos</h4>
+                    </div>
+                    <div class="card-body">
+                        <div id="discounts-container">
+                            <!-- Os descontos serão carregados dinamicamente aqui -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para detalhes do mês -->
+    <div class="modal fade" id="monthDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalhes dos Descontos</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body" id="monthDetailsBody">
+                    <!-- Detalhes dos descontos serão carregados aqui -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="../../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Módulo JS -->
+    <script type="module" src="../assets/js/modules/collaborator-discounts.js"></script>
+</body>
+</html>

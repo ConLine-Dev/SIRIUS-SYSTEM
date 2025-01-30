@@ -1,0 +1,183 @@
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Negociações de Clientes</title>
+    <meta name="Description" content="Controle de chamados & projetos TI">
+    <meta name="Author" content="ConLine">
+
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main JS -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    <!-- Color Picker Css -->
+    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+
+    <!-- Tutorial -->
+    <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 0px; z-index: 100;"> 
+        <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+    </span>
+
+    <!-- LOADER -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <!-- BODY -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="file-manager-container p-2 gap-2 d-sm-flex">
+                <div class="modal fade" id="changePrevInicio" tabindex="-1" aria-labelledby="create-file" data-bs-keyboard="false" style="display: none;" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" style="--bs-modal-width: 580px;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title" id="staticBackdropLabel1">Aprovar pedido</h6>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container mt-4">
+                                    <div class="row mb-3">
+                                        <div class="col-2">
+                                            <input type="text" id="editServiceName" class="form-control" disabled>
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="datetime-local" id="editStartDate" class="form-control">
+                                        </div>
+                                        <div class="col-5">
+                                            <input type="datetime-local" id="editEndDate" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <textarea class="form-control description" id="editDescription" name="description2"
+                                            placeholder="Descreva a solicitação"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" onclick="updateServiceRecord(this.id)" class="btn btn-sm btn-danger buttonUpdateService">Reprovar</button>
+                                <button type="button" onclick="updateServiceRecord(this.id)" class="btn btn-sm btn-success buttonUpdateService">Aprovar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="file-manager-folders" style="min-height: 98vh !important;">
+                    <div class="p-3" id="file-folders-container" data-simplebar="init">
+                        <div class="simplebar-wrapper" style="margin: -16px;">
+                            <div class="simplebar-height-auto-observer-wrapper">
+                                <div class="simplebar-height-auto-observer"></div>
+                            </div>
+                            <div class="simplebar-mask">
+                                <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                    <div class="simplebar-content-wrapper" tabindex="0" role="region"
+                                        aria-label="scrollable content" style="height: auto; overflow: scroll;">
+                                        <div class="simplebar-content">
+                                            <div class="card custom-card" style="margin-bottom: 0px;">
+                                                <div class="card-header py-1 pb-3 justify-content-between intro_internal_commments">
+                                                    <div class="card-title fw-semibold fs-14">Negociações de Clientes</div>
+                                                    <div class="input-group intro_btn_comments" style="width: 150px; gap: 20px;">
+                                                        <a class="btn btn-primary" id="createPeople"
+                                                            style="width: 150px; border-radius: 5px;"
+                                                            onclick="sendComment()">Registrar</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row gy-3" id="addComment" style="margin: 0 10px 0 10px; overflow-y: scroll;">
+                                                <div class="container mt-4">
+                                                    <div class="row mb-3">
+                                                        <div class="col-5 serviceName">
+                                                            <select name="serviceName" id="serviceName"></select>
+                                                        </div>
+                                                        <div class="col-5 customerName">
+                                                            <select name="customerName" id="customerName"></select>
+                                                        </div>
+                                                        <div class="col-2">
+                                                            <input type="datetime-local" id="date" class="form-control" placeholder="Data da Solicitação">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-12">
+                                                            <textarea class="form-control description" id="description" name="description"
+                                                                style="height: 250px;"
+                                                                placeholder="Descreva a indisponibilidade encontrada"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card custom-card" style="padding: 25px;">
+                                                <table id="fullTable" style="width: 100%;"></table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div div class="simplebar-placeholder" style="width: auto; height: 928px;"></div>
+                        </div>
+                        <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                            <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                        </div>
+                        <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                            <div class="simplebar-scrollbar"
+                                style="height: 560px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+
+    <!-- Jquery -->
+    <script src="../../assets/libs/jQuery/jquery-3.6.1.min.js"></script>
+    <!-- Popper JS -->
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Color Picker JS -->
+    <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+    <!-- SweetAlert JS -->
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+
+    <!-- Internal Task  JS -->
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="../../assets/libs/intro.js/intro.min.js"></script>
+    <script src="../../assets/libs/intro.js/intro.js"></script>
+
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="./assets/js/script.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+</body>
+
+</html>

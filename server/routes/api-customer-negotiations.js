@@ -2,13 +2,34 @@ const express = require('express');
 const router = express.Router();
 const path = require("path");
 const fs = require('fs');
-const { externalSystems } = require('../controllers/external-systems.js');
+const { customerNegotiations } = require('../controllers/customer-negotiations.js');
 
 module.exports = function(io) {
 
    router.get('/getServices', async (req, res, next) => {
       try {
-            const result = await externalSystems.getServices();
+            const result = await customerNegotiations.getServices();
+            res.status(200).json(result)
+      } catch (error) {
+
+            res.status(404).json('Erro')
+      }
+   });
+
+   router.get('/getCustomers', async (req, res, next) => {
+      try {
+            const result = await customerNegotiations.getCustomers();
+            res.status(200).json(result)
+      } catch (error) {
+
+            res.status(404).json('Erro')
+      }
+   });
+
+   router.post('/saveRecord', async (req, res, next) => {
+
+      try {
+            const result = await customerNegotiations.saveRecord(req.body);
             res.status(200).json(result)
       } catch (error) {
 
@@ -18,37 +39,7 @@ module.exports = function(io) {
 
    router.get('/getRecords', async (req, res, next) => {
       try {
-            const result = await externalSystems.getRecords();
-            res.status(200).json(result)
-      } catch (error) {
-
-            res.status(404).json('Erro')
-      }
-   });
-
-   router.post('/saveRecord', async (req, res, next) => {
-      try {
-            const result = await externalSystems.saveRecord(req.body);
-            res.status(200).json(result)
-      } catch (error) {
-
-            res.status(404).json('Erro')
-      }
-   });
-
-   router.post('/getById', async (req, res, next) => {
-      try {
-            const result = await externalSystems.getById(req.body.id);
-            res.status(200).json(result)
-      } catch (error) {
-
-            res.status(404).json('Erro')
-      }
-   });
-
-   router.post('/updateServiceRecord', async (req, res, next) => {
-      try {
-            const result = await externalSystems.updateServiceRecord(req.body);
+            const result = await customerNegotiations.getRecords();
             res.status(200).json(result)
       } catch (error) {
 

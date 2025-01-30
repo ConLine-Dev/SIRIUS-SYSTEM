@@ -34,7 +34,7 @@ const api_rh_payroll = require('./api-rh-payroll');
 const api_internal_comments = require('./api-internal-comments');
 const api_part_lot = require('./api-part-lot');
 const api_external_systems = require('./api-external-systems');
-const api_customer_negotiatons = require('./api-customer-negotiatons');
+const api_customer_negotiations = require('./api-customer-negotiations');
 const api_maritime_import_main = require('./api-maritime-import-main');
 const api_maritime_import_adm = require('./api-maritime-import-adm');
 const api_part_lot_financial = require('./api-part-lot-financial');
@@ -176,8 +176,8 @@ const setIO = (io) => {
   // Use as rotas do arquivo api-part-lot-financial .js oi
   router.use('/part-lot-financial', api_part_lot_financial(io));
 
-  // Use as rotas do arquivo api-customer-negotiatons .js oi
-  router.use('/customer-negotiatons', api_customer_negotiatons(io));
+  // Use as rotas do arquivo api-customer-negotiations .js oi
+  router.use('/customer-negotiations', api_customer_negotiations(io));
 
   return router;
 };

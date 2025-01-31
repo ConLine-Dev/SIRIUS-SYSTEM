@@ -1276,7 +1276,6 @@ const tickets = {
             FROM pending_tickets
             WHERE date = DATE(NOW())`);
 
-
         const expiringTickets = await executeQuery(`
             SELECT *
             FROM siriusDBO.called_tickets
@@ -1437,7 +1436,6 @@ const tickets = {
             </div>`;
 
         await sendEmail('ti@conlinebr.com.br', '[Sirius System] Só um lembrete 💭', mailBody);
-
         return true;
     },
     formatarNome: function(nome) {

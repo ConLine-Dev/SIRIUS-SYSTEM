@@ -201,9 +201,7 @@ async function updateServiceRecord(lineId){
     let endDate = document.querySelector('#editEndDate').value;
     const description = document.querySelector('#editDescription').value;
 
-    console.log(startDate)
     startDate = formatToWorkbench(startDate);
-    console.log(startDate)
 
     if (endDate) {
         endDate = formatToWorkbench(endDate);

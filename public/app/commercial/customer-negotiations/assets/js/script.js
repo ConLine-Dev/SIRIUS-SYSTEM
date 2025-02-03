@@ -19,9 +19,9 @@ async function sendComment() {
     }
 
     const answer = {type, customer, date, description, collabId};
-
-    await makeRequest(`/api/customer-negotiations/saveRecord`, 'POST', answer);
     
+    await makeRequest(`/api/customer-negotiations/saveRecord`, 'POST', answer);
+
     Swal.fire({
         icon: "success",
         title: "Pedido enviado!",
@@ -44,7 +44,7 @@ async function resetInputs(login) {
 async function getServices() {
     const types = await makeRequest(`/api/customer-negotiations/getServices`);
     const selectList = [
-        { value: '', label: 'Selecione o tipo do pedido', disabled: true, selected: true }, // Item vazio inicial
+        { value: '', label: 'Selecione o tipo do pedido', disabled: true, selected: true },
         ...types.map(element => ({
             value: `${element.id}`,
             label: `${element.name}`,
@@ -67,7 +67,7 @@ async function getServices() {
 async function getCustomers() {
     const types = await makeRequest(`/api/customer-negotiations/getCustomers`);
     const selectList = [
-        { value: '', label: 'Selecione a qual cliente atribuir', disabled: true, selected: true }, // Item vazio inicial
+        { value: '', label: 'Selecione a qual cliente atribuir', disabled: true, selected: true },
         ...types.map(element => ({
             value: `${element.IdPessoa}`,
             label: `${element.Nome}`,
@@ -108,27 +108,7 @@ function formatDateTime(datetime) {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
 
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-
     return `${day}/${month}/${year}`;
-}
-
-function getDisponibility(dateStart, dateEnd) {
-    const start = new Date(dateStart);
-    const end = new Date(dateEnd);
-
-    let hourStart = start.getHours()
-    let hourEnd = end.getHours()
-
-    let minStart = start.getMinutes() + (hourStart*60)
-    let minEnd = end.getMinutes() + (hourEnd*60);
-    
-    let minResult = minEnd - minStart
-
-    let workday = 600 //minutos do dia trabalhado (8h30) + horário de almoço (1h30)
-
-    return (((workday - minResult)/workday)*100).toFixed(2);
 }
 
 function formatText(text, max) {
@@ -145,15 +125,14 @@ async function createTable() {
     const divFullTable = document.getElementById('fullTable');
     let printFullTable = '';
 
-    console.log(tableData);
-
     printFullTable = `
         <thead>
             <tr>
                 <th scope="col" class="col-2">Pedido</th>
                 <th scope="col" class="col-2">Cliente</th>
-                <th scope="col" class="col-7">Descrição</th>
+                <th scope="col" class="col-6">Descrição</th>
                 <th scope="col" class="col-1">Data</th>
+                <th scope="col" class="col-1">Status</th>
             </tr>
         </thead>`
 
@@ -168,6 +147,7 @@ async function createTable() {
             customer: reducedName,
             description: item.description,
             date: item.date,
+            status: item.status,
         });
     }
 
@@ -185,6 +165,7 @@ async function createTable() {
             { "data": "customer" },
             { "data": "description" },
             { "data": "date" },
+            { "data": "status" },
         ],
         "language": {
             url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
@@ -210,7 +191,7 @@ async function createTable() {
 function formatToDateTimeLocal(dateString) {
     const date = new Date(dateString);
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mês começa do 0
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
@@ -218,24 +199,118 @@ function formatToDateTimeLocal(dateString) {
     return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
+async function rejectNegotiation(id) {
+    let status = 'Reprovado'
+    await makeRequest(`/api/customer-negotiations/update`, 'POST', {id, status});
+
+    const modal = document.querySelector('#changePrevInicio');
+    await createTable();
+    $(modal).modal('hide');
+
+    const confirmReject = document.querySelector('.confirmReject');
+    confirmReject.setAttribute('id', id);
+    
+    const rejectModal = document.querySelector('#rejectModal');
+    $(rejectModal).modal('show');
+}
+
+async function approveNegotiation(id) {
+    let status = 'Aprovado'
+    await makeRequest(`/api/customer-negotiations/update`, 'POST', {id, status});
+
+    const modal = document.querySelector('#changePrevInicio');
+    await createTable();
+    $(modal).modal('hide');
+}
+
+async function updateNegotiation(id) {
+    let status = 'Pendente'
+    await makeRequest(`/api/customer-negotiations/update`, 'POST', {id, status});
+    
+    let description = document.querySelector('textarea[name="newDescription"]').value;
+    let login = await getInfosLogin();
+    let collabId = login.system_collaborator_id;
+
+    reply = {id, description, collabId}
+    await makeRequest(`/api/customer-negotiations/addReply`, 'POST', {reply});
+
+    document.querySelector('textarea[name="newDescription"]').value = '';
+
+    const modal = document.querySelector('#changePrevInicio');
+    await createTable();
+    $(modal).modal('hide');
+}
+
+async function confirmReject(id) {
+    let description = document.getElementById('rejectDescription').value;
+    let login = await getInfosLogin();
+    let collabId = login.system_collaborator_id;
+
+    reply = {id, description, collabId}
+    await makeRequest(`/api/customer-negotiations/addReply`, 'POST', {reply});
+
+    document.getElementById('rejectDescription').value = '';
+
+    const modal = document.querySelector('#rejectModal');
+    await createTable();
+    $(modal).modal('hide');
+}
+
 async function openModal(id) {
 
-    const lineData = await makeRequest(`/api/external-systems/getById`, 'POST', {id: id});
+    const lineData = await makeRequest(`/api/customer-negotiations/getById`, 'POST', {id: id});
 
-    const modalElement = document.querySelector('.buttonUpdateService');
-    modalElement.setAttribute('id', lineData[0].id);
+    const approveNegotiation = document.querySelector('.approveNegotiation');
+    approveNegotiation.setAttribute('id', lineData[0].id);
+    const rejectNegotiation = document.querySelector('.rejectNegotiation');
+    rejectNegotiation.setAttribute('id', lineData[0].id);
+    const updateNegotiation = document.querySelector('.updateNegotiation');
+    updateNegotiation.setAttribute('id', lineData[0].id);
+    const negotiationControl = document.getElementById('negotiationControl');
 
-    if (lineData[0].date_end) {
-        lineData[0].date_end = formatToDateTimeLocal(lineData[0].date_end);
+    negotiationControl.style.display = 'none';
+    updateNegotiation.style.display = 'none';
+    if (lineData[0].status == 'Pendente') {
+        negotiationControl.style.display = 'block';
+    }
+    if (lineData[0].status == 'Reprovado') {
+        updateNegotiation.style.display = 'block';
     }
 
-    document.querySelector('#editServiceName').value = lineData[0].name;
-    document.querySelector('#editStartDate').value = formatToDateTimeLocal(lineData[0].date_start);
-    document.querySelector('#editEndDate').value = lineData[0].date_end;
-    document.querySelector('#editDescription').value = lineData[0].description;
+    document.querySelector('#modalNegotiationType').value = lineData[0].name;
+    document.querySelector('#modalDate').value = formatToDateTimeLocal(lineData[0].date);
+    document.querySelector('#modalCustomer').value = lineData[0].customerName;
+    document.querySelector('#modalResponsible').value = `${lineData[0].collabName} ${lineData[0].collabFName}`;
+    document.querySelector('#modalDescription').value = lineData[0].description;
+
+    await printReplies(lineData[0].id);
 
     const modal = document.querySelector('#changePrevInicio');
     $(modal).modal('show');
+}
+
+async function printReplies(id) {
+    const replies = await makeRequest(`/api/customer-negotiations/getReplies`, 'POST', { id: id });
+    const lineData = await makeRequest(`/api/customer-negotiations/getById`, 'POST', {id: id});
+    const divReplies = document.getElementById('replyDiv');
+    let printReplies = '';
+
+    divReplies.style.display = 'none';
+    if (replies.length > 0) {
+        divReplies.style.display = 'block';
+    }
+
+    for (let index = 0; index < replies.length; index++) {
+        printReplies += `<label>[${replies[index].name} ${replies[index].family_name}] Retorno ${index+1}</label>
+        <textarea class="form-control" disabled>${replies[index].reply}</textarea>`
+    }
+
+    if (lineData[0].status == 'Reprovado') {
+        printReplies += `<label>Nova Descrição:</label>
+        <textarea class="form-control" name="newDescription"></textarea>`
+    }
+
+    divReplies.innerHTML = printReplies;
 }
 
 window.addEventListener("load", async () => {

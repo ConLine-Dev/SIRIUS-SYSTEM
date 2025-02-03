@@ -58,33 +58,68 @@
                     <div class="modal-dialog modal-dialog-centered" style="--bs-modal-width: 580px;">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h6 class="modal-title" id="staticBackdropLabel1">Aprovar pedido</h6>
+                                <h6 class="modal-title" id="staticBackdropLabel1">Status do Pedido</h6>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <div class="container mt-4">
                                     <div class="row mb-3">
-                                        <div class="col-2">
-                                            <input type="text" id="editServiceName" class="form-control" disabled>
+                                        <div class="col-6">
+                                            <label>Pedido</label>
+                                            <input type="text" id="modalNegotiationType" class="form-control" disabled>
                                         </div>
-                                        <div class="col-5">
-                                            <input type="datetime-local" id="editStartDate" class="form-control">
+                                        <div class="col-6">
+                                            <label>Data</label>
+                                            <input type="datetime-local" id="modalDate" class="form-control" disabled>
                                         </div>
-                                        <div class="col-5">
-                                            <input type="datetime-local" id="editEndDate" class="form-control">
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-6">
+                                            <label>Cliente</label>
+                                            <input type="text" id="modalCustomer" class="form-control" disabled>
+                                        </div>
+                                        <div class="col-6">
+                                            <label>Responsável</label>
+                                            <input type="text" id="modalResponsible" class="form-control" disabled>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-12">
-                                            <textarea class="form-control description" id="editDescription" name="description2"
-                                            placeholder="Descreva a solicitação"></textarea>
+                                            <textarea class="form-control description" id="modalDescription" disabled></textarea>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" onclick="updateServiceRecord(this.id)" class="btn btn-sm btn-danger buttonUpdateService">Reprovar</button>
-                                <button type="button" onclick="updateServiceRecord(this.id)" class="btn btn-sm btn-success buttonUpdateService">Aprovar</button>
+                            <div class="modal-footer" id="replyDiv" style="max-height: 450px; overflow: scroll"></div>
+                            <div class="modal-footer" id="updateNegotiation" style="justify-content: flex-start;">
+                                <button type="button" onclick="updateNegotiation(this.id)" class="btn btn-sm btn-success updateNegotiation">Enviar</button>
+                            </div>
+                            <div class="modal-footer" id="negotiationControl">
+                                <button type="button" onclick="rejectNegotiation(this.id)" class="btn btn-sm btn-danger rejectNegotiation">Reprovar</button>
+                                <button type="button" onclick="approveNegotiation(this.id)" class="btn btn-sm btn-success approveNegotiation">Aprovar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="create-file" data-bs-keyboard="false" style="display: none;" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" style="--bs-modal-width: 580px;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title" id="staticBackdropLabel2">Confirmar Reprovação do Pedido</h6>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container mt-4">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <textarea class="form-control" id="rejectDescription"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer" id="confirmReject" style="justify-content: flex-start;">
+                                <button type="button" onclick="confirmReject(this.id)" class="btn btn-sm btn-success confirmReject">Enviar</button>
                             </div>
                         </div>
                     </div>

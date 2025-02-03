@@ -1,0 +1,128 @@
+:root{
+   --main-color: #F9423A;
+   --fcl-color: #b49900;
+   --lcl-color: #00b158;
+   --air-color: #007e8f;
+}
+
+#loader2 {
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   background-color: var(--custom-white);
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   z-index: 9999;
+}
+
+#loader1 {
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   background-color: var(--custom-white);
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   z-index: 999;
+}
+
+.listInvoices {
+   overflow-y: scroll;
+   max-height: 568px;
+   position: relative;
+   min-height: 568px;
+   margin-bottom: 25px;
+}
+
+#invoice-chart {
+   max-height: 593px;
+   min-height: 593px;
+}
+
+/* Estiliza a largura da barra de rolagem */
+.listInvoices::-webkit-scrollbar {
+   width: 12px; /* largura da barra vertical */
+   height: 12px; /* altura da barra horizontal */
+}
+
+/* Estiliza o fundo da barra de rolagem */
+.listInvoices::-webkit-scrollbar-track {
+   background: var(--header-bg); /* cor do fundo */
+}
+
+/* Estiliza o thumb (parte que se move da barra) */
+.listInvoices::-webkit-scrollbar-thumb {
+   background-color: var(--header-border-color); /* cor do thumb */
+   border-radius: 10px; /* borda arredondada */
+   border: 2px solid var(--default-background); /* margem para o thumb */
+}
+
+
+.listInvoices::-webkit-scrollbar-button:active {
+   background-color: #aaa; /* cor das setas ao serem clicadas */
+}
+
+
+.modal {
+   display: none; 
+   position: fixed; 
+   z-index: 1; 
+   right: 0;
+   top: 0;
+   width: 30%; /* Largura do modal na parte direita */
+   height: 100%; /* Altura total da tela */
+   overflow: auto; 
+   background-color: #ffffff;
+   box-shadow: -5px 0 10px rgba(0, 0, 0, 0.2);
+   padding: 20px;
+   left: auto;
+}
+
+.modal-content {
+   padding: 20px;
+}
+
+.close {
+   color: #aaa;
+   float: right;
+   font-size: 28px;
+   font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+   color: black;
+   text-decoration: none;
+   cursor: pointer;
+}
+
+.dt-buttons {
+   margin-bottom: 10px; /* Adiciona 20px de espaçamento abaixo dos botões */
+}
+
+.invoiceActive {
+   color: var(--primary-color);
+   background-color: var(--primary005);
+}
+
+.image-fin-filter img {
+   opacity: 0.2;
+   width: 352px; /* Define a largura da imagem para deixá-la menor */
+   margin: 247px auto; /* Centraliza a imagem horizontalmente */
+   display: block; /* Garante que o elemento seja tratado como um bloco */
+   margin-bottom: 10px; /* Dá um espaço entre a imagem e o botão de filtro */
+}
+
+.image-fin-filter {
+   display: block;
+   position: fixed;
+}
+
+.categories:hover {
+   background-color: var(--default-background) !important;
+}

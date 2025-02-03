@@ -1,0 +1,230 @@
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Metas Comerciais</title>
+    <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
+    <meta name="Author" content="Spruko Technologies Private Limited">
+    <meta name="keywords"
+        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main JS -->
+    <!-- <script src="../../assets/js/main.js"></script> -->
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    <!-- Color Picker Css -->
+    <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    
+
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+
+   <!-- Tutorial -->
+   <span class="avatar avatar-md p-2 bg-warning d-none" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 0px; z-index: 9999;"> 
+      <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+   </span>
+     
+   <!-- Loader -->
+   <div id="loader2">
+      <img src="../../assets/images/media/loader.svg" alt="">
+   </div>
+
+   <div class="page" style="justify-content: flex-start;">
+      <div class="main-content">
+         <div class="container-fluid">
+
+            <!-- Pagina do Metas Comerciais e Filtro -->
+            <div class="col-12">
+               <br>
+               <div class="card custom-card">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                     <div class="card-title">Metas Comerciais</div>
+
+                     <!-- Botão de filtro dos cards -->
+                     <div class="btn-list mt-md-0 mt-2 intro-btn-filter"> 
+                        <button type="button" class="btn btn-primary btn-wave waves-effect waves-light" id="filterButton" data-bs-toggle="offcanvas" data-bs-target="#switcher-canvas"> 
+                           <i class="ri-filter-3-fill me-2 align-middle d-inline-block"></i>
+                           Filtro
+                        </button> 
+                     </div>
+                     
+                     <!-- Filtros -->
+                     <div class="offcanvas offcanvas-end" tabindex="-1" id="switcher-canvas" aria-labelledby="offcanvasRightLabel"> 
+                        <div class="offcanvas-header"> 
+                           <div class="card-header py-1 pb-3" style="width: 100%;">
+                                 <div class="card-title fw-semibold fs-14">Filtros</div>
+                           </div>
+                        </div> 
+                        <div class="offcanvas-body">
+                           <div class="d-flex align-items-center justify-content-between" style="padding: 0 1rem 1rem 1rem">
+                                 <div class="card-body p-0">
+                                    <div class="d-flex flex-column justify-content-between" style="height: 90vh; overflow-y: auto;">
+                                       <ul class="list-group list-group-flush mb-0" style="z-index: 9999;">
+         
+                                             <li class="list-group-item" style="padding: 10px 20px !important;">
+                                                <div class="d-flex align-items-center" style="margin-bottom: 10px;">
+                                                   <div class="flex-fill">
+                                                         <p class="fw-bold mb-0">Data</p>
+                                                   </div>
+                                                </div>
+                                                <div class="form-group">
+                                                   <div class="input-group">
+                                                         <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
+                                                         <input type="text" placeholder="Filtrar por uma data" class="form-control dash-filter-picker flatpickr-input" id="inputDateFilter" data-provider="flatpickr" data-mode="range" data-date-format="d M Y" readonly="readonly">
+                                                   </div>
+                                                </div>
+                                             </li>
+         
+                                       </ul>
+                                       
+                                       <!-- Imagem do filtro -->
+                                       <div class="card-body image-fin-filter"> <img src="../../assets/images/media/media-finc.png" alt="" class="mb-1">
+                                             <div> <span class="fs-15 fw-semibold d-block mt-4 mb-3"></span>
+                                             </div> <span class="shape-1 text-primary"><i class="ti ti-circle fs-20 fw-bold"></i></span> 
+                                             <span class="shape-2 text-secondary"><i class="ti ti-triangle fs-20 fw-bold"></i></span> 
+                                             <span class="shape-3 text-warning"><i class="ti ti-square fs-20 fw-bold"></i></span>    
+                                             <span class="shape-4 text-info"><i class="ti ti-square-rotated fs-20 fw-bold"></i></span> 
+                                             <span class="shape-5 text-success"><i class="ti ti-pentagon fs-20 fw-bold"></i></span> 
+                                             <span class="shape-6 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span>    
+                                             <span class="shape-7 text-pink"><i class="ti ti-hexagon fs-20 fw-bold"></i></span> 
+                                             <span class="shape-8 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span> 
+                                             <span class="shape-9 text-primary"><i class="ti ti-circle fs-20 fw-bold"></i></span>    
+                                             <span class="shape-10 text-secondary"><i class="ti ti-triangle fs-20 fw-bold"></i></span> 
+                                             <span class="shape-11 text-warning"><i class="ti ti-square fs-20 fw-bold"></i></span> 
+                                             <span class="shape-12 text-info"><i class="ti ti-square-rotated fs-20 fw-bold"></i></span>    
+                                             <span class="shape-13 text-success"><i class="ti ti-pentagon fs-20 fw-bold"></i></span> 
+                                             <span class="shape-14 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span> 
+                                             <span class="shape-15 text-pink"><i class="ti ti-hexagon fs-20 fw-bold"></i></span>    
+                                             <span class="shape-16 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span> 
+                                       </div>
+                                       <!-- Botão do filtro -->
+                                       <div class="d-flex align-items-center justify-content-center" style="margin-bottom: 40px;">
+                                             <button class="btn btn-primary-gradient" id="btn-filter" style="width: 85%;">Filtrar</button>
+                                       </div>
+                                    </div>
+                                 </div>
+                           </div>
+                        </div> 
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+            <div>
+               <!-- Start: Gráfico e Lista de Faturas -->
+               <div class="row">
+                  <div class="col-xl-12">
+                     <div class="card custom-card">
+                        <div class="card-header justify-content-between">
+                           <div class="card-title"> Comerciais </div>
+                        </div>
+                        <div class="card-body"> <div class="table-responsive">
+                           <table class="table text-nowrap table-bordered">
+                              <thead>
+                                 <tr>
+                                    <th scope="col">Sender</th>
+                                    <th scope="col">Transaction Hash</th>
+                                    <th scope="col">Coin</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Amount</th>
+                                    <th scope="col">Receiver</th>
+                                    <th scope="col">Status</th>
+                                 </tr> 
+                              </thead>
+
+                              <tbody>
+                                 <tr>
+                                    <td>
+                                       <div class="d-flex align-items-center gap-2">
+                                          <span class="avatar avatar-xs avatar-rounded"> <img src="../assets/images/faces/10.jpg" alt=""> </span>
+                                          <div class="fw-semibold">Json Taylor</div>
+                                       </div>
+                                    </td>
+
+                                    <td>
+                                       <span>#1242232401</span>
+                                    </td>
+                                    
+                                    <td>
+                                       <div class="d-flex align-items-center gap-2"> <span class="avatar avatar-xs avatar-rounded"> <img src="../assets/images/crypto-currencies/regular/Bitcoin.svg" alt=""> </span>
+                                          <div class="fw-semibold">Bitcoin</div>
+                                       </div>
+                                    </td>
+                                    <td> <span>24,Jul 2023 - 4:23PM</span> </td>
+                                    <td> <span class="text-success">+0.041</span> </td>
+                                    <td> <span>Texas Steel</span> </td>
+                                    <td> <span class="badge bg-success-transparent">Success</span> </td>
+                                 </tr>
+                              </tbody>
+                           </table>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+            </div>
+         </div>
+      </div>
+   </div>
+
+   
+
+   <!-- Scroll To Top -->
+   <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+   <div id="responsive-overlay"></div>
+
+   <!-- Jquery -->
+   <script src="../../assets/libs/jQuery/jquery-3.6.1.min.js"></script>
+   <!-- Popper JS -->
+   <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+   <!-- Bootstrap JS -->
+   <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+   <!-- Color Picker JS -->
+   <script src="../../assets/libs/@simonwep/pickr/pickr.es5.min.js"></script>
+   <!-- Flat Picker JS -->
+   <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+   <!-- ApexCharts JS -->
+   <script src="../../assets/libs/apexCharts/apexCharts.js"></script>
+   <!-- Xlsx -->
+   <script src="../../assets/libs/xlsx/xlsx.full.min.js"></script>
+
+   <script src="../../assets/libs/datatables.min.js/jquery.dataTables.min.js"></script>
+   <script src="../../assets/libs/datatables.min.js/dataTables.bootstrap5.min.js"></script>
+   <script src="../../assets/libs/datatables.min.js/dataTables.responsive.min.js"></script>
+   <script src="../../assets/libs/datatables.min.js/dataTables.buttons.min.js"></script>
+   <script src="../../assets/libs/datatables.min.js/buttons.print.min.js"></script>
+   <script src="../../assets/libs/datatables.min.js/pdfmake.min.js"></script>
+   <script src="../../assets/libs/datatables.min.js/vfs_fonts.js"></script>
+   <script src="../../assets/libs/datatables.min.js/buttons.html5.min.js"></script>
+   <script src="../../assets/libs/datatables.min.js/jszip.min.js"></script>
+
+   <script src="../../assets/js/fetchAPI.js"></script>
+   <script src="./assets/js/script.js"></script>
+
+</body>
+
+</html>

@@ -90,7 +90,7 @@ const customerNegotiations = {
                 </div>
             </div>`
 
-        await sendEmail(['lucas@conlinebr.com.br'], '[Sirius System] Um novo pedido foi recebido! 🫡', userBody);
+        sendEmail(['lucas@conlinebr.com.br'], '[Sirius System] Um novo pedido foi recebido! 🫡', userBody);
         return true;
     },
     getRecords: async function () {

@@ -38,6 +38,7 @@ const api_customer_negotiations = require('./api-customer-negotiations');
 const api_maritime_import_main = require('./api-maritime-import-main');
 const api_maritime_import_adm = require('./api-maritime-import-adm');
 const api_part_lot_financial = require('./api-part-lot-financial');
+const api_expense_management = require('./expenseManagementRoutes');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -178,6 +179,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-customer-negotiations .js oi
   router.use('/customer-negotiations', api_customer_negotiations(io));
+
+  // Use as rotas do arquivo api-expense-management.js
+  router.use('/expense-management', api_expense_management(io));
 
   return router;
 };

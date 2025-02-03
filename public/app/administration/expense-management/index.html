@@ -17,12 +17,25 @@
     <!-- Main Styles -->
     <link href="../../assets/css/styles.min.css" rel="stylesheet">
     <link href="../../assets/css/icons.css" rel="stylesheet">
+
+    <link href="../../assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet">
+    
     
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    
 
-     <!-- Main Theme Js -->
-     <script src="../../assets/js/main.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+
+
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
     
     <!-- Module-specific Styles -->
     <link href="./assets/css/index.css" rel="stylesheet">
@@ -77,10 +90,12 @@
                                 <table id="expensesTable" class="table table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Nome do Gasto</th>
-                                            <th>Departamento</th>
+                                            <th>ID</th>
+                                            <th>Descrição</th>
                                             <th>Valor</th>
                                             <th>Data Pagamento</th>
+                                            <th>Departamento</th>
+                                            <th>Frequência</th>
                                             <th>Status</th>
                                             <th>Ações</th>
                                         </tr>
@@ -113,33 +128,31 @@
                 <div class="modal-body">
                     <form id="expenseForm">
                         <div class="mb-3">
-                            <label for="expenseName" class="form-label">Nome do Gasto</label>
-                            <input type="text" class="form-control" id="expenseName" required>
+                            <label for="description" class="form-label">Nome do Gasto</label>
+                            <input type="text" class="form-control" id="description" required>
                         </div>
                         <div class="mb-3">
-                            <label for="expenseDescription" class="form-label">Descrição</label>
-                            <textarea class="form-control" id="expenseDescription"></textarea>
+                            <label for="amount" class="form-label">Valor</label>
+                            <input type="text" class="form-control" id="amount" required>
                         </div>
                         <div class="mb-3">
-                            <label for="expenseAmount" class="form-label">Valor</label>
-                            <input type="number" class="form-control" id="expenseAmount" step="0.01" required>
+                            <label for="payment_date" class="form-label">Data de Pagamento</label>
+                            <input type="date" class="form-control" id="payment_date" required>
                         </div>
                         <div class="mb-3">
-                            <label for="paymentDate" class="form-label">Data de Pagamento</label>
-                            <input type="date" class="form-control" id="paymentDate" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="paymentStatus" class="form-label">Status de Pagamento</label>
-                            <select class="form-select" id="paymentStatus" required>
+                            <label for="status" class="form-label">Status de Pagamento</label>
+                            <select class="form-select" id="status" required>
                                 <option value="pending">Pendente</option>
-                                <option value="paid">Pago</option>
+                                <option value="approved">Aprovado</option>
+                                <option value="rejected">Rejeitado</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="paymentFrequency" class="form-label">Frequência de Pagamento</label>
-                            <select class="form-select" id="paymentFrequency" required>
+                            <label for="frequency" class="form-label">Frequência de Pagamento</label>
+                            <select class="form-select" id="frequency" required>
                                 <option value="single">Único</option>
                                 <option value="monthly">Recorrente Mensalmente</option>
+                                <option value="yearly">Recorrente Anualmente</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -159,11 +172,12 @@
     </div>
 
     <!-- Global Libraries -->
-    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+     <!-- SweetAlert JS -->
+   <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
     <!-- Module-specific Scripts -->
     <script src="./assets/js/expenses.js"></script>
 </body>

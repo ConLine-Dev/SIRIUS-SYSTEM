@@ -58,14 +58,14 @@
 }
 
 /* Modal Enhancements */
-.modal-header {
+/* .modal-header {
     background-color: #f1f3f5;
     border-bottom: 1px solid #e9ecef;
-}
+} */
 
-.modal-footer {
+/* .modal-footer {
     background-color: #f8f9fa;
-}
+} */
 
 /* Loading and Error States */
 .loader-container {

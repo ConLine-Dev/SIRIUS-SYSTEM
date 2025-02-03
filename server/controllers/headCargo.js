@@ -3382,7 +3382,6 @@ LEFT OUTER JOIN
     }
 
     if (status && status === 'PENDING' ) {
-      console.log('trueee---')
       whereClause = `WHERE ${groupBy ? groupBy : 'repurchases.process_id'} = ?`;
       whereClause += ` AND repurchases.status = '${status}'`;
     }
@@ -3574,6 +3573,75 @@ LEFT OUTER JOIN
           actionType,
           reason || null
       ]);
+
+
+      if (status === 'REJECTED') {
+         const query = `
+            SELECT
+               repurchases.*,
+               clt.email_business,
+               CONCAT(clt.name, ' ', clt.family_name) AS fullNameAproved,
+               CONCAT(clt.name, ' ', clt.family_name) AS fullName -- Nome completo do colaborador  
+            FROM
+               repurchases
+            LEFT JOIN
+               collaborators clt ON clt.id = repurchases.created_by
+            LEFT JOIN
+               collaborators cltAproved ON cltAproved.id = repurchases.approved_by
+            WHERE repurchases.id = ?
+            ORDER BY
+               repurchases.creation_date DESC`;
+      
+         const result = await executeQuery(query, [repurchase_id]);
+      
+         // Função para formatar a data no formato DD/MM/YYYY HH:mm:ss
+         function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${day}/${month}/${year}`;
+         }
+      
+         // Formatação das informações da recompra
+         const formattedCreationDate = formatDate(result[0].creation_date);
+         const taxName = result[0].fee_name || 'Não especificado';
+         const processReference = result[0].referenceProcess || 'Não disponível';
+      
+         // Montagem do corpo do email
+         let messageBody = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+               <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+                  <h1 style="margin: 0; font-size: 24px;">Recompra Recusada</h1>
+               </div>
+               <div style="padding: 20px; background-color: #f9f9f9;">
+                  <p style="color: #333; font-size: 16px;">Olá, <strong>${result[0].fullName}</strong>,</p>
+                  <p style="color: #333; font-size: 16px; line-height: 1.6;">
+                     Infelizmente, a recompra solicitada foi recusada. Abaixo estão os detalhes da solicitação:
+                  </p>
+                  <ul style="list-style-type: none; padding: 0; margin: 0; line-height: 1.8;">
+                     <li><strong>Taxa:</strong> ${taxName}</li>
+                     <li><strong>Data da Criação:</strong> ${formattedCreationDate}</li>
+                     <li><strong>Referência do Processo:</strong> ${processReference}</li>
+                  </ul>
+                  <p style="color: #F9423A; font-size: 18px; font-weight: bold; line-height: 1.6; margin-top: 20px;">
+                     Motivo da Recusa: ${result[0].reason || 'Motivo não informado'}
+                  </p>
+                  <p style="color: #333; font-size: 16px; line-height: 1.6; margin-top: 20px;">
+                     Caso tenha dúvidas ou precise de mais informações, entre em contato com seu líder.
+                  </p>
+               </div>
+               <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+                  <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+               </div>
+            </div>`;
+      
+         // Envio do email
+         sendEmail(result[0].email_business, '[Sirius System] - Recompra Recusada', messageBody);
+      }
   
       return { message: `Recompra ${status.toLowerCase()} com sucesso` };
    },

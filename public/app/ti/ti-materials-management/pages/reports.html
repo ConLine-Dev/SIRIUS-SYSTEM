@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR" dir="ltr" 
+    data-nav-layout="vertical" 
+    data-theme-mode="light" 
+    data-header-styles="light"
+    data-menu-styles="dark" 
+    loader="true" 
+    data-vertical-style="overlay">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - Gestão de Materiais de TI</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="../../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Main Styles -->
+    <link href="../../../assets/css/styles.min.css" rel="stylesheet">
+    <link href="../../../assets/css/icons.css" rel="stylesheet">
+
+    <link href="../../../assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet">
+    
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="../../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Main Theme Js -->
+    <script src="../../../assets/js/main.js"></script>
+    
+    <!-- Module-specific Styles -->
+    <link href="../assets/css/index.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Loader -->
+    <div id="loader" class="loader-container">
+        <div class="loader"></div>
+    </div>
+
+    <div>
+        <div class="main-content" style="margin-top: 10px;">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h4 class="card-title">Relatórios de Materiais</h4>
+                                <div>
+                                    <button id="export-pdf" class="btn btn-danger me-2">
+                                        <i class="ri-file-pdf-line me-1"></i> Exportar PDF
+                                    </button>
+                                    <button id="export-excel" class="btn btn-success">
+                                        <i class="ri-file-excel-line me-1"></i> Exportar Excel
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">Tipo de Relatório</label>
+                                        <select id="report-type" class="form-select">
+                                            <option value="stock_summary">Resumo de Estoque</option>
+                                            <option value="material_movements">Movimentações de Materiais</option>
+                                            <option value="collaborator_materials">Materiais por Colaborador</option>
+                                            <option value="low_stock_materials">Materiais com Baixo Estoque</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Data Inicial</label>
+                                        <input type="date" id="start-date" class="form-control">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Data Final</label>
+                                        <input type="date" id="end-date" class="form-control">
+                                    </div>
+                                </div>
+
+                                <div class="table-responsive">
+                                    <table id="reports-table" class="table ti-materials-table">
+                                        <thead>
+                                            <!-- Cabeçalho será preenchido dinamicamente -->
+                                        </thead>
+                                        <tbody id="reports-table-body">
+                                            <!-- Dados serão carregados dinamicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Detalhes do Relatório -->
+        <div class="modal fade" id="report-details-modal" tabindex="-1">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 id="report-details-title" class="modal-title">Detalhes do Relatório</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="report-details-body">
+                        <!-- Detalhes do relatório serão carregados dinamicamente -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bibliotecas Globais -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="../../../assets/libs/sweetalert2/sweetalert2.min.js"></script>
+
+    <!-- Bibliotecas de Exportação -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+
+    <!-- Scripts do Módulo -->
+    <script src="../assets/js/reports.js"></script>
+
+    <script>
+    document.querySelector('#loader').classList.add('d-none')</script>
+    <script>
+        class ReportManager {
+            constructor() {
+                this.initEventListeners();
+            }
+
+            initEventListeners() {
+                $('#report-type').on('change', this.loadReportData.bind(this));
+                $('#start-date, #end-date').on('change', this.loadReportData.bind(this));
+                $('#export-pdf').on('click', this.exportToPDF.bind(this));
+                $('#export-excel').on('click', this.exportToExcel.bind(this));
+            }
+
+            async loadReportData() {
+                const reportType = $('#report-type').val();
+                const startDate = $('#start-date').val();
+                const endDate = $('#end-date').val();
+
+                try {
+                    const response = await fetch(`/api/ti-materials/reports?type=${reportType}&start=${startDate}&end=${endDate}`);
+                    const reportData = await response.json();
+                    this.renderReportTable(reportData, reportType);
+                } catch (error) {
+                    this.showToast('Erro ao carregar relatório', 'danger');
+                }
+            }
+
+            renderReportTable(data, type) {
+                const tableHead = $('#reports-table thead');
+                const tableBody = $('#reports-table-body');
+                tableHead.empty();
+                tableBody.empty();
+
+                const reportConfigs = {
+                    'stock_summary': {
+                        headers: ['Material', 'Categoria', 'Estoque Atual', 'Estoque Mínimo', 'Status'],
+                        renderRow: (item) => `
+                            <tr>
+                                <td>${item.name}</td>
+                                <td>${item.category}</td>
+                                <td>${item.current_stock}</td>
+                                <td>${item.minimum_stock}</td>
+                                <td>
+                                    <span class="badge ${this.getStockStatusClass(item)}">
+                                        ${this.getStockStatusText(item)}
+                                    </span>
+                                </td>
+                            </tr>
+                        `
+                    },
+                    // Adicionar outras configurações de relatórios
+                };
+
+                const config = reportConfigs[type];
+                if (config) {
+                    const headerRow = config.headers.map(h => `<th>${h}</th>`).join('');
+                    tableHead.html(`<tr>${headerRow}</tr>`);
+
+                    const rows = data.map(config.renderRow).join('');
+                    tableBody.html(rows);
+                }
+            }
+
+            getStockStatusClass(item) {
+                const ratio = item.current_stock / item.minimum_stock;
+                if (ratio <= 0.2) return 'bg-danger text-white';
+                if (ratio <= 0.5) return 'bg-warning text-dark';
+                return 'bg-success text-white';
+            }
+
+            getStockStatusText(item) {
+                const ratio = item.current_stock / item.minimum_stock;
+                if (ratio <= 0.2) return 'Crítico';
+                if (ratio <= 0.5) return 'Baixo';
+                return 'Normal';
+            }
+
+            exportToPDF() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.text('Relatório de Materiais', 10, 10);
+                doc.autoTable({ html: '#reports-table' });
+                doc.save('relatorio_materiais.pdf');
+            }
+
+            exportToExcel() {
+                const wb = XLSX.utils.table_to_book(document.getElementById('reports-table'));
+                XLSX.writeFile(wb, 'relatorio_materiais.xlsx');
+            }
+
+            showToast(message, type = 'info') {
+                const toastContainer = $('.toast-container');
+                const toast = `
+                    <div class="toast align-items-center text-bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">${message}</div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                `;
+                toastContainer.append(toast);
+                new bootstrap.Toast(toastContainer.find('.toast:last')).show();
+            }
+        }
+
+        // Inicialização
+        $(document).ready(() => {
+            const reportManager = new ReportManager();
+        });
+    </script>
+</body>
+</html>

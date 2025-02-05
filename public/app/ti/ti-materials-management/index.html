@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR" dir="ltr" 
+    data-nav-layout="vertical" 
+    data-theme-mode="light" 
+    data-header-styles="light"
+    data-menu-styles="dark" 
+    loader="true" 
+    data-vertical-style="overlay">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Materiais de TI - SIRIUS SYSTEM</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Main Styles -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    
+    
+    <!-- Module-specific Styles -->
+    <link href="./assets/css/index.css" rel="stylesheet">
+
+   
+</head>
+<body>
+    <!-- Loader -->
+    <div id="loader" class="loader-container">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div>
+  
+        <div class="main-content" style="margin-top: 10px;">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-xl-4 col-lg-4 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <span class="avatar avatar-md bg-primary text-white">
+                                            <i class="ri-archive-line fs-18"></i>
+                                        </span>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <p class="text-muted mb-0">Total de Materiais</p>
+                                        <h4 class="mb-0" id="total-materials">0</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <span class="avatar avatar-md bg-success text-white">
+                                            <i class="ri-exchange-line fs-18"></i>
+                                        </span>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <p class="text-muted mb-0">Materiais em Uso</p>
+                                        <h4 class="mb-0" id="materials-in-use">0</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-4 col-lg-4 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <span class="avatar avatar-md bg-warning text-white">
+                                            <i class="ri-alert-line fs-18"></i>
+                                        </span>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <p class="text-muted mb-0">Materiais com Baixo Estoque</p>
+                                        <h4 class="mb-0" id="low-stock-materials">0</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title">Últimas Movimentações</h4>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#material-allocation-modal">
+                                <i class="ri-exchange-line me-1"></i> Alocar Material
+                            </button>
+                            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#material-return-modal">
+                                <i class="ri-refresh-line me-1"></i> Devolver Material
+                            </button>
+                            <button onclick="window.open('./pages/stock-management.html', '_blank', 'width=1200,height=800,resizable=yes,scrollbars=yes')" class="btn btn-info">
+                                <i class="ri-database-line me-1"></i> Gerenciar Estoque
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Material</th>
+                                        <th>Colaborador</th>
+                                        <th>Tipo</th>
+                                        <th>Quantidade</th>
+                                        <th>Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-movements-body">
+                                    <!-- Movimentações serão carregadas dinamicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Registro de Material -->
+    <div class="modal fade" id="material-registration-modal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Material</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="material-registration-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nome do Material</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">SKU</label>
+                                <input type="text" name="sku" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Categoria</label>
+                                <select name="category" class="form-select" required>
+                                    <option value="hardware">Hardware</option>
+                                    <option value="software">Software</option>
+                                    <option value="acessorio">Acessório</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quantidade Inicial</label>
+                                <input type="number" name="initial_stock" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Estoque Mínimo</label>
+                                <input type="number" name="minimum_stock" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Status</label>
+                                <select name="status" class="form-select" required>
+                                    <option value="ativo">Ativo</option>
+                                    <option value="inativo">Inativo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Salvar Material</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Alocação de Material -->
+    <div class="modal fade" id="material-allocation-modal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Alocar Material</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="material-allocation-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Colaborador</label>
+                                <select name="collaborator_id" class="form-select" required>
+                                    <!-- Opções de colaboradores serão carregadas dinamicamente -->
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Material</label>
+                                <select name="material_id" class="form-select" required>
+                                    <!-- Opções de materiais serão carregadas dinamicamente -->
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quantidade</label>
+                                <input type="number" name="quantity" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Motivo da Alocação</label>
+                                <select name="reason" class="form-select">
+                                    <option value="projeto">Projeto</option>
+                                    <option value="manutencao">Manutenção</option>
+                                    <option value="uso_pessoal">Uso Pessoal</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Observações</label>
+                                <textarea name="observations" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Alocar Material</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Devolução de Material -->
+    <div class="modal fade" id="material-return-modal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Devolver Material</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="material-return-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Colaborador</label>
+                                <select name="collaborator_id" class="form-select" required>
+                                    <!-- Opções de colaboradores serão carregadas dinamicamente -->
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Material</label>
+                                <select name="material_id" class="form-select" required>
+                                    <!-- Opções de materiais alocados serão carregadas dinamicamente -->
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Quantidade a Devolver</label>
+                                <input type="number" name="quantity" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Estado do Material</label>
+                                <select name="material_condition" class="form-select">
+                                    <option value="perfeito">Perfeito</option>
+                                    <option value="com_defeito">Com Defeito</option>
+                                    <option value="danificado">Danificado</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Observações</label>
+                                <textarea name="observations" class="form-control" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-warning">Devolver Material</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+
+    <!-- Bibliotecas Globais -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- Scripts do Módulo -->
+    <script src="./assets/js/material-management.js"></script>
+
+    <script>
+    document.querySelector('#loader').classList.add('d-none')
+    </script>
+</body>
+</html>

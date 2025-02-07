@@ -21,19 +21,22 @@
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
+    <!-- Main Theme Js -->
+    <script src="../../../assets/js/main.js"></script>
+
     <!-- Module-specific Styles -->
     <link href="../assets/css/index.css" rel="stylesheet">
 </head>
 <body>
     <!-- Loader -->
-    <!-- <div id="loader" class="loader-container">
+    <div id="loader" class="loader-container">
         <div class="loader"></div>
-    </div> -->
+    </div>
 
     <!-- Main Container -->
     <div class="main-content" style="margin-top: 10px;">
         <div class="container-fluid">
-            <div class="row">
+            <div class="row" style="display: none;">
                 <div class="col-xl-4 col-lg-4 col-md-6">
                     <div class="card">
                         <div class="card-body">
@@ -321,10 +324,25 @@
             </div>
 
             <!-- Scripts -->
-            <script src="../../../assets/libs/jquery/jquery.min.js"></script>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+            <!-- Bootstrap JS -->
             <script src="../../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
-            <script src="../../../assets/js/main.js"></script>
+            
+            <!-- Bibliotecas Globais -->
+            <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+            <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+
+            <!-- Scripts do Módulo -->
+            <script src="../assets/js/material-api.js"></script>
             <script src="../assets/js/stock-management.js"></script>
+
+            <!-- Container de Toast -->
+            <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3 z-3"></div>
+
+            <script>
+            document.querySelector('#loader').classList.add('d-none')
+            </script>
         </div>
     </div>
 </body>

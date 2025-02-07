@@ -113,7 +113,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-hover" id="recent-movements-table">
                                 <thead>
                                     <tr>
                                         <th>Material</th>
@@ -217,9 +217,10 @@
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Motivo da Alocação</label>
                                 <select name="reason" class="form-select">
+                                    <option value="uso_pessoal" selected>Uso Pessoal</option>
                                     <option value="projeto">Projeto</option>
                                     <option value="manutencao">Manutenção</option>
-                                    <option value="uso_pessoal">Uso Pessoal</option>
+                                    
                                 </select>
                             </div>
                             <div class="col-md-12 mb-3">
@@ -299,6 +300,7 @@
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 
     <!-- Scripts do Módulo -->
+    <script src="./assets/js/material-api.js"></script>
     <script src="./assets/js/material-management.js"></script>
 
     <script>

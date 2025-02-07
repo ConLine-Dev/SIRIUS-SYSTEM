@@ -112,5 +112,140 @@ module.exports = function(io) {
         }
     });
 
+    // Rota para buscar ID da alocação
+    router.get('/allocations/find', async (req, res) => {
+        try {
+            const { material_id, collaborator_id, quantity } = req.query;
+
+            // Converter para números inteiros
+            const allocationData = {
+                material_id: parseInt(material_id, 10),
+                collaborator_id: parseInt(collaborator_id, 10),
+                quantity: parseInt(quantity, 10)
+            };
+
+            // Validar parâmetros
+            if (!allocationData.material_id || !allocationData.collaborator_id || !allocationData.quantity) {
+                return res.status(400).json({ 
+                    error: 'Parâmetros inválidos', 
+                    details: 'Material, colaborador e quantidade são obrigatórios' 
+                });
+            }
+
+            // Buscar alocação usando o método do controlador
+            const allocation = await MaterialControl.findActiveAllocation(allocationData);
+
+            res.status(200).json([allocation]);
+        } catch (error) {
+            console.error('Erro ao buscar ID da alocação:', error);
+            res.status(500).json({ 
+                error: 'Erro ao buscar alocação', 
+                details: error.message 
+            });
+        }
+    });
+
+    // Rota para sincronizar estoque de um material específico
+    router.post('/materials/:id/sync-stock', async (req, res) => {
+        try {
+            const materialId = req.params.id;
+            const result = await MaterialControl.calculateAndSyncStock(materialId);
+            res.status(200).json(result);
+        } catch (error) {
+            console.error('Erro ao sincronizar estoque do material:', error);
+            res.status(500).json({ 
+                error: 'Erro ao sincronizar estoque do material', 
+                details: error.message 
+            });
+        }
+    });
+
+    // Rota para sincronizar estoque de todos os materiais
+    router.post('/materials/sync-stock', async (req, res) => {
+        try {
+            const result = await MaterialControl.syncAllMaterialsStock();
+            res.status(200).json(result);
+        } catch (error) {
+            console.error('Erro ao sincronizar estoque de todos os materiais:', error);
+            res.status(500).json({ 
+                error: 'Erro ao sincronizar estoque de todos os materiais', 
+                details: error.message 
+            });
+        }
+    });
+
+    // Rota para calcular estoque disponível de um material específico
+    router.get('/materials/:id/available-stock', async (req, res) => {
+        try {
+            const materialId = req.params.id;
+            const result = await MaterialControl.calculateAvailableStock(materialId);
+            res.status(200).json(result);
+        } catch (error) {
+            console.error('Erro ao calcular estoque disponível do material:', error);
+            res.status(500).json({ 
+                error: 'Erro ao calcular estoque disponível do material', 
+                details: error.message 
+            });
+        }
+    });
+
+    // Rota para calcular estoque disponível de todos os materiais
+    router.get('/materials/available-stock', async (req, res) => {
+        try {
+            const result = await MaterialControl.syncAllMaterialsStock();
+            res.status(200).json(result);
+        } catch (error) {
+            console.error('Erro ao calcular estoque disponível de todos os materiais:', error);
+            res.status(500).json({ 
+                error: 'Erro ao calcular estoque disponível de todos os materiais', 
+                details: error.message 
+            });
+        }
+    });
+
+    // Rota para obter detalhes de estoque de um material específico
+    router.get('/materials/:id/stock-details', async (req, res) => {
+        try {
+            const materialId = req.params.id;
+            const stockDetails = await MaterialControl.calculateAvailableStock(materialId);
+            res.status(200).json(stockDetails);
+        } catch (error) {
+            console.error('Erro ao buscar detalhes de estoque do material:', error);
+            res.status(500).json({ 
+                error: 'Erro ao buscar detalhes de estoque do material', 
+                details: error.message 
+            });
+        }
+    });
+
+    // Rota para buscar materiais alocados por colaborador
+    router.get('/allocations/collaborator/:collaboratorId', async (req, res) => {
+        try {
+            const collaboratorId = parseInt(req.params.collaboratorId, 10);
+
+            // Validar parâmetro
+            if (!collaboratorId || isNaN(collaboratorId)) {
+                return res.status(400).json({ 
+                    error: 'Parâmetro inválido', 
+                    details: 'ID do colaborador é obrigatório' 
+                });
+            }
+
+            // Buscar materiais alocados usando o método do controlador
+            const allocatedMaterials = await MaterialControl.getAllocatedMaterialsByCollaborator(collaboratorId);
+
+            res.status(200).json(allocatedMaterials);
+        } catch (error) {
+            console.error('Erro ao buscar materiais alocados por colaborador:', error);
+            res.status(500).json({ 
+                error: 'Erro ao buscar materiais alocados', 
+                details: error.message 
+            });
+        }
+    });
+
+    // Rota para editar material
+    router.put('/edit-material', MaterialControl.editMaterial);
+
     return router;
 };

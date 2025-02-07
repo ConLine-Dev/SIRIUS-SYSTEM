@@ -1,0 +1,88 @@
+/* Estilos específicos para o módulo de Gestão de Materiais de TI */
+
+/* Cards de Dashboard */
+.dashboard-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Tabelas de Materiais e Movimentações */
+.ti-materials-table,
+.ti-movements-table {
+    width: 100%;
+}
+
+.ti-materials-table thead,
+.ti-movements-table thead {
+    background-color: var(--primary-subtle);
+}
+
+/* Status de Materiais */
+.material-status {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+}
+
+.material-status-ativo {
+    background-color: var(--green-subtle);
+    color: var(--green-text);
+}
+
+.material-status-inativo {
+    background-color: var(--red-subtle);
+    color: var(--red-text);
+}
+
+/* Alertas de Estoque */
+.stock-alert {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+}
+
+.stock-alert-low {
+    background-color: var(--orange-subtle);
+    color: var(--orange-text);
+}
+
+.stock-alert-critical {
+    background-color: var(--red-subtle);
+    color: var(--red-text);
+}
+
+/* Formulários de Registro */
+.ti-materials-form .form-group {
+    margin-bottom: 1rem;
+}
+
+/* Modais de Confirmação */
+.ti-materials-modal .modal-header {
+    background-color: var(--primary-subtle);
+    color: var(--primary-text);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .ti-materials-table,
+    .ti-movements-table {
+        font-size: 0.9rem;
+    }
+}
+
+/* Animações */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}

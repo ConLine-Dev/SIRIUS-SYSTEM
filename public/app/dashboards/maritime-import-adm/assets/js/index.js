@@ -1,14 +1,8 @@
-let openedArray = [];
-let canceledArray = [];
-let sentMailArray = [];
-let receivedMailArray = [];
-let repurchaseArray = [];
+let mailChart, cancelChart, repurchaseChart;
 
-async function printProcesses() {
+async function printProcesses(headcargo) {
 
-  let loggedData = await getInfosLogin();
-  let userId = loggedData.system_id_headcargo;
-  let processes = await makeRequest(`/api/maritime-import-main/totalProcesses`, 'POST', { userId });
+  let processes = await makeRequest(`/api/maritime-import-adm/totalProcesses`, 'POST', { userId: headcargo });
 
   let divNoETD = document.getElementById('noETD');
   let countNoETD = 0;
@@ -44,57 +38,91 @@ async function printProcesses() {
 
 }
 
-async function getInfosLogin() {
-  const StorageGoogleData = localStorage.getItem('StorageGoogle');
-  const StorageGoogle = JSON.parse(StorageGoogleData);
+async function createFilters() {
+  const dropdown = document.getElementById('dropdown');
 
-  return StorageGoogle;
-};
+  let operationalList = await makeRequest(`/api/maritime-import-adm/getOperationals`);
 
-async function createCancelArrays() {
+  operationalList.forEach(item => {
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    
+    a.className = 'dropdown-item';
+    a.href = 'javascript:void(0);';
+    a.textContent = `${item.name} ${item.family_name}`;
+    
+    // Define a função onclick com os parâmetros corretos
+    a.onclick = () => createArrays(item);
+    
+    li.appendChild(a);
+    dropdown.appendChild(li);
+});
+}
 
-  let loggedData = await getInfosLogin();
+async function createArrays(item) {
+  document.querySelector('#loader2').classList.remove('d-none')
+  await createMailArrays(item.email_business);
+  await createCancelArrays(item.id_headcargo);
+  await createRepurchaseArrays(item.id_headcargo);
+  await printProcesses(item.id_headcargo);
+  document.querySelector('#loader2').classList.add('d-none')
+}
 
-  let userId = loggedData.system_id_headcargo;
+async function createCancelArrays(headcargo) {
 
-  let openedProcesses = await makeRequest(`/api/maritime-import-main/openedProcesses`, 'POST', { userId })
-  let canceledProcesses = await makeRequest(`/api/maritime-import-main/canceledProcesses`, 'POST', { userId })
+  let openedArray = [];
+  let canceledArray = [];
+
+  let openedProcesses = await makeRequest(`/api/maritime-import-adm/openedProcesses`, 'POST', { userId: headcargo })
+  let canceledProcesses = await makeRequest(`/api/maritime-import-adm/canceledProcesses`, 'POST', { userId: headcargo })
 
   for (let index = 0; index < openedProcesses.length; index++) {
-    if (openedProcesses[index].mes - 1 == index) {
-      openedArray[index] = openedProcesses[index].TotalProcessosAbertos
+    for (let index2 = 0; index2 < 12; index2++) {
+      if (openedProcesses[index].mes - 1 == index2) {
+        openedArray[index2] = openedProcesses[index].TotalProcessosAbertos;
+      } else if (openedArray[index2] == null) {
+        openedArray[index2] = 0;
+      }
     }
   }
 
   for (let index = 0; index < canceledProcesses.length; index++) {
     for (let index2 = 0; index2 < 12; index2++) {
       if (canceledProcesses[index].mes - 1 == index2) {
-        canceledArray[index2] = canceledProcesses[index].TotalProcessosCancelados
+        canceledArray[index2] = canceledProcesses[index].TotalProcessosCancelados;
       } else if (canceledArray[index2] == null) {
         canceledArray[index2] = 0;
       }
     }
   }
+
+  createCancelChart(openedArray, canceledArray);
 }
 
-async function createMailArrays() {
-  let loggedData = await getInfosLogin();
+async function createMailArrays(email) {
 
-  let email = loggedData.email
+  let sentMailArray = [];
+  let receivedMailArray = [];
 
-  let emailsList = await makeRequest(`/api/maritime-import-main/totalEmails`, 'POST', { email });
+  let emailsList = await makeRequest(`/api/maritime-import-adm/totalEmails`, 'POST', {email});
 
-  for (let index = 0; index < emailsList.length; index++) {
-    if (emailsList[index].mes - 1 == index) {
-      sentMailArray[index] = emailsList[index].enviados;
-      receivedMailArray[index] = emailsList[index].recebidos;
-    }
-  }
+  emailsList.forEach(item => {
+    const mesIndex = item.mes - 1;
+
+    if (!sentMailArray[mesIndex]) sentMailArray[mesIndex] = 0;
+    if (!receivedMailArray[mesIndex]) receivedMailArray[mesIndex] = 0;
+
+    sentMailArray[mesIndex] += item.enviados;
+    receivedMailArray[mesIndex] += item.recebidos;
+  });
+
+  createMailChart(sentMailArray, receivedMailArray);
 }
 
-async function createRepurchaseArrays() {
-  let loggedData = await getInfosLogin();
-  let userId = loggedData.system_id_headcargo
+async function createRepurchaseArrays(userId) {
+
+  let repurchaseArray = [];
+
   let repurchases = await makeRequest(`/api/maritime-import-main/repurchases`, 'POST', { userId });
 
   for (let index = 0; index < repurchases.length; index++) {
@@ -109,10 +137,15 @@ async function createRepurchaseArrays() {
       }
     }
   }
+  createRepurchaseChart(repurchaseArray);
 }
 
-function createMailChart() {
+function createMailChart(sentMailArray, receivedMailArray) {
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  if (mailChart) {
+    mailChart.destroy();
+  }
 
   var chartData = {
 
@@ -179,12 +212,16 @@ function createMailChart() {
     },
   };
 
-  var chart = new ApexCharts(document.querySelector('#mails-chart'), chartData);
-  chart.render();
+  mailChart = new ApexCharts(document.querySelector('#mails-chart'), chartData);
+  mailChart.render();
 }
 
-function createCancelChart() {
+function createCancelChart(openedArray, canceledArray) {
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  if (cancelChart) {
+    cancelChart.destroy();
+  }
 
   var chartData = {
 
@@ -265,12 +302,16 @@ function createCancelChart() {
 
   };
 
-  var chart = new ApexCharts(document.querySelector('#cancels-chart'), chartData);
-  chart.render();
+  cancelChart = new ApexCharts(document.querySelector('#cancels-chart'), chartData);
+  cancelChart.render();
 }
 
-function createRepurchaseChart() {
+function createRepurchaseChart(repurchaseArray) {
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  if (repurchaseChart) {
+    repurchaseChart.destroy();
+  }
 
   var chartData = {
     series: [{
@@ -333,8 +374,8 @@ function createRepurchaseChart() {
 
 
 
-  var chart = new ApexCharts(document.querySelector('#repurchase-chart'), chartData);
-  chart.render();
+  repurchaseChart = new ApexCharts(document.querySelector('#repurchase-chart'), chartData);
+  repurchaseChart.render();
 }
 
 function openWindow(url, width, height) {
@@ -343,12 +384,11 @@ function openWindow(url, width, height) {
 
 document.addEventListener('DOMContentLoaded', async function () {
 
-  await printProcesses();
-  await createMailArrays();
-  createMailChart();
-  await createCancelArrays();
-  createCancelChart();
-  await createRepurchaseArrays();
-  createRepurchaseChart();
+  await printProcesses(0);
+  await createFilters();
+  await createMailArrays('');
+  await createCancelArrays(0);
+  await createRepurchaseArrays(0);
 
+  document.querySelector('#loader2').classList.add('d-none')
 });

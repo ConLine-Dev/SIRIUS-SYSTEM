@@ -28,7 +28,10 @@ class MaterialManagement {
             'clearFilters',
             'clearGrouping',
             'handleMaterialAllocation',
-            'updateTables'
+            'handleMaterialReturn',
+            'updateTables',
+            'loadAllocatedMaterials',  
+            'populateReturnMaterialSelects'  
         ];
 
         methodsToBind.forEach(method => {
@@ -55,6 +58,18 @@ class MaterialManagement {
         const allocationForm = document.getElementById('material-allocation-form');
         if (allocationForm) {
             allocationForm.addEventListener('submit', this.handleMaterialAllocation);
+        }
+
+        // Inicializar formulário de devolução
+        const returnForm = document.getElementById('material-return-form');
+        if (returnForm) {
+            returnForm.addEventListener('submit', this.handleMaterialReturn);
+        }
+
+        // Inicializar select de colaborador para devolução
+        const returnCollaboratorSelect = document.getElementById('return-collaborator-select');
+        if (returnCollaboratorSelect) {
+            returnCollaboratorSelect.addEventListener('change', this.loadAllocatedMaterials);
         }
 
         // Configurar filtros e agrupamentos
@@ -496,7 +511,8 @@ class MaterialManagement {
                 },
                 { 
                     title: 'Data',
-                    className: 'align-middle'
+                    className: 'align-middle',
+                    render: (data) => this.formatDateToBrazilianTime(data)
                 }
             ],
             order: [[4, 'desc']], // Ordenar por data decrescente
@@ -545,7 +561,7 @@ class MaterialManagement {
                                         .append(
                                             $('<button/>')
                                                 .addClass('btn btn-sm btn-icon me-2 toggle-group')
-                                                .append($('<i/>').addClass('ti ' + icon)),
+                                                .append($('<i/>').addClass('ti ' + icon + ' ti-chevron-right')),
                                             $('<span/>').addClass('fw-bold').text(group),
                                             $('<span/>')
                                                 .addClass('badge bg-primary ms-2')
@@ -562,12 +578,49 @@ class MaterialManagement {
         });
     }
 
+    // Função auxiliar para formatar data para horário brasileiro
+    formatDateToBrazilianTime(dateStr) {
+        if (!dateStr) return '';
+        
+        try {
+            // Separa data e hora
+            const [data, hora] = dateStr.split(', ');
+            
+            // Separa dia, mês e ano
+            const [dia, mes, ano] = data.split('/');
+            
+            // Cria a data no formato correto
+            const date = new Date(`${ano}-${mes}-${dia}T${hora}`);
+            
+            // Verifica se a data é válida
+            if (isNaN(date.getTime())) {
+                console.error('Data inválida:', dateStr);
+                return dateStr;
+            }
+            
+            // Ajusta para UTC-3 (horário do Brasil)
+            const dataLocal = new Date(date.getTime() - (3 * 60 * 60 * 1000));
+            
+            const diaFormatado = String(dataLocal.getDate()).padStart(2, '0');
+            const mesFormatado = String(dataLocal.getMonth() + 1).padStart(2, '0');
+            const anoFormatado = dataLocal.getFullYear();
+            const horaFormatada = String(dataLocal.getHours()).padStart(2, '0');
+            const minutoFormatado = String(dataLocal.getMinutes()).padStart(2, '0');
+            const segundoFormatado = String(dataLocal.getSeconds()).padStart(2, '0');
+            
+            return `${diaFormatado}/${mesFormatado}/${anoFormatado} ${horaFormatada}:${minutoFormatado}:${segundoFormatado}`;
+        } catch (error) {
+            console.error('Erro ao formatar data:', error, dateStr);
+            return dateStr; // Retorna a data original em caso de erro
+        }
+    }
+
     // Método para popular selects de alocação e alocar material
     async populateAllocationSelects() {
         try {
             // Buscar colaboradores
             const collaborators = await this.materialAPI.getCollaborators();
-            const collaboratorSelect = document.querySelector('select[name="collaborator_id"]');
+            const collaboratorSelect = document.querySelector('#material-allocation-modal select[name="collaborator_id"]');
             
             if (collaboratorSelect) {
                 collaboratorSelect.innerHTML = '<option value="">Selecione um colaborador</option>';
@@ -581,7 +634,8 @@ class MaterialManagement {
 
             // Buscar materiais
             const materialsResponse = await this.materialAPI.getAllMaterials();
-            const materialSelect = document.querySelector('select[name="material_id"]');
+            const materialSelect = document.querySelector('#material-allocation-modal select[name="material_id"]');
+            const quantityInput = document.querySelector('#material-allocation-modal input[name="quantity"]');
             
             if (materialSelect) {
                 materialSelect.innerHTML = '<option value="">Selecione um material</option>';
@@ -604,6 +658,7 @@ class MaterialManagement {
                         0;
                     
                     option.textContent = `${material.name} (${material.sku}) - Estoque: ${availableStock}`;
+                    option.dataset.maxQuantity = availableStock;
                     
                     // Desabilitar materiais sem estoque
                     if (availableStock <= 0) {
@@ -612,6 +667,34 @@ class MaterialManagement {
                     }
                     
                     materialSelect.appendChild(option);
+                });
+
+                // Adicionar evento para validar quantidade quando selecionar material
+                materialSelect.addEventListener('change', () => {
+                    if (quantityInput) {
+                        const selectedOption = materialSelect.options[materialSelect.selectedIndex];
+                        const maxQuantity = selectedOption.dataset.maxQuantity;
+                        
+                        if (maxQuantity && parseInt(maxQuantity) > 0) {
+                            quantityInput.max = maxQuantity;
+                            quantityInput.value = '';
+                            quantityInput.placeholder = `Máximo: ${maxQuantity}`;
+
+                            // Adicionar validação de quantidade
+                            quantityInput.addEventListener('input', (event) => {
+                                const value = parseInt(event.target.value);
+                                const max = parseInt(maxQuantity);
+                                
+                                if (value > max) {
+                                    event.target.value = max;
+                                    showToast('Atenção', `A quantidade máxima disponível é ${max}`, 'warning');
+                                } else if (value < 1) {
+                                    event.target.value = 1;
+                                    showToast('Atenção', 'A quantidade mínima é 1', 'warning');
+                                }
+                            });
+                        }
+                    }
                 });
             }
 
@@ -675,29 +758,44 @@ class MaterialManagement {
         try {
             // Buscar colaboradores com materiais alocados
             const collaborators = await this.materialAPI.getCollaboratorsWithAllocatedMaterials();
+            console.log('Colaboradores recebidos:', collaborators);
+            
             const collaboratorSelect = document.querySelector('#material-return-modal select[name="collaborator_id"]');
             
             if (collaboratorSelect) {
                 collaboratorSelect.innerHTML = '<option value="">Selecione um colaborador</option>';
-                collaborators.forEach(collaborator => {
-                    const option = document.createElement('option');
-                    option.value = collaborator.id_colab;
-                    option.textContent = `${collaborator.username} ${collaborator.familyName}`;
-                    collaboratorSelect.appendChild(option);
-                });
+                
+                if (collaborators && collaborators.length > 0) {
+                    collaborators.forEach(collaborator => {
+                        const option = document.createElement('option');
+                        option.value = collaborator.id_colab;
+                        option.textContent = `${collaborator.name} ${collaborator.familyName}`;
+                        collaboratorSelect.appendChild(option);
+                    });
+                } else {
+                    collaboratorSelect.innerHTML = '<option value="">Nenhum colaborador com materiais alocados</option>';
+                }
 
                 // Adicionar evento de mudança para carregar materiais do colaborador
+                collaboratorSelect.removeEventListener('change', this.loadAllocatedMaterials);
                 collaboratorSelect.addEventListener('change', this.loadAllocatedMaterials);
             }
 
             // Adicionar evento de submissão do formulário de devolução
             const returnForm = document.getElementById('material-return-form');
             if (returnForm) {
+                returnForm.removeEventListener('submit', this.handleMaterialReturn);
                 returnForm.addEventListener('submit', this.handleMaterialReturn);
             }
         } catch (error) {
             console.error('Erro ao popular selects de devolução:', error);
             showToast('Erro', 'Não foi possível carregar colaboradores', 'error');
+            
+            // Limpar e desabilitar o select em caso de erro
+            if (collaboratorSelect) {
+                collaboratorSelect.innerHTML = '<option value="">Erro ao carregar colaboradores</option>';
+                collaboratorSelect.disabled = true;
+            }
         }
     }
 
@@ -705,73 +803,106 @@ class MaterialManagement {
     async loadAllocatedMaterials(event) {
         const collaboratorId = event.target.value;
         const materialSelect = document.querySelector('#material-return-modal select[name="material_id"]');
-        const quantityInput = document.querySelector('#material-return-modal input[name="quantity"]');
-
-        // Limpar selects e inputs
-        if (materialSelect) {
+        
+        if (collaboratorId) {
+            materialSelect.disabled = true;
             materialSelect.innerHTML = '<option value="">Carregando materiais...</option>';
-        }
-        if (quantityInput) {
-            quantityInput.value = '';
-            quantityInput.max = 0;
-        }
-
-        if (!collaboratorId) {
-            if (materialSelect) {
-                materialSelect.innerHTML = '<option value="">Selecione um colaborador primeiro</option>';
-            }
-            return;
-        }
-
-        try {
-            // Buscar materiais alocados para o colaborador
-            console.log(`Buscando materiais alocados para colaborador ID: ${collaboratorId}`);
-            const allocatedMaterials = await this.materialAPI.getAllocatedMaterialsByCollaborator(collaboratorId);
             
-            console.log('Materiais alocados encontrados:', allocatedMaterials);
-
-            if (materialSelect) {
-                // Limpar select anterior
-                materialSelect.innerHTML = '<option value="">Selecione um material</option>';
-
-                // Verificar se há materiais alocados
-                if (allocatedMaterials.length === 0) {
-                    materialSelect.innerHTML = '<option value="">Nenhum material alocado encontrado</option>';
-                    return;
-                }
-
-                // Adicionar materiais ao select
-                allocatedMaterials.forEach(material => {
-                    const option = document.createElement('option');
-                    option.value = material.material_id;  
-                    option.textContent = `${material.material_name} (${material.material_sku}) - Alocado: ${material.quantity}`;
-                    option.dataset.allocatedQuantity = material.quantity;
-                    option.dataset.allocationId = material.allocation_id;  // Adicionar ID da alocação
-                    materialSelect.appendChild(option);
-                });
-
-                // Adicionar evento para limitar quantidade máxima de devolução
-                materialSelect.addEventListener('change', (e) => {
-                    const selectedOption = e.target.selectedOptions[0];
-                    if (selectedOption && quantityInput) {
-                        const maxQuantity = parseInt(selectedOption.dataset.allocatedQuantity, 10);
-                        quantityInput.max = maxQuantity;
-                        quantityInput.setAttribute('max', maxQuantity);
-                        
-                        // Adicionar validação para quantidade
-                        quantityInput.addEventListener('input', () => {
-                            const currentValue = parseInt(quantityInput.value, 10);
-                            if (currentValue > maxQuantity) {
-                                quantityInput.value = maxQuantity;
-                                showToast('Aviso', `Quantidade máxima de devolução: ${maxQuantity}`, 'warning');
-                            }
+            try {
+                const materials = await this.materialAPI.getAllocatedMaterialsByCollaborator(collaboratorId);
+                
+                if (materials && materials.length > 0) {
+                    materialSelect.innerHTML = '<option value="">Selecione um material</option>';
+                    materials.forEach(material => {
+                        const option = document.createElement('option');
+                        option.value = JSON.stringify({
+                            material_id: material.id,
+                            allocation_id: material.allocation_id
                         });
-                    }
-                });
+                        option.textContent = `${material.name} (${material.sku}) - Disponível: ${material.available_quantity} ${material.unit}`;
+                        option.dataset.maxQuantity = material.available_quantity;
+                        materialSelect.appendChild(option);
+                    });
+
+                    // Reabilitar input de quantidade quando um material for selecionado
+                    const quantityInput = document.querySelector('#material-return-modal input[name="quantity"]');
+                    materialSelect.addEventListener('change', (e) => {
+                        if (quantityInput) {
+                            const selectedOption = e.target.options[e.target.selectedIndex];
+                            const maxQuantity = selectedOption.dataset.maxQuantity;
+                            
+                            if (maxQuantity) {
+                                quantityInput.disabled = false;
+                                quantityInput.max = maxQuantity;
+                                quantityInput.min = 1;
+                                quantityInput.value = '';
+                                quantityInput.placeholder = `Máximo: ${maxQuantity}`;
+                            } else {
+                                quantityInput.disabled = true;
+                                quantityInput.value = '';
+                                quantityInput.placeholder = '';
+                            }
+                        }
+                    });
+                } else {
+                    materialSelect.innerHTML = '<option value="">Nenhum material disponível para devolução</option>';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar materiais:', error);
+                materialSelect.innerHTML = '<option value="">Erro ao carregar materiais</option>';
+                showToast('Erro', 'Não foi possível carregar os materiais', 'error');
+            } finally {
+                materialSelect.disabled = false;
+            }
+        }
+    }
+
+    // Método para lidar com a devolução de material
+    async handleMaterialReturn(event) {
+        event.preventDefault();
+        
+        const form = event.target;
+        const formData = new FormData(form);
+        
+        try {
+            const materialData = JSON.parse(formData.get('material_id') || '{}');
+            
+            const returnData = {
+                collaborator_id: formData.get('collaborator_id'),
+                material_id: materialData.material_id,
+                allocation_id: materialData.allocation_id,
+                quantity: parseInt(formData.get('quantity')),
+                material_condition: formData.get('material_condition'),
+                observations: formData.get('observations')
+            };
+
+            // Validar dados
+            if (!returnData.collaborator_id || !returnData.material_id || !returnData.allocation_id || !returnData.quantity) {
+                showToast('Erro', 'Por favor, preencha todos os campos obrigatórios', 'error');
+                return;
+            }
+
+            // Enviar requisição para a API
+            const response = await this.materialAPI.returnMaterial(returnData);
+
+            if (response.success) {
+                // Fechar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('material-return-modal'));
+                modal.hide();
+
+                // Limpar formulário
+                form.reset();
+
+                // Atualizar tabelas
+                await this.updateTables();
+
+                showToast('Sucesso', 'Material devolvido com sucesso!', 'success');
+            } else {
+                throw new Error(response.message || 'Erro ao devolver material');
             }
         } catch (error) {
-            console.error('Erro ao carregar materiais alocados:', error);
-            showToast('Erro', 'Não foi possível carregar os materiais alocados', 'error');
+            console.error('Erro ao devolver material:', error);
+            showToast('Erro', error.message || 'Não foi possível devolver o material', 'error');
         }
     }
 
@@ -806,7 +937,10 @@ class MaterialManagement {
             'clearFilters',
             'clearGrouping',
             'handleMaterialAllocation',
-            'updateTables'
+            'handleMaterialReturn',
+            'updateTables',
+            'loadAllocatedMaterials',  
+            'populateReturnMaterialSelects'  
         ];
 
         methodsToBind.forEach(method => {

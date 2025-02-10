@@ -98,6 +98,22 @@ module.exports = function(io) {
         }
     });
 
+    // Rota para buscar materiais alocados por colaborador
+    router.get('/allocations/materials/:collaboratorId', async (req, res) => {
+        try {
+            const { collaboratorId } = req.params;
+            const materials = await MaterialControl.getAllocatedMaterialsByCollaborator(collaboratorId);
+            res.json(materials);
+        } catch (error) {
+            console.error('Erro ao buscar materiais alocados:', error);
+            res.status(500).json({ 
+                error: true, 
+                message: 'Erro ao buscar materiais alocados',
+                details: error.message 
+            });
+        }
+    });
+
     // Rota para buscar histórico de movimentações
     router.get('/movements', async (req, res) => {
         try {
@@ -240,6 +256,20 @@ module.exports = function(io) {
             console.error('Erro ao buscar materiais alocados por colaborador:', error);
             res.status(500).json({ 
                 error: 'Erro ao buscar materiais alocados', 
+                details: error.message 
+            });
+        }
+    });
+
+    // Rota para buscar colaboradores com materiais alocados ativos
+    router.get('/allocations/active-collaborators', async (req, res) => {
+        try {
+            const collaborators = await MaterialControl.getCollaboratorsWithAllocatedMaterials();
+            res.status(200).json(collaborators);
+        } catch (error) {
+            console.error('Erro ao buscar colaboradores com materiais alocados:', error);
+            res.status(500).json({ 
+                error: 'Erro ao buscar colaboradores com materiais alocados', 
                 details: error.message 
             });
         }

@@ -182,42 +182,40 @@ class MaterialAPI {
     // Buscar colaboradores com materiais alocados
     getCollaboratorsWithAllocatedMaterials() {
         return new Promise((resolve, reject) => {
-            Promise.all([
-                this.getCollaborators(),
-                this.getMovementHistory({ type: 'allocation' })
-            ])
-            .then(([collaborators, allocatedMaterials]) => {
-                console.log('allocatedMaterials',allocatedMaterials)
-                // Filtrar colaboradores com materiais alocados
-                const collaboratorsWithAllocatedMaterials = collaborators.filter(collaborator => 
-                    allocatedMaterials.some(allocation => allocation.collaborator_id === collaborator.id_colab && allocation.source === 'allocation' && allocation.real_quantity > 0)
-                );
-
-                resolve(collaboratorsWithAllocatedMaterials);
-            })
-            .catch(error => {
-                console.error('Erro ao buscar colaboradores com materiais alocados:', error);
-                reject(error);
-            });
+            fetch(`${this.baseUrl}/allocations/active-collaborators`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao buscar colaboradores com materiais alocados');
+                    }
+                    return response.json();
+                })
+                .then(collaborators => {
+                    console.log('Colaboradores com materiais alocados:', collaborators);
+                    resolve(collaborators);
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar colaboradores com materiais alocados:', error);
+                    reject(error);
+                });
         });
     }
 
     // Método para buscar materiais alocados por colaborador
     getAllocatedMaterialsByCollaborator(collaboratorId) {
         return new Promise((resolve, reject) => {
-            fetch(`${this.baseUrl}/allocations/collaborator/${collaboratorId}`)
+            fetch(`${this.baseUrl}/allocations/materials/${collaboratorId}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Erro ao buscar materiais alocados');
                     }
                     return response.json();
                 })
-                .then(allocatedMaterials => {
-                    console.log('Materiais alocados encontrados:', allocatedMaterials);
-                    resolve(allocatedMaterials);
+                .then(materials => {
+                    console.log('Materiais alocados:', materials);
+                    resolve(materials);
                 })
                 .catch(error => {
-                    console.error('Erro na requisição de materiais alocados:', error);
+                    console.error('Erro ao buscar materiais alocados:', error);
                     reject(error);
                 });
         });
@@ -257,35 +255,26 @@ class MaterialAPI {
     // Devolver material
     returnMaterial(returnData) {
         return new Promise((resolve, reject) => {
-            this.findAllocationId(returnData)
-                .then(allocation_id => {
-                    const returnPayload = {
-                        allocation_id,
-                        quantity: returnData.quantity,
-                        observations: returnData.observations || ''
-                    };
-
-                    return fetch(`${this.baseUrl}/allocations/return`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(returnPayload)
+            fetch(`${this.baseUrl}/allocations/return`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(returnData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.message || 'Erro ao devolver material');
                     });
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(errorData => {
-                            throw new Error(errorData.message || 'Erro ao devolver material');
-                        });
-                    }
-                    return response.json();
-                })
-                .then(result => resolve(result))
-                .catch(error => {
-                    console.error('Erro ao devolver material:', error);
-                    reject(error);
-                });
+                }
+                return response.json();
+            })
+            .then(result => resolve(result))
+            .catch(error => {
+                console.error('Erro ao devolver material:', error);
+                reject(error);
+            });
         });
     }
 

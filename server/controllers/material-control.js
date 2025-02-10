@@ -19,6 +19,7 @@ const MaterialControl = {
                 materials.map(async (material) => {
                     try {
                         const stockDetails = await MaterialControl.calculateAndSyncStock(material.id);
+                        // console.log(`Estoque calculado para material ${material.id}:`, stockDetails);
                         return {
                             ...material,
                             available_stock: stockDetails.current_stock,
@@ -26,6 +27,8 @@ const MaterialControl = {
                                 available_stock: stockDetails.current_stock,
                                 total_input: stockDetails.total_input,
                                 total_output: stockDetails.total_output,
+                                total_allocated: stockDetails.total_allocated,
+                                total_returned: stockDetails.total_returned,
                                 minimum_stock: stockDetails.minimum_stock,
                                 status: stockDetails.status,
                                 stock_warning: stockDetails.stock_warning
@@ -94,40 +97,62 @@ const MaterialControl = {
     // Método para calcular e sincronizar estoque de um material
     calculateAndSyncStock: async function(materialId) {
         try {
-            // Calcular total de entradas
-            const inputQuery = `
+            // 1. Calcular entradas e saídas da tabela material_control_movements
+            const movementsQuery = `
                 SELECT 
                     COALESCE(SUM(CASE WHEN movement_type = 'input' THEN quantity ELSE 0 END), 0) as total_input,
                     COALESCE(SUM(CASE WHEN movement_type = 'output' THEN quantity ELSE 0 END), 0) as total_output
                 FROM material_control_movements
                 WHERE material_id = ?
             `;
-            const [stockResult] = await executeQuery(inputQuery, [materialId]);
+            
+            // 2. Calcular quantidade total alocada (material_control_allocations)
+            const allocationsQuery = `
+                SELECT 
+                    COALESCE(SUM(quantity), 0) as total_allocated
+                FROM material_control_allocations
+                WHERE material_id = ? 
+                AND status = 'allocated'
+            `;
+            
+            // 3. Calcular quantidade total devolvida (material_control_returns)
+            const returnsQuery = `
+                SELECT 
+                    COALESCE(SUM(r.quantity), 0) as total_returned
+                FROM material_control_returns r
+                INNER JOIN material_control_allocations a ON r.allocation_id = a.id
+                WHERE r.material_id = ?
+            `;
 
-            // Calcular estoque atual
-            const currentStock = stockResult.total_input - stockResult.total_output;
-
+            // Executar todas as queries
+            const [movementsResult] = await executeQuery(movementsQuery, [materialId]);
+            const [allocationsResult] = await executeQuery(allocationsQuery, [materialId]);
+            const [returnsResult] = await executeQuery(returnsQuery, [materialId]);
+            
             // Buscar informações do material
             const materialQuery = `
-                SELECT 
-                    name, 
-                    minimum_stock, 
-                    status 
+                SELECT name, minimum_stock, status 
                 FROM material_control_materials 
                 WHERE id = ?
             `;
             const [materialInfo] = await executeQuery(materialQuery, [materialId]);
 
+            // Calcular estoque atual
+            const totalInput = movementsResult.total_input;
+            const totalOutput = movementsResult.total_output;
+            const totalAllocated = allocationsResult.total_allocated;
+            const totalReturned = returnsResult.total_returned;
+
+            // Estoque atual = (Entradas - Saídas) - (Alocados - Devolvidos)
+            const currentStock = (totalInput - totalOutput) - (totalAllocated - totalReturned);
+
             // Determinar status do estoque
             let newStatus = 'active';
             if (currentStock <= 0) {
                 newStatus = 'inactive';
-            } else if (currentStock <= materialInfo.minimum_stock) {
-                // Mantém como 'active', mas adiciona observação
-                newStatus = 'active';
             }
 
-            // Atualizar status do material, se necessário
+            // Atualizar status do material se necessário
             if (newStatus !== materialInfo.status) {
                 const updateStatusQuery = `
                     UPDATE material_control_materials 
@@ -137,27 +162,29 @@ const MaterialControl = {
                 await executeQuery(updateStatusQuery, [newStatus, materialId]);
             }
 
-            // Retornar detalhes do estoque
+            // Retornar detalhes completos do estoque
             return {
                 material_id: materialId,
                 material_name: materialInfo.name,
-                total_input: stockResult.total_input,
-                total_output: stockResult.total_output,
+                total_input: totalInput,
+                total_output: totalOutput,
+                total_allocated: totalAllocated,
+                total_returned: totalReturned,
                 current_stock: currentStock,
                 minimum_stock: materialInfo.minimum_stock,
                 status: newStatus,
                 stock_warning: currentStock <= materialInfo.minimum_stock ? 'Estoque baixo' : null,
                 details: {
-                    inputs: {
-                        total: stockResult.total_input,
-                        description: 'Total de entradas de estoque'
+                    movements: {
+                        inputs: totalInput,
+                        outputs: totalOutput
                     },
-                    outputs: {
-                        total: stockResult.total_output,
-                        description: 'Total de saídas de estoque'
+                    allocations: {
+                        total_allocated: totalAllocated,
+                        total_returned: totalReturned,
+                        currently_allocated: totalAllocated - totalReturned
                     }
-                },
-                message: 'Estoque calculado e sincronizado com sucesso'
+                }
             };
         } catch (error) {
             console.error(`Erro ao calcular estoque do material ${materialId}:`, error);
@@ -325,24 +352,9 @@ const MaterialControl = {
             // Iniciar transação
             await executeQuery('START TRANSACTION');
 
-            // Calcular estoque disponível com consulta detalhada
-            const stockQuery = `
-                SELECT 
-                    COALESCE(SUM(CASE WHEN movement_type = 'input' THEN quantity ELSE 0 END), 0) as total_input,
-                    COALESCE(SUM(CASE WHEN movement_type = 'output' THEN quantity ELSE 0 END), 0) as total_output,
-                    COALESCE(
-                        (SELECT SUM(quantity) 
-                         FROM material_control_allocations 
-                         WHERE material_id = ? AND status = 'allocated'), 
-                        0
-                    ) as total_allocated
-                FROM material_control_movements
-                WHERE material_id = ?
-            `;
-            const [stockResult] = await executeQuery(stockQuery, [material_id, material_id]);
-            
-            // Calcular estoque disponível
-            const availableStock = stockResult.total_input - stockResult.total_output - stockResult.total_allocated;
+            // Calcular estoque disponível usando calculateAndSyncStock
+            const stockDetails = await this.calculateAndSyncStock(material_id);
+            const availableStock = stockDetails.current_stock;
             
             if (availableStock < quantity) {
                 throw new Error(`Estoque insuficiente. Disponível: ${availableStock}, Solicitado: ${quantity}`);
@@ -374,12 +386,15 @@ const MaterialControl = {
             await executeQuery('COMMIT');
 
             return { 
-                allocationId: allocationResult.insertId, 
+                allocationId: allocationResult.insertId,
                 stockAvailability: {
-                    total_input: stockResult.total_input,
-                    total_output: stockResult.total_output,
-                    total_allocated: stockResult.total_allocated,
-                    available_stock: availableStock - quantity
+                    total_input: stockDetails.total_input,
+                    total_output: stockDetails.total_output,
+                    total_allocated: stockDetails.total_allocated,
+                    total_returned: stockDetails.total_returned,
+                    available_stock: availableStock - quantity,
+                    minimum_stock: stockDetails.minimum_stock,
+                    stock_warning: stockDetails.stock_warning
                 },
                 materialName: materialInfo.name,
                 materialSku: materialInfo.sku,
@@ -409,6 +424,12 @@ const MaterialControl = {
                 observations 
             } = returnData;
 
+            // Converter IDs para números
+            const numericAllocationId = parseInt(allocation_id);
+            const numericMaterialId = parseInt(material_id);
+            const numericCollaboratorId = parseInt(collaborator_id);
+            const numericQuantity = parseInt(quantity);
+
             // Verificar detalhes da alocação original
             const allocationQuery = `
                 SELECT 
@@ -420,18 +441,18 @@ const MaterialControl = {
                 FROM material_control_allocations
                 WHERE id = ?
             `;
-            const [allocation] = await executeQuery(allocationQuery, [allocation_id]);
+            const [allocation] = await executeQuery(allocationQuery, [numericAllocationId]);
 
             // Validações de integridade
             if (!allocation) {
                 throw new Error('Alocação não encontrada');
             }
 
-            if (allocation.allocation_material_id !== material_id) {
+            if (allocation.allocation_material_id !== numericMaterialId) {
                 throw new Error('Material ID não corresponde à alocação');
             }
 
-            if (allocation.allocation_collaborator_id !== collaborator_id) {
+            if (allocation.allocation_collaborator_id !== numericCollaboratorId) {
                 throw new Error('Colaborador ID não corresponde à alocação');
             }
 
@@ -439,7 +460,7 @@ const MaterialControl = {
                 throw new Error('Alocação já finalizada');
             }
 
-            if (quantity > allocation.allocated_quantity) {
+            if (numericQuantity > allocation.allocated_quantity) {
                 throw new Error('Quantidade de devolução maior que a quantidade alocada');
             }
 
@@ -450,16 +471,16 @@ const MaterialControl = {
                 VALUES (?, ?, ?, ?, ?, ?)
             `;
             const returnResult = await executeQuery(returnQuery, [
-                allocation_id,
-                material_id,
-                collaborator_id,
-                quantity,
+                numericAllocationId,
+                numericMaterialId,
+                numericCollaboratorId,
+                numericQuantity,
                 material_condition || 'perfeito',
                 observations || ''
             ]);
 
             // Calcular quantidade restante
-            const remainingQuantity = allocation.allocated_quantity - quantity;
+            const remainingQuantity = allocation.allocated_quantity - numericQuantity;
 
             // Atualizar status da alocação
             const updateAllocationQuery = `
@@ -474,13 +495,14 @@ const MaterialControl = {
             `;
             await executeQuery(updateAllocationQuery, [
                 remainingQuantity, 
-                allocation_id
+                numericAllocationId
             ]);
 
             // Confirmar transação
             await executeQuery('COMMIT');
 
             return { 
+                success: true,
                 returnId: returnResult.insertId, 
                 message: 'Material devolvido com sucesso',
                 remainingQuantity: remainingQuantity
@@ -608,7 +630,6 @@ const MaterialControl = {
                     FROM material_control_allocations mca
                     JOIN material_control_materials m ON mca.material_id = m.id
                     JOIN collaborators c ON mca.collaborator_id = c.id
-                    WHERE mca.status = 'allocated'
 
                     UNION ALL
 
@@ -685,12 +706,12 @@ const MaterialControl = {
             // Ordenação e limite
             baseQuery += ' ORDER BY movement_date DESC LIMIT 100';
 
-            console.log('Query de movimento:', baseQuery);
-            console.log('Parâmetros:', params);
+            // console.log('Query de movimento:', baseQuery);
+            // console.log('Parâmetros:', params);
 
             const results = await executeQuery(baseQuery, params);
             
-            console.log('Resultados do movimento:', results);
+            // console.log('Resultados do movimento:', results);
 
             return results;
         } catch (error) {
@@ -823,47 +844,31 @@ const MaterialControl = {
         try {
             const query = `
                 SELECT 
-                    mca.id AS allocation_id,
-                    mca.material_id,
-                    m.name AS material_name,
-                    m.sku AS material_sku,
-                    mca.quantity AS total_allocated,
-                    COALESCE(SUM(mcr.quantity), 0) AS total_returned,
-                    (mca.quantity - COALESCE(SUM(mcr.quantity), 0)) AS available_quantity
+                    m.id,
+                    m.name,
+                    m.sku,
+                    m.unit,
+                    ma.id as allocation_id,
+                    SUM(ma.quantity - COALESCE(mr.quantity, 0)) as available_quantity
                 FROM 
-                    material_control_allocations mca
-                JOIN 
-                    material_control_materials m ON mca.material_id = m.id
-                LEFT JOIN 
-                    material_control_returns mcr ON mca.id = mcr.allocation_id
+                    material_control_materials m
+                    INNER JOIN material_control_allocations ma ON m.id = ma.material_id
+                    LEFT JOIN material_control_returns mr ON ma.id = mr.allocation_id
                 WHERE 
-                    mca.collaborator_id = ? 
-                    AND mca.status = 'allocated'
+                    ma.collaborator_id = ?
+                    AND ma.status = 'allocated'
+                    AND (ma.quantity - COALESCE(mr.quantity, 0)) > 0
                 GROUP BY 
-                    mca.id, 
-                    mca.material_id, 
-                    m.name, 
-                    m.sku, 
-                    mca.quantity
+                    m.id, m.name, m.sku, m.unit, ma.id
                 HAVING 
                     available_quantity > 0
             `;
 
-            const allocatedMaterials = await executeQuery(query, [collaboratorId]);
-
-            // Mapear os resultados para o formato esperado
-            return allocatedMaterials.map(material => ({
-                allocation_id: material.allocation_id,
-                material_id: material.material_id,
-                material_name: material.material_name,
-                material_sku: material.material_sku,
-                total_allocated: material.total_allocated,
-                total_returned: material.total_returned,
-                quantity: material.available_quantity // Quantidade disponível para devolução
-            }));
+            const materials = await executeQuery(query, [collaboratorId]);
+            return materials;
         } catch (error) {
-            console.error('Erro ao buscar materiais alocados por colaborador:', error);
-            throw error;
+            console.error('Erro ao buscar materiais alocados:', error);
+            throw new Error('Erro ao buscar materiais alocados');
         }
     },
 
@@ -975,6 +980,52 @@ const MaterialControl = {
             }
             
             throw new Error('Erro ao excluir material');
+        }
+    },
+
+    // Método para buscar colaboradores com materiais alocados ativos
+    getCollaboratorsWithAllocatedMaterials: async function() {
+        try {
+            const query = `
+                SELECT DISTINCT 
+                    c.id,
+                    c.name,
+                    c.family_name,
+                    c.email_business as email,
+                    c.department
+                FROM 
+                    collaborators c
+                INNER JOIN 
+                    material_control_allocations mca ON c.id = mca.collaborator_id
+                LEFT JOIN 
+                    material_control_returns mcr ON mca.id = mcr.allocation_id
+                WHERE 
+                    mca.status = 'allocated'
+                GROUP BY 
+                    c.id,
+                    c.name,
+                    c.family_name,
+                    c.email_business,
+                    c.department
+                HAVING 
+                    SUM(mca.quantity) - COALESCE(SUM(mcr.quantity), 0) > 0
+                ORDER BY 
+                    c.name ASC
+            `;
+
+            const collaborators = await executeQuery(query);
+            
+            // Mapear os resultados para o formato esperado pelo frontend
+            return collaborators.map(collaborator => ({
+                id_colab: collaborator.id, // Mantendo compatibilidade com o frontend
+                name: collaborator.name,
+                family_name: collaborator.family_name,
+                email: collaborator.email,
+                department: collaborator.department
+            }));
+        } catch (error) {
+            console.error('Erro ao buscar colaboradores com materiais alocados:', error);
+            throw error;
         }
     },
 };

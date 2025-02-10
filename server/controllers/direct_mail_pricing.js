@@ -392,6 +392,9 @@ const direct_mail_pricing = {
         for (const recipient of EmailTO) {
             // Configurações do e-mail para cada destinatário
 
+              // Dividir o campo 'email' em múltiplos endereços de e-mail
+                const emails = recipient.email.split(',').map(email => email.trim());
+
             const getGreeting = () => {
                 const currentHour = new Date().getHours();
                 if (currentHour >= 5 && currentHour < 12) {
@@ -405,7 +408,7 @@ const direct_mail_pricing = {
 
             const parametros = {
                 nome:recipient.name,
-                email:recipient.email,
+                email:emails,
                 saudacao: getGreeting()
             }
             
@@ -417,7 +420,7 @@ const direct_mail_pricing = {
             const CustomHTML = await direct_mail_pricing.substituirValoresNaString(html, parametros);
             const mailOptions = {
                 from: user[0].system_email,
-                to: `${recipient.name} <${recipient.email}>`,
+                to: emails.join(', '),
                 subject: subject,
                 html: CustomHTML,    
                 cc: bccAddressNew,
@@ -432,7 +435,7 @@ const direct_mail_pricing = {
              
                    await executeQuery('INSERT INTO direct_mail_pricing_details (`body`,`accepted`, `rejected`, `response`, `from`, `to`,`cc`, `messageId`, `historyId`, `status`, `userID`) VALUES (?,?, ?, ?, ?, ?,?, ?, ?, ?, ?)', [null,null, null, response, user[0].system_email, recipient.email, bccAddressNew, null, historyID, 0, userID])
            
-                    console.error(`Erro ao enviar e-mail para ${recipient.email}:`, error);
+                    console.error(`Erro ao enviar e-mail para ${emails}:`, error);
                     successfulEmailsCount++;
                      // Verifica se todos os e-mails foram enviados antes de emitir o evento
                      if (successfulEmailsCount === EmailTO.length) {
@@ -444,7 +447,7 @@ const direct_mail_pricing = {
                     const acceptedString = accepted.join(', ');
                     const rejectedString = rejected.join(', ');
                const lastInsert = await executeQuery('INSERT INTO direct_mail_pricing_details (`body`,`accepted`, `rejected`, `response`, `from`, `to`,`cc`, `messageId`, `historyId`, `status`, `userID`) VALUES (?,?, ?, ?, ?, ?,?, ?, ?, ?, ?)', [CustomHTML,acceptedString, rejectedString, response, user[0].system_email, recipient.email,bccAddressNew, messageId, historyID, 1, userID])
-                    console.log(`E-mail enviado com sucesso para ${recipient.email}. Detalhes:`, info);
+                    console.log(`E-mail enviado com sucesso para ${emails}. Detalhes:`, info);
                     successfulEmailsCount++;
 
                     // Verifica se todos os e-mails foram enviados antes de emitir o evento

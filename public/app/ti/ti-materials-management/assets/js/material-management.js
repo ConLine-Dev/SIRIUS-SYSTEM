@@ -6,6 +6,10 @@ class MaterialManagement {
     constructor() {
         // Usar a instância global criada em material-api.js
         this.materialAPI = window.MaterialAPI;
+        if (!this.materialAPI) {
+            console.error('MaterialAPI não foi inicializado corretamente');
+            this.materialAPI = new MaterialAPI();
+        }
 
         // Dados de exemplo (serão substituídos pela API posteriormente)
         this.collaborators = [];
@@ -22,7 +26,9 @@ class MaterialManagement {
             'applyGrouping',
             'populateFilterSelects',
             'clearFilters',
-            'clearGrouping'
+            'clearGrouping',
+            'handleMaterialAllocation',
+            'updateTables'
         ];
 
         methodsToBind.forEach(method => {
@@ -44,6 +50,12 @@ class MaterialManagement {
         this.filterQuantity = document.getElementById('filter-quantity');
         this.customDateRange = document.getElementById('custom-date-range');
         this.clearFiltersBtn = document.getElementById('clear-filters');
+
+        // Inicializar formulário de alocação
+        const allocationForm = document.getElementById('material-allocation-form');
+        if (allocationForm) {
+            allocationForm.addEventListener('submit', this.handleMaterialAllocation);
+        }
 
         // Configurar filtros e agrupamentos
         this.setupFiltersAndGrouping();
@@ -259,8 +271,7 @@ class MaterialManagement {
     applyGrouping() {
         if (!tables['recent_movements']) return;
 
-        const table = tables['recent_movements'];
-
+        const table = tables['recent_movements']
         // Atualizar indicador de agrupamento
         const $indicator = $('#grouping-indicator');
         const $currentGrouping = $('#current-grouping');
@@ -578,6 +589,8 @@ class MaterialManagement {
                 
                 // Acessar o array de materiais de forma mais flexível
                 const materials = materialsResponse.materials || materialsResponse;
+
+                console.log('Materiais processados:', materials);
                 
                 materials.forEach(material => {
                     const option = document.createElement('option');
@@ -618,6 +631,7 @@ class MaterialManagement {
         event.preventDefault();
         const form = event.target;
         const formData = new FormData(form);
+
         const allocationData = Object.fromEntries(formData.entries());
 
         // Validar campos obrigatórios
@@ -628,6 +642,13 @@ class MaterialManagement {
 
         // Converter quantidade para número inteiro
         allocationData.quantity = parseInt(allocationData.quantity, 10);
+
+        // Verificar se this.materialAPI está definido
+        if (!this.materialAPI) {
+            console.error('MaterialAPI não está disponível');
+            showToast('Erro', 'Erro interno do sistema. Por favor, tente novamente.', 'error');
+            return;
+        }
 
         this.materialAPI.allocateMaterial(allocationData)
             .then(response => {
@@ -641,30 +662,12 @@ class MaterialManagement {
                 form.reset();
 
                 // Atualizar tabelas
-                this.refreshTables();
-
-                // Recarregar lista de materiais no modal
-                this.populateAllocationSelects();
+                this.updateTables();
             })
             .catch(error => {
-                console.log(error);
                 console.error('Erro ao alocar material:', error);
-                
-                try {
-                    // Tentar parsear a mensagem de erro como JSON
-                    const parsedError = JSON.parse(error.message);
-                    
-                    // Verificar se há detalhes no erro
-                    if (parsedError.details) {
-                        showToast('Erro', parsedError.details, 'warning');
-                    } else {
-                        showToast('Erro', 'Não foi possível alocar o material', 'error');
-                    }
-                } catch (parseError) {
-                    // Se não for possível parsear, mostrar a mensagem original
-                    showToast('Erro', error.message || 'Não foi possível alocar o material', 'error');
-                }
-            })
+                showToast('Erro', 'Erro ao alocar material. Por favor, tente novamente.', 'error');
+            });
     }
 
     // Método para popular selects de devolução de materiais
@@ -772,6 +775,24 @@ class MaterialManagement {
         }
     }
 
+    // Método para atualizar tabelas de forma segura
+    updateTables() {
+        // Atualizar tabela de movimentações recentes
+        if (tables['recent_movements']) {
+            tables['recent_movements'].ajax.reload();
+        }
+
+        // Atualizar tabela de materiais
+        if (tables['materials']) {
+            tables['materials'].ajax.reload();
+        }
+
+        // Atualizar tabela de alocações
+        if (tables['allocations']) {
+            tables['allocations'].ajax.reload();
+        }
+    }
+
     // Inicialização
     init() {
         // Bind methods
@@ -783,7 +804,9 @@ class MaterialManagement {
             'applyGrouping',
             'populateFilterSelects',
             'clearFilters',
-            'clearGrouping'
+            'clearGrouping',
+            'handleMaterialAllocation',
+            'updateTables'
         ];
 
         methodsToBind.forEach(method => {

@@ -3,35 +3,49 @@ const { executeQuery } = require('../connect/mysql');
 const MaterialControl = {
     // Método para obter todos os materiais com detalhes de estoque
     getAllMaterials: async () => {
-        const query = `
-            SELECT 
-                m.*,
-                COALESCE(
-                    (SELECT SUM(quantity) 
-                    FROM material_control_movements 
-                    WHERE material_id = m.id AND movement_type = 'input'),
-                    0
-                ) - COALESCE(
-                    (SELECT SUM(quantity) 
-                    FROM material_control_movements 
-                    WHERE material_id = m.id AND movement_type = 'output'),
-                    0
-                ) as available_stock
-            FROM material_control_materials m
-            ORDER BY m.id DESC
-        `;
-
         try {
-            console.log('Executando query:', query);
-            const materials = await executeQuery(query);
-            console.log('Materiais encontrados:', materials);
+            // Buscar informações básicas dos materiais
+            const materialQuery = `
+                SELECT 
+                    m.*
+                FROM material_control_materials m
+                ORDER BY m.id DESC
+            `;
             
-            return materials.map(material => ({
-                ...material,
-                stock_details: {
-                    available_stock: material.available_stock || 0
-                }
-            }));
+            const materials = await executeQuery(materialQuery);
+
+            // Para cada material, calcular o estoque atual usando calculateAndSyncStock
+            const materialsWithStock = await Promise.all(
+                materials.map(async (material) => {
+                    try {
+                        const stockDetails = await MaterialControl.calculateAndSyncStock(material.id);
+                        return {
+                            ...material,
+                            available_stock: stockDetails.current_stock,
+                            stock_details: {
+                                available_stock: stockDetails.current_stock,
+                                total_input: stockDetails.total_input,
+                                total_output: stockDetails.total_output,
+                                minimum_stock: stockDetails.minimum_stock,
+                                status: stockDetails.status,
+                                stock_warning: stockDetails.stock_warning
+                            }
+                        };
+                    } catch (error) {
+                        console.error(`Erro ao calcular estoque para material ${material.id}:`, error);
+                        return {
+                            ...material,
+                            available_stock: 0,
+                            stock_details: {
+                                available_stock: 0,
+                                error: 'Erro ao calcular estoque'
+                            }
+                        };
+                    }
+                })
+            );
+
+            return materialsWithStock;
         } catch (error) {
             console.error('Erro ao buscar materiais:', error);
             throw new Error(`Erro ao buscar materiais: ${error.message}`);
@@ -536,8 +550,7 @@ const MaterialControl = {
                 movement_type 
             } = filters;
 
-            let baseQuery = `
-                WITH MovementData AS (
+            let baseQuery = `WITH MovementData AS (
                     SELECT 
                         'movement' AS source,
                         mcm.id, 
@@ -582,7 +595,7 @@ const MaterialControl = {
                         NULL AS invoice_number, 
                         mca.observations, 
                         mca.allocation_date AS movement_date,
-                        c.name AS collaborator_name,
+                        CONCAT(c.name, ' ', c.family_name) as collaborator_name,
                         mca.collaborator_id,
                         'Alocação' AS movement_type_label,
                         mca.quantity AS original_quantity,
@@ -612,7 +625,7 @@ const MaterialControl = {
                         NULL AS invoice_number, 
                         mcr.observations, 
                         mcr.return_date AS movement_date,
-                        c.name AS collaborator_name,
+                        CONCAT(c.name, ' ', c.family_name) as collaborator_name,
                         mcr.collaborator_id,
                         'Devolução' AS movement_type_label,
                         mcr.quantity AS original_quantity,
@@ -622,8 +635,7 @@ const MaterialControl = {
                     JOIN collaborators c ON mcr.collaborator_id = c.id
                 )
                 SELECT * FROM MovementData
-                WHERE 1=1
-            `;
+                WHERE 1=1`;
 
             const params = [];
 

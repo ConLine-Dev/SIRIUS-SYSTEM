@@ -20,6 +20,7 @@
     
     <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/rowgroup/1.3.1/css/rowGroup.bootstrap5.min.css" rel="stylesheet">
 
 
     <!-- Main Theme Js -->
@@ -29,7 +30,58 @@
     <!-- Module-specific Styles -->
     <link href="./assets/css/index.css" rel="stylesheet">
 
-   
+    <style>
+        /* Estilos para agrupamento */
+        tr.group-header {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        tr.group-header:hover {
+            background-color: rgba(0,0,0,0.05) !important;
+        }
+
+        tr.group-header td {
+            padding: 0.5rem 1rem !important;
+        }
+
+        .toggle-group {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            background: rgba(0,0,0,0.05);
+            border: none;
+        }
+
+        .toggle-group:hover {
+            background: rgba(0,0,0,0.1);
+        }
+
+        .toggle-group i {
+            transition: transform 0.2s ease;
+        }
+
+        /* Cores sutis para os tipos */
+        .bg-success-subtle {
+            background-color: rgba(25, 135, 84, 0.1) !important;
+        }
+        
+        .bg-danger-subtle {
+            background-color: rgba(220, 53, 69, 0.1) !important;
+        }
+        
+        .bg-primary-subtle {
+            background-color: rgba(13, 110, 253, 0.1) !important;
+        }
+        
+        .bg-warning-subtle {
+            background-color: rgba(255, 193, 7, 0.1) !important;
+        }
+    </style>
 </head>
 <body>
     <!-- Loader -->
@@ -97,18 +149,112 @@
                 </div>
 
                 <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="card-title">Últimas Movimentações</h4>
-                        <div class="btn-group" role="group">
-                            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#material-allocation-modal">
-                                <i class="ri-exchange-line me-1"></i> Alocar Material
-                            </button>
-                            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#material-return-modal">
-                                <i class="ri-refresh-line me-1"></i> Devolver Material
-                            </button>
-                            <button onclick="window.open('./pages/stock-management.html', '_blank', 'width=1200,height=800,resizable=yes,scrollbars=yes')" class="btn btn-info">
-                                <i class="ri-database-line me-1"></i> Gerenciar Estoque
-                            </button>
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <h4 class="card-title mb-0">Últimas Movimentações</h4>
+                            </div>
+                            <div class="col">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <!-- Filtros e Agrupamentos -->
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                            <i class="ti ti-filter me-1"></i>Filtros
+                                        </button>
+                                        <div class="dropdown-menu p-3" style="min-width: 300px;">
+                                            <div class="mb-3">
+                                                <label class="form-label">Tipo de Movimentação</label>
+                                                <select id="filter-movement-type" class="form-select">
+                                                    <option value="">Todos</option>
+                                                    <option value="input">Entrada</option>
+                                                    <option value="output">Saída</option>
+                                                    <option value="allocation">Alocação</option>
+                                                    <option value="return">Devolução</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Material</label>
+                                                <select id="filter-material" class="form-select">
+                                                    <option value="">Todos</option>
+                                                    <!-- Será preenchido dinamicamente -->
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Colaborador</label>
+                                                <select id="filter-collaborator" class="form-select">
+                                                    <option value="">Todos</option>
+                                                    <!-- Será preenchido dinamicamente -->
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Período</label>
+                                                <select id="filter-period" class="form-select">
+                                                    <option value="">Todo Período</option>
+                                                    <option value="today">Hoje</option>
+                                                    <option value="yesterday">Ontem</option>
+                                                    <option value="week">Últimos 7 dias</option>
+                                                    <option value="month">Últimos 30 dias</option>
+                                                    <option value="custom">Personalizado</option>
+                                                </select>
+                                            </div>
+                                            <div id="custom-date-range" class="mb-3 d-none">
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <label class="form-label">De</label>
+                                                        <input type="date" id="filter-date-start" class="form-control">
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="form-label">Até</label>
+                                                        <input type="date" id="filter-date-end" class="form-control">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Quantidade</label>
+                                                <select id="filter-quantity" class="form-select">
+                                                    <option value="">Todas</option>
+                                                    <option value="1-10">1-10</option>
+                                                    <option value="11-50">11-50</option>
+                                                    <option value="51+">Mais de 50</option>
+                                                </select>
+                                            </div>
+                                            <div class="d-flex justify-content-end">
+                                                <button type="button" class="btn btn-secondary btn-sm me-2" id="clear-filters">
+                                                    <i class="ti ti-refresh me-1"></i>Limpar Filtros
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group">
+                                        <button disabled type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                            <i class="ti ti-stack me-1"></i>Agrupar Por
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item" href="#" data-group="none">Sem Agrupamento</a>
+                                            <a class="dropdown-item" href="#" data-group="type">Tipo de Movimentação</a>
+                                            <a class="dropdown-item" href="#" data-group="material">Material</a>
+                                            <a class="dropdown-item" href="#" data-group="collaborator">Colaborador</a>
+                                            <a class="dropdown-item" href="#" data-group="date">Data</a>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Separador -->
+                                    <div class="vr mx-2"></div>
+                                    
+                                    <!-- Botões de Ação -->
+                                    <div class="btn-group" role="group">
+                                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#material-allocation-modal">
+                                            <i class="ri-exchange-line me-1"></i> Alocar Material
+                                        </button>
+                                        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#material-return-modal">
+                                            <i class="ri-refresh-line me-1"></i> Devolver Material
+                                        </button>
+                                        <button onclick="window.open('./pages/stock-management.html', '_blank', 'width=1200,height=800,resizable=yes,scrollbars=yes')" class="btn btn-info">
+                                            <i class="ri-database-line me-1"></i> Gerenciar Estoque
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
@@ -298,6 +444,7 @@
     <!-- Bibliotecas Globais -->
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/rowgroup/1.3.1/js/dataTables.rowGroup.min.js"></script>
 
     <!-- Scripts do Módulo -->
     <script src="./assets/js/material-api.js"></script>

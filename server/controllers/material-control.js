@@ -2,86 +2,39 @@ const { executeQuery } = require('../connect/mysql');
 
 const MaterialControl = {
     // Método para obter todos os materiais com detalhes de estoque
-    getAllMaterials: async function() {
+    getAllMaterials: async () => {
+        const query = `
+            SELECT 
+                m.*,
+                COALESCE(
+                    (SELECT SUM(quantity) 
+                    FROM material_control_movements 
+                    WHERE material_id = m.id AND movement_type = 'input'),
+                    0
+                ) - COALESCE(
+                    (SELECT SUM(quantity) 
+                    FROM material_control_movements 
+                    WHERE material_id = m.id AND movement_type = 'output'),
+                    0
+                ) as available_stock
+            FROM material_control_materials m
+            ORDER BY m.id DESC
+        `;
+
         try {
-            // Consulta base para buscar materiais com cálculo detalhado de estoque
-            const materialsQuery = `
-                SELECT 
-                    m.id, 
-                    m.name, 
-                    m.description, 
-                    m.category, 
-                    m.sku, 
-                    m.unit, 
-                    m.minimum_stock,
-                    m.status AS material_status,
-                    m.created_at,
-                    COALESCE(
-                        (SELECT SUM(quantity) 
-                         FROM material_control_movements 
-                         WHERE material_id = m.id AND movement_type = 'input'), 
-                        0
-                    ) as total_input,
-                    COALESCE(
-                        (SELECT SUM(quantity) 
-                         FROM material_control_movements 
-                         WHERE material_id = m.id AND movement_type = 'output'), 
-                        0
-                    ) as total_output,
-                    COALESCE(
-                        (SELECT SUM(quantity) 
-                         FROM material_control_allocations 
-                         WHERE material_id = m.id AND status = 'allocated'), 
-                        0
-                    ) as total_allocated
-                FROM 
-                    material_control_materials m
-            `;
+            console.log('Executando query:', query);
+            const materials = await executeQuery(query);
+            console.log('Materiais encontrados:', materials);
             
-            const materials = await executeQuery(materialsQuery);
-            console.log('Materiais retornados:', materials);
-
-            // Processar materiais com cálculo de estoque
-            const processedMaterials = materials.map(material => {
-                // Calcular estoque disponível
-                const availableStock = material.total_input - material.total_output - material.total_allocated;
-
-                // Determinar status do estoque
-                let stockStatus = 'active';
-                if (availableStock <= 0) {
-                    stockStatus = 'inactive';
-                } else if (availableStock <= material.minimum_stock) {
-                    stockStatus = 'low_stock';
+            return materials.map(material => ({
+                ...material,
+                stock_details: {
+                    available_stock: material.available_stock || 0
                 }
-
-                return {
-                    id: material.id,
-                    name: material.name,
-                    description: material.description,
-                    category: material.category,
-                    sku: material.sku,
-                    unit: material.unit,
-                    minimum_stock: material.minimum_stock,
-                    material_status: material.material_status,
-                    created_at: material.created_at,
-                    stock_details: {
-                        total_input: material.total_input,
-                        total_output: material.total_output,
-                        total_allocated: material.total_allocated,
-                        available_stock: availableStock,
-                        stock_status: stockStatus
-                    }
-                };
-            });
-
-            return {
-                total_materials: processedMaterials.length,
-                materials: processedMaterials,
-                message: 'Materiais recuperados com sucesso'
-            };
+            }));
         } catch (error) {
-            console.error('Erro ao recuperar materiais:', error);
-            throw error;
+            console.error('Erro ao buscar materiais:', error);
+            throw new Error(`Erro ao buscar materiais: ${error.message}`);
         }
     },
 
@@ -978,6 +931,38 @@ const MaterialControl = {
                 error: 'Erro ao editar material',
                 details: error.message 
             });
+        }
+    },
+
+    // Método para excluir material
+    deleteMaterial: async (materialId) => {
+        try {
+            // Primeiro, verificar se existem movimentações para este material
+            const checkMovementsQuery = 'SELECT COUNT(*) as count FROM material_control_movements WHERE material_id = ?';
+            const [movementsResult] = await executeQuery(checkMovementsQuery, [materialId]);
+            
+            if (movementsResult.count > 0) {
+                throw new Error('MATERIAL_HAS_MOVEMENTS');
+            }
+
+            // Se não houver movimentações, prosseguir com a exclusão
+            const deleteQuery = 'DELETE FROM material_control_materials WHERE id = ?';
+            await executeQuery(deleteQuery, [materialId]);
+            
+            return { 
+                success: true, 
+                message: 'Material excluído com sucesso' 
+            };
+        } catch (error) {
+            console.error('Erro ao excluir material:', error);
+            
+            if (error.message === 'MATERIAL_HAS_MOVEMENTS') {
+                throw new Error('Não é possível excluir este material pois existem movimentações (entradas/saídas) associadas a ele.');
+            } else if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+                throw new Error('Não é possível excluir este material pois ele está sendo usado em outras partes do sistema.');
+            }
+            
+            throw new Error('Erro ao excluir material');
         }
     },
 };

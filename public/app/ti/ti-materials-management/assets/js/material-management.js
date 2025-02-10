@@ -11,19 +11,18 @@ class MaterialManagement {
         this.collaborators = [];
         this.materials = [];
         this.materialMovements = [];
+        this.currentGrouping = 'none';
 
-        // Bind methods to ensure correct context
+        // Bind methods
         const methodsToBind = [
-            'initializeDOM', 
-            'handleMaterialReturn',
-            'validateField',
-            'resetForm',
-            'refreshTables',
-            'initializeTables',
-            'populateAllocationSelects',
-            'handleMaterialAllocation',
-            'populateReturnMaterialSelects',
-            'loadAllocatedMaterials'
+            'initializeDOM',
+            'setupFiltersAndGrouping',
+            'handleCustomDateRange',
+            'applyFilters',
+            'applyGrouping',
+            'populateFilterSelects',
+            'clearFilters',
+            'clearGrouping'
         ];
 
         methodsToBind.forEach(method => {
@@ -33,211 +32,523 @@ class MaterialManagement {
         });
     }
 
-    // Método para inicializar o DOM
+    // Inicializar elementos do DOM
     initializeDOM() {
-        // Inicializar elementos do DOM
-        this.materialsTableBody = document.getElementById('materials-table-body');
-        this.lastMovementsTableBody = document.getElementById('recent-movements-body');
-        this.materialRegistrationForm = document.getElementById('material-registration-form');
-        this.materialReturnForm = document.getElementById('material-return-form');
+        // Elementos de filtro
+        this.filterMovementType = document.getElementById('filter-movement-type');
+        this.filterMaterial = document.getElementById('filter-material');
+        this.filterCollaborator = document.getElementById('filter-collaborator');
+        this.filterPeriod = document.getElementById('filter-period');
+        this.filterDateStart = document.getElementById('filter-date-start');
+        this.filterDateEnd = document.getElementById('filter-date-end');
+        this.filterQuantity = document.getElementById('filter-quantity');
+        this.customDateRange = document.getElementById('custom-date-range');
+        this.clearFiltersBtn = document.getElementById('clear-filters');
 
-        // Verificação de depuração
-        console.log('Elementos DOM:', {
-            materialsTableBody: this.materialsTableBody,
-            lastMovementsTableBody: this.lastMovementsTableBody,
-            materialRegistrationForm: this.materialRegistrationForm,
-            materialReturnForm: this.materialReturnForm
+        // Configurar filtros e agrupamentos
+        this.setupFiltersAndGrouping();
+        
+        // Preencher selects de filtro
+        // this.populateFilterSelects();
+    }
+
+    // Popular selects de filtro com dados da API
+    populateFilterSelects() {
+        try {
+            // Limpar opções existentes, mantendo a opção "Todos"
+            this.filterMaterial.innerHTML = '<option value="">Todos</option>';
+            this.filterCollaborator.innerHTML = '<option value="">Todos</option>';
+
+            // Obter dados da tabela
+            const tableData = tables['recent_movements'].data().toArray();
+
+            // Extrair materiais e colaboradores únicos
+            const uniqueMaterials = [...new Set(tableData.map(row => row[0]))];
+            const uniqueCollaborators = [...new Set(tableData.map(row => row[1]))];
+
+            // Preencher select de materiais
+            uniqueMaterials
+                .filter(material => material) // Remove valores vazios
+                .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+                .forEach(material => {
+                    const option = new Option(material, material);
+                    this.filterMaterial.appendChild(option);
+                });
+
+            // Preencher select de colaboradores
+            uniqueCollaborators
+                .filter(collaborator => collaborator) // Remove valores vazios
+                .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+                .forEach(collaborator => {
+                    const option = new Option(collaborator, collaborator);
+                    this.filterCollaborator.appendChild(option);
+                });
+
+        } catch (error) {
+            console.error('Erro ao popular selects de filtro:', error);
+        }
+    }
+
+    // Configurar filtros e agrupamentos
+    setupFiltersAndGrouping() {
+        // Configurar listeners para filtros
+        const filters = [
+            this.filterMovementType,
+            this.filterMaterial,
+            this.filterCollaborator,
+            this.filterPeriod,
+            this.filterQuantity,
+            this.filterDateStart,
+            this.filterDateEnd
+        ];
+
+        filters.forEach(filter => {
+            if (filter) {
+                filter.addEventListener('change', () => this.applyFilters());
+            }
         });
 
-        if (this.materialReturnForm) {
-            this.materialReturnForm.addEventListener('submit', this.handleMaterialReturn);
+        // Configurar listener para datas customizadas
+        this.filterPeriod?.addEventListener('change', this.handleCustomDateRange);
+
+        // Configurar listener para limpar filtros
+        this.clearFiltersBtn?.addEventListener('click', this.clearFilters);
+
+        // Configurar listeners para agrupamento
+        const groupingLinks = document.querySelectorAll('[data-group]');
+        groupingLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.currentGrouping = e.target.dataset.group;
+                this.applyGrouping();
+            });
+        });
+    }
+
+    // Limpar todos os filtros
+    clearFilters() {
+        const filters = [
+            this.filterMovementType,
+            this.filterMaterial,
+            this.filterCollaborator,
+            this.filterPeriod,
+            this.filterQuantity,
+            this.filterDateStart,
+            this.filterDateEnd
+        ];
+
+        filters.forEach(filter => {
+            if (filter) {
+                filter.value = '';
+            }
+        });
+
+        this.customDateRange.classList.add('d-none');
+        this.applyFilters();
+    }
+
+    // Manipular exibição do range de datas customizado
+    handleCustomDateRange(e) {
+        if (this.customDateRange) {
+            this.customDateRange.classList.toggle('d-none', e.target.value !== 'custom');
         }
     }
 
-    // Função utilitária de validação
-    validateField(field, errorMessage) {
-        if (!field.value.trim()) {
-            field.classList.add('is-invalid');
-            const errorElement = field.nextElementSibling || document.createElement('div');
-            errorElement.classList.add('invalid-feedback');
-            errorElement.textContent = errorMessage;
-            field.parentNode.insertBefore(errorElement, field.nextSibling);
-            return false;
-        }
-        field.classList.remove('is-invalid');
-        return true;
+    // Aplicar filtros à tabela
+    applyFilters() {
+        if (!tables['recent_movements']) return;
+
+        // Limpar filtros anteriores
+        $.fn.dataTable.ext.search = [];
+
+        // Adicionar novo filtro
+        $.fn.dataTable.ext.search.push((settings, data) => {
+            if (settings.nTable.id !== 'recent-movements-table') return true;
+
+            const movementType = this.filterMovementType?.value || '';
+            const material = this.filterMaterial?.value || '';
+            const collaborator = this.filterCollaborator?.value || '';
+            const period = this.filterPeriod?.value || '';
+            const quantityRange = this.filterQuantity?.value || '';
+
+            // Filtro de material
+            if (material && data[0] !== material) return false;
+
+            // Filtro de colaborador
+            if (collaborator && data[1] !== collaborator) return false;
+
+            // Filtro de tipo de movimentação
+            if (movementType) {
+                const type = data[2].toLowerCase();
+                switch (movementType) {
+                    case 'input':
+                        if (!type.includes('entrada')) return false;
+                        break;
+                    case 'output':
+                        if (!type.includes('saída')) return false;
+                        break;
+                    case 'allocation':
+                        if (!type.includes('alocação')) return false;
+                        break;
+                    case 'return':
+                        if (!type.includes('devolução')) return false;
+                        break;
+                }
+            }
+
+            // Filtro de período
+            const rowDate = new Date(data[4]);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (period) {
+                switch (period) {
+                    case 'today':
+                        if (rowDate.toDateString() !== today.toDateString()) return false;
+                        break;
+                    case 'yesterday':
+                        const yesterday = new Date(today);
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        if (rowDate.toDateString() !== yesterday.toDateString()) return false;
+                        break;
+                    case 'week':
+                        const weekAgo = new Date(today);
+                        weekAgo.setDate(weekAgo.getDate() - 7);
+                        if (rowDate < weekAgo) return false;
+                        break;
+                    case 'month':
+                        const monthAgo = new Date(today);
+                        monthAgo.setDate(monthAgo.getDate() - 30);
+                        if (rowDate < monthAgo) return false;
+                        break;
+                    case 'custom':
+                        const startDate = this.filterDateStart?.value ? new Date(this.filterDateStart.value) : null;
+                        const endDate = this.filterDateEnd?.value ? new Date(this.filterDateEnd.value) : null;
+                        
+                        if (startDate) {
+                            startDate.setHours(0, 0, 0, 0);
+                            if (rowDate < startDate) return false;
+                        }
+                        
+                        if (endDate) {
+                            endDate.setHours(23, 59, 59, 999);
+                            if (rowDate > endDate) return false;
+                        }
+                        break;
+                }
+            }
+
+            // Filtro de quantidade
+            const quantity = parseInt(data[3]);
+            if (quantityRange) {
+                const [min, max] = quantityRange.split('-').map(n => parseInt(n));
+                if (quantityRange === '51+') {
+                    if (quantity <= 50) return false;
+                } else {
+                    if (quantity < min || (max && quantity > max)) return false;
+                }
+            }
+
+            return true;
+        });
+
+        tables['recent_movements'].draw();
     }
 
-    // Função para limpar formulários
-    resetForm(formId) {
-        const form = document.getElementById(formId);
-        if (form) {
-            form.reset();
-            const invalidFields = form.querySelectorAll('.is-invalid');
-            invalidFields.forEach(field => field.classList.remove('is-invalid'));
+    // Aplicar agrupamento à tabela
+    applyGrouping() {
+        if (!tables['recent_movements']) return;
+
+        const table = tables['recent_movements'];
+
+        // Atualizar indicador de agrupamento
+        const $indicator = $('#grouping-indicator');
+        const $currentGrouping = $('#current-grouping');
+        
+        if (this.currentGrouping === 'none') {
+            $indicator.hide();
+        } else {
+            const groupLabels = {
+                'type': 'Tipo',
+                'material': 'Material',
+                'collaborator': 'Colaborador',
+                'date': 'Data'
+            };
+            $currentGrouping.text(groupLabels[this.currentGrouping]);
+            $indicator.show();
         }
-    }
 
-    // Método para lidar com devolução de material
-    handleMaterialReturn(event) {
-        event.preventDefault();
-        const form = event.target;
-        const formData = new FormData(form);
-        const returnData = Object.fromEntries(formData.entries());
-
-        console.log('Dados de devolução recebidos:', returnData);
-
-        // Validar campos obrigatórios
-        if (!returnData.collaborator_id || !returnData.material_id || !returnData.quantity) {
-            showToast('Erro', 'Por favor, preencha todos os campos obrigatórios', 'error');
+        // Remover agrupamento anterior e restaurar ordenação padrão
+        if (table.rowGroup) {
+            table.rowGroup().disable();
+        }
+        
+        // Se não houver agrupamento selecionado, mostrar todas as linhas e retornar
+        if (this.currentGrouping === 'none') {
+            table.order([4, 'desc']); // Ordenação padrão por data
+            $('#recent-movements-table tbody tr').show();
+            $('#recent-movements-table tbody tr').removeClass('group-header');
+            table.draw();
             return;
         }
 
-        // Encontrar a alocação correspondente
-        const materialSelect = form.querySelector('select[name="material_id"]');
-        const selectedOption = materialSelect.selectedOptions[0];
-        const allocationId = selectedOption.dataset.allocationId;
-
-        // Adicionar allocation_id aos dados de devolução
-        returnData.allocation_id = parseInt(allocationId, 10);
-
-        // Converter campos numéricos
-        returnData.material_id = parseInt(returnData.material_id, 10);
-        returnData.collaborator_id = parseInt(returnData.collaborator_id, 10);
-        returnData.quantity = parseInt(returnData.quantity, 10);
-
-        console.log('Dados de devolução processados:', returnData);
-
-        this.materialAPI.returnAllocatedMaterial(returnData)
-            .then(response => {
-                showToast('Sucesso', 'Material devolvido com sucesso!', 'success');
-
-                // Fechar modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('material-return-modal'));
-                if (modal) modal.hide();
-
-                // Limpar formulário
-                form.reset();
-
-                // Atualizar tabelas
-                this.refreshTables();
-
-                // Recarregar lista de materiais no modal
-                this.populateReturnMaterialSelects();
-            })
-            .catch(error => {
-                console.error('Erro ao devolver material:', error);
-                
-                try {
-                    // Tentar parsear a mensagem de erro como JSON
-                    const parsedError = JSON.parse(error.message);
-                    
-                    // Verificar se há detalhes no erro
-                    if (parsedError.details) {
-                        showToast('Erro', parsedError.details, 'warning');
-                    } else {
-                        showToast('Erro', 'Não foi possível devolver o material', 'error');
-                    }
-                } catch (parseError) {
-                    // Se não for possível parsear, mostrar a mensagem original
-                    showToast('Erro', error.message || 'Não foi possível devolver o material', 'error');
+        // Configurar rowGroup baseado no tipo de agrupamento
+        const groupConfig = {
+            'material': {
+                dataSrc: 0,
+                icon: 'ti-box',
+                className: 'bg-light'
+            },
+            'collaborator': {
+                dataSrc: 1,
+                icon: 'ti-user',
+                className: 'bg-light'
+            },
+            'type': {
+                dataSrc: 2,
+                icon: 'ti-tag',
+                className: (group) => this.getTypeClass(group)
+            },
+            'date': {
+                dataSrc: 4,
+                icon: 'ti-calendar',
+                className: 'bg-light',
+                formatter: (value) => {
+                    const date = new Date(value);
+                    return date.toLocaleDateString('pt-BR');
                 }
+            }
+        };
+
+        const config = groupConfig[this.currentGrouping];
+        if (config) {
+            // Configurar rowGroup
+            table.rowGroup({
+                dataSrc: (row) => {
+                    const value = row[config.dataSrc];
+                    return config.formatter ? config.formatter(value) : value;
+                },
+                startRender: (rows, group) => {
+                    const count = rows.count();
+                    const className = typeof config.className === 'function' ? 
+                        config.className(group) : config.className;
+
+                    // Retornar HTML do grupo
+                    return $('<tr/>')
+                        .addClass('group-header ' + className)
+                        .append(
+                            $('<td/>')
+                                .attr('colspan', 5)
+                                .append(
+                                    $('<div/>')
+                                        .addClass('d-flex align-items-center')
+                                        .append(
+                                            $('<button/>')
+                                                .addClass('btn btn-sm btn-icon me-2 toggle-group')
+                                                .append($('<i/>').addClass('ti ' + config.icon + ' ti-chevron-right')),
+                                            $('<span/>').addClass('fw-bold').text(group),
+                                            $('<span/>')
+                                                .addClass('badge bg-primary ms-2')
+                                                .text(count + (count === 1 ? ' item' : ' itens'))
+                                        )
+                                )
+                        )[0];
+                }
+            }).enable();
+
+            // Ordenar pela coluna do grupo
+            table.order([config.dataSrc, 'asc']);
+
+            // Adicionar listener para toggle dos grupos
+            $('#recent-movements-table tbody').off('click', 'tr.group-header').on('click', 'tr.group-header', function() {
+                const $this = $(this);
+                const $icon = $this.find('.toggle-group i');
+                const $rows = $this.nextUntil('tr.group-header');
+                
+                // Toggle das linhas do grupo
+                $rows.toggle();
+                
+                // Toggle do ícone
+                $icon.toggleClass('ti-chevron-right ti-chevron-down');
             });
+
+            // Esconder todas as linhas de dados inicialmente
+            setTimeout(() => {
+                const $rows = $('#recent-movements-table tbody tr:not(.group-header)');
+                $rows.hide();
+            }, 100);
+        }
+
+        // Redesenhar a tabela
+        table.draw();
     }
 
-    // Função para atualizar tabelas
-    refreshTables() {
-        // Inicialização das tabelas mantida
-        // const tables = this.initializeTables();
-
-        // Atualizar tabela de movimentações recentes
-        tables['recent_movements'].ajax.reload(null, false);
+    // Método para limpar agrupamento
+    clearGrouping() {
+        $('#group-select').val('none').trigger('change');
     }
 
-    // Remover funções obsoletas e manter apenas as essenciais
+    // Obter classe CSS baseada no tipo de movimentação
+    getTypeClass(type) {
+        const typeClasses = {
+            'Entrada de Estoque': 'bg-success-subtle',
+            'Saída de Estoque': 'bg-danger-subtle',
+            'Alocação': 'bg-primary-subtle',
+            'Devolução': 'bg-warning-subtle'
+        };
+        return typeClasses[type] || 'bg-light';
+    }
+
+    // Inicializar tabelas
     initializeTables() {
-       
-
-        // Tabela de movimentações recentes
+        // Configurar tabela de movimentações recentes
         tables['recent_movements'] = $('#recent-movements-table').DataTable({
-            dom: 'frtip',
-            paging: false,
-            fixedHeader: true,
-            info: false,
-            scrollY: 'calc(100vh - 240px)',
-            scrollCollapse: false,
-            order: [[4, 'desc']],
+            processing: true,
+            serverSide: false,
+            dom: 'frt', // Remove elementos desnecessários
+            paging: false, // Desativa a paginação
+            fixedHeader: true, // Cabeçalho fixo
+            info: false, // Remove a informação de quantidade de registros
+            scrollY: 'calc(100vh - 240px)', // Define a altura dinamicamente
+            scrollCollapse: false, // Permite que a rolagem seja usada somente quando necessário
             ajax: {
                 url: '/api/material-control/movements',
-                dataSrc: '',
-                dataFilter: function(data) {
-                    const json = JSON.parse(data);
-                    console.log('Dados recebidos para movimentações:', json);
-                    return JSON.stringify(json.map(item => {
-                        console.log('Item individual:', item);
-                        let type, collaboratorName;
+                dataSrc: function (json) {
+                    return json.map(item => {
+                        // Determinar o tipo de movimentação
+                        let type = '';
+                        
+                        // Primeiro, verificar o movement_type_label se existir
+                        if (item.movement_type_label) {
+                            type = item.movement_type_label;
+                        }
+                        // Se não tiver label, verificar source e movement_type
+                        else if (item.source === 'return') {
+                            type = 'Devolução';
+                        } else if (item.source === 'allocation') {
+                            type = 'Alocação';
+                        } else if (item.movement_type === 'input' || item.type === 'input') {
+                            type = 'Entrada de Estoque';
+                        } else if (item.movement_type === 'output' || item.type === 'output') {
+                            type = 'Saída de Estoque';
+                        } else if (item.type) {
+                            // Se tiver apenas o type, usar ele
+                            type = item.type.charAt(0).toUpperCase() + item.type.slice(1);
+                        }
 
-                        // Log detalhado para depuração
-                        console.log('Source:', item.source);
-                        console.log('Movement Type:', item.movement_type);
-                        console.log('Collaborator Name:', item.collaborator_name);
+                        // Formatar a data
+                        const date = new Date(item.created_at || item.movement_date);
+                        const formattedDate = date.toLocaleString('pt-BR');
 
-                        // Usar o movement_type_label se disponível
-                        type = item.movement_type_label || 
-                            (item.source === 'return' ? 'Devolução' : 
-                            (item.source === 'allocation' ? 'Alocação' : 
-                            (item.movement_type === 'input' ? 'Entrada de Estoque' : 
-                            (item.movement_type === 'output' ? 'Saída de Estoque' : 
-                            'Tipo Desconhecido'))));
+                        // Log para debug
+                        console.log('Processando item:', {
+                            original: item,
+                            processedType: type
+                        });
 
-                        // Definir nome do colaborador
-                        collaboratorName = item.collaborator_name || 
-                            (item.source === 'movement' && item.movement_type === 'input' ? '-' : 
-                            'Colaborador não identificado');
-
-                        return {
-                            material_name: item.material_name || 'Material não identificado',
-                            collaborator_name: collaboratorName,
-                            type: type,
-                            quantity: item.quantity || 0,
-                            date: item.movement_date || new Date()
-                        };
-                    }));
+                        return [
+                            item.material_name || 'Material não identificado',
+                            item.collaborator_name || '-',
+                            type || 'Tipo não identificado',
+                            item.quantity || 0,
+                            formattedDate
+                        ];
+                    });
                 }
             },
             columns: [
                 { 
-                    data: 'material_name',
-                    title: 'Material'
+                    title: 'Material',
+                    className: 'align-middle'
                 },
                 { 
-                    data: 'collaborator_name',
-                    title: 'Colaborador'
+                    title: 'Colaborador',
+                    className: 'align-middle'
                 },
                 { 
-                    data: 'type',
-                    title: 'Tipo'
-                },
-                { 
-                    data: 'quantity',
-                    title: 'Quantidade'
-                },
-                { 
-                    data: 'date',
-                    title: 'Data',
+                    title: 'Tipo',
+                    className: 'align-middle',
                     render: function(data) {
-                        return new Date(data).toLocaleString('pt-BR');
+                        const typeClasses = {
+                            'Entrada de Estoque': 'success',
+                            'Saída de Estoque': 'danger',
+                            'Alocação': 'primary',
+                            'Devolução': 'warning'
+                        };
+                        const badgeClass = typeClasses[data] || 'secondary';
+                        return `<span class="badge bg-${badgeClass}">${data}</span>`;
                     }
+                },
+                { 
+                    title: 'Quantidade',
+                    className: 'align-middle text-center'
+                },
+                { 
+                    title: 'Data',
+                    className: 'align-middle'
                 }
             ],
+            order: [[4, 'desc']], // Ordenar por data decrescente
+            responsive: true,
             language: {
-                searchPlaceholder: 'Pesquisar...',
-                sSearch: '',
-                url: '../../assets/libs/datatables/pt-br.json'
+                url: '../../assets/libs/datatables/pt-BR.json',
+                search: '',
+                searchPlaceholder: 'Pesquisar...'
+            },
+            rowGroup: {
+                enable: false,
+                startRender: function(rows, group) {
+                    const count = rows.count();
+                    let icon = 'ti-chevron-right';
+                    let groupClass = '';
+                    
+                    // Definir ícone e classe baseado no tipo de agrupamento
+                    switch(this.currentGrouping) {
+                        case 'type':
+                            icon = 'ti-tag';
+                            groupClass = this.getTypeClass(group);
+                            break;
+                        case 'material':
+                            icon = 'ti-box';
+                            groupClass = 'bg-light';
+                            break;
+                        case 'collaborator':
+                            icon = 'ti-user';
+                            groupClass = 'bg-light';
+                            break;
+                        case 'date':
+                            icon = 'ti-calendar';
+                            groupClass = 'bg-light';
+                            break;
+                    }
+
+                    // Retornar HTML do grupo
+                    return $('<tr/>')
+                        .addClass('group-header ' + groupClass)
+                        .append(
+                            $('<td/>')
+                                .attr('colspan', 5)
+                                .append(
+                                    $('<div/>')
+                                        .addClass('d-flex align-items-center')
+                                        .append(
+                                            $('<button/>')
+                                                .addClass('btn btn-sm btn-icon me-2 toggle-group')
+                                                .append($('<i/>').addClass('ti ' + icon)),
+                                            $('<span/>').addClass('fw-bold').text(group),
+                                            $('<span/>')
+                                                .addClass('badge bg-primary ms-2')
+                                                .text(count + (count === 1 ? ' item' : ' itens'))
+                                        )
+                                )
+                        )[0];
+                }
+            },
+            initComplete: () => {
+                // Após a tabela ser inicializada e preenchida, popular os filtros
+                this.populateFilterSelects();
             }
         });
-
-        return tables;
     }
 
     // Método para popular selects de alocação e alocar material
@@ -463,18 +774,16 @@ class MaterialManagement {
 
     // Inicialização
     init() {
-        // Bind methods to ensure correct context
+        // Bind methods
         const methodsToBind = [
-            'initializeDOM', 
-            'handleMaterialReturn',
-            'validateField',
-            'resetForm',
-            'refreshTables',
-            'initializeTables',
-            'populateAllocationSelects',
-            'handleMaterialAllocation',
-            'populateReturnMaterialSelects',
-            'loadAllocatedMaterials'
+            'initializeDOM',
+            'setupFiltersAndGrouping',
+            'handleCustomDateRange',
+            'applyFilters',
+            'applyGrouping',
+            'populateFilterSelects',
+            'clearFilters',
+            'clearGrouping'
         ];
 
         methodsToBind.forEach(method => {

@@ -1,208 +1,110 @@
-# Módulo de Gestão de Materiais de TI
+# Módulo de Gerenciamento de Materiais TI
 
-## 📋 Visão Geral
+## 📋 Descrição
+Sistema de gerenciamento de materiais e estoque para o departamento de TI, parte do SIRIUS SYSTEM.
 
-Este módulo permite o gerenciamento completo de materiais de TI, oferecendo controle de estoque, movimentações e alocação de recursos.
+## 🚀 Funcionalidades
 
-## ✨ Funcionalidades Principais
+### Gerenciamento de Materiais
+- ✨ Cadastro de novos materiais com informações detalhadas
+- 📝 Edição de materiais existentes
+- 🔍 Visualização de todos os materiais cadastrados
+- 🗑️ Exclusão de materiais (com validação de movimentações)
+- 💡 Controle de status (Ativo/Inativo)
 
-- Cadastro de Materiais
-- Controle de Estoque
-- Movimentação de Materiais
-- Alocação por Colaborador
-- Geração de Relatórios
+### Controle de Estoque
+- ➕ Registro de entradas no estoque
+- ➖ Registro de saídas do estoque
+- 📊 Visualização do saldo atual
+- ⚠️ Alerta de estoque mínimo
+- 📈 Histórico de movimentações
 
-## 🛠 Tecnologias Utilizadas
+### Recursos Adicionais
+- 🔄 Atualização em tempo real dos dados
+- 🎨 Interface intuitiva e responsiva
+- 🔍 Busca e filtros avançados
+- 📱 Compatível com dispositivos móveis
 
-- Frontend: HTML5, CSS3, JavaScript
-- Bibliotecas:
-  - jQuery
-  - Bootstrap
-  - DataTables
-  - SweetAlert2
+## 🛠️ Manual de Uso
 
-## 📦 Estrutura do Módulo
+### 1. Gerenciamento de Materiais
 
-```
-ti-materials-management/
-├── assets/
-│   ├── css/
-│   │   └── index.css
-│   └── js/
-│       ├── materials.js
-│       ├── stock-control.js
-│       └── collaborators.js
-├── pages/
-│   ├── materials-registration.html
-│   ├── stock-management.html
-│   ├── material-movement.html
-│   └── reports.html
-├── index.html
-└── schema.sql
-```
+#### 1.1 Cadastro de Material
+1. Clique no botão "Novo Material"
+2. Preencha os campos obrigatórios:
+   - Nome do material
+   - Descrição
+   - Categoria
+   - SKU (código único)
+   - Estoque mínimo
+   - Status (Ativo/Inativo)
+3. Clique em "Salvar"
 
-## 🚀 Configuração
+#### 1.2 Edição de Material
+1. Na tabela de materiais, clique no ícone de edição (✏️)
+2. Atualize os campos desejados
+3. O status pode ser alterado entre Ativo e Inativo
+4. Clique em "Salvar"
 
-1. Certifique-se de ter todas as dependências globais instaladas
-2. Configure as variáveis de ambiente
-3. Importe o `schema.sql` para preparar o banco de dados
+#### 1.3 Exclusão de Material
+1. Na tabela de materiais, clique no ícone de exclusão (🗑️)
+2. Confirme a ação no diálogo de confirmação
+3. **Importante**: 
+   - Materiais com movimentações não podem ser excluídos
+   - Neste caso, considere inativar o material em vez de excluí-lo
 
-## 📊 Endpoints Principais
+### 2. Movimentações de Estoque
 
-- `/api/ti/ti-materials`: Gerenciamento de materiais
-- `/api/ti/ti-material-movements`: Controle de movimentações
-- `/api/ti/ti-collaborators`: Gestão de colaboradores
+#### 2.1 Entrada de Material
+1. Acesse a aba "Entrada de Material"
+2. Selecione o material
+3. Informe a quantidade
+4. Adicione observações se necessário
+5. Clique em "Registrar Entrada"
 
-## 🔒 Permissões
+#### 2.2 Saída de Material
+1. Acesse a aba "Saída de Material"
+2. Selecione o material
+3. Informe a quantidade
+4. Adicione o motivo da saída
+5. Clique em "Registrar Saída"
 
-- Administradores: Acesso completo
-- Usuários de TI: Acesso limitado
+### 3. Consultas e Relatórios
 
-## 🛡️ Segurança
+#### 3.1 Consulta de Estoque
+- A tabela principal mostra todos os materiais com:
+  - Quantidade atual em estoque
+  - Status do material (Ativo/Inativo)
+  - Indicador visual de estoque baixo
 
-- Autenticação obrigatória
-- Registro de logs de movimentações
-- Validações de estoque e permissões
+#### 3.2 Histórico de Movimentações
+- Clique em "Ver Movimentações" para acessar o histórico
+- Filtros disponíveis:
+  - Por período
+  - Por tipo de movimento
+  - Por material
 
-## 🔜 Próximos Passos
+## 🔄 Atualizações Recentes
 
-- [ ] Implementar testes unitários
-- [ ] Adicionar mais filtros de relatórios
-- [ ] Integração com sistema de notificações
+### Versão 2.0.1 (10/02/2025)
+- ✨ Novo sistema de status de materiais (Ativo/Inativo)
+- 🛡️ Validação aprimorada na exclusão de materiais
+- 🎨 Melhorias visuais na exibição do status
+- 🐛 Correções de bugs:
+  - Tratamento correto do status na edição
+  - Exibição correta do status na tabela
+  - Validação de materiais com movimentações
 
-## 🤝 Contribuição
+## 📞 Suporte
 
-Por favor, leia as diretrizes de contribuição antes de propor alterações.
+Em caso de dúvidas ou problemas:
+1. Consulte este manual
+2. Entre em contato com o suporte técnico
+3. Abra um chamado no sistema de tickets
 
----
+## 🔒 Observações de Segurança
 
-**Manual de Uso do Módulo de Gestão de Materiais de TI**
-
-# 📦 Módulo de Gestão de Materiais de TI - Manual do Usuário
-
-## 🎯 Objetivo do Módulo
-
-O Módulo de Gestão de Materiais de TI foi desenvolvido para fornecer um controle eficiente e transparente do estoque de materiais de tecnologia da informação, permitindo o acompanhamento detalhado de alocações, entradas e saídas.
-
-## 🗂️ Funcionalidades Principais
-
-### 1. Página Inicial (index.html)
-
-#### 1.1 Alocação de Material
-- **Função**: Distribuir materiais para colaboradores
-- **Como Usar**:
-  1. Clique no botão "Alocar Material"
-  2. Selecione o material desejado
-  3. Escolha o colaborador que receberá o material
-  4. Informe a quantidade
-  5. Confirme a alocação
-
-#### 1.2 Devolução de Material
-- **Função**: Registrar o retorno de materiais
-- **Como Usar**:
-  1. Clique no botão "Devolver Material"
-  2. Selecione o material a ser devolvido
-  3. Confirme a quantidade devolvida
-  4. O sistema atualizará o estoque automaticamente
-
-#### 1.3 Gerenciamento de Estoque
-- **Função**: Abrir página de gerenciamento detalhado
-- **Como Usar**:
-  1. Clique no botão "Gerenciar Estoque"
-  2. Uma nova janela será aberta com funcionalidades avançadas
-
-### 2. Página de Gerenciamento de Estoque (stock-management.html)
-
-#### 2.1 Lista de Materiais
-- **Informações Exibidas**:
-  - SKU (Código de Identificação)
-  - Nome do Material
-  - Categoria
-  - Estoque Atual
-  - Estoque Mínimo
-  - Status (Ativo/Inativo)
-
-#### 2.2 Cadastro de Novo Material
-- **Função**: Adicionar novos itens ao inventário
-- **Campos**:
-  1. Nome do Material
-  2. SKU
-  3. Categoria (Hardware, Software, Acessório, Consumível)
-  4. Unidade de Medida
-  5. Estoque Mínimo
-  6. Status
-  7. Descrição (Opcional)
-
-#### 2.3 Entrada de Estoque
-- **Função**: Registrar novos materiais ou incrementar estoque
-- **Como Usar**:
-  1. Clique em "Entrada de Estoque"
-  2. Selecione o material
-  3. Informe a quantidade
-  4. Escolha a origem (Compra, Doação, Transferência)
-  5. Opcional: Adicione número da nota fiscal
-  6. Opcional: Adicione observações
-
-#### 2.4 Saída de Estoque
-- **Função**: Registrar baixa ou movimentação de materiais
-- **Como Usar**:
-  1. Clique em "Saída de Estoque"
-  2. Selecione o material
-  3. Informe a quantidade
-  4. Escolha o motivo (Descarte, Doação, Transferência, Manutenção)
-  5. Opcional: Informe o destino
-  6. Opcional: Adicione observações
-
-## 🚨 Alertas e Indicadores
-
-### Estoque
-- **Vermelho**: Estoque abaixo do mínimo
-- **Verde**: Estoque adequado
-
-### Status do Material
-- **Verde**: Material Ativo
-- **Vermelho**: Material Inativo
-
-## 💡 Boas Práticas
-
-1. Mantenha o cadastro de materiais sempre atualizado
-2. Registre todas as movimentações com precisão
-3. Fique atento aos materiais com estoque baixo
-4. Use a descrição para adicionar informações relevantes
-
-## 🔒 Segurança e Permissões
-
-- Apenas usuários autorizados podem realizar movimentações
-- Todas as ações são registradas para auditoria
-
-## 🛠️ Solução de Problemas
-
-### Problemas Comuns
-- **Material não aparece na lista**: Verifique se foi cadastrado corretamente
-- **Não consigo alocar/devolver**: Confirme se há estoque disponível
-- **Erro ao salvar**: Verifique se todos os campos obrigatórios foram preenchidos
-
-### Suporte
-Em caso de dúvidas ou problemas, entre em contato com a equipe de TI.
-
-## 📊 Relatórios
-
-Futuramente, serão implementados relatórios detalhados de:
-- Consumo de materiais
-- Histórico de movimentações
-- Previsão de reposição de estoque
-
-## 🔄 Atualizações Futuras
-
-- Integração com sistema de compras
-- Notificações automáticas de estoque baixo
-- Geração de relatórios em PDF
-
----
-
-**Última Atualização**: 05 de fevereiro de 2025
-**Versão do Módulo**: 1.0.0
-
----
-
-**SIRIUS SYSTEM** - Gestão Inteligente de Recursos
+- Mantenha os registros sempre atualizados
+- Verifique as informações antes de confirmar movimentações
+- Em caso de erro, contate o administrador do sistema
+- Não compartilhe suas credenciais de acesso

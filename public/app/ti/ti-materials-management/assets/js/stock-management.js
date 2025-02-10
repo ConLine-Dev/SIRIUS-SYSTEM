@@ -4,6 +4,7 @@ class StockManagement {
         this.materialAPI = window.MaterialAPI;
         this.materialsTable = null;
         this.stockMovementsTable = null;
+        this.materials = []; // Adicionando array para armazenar materiais
 
         // Bind methods
         this.initializeDOM = this.initializeDOM.bind(this);
@@ -257,20 +258,27 @@ class StockManagement {
                     },
                     { 
                         data: 'status',
-                        render: (data) => this.formatStatus(data)
+                        render: function(data, type, row) {
+                            console.log('Status na tabela:', data);
+                            const statusClass = data === 'inactive' ? 'danger' : 'success';
+                            const statusText = data === 'inactive' ? 'Inativo' : 'Ativo';
+                            return `<span class="badge bg-${statusClass}">${statusText}</span>`;
+                        }
                     },
                     {
                         data: null,
-                        render: () => `
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-sm btn-info edit-material" title="Editar Material">
-                                    <i class="ti ti-edit"></i>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-danger delete-material" title="Excluir Material">
-                                    <i class="ti ti-trash"></i>
-                                </button>
-                            </div>
-                        `
+                        render: function(data, type, row) {
+                            return `
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-sm btn-warning edit-material" data-material-id="${row.id}" title="Editar Material">
+                                        <i class="ti ti-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger delete-material" data-material-id="${row.id}" title="Excluir Material">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }
                     }
                 ]
             });
@@ -309,7 +317,7 @@ class StockManagement {
                         render: () => `
                             <div class="btn-group" role="group">
                                 <button class="btn btn-sm btn-info view-movement" title="Detalhes da Movimentação">
-                                    <i class="ri-eye-line"></i>
+                                    <i class="ti ti-eye"></i>
                                 </button>
                             </div>
                         `
@@ -328,6 +336,47 @@ class StockManagement {
         }
         if (this.newMaterialForm) {
             this.newMaterialForm.addEventListener('submit', this.handleNewMaterial);
+        }
+
+        // Adicionar listener para o botão de exclusão
+        const materialsTable = document.getElementById('materials-table');
+        if (materialsTable) {
+            materialsTable.addEventListener('click', async (event) => {
+                const deleteButton = event.target.closest('.delete-material');
+                if (deleteButton) {
+                    const materialId = deleteButton.getAttribute('data-material-id');
+                    
+                    if (!materialId) {
+                        showToast('ID do material não encontrado', 'danger');
+                        return;
+                    }
+
+                    // Confirmar exclusão
+                    if (confirm('Tem certeza que deseja excluir este material? Esta ação não pode ser desfeita.')) {
+                        try {
+                            await this.materialAPI.deleteMaterial(materialId);
+                            
+                            // Recarregar a tabela
+                            await this.loadMaterials();
+                            
+                            showToast('Material excluído com sucesso!', 'success');
+                        } catch (error) {
+                            console.error('Erro ao excluir material:', error);
+                            
+                            // Mostrar mensagem amigável ao usuário
+                            let errorMessage = 'Erro ao excluir material';
+                            
+                            if (error.message.includes('movimentações')) {
+                                errorMessage = 'Este material não pode ser excluído pois possui movimentações de estoque associadas. Considere inativá-lo em vez de excluí-lo.';
+                            } else if (error.message.includes('outras partes do sistema')) {
+                                errorMessage = 'Este material não pode ser excluído pois está sendo usado em outras partes do sistema.';
+                            }
+                            
+                            showToast(errorMessage, 'danger');
+                        }
+                    }
+                }
+            });
         }
 
         // Adicionar listener para visualização de movimentações
@@ -371,14 +420,28 @@ class StockManagement {
 
     setupMaterialEditHandlers() {
         const materialTable = document.getElementById('materials-table');
+        const editForm = document.getElementById('edit-material-form');
+
+        if (!materialTable || !editForm) {
+            console.error('Elementos necessários para edição de materiais não encontrados');
+            return;
+        }
+
         materialTable.addEventListener('click', async (event) => {
             const editButton = event.target.closest('.edit-material');
             if (editButton) {
-                const row = editButton.closest('tr');
-                const materialId = row.dataset.materialId;
+                const materialId = editButton.getAttribute('data-material-id');
+                console.log('ID do Material:', materialId);
                 
+                if (!materialId) {
+                    console.error('ID do material não encontrado no botão de edição');
+                    showToast('Erro ao identificar material para edição', 'danger');
+                    return;
+                }
+
                 // Encontrar o material na lista de materiais
-                const material = this.materials.find(m => m.id == materialId);
+                const material = this.materials.find(m => m.id === parseInt(materialId));
+                console.log('Material encontrado:', material);
                 
                 if (material) {
                     // Preencher modal de edição
@@ -387,23 +450,36 @@ class StockManagement {
                     document.getElementById('edit-material-description').value = material.description || '';
                     document.getElementById('edit-material-category').value = material.category;
                     document.getElementById('edit-material-sku').value = material.sku;
-                    document.getElementById('edit-material-unit').value = material.unit;
                     document.getElementById('edit-material-minimum-stock').value = material.minimum_stock || 0;
+                    
+                    // Garantir que o status seja 'active' ou 'inactive'
                     document.getElementById('edit-material-status').value = material.status;
+
+                    console.log('Status atual do material:', material.status);
 
                     // Mostrar modal de edição
                     const editModal = new bootstrap.Modal(document.getElementById('edit-material-modal'));
                     editModal.show();
+                } else {
+                    console.error('Material não encontrado:', materialId);
+                    showToast('Material não encontrado para edição', 'danger');
                 }
             }
         });
 
-        // Adicionar evento de submit no formulário de edição
-        const editForm = document.getElementById('edit-material-form');
         editForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const formData = new FormData(event.target);
             const materialData = Object.fromEntries(formData.entries());
+
+            // Garantir que todos os campos necessários estão presentes
+            materialData.unit = 'unit'; // Valor padrão para unidade
+            materialData.description = materialData.description || ''; // Descrição vazia se não fornecida
+
+            // Garantir que o status seja um dos valores válidos do ENUM
+            materialData.status = materialData.status === 'inactive' ? 'inactive' : 'active';
+
+            console.log('Dados do material para edição:', materialData);
 
             try {
                 const result = await this.materialAPI.editMaterial(materialData);
@@ -427,8 +503,16 @@ class StockManagement {
     async loadMaterials() {
         try {
             // Buscar materiais com estoque calculado
-            const materials = await this.materialAPI.getAllMaterials();
-            console.log(materials)
+            const response = await this.materialAPI.getAllMaterials();
+            
+            // Garantir que temos um array de materiais
+            const materials = Array.isArray(response) ? response : 
+                            response?.materials ? response.materials : 
+                            response ? [response] : [];
+            
+            console.log('Materiais carregados:', materials);
+            
+            this.materials = materials; // Armazenando os materiais
             
             // Verificar se a tabela de materiais foi inicializada
             if (this.materialsTable) {
@@ -439,20 +523,24 @@ class StockManagement {
                 this.materialsTable.rows.add(materials.map(material => {
                     // Usar stock_details para obter a quantidade disponível
                     const availableStock = material.stock_details ? material.stock_details.available_stock : '0';
-                    const status = material.stock_details ? material.stock_details.stock_status : material.material_status;
+                    
+                    console.log(`Material ${material.id} - Status original:`, material.status);
+
+                    // Garantir que o status seja 'active' ou 'inactive'
+                    const status = material.status === 'inactive' ? 'inactive' : 'active';
 
                     return {
                         ...material,
-                        status: this.formatStatus(status || (availableStock <= material.minimum_stock ? 'low_stock' : 'active')),
+                        status: status,
                         category: this.formatMaterialCategory(material.category),
                         real_quantity: availableStock,
                         actions: `
                             <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-sm btn-info view-material" data-id="${material.id}">
-                                    <i class="fas fa-eye"></i>
+                                <button type="button" class="btn btn-sm btn-warning edit-material" data-material-id="${material.id}" title="Editar Material">
+                                    <i class="ti ti-edit"></i>
                                 </button>
-                                <button type="button" class="btn btn-sm btn-warning edit-material" data-id="${material.id}">
-                                    <i class="fas fa-edit"></i>
+                                <button type="button" class="btn btn-sm btn-danger delete-material" data-material-id="${material.id}" title="Excluir Material">
+                                    <i class="ti ti-trash"></i>
                                 </button>
                             </div>
                         `
@@ -461,11 +549,6 @@ class StockManagement {
                 
                 // Redesenhar tabela
                 this.materialsTable.draw();
-            }
-
-            // Atualizar card de total de materiais
-            if (this.totalStockMaterials) {
-                this.totalStockMaterials.textContent = materials.length;
             }
 
             // Popular selects de materiais em outros formulários

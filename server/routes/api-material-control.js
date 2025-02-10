@@ -7,11 +7,12 @@ module.exports = function(io) {
     router.get('/materials', async (req, res) => {
         try {
             const materials = await MaterialControl.getAllMaterials();
-            res.status(200).json(materials);
+            res.json(materials);
         } catch (error) {
             console.error('Erro ao buscar materiais:', error);
             res.status(500).json({ 
-                error: 'Erro ao buscar materiais', 
+                error: true, 
+                message: 'Erro ao buscar materiais',
                 details: error.message 
             });
         }
@@ -246,6 +247,22 @@ module.exports = function(io) {
 
     // Rota para editar material
     router.put('/edit-material', MaterialControl.editMaterial);
+
+    // Rota para excluir material
+    router.delete('/materials/:id', async (req, res) => {
+        try {
+            const materialId = req.params.id;
+            const result = await MaterialControl.deleteMaterial(materialId);
+            io.emit('materialDeleted', { id: materialId });
+            res.status(200).json(result);
+        } catch (error) {
+            console.error('Erro ao excluir material:', error);
+            res.status(500).json({ 
+                error: 'Erro ao excluir material', 
+                details: error.message 
+            });
+        }
+    });
 
     return router;
 };

@@ -8,35 +8,30 @@ class MaterialAPI {
     }
 
     // Método para buscar todos os materiais com estoque
-    getAllMaterials() {
-        return new Promise((resolve, reject) => {
-            fetch(`${this.baseUrl}/materials`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Erro ao buscar materiais');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Dados de materiais recebidos:', data);
-                    
-                    // Verificar a estrutura dos dados
-                    if (Array.isArray(data)) {
-                        // Se for um array direto
-                        resolve(data);
-                    } else if (data.materials) {
-                        // Se já tiver a chave materials
-                        resolve(data.materials);
-                    } else {
-                        // Caso contrário, criar um array com o dado
-                        resolve([data]);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro na requisição de materiais:', error);
-                    reject(error);
-                });
-        });
+    async getAllMaterials() {
+        try {
+            const response = await fetch(`${this.baseUrl}/materials`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Erro ao buscar materiais');
+            }
+            const data = await response.json();
+            
+            // Verificar a estrutura dos dados
+            if (Array.isArray(data)) {
+                // Se for um array direto
+                return data;
+            } else if (data.materials) {
+                // Se já tiver a chave materials
+                return data.materials;
+            } else {
+                // Caso contrário, criar um array com o dado
+                return [data];
+            }
+        } catch (error) {
+            console.error('Erro na requisição de materiais:', error);
+            throw error;
+        }
     }
 
     // Método para determinar status do estoque
@@ -391,7 +386,33 @@ class MaterialAPI {
                 reject(error);
             });
         });
-    },
+    }
+
+    // Método para excluir material
+    deleteMaterial(materialId) {
+        return new Promise((resolve, reject) => {
+            fetch(`${this.baseUrl}/materials/${materialId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(errorText => {
+                        console.error('Erro na resposta:', errorText);
+                        throw new Error(errorText || 'Erro ao excluir material');
+                    });
+                }
+                return response.json();
+            })
+            .then(result => resolve(result))
+            .catch(error => {
+                console.error('Erro ao excluir material:', error);
+                reject(error);
+            });
+        });
+    }
 }
 
 // Criar instância global para compatibilidade

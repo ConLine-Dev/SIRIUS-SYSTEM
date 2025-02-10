@@ -162,6 +162,63 @@
                 </div>
             </div>
 
+            
+            <!-- Modal de Edição de Material -->
+            <div class="modal fade" id="edit-material-modal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Editar Material</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="edit-material-form">
+                                <input type="hidden" id="edit-material-id" name="material_id">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Nome do Material</label>
+                                        <input type="text" id="edit-material-name" name="name" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">SKU</label>
+                                        <input type="text" id="edit-material-sku" name="sku" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Categoria</label>
+                                        <select id="edit-material-category" name="category" class="form-select" required>
+                                            <option value="hardware">Hardware</option>
+                                            <option value="software">Software</option>
+                                            <option value="acessorio">Acessório</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Estoque Mínimo</label>
+                                        <input type="number" id="edit-material-minimum-stock" name="minimum_stock" class="form-control" required min="0">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Status</label>
+                                        <select id="edit-material-status" name="status" class="form-select" required>
+                                            <option value="active">Ativo</option>
+                                            <option value="inactive">Inativo</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label">Descrição</label>
+                                        <textarea id="edit-material-description" name="description" class="form-control" rows="3"></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        
+
             <!-- Modal de Entrada de Estoque -->
             <div class="modal fade" id="stock-entry-modal" tabindex="-1">
                 <div class="modal-dialog modal-lg">
@@ -304,8 +361,8 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">Status</label>
                                         <select name="status" class="form-select" required>
-                                            <option value="ativo">Ativo</option>
-                                            <option value="inativo">Inativo</option>
+                                            <option value="active">Ativo</option>
+                                            <option value="inactive">Inativo</option>
                                         </select>
                                     </div>
                                     <div class="col-12 mb-3">

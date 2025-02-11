@@ -634,6 +634,10 @@ class MaterialManagement {
 
             // Buscar materiais
             const materialsResponse = await this.materialAPI.getAllMaterials();
+             // Atualizar os cards de estatísticas
+            this.updateStatisticsCards(materialsResponse);
+
+
             const materialSelect = document.querySelector('#material-allocation-modal select[name="material_id"]');
             const quantityInput = document.querySelector('#material-allocation-modal input[name="quantity"]');
             
@@ -764,12 +768,12 @@ class MaterialManagement {
             
             if (collaboratorSelect) {
                 collaboratorSelect.innerHTML = '<option value="">Selecione um colaborador</option>';
-                
+                console.log('Colaboradores processados:', collaborators);
                 if (collaborators && collaborators.length > 0) {
                     collaborators.forEach(collaborator => {
                         const option = document.createElement('option');
                         option.value = collaborator.id_colab;
-                        option.textContent = `${collaborator.name} ${collaborator.familyName}`;
+                        option.textContent = `${collaborator.name} ${collaborator.family_name}`;
                         collaboratorSelect.appendChild(option);
                     });
                 } else {
@@ -906,6 +910,33 @@ class MaterialManagement {
         }
     }
 
+    // Método para atualizar os cards de estatísticas
+    updateStatisticsCards(materials) {
+        try {
+            // Total de Materiais
+            const totalMaterials = materials.length;
+            document.getElementById('total-materials').textContent = totalMaterials;
+
+            // Materiais em Uso (com alocações ativas)
+            const materialsInUse = materials.filter(material => 
+                material.stock_details && 
+                material.stock_details.total_allocated > 0 && 
+                material.stock_details.total_allocated > material.stock_details.total_returned
+            ).length;
+            document.getElementById('materials-in-use').textContent = materialsInUse;
+
+            // Materiais com Baixo Estoque
+            const lowStockMaterials = materials.filter(material => 
+                material.stock_details && 
+                material.stock_details.stock_warning && 
+                material.status !== 'inactive'
+            ).length;
+            document.getElementById('low-stock-materials').textContent = lowStockMaterials;
+        } catch (error) {
+            console.error('Erro ao atualizar cards de estatísticas:', error);
+        }
+    }
+
     // Método para atualizar tabelas de forma segura
     updateTables() {
         // Atualizar tabela de movimentações recentes
@@ -921,6 +952,49 @@ class MaterialManagement {
         // Atualizar tabela de alocações
         if (tables['allocations']) {
             tables['allocations'].ajax.reload();
+        }
+    }
+
+    // Método para carregar materiais
+    async loadMaterials() {
+        try {
+            // Buscar materiais com estoque calculado
+            const response = await this.materialAPI.getAllMaterials();
+            
+            // Garantir que temos um array de materiais
+            const materials = Array.isArray(response) ? response : 
+                            response?.materials ? response.materials : 
+                            response ? [response] : [];
+            
+            console.log('Materiais carregados:', materials);
+            
+            this.materials = materials; // Armazenando os materiais
+            
+            console.log('Materiais armazenados2:', this.materials);
+           
+            
+            // Verificar se a tabela de materiais foi inicializada
+            if (this.materialsTable) {
+                // Limpar tabela
+                this.materialsTable.clear();
+                
+                // Adicionar dados atualizados
+                this.materialsTable.rows.add(materials.map(material => {
+                    return [
+                        material.name,
+                        material.sku,
+                        material.description,
+                        material.total_input,
+                        material.total_output,
+                        material.total_allocated,
+                        material.total_returned,
+                        material.available_stock,
+                        material.unit
+                    ];
+                })).draw();
+            }
+        } catch (error) {
+            console.error('Erro ao carregar materiais:', error);
         }
     }
 

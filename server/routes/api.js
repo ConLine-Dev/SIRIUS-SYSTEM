@@ -40,6 +40,8 @@ const api_maritime_import_adm = require('./api-maritime-import-adm');
 const api_part_lot_financial = require('./api-part-lot-financial');
 const api_expense_management = require('./expenseManagementRoutes');
 const apiMaterialControl = require('./api-material-control');
+const api_commercial_main = require('./api-commercial-main');
+const api_commercial_adm = require('./api-commercial-adm');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -186,6 +188,12 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-material-control.js
   router.use('/material-control', apiMaterialControl(io));
+
+  // Use as rotas do arquivo api-commercial-main.js
+  router.use('/commercial-main', api_commercial_main(io));
+
+  // Use as rotas do arquivo api-commercial-adm.js
+  router.use('/commercial-adm', api_commercial_adm(io));
 
   return router;
 };

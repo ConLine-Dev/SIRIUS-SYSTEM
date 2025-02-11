@@ -56,7 +56,7 @@ module.exports = function (io) {
 
     router.post('/repurchases', async (req, res, next) => {
         try {
-            const result = await IMMain.repurchases(req.body.userId);
+            const result = await IMADM.repurchases(req.body.userId);
             res.status(200).json(result)
         } catch (error) {
 

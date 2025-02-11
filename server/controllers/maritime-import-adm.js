@@ -64,13 +64,15 @@ const IMADM = {
         }
 
         const result = await executeQuery(`
-            SELECT em.email, em.mes, em.enviados, em.recebidos
+            SELECT DISTINCT em.email, em.mes, em.enviados, em.recebidos
             FROM email_metrics em
             LEFT OUTER JOIN collaborators cl on cl.email_business = em.email
             LEFT OUTER JOIN departments_relations dr on dr.collaborator_id = cl.id
+            LEFT OUTER JOIN sections_relations sr on sr.collaborator_id = cl.id
             WHERE ano = year(now())
             ${emailFilter}
             AND dr.department_id = 4
+            AND (sr.section_id = 1 OR sr.section_id = 2)
             ORDER BY mes`)
 
         return result;
@@ -127,10 +129,12 @@ const IMADM = {
     getOperationals: async function () {
 
         const result = await executeQuery(`
-            SELECT cl.name, cl.family_name, cl.email_business, cl.id_headcargo
+            SELECT DISTINCT cl.name, cl.family_name, cl.email_business, cl.id_headcargo
             FROM collaborators cl
             LEFT OUTER JOIN departments_relations dr on dr.collaborator_id = cl.id
+            LEFT OUTER JOIN sections_relations sr on sr.collaborator_id = cl.id
             WHERE dr.department_id = 4
+            AND (sr.section_id = 1 OR sr.section_id = 2)
             ORDER BY cl.name`)
 
         return result;

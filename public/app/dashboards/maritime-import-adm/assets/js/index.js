@@ -123,7 +123,7 @@ async function createRepurchaseArrays(userId) {
 
   let repurchaseArray = [];
 
-  let repurchases = await makeRequest(`/api/maritime-import-main/repurchases`, 'POST', { userId });
+  let repurchases = await makeRequest(`/api/maritime-import-adm/repurchases`, 'POST', { userId });
 
   for (let index = 0; index < repurchases.length; index++) {
     for (let index2 = 0; index2 < 12; index2++) {

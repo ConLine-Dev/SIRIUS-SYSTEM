@@ -148,6 +148,7 @@ class StockManagement {
         const reasonMap = {
             // Entradas de estoque
             'purchase': 'Compra',
+            'disposal': 'Descarte',
             'donation': 'Doação',
             'transfer': 'Transferência',
             'transfer_in': 'Transferência de Entrada',
@@ -582,8 +583,28 @@ class StockManagement {
 
     async loadStockMovements() {
         try {
-            const movements = await this.materialAPI.getMovementHistory();
+            let movements = null
+            const movements_input = await this.materialAPI.getMovementHistory({movement_type:'input'});
+            const movements_output = await this.materialAPI.getMovementHistory({movement_type:'output'});
+     
+            movements = movements_input.concat(movements_output);
+
             console.log(movements)
+            movements.forEach(movement => {
+                const movementDate = new Date(movement.movement_date);
+                movementDate.setHours(movementDate.getHours() - 3);
+                const formattedDate = movementDate.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                });
+                
+                movement.movement_date = formattedDate;
+            });
+          
+        
             
             // Verificar se a tabela de movimentações foi inicializada
             if (this.stockMovementsTable) {

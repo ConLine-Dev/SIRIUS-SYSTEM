@@ -183,11 +183,42 @@ async function showRepurchaseDetails(processId, status, button) {
 
 
             const purchaseDifference = fee.purchase_value !== fee.old_purchase_value 
-                ? formatCurrency(fee.old_purchase_value - fee.purchase_value, fee.coin_purchase) 
-                : `<span class="${fee.status == 'PENDING' ? 'text-muted' : ''}"> - <span>`;
-            const saleDifference = fee.sale_value !== fee.old_sale_value 
-                ? formatCurrency(fee.sale_value - fee.old_sale_value, fee.coin_sale) 
-                : `<span class="${fee.status == 'PENDING' ? 'text-muted' : ''}"> - <span>`;
+                    ? formatCurrency(fee.old_purchase_value - fee.purchase_value, fee.coin_purchase) 
+                    : `<span class="${fee.status == 'PENDING' ? 'text-muted' : ''}"> - <span>`;
+
+                const saleDifference = fee.sale_value !== fee.old_sale_value 
+                    ? formatCurrency(fee.sale_value - fee.old_sale_value, fee.coin_sale) 
+                    : `<span class="${fee.status == 'PENDING' ? 'text-muted' : ''}"> - <span>`;
+
+                const calctotalSale = fee.sale_value !== fee.old_sale_value 
+                    ? fee.sale_value - fee.old_sale_value
+                    : 0;
+
+                const calctotalPurchase = fee.purchase_value !== fee.old_purchase_value 
+                    ? fee.old_purchase_value - fee.purchase_value
+                    : 0;
+
+                const totlaDifference = calctotalSale + calctotalPurchase;
+
+                const totlaDifferenceFormat2 = () => {
+                    if (fee.coin_purchase !== fee.coin_sale) {
+                        // Moedas diferentes
+                        if (calctotalSale !== 0 && calctotalPurchase !== 0) {
+                            return 'Moeda divergente'; // Ambas diferenças são diferentes de zero
+                        } else if (calctotalSale !== 0) {
+                            return formatCurrency(calctotalSale, fee.coin_sale); // Apenas venda é diferente de zero
+                        } else if (calctotalPurchase !== 0) {
+                            return formatCurrency(calctotalPurchase, fee.coin_purchase); // Apenas compra é diferente de zero
+                        } else {
+                            return '-'; // Ambas são zero
+                        }
+                    } else {
+                        // Moedas iguais
+                        return formatCurrency(totlaDifference, fee.coin_purchase); // Soma das diferenças
+                    }
+                };
+
+                const totlaDifferenceFormat = totlaDifferenceFormat2();
 
             const oldPurchaseValueCell = formatValueCell(fee.old_purchase_value, fee.purchase_value, fee.coin_purchase, true, fee.status);
             const newPurchaseValueCell = formatValueCell(fee.purchase_value, fee.old_purchase_value, fee.coin_purchase, true, fee.status);
@@ -214,6 +245,7 @@ async function showRepurchaseDetails(processId, status, button) {
                 <td style="${styleDisabled}">${oldSaleValueCell}</td>
                 <td style="${styleDisabled}">${newSaleValueCell}</td>
                 <td style="${styleDisabled}"><span class="mb-0 fw-semibold">${saleDifference}</span></td>
+                 <td style="${styleDisabled}"><span class="mb-0 fw-semibold">${totlaDifferenceFormat}</span></td>
                 <td style="${styleDisabled}">${fee.fullName}</td>
                 <td style="${styleDisabled}">${formatarData(fee.creation_date)}</td>
                 <td style="${styleDisabled}">${statusMap[fee.status]}</td>
@@ -249,6 +281,7 @@ async function showRepurchaseDetails(processId, status, button) {
                         <th>Antiga Venda</th>
                         <th>Nova Venda</th>
                         <th>Diferença Venda</th>
+                         <th>Diferença Total</th>
                         <th>Responsável</th>
                         <th>Data de Criação</th>
                         <th>Status</th>

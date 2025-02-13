@@ -68,6 +68,9 @@
                         <button type="button" class="btn btn-outline-primary" id="toggleResumo">
                             <i class="ri-bar-chart-line align-middle me-1"></i>Mostrar Indicadores
                         </button>
+                        <button type="button" class="btn btn-outline-primary" id="toggleActions">
+                            <i class="ri-list-check-2 align-middle me-1"></i>Ações Tomadas
+                        </button>
                     </div>
                 </div>
             </div>
@@ -137,36 +140,75 @@
                 </div>
             </div>
 
-            <!-- Tabela de Ocorrências -->
-            <div class="card custom-card">
-                <div class="card-header justify-content-between">
-                    <div class="card-title">
-                        Ocorrências
-                    </div>
-                    <div class="ms-auto">
-                        <input type="search" class="form-control form-control-sm d-inline-block w-auto" placeholder="Pesquisar">
+            <!-- Tabela de Ocorrências e Ações -->
+            <div class="row">
+                <!-- Tabela de Ocorrências -->
+                <div class="col-md-12" id="occurrencesSection">
+                    <div class="card custom-card">
+                        <div class="card-header justify-content-between">
+                            <div class="card-title">
+                                Ocorrências
+                            </div>
+                            <div class="ms-auto">
+                                <input type="search" class="form-control form-control-sm d-inline-block w-auto" placeholder="Pesquisar">
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="occurrences_table" class="table text-nowrap">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Referência</th>
+                                            <th>Título</th>
+                                            <th>Tipo</th>
+                                            <th>Responsáveis</th>
+                                            <th>Status</th>
+                                            <th>Unidade</th>
+                                            <th>Data</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <div class="d-flex align-items-center mb-3">
-                           
-                           
+
+                <!-- Seção de Ações Tomadas (inicialmente oculta) -->
+                <div class="col-md-4 d-none" id="actionsSection">
+                    <div class="card custom-card overflow-hidden">
+                        <div class="card-header justify-content-between">
+                            <div class="card-title">Ações Tomadas</div>
+                            <div class="dropdown" id="intro-filter-actions">
+                                <a href="javascript:void(0);" class="p-2 fs-12 text-muted dropdown-filterActions" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Todas <i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>
+                                </a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li>
+                                        <a class="dropdown-item filterActions" href="javascript:void(0);" data-type="0,1,2,3">
+                                            Todas
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item filterActions" href="javascript:void(0);" data-type="0">
+                                            Pendentes
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item filterActions" href="javascript:void(0);" data-type="3">
+                                            Concluídas
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
-                        <table id="occurrences_table" class="table text-nowrap">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Referência</th>
-                                    <th>Título</th>
-                                    <th>Tipo</th>
-                                    <th>Responsáveis</th>
-                                    <th>Status</th>
-                                    <th>Data</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                      
+                        <div class="card-body p-0">
+                            <div class="overflow-auto">
+                                <ul class="list-group list-group-flush allactions">
+                                    <!-- Ações serão carregadas aqui -->
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

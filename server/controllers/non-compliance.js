@@ -83,7 +83,7 @@ const non_compliance = {
 
     },
     getAllCompanies: async function(){
-        const result = await executeQuery(`SELECT * from companies`);
+        const result = await executeQuery(`SELECT * from companies WHERE office = 1`);
         
         return result;
     },
@@ -308,11 +308,15 @@ const non_compliance = {
             LEFT(o.description, 100) AS description,
             ot.name AS type,
             ot.id AS typeID,
-            o.occurrence_date AS date_occurrence
+            o.occurrence_date AS date_occurrence,
+            CONCAT(cp.city, ', ', cp.country) AS company_name
         FROM 
             occurrences o
         JOIN 
-            occurrences_type ot ON o.type_id = ot.id`)
+            occurrences_type ot ON o.type_id = ot.id
+		JOIN 
+            companies cp ON cp.id = o.company_id
+        ORDER BY o.id DESC`)
 
 
 
@@ -348,6 +352,7 @@ const non_compliance = {
                 ${item.title}</span>`,
                 editing:item.editing,
                 company_id:item.company_id,
+                company_name:item.company_name,
                 id:item.id,
                 statusID:parseInt(item.status),
                 status: `<span class="badge bg-danger-transparent">${status[item.status]}</span>`,

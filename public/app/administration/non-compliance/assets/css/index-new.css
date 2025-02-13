@@ -30,3 +30,121 @@
 }
 
 
+#occurrences_table_filter {
+    display: none !important
+}
+
+/* Transições suaves para as seções */
+#occurrencesSection,
+#actionsSection {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Ajustes para a tabela de ações */
+#actions_table {
+    font-size: 0.9em;
+}
+
+#actions_table .badge {
+    font-size: 0.85em;
+}
+
+/* Esconde os controles de busca da tabela de ações */
+#actions_table_filter {
+    display: none !important;
+}
+
+/* Ajuste de altura para scrolling */
+.table-responsive {
+    overflow: auto;
+    width: 100%;
+}
+
+/* Estilos para a seção de ações */
+.allactions {
+    max-height: calc(100vh - 350px);
+    overflow-y: auto;
+}
+
+.allactions li {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.allactions li:hover {
+    background-color: rgba(var(--primary-rgb), 0.05);
+}
+
+.allactions .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Ajustes para os filtros de ações */
+.dropdown-filterActions {
+    text-decoration: none;
+}
+
+.filterActions {
+    cursor: pointer;
+}
+
+/* Ajustes para os badges */
+.badge {
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+}
+
+.bg-success-transparent {
+    background-color: rgba(25, 135, 84, 0.1);
+    color: #198754;
+}
+
+.bg-warning-transparent {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+/* Ajustes de responsividade para a tabela */
+#occurrences_table_wrapper {
+    transition: all 0.3s ease;
+    width: 100% !important;
+}
+
+/* Ajustes para o container principal */
+.col-md-12, .col-md-8 {
+    transition: all 0.3s ease;
+}
+
+/* Quando as ações estão visíveis */
+.actions-visible .dataTables_scrollBody {
+    max-width: 100% !important;
+}
+
+/* Ajuste para células da tabela */
+#occurrences_table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px; /* ajuste conforme necessário */
+}
+
+/* Ajuste para o container da tabela */
+.table-responsive {
+    overflow: auto;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+/* Ajuste para o DataTables */
+.dataTables_wrapper {
+    width: 100% !important;
+    transition: all 0.3s ease;
+}
+
+.dataTables_scrollBody {
+    overflow-x: auto !important;
+    width: 100% !important;
+    transition: all 0.3s ease;
+}

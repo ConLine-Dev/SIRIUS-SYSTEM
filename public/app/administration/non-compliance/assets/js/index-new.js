@@ -22,6 +22,11 @@ const statusMap = {
     '7': 'Finalizado'
 };
 
+const invertedStatusMap = Object.entries(statusMap).reduce((acc, [key, value]) => {
+    acc[value] = key;
+    return acc;
+}, {});
+
 // Elementos do DOM
 const elements = {
     newOccurenceButton: document.querySelector('#newOccurenceButton'),
@@ -29,7 +34,13 @@ const elements = {
     typeFilter: document.querySelector('#typeFilter'),
     unitFilter: document.querySelector('#unitFilter'),
     periodFilter: document.querySelector('#periodFilter'),
-    loader: document.querySelector('#loader2')
+    loader: document.querySelector('#loader2'),
+    toggleActionsBtn: document.querySelector('#toggleActions'),
+    occurrencesSection: document.querySelector('#occurrencesSection'),
+    actionsSection: document.querySelector('#actionsSection'),
+    filterButtons: document.querySelectorAll('.filter-button'),
+    toggleResumoBtn: document.querySelector('#toggleResumo'),
+    resumoSection: document.querySelector('#resumoSection')
 };
 
 // Funções auxiliares para extrair texto do HTML
@@ -59,9 +70,43 @@ const extractors = {
 
 // Event Listeners
 async function setupEventListeners() {
-    elements.newOccurenceButton.addEventListener('click', () => {
-        window.location.href = 'new-occurrence.html';
+    // Botão Nova Ocorrência
+    elements.newOccurenceButton.addEventListener('click', function() {
+        window.open(`new-occurrence.html`, '_blank', 'width=1200,height=800');
     });
+
+    // Adiciona listeners para os filtros
+    elements.filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove a classe ativa de todos os botões
+            elements.filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Adiciona a classe ativa ao botão clicado
+            button.classList.add('active');
+
+            // Atualiza a tabela com o filtro selecionado
+            const filter = button.getAttribute('data-filter');
+            updateTable(filter);
+        });
+    });
+
+    // Controle de visibilidade do resumo
+    elements.toggleResumoBtn.addEventListener('click', function() {
+        const isVisible = !elements.resumoSection.classList.contains('d-none');
+        
+        elements.resumoSection.classList.toggle('d-none');
+        
+        // Atualiza o texto e ícone do botão
+        const icon = isVisible ? 'ri-bar-chart-line' : 'ri-bar-chart-fill';
+        const text = isVisible ? 'Mostrar Indicadores' : 'Ocultar Indicadores';
+        this.innerHTML = `<i class="${icon} align-middle me-1"></i>${text}`;
+        
+        if (!isVisible) {
+            generateCharts();
+        }
+    });
+
+    // Controle de visibilidade das ações
+    elements.toggleActionsBtn.addEventListener('click', toggleActions);
 
     // Adiciona listeners para os filtros
     elements.statusFilter.addEventListener('change', filterOccurrences);
@@ -73,33 +118,25 @@ async function setupEventListeners() {
     socket.on('att-non-compliance', async () => {
         elements.loader.classList.remove('d-none');
         await loadData();
+        await loadActions();
         elements.loader.classList.add('d-none');
     });
 
-    // Controle de visibilidade do resumo
-    const toggleResumoBtn = document.getElementById('toggleResumo');
-    const resumoSection = document.getElementById('resumoSection');
+    // Campo de pesquisa personalizado
+    $('input[type="search"]').on('keyup', function() {
+        const table = $('#occurrences_table').DataTable();
+        table.search(this.value).draw();
+    });
 
-    if (toggleResumoBtn && resumoSection) {
-        toggleResumoBtn.addEventListener('click', function() {
-            const isVisible = !resumoSection.classList.contains('d-none');
-            
-            // Toggle da visibilidade
-            resumoSection.classList.toggle('d-none');
-            
-            // Atualiza o texto do botão
-            const icon = isVisible ? 'ri-bar-chart-line' : 'ri-bar-chart-fill';
-            const text = isVisible ? 'Mostrar Indicadores' : 'Ocultar Indicadores';
-            toggleResumoBtn.innerHTML = `<i class="${icon} align-middle me-1"></i>${text}`;
-            
-            // Se estiver mostrando o resumo, atualiza os gráficos
-            if (!isVisible) {
-                if (typeof updateCharts === 'function') {
-                    updateCharts();
-                }
-            }
-        });
-    }
+    // Adiciona evento de duplo clique nas linhas
+    $('#occurrences_table tbody').on('dblclick', 'tr', function() {
+        const table = $('#occurrences_table').DataTable();
+        const data = table.row(this).data();
+        if (data) {
+            // Abre em nova janela
+            window.open(`view-occurrence.html?id=${data.id}`, '_blank', 'width=1200,height=800');
+        }
+    });
 }
 
 // Inicializa os filtros
@@ -130,14 +167,16 @@ async function loadData() {
         populateUnitFilter(units);
 
         // Carregar ocorrências
-        const occurrences = await makeRequest('/api/non-compliance/getPendingOccurrences');
+        const occurrences = await makeRequest('/api/non-compliance/AllOccurrence');
+        
         occurrencesData = occurrences.map(item => ({
             ...item,
-            raw_status: extractors.extractText(item.status),
             raw_type: item.type,
             raw_reference: extractors.extractReference(item.reference),
             raw_title: extractors.extractText(item.title),
-            raw_date: extractors.extractDate(item.date_occurrence)
+            raw_status: extractors.extractText(item.status),
+            raw_status_number: invertedStatusMap[extractors.extractText(item.status)],
+            raw_date: new Date(item.date_occurrence_noformat) // Usando o campo formatado da API
         }));
         
         // Atualizar visualizações
@@ -192,20 +231,24 @@ const extractTextFromHTML = (html) => {
 // Filtra os dados baseado nos filtros selecionados
 function filterData(data) {
     return data.filter(item => {
-        // console.log(item);
-        // const matchStatus = !filters.status || String(item.editing) === filters.status;
-        const matchStatus = !filters.status || extractTextFromHTML(item.status) === filters.status;
-        console.log(matchStatus)
+        // Status - usando o campo editing para comparação
+        const matchStatus = !filters.status || String(item.raw_status_number) === filters.status;
+    
+        // Tipo - já está funcionando
         const matchType = !filters.type || item.raw_type === filters.type;
-        const matchUnit = !filters.unit || item.company_id === parseInt(filters.unit);
         
+        // Unidade - usando o company_id como string
+        const matchUnit = !filters.unit || String(item.company_id) === filters.unit;
+        
+        // Período - usando a data formatada da API
         let matchPeriod = true;
         if (filters.period) {
-            const itemDate = item.raw_date ? new Date(item.raw_date) : null;
-            const filterDate = new Date(filters.period);
+            const [year, month] = filters.period.split('-');
+            const itemDate = item.raw_date;
+            
             matchPeriod = itemDate && 
-                         itemDate.getFullYear() === filterDate.getFullYear() &&
-                         itemDate.getMonth() === filterDate.getMonth();
+                         itemDate.getFullYear() === parseInt(year) && 
+                         itemDate.getMonth() === parseInt(month) - 1;
         }
 
         return matchStatus && matchType && matchUnit && matchPeriod;
@@ -220,25 +263,44 @@ function updateTable() {
         $('#occurrences_table').DataTable().destroy();
     }
 
-    const dataTable = $('#occurrences_table').DataTable({
+    const table = $('#occurrences_table').DataTable({
+        dom: 'frtip',
+        paging: false,  // Desativa a paginação
+        info: false,
         data: filteredData,
         columns: [
             { 
                 data: 'reference',
                 render: function(data, type, row) {
-                    return `<span class="text-primary">${data}</span>`;
+                    return `<span style="display: none;">${row.id}</span> </span>${data}`;
                 }
             },
-            { data: 'title' },
+            { 
+                data: 'title',
+                render: function(data, type, row) {
+                    return data;
+                }
+            },
             { 
                 data: 'type',
                 render: function(data, type, row) {
-                    return `<span class="badge bg-light text-dark">${data}</span>`;
+                    return data;
                 }
             },
-            { data: 'responsibles' },
+            { 
+                data: 'responsibles',
+                render: function(data, type, row) {
+                    return data;
+                }
+            },
             { 
                 data: 'status',
+                render: function(data, type, row) {
+                    return data;
+                }
+            },
+            { 
+                data: 'company_name',
                 render: function(data, type, row) {
                     return data;
                 }
@@ -251,28 +313,25 @@ function updateTable() {
             }
         ],
         order: [[0, 'desc']],
-        dom: 'rt',
-        language: {
-            emptyTable: "Nenhum registro encontrado",
-            zeroRecords: "Nenhum registro encontrado"
-        },
-        paging: false,
-        info: false,
         scrollY: 'calc(100vh - 400px)',  // Define a altura dinamicamente
-        rowCallback: function(row, data) {
-            $(row).attr('occurrence-id', data.id);
+        scrollCollapse: true,
+        language: {
+            url: '../../assets/libs/datatables/lang/pt-BR.json'
         }
     });
 
     // Campo de pesquisa personalizado
     $('input[type="search"]').on('keyup', function() {
-        dataTable.search(this.value).draw();
+        table.search(this.value).draw();
     });
 
     // Adiciona evento de duplo clique nas linhas
     $('#occurrences_table tbody').on('dblclick', 'tr', function() {
-        const id = $(this).attr('occurrence-id');
-        window.location.href = `view-occurrence.html?id=${id}`;
+        const data = table.row(this).data();
+        if (data) {
+            // Abre em nova janela
+            window.open(`view-occurrence.html?id=${data.id}`, '_blank', 'width=1200,height=800');
+        }
     });
 }
 
@@ -290,7 +349,8 @@ function updateStatusChart(data) {
     const statusCounts = {};
     
     data.forEach(item => {
-        const status = statusMap[item.editing] || 'Desconhecido';
+        // Usando raw_status_number para obter o texto correto do status
+        const status = statusMap[item.raw_status_number] || 'Desconhecido';
         statusCounts[status] = (statusCounts[status] || 0) + 1;
     });
 
@@ -302,6 +362,10 @@ function updateStatusChart(data) {
             height: 200
         },
         colors: ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff'],
+        legend: {
+            position: 'bottom',
+            fontSize: '12px'
+        },
         noData: {
             text: 'Sem dados disponíveis'
         }
@@ -331,6 +395,10 @@ function updateTypeChart(data) {
             height: 200
         },
         colors: ['#4d96ff', '#ff6b6b', '#6bcb77'],
+        legend: {
+            position: 'bottom',
+            fontSize: '12px'
+        },
         noData: {
             text: 'Sem dados disponíveis'
         }
@@ -348,8 +416,8 @@ function updateUnitChart(data) {
     const unitCounts = {};
     
     data.forEach(item => {
-        const unit = document.querySelector(`#unitFilter option[value="${item.company_id}"]`);
-        const unitName = unit ? unit.textContent.split('|')[0].trim() : `Unidade ${item.company_id}`;
+        // Usando company_name que vem direto da API
+        const unitName = item.company_name || `Unidade ${item.company_id}`;
         unitCounts[unitName] = (unitCounts[unitName] || 0) + 1;
     });
 
@@ -364,11 +432,17 @@ function updateUnitChart(data) {
         plotOptions: {
             bar: {
                 horizontal: true,
-                distributed: true
+                distributed: true,
+                dataLabels: {
+                    position: 'bottom'
+                }
             }
         },
         xaxis: {
             categories: Object.keys(unitCounts)
+        },
+        legend: {
+            show: false
         },
         noData: {
             text: 'Sem dados disponíveis'
@@ -380,6 +454,93 @@ function updateUnitChart(data) {
         const chart = new ApexCharts(document.querySelector("#unitChart"), options);
         chart.render();
     }
+}
+
+// Carrega as ações tomadas
+async function loadActions() {
+    try {
+        const actions = await makeRequest('/api/non-compliance/get-actions-pendents');
+
+        let actionsHTML = '';
+        for (const action of actions) {
+            actionsHTML += `
+                <li data-type="${action.statusID}" occurrence-id="${action.occurrence_id}" action-id="${action.id}" 
+                    class="list-group-item border-top-0 border-start-0 border-end-0">
+                    <a href="javascript:void(0);">
+                        <div class="d-flex align-items-center">
+                            <div class="me-2 lh-1"> 
+                                <span title="${action.name} ${action.family_name}" class="avatar avatar-md avatar-rounded bg-primary-transparent"> 
+                                    <img src="https://cdn.conlinebr.com.br/colaboradores/${action.id_headcargo}" alt=""> 
+                                </span> 
+                            </div>
+                            <div class="flex-fill">
+                                <p class="mb-0 fw-semibold" style="display: flex;">
+                                    ${action.reference}&#8287;&#8287;${action.status}
+                                </p>
+                                <p class="fs-12 text-muted mb-0">${action.action}</p>
+                            </div>
+                            <div class="text-end">
+                                <p class="mb-0 fs-12">Prazo</p>
+                                ${action.deadline}
+                            </div>
+                        </div>
+                    </a>
+                </li>`;
+        }
+
+        document.querySelector('.allactions').innerHTML = actionsHTML;
+        await filterActions();
+        await dblClickOnAction();
+    } catch (error) {
+        console.error('Erro ao carregar ações:', error);
+        showToast('Erro ao carregar ações', 'error');
+    }
+}
+
+// Filtra as ações
+async function filterActions() {
+    const dropdownItems = document.querySelectorAll('.filterActions');
+    const dropdownToggle = document.querySelector('.dropdown-filterActions');
+
+    dropdownItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const types = this.getAttribute('data-type').split(',');
+            const selectedText = this.textContent.trim();
+            
+            const allActions = document.querySelector('.allactions');
+            const listItems = allActions.querySelectorAll('li');
+            
+            listItems.forEach(item => {
+                const itemType = item.getAttribute('data-type');
+                if (types.includes(itemType) || types[0] === '0,1,2,3') {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            dropdownToggle.innerHTML = `${selectedText} <i class="ri-arrow-down-s-line align-middle ms-1 d-inline-block"></i>`;
+        });
+    });
+
+    // Filtra e seleciona a opção "Todas" ao iniciar
+    const initialFilter = document.querySelector('.filterActions[data-type="0"]');
+    if (initialFilter) {
+        initialFilter.click();
+    }
+}
+
+// Configura eventos de duplo clique nas ações
+async function dblClickOnAction() {
+    document.querySelectorAll('.allactions li').forEach(item => {
+        item.addEventListener('dblclick', function() {
+            const occurrenceId = this.getAttribute('occurrence-id');
+            const actionId = this.getAttribute('action-id');
+            if (occurrenceId && actionId) {
+                window.location.href = `view-occurrence.html?id=${occurrenceId}&action=${actionId}`;
+            }
+        });
+    });
 }
 
 // Função auxiliar para fazer requisições
@@ -400,12 +561,54 @@ function showToast(message, type = 'info') {
     console.log(`${type}: ${message}`);
 }
 
+// Função para mostrar/ocultar ações
+function toggleActions() {
+    const actionsSection = document.getElementById('actionsSection');
+    const occurrencesSection = document.getElementById('occurrencesSection');
+    const toggleBtn = document.getElementById('toggleActions');
+    const isVisible = !actionsSection.classList.contains('d-none');
+
+    if (isVisible) {
+        // Ocultar ações
+        actionsSection.classList.add('d-none');
+        occurrencesSection.classList.remove('col-md-8');
+        occurrencesSection.classList.remove('actions-visible');
+        occurrencesSection.classList.add('col-md-12');
+
+        // Atualizar botão
+        toggleBtn.innerHTML = '<i class="ri-list-check-2 align-middle me-1"></i>Ações Tomadas';
+    } else {
+        // Mostrar ações
+        actionsSection.classList.remove('d-none');
+        occurrencesSection.classList.remove('col-md-12');
+        occurrencesSection.classList.add('col-md-8');
+        occurrencesSection.classList.add('actions-visible');
+
+        // Atualizar botão
+        toggleBtn.innerHTML = '<i class="ri-list-check-fill align-middle me-1"></i>Ocultar Ações';
+
+        // Carregar ações se necessário
+        loadActions();
+    }
+
+    // Aguardar a transição CSS antes de ajustar a tabela
+    setTimeout(() => {
+        if ($.fn.DataTable.isDataTable('#occurrences_table')) {
+            const table = $('#occurrences_table').DataTable();
+            table.columns.adjust();
+            $(window).trigger('resize'); // Forçar recálculo do layout
+            table.draw(false); // Redesenhar sem reordenar
+        }
+    }, 300); // Tempo suficiente para a transição CSS completar
+}
+
 // Inicialização
 window.addEventListener('load', async () => {
     console.time('Carregamento da página');
     
     setupEventListeners();
     await loadData();
+    await loadActions();
     
     console.timeEnd('Carregamento da página');
 });

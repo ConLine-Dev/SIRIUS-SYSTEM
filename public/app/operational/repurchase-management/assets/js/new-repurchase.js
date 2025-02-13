@@ -39,9 +39,9 @@ function createDatatable(data) {
   
     if (data.length > 0) {
         
-        document.querySelector('[name=EstimatedProfit]').value = (data[0].Lucro_Estimado).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        document.querySelector('[name=OpeningProfit]').value = (data[0].Lucro_Abertura).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        document.querySelector('[name=EfetiveProfit]').value = (data[0].Lucro_Efetivo).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        document.querySelector('[name=EstimatedProfit]').value = (data && data[0] && data[0].Lucro_Estimado) ? (data[0].Lucro_Estimado).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '';
+        document.querySelector('[name=OpeningProfit]').value =  (data && data[0] && data[0].Lucro_Abertura) ? (data[0].Lucro_Abertura).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '';
+        document.querySelector('[name=EfetiveProfit]').value = (data && data[0] && data[0].Lucro_Efetivo) ? (data[0].Lucro_Efetivo).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '';
     }
 
     if (table['tableTaxasProcessos']) {

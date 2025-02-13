@@ -3467,54 +3467,60 @@ LEFT OUTER JOIN
          AND Lmd.IdLogistica_House = ${process_id}`);
 
       const fees = await executeQuerySQL(`SELECT
-      Ltx.IdLogistica_House,
-      Ltx.IdTaxa_Logistica_Exibicao,
-      Tle.Nome AS Taxa,
-      Mda.Sigla,
-      'Recebimento' AS Tipo,
-      COALESCE(Lfc.Fator_Conversao, 1) AS Fator_Conversao,
-      CASE
-         WHEN Ltx.IdMoeda_Recebimento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Recebimento_Total * Lfc.Fator_Conversao), 2)
-         ELSE Ltx.Valor_Recebimento_Total
-      END AS Valor_Total_Convertido
-   FROM
-      mov_Logistica_Taxa Ltx
-   LEFT OUTER JOIN
-      vis_Logistica_Fatura Vlf ON Vlf.IdRegistro_Financeiro = Ltx.IdRegistro_Recebimento
-   LEFT OUTER JOIN
-      mov_Logistica_Fatura_Conversao Lfc ON Lfc.IdLogistica_Fatura = Vlf.IdRegistro_Financeiro AND Ltx.IdMoeda_Recebimento = Lfc.IdMoeda_Origem
-   LEFT OUTER JOIN
-      cad_Moeda Mda ON Mda.IdMOeda = Ltx.IdMoeda_Recebimento
-   LEFT OUTER JOIN
-      cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
-   WHERE
-      Ltx.IdLogistica_House = ${process_id}
-      AND Ltx.IdRegistro_Recebimento IS NOT NULL
-   UNION ALL
-   SELECT
-      Ltx.IdLogistica_House,
-      Ltx.IdTaxa_Logistica_Exibicao,
-      Tle.Nome AS Taxa,
-      Mda.Sigla,
-      'Pagamento' AS Tipo,
-      COALESCE(Lfc.Fator_Conversao, 1) AS Fator_Conversao,
-      CASE
-         WHEN Ltx.IdMoeda_Pagamento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Pagamento_Total * Lfc.Fator_Conversao), 2)
-         ELSE Ltx.Valor_Pagamento_Total
-      END AS Valor_Total_Convertido
-   FROM
-      mov_Logistica_Taxa Ltx
-   LEFT OUTER JOIN
-      vis_Logistica_Fatura Vlf ON Vlf.IdRegistro_Financeiro = Ltx.IdRegistro_Pagamento
-   LEFT OUTER JOIN
-      mov_Logistica_Fatura_Conversao Lfc ON Lfc.IdLogistica_Fatura = Vlf.IdRegistro_Financeiro AND Ltx.IdMoeda_Pagamento = Lfc.IdMoeda_Origem
-   LEFT OUTER JOIN
-      cad_Moeda Mda ON Mda.IdMOeda = Ltx.IdMoeda_Pagamento
-   LEFT OUTER JOIN
-      cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
-   WHERE
-      Ltx.IdLogistica_House = ${process_id}
-      AND Ltx.IdRegistro_Pagamento IS NOT NULL`);
+    Ltx.IdLogistica_House,
+    Ltx.IdTaxa_Logistica_Exibicao,
+    Tle.Nome AS Taxa,
+    Mda.Sigla,
+    'Recebimento' AS Tipo,
+    COALESCE(Lfc.Fator_Conversao, 1) AS Fator_Conversao,
+    Ltx.Valor_Recebimento_Total,
+    Lfc.Fator_Conversao AS Fator_Conversao_Original,
+    CASE
+        WHEN Ltx.IdMoeda_Recebimento != 110 THEN ROUND((Ltx.Valor_Recebimento_Total * Lfc.Fator_Conversao), 2)
+        ELSE Ltx.Valor_Recebimento_Total
+    END AS Valor_Total_Convertido
+FROM
+    mov_Logistica_Taxa Ltx
+LEFT OUTER JOIN
+    vis_Logistica_Fatura Vlf ON Vlf.IdRegistro_Financeiro = Ltx.IdRegistro_Recebimento
+LEFT OUTER JOIN
+    mov_Logistica_Fatura_Conversao Lfc ON Lfc.IdLogistica_Fatura = Vlf.IdRegistro_Financeiro AND Ltx.IdMoeda_Recebimento = Lfc.IdMoeda_Origem
+LEFT OUTER JOIN
+    cad_Moeda Mda ON Mda.IdMOeda = Ltx.IdMoeda_Recebimento
+LEFT OUTER JOIN
+    cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
+WHERE
+    Ltx.IdLogistica_House = ${process_id}
+    AND Ltx.IdRegistro_Recebimento IS NOT NULL
+UNION ALL
+SELECT
+    Ltx.IdLogistica_House,
+    Ltx.IdTaxa_Logistica_Exibicao,
+    Tle.Nome AS Taxa,
+    Mda.Sigla,
+    'Pagamento' AS Tipo,
+    COALESCE(Lfc.Fator_Conversao, 1) AS Fator_Conversao,
+    Ltx.Valor_Pagamento_Total,
+    Lfc.Fator_Conversao AS Fator_Conversao_Original,
+    CASE
+        WHEN Ltx.IdMoeda_Pagamento != 110 THEN ROUND((Ltx.Valor_Pagamento_Total * Lfc.Fator_Conversao), 2)
+        ELSE Ltx.Valor_Pagamento_Total
+    END AS Valor_Total_Convertido
+FROM
+    mov_Logistica_Taxa Ltx
+LEFT OUTER JOIN
+    vis_Logistica_Fatura Vlf ON Vlf.IdRegistro_Financeiro = Ltx.IdRegistro_Pagamento
+LEFT OUTER JOIN
+    mov_Logistica_Fatura_Conversao Lfc ON Lfc.IdLogistica_Fatura = Vlf.IdRegistro_Financeiro AND Ltx.IdMoeda_Pagamento = Lfc.IdMoeda_Origem
+LEFT OUTER JOIN
+    cad_Moeda Mda ON Mda.IdMOeda = Ltx.IdMoeda_Pagamento
+LEFT OUTER JOIN
+    cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
+WHERE
+    Ltx.IdLogistica_House = ${process_id}
+    AND Ltx.IdRegistro_Pagamento IS NOT NULL;`);
+
+
 
       return {processValues, fees};
 

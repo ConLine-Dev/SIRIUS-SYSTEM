@@ -71,10 +71,10 @@ function populateTable(feesArray) {
         // Preencher informações de pagamento ou recebimento
         if (fee.Tipo === 'Pagamento') {
             acc[key].MoedaPagamento = fee.Sigla;
-            acc[key].ValorPagamento = fee.Valor_Total_Convertido;
+            acc[key].ValorPagamento = fee.Valor_Recebimento_Total;
         } else if (fee.Tipo === 'Recebimento') {
             acc[key].MoedaRecebimento = fee.Sigla;
-            acc[key].ValorRecebimento = fee.Valor_Total_Convertido;
+            acc[key].ValorRecebimento = fee.Valor_Recebimento_Total;
         }
         return acc;
     }, {});

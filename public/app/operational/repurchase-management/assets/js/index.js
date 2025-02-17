@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // Esta função cria ou recria a tabela de controle de recompras
-async function generateTable(status = 'PENDING') {
+async function generateTable(status = 'DRAFT') {
     openedDetails = new Set();
     pageStatus = status
     if ($.fn.DataTable.isDataTable('#table_repurchase_user')) {
@@ -156,6 +156,12 @@ async function showRepurchaseDetails(processId, status, button) {
                     <a href="javascript:void(0);" class="btn btn-sm btn-primary" title="Visualizar Motivo" onclick="viewRejectionReason('${fee.reason}')">Motivo</a>
                 `;
             }
+            else if (fee.status === 'DRAFT') {
+                return `
+                    <a href="javascript:void(0);" class="btn btn-sm btn-primary" title="Enviar para aprovação" onclick="alterStatus(${fee.id},'PENDING')">Enviar para aprovação</a>
+                    <a href="javascript:void(0);" class="btn btn-sm btn-danger-light" title="Cancelar" onclick="alterStatus(${fee.id},'CANCELED')">Cancelar</a>
+                `;
+            }
             return '';
         }
 
@@ -166,6 +172,7 @@ async function showRepurchaseDetails(processId, status, button) {
         const statusMap = {
             'PENDING': 'Pendente',
             'APPROVED': 'Aprovado',
+            'DRAFT': 'Rascunho',
             'REJECTED': 'Rejeitado',
             'CANCELED': 'Cancelado',
             'PAID': 'Pago',

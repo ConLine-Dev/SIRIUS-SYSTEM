@@ -159,7 +159,7 @@ async function showRepurchaseDetails(processId, status, button) {
             else if (fee.status === 'DRAFT') {
                 return `
                     <a href="javascript:void(0);" class="btn btn-sm btn-primary" title="Enviar para aprovação" onclick="alterStatus(${fee.id},'PENDING')">Enviar para aprovação</a>
-                    <a href="javascript:void(0);" class="btn btn-sm btn-danger-light" title="Cancelar" onclick="alterStatus(${fee.id},'CANCELED')">Cancelar</a>
+                    <a href="javascript:void(0);" class="btn btn-sm btn-danger" title="Cancelar" onclick="alterStatus(${fee.id},'CANCELED')">Cancelar</a>
                 `;
             }
             return '';

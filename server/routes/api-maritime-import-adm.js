@@ -44,6 +44,16 @@ module.exports = function (io) {
         }
     });
 
+    router.post('/filteredProcesses', async (req, res, next) => {
+        try {
+            const result = await IMADM.filteredProcesses(req.body.userId);
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
     router.get('/getOperationals', async (req, res, next) => {
         try {
             const result = await IMADM.getOperationals();

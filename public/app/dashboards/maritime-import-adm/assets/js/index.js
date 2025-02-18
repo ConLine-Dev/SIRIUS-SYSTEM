@@ -1,4 +1,4 @@
-let mailChart, cancelChart, repurchaseChart;
+let mailChart, cancelChart, repurchaseChart, processesChartFCL, processesChartLCL;
 
 async function printProcesses(headcargo) {
 
@@ -64,6 +64,7 @@ async function createArrays(item) {
   await createMailArrays(item.email_business);
   await createCancelArrays(item.id_headcargo);
   await createRepurchaseArrays(item.id_headcargo);
+  await createProcessesArray(item.id_headcargo);
   await printProcesses(item.id_headcargo);
   document.querySelector('#loader2').classList.add('d-none')
 }
@@ -138,6 +139,43 @@ async function createRepurchaseArrays(userId) {
     }
   }
   createRepurchaseChart(repurchaseArray);
+}
+
+async function createProcessesArray(userId) {
+
+  let FprocessesArray = [];
+  let FprocessesLabels = [];
+  let LprocessesArray = [];
+  let LprocessesLabels = [];
+
+  let processes = await makeRequest(`/api/maritime-import-adm/filteredProcesses`, 'POST', {userId})
+
+  for (let index = 0; index < processes.length; index++) {
+    if (processes[index].Tipo_Carga == 'FCL' && FprocessesArray.length < 4) {
+      FprocessesArray[index] = processes[index].Quantidade_Processos;
+      FprocessesLabels[index] = processes[index].Cia_Transporte;
+      FprocessesArray = FprocessesArray.filter(item => item !== undefined && item !== null);
+      FprocessesLabels = FprocessesLabels.filter(item => item !== undefined && item !== null);
+    }
+    if (processes[index].Tipo_Carga == 'LCL' && LprocessesArray.length < 4) {
+      LprocessesArray[index] = processes[index].Quantidade_Processos;
+      LprocessesLabels[index] = processes[index].Cia_Transporte;
+      LprocessesArray = LprocessesArray.filter(item => item !== undefined && item !== null);
+      LprocessesLabels = LprocessesLabels.filter(item => item !== undefined && item !== null);
+    }
+  }
+
+  for (let index = 0; index < FprocessesArray.length; index++) {
+    FprocessesLabels[index] = FprocessesLabels[index].trim().split(' ');
+    FprocessesLabels[index] = FprocessesLabels[index].slice(0, 2).join(' ');
+  }
+
+  for (let index = 0; index < LprocessesArray.length; index++) {
+    LprocessesLabels[index] = LprocessesLabels[index].trim().split(' ');
+    LprocessesLabels[index] = LprocessesLabels[index].slice(0, 2).join(' ');
+  }
+
+  createProcessesChart(FprocessesArray, FprocessesLabels, LprocessesArray, LprocessesLabels);
 }
 
 function createMailChart(sentMailArray, receivedMailArray) {
@@ -233,7 +271,7 @@ function createCancelChart(openedArray, canceledArray) {
     chart: {
       height: 600,
       type: "bar",
-      stacked: true,
+      stacked: false,
       toolbar: {
         show: false,
       },
@@ -372,10 +410,86 @@ function createRepurchaseChart(repurchaseArray) {
     colors: ["#F9423A"],
   };
 
-
-
   repurchaseChart = new ApexCharts(document.querySelector('#repurchase-chart'), chartData);
   repurchaseChart.render();
+}
+
+function createProcessesChart(FprocessesArray, FprocessesLabels, LprocessesArray, LprocessesLabels) {
+
+  if (processesChartFCL) {
+    processesChartFCL.destroy();
+  }
+
+  if (processesChartLCL) {
+    processesChartLCL.destroy();
+  }
+
+  var chartDataFCL = {
+    series: FprocessesArray,
+    chart: {
+      width: 350,
+      type: 'pie',
+    },
+    plotOptions: {
+      pie: {
+        expandOnClick: false
+      }
+    },
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
+    labels: FprocessesLabels,
+    fill: {
+      type: 'gradient',
+      opacity: 0.85,
+    },
+    legend: {
+      show: true,
+      position: 'bottom'
+    },
+    tooltip: {
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        return '<div style="padding: 5px; background-color: rgba(24, 24, 24, 0.8); color: #ffffff; border-radius: 5px; font-weight: lighter;">'
+          + w.globals.labels[seriesIndex] + ': ' + series[seriesIndex]
+          + '</div>';
+      }
+    }
+  };
+
+  var chartDataLCL = {
+    series: LprocessesArray,
+    chart: {
+      width: 350,
+      type: 'pie',
+    },
+    plotOptions: {
+      pie: {
+        expandOnClick: false
+      }
+    },
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
+    labels: LprocessesLabels,
+    fill: {
+      type: 'gradient',
+      opacity: 0.85,
+    },
+    legend: {
+      show: true,
+      position: 'bottom'
+    },
+    tooltip: {
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        return '<div style="padding: 5px; background-color: rgba(24, 24, 24, 0.8); color: #ffffff; border-radius: 5px; font-weight: lighter;">'
+          + w.globals.labels[seriesIndex] + ': ' + series[seriesIndex]
+          + '</div>';
+      }
+    }
+  };
+
+  processesChartFCL = new ApexCharts(document.querySelector("#processes-chart"), chartDataFCL);
+  processesChartFCL.render();
+
+  processesChartLCL = new ApexCharts(document.querySelector("#processes-chart2"), chartDataLCL);
+  processesChartLCL.render();
+
 }
 
 function openWindow(url, width, height) {
@@ -389,6 +503,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   await createMailArrays('');
   await createCancelArrays(0);
   await createRepurchaseArrays(0);
+  await createProcessesArray(0);
 
   document.querySelector('#loader2').classList.add('d-none')
 });

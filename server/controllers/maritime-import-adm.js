@@ -126,6 +126,66 @@ const IMADM = {
         return result;
     },
 
+    filteredProcesses: async function (userId) {
+        let userFilter = '';
+        if (userId > 0) {
+            userFilter = `AND Par.IdResponsavel = ${userId}`
+        }
+
+        const result = await executeQuerySQL(`
+            WITH ProcessosValidos AS (
+            SELECT
+            lhs.Numero_Processo,
+            pss.Nome as Cia_Transporte,
+            case lhs.Tipo_Carga
+            when 1 then 'Aéreo'
+            when 2 then 'Break Bulk'
+            when 3 then 'FCL'
+            when 4 then 'LCL'
+            when 5 then 'RO-RO'
+            when 6 then 'Rodoviário'
+            end as Tipo_Carga,
+            MAX(CASE WHEN lmc.Data_Devolucao IS NOT NULL THEN 1 ELSE 0 END) as Tem_Devolucao
+            FROM mov_Logistica_House lhs
+            LEFT JOIN mov_Logistica_Master lms on lms.IdLogistica_Master = lhs.IdLogistica_Master
+            LEFT JOIN mov_Logistica_Maritima_Container lmc on lmc.IdLogistica_House = lhs.IdLogistica_House
+            LEFT JOIN mov_Projeto_Atividade_Responsavel Par on Par.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Par.IdPapel_Projeto = 2)
+            LEFT JOIN vis_Logistica_Prazo lpz ON lpz.IdLogistica_House = lhs.IdLogistica_House
+            LEFT JOIN cad_Pessoa pss ON pss.IdPessoa = lms.IdCompanhia_Transporte
+            WHERE lhs.Situacao_Agenciamento != 7
+            ${userFilter}
+            AND lhs.Numero_Processo NOT LIKE '%DEMU%'
+            AND lhs.Numero_Processo NOT LIKE '%test%'
+            AND lms.Tipo_Operacao = 2
+            AND lms.Modalidade_Processo = 2
+            AND (lhs.Tipo_Carga = 4 AND (
+                lpz.IdConfiguracao_Campo_Livre IS NULL
+                OR lpz.IdConfiguracao_Campo_Livre = ''
+                OR NOT EXISTS (
+                    SELECT 1
+                    FROM vis_Logistica_Prazo lpz2
+                    WHERE lpz2.IdLogistica_House = lhs.IdLogistica_House
+                    AND lpz2.IdConfiguracao_Campo_Livre = 156
+                )
+            ) OR lhs.Tipo_Carga = 3
+            )
+            GROUP BY
+            lhs.Numero_Processo,
+            pss.Nome,
+            lhs.Tipo_Carga
+            )
+            SELECT
+            Cia_Transporte,
+            Tipo_Carga,
+            COUNT(*) as Quantidade_Processos
+            FROM ProcessosValidos
+            WHERE Tem_Devolucao = 0
+            GROUP BY Cia_Transporte, Tipo_Carga
+            ORDER BY Quantidade_Processos DESC;`)
+
+        return result;
+    },
+
     getOperationals: async function () {
 
         const result = await executeQuery(`

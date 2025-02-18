@@ -260,13 +260,13 @@ async function showRepurchaseDetails(processId, status, button) {
             </tr>
         `;
 
-        // Linha adicional para 'reason', se existir
-        if (fee.reason) {
+         // Linha adicional para 'reason', se existir
+         if (fee.observation) {
             row += `
                 <tr>
-                    <td colspan="11" style="border-left: 4px solid #28a745; text-align: center; padding: 10px;">
-                        <strong style="font-size: 0.8em; display: block; margin-bottom: 2px;opacity:0.5">↑ Observação da Recompra ↑</strong>
-                        <span style="font-size: 1em;">${fee.reason}</span>
+                    <td colspan="12" style="border-left: 4px solid #28a745; text-align: center; padding: 10px;">
+                        <strong style="font-size: 0.8em; display: block; margin-bottom: 2px;opacity:0.5">↑ Observação da Recompra ↓</strong>
+                        <span style="font-size: 1em;">${fee.observation}</span>
                     </td>
                 </tr>
             `;

@@ -2462,7 +2462,8 @@ LEFT OUTER JOIN
             Lhs.IdLogistica_House AS idProcessos,
             Lhs.Numero_Processo,
             Tle.Nome AS Nome_Taxa,
-            Ltx.IdTaxa_Logistica_Exibicao AS idTaxa,
+            Ltx.IdTaxa_Logistica_Exibicao AS IdTaxa_Logistica_Exibicao,
+            Ltx.IdLogistica_Taxa AS idTaxa,
             Ltx.Valor_Pagamento_Total,
             Pag.Sigla AS Moeda_Pgto,
             Ltx.Valor_Recebimento_Total,
@@ -2494,7 +2495,7 @@ LEFT OUTER JOIN
       // Adiciona o status inativo às recompensas relevantes
       const updatedRegisters = registers.map(item => {
          const repurchaseItem = repurchase.find(
-            r => r.fee_id === item.idTaxa && r.status !== 'CANCELED' && r.status !== 'REJECTED'
+            r => r.fee_id === item.idTaxa && r.status !== 'CANCELED' && r.status !== 'REJECTED' 
          );
          if (repurchaseItem) {
             return { ...item, inativo: true };
@@ -2685,6 +2686,7 @@ LEFT OUTER JOIN
    const resultFee = await executeQuerySQL(`SELECT
          Ltx.IdLogistica_House,
          Ltx.IdTaxa_Logistica_Exibicao,
+         Ltx.IdLogistica_Taxa,
          Tle.Nome AS Taxa,
          Mda.Sigla,
          'Recebimento' AS Tipo,
@@ -2705,12 +2707,13 @@ LEFT OUTER JOIN
          cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
       WHERE
          Ltx.IdLogistica_House IN (${processIdsString})
-         AND Ltx.IdTaxa_Logistica_Exibicao IN (${feeIdsString})
+         AND Ltx.IdLogistica_Taxa IN (${feeIdsString})
          AND Ltx.IdRegistro_Recebimento IS NOT NULL
       UNION ALL
       SELECT
          Ltx.IdLogistica_House,
          Ltx.IdTaxa_Logistica_Exibicao,
+         Ltx.IdLogistica_Taxa,
          Tle.Nome AS Taxa,
          Mda.Sigla,
          'Pagamento' AS Tipo,
@@ -2731,7 +2734,7 @@ LEFT OUTER JOIN
          cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
       WHERE
          Ltx.IdLogistica_House IN (${processIdsString})
-         AND Ltx.IdTaxa_Logistica_Exibicao IN (${feeIdsString})
+         AND Ltx.IdLogistica_Taxa IN (${feeIdsString})
          AND Ltx.IdRegistro_Pagamento IS NOT NULL`);
          
 
@@ -2759,7 +2762,6 @@ LEFT OUTER JOIN
                Lft.IdLogistica_House,
                Lft.Situacao`);
 
-               console.log(processFullPaid)
 
 
          
@@ -2787,15 +2789,15 @@ LEFT OUTER JOIN
       const newPurchaseValueCell = formatValueCell(fee.purchase_value, fee.old_purchase_value, fee.coin_purchase, true, fee.status);
       const oldSaleValueCell = formatValueCell(fee.old_sale_value, fee.sale_value, fee.coin_sale, false, fee.status);
       const newSaleValueCell = formatValueCell(fee.sale_value, fee.old_sale_value, fee.coin_sale, false, fee.status);
-      // ${statusMap[fee.status]}
+      // ${statusMap[fee.status]}Ltx.IdLogistica_Taxa,
 
-      const purchaseFormated = fee.coin_purchase != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Pagamento').Valor_Total_Convertido : null;
-      const purchaseFactor = fee.coin_purchase != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Pagamento').Fator_Conversao : 1;
+      const purchaseFormated = fee.coin_purchase != 'BRL' ? resultFee.find(item => item.IdLogistica_Taxa == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Pagamento').IdLogistica_Taxa : null;
+      const purchaseFactor = fee.coin_purchase != 'BRL' ? resultFee.find(item => item.IdLogistica_Taxa == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Pagamento').Fator_Conversao : 1;
       const purchaseDifferenceConverted = parseFloat((purchaseDifference * purchaseFactor).toFixed(2));
       const purchaseDifferenceConvertedFormated = formatCurrency(purchaseDifferenceConverted, 'BRL')
 
-      const saleFormated = fee.coin_sale != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Recebimento').Valor_Total_Convertido : null;
-      const saleFactor = fee.coin_sale != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Recebimento').Fator_Conversao : 1;
+      const saleFormated = fee.coin_sale != 'BRL' ? resultFee.find(item => item.IdLogistica_Taxa == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Recebimento').IdLogistica_Taxa : null;
+      const saleFactor = fee.coin_sale != 'BRL' ? resultFee.find(item => item.IdLogistica_Taxa == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Recebimento').Fator_Conversao : 1;
       const saleDifferenceConverted = parseFloat((saleDifference * saleFactor).toFixed(2));
       const saleDifferenceConvertedFormated = formatCurrency(saleDifferenceConverted, 'BRL')
       
@@ -2912,6 +2914,7 @@ LEFT OUTER JOIN
    const resultFee = await executeQuerySQL(`SELECT
          Ltx.IdLogistica_House,
          Ltx.IdTaxa_Logistica_Exibicao,
+         Ltx.IdLogistica_Taxa,
          Tle.Nome AS Taxa,
          Mda.Sigla,
          'Recebimento' AS Tipo,
@@ -2932,12 +2935,13 @@ LEFT OUTER JOIN
          cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
       WHERE
          Ltx.IdLogistica_House IN (${processIdsString})
-         AND Ltx.IdTaxa_Logistica_Exibicao IN (${feeIdsString})
+         AND Ltx.IdLogistica_Taxa IN (${feeIdsString})
          AND Ltx.IdRegistro_Recebimento IS NOT NULL
       UNION ALL
       SELECT
          Ltx.IdLogistica_House,
          Ltx.IdTaxa_Logistica_Exibicao,
+         Ltx.IdLogistica_Taxa,
          Tle.Nome AS Taxa,
          Mda.Sigla,
          'Pagamento' AS Tipo,
@@ -2958,7 +2962,7 @@ LEFT OUTER JOIN
          cad_Taxa_Logistica_Exibicao Tle ON Tle.IdTaxa_Logistica_Exibicao = Ltx.IdTaxa_Logistica_Exibicao
       WHERE
          Ltx.IdLogistica_House IN (${processIdsString})
-         AND Ltx.IdTaxa_Logistica_Exibicao IN (${feeIdsString})
+         AND Ltx.IdLogistica_Taxa IN (${feeIdsString})
          AND Ltx.IdRegistro_Pagamento IS NOT NULL`);
          
 
@@ -2996,13 +3000,13 @@ LEFT OUTER JOIN
       const newSaleValueCell = formatValueCell(fee.sale_value, fee.old_sale_value, fee.coin_sale, false, fee.status);
       // ${statusMap[fee.status]}
 
-      const purchaseFormated = fee.coin_purchase != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Pagamento').Valor_Total_Convertido : null;
-      const purchaseFactor = fee.coin_purchase != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Pagamento').Fator_Conversao : 1;
+      const purchaseFormated = fee.coin_purchase != 'BRL' ? resultFee.find(item => item.IdLogistica_Taxa == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Pagamento').IdLogistica_Taxa : null;
+      const purchaseFactor = fee.coin_purchase != 'BRL' ? resultFee.find(item => item.IdLogistica_Taxa == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Pagamento').Fator_Conversao : 1;
       const purchaseDifferenceConverted = parseFloat((purchaseDifference * purchaseFactor).toFixed(2));
       const purchaseDifferenceConvertedFormated = formatCurrency(purchaseDifferenceConverted, 'BRL')
 
-      const saleFormated = fee.coin_sale != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Recebimento').Valor_Total_Convertido : null;
-      const saleFactor = fee.coin_sale != 'BRL' ? resultFee.find(item => item.IdTaxa_Logistica_Exibicao == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Recebimento').Fator_Conversao : 1;
+      const saleFormated = fee.coin_sale != 'BRL' ? resultFee.find(item => item.IdLogistica_Taxa == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Recebimento').IdLogistica_Taxa : null;
+      const saleFactor = fee.coin_sale != 'BRL' ? resultFee.find(item => item.IdLogistica_Taxa == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Recebimento').Fator_Conversao : 1;
       const saleDifferenceConverted = parseFloat((saleDifference * saleFactor).toFixed(2));
       const saleDifferenceConvertedFormated = formatCurrency(saleDifferenceConverted, 'BRL')
       

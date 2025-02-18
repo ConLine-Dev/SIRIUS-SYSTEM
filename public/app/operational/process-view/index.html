@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light" data-menu-styles="dark" loader="true" data-vertical-style="overlay">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualização de Processo - SIRIUS</title>
+    <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
+    <meta name="Author" content="Spruko Technologies Private Limited">
+    <meta name="keywords"
+        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <!-- <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet"> -->
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Flatpickr Css -->
+    <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
+    <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+
+    <link href="../../assets/libs/fullCalender/main.min.css" rel="stylesheet">
+
+
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+    <!-- Loader -->
+    <div id="loader">
+        <img src="../../assets/images/media/loader.svg" alt="Loading...">
+    </div>
+
+    <!-- App Main Wrapper -->
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="card custom-card">
+                <div class="card-header d-flex" style="justify-content: space-between;">
+                    <div class="card-title fw-semibold fs-14">Visualização de Processo <span id="referenceProcess"></span></div>
+                    <div class="input-group" style="width: 115px; gap: 20px;">
+                      
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+       
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="container-fluid">
+           
+                <!-- Process Information -->
+                <div class="row">
+                    <!-- Contatos -->
+                    <div class="col-xl-12">
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <div class="card-title">Contatos</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row gy-4">
+                                    <!-- Partes Envolvidas -->
+                                    <div class="col-xl-9 col-lg-6">
+                                            <h6 class="fw-semibold mb-3">Partes Envolvidas</h6>
+                                            <div class="row gy-3">
+                                                <div class="col-xl-4">
+                                                    <div class="p-3 border rounded-2">
+                                                        <p class="mb-1 fw-semibold">Cliente</p>
+                                                        <p class="mb-1">Empresa ABC Ltda</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-4">
+                                                    <div class="p-3 border rounded-2">
+                                                        <p class="mb-1 fw-semibold">Exportador</p>
+                                                        <p class="mb-1">Export Co. International</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-4">
+                                                    <div class="p-3 border rounded-2">
+                                                        <p class="mb-1 fw-semibold">Importador</p>
+                                                        <p class="mb-1">Import Ltd.</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-4">
+                                                    <div class="p-3 border rounded-2">
+                                                        <p class="mb-1 fw-semibold">Despachante</p>
+                                                        <p class="mb-1">Despachos Rápidos S.A.</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-4">
+                                                    <div class="p-3 border rounded-2">
+                                                        <p class="mb-1 fw-semibold">Notify</p>
+                                                        <p class="mb-1">Despachos Rápidos S.A.</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-4">
+                                                    <div class="p-3 border rounded-2">
+                                                        <p class="mb-1 fw-semibold">Agente da Origem</p>
+                                                        <p class="mb-1">Despachos Rápidos S.A.</p>
+                                                    </div>
+                                                </div>
+                                                <div class="col-xl-4">
+                                                    <div class="p-3 border rounded-2">
+                                                        <p class="mb-1 fw-semibold">Cia Transporte</p>
+                                                        <p class="mb-1">Despachos Rápidos S.A.</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                               
+                                    </div>
+                                     <!-- Operacional/Inside/Comercial -->
+                                     <div class="col-xl-3 col-lg-6">
+                                        <h6 class="fw-semibold mb-3">Operacional/Inside/Comercial</h6>
+                                        <div class="p-4 border rounded-2" style="height: 277px;">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="me-2">
+                                                    <span class="avatar avatar-sm bg-primary">JS</span>
+                                                </div>
+                                                <div>
+                                                    <p class="mb-0 fw-semibold">João Silva</p>
+                                                    <p class="mb-0 text-muted fs-12">Operacional</p>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="me-2">
+                                                    <span class="avatar avatar-sm bg-secondary">MS</span>
+                                                </div>
+                                                <div>
+                                                    <p class="mb-0 fw-semibold">Maria Santos</p>
+                                                    <p class="mb-0 text-muted fs-12">Inside Sales</p>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-2">
+                                                    <span class="avatar avatar-sm bg-success">PS</span>
+                                                </div>
+                                                <div>
+                                                    <p class="mb-0 fw-semibold">Pedro Souza</p>
+                                                    <p class="mb-0 text-muted fs-12">Comercial</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Embarque e Carga -->
+                    <div class="col-xl-12">
+                        <div class="row">
+                            <!-- Embarque -->
+                            <div class="col-xl-6">
+                                <div class="card custom-card">
+                                    <div class="card-header">
+                                        <div class="card-title">Informações de Embarque</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered mb-0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="fw-semibold bg-light">Origem</td>
+                                                        <td>Santos, SP - Brasil</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-semibold bg-light">Destino</td>
+                                                        <td>Shanghai, China</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-semibold bg-light">Previsão Embarque</td>
+                                                        <td>15/03/2024</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-semibold bg-light">Data Embarque</td>
+                                                        <td>-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-semibold bg-light">Previsão Chegada</td>
+                                                        <td>20/04/2024</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-semibold bg-light">Data Chegada</td>
+                                                        <td>-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-semibold bg-light">Navio</td>
+                                                        <td>MSC BARCELONA</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-semibold bg-light">Conhecimento</td>
+                                                        <td>MSCUXY123456 (PREPAID)</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Carga -->
+                            <div class="col-xl-6">
+                                <div class="card custom-card">
+                                    <div class="card-header">
+                                        <div class="card-title">Informações da Carga</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered mb-0">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="fw-semibold bg-light">Peso Bruto</td>
+                                                        <td>22.500 KG</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-semibold bg-light">Metros</td>
+                                                        <td>67,5 M³</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-semibold bg-light">Qtde Volumes</td>
+                                                        <td>1.250 Caixas</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-semibold bg-light">Total Equipamentos</td>
+                                                        <td>1x40HC + 1x20DC</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-semibold bg-light">Free Time</td>
+                                                        <td>21 dias</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-semibold bg-light">NCM</td>
+                                                        <td>8471.30.19</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- House -->
+                    <div class="col-xl-12">
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <div class="card-title">House</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr class="bg-light">
+                                                <th>Item de Carga</th>
+                                                <th>Número do Container</th>
+                                                <th>Tipo</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Eletrônicos</td>
+                                                <td>MSCU1234567</td>
+                                                <td>40HC</td>
+                                                <td><span class="badge bg-success">Gate In</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Acessórios</td>
+                                                <td>MSCU7654321</td>
+                                                <td>20DC</td>
+                                                <td><span class="badge bg-warning">Em Trânsito</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informações e Follows -->
+                    <div class="col-xl-12">
+                        <div class="row">
+                        
+
+                            <!-- Últimos Follows -->
+                            <div class="col-xl-12">
+                                <div class="card custom-card">
+                                    <div class="card-header">
+                                        <div class="card-title">Últimos Follows</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="follows-timeline">
+                                            <div class="follow-item p-3 border rounded-2 mb-3">
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="fw-semibold">Maria Santos</span>
+                                                    <span class="text-muted fs-12">15/02/2024 14:30</span>
+                                                </div>
+                                                <p class="mb-0">Documentação recebida e processada. Aguardando confirmação do cliente.</p>
+                                            </div>
+                                            <div class="follow-item p-3 border rounded-2">
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="fw-semibold">João Silva</span>
+                                                    <span class="text-muted fs-12">14/02/2024 16:45</span>
+                                                </div>
+                                                <p class="mb-0">Booking confirmado com o armador. Containers reservados.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../../assets/libs/jquery/jquery.min.js"></script>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script src="./assets/js/custom.js"></script>
+</body>
+
+</html>

@@ -2683,6 +2683,8 @@ LEFT OUTER JOIN
    const feeIdsString = result.map(fee => fee.fee_id).join(',');
    const processIdsString = result.map(fee => fee.process_id).join(',');
 
+   // console.log(feeIdsString)
+
    const resultFee = await executeQuerySQL(`SELECT
          Ltx.IdLogistica_House,
          Ltx.IdTaxa_Logistica_Exibicao,
@@ -2791,13 +2793,30 @@ LEFT OUTER JOIN
       const newSaleValueCell = formatValueCell(fee.sale_value, fee.old_sale_value, fee.coin_sale, false, fee.status);
       // ${statusMap[fee.status]}Ltx.IdLogistica_Taxa,
 
-      const purchaseFormated = fee.coin_purchase != 'BRL' ? resultFee.find(item => item.IdLogistica_Taxa == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Pagamento').IdLogistica_Taxa : null;
-      const purchaseFactor = fee.coin_purchase != 'BRL' ? resultFee.find(item => item.IdLogistica_Taxa == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Pagamento').Fator_Conversao : 1;
-      const purchaseDifferenceConverted = parseFloat((purchaseDifference * purchaseFactor).toFixed(2));
-      const purchaseDifferenceConvertedFormated = formatCurrency(purchaseDifferenceConverted, 'BRL')
+// Buscar os itens apenas uma vez e armazenar em variáveis
+const purchaseItem = fee.coin_purchase != 'BRL' ? 
+    resultFee.find(item => 
+        item.IdLogistica_Taxa == fee.fee_id && 
+        item.IdLogistica_House == fee.process_id && 
+        item.Tipo == 'Pagamento'
+    ) : null;
 
-      const saleFormated = fee.coin_sale != 'BRL' ? resultFee.find(item => item.IdLogistica_Taxa == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Recebimento').IdLogistica_Taxa : null;
-      const saleFactor = fee.coin_sale != 'BRL' ? resultFee.find(item => item.IdLogistica_Taxa == fee.fee_id && item.IdLogistica_House == fee.process_id && item.Tipo == 'Recebimento').Fator_Conversao : 1;
+const saleItem = fee.coin_sale != 'BRL' ? 
+    resultFee.find(item => 
+        item.IdLogistica_Taxa == fee.fee_id && 
+        item.IdLogistica_House == fee.process_id && 
+        item.Tipo == 'Recebimento'
+    ) : null;
+
+// Usar operador de encadeamento opcional (?.) para evitar erros
+const purchaseFormated = purchaseItem?.Valor_Total_Convertido || null;
+const purchaseFactor = purchaseItem?.Fator_Conversao || 1;
+const purchaseDifferenceConverted = parseFloat((purchaseDifference * purchaseFactor).toFixed(2));
+const purchaseDifferenceConvertedFormated = formatCurrency(purchaseDifferenceConverted, 'BRL');
+
+const saleFormated = saleItem?.Valor_Total_Convertido || null;
+const saleFactor = saleItem?.Fator_Conversao || 1;
+
       const saleDifferenceConverted = parseFloat((saleDifference * saleFactor).toFixed(2));
       const saleDifferenceConvertedFormated = formatCurrency(saleDifferenceConverted, 'BRL')
       

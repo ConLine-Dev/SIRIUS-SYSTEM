@@ -42,6 +42,7 @@ const api_expense_management = require('./expenseManagementRoutes');
 const apiMaterialControl = require('./api-material-control');
 const api_commercial_main = require('./api-commercial-main');
 const api_commercial_adm = require('./api-commercial-adm');
+const api_process_view = require('./api-process-view'); // Nova rota para visualização de processo
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -194,6 +195,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-commercial-adm.js
   router.use('/commercial-adm', api_commercial_adm(io));
+
+  // Use as rotas do arquivo api-process-view.js
+  router.use('/process-view', api_process_view(io)); // Nova rota para visualização de processo
 
   return router;
 };

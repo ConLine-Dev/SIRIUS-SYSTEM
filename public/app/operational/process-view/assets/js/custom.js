@@ -47,7 +47,7 @@ async function loadProcessData() {
     try {
         const { ref } = getUrlParams();
         if (!ref) {
-            console.error('Referência do processo não fornecida');
+            showProcessoNaoEncontrado('Referência do processo não fornecida');
             return;
         }
 
@@ -57,14 +57,14 @@ async function loadProcessData() {
         const response = await fetch(`/api/process-view/details/${ref}`);
         const data = await response.json();
 
-        if (data.status === 'error') {
-            console.error(data.message);
+        if (data.status === 'error' || !data.data || !data.data.processo) {
+            showProcessoNaoEncontrado('Não foram encontradas informações para o processo informado');
+            hideLoading();
             return;
         }
 
         // Preenche os dados do processo
         fillProcessData(data.data);
-
         
         await loadProcessFees(ref);
         
@@ -74,6 +74,7 @@ async function loadProcessData() {
         hideLoading();
     } catch (error) {
         console.error('Erro ao carregar dados do processo:', error);
+        showProcessoNaoEncontrado('Erro ao carregar dados do processo');
         hideLoading();
     }
 }
@@ -285,7 +286,7 @@ function fillProcessData(data) {
         responsaveisContainer.innerHTML = responsaveis.map(resp => `
             <div class="d-flex align-items-center mb-3">
                 <div class="me-2">
-                    <span class="avatar avatar-sm bg-primary">JS</span>
+                    <span class="avatar avatar-sm bg-primary"><img src="https://cdn.conlinebr.com.br/colaboradores/${resp.IdPessoa}" alt="img"></span>
                 </div>
                 <div>
                     <p class="mb-0 fw-semibold">${resp.Responsavel || '-'}</p>
@@ -524,18 +525,39 @@ function createPagination(pagination, processNumber) {
     });
 }
 
+// Função para mostrar mensagem de processo não encontrado
+function showProcessoNaoEncontrado(mensagem) {
+    const elemento = document.getElementById('processo-nao-encontrado');
+    if (elemento) {
+        // Atualiza a mensagem se necessário
+        const msgElement = elemento.querySelector('p');
+        if (msgElement && mensagem) {
+            msgElement.textContent = mensagem;
+        }
+        
+        // Remove a classe d-none para mostrar o elemento
+        elemento.classList.remove('d-none');
+        
+        // Esconde o conteúdo principal
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) {
+            mainContent.style.display = 'none';
+        }
+    }
+}
+
 // Funções de utilidade para loading
 function showLoading() {
     const loader = document.getElementById('loader2');
     if (loader) {
-        loader.classList.add('d-none');
+        loader.classList.remove('d-none');
     }
 }
 
 function hideLoading() {
-    const loader = document.getElementById('loader');
+    const loader = document.getElementById('loader2');
     if (loader) {
-        loader.style.display = 'none';
+        loader.classList.add('d-none');
     }
 }
 

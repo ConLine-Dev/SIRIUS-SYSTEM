@@ -23,7 +23,8 @@ const processViewController = {
             const responsaveis = await executeQuerySQL(`
                 SELECT
                     Res.Nome AS Responsavel,
-                    Pap.Nome AS Papel
+                    Pap.Nome AS Papel,
+                    Res.IdPessoa
                 FROM
                     mov_Logistica_House Lhs 
                 LEFT OUTER JOIN

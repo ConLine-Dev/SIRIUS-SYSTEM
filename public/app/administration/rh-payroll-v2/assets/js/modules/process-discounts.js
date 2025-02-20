@@ -68,7 +68,17 @@ async function initializeDataTable() {
                 },
                 { data: 'reference_month', 
                   render: function(data) {
-                      return new Date(data).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+                      // Split the date string
+                    const [year, month] = data.split('-');
+                    
+                    // Create a Date object (use day 1 to avoid timezone issues)
+                    const dateObj = new Date(parseInt(year), parseInt(month) - 1, 1);
+                    
+                    // Format to full month name and year in Portuguese
+                    return dateObj.toLocaleDateString('pt-BR', { 
+                        month: 'long', 
+                        year: 'numeric' 
+                    }).replace(/^\w/, (c) => c.toUpperCase());
                   }
                 },
                 { data: 'collaborator_name' },

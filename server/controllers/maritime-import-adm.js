@@ -89,7 +89,12 @@ const IMADM = {
             SELECT
             lhs.Numero_Processo,
             lms.Data_Embarque,
-            lms.Data_Desembarque
+            lms.Data_Desembarque,
+            case lhs.Tipo_Carga
+            when 3 then 'FCL'
+            when 4 then 'LCL'
+            when 5 then 'Outro'
+            end as 'Tipo_Carga'
             FROM mov_Logistica_House lhs
             LEFT OUTER JOIN
             mov_Logistica_Master lms on lms.IdLogistica_Master = lhs.IdLogistica_Master
@@ -119,7 +124,8 @@ const IMADM = {
             GROUP BY
             lhs.Numero_Processo,
             lms.Data_Embarque,
-            lms.Data_Desembarque
+            lms.Data_Desembarque,
+            lhs.Tipo_Carga
             HAVING
             COALESCE(STRING_AGG(lmc.Data_Devolucao, ', '), '0') = '0'`)
 

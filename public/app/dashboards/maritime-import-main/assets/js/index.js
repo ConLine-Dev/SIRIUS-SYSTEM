@@ -16,30 +16,58 @@ async function printProcesses() {
 
   let divNoETD = document.getElementById('noETD');
   let countNoETD = 0;
+  let fullNoETD = 0;
+  let lessNoETD = 0
 
   let divNoETA = document.getElementById('noETA');
   let countNoETA = 0;
+  let fullNoETA = 0;
+  let lessNoETA = 0;
 
   let divWithETA = document.getElementById('withETA');
   let countWithETA = 0;
+  let fullWithETA = 0;
+  let lessWithETA = 0;
 
   let divTotal = document.getElementById('total');
   let countTotal = processes.length;
 
   for (let index = 0; index < processes.length; index++) {
     if (processes[index].Data_Desembarque) {
+      if (processes[index].Tipo_Carga == 'FCL') {
+        fullWithETA++;
+      } else if (processes[index].Tipo_Carga == 'LCL') {
+        lessWithETA++;
+      }
       countWithETA++;
     } else if (processes[index].Data_Embarque) {
+      if (processes[index].Tipo_Carga == 'FCL') {
+        fullNoETA++;
+      } else if (processes[index].Tipo_Carga == 'LCL') {
+        lessNoETA++;
+      }
       countNoETA++;
     } else {
+      if (processes[index].Tipo_Carga == 'FCL') {
+        fullNoETD++;
+      } else if (processes[index].Tipo_Carga == 'LCL') {
+        lessNoETD++;
+      }
       countNoETD++;
     }
   }
 
-  let printNoETD = `<h2>${countNoETD}</h2>`
-  let printNoETA = `<h2>${countNoETA}</h2>`
-  let printWithETA = `<h2>${countWithETA}</h2>`
-  let printTotal = `<h2>${countTotal}</h2>`
+  let fullTotal = fullNoETD + fullNoETA + fullWithETA;
+  let lessTotal = lessNoETD + lessNoETA + lessWithETA;
+
+  let printNoETD = `<div><h2>${countNoETD}</h2>
+  <h6>FCL: ${fullNoETD} / LCL: ${lessNoETD}</h6></div>`
+  let printNoETA = `<div><h2>${countNoETA}</h2>
+  <h6>FCL: ${fullNoETA} / LCL: ${lessNoETA}</h6></div>`
+  let printWithETA = `<div><h2>${countWithETA}</h2>
+  <h6>FCL: ${fullWithETA} / LCL: ${lessWithETA}</h6></div>`
+  let printTotal = `<div><h2>${countTotal}</h2>
+  <h6>FCL: ${fullTotal} / LCL: ${lessTotal}</h6></div>`
 
   divNoETD.innerHTML = printNoETD;
   divNoETA.innerHTML = printNoETA;

@@ -180,7 +180,8 @@ async function clickNewOccurence(){
         e.preventDefault()
 
         const body = {
-            url: '/app/administration/non-compliance/new-occurrence'
+            url: '/app/administration/non-compliance/new-occurrence',
+            max:true
         }
 
         window.ipcRenderer.invoke('open-exWindow', body);
@@ -201,7 +202,8 @@ async function dblClickOnOccurrence(tableId){
             e.preventDefault();
             const id = this.getAttribute('occurrence-id');
             const body = {
-                url: `/app/administration/non-compliance/view-occurrence?id=${id}`
+                url: `/app/administration/non-compliance/view-occurrence?id=${id}`,
+                max:true
             };
 
             window.ipcRenderer.invoke('open-exWindow', body);
@@ -261,7 +263,8 @@ async function dblClickOnAction(){
             
           
             const body = {
-                url: `/app/administration/non-compliance/view-occurrence?id=${occurrenceID}&action=${actionID}`
+                url: `/app/administration/non-compliance/view-occurrence?id=${occurrenceID}&action=${actionID}`,
+                max:true
             };
 
             window.ipcRenderer.invoke('open-exWindow', body);

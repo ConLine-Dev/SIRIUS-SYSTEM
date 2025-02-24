@@ -72,7 +72,11 @@ const extractors = {
 async function setupEventListeners() {
     // Botão Nova Ocorrência
     elements.newOccurenceButton.addEventListener('click', function() {
-        window.open(`new-occurrence.html`, '_blank', 'width=1200,height=800');
+        const newWindow = window.open(`new-occurrence.html`, '_blank', 'width=1400,height=800');
+        newWindow.onload = function() {
+            newWindow.moveTo(0, 0);
+            newWindow.resizeTo(screen.availWidth, screen.availHeight);
+        };
     });
 
     // Adiciona listeners para os filtros
@@ -134,7 +138,11 @@ async function setupEventListeners() {
         const data = table.row(this).data();
         if (data) {
             // Abre em nova janela
-            window.open(`view-occurrence.html?id=${data.id}`, '_blank', 'width=1200,height=800');
+            const newWindow = window.open(`view-occurrence.html?id=${data.id}`, '_blank', 'width=1400,height=800');
+            newWindow.onload = function() {
+                newWindow.moveTo(0, 0);
+                newWindow.resizeTo(screen.availWidth, screen.availHeight);
+            };
         }
     });
 }
@@ -326,13 +334,13 @@ function updateTable() {
     });
 
     // Adiciona evento de duplo clique nas linhas
-    $('#occurrences_table tbody').on('dblclick', 'tr', function() {
-        const data = table.row(this).data();
-        if (data) {
-            // Abre em nova janela
-            window.open(`view-occurrence.html?id=${data.id}`, '_blank', 'width=1200,height=800');
-        }
-    });
+    // $('#occurrences_table tbody').on('dblclick', 'tr', function() {
+    //     const data = table.row(this).data();
+    //     if (data) {
+    //         // Abre em nova janela
+    //         window.open(`view-occurrence.html?id=${data.id}`, '_blank', 'width=1200,height=800');
+    //     }
+    // });
 }
 
 // Atualiza os gráficos
@@ -537,7 +545,11 @@ async function dblClickOnAction() {
             const occurrenceId = this.getAttribute('occurrence-id');
             const actionId = this.getAttribute('action-id');
             if (occurrenceId && actionId) {
-                window.location.href = `view-occurrence.html?id=${occurrenceId}&action=${actionId}`;
+                const newWindow = window.open(`view-occurrence.html?id=${occurrenceId}&action=${actionId}`, '_blank', ',width=1400,height=800');
+                newWindow.onload = function() {
+                    newWindow.moveTo(0, 0);
+                    newWindow.resizeTo(screen.availWidth, screen.availHeight);
+                };
             }
         });
     });

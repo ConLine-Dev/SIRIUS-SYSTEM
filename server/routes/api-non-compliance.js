@@ -44,6 +44,16 @@ module.exports = function(io) {
         }
     });
 
+    router.get('/AllClients', async (req, res, next) => {
+        try {
+            const result = await non_compliance.getAllClients();
+            res.status(200).json(result)
+
+        } catch (error) {
+            res.status(404).json(error)   
+        }
+    });
+
     router.get('/AllUnit', async (req, res, next) => {
         try {
             const result = await non_compliance.getAllCompanies();

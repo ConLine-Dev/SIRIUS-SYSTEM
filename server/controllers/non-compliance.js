@@ -1,6 +1,7 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 const { executeQuery } = require('../connect/mysql');
+const { executeQuerySQL } = require('../connect/sqlServer');
 const {emailCustom} = require('../support/emails-template');
 const {Users} = require('./users');
 
@@ -392,6 +393,9 @@ const non_compliance = {
                 o.title,
                 o.id,
                 o.status,
+                o.openTo,
+                o.loss_value,
+                o.client_id,
                 o.reference,
                 o.ROMFN,
                 o.create_at,
@@ -411,7 +415,8 @@ const non_compliance = {
                 oia.root_cause,
                 oo.name as 'originName',
                 cmp.city as 'companycity',
-                cmp.country as 'companycountry'
+                cmp.country as 'companycountry',
+               CONCAT(c.name, ' ', c.family_name) AS openToName -- Nome completo do criador
             FROM 
                 occurrences o
             JOIN 
@@ -422,6 +427,8 @@ const non_compliance = {
                 companies cmp ON o.company_id = cmp.id 
             LEFT JOIN 
                 occurrences_ishikawa_analysis oia ON oia.occurrence_id = o.id
+			LEFT JOIN 
+                collaborators c ON c.id = o.openTo
             WHERE o.id = ${id}`)
 
 
@@ -499,8 +506,8 @@ const non_compliance = {
         const date = new Date()
         const insertOccurrence = await executeQuery(`
         INSERT INTO occurrences
-        (title, company_id, origin_id, type_id, occurrence_date, description, correction, create_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        (title, company_id, origin_id, type_id, occurrence_date, description, correction, create_at, client_id, loss_value, openTo)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `, [
             formBody.occurrence,
             formBody.company_id,
@@ -509,7 +516,10 @@ const non_compliance = {
             formBody.occurrence_date,
             formBody.description,
             formBody.correction,
-            date
+            date,
+            formBody.client_id,
+            formBody.loss_value,
+            formBody.openTo,
         ]);
 
 
@@ -1009,6 +1019,16 @@ const non_compliance = {
         const month = String(date.getMonth() + 1).padStart(2, '0'); // Garante que o mês tenha dois dígitos
         const year = date.getFullYear(); // Obtém o ano
         return `${day}/${month}/${year}`; // Retorna a data formatada
+    },
+    getAllClients: async function () {
+        const sql = `SELECT Psa.IdPessoa AS IDCLIENTE,
+                              Psa.Nome AS CLIENTE,
+                              Psa.Cpf_Cnpj AS CNPJ
+                           FROM
+                              cad_Pessoa Psa`;
+
+        const result = await executeQuerySQL(sql);
+        return result;
     },
 }
 

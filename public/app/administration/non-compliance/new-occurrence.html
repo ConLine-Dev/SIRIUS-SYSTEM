@@ -540,6 +540,8 @@
                             </div>
                             
                             <div class="card-body">
+
+                                <input type="text" style="display: none;" name="openTo" class="form-control form-input"> 
                                 <div class="row">
                                     <div class="col-xl-9 col-lg-9 col-md-9 col-sm-12" id="intro-tittle-occurrence"> 
                                         <label for="input-label" class="form-label">Ocorrência</label> <br>
@@ -573,12 +575,31 @@
                                         <select name="type_id" class="form-input"></select>
                                   
                                     </div>
+
+                                    
                                     <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12" style="display: none;"> 
                                         <label for="input-label" class="form-label">Aprovação</label> 
                                         <select name="approval" class="form-input"></select>
                                   
                                     </div>
                                   
+                                </div>
+                                <br>
+                                <div class="row">
+                                    <!-- Campo Cliente -->
+                                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12" id="intro-tittle-client"> 
+                                        <label for="input-label" class="form-label">Cliente</label>  <br>
+                                        <label for="input-label" class="form-label fs-11" style="font-style: italic; opacity: 0.6;">Selecione o cliente relacionado.</label>
+                                        <select name="client_id" class="form-input"></select>
+                                    </div>
+
+                                    <!-- Campo Valor do Prejuízo -->
+                                    <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12" id="intro-tittle-loss"> 
+                                        <label for="input-label" class="form-label">Valor do Prejuízo (R$)</label>  <br>
+                                        <label for="input-label" class="form-label fs-11" style="font-style: italic; opacity: 0.6;">Informe o valor do prejuízo causado.</label>
+                                        <input type="number" name="loss_value" class="form-control form-input" step="0.01" min="0" placeholder="0.00"> 
+                                    </div>
+
                                 </div>
                                 <br>
                                 <div class="row">

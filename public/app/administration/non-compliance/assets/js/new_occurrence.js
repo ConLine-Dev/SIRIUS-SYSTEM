@@ -1,6 +1,6 @@
 // Variaveis globais para gerenciamento de selects com o Choices
 // s antes da variavel se refere a select
-let sAllUnits, sAllOrigins, sAllApproval, sAllResponsible, sAllResponsibleActions, sAllTypes, listPreventive = [], listReasons = [], listActions = []
+let sAllUnits, sAllOrigins, sAllApproval, sAllClients, sAllResponsible, sAllResponsibleActions, sAllTypes, listPreventive = [], listReasons = [], listActions = []
 
 
 /**
@@ -188,7 +188,42 @@ async function getAllResponsible(){
         
     });
 
+
+// ---
+// carrega os clientes
+const Clients = await makeRequest(`/api/non-compliance/AllClients`);
+
+// Formate o array para ser usado com o Choices.js, começando com a opção padrão
+const listaDeOpcoesClients = [
+    { value: '0', label: 'Não há cliente relacionado' }
+];
+
+// Adiciona os clientes da API à lista
+Clients.forEach(element => {
+    listaDeOpcoesClients.push({
+        value: `${element.IDCLIENTE}`,
+        label: element.CLIENTE,
+    });
+});
+
+// verifica se o select ja existe, caso exista destroi
+if (sAllClients) {
+    sAllClients.destroy();
+}
+
+// renderiza o select com as opções formatadas
+sAllClients = new Choices('select[name="client_id"]', {
+    choices: listaDeOpcoesClients,
+    shouldSort: false,
+    removeItemButton: true,
+    noChoicesText: 'Não há opções disponíveis',
+});
+
+    // ----
     const user = await getInfosLogin()
+
+    document.querySelector('input[name="openTo"]').value = user.system_collaborator_id.toString()
+
     sAllResponsible.setChoiceByValue(user.system_collaborator_id.toString());
 
     sAllResponsibleActions = new Choices('select[name="action_responsible"]', {

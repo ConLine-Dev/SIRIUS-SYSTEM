@@ -1,6 +1,6 @@
 // Variáveis globais para gerenciamento de selects com o Choices
 // 's' antes da variável refere-se ao select
-let idOccurrence, choices = [], ActionEvidence, ActionEvidence_view,effectivenessEvidence, correctiveEvidence_view, infoOccurence,sAllUnits,sAllStatus,sAllOrigins,sAllApproval,sAllResponsible,sAllResponsibleActions,sAllTypes;
+let idOccurrence, choices = [], ActionEvidence, sAllClients, ActionEvidence_view,effectivenessEvidence, correctiveEvidence_view, infoOccurence,sAllUnits,sAllStatus,sAllOrigins,sAllApproval,sAllResponsible,sAllResponsibleActions,sAllTypes;
 
 
 /**
@@ -289,6 +289,40 @@ async function getAllResponsible() {
         shouldSort: false,
         noChoicesText: 'Não há opções disponíveis',
     });
+
+
+
+    // ---
+    // carrega os clientes
+    const Clients = await makeRequest(`/api/non-compliance/AllClients`);
+
+    // Formate o array para ser usado com o Choices.js, começando com a opção padrão
+    const listaDeOpcoesClients = [
+        { value: '0', label: 'Não há cliente relacionado' }
+    ];
+
+    // Adiciona os clientes da API à lista
+    Clients.forEach(element => {
+        listaDeOpcoesClients.push({
+            value: `${element.IDCLIENTE}`,
+            label: element.CLIENTE,
+        });
+    });
+
+    // verifica se o select ja existe, caso exista destroi
+    if (sAllClients) {
+        sAllClients.destroy();
+    }
+
+    // renderiza o select com as opções formatadas
+    sAllClients = new Choices('select[name="client_id"]', {
+        choices: listaDeOpcoesClients,
+        shouldSort: false,
+        removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis',
+    });
+
+        // ----
     
     
 }
@@ -325,6 +359,9 @@ async function loadOccurence(occurrence) {
     document.querySelector('textarea[name="description"]').value = occurrence.description;
     document.querySelector('textarea[name="correction"]').value = occurrence.correction;
     document.querySelector('input[name="occurrence_id"]').value = occurrence.id;
+    document.querySelector('input[name="loss_value"]').value = occurrence.loss_value ? occurrence.loss_value : 0;
+
+    document.querySelector('input[name="openTo"]').value = occurrence.openToName ? occurrence.openToName : '-';
 
     document.querySelector('textarea[name="manpower"]').value = occurrence.manpower;
     document.querySelector('textarea[name="method"]').value = occurrence.method;
@@ -342,6 +379,9 @@ async function loadOccurence(occurrence) {
     sAllUnits.setChoiceByValue(occurrence.company_id.toString());
     sAllTypes.setChoiceByValue(occurrence.typeId.toString());
     sAllStatus.setChoiceByValue(occurrence.status.toString());
+  
+
+    sAllClients.setChoiceByValue(occurrence.client_id.toString());
 
 
     if(occurrence.editing == 1){
@@ -413,6 +453,7 @@ async function loadOccurence(occurrence) {
         sAllOrigins.disable();
         sAllUnits.disable();
         sAllTypes.disable();
+        sAllClients.disable();
         sAllResponsible.disable();
 
 

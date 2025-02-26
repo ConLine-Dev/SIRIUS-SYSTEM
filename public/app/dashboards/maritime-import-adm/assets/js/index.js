@@ -74,17 +74,17 @@ async function createFilters() {
   operationalList.forEach(item => {
     const li = document.createElement('li');
     const a = document.createElement('a');
-    
+
     a.className = 'dropdown-item';
     a.href = 'javascript:void(0);';
     a.textContent = `${item.name} ${item.family_name}`;
-    
+
     // Define a função onclick com os parâmetros corretos
     a.onclick = () => createArrays(item);
-    
+
     li.appendChild(a);
     dropdown.appendChild(li);
-});
+  });
 }
 
 async function createArrays(item) {

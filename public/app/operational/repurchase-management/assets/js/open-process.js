@@ -58,7 +58,7 @@ function populateTable(feesArray) {
 
     // Agrupar taxas por ID para evitar duplicação
     const groupedFees = feesArray.reduce((acc, fee) => {
-        const key = fee.IdTaxa_Logistica_Exibicao; // Usa o ID da taxa como chave
+        const key = fee.idTaxa; // Usa o ID da taxa como chave
         if (!acc[key]) {
             acc[key] = {
                 Taxa: fee.Taxa,

@@ -3,6 +3,7 @@ const nodemailer = require('nodemailer');
 const { executeQuery } = require('../connect/mysql');
 const { executeQuerySQL } = require('../connect/sqlServer');
 const {emailCustom} = require('../support/emails-template');
+const {sendEmail} = require('../support/send-email');
 const {Users} = require('./users');
 
 const non_compliance = {
@@ -1030,10 +1031,33 @@ const non_compliance = {
         const result = await executeQuerySQL(sql);
         return result;
     },
+    VerifyDeadLine: async function () {
+        // função para verificar os prazos se eles estiverem vencidos
+
+        const sql = `SELECT * FROM occurrences_effectiveness_evaluation WHERE evidence = '[]' AND deadline < CURDATE();`;
+        const sql3 = `SELECT * FROM occurrences_corrective_actions WHERE evidence = '[]' AND deadline < CURDATE();`;
+
+        const result = await executeQuery(sql);
+        const result2 = await executeQuery(sql3);
+
+
+        let templateEmail = ``;
+
+        
+
+
+
+        sendEmail('petryck.leite@conlinebr.com.br',`[INTERNO] - Lembrete de prazos vencidos.`, templateEmail)
+        // recipient, subject, htmlContent
+
+        console.log({ result, result2 })
+        return { result, result2 };
+    },
 }
 
 
 
+// non_compliance.VerifyDeadLine()
 
 module.exports = {
     non_compliance,

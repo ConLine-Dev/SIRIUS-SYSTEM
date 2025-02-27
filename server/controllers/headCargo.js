@@ -3492,6 +3492,7 @@ const saleFactor = saleItem?.Fator_Conversao || 1;
       const fees = await executeQuerySQL(`SELECT
     Ltx.IdLogistica_House,
     Ltx.IdTaxa_Logistica_Exibicao,
+    Ltx.IdLogistica_Taxa AS idTaxa,
     Tle.Nome AS Taxa,
     Mda.Sigla,
     'Recebimento' AS Tipo,
@@ -3519,6 +3520,7 @@ UNION ALL
 SELECT
     Ltx.IdLogistica_House,
     Ltx.IdTaxa_Logistica_Exibicao,
+    Ltx.IdLogistica_Taxa AS idTaxa,
     Tle.Nome AS Taxa,
     Mda.Sigla,
     'Pagamento' AS Tipo,

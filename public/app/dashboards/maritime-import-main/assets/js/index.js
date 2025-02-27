@@ -485,4 +485,5 @@ document.addEventListener('DOMContentLoaded', async function () {
   await createProcessesArray();
   createProcessesChart();
 
+  document.querySelector('#loader2').classList.add('d-none')
 });

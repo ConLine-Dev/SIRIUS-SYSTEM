@@ -4,36 +4,6 @@ const { commercialMain } = require('../controllers/commercial-main.js');
 
 module.exports = function (io) {
 
-    router.post('/openedProcesses', async (req, res, next) => {
-        try {
-            const result = await commercialMain.openedProcesses(req.body.userId);
-            res.status(200).json(result)
-        } catch (error) {
-
-            res.status(404).json('Erro')
-        }
-    });
-
-    router.post('/canceledProcesses', async (req, res, next) => {
-        try {
-            const result = await commercialMain.canceledProcesses(req.body.userId);
-            res.status(200).json(result)
-        } catch (error) {
-
-            res.status(404).json('Erro')
-        }
-    });
-
-    router.post('/totalEmails', async (req, res, next) => {
-        try {
-            const result = await commercialMain.totalEmails(req.body.email);
-            res.status(200).json(result)
-        } catch (error) {
-
-            res.status(404).json('Erro')
-        }
-    });
-
     router.post('/totalProcesses', async (req, res, next) => {
         try {
             const result = await commercialMain.totalProcesses(req.body.userId);
@@ -44,15 +14,51 @@ module.exports = function (io) {
         }
     });
 
-    router.post('/repurchases', async (req, res, next) => {
+    router.post('/listAllProcesses', async (req, res, next) => {
+     
         try {
-            const result = await commercialMain.repurchases(req.body.userId);
-            res.status(200).json(result)
+           const result = await commercialMain.listAllProcesses(req.body.userId);
+     
+           res.status(200).json(result)
         } catch (error) {
-
-            res.status(404).json('Erro')
+     
+           res.status(404).json('Erro')   
         }
-    });
+     });
+
+    router.post('/countProcesses', async (req, res, next) => {
+     
+        try {
+           const result = await commercialMain.countProcesses(req.body.userId);
+     
+           res.status(200).json(result)
+        } catch (error) {
+     
+           res.status(404).json('Erro')   
+        }
+     });
+
+    router.post('/profitByUser', async (req, res, next) => {
+     
+        try {
+           const result = await commercialMain.profitByUser(req.body.userId);
+     
+           res.status(200).json(result)
+        } catch (error) {
+     
+           res.status(404).json('Erro')   
+        }
+     });
+
+     router.post('/getOffers', async (req, res, next) => {
+      try {
+          const result = await commercialMain.getOffers(req.body.userId);
+          res.status(200).json(result)
+      } catch (error) {
+
+          res.status(404).json('Erro')
+      }
+  });
 
     return router;
 };

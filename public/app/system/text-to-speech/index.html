@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Conversor de Texto para Áudio</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    
+    <style>
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .loading-spinner {
+            display: none;
+            margin-right: 8px;
+        }
+        .loading .loading-spinner {
+            display: inline-block;
+        }
+        .text-area-container {
+            position: relative;
+        }
+        .character-count {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loader -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card custom-card">
+                        <div class="card-header">
+                            <div class="card-title">Conversor de Texto para Áudio</div>
+                        </div>
+                        <div class="card-body">
+                            <form id="textToSpeechForm">
+                                <div class="row gy-4">
+                                    <div class="col-xl-12">
+                                        <div class="text-area-container">
+                                            <label for="text" class="form-label">Digite seu texto:</label>
+                                            <textarea class="form-control" id="text" rows="5" 
+                                                placeholder="Digite aqui o texto que deseja converter para áudio..." 
+                                                required></textarea>
+                                            <div class="character-count">0 caracteres</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-12">
+                                        <div class="btn-list">
+                                            <button type="button" class="btn btn-primary" id="playButton">
+                                                <i class="ri-play-fill me-1"></i>Reproduzir
+                                            </button>
+                                            <button type="button" class="btn btn-success" id="downloadButton">
+                                                <div class="loading-spinner spinner-border spinner-border-sm" role="status">
+                                                    <span class="visually-hidden">Carregando...</span>
+                                                </div>
+                                                <i class="ri-download-2-fill me-1"></i>Baixar MP3
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop">
+        <span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span>
+    </div>
+    <div id="responsive-overlay"></div>
+
+    <!-- Scripts -->
+    <script src="../../assets/libs/jquery/jquery.min.js"></script>
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- <script src="../../assets/js/main.js"></script> -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const textArea = document.getElementById('text');
+            const playButton = document.getElementById('playButton');
+            const downloadButton = document.getElementById('downloadButton');
+            const characterCount = document.querySelector('.character-count');
+            let speechSynthesis = window.speechSynthesis;
+            let voices = [];
+
+            // Atualiza a contagem de caracteres
+            textArea.addEventListener('input', () => {
+                const count = textArea.value.length;
+                characterCount.textContent = `${count} caractere${count !== 1 ? 's' : ''}`;
+            });
+
+            // Função para encontrar a melhor voz feminina em pt-BR
+            function findBestPortugueseVoice() {
+                voices = speechSynthesis.getVoices();
+                const ptVoices = voices.filter(voice => voice.lang.includes('pt'));
+                
+                // Tenta encontrar uma voz feminina em pt-BR
+                let selectedVoice = ptVoices.find(voice => 
+                    voice.lang === 'pt-BR' && 
+                    (voice.name.toLowerCase().includes('female') || 
+                     voice.name.toLowerCase().includes('feminina') ||
+                     voice.name.toLowerCase().includes('maria'))
+                );
+
+                // Se não encontrar uma voz feminina específica, usa qualquer voz em pt-BR
+                if (!selectedVoice) {
+                    selectedVoice = ptVoices.find(voice => voice.lang === 'pt-BR');
+                }
+
+                // Se ainda não encontrar, usa qualquer voz em português
+                if (!selectedVoice && ptVoices.length > 0) {
+                    selectedVoice = ptVoices[0];
+                }
+
+                return selectedVoice;
+            }
+
+            // Carrega as vozes quando disponíveis
+            speechSynthesis.onvoiceschanged = () => {
+                voices = speechSynthesis.getVoices();
+            };
+
+            // Reproduzir áudio no navegador
+            playButton.addEventListener('click', () => {
+                const text = textArea.value;
+                if (!text) {
+                    showAlert('Aviso', 'Por favor, digite algum texto para reproduzir.', 'warning');
+                    return;
+                }
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                const selectedVoice = findBestPortugueseVoice();
+
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                } else {
+                    utterance.lang = 'pt-BR';
+                }
+
+                // Ajusta o tom e a velocidade para ficar mais parecido com o gTTS
+                utterance.pitch = 1.0;
+                utterance.rate = 1.0;
+
+                speechSynthesis.speak(utterance);
+            });
+
+            // Download do áudio em MP3
+            downloadButton.addEventListener('click', async () => {
+                const text = textArea.value;
+                if (!text) {
+                    showAlert('Aviso', 'Por favor, digite algum texto para baixar.', 'warning');
+                    return;
+                }
+
+                try {
+                    downloadButton.classList.add('loading');
+                    
+                    const response = await fetch('/api/text-to-speech/convert', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ text })
+                    });
+
+                    if (!response.ok) throw new Error('Erro ao converter áudio');
+
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'audio.mp3';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    showAlert('Sucesso', 'Áudio baixado com sucesso!', 'success');
+                } catch (error) {
+                    console.error('Erro:', error);
+                    showAlert('Erro', 'Erro ao gerar o arquivo de áudio', 'error');
+                } finally {
+                    downloadButton.classList.remove('loading');
+                }
+            });
+
+            // Função para mostrar alertas
+            function showAlert(title, text, icon) {
+                Swal.fire({
+                    title: title,
+                    text: text,
+                    icon: icon,
+                    confirmButtonText: 'OK'
+                });
+            }
+
+            // Remove o loader quando a página estiver carregada
+            window.addEventListener('load', () => {
+                document.getElementById('loader2').style.display = 'none';
+            });
+        });
+    </script>
+
+    <!-- SweetAlert JS -->
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+</body>
+
+</html> 

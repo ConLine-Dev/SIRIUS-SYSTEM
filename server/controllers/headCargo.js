@@ -23,6 +23,8 @@ const headcargo = {
       const vendedorID = value.vendedorID != '000' ? `AND IdVendedor = ${value.vendedorID}` : '';
       const InsideID = value.InsideID != '000' ? `AND IdInside_Sales = ${value.InsideID}` : '';
 
+      // console.log('aqui', value.recebimento, value.pagamento)
+      // console.log(value.recebimento, value.pagamento)
       const recebimento = `AND RecebimentoCodigo IN (${(value.recebimento).join(',')})`;
       const pagamento = `AND PagamentoCodigo IN (${(value.pagamento).join(',')})`;
 
@@ -3492,6 +3494,7 @@ const saleFactor = saleItem?.Fator_Conversao || 1;
       const fees = await executeQuerySQL(`SELECT
     Ltx.IdLogistica_House,
     Ltx.IdTaxa_Logistica_Exibicao,
+    Ltx.IdLogistica_Taxa AS idTaxa,
     Tle.Nome AS Taxa,
     Mda.Sigla,
     'Recebimento' AS Tipo,
@@ -3519,6 +3522,7 @@ UNION ALL
 SELECT
     Ltx.IdLogistica_House,
     Ltx.IdTaxa_Logistica_Exibicao,
+    Ltx.IdLogistica_Taxa AS idTaxa,
     Tle.Nome AS Taxa,
     Mda.Sigla,
     'Pagamento' AS Tipo,

@@ -20,9 +20,12 @@ const IMADM = {
             FROM 
                 mov_Logistica_House lhs
             LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Par ON Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Par.IdPapel_Projeto = 2)
+            LEFT OUTER JOIN mov_Logistica_Master lms on lms.IdLogistica_Master = lhs.IdLogistica_Master
             WHERE 
                 DATEPART(year, lhs.Data_Abertura_Processo) = 2025
                 ${userFilter}
+                AND lms.Modalidade_Processo = 2
+                AND lms.Tipo_Operacao = 2
             GROUP BY 
                 DATEPART(month, lhs.Data_Abertura_Processo)
             ORDER BY 
@@ -44,10 +47,13 @@ const IMADM = {
             FROM 
                 mov_Logistica_House lhs
             LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Par ON Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Par.IdPapel_Projeto = 2)
+            LEFT OUTER JOIN mov_Logistica_Master lms on lms.IdLogistica_Master = lhs.IdLogistica_Master
             WHERE 
                 DATEPART(year, lhs.Data_Cancelamento) = 2025
                 AND lhs.Situacao_Agenciamento = 7
                 ${userFilter}
+                AND lms.Modalidade_Processo = 2
+                AND lms.Tipo_Operacao = 2
             GROUP BY 
                 DATEPART(month, lhs.Data_Cancelamento)
             ORDER BY 

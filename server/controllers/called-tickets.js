@@ -8,6 +8,7 @@ const fs = require('fs/promises');
 const path = require('path');
 const crypto = require('crypto');
 const { exec } = require('child_process');
+const { AutoDetectSourceLanguagesOpenRangeOptionName } = require('microsoft-cognitiveservices-speech-sdk/distrib/lib/src/common.speech/Exports');
 
 
 const tickets = {
@@ -636,7 +637,6 @@ const tickets = {
                 createdAt: new Date(),
             };
 
-    
             // Processar arquivos enviados
             const uploadedFiles = files.map(file => ({
                 filename: file.filename,
@@ -650,30 +650,22 @@ const tickets = {
                 'INSERT INTO called_tickets (title, status, description, collaborator_id, start_forecast, end_forecast, finished_at, approved_at, priority, files) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [ticket.title, 'new-tasks-draggable', ticket.description, ticket.responsibleId, null, null, null, null, ticket.priorityId, JSON.stringify(uploadedFiles)]
               );
-            
             await executeQuery(
                 'INSERT INTO called_ticket_categories (ticket_id, category_id) VALUES (?, ?)',
                 [result.insertId, ticket.categoryId]
                 );
 
-            // atribiu o chamado para os colaboradores do departamente de TI por padrão
-            await executeQuery(
-            'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
-            [result.insertId, 1]
-            );
-            await executeQuery(
-            'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
-            [result.insertId, 2]
-            );
-            await executeQuery(
-            'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
-            [result.insertId, 3]
-            );
-            await executeQuery(
-            'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
-            [result.insertId, 35]
-            );
+            const tiList = await executeQuery(`
+                SELECT *
+                FROM departments_relations
+                WHERE department_id = 7`);
 
+            for (let index = 0; index < tiList.length; index++) {
+                await executeQuery(
+                    'INSERT INTO called_assigned_relations (ticket_id, collaborator_id) VALUES (?, ?)',
+                    [result.insertId, tiList[index].collaborator_id]
+                    );
+            }
 
             for (let index = 0; index < ticket.involvedUsers.length; index++) {
                 const element = ticket.involvedUsers[index];

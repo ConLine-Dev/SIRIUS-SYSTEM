@@ -5,140 +5,215 @@ const path = require('path');
 
 const commercialADM = {
 
-    openedProcesses: async function (userId) {
+    listAllProcesses: async function (userId) {
 
         let userFilter = ''
 
         if (userId) {
-            userFilter = `AND Par.IdResponsavel = ${userId}`
+            userFilter = `AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})`
         }
+
         let result = await executeQuerySQL(`
-            SELECT 
-                DATEPART(month, lhs.Data_Abertura_Processo) AS mes,
-                COUNT(*) AS TotalProcessosAbertos
-            FROM 
-                mov_Logistica_House lhs
-            LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Par ON Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Par.IdPapel_Projeto = 2)
-            WHERE 
-                DATEPART(year, lhs.Data_Abertura_Processo) = 2024
+            SELECT
+                DATEPART(MONTH, Lhs.Data_Abertura_Processo) AS Mes,
+                COALESCE(Lmh.Total_TEUS,0) AS Teus,
+                Lhs.Numero_Processo,
+                CASE
+                    WHEN Lhs.Tipo_Carga = 1 /* Aéreo */ AND Lms.IdCompanhia_Transporte IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/) THEN 'IA-COURIER'
+                    WHEN Lhs.Tipo_Carga = 1 /* Aéreo */ AND Lms.IdCompanhia_Transporte NOT IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/) THEN 'IA-NORMAL'
+                    WHEN Lhs.Tipo_Carga = 3 /* FCL */ THEN 'IM-FCL'
+                    WHEN Lhs.Tipo_Carga = 4 /* LCL */ THEN 'IM-LCL'
+                END AS Tipo_Processo
+            FROM
+                mov_Logistica_House Lhs
+            JOIN
+                mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+            LEFT OUTER JOIN
+                mov_Logistica_Maritima_House Lmh on Lmh.IdLogistica_House = Lhs.IdLogistica_House
+            LEFT OUTER JOIN
+            mov_Projeto_Atividade_Responsavel Iss on Iss.IdProjeto_Atividade = Lhs.IdProjeto_Atividade and (Iss.IdPapel_Projeto = 12)
+            LEFT OUTER JOIN
+            mov_Projeto_Atividade_Responsavel Sls on Sls.IdProjeto_Atividade = Lhs.IdProjeto_Atividade and (Sls.IdPapel_Projeto = 3)
+            WHERE
+                DATEPART(YEAR, Lhs.Data_Abertura_Processo) = 2025
                 ${userFilter}
-            GROUP BY 
-                DATEPART(month, lhs.Data_Abertura_Processo)
-            ORDER BY 
-                mes;`)
+                AND Lhs.Situacao_Agenciamento NOT IN (7 /* CANCELADO */)
+                AND Lhs.Numero_Processo NOT LIKE '%test%'
+                AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
+                AND Lms.Tipo_Operacao = 2 /* IMPORTACAO */
+        `);
 
         return result;
     },
-    canceledProcesses: async function (userId) {
+
+    countProcesses: async function (userId) {
 
         let userFilter = ''
 
         if (userId) {
-            userFilter = `AND Par.IdResponsavel = ${userId}`
+            userFilter = `AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})`
         }
+
         let result = await executeQuerySQL(`
-            SELECT 
-                DATEPART(month, lhs.Data_Cancelamento) AS mes,
-                COUNT(*) AS TotalProcessosCancelados
-            FROM 
-                mov_Logistica_House lhs
-            LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Par ON Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Par.IdPapel_Projeto = 2)
-            WHERE 
-                DATEPART(year, lhs.Data_Cancelamento) = 2024
-                AND lhs.Situacao_Agenciamento = 7
+            SELECT
+                DATEPART(MONTH, Lhs.Data_Abertura_Processo) AS Mes,
+                CASE
+                    WHEN Lhs.Tipo_Carga = 1 /* Aéreo */ AND Lms.IdCompanhia_Transporte IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/) THEN 'IA-COURIER'
+                    WHEN Lhs.Tipo_Carga = 1 /* Aéreo */ AND Lms.IdCompanhia_Transporte NOT IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/) THEN 'IA-NORMAL'
+                    WHEN Lhs.Tipo_Carga = 3 /* FCL */ THEN 'IM-FCL'
+                    WHEN Lhs.Tipo_Carga = 4 /* LCL */ THEN 'IM-LCL'
+                    ELSE 'OUTRO'
+                END AS Tipo_Processo,
+                COUNT(*) AS Quantidade
+            FROM
+                mov_Logistica_House Lhs
+            JOIN
+                mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+            LEFT OUTER JOIN
+                mov_Logistica_Maritima_House Lmh on Lmh.IdLogistica_House = Lhs.IdLogistica_House
+            LEFT OUTER JOIN
+                mov_Projeto_Atividade_Responsavel Iss on Iss.IdProjeto_Atividade = Lhs.IdProjeto_Atividade and (Iss.IdPapel_Projeto = 12)
+            LEFT OUTER JOIN
+                mov_Projeto_Atividade_Responsavel Sls on Sls.IdProjeto_Atividade = Lhs.IdProjeto_Atividade and (Sls.IdPapel_Projeto = 3)
+            WHERE
+                DATEPART(YEAR, Lhs.Data_Abertura_Processo) = 2025
                 ${userFilter}
-            GROUP BY 
-                DATEPART(month, lhs.Data_Cancelamento)
-            ORDER BY 
-                mes;`)
+                AND Lhs.Situacao_Agenciamento NOT IN (7 /* CANCELADO */)
+                AND Lhs.Numero_Processo NOT LIKE '%test%'
+                AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
+                AND Lms.Tipo_Operacao = 2 /* IMPORTACAO */
+            GROUP BY
+                DATEPART(MONTH, Lhs.Data_Abertura_Processo),
+                CASE
+                    WHEN Lhs.Tipo_Carga = 1 /* Aéreo */ AND Lms.IdCompanhia_Transporte IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/) THEN 'IA-COURIER'
+                    WHEN Lhs.Tipo_Carga = 1 /* Aéreo */ AND Lms.IdCompanhia_Transporte NOT IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/) THEN 'IA-NORMAL'
+                    WHEN Lhs.Tipo_Carga = 3 /* FCL */ THEN 'IM-FCL'
+                    WHEN Lhs.Tipo_Carga = 4 /* LCL */ THEN 'IM-LCL'
+                    ELSE 'OUTRO'
+                END
+            ORDER BY
+                Mes, Tipo_Processo`);
 
         return result;
     },
 
-    totalEmails: async function (email) {
+    profitByUser: async function (userId) {
 
-        emailFilter = ''
+        let userFilter = ''
 
-        if (email) {
-            emailFilter = `WHERE email = '${email}'`
+        if (userId) {
+            userFilter = `WHERE fcx.IdInside = ${userId} OR fcx.IdSales = ${userId}`
         }
+
+        let result = await executeQuerySQL(`
+            SELECT Mes, SUM(VALOR_CONVERTIDO_REAL) AS Total_Valor
+            FROM vis_Fluxo_Caixa_Novas_Metas fcx
+            ${userFilter}
+            GROUP BY Mes
+            ORDER BY Mes`);
+
+        return result;
+    },
+
+    getCommercials: async function () {
+
         const result = await executeQuery(`
-            SELECT *
-            FROM email_metrics
-            ${emailFilter}
-            ORDER BY mes`)
+            SELECT DISTINCT cl.name, cl.family_name, cl.email_business, cl.id_headcargo
+            FROM collaborators cl
+            LEFT OUTER JOIN departments_relations dr on dr.collaborator_id = cl.id
+            LEFT OUTER JOIN sections_relations sr on sr.collaborator_id = cl.id
+            WHERE (dr.department_id = 1 OR dr.department_id = 2)
+            AND (sr.section_id = 1 OR sr.section_id = 2)
+            ORDER BY cl.name`)
 
         return result;
     },
 
-    totalProcesses: async function (userId) {
+    getOffers: async function (userId) {
 
         let userFilter = ''
 
         if (userId) {
-            userFilter = `AND Par.IdResponsavel = ${userId}`
+            userFilter = `AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})`
         }
+
         const result = await executeQuerySQL(`
             SELECT
-                lhs.Numero_Processo,
-                lms.Data_Embarque,
-                lms.Data_Desembarque
-            FROM mov_Logistica_House lhs
-            LEFT OUTER JOIN
-                mov_Logistica_Master lms on lms.IdLogistica_Master = lhs.IdLogistica_Master
-            LEFT OUTER JOIN
-                mov_Logistica_Maritima_Container lmc on lmc.IdLogistica_House = lhs.IdLogistica_House
-            LEFT OUTER JOIN
-                mov_Projeto_Atividade_Responsavel Par on Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade and (Par.IdPapel_Projeto = 2)
-            WHERE
-                lhs.Situacao_Agenciamento != 7
+                DATEPART(MONTH, pft.Data_Proposta) AS Mes,
+                CASE
+                    WHEN pfc.Tipo_Carga = 1 THEN 'Aéreo'
+                    WHEN pfc.Tipo_Carga = 3 THEN 'FCL'
+                    WHEN pfc.Tipo_Carga = 4 THEN 'LCL'
+                    ELSE 'Outros'
+                END AS Tipo_Carga,
+                SUM(CASE WHEN pft.Situacao = 2 THEN 1 ELSE 0 END) AS Total_Aprovada,
+                SUM(CASE WHEN pft.Situacao = 3 THEN 1 ELSE 0 END) AS Total_Reprovada,
+                SUM(CASE WHEN pft.Situacao NOT IN (2, 3) THEN 1 ELSE 0 END) AS Total_Pendente
+            FROM mov_Proposta_Frete pft
+                LEFT OUTER JOIN mov_Oferta_Frete oft ON oft.IdProposta_Frete = pft.IdProposta_Frete
+                LEFT OUTER JOIN mov_Proposta_Frete_Carga pfc ON pfc.IdProposta_Frete = pft.IdProposta_Frete
+                LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel iss ON iss.IdProjeto_Atividade = pft.IdProjeto_Atividade AND (iss.IdPapel_Projeto = 12)
+                LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel sls ON sls.IdProjeto_Atividade = pft.IdProjeto_Atividade AND (sls.IdPapel_Projeto = 3)
+            WHERE DATEPART(YEAR, pft.Data_Proposta) = 2025
                 ${userFilter}
-                AND lhs.Numero_Processo not like '%DEMU%'
-                AND lhs.Numero_Processo not like '%test%'
-            GROUP BY
-                lhs.Numero_Processo,
-                lms.Data_Embarque,
-                lms.Data_Desembarque
-            HAVING
-                COALESCE(STRING_AGG(lmc.Data_Devolucao, ', '), '0') = '0'`)
+                AND oft.Tipo_Operacao = 2
+            GROUP BY DATEPART(MONTH, pft.Data_Proposta), pfc.Tipo_Carga
+            ORDER BY Mes, pfc.Tipo_Carga;`)
 
         return result;
     },
 
-    repurchases: async function (userId) {
+    getByCommercial: async function (userId) {
 
-        let userFilter = ''
+        const result = await executeQuerySQL(`
+            WITH Logistica AS (
+                SELECT
+                    COALESCE(COUNT(*), 0) AS Quantidade,
+                    COALESCE(SUM(Lmh.Total_TEUS), 0) AS Teus
+                FROM mov_Logistica_House Lhs
+                JOIN mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+                LEFT OUTER JOIN mov_Logistica_Maritima_House Lmh ON Lmh.IdLogistica_House = Lhs.IdLogistica_House
+                LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Iss 
+                    ON Iss.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND Iss.IdPapel_Projeto = 12
+                LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Sls 
+                    ON Sls.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND Sls.IdPapel_Projeto = 3
+                WHERE
+                    DATEPART(YEAR, Lhs.Data_Abertura_Processo) = 2025
+                    AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
+                    AND Lhs.Situacao_Agenciamento NOT IN (7 /* CANCELADO */)
+                    AND Lhs.Numero_Processo NOT LIKE '%test%'
+                    AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
+                    AND Lms.Tipo_Operacao = 2 /* IMPORTACAO */
+            ), FluxoCaixa AS (
+                SELECT
+                    COALESCE(SUM(VALOR_CONVERTIDO_REAL), 0) AS Total_Valor
+                FROM vis_Fluxo_Caixa_Novas_Metas fcx
+                WHERE fcx.IdInside = ${userId} OR fcx.IdSales = ${userId}
+            ), Propostas AS (
+                SELECT
+                    COALESCE(SUM(CASE WHEN pft.Situacao = 2 THEN 1 ELSE 0 END), 0) AS Total_Aprovada,
+                    COALESCE(SUM(CASE WHEN pft.Situacao = 3 THEN 1 ELSE 0 END), 0) AS Total_Reprovada,
+                    COALESCE(SUM(CASE WHEN pft.Situacao NOT IN (2, 3) THEN 1 ELSE 0 END), 0) AS Total_Pendente
+                FROM mov_Proposta_Frete pft
+                LEFT OUTER JOIN mov_Oferta_Frete oft ON oft.IdProposta_Frete = pft.IdProposta_Frete
+                LEFT OUTER JOIN mov_Proposta_Frete_Carga pfc ON pfc.IdProposta_Frete = pft.IdProposta_Frete
+                LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel iss ON iss.IdProjeto_Atividade = pft.IdProjeto_Atividade AND (iss.IdPapel_Projeto = 12)
+                LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel sls ON sls.IdProjeto_Atividade = pft.IdProjeto_Atividade AND (sls.IdPapel_Projeto = 3)
+                WHERE DATEPART(YEAR, pft.Data_Proposta) = 2025
+                    AND (iss.IdResponsavel = ${userId} OR sls.IdResponsavel = ${userId})
+                    AND oft.Tipo_Operacao = 2
+            )
+            SELECT
+                COALESCE(l.Quantidade, 0) AS Quantidade, 
+                COALESCE(l.Teus, 0) AS Teus, 
+                COALESCE(f.Total_Valor, 0) AS Total_Valor,
+                COALESCE(p.Total_Aprovada, 0) AS Total_Aprovada,
+                COALESCE(p.Total_Reprovada, 0) AS Total_Reprovada,
+                COALESCE(p.Total_Pendente, 0) AS Total_Pendente
+            FROM Logistica l, FluxoCaixa f, Propostas p;`)
 
-        if (userId) {
-            userFilter = `AND Par.IdResponsavel = ${userId}`
-        }
-
-        let repurchases = [];
-        const result = await executeQuery(`
-            SELECT rps.id, rps.value_repurchase_comission, MONTH(rps.payment_date) as 'month', rps.reference_process
-            FROM repurchase_payments rps`)
-
-        for (let index = 0; index < result.length; index++) {
-            item = result[index];
-            const head = await executeQuerySQL(`
-                SELECT pss.Nome, Par.IdResponsavel
-                FROM mov_Logistica_House lhs
-                LEFT OUTER JOIN
-                mov_Projeto_Atividade_Responsavel Par on Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade
-                and (Par.IdPapel_Projeto = 2)
-                LEFT OUTER JOIN
-                cad_Pessoa pss on pss.IdPessoa = Par.IdResponsavel
-                WHERE lhs.Numero_Processo = '${item.reference_process}'
-                ${userFilter}`)
-
-            if (head.length > 0) {
-                repurchases[index] = {value: item.value_repurchase_comission, month: item.month, operational: head[0].Nome, idHead: head[0].IdResponsavel}
-            }
-        }
-
-        return repurchases;
-    },
-
+        return result;
+    }
 };
 
 module.exports = {

@@ -4,16 +4,6 @@ const { commercialADM } = require('../controllers/commercial-adm.js');
 
 module.exports = function (io) {
 
-    router.post('/totalProcesses', async (req, res, next) => {
-        try {
-            const result = await commercialADM.totalProcesses(req.body.userId);
-            res.status(200).json(result)
-        } catch (error) {
-
-            res.status(404).json('Erro')
-        }
-    });
-
     router.post('/listAllProcesses', async (req, res, next) => {
      
         try {
@@ -63,6 +53,16 @@ module.exports = function (io) {
      router.post('/getOffers', async (req, res, next) => {
       try {
           const result = await commercialADM.getOffers(req.body.userId);
+          res.status(200).json(result)
+      } catch (error) {
+
+          res.status(404).json('Erro')
+      }
+  });
+
+     router.post('/getByCommercial', async (req, res, next) => {
+      try {
+          const result = await commercialADM.getByCommercial(req.body.userId);
           res.status(200).json(result)
       } catch (error) {
 

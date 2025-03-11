@@ -39,33 +39,31 @@ async function createProcessesArrays() {
   for (let index = 0; index < processes.length; index++) {
     if (processes[index].Tipo_Processo == 'IA-COURIER') {
       if (!CourierArray[processes[index].Mes - 1]) {
-        CourierArray[processes[index].Mes - 1] = processes[index].Quantidade;
-      } else {
-        CourierArray[processes[index].Mes - 1] += processes[index].Quantidade;
+        CourierArray[processes[index].Mes - 1] = 0;
       }
+      CourierArray[processes[index].Mes - 1] += processes[index].Quantidade;
     }
     if (processes[index].Tipo_Processo == 'IA-NORMAL') {
       if (!AirArray[processes[index].Mes - 1]) {
-        AirArray[processes[index].Mes - 1] = processes[index].Quantidade;
-      } else {
-        AirArray[processes[index].Mes - 1] += processes[index].Quantidade;
+        AirArray[processes[index].Mes - 1] = 0;
       }
+      AirArray[processes[index].Mes - 1] += processes[index].Quantidade;
     }
     if (processes[index].Tipo_Processo == 'IM-FCL') {
       if (!FCLArray[processes[index].Mes - 1]) {
-        FCLArray[processes[index].Mes - 1] = processes[index].Quantidade;
-      } else {
-        FCLArray[processes[index].Mes - 1] += processes[index].Quantidade;
+        FCLArray[processes[index].Mes - 1] = 0;
       }
+      FCLArray[processes[index].Mes - 1] += processes[index].Quantidade;
     }
     if (processes[index].Tipo_Processo == 'IM-LCL') {
       if (!LCLArray[processes[index].Mes - 1]) {
-        LCLArray[processes[index].Mes - 1] = processes[index].Quantidade;
-      } else {
-        LCLArray[processes[index].Mes - 1] += processes[index].Quantidade;
+        LCLArray[processes[index].Mes - 1] = 0;
       }
+      LCLArray[processes[index].Mes - 1] += processes[index].Quantidade;
     }
   }
+
+  createProcessesChart(LCLArray, FCLArray, AirArray, CourierArray);
 }
 
 async function createProfitArray() {
@@ -83,8 +81,10 @@ async function createProfitArray() {
   }
 }
 
-async function createAssertivityArrays(userId) {
+async function createAssertivityArrays() {
 
+  let userData = getInfosLogin();
+  let userId = userData.system_id_headcargo;
   let offersByUser = await makeRequest(`/api/commercial-main/getOffers`, 'POST', {userId});
 
   let actualMonth = new Date().getMonth();
@@ -122,8 +122,8 @@ function createTEUsChart() {
       data: teusArray
     }],
     chart: {
-      height: 780,
-      width: 425,
+      height: 400,
+      width: 920,
       type: "bar",
       stacked: false,
       toolbar: {
@@ -132,9 +132,9 @@ function createTEUsChart() {
     },
     plotOptions: {
       bar: {
-        horizontal: true,
-        borderRadius: 2,
-        columnWidth: "40%",
+        horizontal: false,
+        borderRadius: 5,
+        columnWidth: "60%",
         dataLabels: {
           position: 'top',
         },
@@ -142,7 +142,6 @@ function createTEUsChart() {
     },
     dataLabels: {
       enabled: true,
-      offsetX: -15,
       style: {
         fontSize: '12px',
         colors: ['#fff']
@@ -151,10 +150,10 @@ function createTEUsChart() {
     tooltip: {
       enabled: false
     },
-    colors: ["#F9423A", "#3f2021"],
+    colors: ["#F9423A"],
     markers: {
-      size: [0, 0],
-      strokeColors: ["#F9423A", "#3f2021"],
+      size: 0,
+      strokeColors: ["#F9423A"],
       strokeWidth: 2,
       strokeOpacity: 0.9,
       fillOpacity: 1,
@@ -162,10 +161,9 @@ function createTEUsChart() {
       showNullDataPoints: true,
     },
     stroke: {
-      width: [0, 0],
+      width: 0,
       curve: "smooth",
     },
-
     xaxis: {
       categories: months,
       position: "bottom",
@@ -185,33 +183,31 @@ function createTEUsChart() {
 function createProfitChart() {
 
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-  var chartData = {
 
+  var chartData = {
     series: [{
       name: 'Faturamento/Mês',
       data: profitArray
     }],
     chart: {
-      height: 780,
-      width: 425,
+      height: 400,
+      width: 920,
       type: "bar",
       stacked: false,
-      toolbar: {
-        show: false,
-      },
+      toolbar: { show: false },
     },
     plotOptions: {
       bar: {
-        horizontal: true,
-        borderRadius: 2,
-        columnWidth: "40%",
+        horizontal: false,
+        borderRadius: 5,
+        columnWidth: "60%",
         dataLabels: {
           position: 'top',
         },
       }
     },
     dataLabels: {
-      enabled: true,
+      enabled: false,
       offsetX: -50,
       style: {
         fontSize: '12px',
@@ -243,16 +239,11 @@ function createProfitChart() {
       width: [0, 0],
       curve: "smooth",
     },
-
     xaxis: {
       categories: months,
       position: "bottom",
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
+      axisBorder: { show: false },
+      axisTicks: { show: false },
     },
   };
 
@@ -260,59 +251,61 @@ function createProfitChart() {
   chart.render();
 }
 
-function createProcessesChart() {
+function createProcessesChart(LCLArray, FCLArray, AirArray, CourierArray) {
 
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  let finalLCL = 0;
+  let finalFCL = 0;
+  let finalAir = 0;
+  let finalCourier = 0;
+
+  for (let index = 0; index < LCLArray.length; index++) {
+    finalLCL += LCLArray[index];
+  }
+
+  for (let index = 0; index < FCLArray.length; index++) {
+    finalFCL += FCLArray[index];
+  }
+
+  for (let index = 0; index < AirArray.length; index++) {
+    finalAir += AirArray[index];
+  }
+
+  for (let index = 0; index < CourierArray.length; index++) {
+    finalCourier += CourierArray[index];
+  }
 
   var options = {
-    series: [{
-    name: 'IA EXPRESSO',
-    data: CourierArray
-  }, {
-    name: 'IA PADRÃO',
-    data: AirArray
-  }, {
-    name: 'IM FCL',
-    data: FCLArray
-  }, {
-    name: 'IM LCL',
-    data: LCLArray
-  }],
+    series: [finalLCL, finalFCL, finalAir, finalCourier],
     chart: {
-    type: 'bar',
-    height: 780,
-    stacked: true,
-    stackType: '100%',
-    toolbar: {
-      show: false,
-    }
-  },
-  colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
-  plotOptions: {
-    bar: {
-      horizontal: true,
+      width: 450,
+      type: 'pie',
     },
-  },
-  stroke: {
-    width: 1,
-    colors: ['#fff']
-  },
-  xaxis: {
-    categories: months,
-  },
-  tooltip: {
-    y: {
-      formatter: function (val) {
-        return val + " processos"
+    labels: ['IM LCL', 'IM FCL', 'IA Padrão', 'IA Expresso'],
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
+    tooltip: {
+      y: {
+        formatter: function (val) {
+          return val + " processos"
+        }
       }
-    }
-  },
-  fill: {
-    opacity: 0.80
-  },
-  legend: {
-    show: false
-  }
+    },
+    fill: {
+      type: 'gradient',
+      opacity: 0.85,
+    },
+    legend: {
+      show: true,
+      position: 'right'
+    },
+    responsive: [{
+      options: {
+        chart: {
+          toolbar: {
+            show: false,
+          }
+        }
+      }
+    }],
   };
 
   let chart = new ApexCharts(document.querySelector("#processes-chart"), options);
@@ -325,59 +318,60 @@ function createAssertivityChart() {
 
   var options = {
     series: [{
-    name: 'IA',
-    data: AirArray
-  }, {
-    name: 'FCL',
-    data: FCLArray
-  }, {
-    name: 'LCL',
-    data: LCLArray
-  }],
+      name: 'LCL',
+      data: LCLArray
+    }, {
+      name: 'FCL',
+      data: FCLArray
+    }, {
+      name: 'IA',
+      data: AirArray
+    }],
     chart: {
-    type: 'bar',
-    height: 780,
-    stacked: true,
-    toolbar: {
-      show: false,
-    }
-  },
-  colors: ["#F9423A", "#D0CFCD", "#781B17"],
-  plotOptions: {
-    bar: {
-      horizontal: true,
+      type: 'bar',
+      height: 300,
+      stacked: false,
+      toolbar: {
+        show: false,
+      }
     },
-  },
-  dataLabels: {
-    enabled: true,
-    style: {
-      fontSize: '12px',
+    colors: ["#F9423A", "#D0CFCD", "#781B17"],
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        borderRadius: 5,
+        columnWidth: "60%",
+      }
+    },
+    dataLabels: {
+      enabled: false,
+      formatter: function (value) {
+        return value + "%";
+      }
+    },
+    stroke: {
+      width: 1,
       colors: ['#fff']
     },
-    formatter: function (value) {
-      return value + "%";
-    }
-  },
-  stroke: {
-    width: 1,
-    colors: ['#fff']
-  },
-  xaxis: {
-    categories: months,
-  },
-  tooltip: {
-    y: {
-      formatter: function (val) {
-        return val + "%"
+    xaxis: {
+      categories: months,
+    },
+    tooltip: {
+      enabled: true,
+      shared: true, // Ativar compartilhamento do tooltip entre todas as séries
+      intersect: false, // Permite exibição ao passar sobre qualquer barra
+      y: {
+        formatter: function (val) {
+          return val + "%";
+        }
       }
+    },
+    fill: {
+      opacity: 0.80
+    },
+    legend: {
+      show: false
     }
-  },
-  fill: {
-    opacity: 0.80
-  },
-  legend: {
-    show: false
-  }
   };
 
   let chart = new ApexCharts(document.querySelector("#assertiveness-chart"), options);
@@ -390,13 +384,11 @@ function openWindow(url, width, height) {
 
 document.addEventListener('DOMContentLoaded', async function () {
 
-  getInfosLogin()
   await createTEUsArrays();
   await createProcessesArrays();
   await createProfitArray();
   await createAssertivityArrays();
   createTEUsChart();
-  createProcessesChart();
   createProfitChart();
   createAssertivityChart();
 

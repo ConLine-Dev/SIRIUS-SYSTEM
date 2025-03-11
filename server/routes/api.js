@@ -205,7 +205,7 @@ const setIO = (io) => {
   router.use('/text-to-speech', api_text_to_speech(io));
 
   // Use as rotas do arquivo api-pricing-analytics.js
-  router.use('/api-pricing-analytics', api_pricing_analytics(io));
+  router.use('/pricing-analytics', api_pricing_analytics(io));
 
   return router;
 };

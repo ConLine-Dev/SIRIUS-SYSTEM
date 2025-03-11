@@ -44,6 +44,7 @@ const api_commercial_main = require('./api-commercial-main');
 const api_commercial_adm = require('./api-commercial-adm');
 const api_process_view = require('./api-process-view'); // Nova rota para visualização de processo
 const api_text_to_speech = require('./api-text-to-speech');
+const api_pricing_analytics = require('./api-pricing-analytics');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -202,6 +203,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-text-to-speech.js
   router.use('/text-to-speech', api_text_to_speech(io));
+
+  // Use as rotas do arquivo api-pricing-analytics.js
+  router.use('/api-pricing-analytics', api_pricing_analytics(io));
 
   return router;
 };

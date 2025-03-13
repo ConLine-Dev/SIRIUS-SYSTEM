@@ -1,0 +1,577 @@
+/* Estilos para o AG Grid com tema Quartz Dark */
+.ag-theme-quartz-dark {
+    --ag-foreground-color: #e0e0e0;
+    --ag-background-color: #1e1e1e;
+    --ag-header-foreground-color: #ffffff;
+    --ag-header-background-color: #2d3436;
+    --ag-odd-row-background-color: #262626;
+    --ag-header-column-resize-handle-color: #636e72;
+    --ag-border-color: #4d4d4d;
+    --ag-secondary-border-color: #4d4d4d;
+    --ag-row-border-color: #4d4d4d;
+    --ag-row-hover-color: rgba(255, 255, 255, 0.1);
+    --ag-selected-row-background-color: rgba(249, 66, 58, 0.3);
+    --ag-font-size: 13px;
+    --ag-font-family: "Inter", sans-serif;
+    --ag-range-selection-border-color: rgb(249, 66, 58);
+    --ag-range-selection-background-color: rgba(249, 66, 58, 0.2);
+    --ag-checkbox-checked-color: rgb(249, 66, 58);
+    --ag-checkbox-unchecked-color: #a0a0a0;
+    --ag-checkbox-indeterminate-color: rgb(249, 66, 58);
+    --ag-side-button-selected-background-color: rgb(249, 66, 58);
+    --ag-selected-tab-underline-color: rgb(249, 66, 58);
+    --ag-input-focus-border-color: rgb(249, 66, 58);
+    --ag-input-focus-box-shadow: 0 0 0 0.2rem rgba(249, 66, 58, 0.25);
+    --ag-disabled-foreground-color: rgba(160, 160, 160, 0.5);
+    --ag-chip-background-color: #3d3d3d;
+    --ag-tool-panel-background-color: #2d2d2d;
+    --ag-modal-overlay-background-color: rgba(0, 0, 0, 0.7);
+    --ag-popup-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Estilos para os filtros flutuantes */
+.ag-theme-quartz-dark .ag-floating-filter-input {
+    height: 30px;
+    font-size: 12px;
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #4d4d4d;
+}
+
+.ag-theme-quartz-dark .ag-floating-filter-button {
+    color: #a0a0a0;
+}
+
+.ag-theme-quartz-dark .ag-floating-filter-button:hover {
+    color: rgb(249, 66, 58);
+}
+
+/* Estilos para o painel lateral */
+.ag-theme-quartz-dark .ag-side-bar {
+    border-left: 1px solid #4d4d4d;
+    background-color: #2d2d2d;
+}
+
+.ag-theme-quartz-dark .ag-side-button-button {
+    color: #a0a0a0;
+}
+
+.ag-theme-quartz-dark .ag-side-button-selected .ag-side-button-button {
+    color: #ffffff;
+}
+
+.ag-floating-filter{
+    padding-top: 9px !important;
+}
+
+/* Estilos para os filtros */
+#filters-container {
+    transition: all 0.3s ease;
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+}
+
+.input-group-text {
+    background-color: #3d3d3d;
+    border-color: #4d4d4d;
+    color: #e0e0e0;
+}
+
+/* Estilos para os botões */
+.btn-primary {
+    background-color: rgb(249, 66, 58);
+    border-color: rgb(249, 66, 58);
+}
+
+.btn-primary:hover {
+    background-color: rgb(220, 38, 38);
+    border-color: rgb(220, 38, 38);
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+/* Estilo para o botão de exportação */
+.export-button {
+    float: right;
+    margin-bottom: 10px;
+    font-size: 14px;
+    padding: 6px 12px;
+    transition: all 0.3s ease;
+}
+
+.export-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos para o loader */
+#loader2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+}
+
+/* Estilos para o tutorial */
+#btn-tutorial {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#btn-tutorial:hover {
+    transform: scale(1.1);
+}
+
+/* Estilos para células de data na tabela */
+.ag-theme-quartz-dark .ag-cell-date {
+    text-align: center;
+}
+
+/* Estilos para células de status na tabela */
+.status-cell {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-sem-recebimento {
+    background-color: #4d4d4d;
+    color: #e0e0e0;
+}
+
+.status-em-aberto {
+    background-color: #8B6914;
+    color: #ffffff;
+}
+
+.status-parcialmente {
+    background-color: #1e3a8a;
+    color: #ffffff;
+}
+
+.status-recebido, .status-pago {
+    background-color: #065f46;
+    color: #ffffff;
+}
+
+.status-default {
+    background-color: #4d4d4d;
+    color: #e0e0e0;
+}
+
+/* Estilos para valores inválidos ou vazios */
+.ag-theme-quartz-dark .ag-cell-value-invalid {
+    color: #a0a0a0;
+    font-style: italic;
+}
+
+/* Estilos para o menu de contexto */
+.ag-theme-quartz-dark .ag-menu {
+    border-radius: 6px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    background-color: #2d2d2d;
+}
+
+.ag-theme-quartz-dark .ag-menu-header {
+    background-color: #3d3d3d;
+}
+
+.ag-theme-quartz-dark .ag-menu-option-active {
+    background-color: rgba(249, 66, 58, 0.2);
+}
+
+/* Estilos para os botões de filtro */
+.ag-theme-quartz-dark .ag-filter-apply-panel {
+    justify-content: space-between;
+    padding: 8px;
+    border-top: 1px solid #4d4d4d;
+}
+
+.ag-theme-quartz-dark .ag-filter-apply-panel-button {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.ag-theme-quartz-dark .ag-filter-apply-panel-button:first-child {
+    background-color: #6c757d;
+    color: white;
+}
+
+.ag-theme-quartz-dark .ag-filter-apply-panel-button:last-child {
+    background-color: rgb(249, 66, 58);
+    color: white;
+}
+
+/* Estilos para o painel de colunas */
+.ag-theme-quartz-dark .ag-column-select-header {
+    border-bottom: 1px solid #4d4d4d;
+}
+
+.ag-theme-quartz-dark .ag-column-select-indent {
+    border-left: 1px solid #4d4d4d;
+}
+
+/* Estilos para o painel de filtros */
+.ag-theme-quartz-dark .ag-filter-toolpanel-instance {
+    border-bottom: 1px solid #4d4d4d;
+}
+
+.ag-theme-quartz-dark .ag-filter-toolpanel-header {
+    padding: 8px;
+}
+
+/* Estilos para a paginação */
+.ag-theme-quartz-dark .ag-paging-panel {
+    border-top: 1px solid #4d4d4d;
+    color: #a0a0a0;
+}
+
+.ag-theme-quartz-dark .ag-paging-button {
+    cursor: pointer;
+    color: #a0a0a0;
+}
+
+.ag-theme-quartz-dark .ag-paging-button:hover {
+    color: rgb(249, 66, 58);
+}
+
+.ag-theme-quartz-dark .ag-paging-button-disabled {
+    color: rgba(160, 160, 160, 0.5);
+    cursor: default;
+}
+
+/* Estilos para o cabeçalho da tabela */
+.ag-theme-quartz-dark .ag-header-cell-label {
+    font-weight: 600;
+}
+
+.ag-theme-quartz-dark .ag-header-cell-resize::after {
+    background-color: #636e72;
+}
+
+/* Estilos para as linhas da tabela */
+.ag-theme-quartz-dark .ag-row {
+    border-bottom-color: #4d4d4d;
+}
+
+.ag-theme-quartz-dark .ag-row-hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.ag-theme-quartz-dark .ag-row-selected {
+    background-color: rgba(249, 66, 58, 0.3);
+}
+
+/* Estilos para o overlay de carregamento */
+.ag-theme-quartz-dark .ag-overlay-loading-wrapper {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.ag-theme-quartz-dark .ag-overlay-loading-center {
+    background-color: #2d2d2d;
+    border-radius: 6px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    padding: 16px;
+    color: #e0e0e0;
+}
+
+/* Estilos para o card */
+.card {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+    background-color: #2d2d2d;
+    border-color: #4d4d4d;
+}
+
+.card-header {
+    background-color: #3d3d3d;
+    border-bottom: 1px solid #4d4d4d;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    margin-bottom: 0;
+    color: #e0e0e0;
+}
+
+/* Estilos para o scroll to top */
+.scrollToTop {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgb(249, 66, 58);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 999;
+}
+
+.scrollToTop.show {
+    opacity: 1;
+}
+
+.scrollToTop:hover {
+    transform: translateY(-5px);
+}
+
+/* Estilos para inputs em tema escuro */
+input, select, textarea {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-color: #4d4d4d !important;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: rgb(249, 66, 58) !important;
+    box-shadow: 0 0 0 0.2rem rgba(249, 66, 58, 0.25) !important;
+}
+
+/* Estilos para o corpo da página */
+body {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .ag-theme-quartz-dark {
+        --ag-header-height: 35px;
+        --ag-font-size: 12px;
+    }
+    
+    .card-header {
+        padding: 10px 15px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+    
+    .export-button {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+}
+
+/* Estilo para o cabeçalho do card com ações */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Botão de redefinir grid */
+#resetGridState {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    transition: all 0.3s ease;
+}
+
+#resetGridState:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Botão de atualizar dados */
+#refreshGridData {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    transition: all 0.3s ease;
+}
+
+#refreshGridData:hover {
+    background-color: #0d6efd;
+    color: white;
+}
+
+/* Estilos para layout responsivo com altura total */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.container-fluid {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.row {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.col-xl-12 {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow: hidden;
+}
+
+#ag-grid-container {
+    flex: 1;
+    width: 100%;
+    min-height: 300px; /* Altura mínima para garantir visibilidade em telas pequenas */
+}
+
+/* Animações para notificações */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+}
+
+/* Estilos para notificações */
+#notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.notification {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 300px;
+    max-width: 400px;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+}
+
+.notification-icon {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+.notification-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.notification-error {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.notification-info {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 10px;
+}
+
+/* Estilos para as células de distribuição de documentos */
+.ag-theme-quartz-dark .ag-cell-distribuicao {
+    font-weight: 500;
+}
+
+/* Estilos específicos para cada tipo de distribuição */
+.distribuicao-liberado {
+    color: #28a745;
+}
+
+.distribuicao-enviado {
+    color: #17a2b8;
+}
+
+.distribuicao-express {
+    color: #007bff;
+}
+
+.distribuicao-impressao {
+    color: #6c757d;
+}
+
+.distribuicao-emissao {
+    color: #ffc107;
+}
+
+.distribuicao-ebl {
+    color: #20c997;
+} 

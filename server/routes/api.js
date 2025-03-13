@@ -45,6 +45,7 @@ const api_commercial_adm = require('./api-commercial-adm');
 const api_process_view = require('./api-process-view'); // Nova rota para visualização de processo
 const api_text_to_speech = require('./api-text-to-speech');
 const api_pricing_analytics = require('./api-pricing-analytics');
+const api_process_query_filter = require('./api-process-query-filter'); // Nova rota para consulta de processos
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -206,6 +207,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-pricing-analytics.js
   router.use('/pricing-analytics', api_pricing_analytics(io));
+
+   // Use as rotas do arquivo api-process-query-filter.js
+   router.use('/process-query-filter', api_process_query_filter(io));
 
   return router;
 };

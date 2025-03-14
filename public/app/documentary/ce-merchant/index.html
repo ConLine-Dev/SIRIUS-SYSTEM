@@ -1,0 +1,327 @@
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>CE-Mercante - Indicadores</title>
+    <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
+    <meta name="Author" content="Spruko Technologies Private Limited">
+    <meta name="keywords"
+        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
+    <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
+    <!-- ApexCharts CSS -->
+    <link rel="stylesheet" href="../../assets/libs/apexcharts/apexcharts.css">
+
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+
+    <!-- Tutorial -->
+    <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 0px; z-index: 100;"> 
+        <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+    </span>
+    
+    <!-- Loader -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div class="container-fluid">
+        <!-- Indicadores -->
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card custom-card">
+                    <div class="card-header">
+                        <div class="card-title fw-semibold fs-14">Indicadores CE-Mercante</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Informações Gerais -->
+                            <div class="col-12 mb-4">
+                                <div class="alert alert-info" role="alert">
+                                    <h5 class="alert-heading"><i class="ri-information-line me-1"></i> Sobre os Indicadores CE-Mercante</h5>
+                                    <p>Os indicadores abaixo apresentam uma visão consolidada das divergências e retificações do CE-Mercante, organizados por tipo, setor e período. Cada gráfico oferece uma perspectiva diferente dos dados, permitindo análises específicas.</p>
+                                    <hr>
+                                    <p>Os dados são atualizados automaticamente e refletem apenas registros com descrições preenchidas. Para cada processo, é exibido apenas um registro por tipo (Divergência/Retificação), evitando duplicidades.</p>
+                                    <hr>
+                                    <p class="mb-0"><strong>Novidades:</strong> Agora você pode filtrar os dados por Tipo, Setor, Responsável, Data de Abertura e Data CE. Clique diretamente nos gráficos ou nas células da tabela para aplicar filtros rapidamente. Todos os filtros afetam tanto os gráficos quanto a tabela, permitindo análises mais precisas.</p>
+                                </div>
+                            </div>
+
+                            <!-- Filtros -->
+                            <div class="col-12 mb-4">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <label for="filter-type" class="form-label">Filtrar por Tipo</label>
+                                        <select id="filter-type" class="form-select">
+                                            <option value="">Todos</option>
+                                            <option value="Divergência">Divergência</option>
+                                            <option value="Retificação">Retificação</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="filter-sector" class="form-label">Filtrar por Setor</label>
+                                        <select id="filter-sector" class="form-select">
+                                            <option value="">Todos</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <label for="filter-responsible" class="form-label">Filtrar por Responsável</label>
+                                        <select id="filter-responsible" class="form-select">
+                                            <option value="">Todos</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <label for="start-date-abertura" class="form-label">Data Abertura Inicial</label>
+                                        <input type="date" id="start-date-abertura" class="form-control">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="end-date-abertura" class="form-label">Data Abertura Final</label>
+                                        <input type="date" id="end-date-abertura" class="form-control">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="start-date-ce" class="form-label">Data CE Inicial</label>
+                                        <input type="date" id="start-date-ce" class="form-control">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="end-date-ce" class="form-label">Data CE Final</label>
+                                        <input type="date" id="end-date-ce" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <button id="btn-filter" class="btn btn-primary">Filtrar</button>
+                                        <button id="btn-clear-filter" class="btn btn-secondary">Limpar Filtros</button>
+                                        <button type="button" class="btn btn-outline-info ms-2" data-bs-toggle="modal" data-bs-target="#helpModal">
+                                            <i class="ri-question-line me-1"></i> Ajuda
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Gráficos -->
+                            <div class="col-md-6">
+                                <div class="card custom-card">
+                                    <div class="card-header">
+                                        <div class="card-title">Divergências por Tipo</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <p class="text-muted">Este indicador mostra a quantidade total de ocorrências separadas por tipo (Divergência ou Retificação). Permite visualizar rapidamente qual categoria possui mais registros no sistema.</p>
+                                        </div>
+                                        <div id="type-chart" class="chart-height"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card custom-card">
+                                    <div class="card-header">
+                                        <div class="card-title">Divergências por Setor</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <p class="text-muted">Este indicador apresenta a distribuição de ocorrências por setor (Cliente, Armador/Co-loader ou Operacional). Ajuda a identificar quais setores estão gerando mais divergências ou necessitando de retificações.</p>
+                                        </div>
+                                        <div id="sector-chart" class="chart-height"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card custom-card">
+                                    <div class="card-header">
+                                        <div class="card-title">Divergências por Tipo e Setor</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <p class="text-muted">Este gráfico combina os dados de tipo e setor, permitindo uma análise cruzada. As barras empilhadas mostram a proporção de cada tipo (Divergência/Retificação) dentro de cada setor, facilitando a identificação de padrões específicos por área.</p>
+                                        </div>
+                                        <div id="type-sector-chart" class="chart-height"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card custom-card">
+                                    <div class="card-header">
+                                        <div class="card-title">Divergências por Mês</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <p class="text-muted">Este indicador temporal mostra a evolução do total de ocorrências ao longo dos meses. Útil para identificar tendências, sazonalidades ou períodos críticos que demandam maior atenção da equipe.</p>
+                                        </div>
+                                        <div id="monthly-chart" class="chart-height"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card custom-card">
+                                    <div class="card-header">
+                                        <div class="card-title">Divergências por Mês e Tipo</div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <p class="text-muted">Este gráfico de linhas mostra a evolução mensal separada por tipo (Divergência/Retificação). Permite comparar as tendências de cada categoria ao longo do tempo e identificar se há correlação entre elas ou comportamentos distintos.</p>
+                                        </div>
+                                        <div id="monthly-type-chart" class="chart-height"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Processos -->
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card custom-card">
+                    <div class="card-header">
+                        <div class="card-title fw-semibold fs-14">Lista de Processos CE-Mercante</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table id="table_ce_merchant" class="table table-bordered text-nowrap w-100 dataTable table-hover" aria-describedby="hidden-columns_info" style="width: 1477px;">
+                                    <thead>
+                                        <tr>
+                                            <!-- As colunas serão geradas dinamicamente pelo JavaScript -->
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Os dados serão preenchidos pelo DataTables -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+    <!-- Scroll To Top -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <!-- Popper JS -->
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="../../assets/libs/intro.js/intro.min.js"></script>
+    <script src="../../assets/libs/intro.js/intro.js"></script>
+
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- ApexCharts JS -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <!-- SweetAlert JS -->
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+
+    <script src="./assets/js/index.js"></script>
+
+    <!-- Modal de Ajuda -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="helpModalLabel">Ajuda - Indicadores CE-Mercante</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Como utilizar os filtros</h6>
+                        <p>Os filtros permitem refinar a visualização dos dados de acordo com critérios específicos:</p>
+                        <ul>
+                            <li><strong>Filtrar por Tipo:</strong> Selecione um tipo específico (Divergência ou Retificação) para visualizar apenas os processos relacionados a este tipo.</li>
+                            <li><strong>Filtrar por Setor:</strong> Selecione um setor específico (Cliente, Armador/Co-loader ou Operacional) para visualizar apenas os processos relacionados a este setor.</li>
+                            <li><strong>Filtrar por Responsável:</strong> Selecione um responsável específico para visualizar apenas os processos relacionados a este responsável.</li>
+                            <li><strong>Data Abertura Inicial e Data Abertura Final:</strong> Defina um período específico para análise dos dados de abertura.</li>
+                            <li><strong>Data CE Inicial e Data CE Final:</strong> Defina um período específico para análise dos dados de CE.</li>
+                        </ul>
+                        <p>Após selecionar os filtros desejados, clique no botão "Filtrar" para aplicar. Para remover todos os filtros, clique em "Limpar Filtros".</p>
+                        <p><strong>Dica:</strong> Você também pode aplicar filtros diretamente clicando nos gráficos ou em células específicas da tabela:</p>
+                        <ul>
+                            <li>Clique em uma barra no gráfico de Tipo para filtrar por esse tipo.</li>
+                            <li>Clique em uma barra no gráfico de Setor para filtrar por esse setor.</li>
+                            <li>Clique em uma barra no gráfico de Tipo e Setor para filtrar por essa combinação.</li>
+                            <li>Clique em um ponto nos gráficos mensais para filtrar por esse período.</li>
+                            <li>Clique nas células de Tipo, Setor ou Responsável na tabela para filtrar por esses valores.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h6 class="fw-bold">Interpretando os gráficos</h6>
+                        <p>Cada gráfico apresenta uma perspectiva diferente dos dados:</p>
+                        <ul>
+                            <li><strong>Divergências por Tipo:</strong> Mostra a distribuição entre Divergências e Retificações. Útil para entender a proporção entre os dois tipos principais de ocorrências.</li>
+                            <li><strong>Divergências por Setor:</strong> Apresenta a distribuição por área responsável. Ajuda a identificar quais setores estão gerando mais ocorrências.</li>
+                            <li><strong>Divergências por Tipo e Setor:</strong> Combina as duas análises anteriores, permitindo visualizar a proporção de cada tipo dentro de cada setor.</li>
+                            <li><strong>Divergências por Mês:</strong> Mostra a evolução temporal do total de ocorrências, ajudando a identificar tendências e sazonalidades.</li>
+                            <li><strong>Divergências por Mês e Tipo:</strong> Detalha a evolução temporal separando por tipo, permitindo comparar as tendências de cada categoria ao longo do tempo.</li>
+                        </ul>
+                        <p>Passe o mouse sobre as barras ou pontos nos gráficos para ver informações detalhadas sobre cada valor.</p>
+                    </div>
+                    
+                    <div>
+                        <h6 class="fw-bold">Sobre a tabela de dados</h6>
+                        <p>A tabela apresenta todos os processos que possuem divergências ou retificações registradas, com as seguintes características:</p>
+                        <ul>
+                            <li>Para cada processo, é exibido apenas um registro por tipo (Divergência/Retificação), evitando duplicidades.</li>
+                            <li>Apenas registros com descrições preenchidas são exibidos.</li>
+                            <li>A coluna "Setor" indica a área responsável pela divergência ou retificação.</li>
+                            <li>Utilize a barra de pesquisa para localizar processos específicos.</li>
+                            <li>É possível exportar os dados para Excel, PDF ou imprimir diretamente da tabela.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html> 

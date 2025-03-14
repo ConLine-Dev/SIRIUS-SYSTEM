@@ -46,6 +46,7 @@ const api_process_view = require('./api-process-view'); // Nova rota para visual
 const api_text_to_speech = require('./api-text-to-speech');
 const api_pricing_analytics = require('./api-pricing-analytics');
 const api_process_query_filter = require('./api-process-query-filter'); // Nova rota para consulta de processos
+const api_ce_merchant = require('./api-ce-merchant'); // Nova rota para CE-Merchant
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -210,6 +211,9 @@ const setIO = (io) => {
 
    // Use as rotas do arquivo api-process-query-filter.js
    router.use('/process-query-filter', api_process_query_filter(io));
+
+   // Use as rotas do arquivo api-ce-merchant.js
+   router.use('/ce-merchant', api_ce_merchant(io));
 
   return router;
 };

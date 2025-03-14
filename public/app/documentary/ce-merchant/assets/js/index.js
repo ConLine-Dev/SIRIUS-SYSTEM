@@ -31,6 +31,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Configura os eventos dos botões de filtro
     document.querySelector('#btn-filter').addEventListener('click', applyFilters);
     document.querySelector('#btn-clear-filter').addEventListener('click', clearFilters);
+    
+    // Configura o evento do botão para mostrar/esconder indicadores
+    const toggleButton = document.querySelector('#toggle-indicators');
+    const indicatorsContainer = document.querySelector('#indicators-container');
+    
+    toggleButton.addEventListener('click', function() {
+        const isVisible = indicatorsContainer.style.display !== 'none';
+        
+        if (isVisible) {
+            indicatorsContainer.style.display = 'none';
+            toggleButton.innerHTML = '<i class="ri-eye-line me-1"></i> Mostrar Indicadores';
+        } else {
+            indicatorsContainer.style.display = 'flex';
+            toggleButton.innerHTML = '<i class="ri-eye-off-line me-1"></i> Esconder Indicadores';
+            
+            // Adiciona um pequeno atraso antes de renderizar os gráficos
+            // para garantir que o container esteja completamente visível
+            setTimeout(() => {
+                // Redimensiona os gráficos para garantir que sejam exibidos corretamente
+                if (typeChart) typeChart.render();
+                if (sectorChart) sectorChart.render();
+                if (typeSectorChart) typeSectorChart.render();
+                if (monthlyChart) monthlyChart.render();
+                if (monthlyTypeChart) monthlyTypeChart.render();
+            }, 300);
+        }
+    });
 
     // Esconde o loader
     document.querySelector('#loader2').classList.add('d-none');

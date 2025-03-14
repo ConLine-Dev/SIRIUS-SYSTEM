@@ -143,4 +143,17 @@
 
 .card.custom-card .text-muted {
     font-size: 0.85rem;
+}
+
+/* Estilos para o container de indicadores */
+#indicators-container {
+    transition: all 0.3s ease-in-out;
+}
+
+#toggle-indicators {
+    transition: all 0.2s ease;
+}
+
+#toggle-indicators:hover {
+    transform: scale(1.05);
 } 

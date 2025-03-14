@@ -55,11 +55,67 @@
         <div class="row">
             <div class="col-xl-12">
                 <div class="card custom-card">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <div class="card-title fw-semibold fs-14">Indicadores CE-Mercante</div>
+                        <button id="toggle-indicators" class="btn btn-sm btn-outline-primary">
+                            <i class="ri-eye-line me-1"></i> Mostrar Indicadores
+                        </button>
                     </div>
                     <div class="card-body">
-                        <div class="row">
+                        <!-- Filtros - Sempre visíveis -->
+                        <div class="col-12 mb-4">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="filter-type" class="form-label">Filtrar por Tipo</label>
+                                    <select id="filter-type" class="form-select">
+                                        <option value="">Todos</option>
+                                        <option value="Divergência">Divergência</option>
+                                        <option value="Retificação">Retificação</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="filter-sector" class="form-label">Filtrar por Setor</label>
+                                    <select id="filter-sector" class="form-select">
+                                        <option value="">Todos</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="filter-responsible" class="form-label">Filtrar por Responsável</label>
+                                    <select id="filter-responsible" class="form-select">
+                                        <option value="">Todos</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="start-date-abertura" class="form-label">Data Abertura Inicial</label>
+                                    <input type="date" id="start-date-abertura" class="form-control">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="end-date-abertura" class="form-label">Data Abertura Final</label>
+                                    <input type="date" id="end-date-abertura" class="form-control">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="start-date-ce" class="form-label">Data CE Inicial</label>
+                                    <input type="date" id="start-date-ce" class="form-control">
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="end-date-ce" class="form-label">Data CE Final</label>
+                                    <input type="date" id="end-date-ce" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <button id="btn-filter" class="btn btn-primary">Filtrar</button>
+                                    <button id="btn-clear-filter" class="btn btn-secondary">Limpar Filtros</button>
+                                    <button type="button" class="btn btn-outline-info ms-2" data-bs-toggle="modal" data-bs-target="#helpModal">
+                                        <i class="ri-question-line me-1"></i> Ajuda
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="indicators-container" class="row" style="display: none;">
                             <!-- Informações Gerais -->
                             <div class="col-12 mb-4">
                                 <div class="alert alert-info" role="alert">
@@ -69,59 +125,6 @@
                                     <p>Os dados são atualizados automaticamente e refletem apenas registros com descrições preenchidas. Para cada processo, é exibido apenas um registro por tipo (Divergência/Retificação), evitando duplicidades.</p>
                                     <hr>
                                     <p class="mb-0"><strong>Novidades:</strong> Agora você pode filtrar os dados por Tipo, Setor, Responsável, Data de Abertura e Data CE. Clique diretamente nos gráficos ou nas células da tabela para aplicar filtros rapidamente. Todos os filtros afetam tanto os gráficos quanto a tabela, permitindo análises mais precisas.</p>
-                                </div>
-                            </div>
-
-                            <!-- Filtros -->
-                            <div class="col-12 mb-4">
-                                <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label for="filter-type" class="form-label">Filtrar por Tipo</label>
-                                        <select id="filter-type" class="form-select">
-                                            <option value="">Todos</option>
-                                            <option value="Divergência">Divergência</option>
-                                            <option value="Retificação">Retificação</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="filter-sector" class="form-label">Filtrar por Setor</label>
-                                        <select id="filter-sector" class="form-select">
-                                            <option value="">Todos</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label for="filter-responsible" class="form-label">Filtrar por Responsável</label>
-                                        <select id="filter-responsible" class="form-select">
-                                            <option value="">Todos</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-3 mb-3">
-                                        <label for="start-date-abertura" class="form-label">Data Abertura Inicial</label>
-                                        <input type="date" id="start-date-abertura" class="form-control">
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="end-date-abertura" class="form-label">Data Abertura Final</label>
-                                        <input type="date" id="end-date-abertura" class="form-control">
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="start-date-ce" class="form-label">Data CE Inicial</label>
-                                        <input type="date" id="start-date-ce" class="form-control">
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <label for="end-date-ce" class="form-label">Data CE Final</label>
-                                        <input type="date" id="end-date-ce" class="form-control">
-                                    </div>
-                                </div>
-                                <div class="row mt-3">
-                                    <div class="col-12">
-                                        <button id="btn-filter" class="btn btn-primary">Filtrar</button>
-                                        <button id="btn-clear-filter" class="btn btn-secondary">Limpar Filtros</button>
-                                        <button type="button" class="btn btn-outline-info ms-2" data-bs-toggle="modal" data-bs-target="#helpModal">
-                                            <i class="ri-question-line me-1"></i> Ajuda
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
 

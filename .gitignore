@@ -131,3 +131,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Arquivos de upload do Link Tree
+uploads/marketing/link-tree/agent-guide/*.pdf
+uploads/marketing/link-tree/link-tree-data.json

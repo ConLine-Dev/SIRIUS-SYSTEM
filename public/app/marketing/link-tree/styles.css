@@ -1,0 +1,338 @@
+/* Estilos gerais */
+body {
+
+    /* overflow: hidden !important; */
+}
+
+.list-group-item+.list-group-item {
+    border-top-width: thin;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Estilos para o link tree dentro do sistema */
+
+/* Estilos gerais */
+.page-layout .card.custom-card {
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 16px rgba(var(--custom-rgb-blackish), 0.04);
+    margin-bottom: 1.5rem;
+    position: relative;
+    border: 1px solid rgba(var(--custom-rgb-black), 0.08);
+}
+
+/* Classe para desabilitar seleção de texto */
+.no-select {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    cursor: default !important;
+}
+
+/* Classe para desabilitar seleção de texto durante arrasto */
+.dragging {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    cursor: grabbing !important;
+}
+
+/* Estilos para a lista de botões */
+.list-group-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    cursor: default;
+    border-color: rgba(var(--custom-rgb-black), 0.08);
+    background-color: var(--custom-white);
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem !important;
+}
+
+.button-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.button-title {
+    font-weight: 500;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    color: var(--custom-blackish);
+}
+
+.button-url, .button-download-url {
+    font-size: 0.85rem;
+    color: var(--custom-gray);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90%;
+}
+
+.button-download-url {
+    margin-top: 5px;
+    color: var(--primary-color);
+}
+
+.url-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.copy-btn {
+    background: none;
+    border: none;
+    color: var(--custom-gray);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.copy-btn:hover {
+    opacity: 1;
+    color: var(--primary-color);
+}
+
+.button-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.button-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-active {
+    background-color: var(--success);
+}
+
+.status-inactive {
+    background-color: var(--danger);
+}
+
+/* Estilos para a prévia do Link Tree */
+.link-tree-preview {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #1a1a1a;
+    border-radius: 10px;
+}
+
+.preview-button-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.preview-button {
+    display: block;
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    margin-bottom: 0;
+    transition: background-color 0.3s ease;
+}
+
+.preview-button:hover {
+    background-color: #444;
+    color: #fff;
+}
+
+.preview-button.inactive {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.download-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    color: #fff;
+    text-decoration: none;
+    margin-left: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.download-button:hover {
+    background-color: var(--primary-hover);
+    color: #fff;
+}
+
+/* Estilos para o guia do agente */
+.guide-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background-color: rgba(var(--custom-rgb-primary), 0.08);
+    border-radius: 0.5rem;
+}
+
+.guide-icon {
+    font-size: 2rem;
+    color: var(--danger);
+}
+
+.guide-details {
+    flex-grow: 1;
+}
+
+.guide-filename {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    color: var(--custom-blackish);
+}
+
+.guide-meta {
+    font-size: 0.875rem;
+    color: var(--custom-gray);
+}
+
+.guide-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Estilos para reordenação */
+.reorder-mode .list-group-item {
+    cursor: grab;
+    background-color: rgba(var(--custom-rgb-primary), 0.04);
+    border-left: 3px solid var(--primary-color);
+    padding-left: 1rem;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.reorder-mode .list-group-item:hover {
+    background-color: rgba(var(--custom-rgb-primary), 0.08);
+}
+
+.reorder-mode .list-group-item.sortable-ghost {
+    opacity: 0.5;
+    background-color: rgba(var(--custom-rgb-primary), 0.08);
+}
+
+.reorder-mode .list-group-item.sortable-chosen {
+    background-color: rgba(var(--custom-rgb-primary), 0.08);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    cursor: grabbing;
+}
+
+.reorder-handle {
+    cursor: grab;
+    color: var(--custom-gray);
+    margin-right: 0.5rem;
+    display: none;
+}
+
+.reorder-mode .reorder-handle {
+    display: inline-block;
+}
+
+.reorder-mode .button-actions {
+    display: none;
+}
+
+/* Desabilitar seleção de texto durante reordenação */
+.reorder-mode .button-info,
+.reorder-mode .button-title,
+.reorder-mode .button-url {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Estilos para os toasts de notificação */
+.toast-container {
+    z-index: 9999;
+}
+
+.toast {
+    min-width: 280px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    border: none;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.toast-header {
+    padding: 0.75rem 1rem;
+    border-bottom: none;
+}
+
+.toast-header.bg-success {
+    background-color: var(--success) !important;
+}
+
+.toast-header.bg-danger {
+    background-color: var(--danger) !important;
+}
+
+.toast-header.bg-warning {
+    background-color: var(--warning) !important;
+}
+
+.toast-header.bg-info {
+    background-color: var(--info) !important;
+}
+
+.toast-body {
+    padding: 1rem;
+    background-color: var(--custom-white);
+}
+
+/* Loader */
+#loader2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--custom-white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Classe para esconder elementos */
+.d-none {
+    display: none !important;
+} 

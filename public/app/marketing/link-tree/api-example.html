@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Tree - Exemplo de Integração</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #1a1a1a;
+            margin-bottom: 30px;
+        }
+        
+        .code-block {
+            background-color: #1a1a1a;
+            color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            overflow: auto;
+            margin-bottom: 30px;
+        }
+        
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+        
+        .link-tree {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            border-radius: 10px;
+        }
+        
+        .link-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .link-button {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        
+        .link-button:hover {
+            background-color: #444;
+        }
+        
+        .download-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background-color: #f94242;
+            color: #fff;
+            text-decoration: none;
+            margin-left: 10px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .download-button:hover {
+            background-color: #d33030;
+        }
+        
+        .loader {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Link Tree - Exemplo de Integração</h1>
+        
+        <h2>Documentação da API</h2>
+        <p>A API pública do Link Tree permite acessar todos os links ativos para exibição em sites e aplicações externas.</p>
+        
+        <h3>Endpoint da API:</h3>
+        <div class="code-block">
+            <pre>GET /api/link-tree/public</pre>
+        </div>
+        
+        <h3>Exemplo de resposta:</h3>
+        <div class="code-block">
+            <pre>{
+  "links": [
+    {
+      "id": "123e4567-e89b-12d3-a456-426614174000",
+      "title": "Site Oficial",
+      "url": "https://www.siriussystem.com.br"
+    },
+    {
+      "id": "523e4567-e89b-12d3-a456-426614174023",
+      "title": "Materiais de Treinamento",
+      "url": "https://treinamento.siriussystem.com.br",
+      "downloadUrl": "https://recursos.siriussystem.com.br/treinamento-2023.zip"
+    }
+  ],
+  "agentGuide": {
+    "title": "Guia do Agente",
+    "url": "/api/link-tree/agent-guide/view"
+  }
+}</pre>
+        </div>
+        
+        <h3>Exemplo de código JavaScript:</h3>
+        <div class="code-block">
+            <pre>// URL da API
+const apiUrl = 'https://seudominio.com.br/api/link-tree/public';
+
+// Função para obter e exibir os links
+async function loadLinks() {
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error('Erro ao carregar os links');
+        }
+        
+        const data = await response.json();
+        renderLinks(data);
+    } catch (error) {
+        console.error('Erro:', error);
+        document.getElementById('link-tree').innerHTML = '&lt;p&gt;Erro ao carregar os links.&lt;/p&gt;';
+    }
+}
+
+// Função para renderizar os links na página
+function renderLinks(data) {
+    const linkTree = document.getElementById('link-tree');
+    linkTree.innerHTML = '';
+    
+    // Renderizar os links
+    data.links.forEach(link => {
+        const linkContainer = document.createElement('div');
+        linkContainer.className = 'link-container';
+        
+        const linkButton = document.createElement('a');
+        linkButton.href = link.url;
+        linkButton.className = 'link-button';
+        linkButton.textContent = link.title;
+        linkButton.target = '_blank';
+        
+        linkContainer.appendChild(linkButton);
+        
+        // Adicionar botão de download se houver URL de download
+        if (link.downloadUrl) {
+            const downloadButton = document.createElement('a');
+            downloadButton.href = link.downloadUrl;
+            downloadButton.className = 'download-button';
+            downloadButton.innerHTML = '&lt;i&gt;↓&lt;/i&gt;';
+            downloadButton.title = 'Download';
+            downloadButton.target = '_blank';
+            
+            linkContainer.appendChild(downloadButton);
+        }
+        
+        linkTree.appendChild(linkContainer);
+    });
+    
+    // Adicionar o guia do agente, se existir
+    if (data.agentGuide) {
+        const guideContainer = document.createElement('div');
+        guideContainer.className = 'link-container';
+        
+        const guideButton = document.createElement('a');
+        guideButton.href = data.agentGuide.url;
+        guideButton.className = 'link-button';
+        guideButton.textContent = data.agentGuide.title;
+        guideButton.target = '_blank';
+        
+        guideContainer.appendChild(guideButton);
+        linkTree.appendChild(guideContainer);
+    }
+}
+
+// Carregar os links quando a página for carregada
+document.addEventListener('DOMContentLoaded', loadLinks);</pre>
+        </div>
+        
+        <h2>Demonstração ao vivo</h2>
+        <div id="link-tree" class="link-tree">
+            <div class="loader">Carregando links...</div>
+        </div>
+    </div>
+    
+    <script>
+        // URL da API (ajuste para o domínio correto)
+        const apiUrl = '/api/link-tree/public';
+        
+        // Função para obter e exibir os links
+        async function loadLinks() {
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar os links');
+                }
+                
+                const data = await response.json();
+                renderLinks(data);
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('link-tree').innerHTML = '<p style="color: #fff; text-align: center;">Erro ao carregar os links.</p>';
+            }
+        }
+        
+        // Função para renderizar os links na página
+        function renderLinks(data) {
+            const linkTree = document.getElementById('link-tree');
+            linkTree.innerHTML = '';
+            
+            // Renderizar os links
+            data.links.forEach(link => {
+                const linkContainer = document.createElement('div');
+                linkContainer.className = 'link-container';
+                
+                const linkButton = document.createElement('a');
+                linkButton.href = link.url;
+                linkButton.className = 'link-button';
+                linkButton.textContent = link.title;
+                linkButton.target = '_blank';
+                
+                linkContainer.appendChild(linkButton);
+                
+                // Adicionar botão de download se houver URL de download
+                if (link.downloadUrl) {
+                    const downloadButton = document.createElement('a');
+                    downloadButton.href = link.downloadUrl;
+                    downloadButton.className = 'download-button';
+                    downloadButton.innerHTML = '↓';
+                    downloadButton.title = 'Download';
+                    downloadButton.target = '_blank';
+                    
+                    linkContainer.appendChild(downloadButton);
+                }
+                
+                linkTree.appendChild(linkContainer);
+            });
+            
+            // Adicionar o guia do agente, se existir
+            if (data.agentGuide) {
+                const guideContainer = document.createElement('div');
+                guideContainer.className = 'link-container';
+                
+                const guideButton = document.createElement('a');
+                guideButton.href = data.agentGuide.url;
+                guideButton.className = 'link-button';
+                guideButton.textContent = data.agentGuide.title;
+                guideButton.target = '_blank';
+                
+                guideContainer.appendChild(guideButton);
+                linkTree.appendChild(guideContainer);
+            }
+        }
+        
+        // Carregar os links quando a página for carregada
+        document.addEventListener('DOMContentLoaded', loadLinks);
+    </script>
+</body>
+</html> 

@@ -154,6 +154,19 @@ router.post('/agent-guide', upload.single('file'), async (req, res) => {
     }
 });
 
+// Tratamento de erro para limites de tamanho de arquivo
+router.use((err, req, res, next) => {
+    if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+            return res.status(413).json({
+                error: 'Arquivo muito grande',
+                message: 'O tamanho máximo permitido é 10 MB.'
+            });
+        }
+    }
+    next(err);
+});
+
 // Rota para remover o guia do agente
 router.delete('/agent-guide', async (req, res) => {
     try {

@@ -665,6 +665,15 @@ function initLinkTree() {
             return;
         }
         
+        // Verificar o tamanho do arquivo (máximo 10 MB)
+        const fileSize = guideFileInput.files[0].size;
+        const maxSize = 10 * 1024 * 1024; // 10 MB em bytes
+        
+        if (fileSize > maxSize) {
+            showAlert(`O arquivo é muito grande! O tamanho máximo permitido é 10 MB. Tamanho atual: ${formatFileSize(fileSize)}`, 'danger');
+            return;
+        }
+        
         // Mostrar loader
         showLoader();
         
@@ -678,6 +687,12 @@ function initLinkTree() {
             });
             
             if (!response.ok) {
+                // Verificar se é um erro de tamanho de arquivo
+                if (response.status === 413) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Arquivo muito grande. O tamanho máximo permitido é 10 MB.');
+                }
+                
                 throw new Error('Erro ao fazer upload do guia do agente');
             }
             
@@ -759,6 +774,19 @@ function initLinkTree() {
         // Esconder o botão e focar no campo de título
         addAnotherContainer.classList.add('d-none');
         titleInput.focus();
+    });
+    
+    // Validação de tamanho de arquivo
+    guideFileInput.addEventListener('change', function() {
+        if (this.files && this.files.length > 0) {
+            const fileSize = this.files[0].size;
+            const maxSize = 10 * 1024 * 1024; // 10 MB em bytes
+            
+            if (fileSize > maxSize) {
+                showAlert(`O arquivo é muito grande! O tamanho máximo permitido é 10 MB. Tamanho atual: ${formatFileSize(fileSize)}`, 'danger');
+                this.value = ''; // Limpar o input
+            }
+        }
     });
     
     // Carregar dados iniciais

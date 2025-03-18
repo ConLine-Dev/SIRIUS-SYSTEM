@@ -35,35 +35,48 @@ async function createProcessesArrays() {
   let userData = getInfosLogin();
   let userId = userData.system_id_headcargo;
   let processes = await makeRequest(`/api/commercial-main/countProcesses`, 'POST', {userId});
+  let PrLCL = []
+  let PrFCL = []
+  let PrAir = []
+  let PrCourier = []
+
+  const actualMonth = new Date().getMonth() + 1;
+
+  for (let index = 0; index < actualMonth; index++) {
+    PrLCL[index] = 0
+    PrFCL[index] = 0
+    PrAir[index] = 0
+    PrCourier[index] = 0
+  }
 
   for (let index = 0; index < processes.length; index++) {
     if (processes[index].Tipo_Processo == 'IA-COURIER') {
-      if (!CourierArray[processes[index].Mes - 1]) {
-        CourierArray[processes[index].Mes - 1] = 0;
+      if (!PrCourier[processes[index].Mes - 1]) {
+        PrCourier[processes[index].Mes - 1] = 0;
       }
-      CourierArray[processes[index].Mes - 1] += processes[index].Quantidade;
+      PrCourier[processes[index].Mes - 1] += processes[index].Quantidade;
     }
     if (processes[index].Tipo_Processo == 'IA-NORMAL') {
-      if (!AirArray[processes[index].Mes - 1]) {
-        AirArray[processes[index].Mes - 1] = 0;
+      if (!PrAir[processes[index].Mes - 1]) {
+        PrAir[processes[index].Mes - 1] = 0;
       }
-      AirArray[processes[index].Mes - 1] += processes[index].Quantidade;
+      PrAir[processes[index].Mes - 1] += processes[index].Quantidade;
     }
     if (processes[index].Tipo_Processo == 'IM-FCL') {
-      if (!FCLArray[processes[index].Mes - 1]) {
-        FCLArray[processes[index].Mes - 1] = 0;
+      if (!PrFCL[processes[index].Mes - 1]) {
+        PrFCL[processes[index].Mes - 1] = 0;
       }
-      FCLArray[processes[index].Mes - 1] += processes[index].Quantidade;
+      PrFCL[processes[index].Mes - 1] += processes[index].Quantidade;
     }
     if (processes[index].Tipo_Processo == 'IM-LCL') {
-      if (!LCLArray[processes[index].Mes - 1]) {
-        LCLArray[processes[index].Mes - 1] = 0;
+      if (!PrLCL[processes[index].Mes - 1]) {
+        PrLCL[processes[index].Mes - 1] = 0;
       }
-      LCLArray[processes[index].Mes - 1] += processes[index].Quantidade;
+      PrLCL[processes[index].Mes - 1] += processes[index].Quantidade;
     }
   }
 
-  createProcessesChart(LCLArray, FCLArray, AirArray, CourierArray);
+  createProcessesChart(PrLCL, PrFCL, PrAir, PrCourier);
 }
 
 async function createProfitArray() {
@@ -97,15 +110,15 @@ async function createAssertivityArrays() {
 
   for (let index = 0; index < offersByUser.length; index++) {
     if (offersByUser[index].Tipo_Carga == 'FCL') {
-      FCLArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente)*100;
+      FCLArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente + offersByUser[index].Total_Aprovada)*100;
       FCLArray[offersByUser[index].Mes - 1] = FCLArray[offersByUser[index].Mes - 1].toFixed(2);
     }
     if (offersByUser[index].Tipo_Carga == 'LCL') {
-      LCLArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente)*100;
+      LCLArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente + offersByUser[index].Total_Aprovada)*100;
       LCLArray[offersByUser[index].Mes - 1] = LCLArray[offersByUser[index].Mes - 1].toFixed(2);
     }
     if (offersByUser[index].Tipo_Carga == 'Aéreo') {
-      AirArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente)*100;
+      AirArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente + offersByUser[index].Total_Aprovada)*100;
       AirArray[offersByUser[index].Mes - 1] = AirArray[offersByUser[index].Mes - 1].toFixed(2);
     }
   }
@@ -113,7 +126,7 @@ async function createAssertivityArrays() {
 
 function createTEUsChart() {
 
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
   var chartData = {
 
@@ -182,7 +195,7 @@ function createTEUsChart() {
 
 function createProfitChart() {
 
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
   var chartData = {
     series: [{
@@ -314,7 +327,7 @@ function createProcessesChart(LCLArray, FCLArray, AirArray, CourierArray) {
 
 function createAssertivityChart() {
 
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
   var options = {
     series: [{

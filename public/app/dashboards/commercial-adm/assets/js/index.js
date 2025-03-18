@@ -189,15 +189,15 @@ async function createAssertivityArrays(userId) {
 
   for (let index = 0; index < offersByUser.length; index++) {
     if (offersByUser[index].Tipo_Carga == 'FCL') {
-      FCLArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente)*100;
+      FCLArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente + offersByUser[index].Total_Aprovada)*100;
       FCLArray[offersByUser[index].Mes - 1] = FCLArray[offersByUser[index].Mes - 1].toFixed(2);
     }
     if (offersByUser[index].Tipo_Carga == 'LCL') {
-      LCLArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente)*100;
+      LCLArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente + offersByUser[index].Total_Aprovada)*100;
       LCLArray[offersByUser[index].Mes - 1] = LCLArray[offersByUser[index].Mes - 1].toFixed(2);
     }
     if (offersByUser[index].Tipo_Carga == 'Aéreo') {
-      AirArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente)*100;
+      AirArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente + offersByUser[index].Total_Aprovada)*100;
       AirArray[offersByUser[index].Mes - 1] = AirArray[offersByUser[index].Mes - 1].toFixed(2);
     }
   }
@@ -207,7 +207,7 @@ async function createAssertivityArrays(userId) {
 
 function createTEUsChart(teusArray) {
 
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
   if (teusChart) {
     teusChart.destroy();
@@ -279,7 +279,8 @@ function createTEUsChart(teusArray) {
 }
 
 function createProfitChart(profitArray) {
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
   if (billingChart) {
     billingChart.destroy();
@@ -419,7 +420,7 @@ function createProcessesChart(CourierArray, AirArray, FCLArray, LCLArray) {
 
 function createAssertivityChart(AirArray, FCLArray, LCLArray) {
 
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
   if (assertivityChart) {
     assertivityChart.destroy();

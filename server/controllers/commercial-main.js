@@ -84,6 +84,36 @@ const commercialMain = {
         return result;
      },
 
+     listActiveClients: async function(userId){
+
+        let userFilter = ''
+
+        if (userId) {
+            userFilter = `AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})`
+        }
+
+        let result = await executeQuerySQL(`
+            SELECT 
+                DATEPART(MONTH, Lhs.Data_Abertura_Processo) AS Mes,
+                COUNT(DISTINCT Lhs.IdCliente) AS Total
+            FROM mov_Logistica_House Lhs
+            LEFT OUTER JOIN cad_Pessoa Cli 
+                ON Cli.IdPessoa = Lhs.IdCliente
+            LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Iss 
+                ON Iss.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND Iss.IdPapel_Projeto = 12
+            LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Sls 
+                ON Sls.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND Sls.IdPapel_Projeto = 3
+            WHERE 
+                DATEPART(YEAR, Lhs.Data_Abertura_Processo) = DATEPART(YEAR, GETDATE())
+                ${userFilter}
+            GROUP BY 
+                DATEPART(MONTH, Lhs.Data_Abertura_Processo)
+            ORDER BY 
+                Mes;`);
+     
+        return result;
+     },
+
      countProcesses: async function (userId){
         
         let userFilter = ''

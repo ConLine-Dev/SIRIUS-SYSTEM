@@ -1,4 +1,5 @@
 let teusArray = [];
+let activityArray = [];
 let FCLArray = [];
 let LCLArray = [];
 let AirArray = [];
@@ -28,6 +29,23 @@ async function createTEUsArrays() {
       teusArray[processes[index].Mes - 1] += processes[index].Teus;
     }
   }
+}
+
+async function createActivityArray() {
+
+  let userData = getInfosLogin();
+  let userId = userData.system_id_headcargo;
+  let activeClients = await makeRequest(`/api/commercial-main/listActiveClients`, 'POST', {userId});
+
+  for (let index = 0; index < activeClients.length; index++) {
+    if (!activityArray[activeClients[index].Mes - 1]) {
+      activityArray[activeClients[index].Mes - 1] = activeClients[index].Total;
+    } else {
+      activityArray[activeClients[index].Mes - 1] += activeClients[index].Total;
+    }
+  }
+
+  createActivityChart(activityArray);
 }
 
 async function createProcessesArrays() {
@@ -136,7 +154,7 @@ function createTEUsChart() {
     }],
     chart: {
       height: 400,
-      width: 920,
+      width: 600,
       type: "bar",
       stacked: false,
       toolbar: {
@@ -193,6 +211,75 @@ function createTEUsChart() {
   chart.render();
 }
 
+function createActivityChart(activityArray) {
+
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  var chartData = {
+
+    series: [{
+      name: 'Clientes Ativos',
+      data: activityArray
+    }],
+    chart: {
+      height: 400,
+      width: 600,
+      type: "bar",
+      stacked: false,
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        borderRadius: 5,
+        columnWidth: "60%",
+        dataLabels: {
+          position: 'top',
+        },
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: '12px',
+        colors: ['#fff']
+      }
+    },
+    tooltip: {
+      enabled: false
+    },
+    colors: ["#F9423A"],
+    markers: {
+      size: 0,
+      strokeColors: ["#F9423A"],
+      strokeWidth: 2,
+      strokeOpacity: 0.9,
+      fillOpacity: 1,
+      shape: "circle",
+      showNullDataPoints: true,
+    },
+    stroke: {
+      width: 0,
+      curve: "smooth",
+    },
+    xaxis: {
+      categories: months,
+      position: "bottom",
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+  };
+
+  var chart = new ApexCharts(document.querySelector('#activity-chart'), chartData);
+  chart.render();
+}
+
 function createProfitChart() {
 
   let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -204,7 +291,7 @@ function createProfitChart() {
     }],
     chart: {
       height: 400,
-      width: 920,
+      width: 600,
       type: "bar",
       stacked: false,
       toolbar: { show: false },
@@ -401,6 +488,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   await createProcessesArrays();
   await createProfitArray();
   await createAssertivityArrays();
+  await createActivityArray();
   createTEUsChart();
   createProfitChart();
   createAssertivityChart();

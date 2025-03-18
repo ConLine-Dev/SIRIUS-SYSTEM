@@ -26,6 +26,18 @@ module.exports = function (io) {
         }
      });
 
+    router.post('/listActiveClients', async (req, res, next) => {
+     
+        try {
+           const result = await commercialMain.listActiveClients(req.body.userId);
+     
+           res.status(200).json(result)
+        } catch (error) {
+     
+           res.status(404).json('Erro')   
+        }
+     });
+
     router.post('/countProcesses', async (req, res, next) => {
      
         try {

@@ -57,7 +57,7 @@ const processQueryFilter = {
         const whereConditions = [];
         
         // Adicionar filtro padrão para o ano de abertura do processo
-        whereConditions.push(`YEAR(Lhs.Data_Abertura_Processo) = 2025`);
+        // whereConditions.push(`YEAR(Lhs.Data_Abertura_Processo) = 2025`);
 
         if (filters) {
             // Filtro por número de fatura

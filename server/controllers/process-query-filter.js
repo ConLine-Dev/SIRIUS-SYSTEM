@@ -299,7 +299,6 @@ const processQueryFilter = {
                     Ccl.IdConfiguracao_Campo_Livre IN (163 /*OHBL*/, 162 /*OMBL*/, 168 /*Envio dos Docs para Armador*/, 169 /*Liberação*/, 167 /*Recebimento dos Docs*/)
                 AND Lhs.Numero_Processo NOT LIKE '%test%'
                 AND Lhs.Numero_Processo NOT LIKE '%demu%'
-                AND YEAR(Lhs.Data_Abertura_Processo) = 2025
             `;
             
             try {

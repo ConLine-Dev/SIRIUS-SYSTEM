@@ -254,12 +254,9 @@ const processQueryFilter = {
     formatDateToPtBr: function(date) {
         if (!date) return null;
         
-        const dateObj = new Date(date);
-        const padToTwoDigits = (num) => num.toString().padStart(2, '0');
-        
-        const day = padToTwoDigits(dateObj.getDate());
-        const month = padToTwoDigits(dateObj.getMonth() + 1);
-        const year = dateObj.getFullYear();
+        // Converte a data para string e extrai apenas a parte da data
+        const dateStr = date.toISOString().split('T')[0];
+        const [year, month, day] = dateStr.split('-');
         
         return `${day}/${month}/${year}`;
     },

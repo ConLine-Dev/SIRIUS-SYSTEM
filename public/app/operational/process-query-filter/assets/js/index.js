@@ -111,11 +111,29 @@ function formatDateToPtBr(params) {
             return params.value;
         }
         
-        // Se for um objeto Date, formatar diretamente
+        // Tratar data com fuso horário
+        if (typeof params.value === 'string' && params.value.includes('T')) {
+            // Data ISO com timezone
+            const parts = params.value.split('T')[0].split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+        }
+        
+        // Extrair apenas a parte da data (yyyy-MM-dd) para evitar problemas de fuso
+        if (typeof params.value === 'string') {
+            const dateMatch = params.value.match(/(\d{4})-(\d{2})-(\d{2})/);
+            if (dateMatch) {
+                const [_, year, month, day] = dateMatch;
+                return `${day}/${month}/${year}`;
+            }
+        }
+        
+        // Se for um objeto Date, formatar diretamente usando UTC
         if (params.value instanceof Date) {
-            const day = params.value.getDate().toString().padStart(2, '0');
-            const month = (params.value.getMonth() + 1).toString().padStart(2, '0');
-            const year = params.value.getFullYear();
+            const day = params.value.getUTCDate().toString().padStart(2, '0');
+            const month = (params.value.getUTCMonth() + 1).toString().padStart(2, '0');
+            const year = params.value.getUTCFullYear();
             return `${day}/${month}/${year}`;
         }
         
@@ -128,13 +146,14 @@ function formatDateToPtBr(params) {
             return '-';
         }
         
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
+        // Usar UTC para evitar problemas de fuso horário
+        const day = date.getUTCDate().toString().padStart(2, '0');
+        const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+        const year = date.getUTCFullYear();
         
         return `${day}/${month}/${year}`;
     } catch (error) {
-        console.error('Erro ao formatar data:', error);
+        console.error('Erro ao formatar data:', error, params.value);
         return '-';
     }
 }
@@ -1112,19 +1131,37 @@ function processDataBeforeDisplay(data) {
                         return;
                     }
                     
+                    // Tratar data com fuso horário
+                    if (typeof processedItem[field] === 'string' && processedItem[field].includes('T')) {
+                        // Data ISO com timezone
+                        const parts = processedItem[field].split('T')[0].split('-');
+                        if (parts.length === 3) {
+                            processedItem[field] = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                            return;
+                        }
+                    }
+                    
+                    // Extrair apenas a parte da data (yyyy-MM-dd) para evitar problemas de fuso
+                    const dateMatch = processedItem[field].match(/(\d{4})-(\d{2})-(\d{2})/);
+                    if (dateMatch) {
+                        const [_, year, month, day] = dateMatch;
+                        processedItem[field] = `${day}/${month}/${year}`;
+                        return;
+                    }
+                    
                     const date = new Date(processedItem[field]);
                     if (!isValidDate(date)) {
                         console.warn(`Data inválida para o campo ${field}:`, processedItem[field]);
                         processedItem[field] = null;
                     } else {
-                        // Formatar a data para dd/mm/yyyy
-                        const day = date.getDate().toString().padStart(2, '0');
-                        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                        const year = date.getFullYear();
+                        // Usar UTC para evitar problemas de fuso horário
+                        const day = date.getUTCDate().toString().padStart(2, '0');
+                        const month = (date.getUTCMonth() + 1).toString().padStart(2, '0');
+                        const year = date.getUTCFullYear();
                         processedItem[field] = `${day}/${month}/${year}`;
                     }
                 } catch (error) {
-                    console.error(`Erro ao processar data para o campo ${field}:`, error);
+                    console.error(`Erro ao processar data para o campo ${field}:`, error, processedItem[field]);
                     processedItem[field] = null;
                 }
             } else {

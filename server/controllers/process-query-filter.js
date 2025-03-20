@@ -22,6 +22,15 @@ const processQueryFilter = {
                     WHEN 3 THEN 'Recebido'
                 END AS Situacao_Recebimento,
 
+                CASE Lhs.Tipo_Carga
+                    WHEN 1 THEN 'Aéreo'
+                    WHEN 2 THEN 'Break-Bulk'
+                    WHEN 3 THEN 'FCL'
+                    WHEN 4 THEN 'LCL'
+                    WHEN 5 THEN 'RO-RO'
+                    WHEN 6 THEN 'Rodoviário'
+                END AS Tipo_Carga,
+
                 Lhs.Data_Pagamento_Local AS Data_Pgto_Processo,
 
                 CASE Lhs.Situacao_Pagamento
@@ -112,6 +121,12 @@ const processQueryFilter = {
             if (filters.situacaoPagamento) {
                 const situacaoValue = this.getSituacaoPagamentoValue(filters.situacaoPagamento);
                 whereConditions.push(`Lhs.Situacao_Pagamento = ${situacaoValue}`);
+            }
+
+            // Filtro por tipo de carga
+            if (filters.tipoCarga) {
+                const tipoCargaValue = this.getTipoCargaValue(filters.tipoCarga);
+                whereConditions.push(`Lhs.Tipo_Carga = ${tipoCargaValue}`);
             }
 
             // Filtro por status do processo
@@ -219,6 +234,14 @@ const processQueryFilter = {
                     'Em aberto',
                     'Parcialmente pago',
                     'Pago'
+                ],
+                tipoCarga: [
+                    'Aéreo',
+                    'Break-Bulk',
+                    'FCL',
+                    'LCL',
+                    'RO-RO',
+                    'Rodoviário'
                 ]
             };
         } catch (error) {
@@ -259,6 +282,19 @@ const processQueryFilter = {
             case 'Em aberto': return 1;
             case 'Parcialmente pago': return 2;
             case 'Pago': return 3;
+            default: return null;
+        }
+    },
+
+    // Função auxiliar para obter o valor numérico do tipo de carga
+    getTipoCargaValue: function(tipoCarga) {
+        switch (tipoCarga) {
+            case 'Aéreo': return 1;
+            case 'Break-Bulk': return 2;
+            case 'FCL': return 3;
+            case 'LCL': return 4;
+            case 'RO-RO': return 5;
+            case 'Rodoviário': return 6;
             default: return null;
         }
     },

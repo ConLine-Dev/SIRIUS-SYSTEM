@@ -111,10 +111,20 @@ function formatDateToPtBr(params) {
             return params.value;
         }
         
+        // Se for um objeto Date, formatar diretamente
+        if (params.value instanceof Date) {
+            const day = params.value.getDate().toString().padStart(2, '0');
+            const month = (params.value.getMonth() + 1).toString().padStart(2, '0');
+            const year = params.value.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+        
+        // Tentar criar um objeto Date a partir do valor
         const date = new Date(params.value);
         
         // Verificar se a data é válida
         if (!isValidDate(date)) {
+            console.warn('Data inválida:', params.value);
             return '-';
         }
         
@@ -1097,13 +1107,28 @@ function processDataBeforeDisplay(data) {
         dateFields.forEach(field => {
             if (processedItem[field]) {
                 try {
+                    // Se a data já estiver no formato dd/mm/yyyy, manter como está
+                    if (typeof processedItem[field] === 'string' && processedItem[field].match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+                        return;
+                    }
+                    
                     const date = new Date(processedItem[field]);
                     if (!isValidDate(date)) {
+                        console.warn(`Data inválida para o campo ${field}:`, processedItem[field]);
                         processedItem[field] = null;
+                    } else {
+                        // Formatar a data para dd/mm/yyyy
+                        const day = date.getDate().toString().padStart(2, '0');
+                        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                        const year = date.getFullYear();
+                        processedItem[field] = `${day}/${month}/${year}`;
                     }
                 } catch (error) {
+                    console.error(`Erro ao processar data para o campo ${field}:`, error);
                     processedItem[field] = null;
                 }
+            } else {
+                processedItem[field] = null;
             }
         });
         

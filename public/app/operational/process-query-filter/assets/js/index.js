@@ -465,6 +465,17 @@ async function initializeGrid() {
                 cellRenderer: textCellRenderer
             },
             { 
+                field: 'Tipo_Carga', 
+                headerName: 'Tipo de Carga', 
+                filter: 'agSetColumnFilter',
+                filterParams: {
+                    buttons: ['apply', 'reset'],
+                    closeOnApply: true
+                },
+                sortable: true,
+                cellRenderer: textCellRenderer
+            },
+            { 
                 field: 'Data_Desembarque', 
                 headerName: 'Data de Desembarque', 
                 filter: 'agDateColumnFilter',

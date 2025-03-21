@@ -52,6 +52,7 @@ const api_link_tree = require('./api-link-tree');
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
 const Posts = require('./apiPosts');
+const api_zero_based_cost_center = require('./api-zero-based-budgeting');
 // const Posts = require('./apiPosts');
 
 
@@ -218,6 +219,9 @@ const setIO = (io) => {
 
    // Use as rotas do arquivo api-ce-merchant.js
    router.use('/ce-merchant', api_ce_merchant(io));
+
+   // Use as rotas do arquivo api-zero-based-budgeting.js
+   router.use('/zero-based-budgeting', api_zero_based_cost_center(io));
 
   return router;
 };

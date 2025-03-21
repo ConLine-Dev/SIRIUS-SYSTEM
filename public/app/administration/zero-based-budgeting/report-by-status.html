@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Relatório por Status</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    
+    <!-- Select2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    
+    <!-- Chart.js CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./assets/css/report.css">
+    
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="page-loader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+    </div>
+    
+    <div class="bodyWindows">
+        <div class="row mt-3">
+            <!-- Filtros -->
+            <div class="col-md-12 mb-4">
+                <div class="card custom-card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ri-filter-line me-2"></i> Filtros
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="report-filters-form" class="filters-form">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="filter-status" class="form-label">Status</label>
+                                    <select class="form-control" id="filter-status">
+                                        <option value="">Todos os Status</option>
+                                        <option value="1">Pendente</option>
+                                        <option value="2">Aprovado</option>
+                                        <option value="3">Rejeitado</option>
+                                        <option value="4">Parcialmente Aprovado</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <label for="filter-period" class="form-label">Período</label>
+                                    <select class="form-control" id="filter-period">
+                                        <option value="7">Últimos 7 dias</option>
+                                        <option value="30" selected>Últimos 30 dias</option>
+                                        <option value="90">Últimos 90 dias</option>
+                                        <option value="180">Últimos 6 meses</option>
+                                        <option value="365">Último ano</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary w-100 btn-apply">
+                                        <i class="ri-search-line me-1"></i> Aplicar Filtros
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resumo dos Dados -->
+            <div class="col-md-12 mb-4">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card summary-card card-pending">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Pendentes</h6>
+                                    <h3 class="card-value" id="pending-count">0</h3>
+                                </div>
+                                <div>
+                                    <i class="ri-time-line fs-3 opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card summary-card card-approved">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Aprovados</h6>
+                                    <h3 class="card-value" id="approved-count">0</h3>
+                                </div>
+                                <div>
+                                    <i class="ri-check-line fs-3 opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card summary-card card-rejected">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Rejeitados</h6>
+                                    <h3 class="card-value" id="rejected-count">0</h3>
+                                </div>
+                                <div>
+                                    <i class="ri-close-line fs-3 opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card summary-card card-partial">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Parcialmente Aprovados</h6>
+                                    <h3 class="card-value" id="partial-count">0</h3>
+                                </div>
+                                <div>
+                                    <i class="ri-checkbox-multiple-line fs-3 opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gráfico de Distribuição de Status -->
+            <div class="col-md-6 mb-4">
+                <div class="card custom-card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ri-pie-chart-line me-2"></i> Distribuição por Status
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="status-distribution-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gráfico de Timeline -->
+            <div class="col-md-6 mb-4">
+                <div class="card custom-card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ri-line-chart-line me-2"></i> Timeline
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="timeline-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabela de Detalhes -->
+            <div class="col-md-12">
+                <div class="card custom-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="ri-table-line me-2"></i> Detalhes das Solicitações
+                        </h5>
+                        <button id="export-csv-btn" class="btn btn-outline-primary btn-sm export-btn">
+                            <i class="ri-download-line me-1"></i> Exportar CSV
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover data-table" id="requests-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Centro de Custo</th>
+                                        <th>Mês</th>
+                                        <th>Categoria</th>
+                                        <th>Descrição</th>
+                                        <th>Valor (R$)</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="requests-table-body">
+                                    <!-- Será preenchido via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scroll To Top -->
+    <div class="scrollToTop">
+        <span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span>
+    </div>
+    <div id="responsive-overlay"></div>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+    
+    <!-- Socket.io -->
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="./assets/js/report-by-status.js"></script>
+</body>
+</html> 

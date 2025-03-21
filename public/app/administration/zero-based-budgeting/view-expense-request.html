@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Visualizar Solicitação de Gasto</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./assets/css/view-expense.css">
+    
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="page-loader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+    </div>
+    
+    <div class="bodyWindows">
+        <div class="card custom-card mt-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="ri-file-list-3-line me-2"></i> Solicitação de Gasto #<span id="request-id">Carregando...</span>
+                </h5>
+                <div>
+                    <button id="print-btn" class="btn btn-sm btn-outline-secondary">
+                        <i class="ri-printer-line"></i> Imprimir
+                    </button>
+                    <button id="back-btn" class="btn btn-sm btn-primary">
+                        <i class="ri-arrow-left-line"></i> Voltar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <div class="row">
+                    <!-- Informações da Solicitação -->
+                    <div class="col-md-8">
+                        <div class="card custom-card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Detalhes da Solicitação</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-2 row">
+                                    <label class="col-sm-4 fw-bold">ID:</label>
+                                    <div class="col-sm-8" id="expense-id"></div>
+                                </div>
+                                <div class="mb-2 row">
+                                    <label class="col-sm-4 fw-bold">Mês:</label>
+                                    <div class="col-sm-8" id="expense-month"></div>
+                                </div>
+                                <div class="mb-2 row">
+                                    <label class="col-sm-4 fw-bold">Centro de Custo:</label>
+                                    <div class="col-sm-8" id="expense-cost-center"></div>
+                                </div>
+                                <div class="mb-2 row">
+                                    <label class="col-sm-4 fw-bold">Categoria:</label>
+                                    <div class="col-sm-8" id="expense-category"></div>
+                                </div>
+                                <div class="mb-2 row">
+                                    <label class="col-sm-4 fw-bold">Quantidade:</label>
+                                    <div class="col-sm-8" id="expense-quantity"></div>
+                                </div>
+                                <div class="mb-2 row">
+                                    <label class="col-sm-4 fw-bold">Valor:</label>
+                                    <div class="col-sm-8" id="expense-amount"></div>
+                                </div>
+                                <div class="mb-2 row">
+                                    <label class="col-sm-4 fw-bold">Status:</label>
+                                    <div class="col-sm-8" id="expense-status"></div>
+                                </div>
+                                <div class="mb-2 row">
+                                    <label class="col-sm-4 fw-bold">Data de Criação:</label>
+                                    <div class="col-sm-8" id="expense-created"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Informações do Solicitante -->
+                    <div class="col-md-4">
+                        <div class="card custom-card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Solicitante</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="me-3">
+                                        <span class="avatar avatar-xl">
+                                            <img id="requester-avatar" src="" alt="Avatar">
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h6 id="requester-name"></h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Descrição da Solicitação -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card custom-card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Descrição</h6>
+                            </div>
+                            <div class="card-body">
+                                <p id="expense-description"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contribuição Estratégica -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card custom-card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Contribuição Estratégica</h6>
+                            </div>
+                            <div class="card-body">
+                                <p id="expense-strategic"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Timeline de Aprovações -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Timeline de Aprovações</h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="timeline list-unstyled" id="approval-timeline">
+                                    <!-- Será preenchido via JavaScript -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ações de Aprovação - Visível apenas para aprovadores -->
+                <div class="row mt-3" id="approval-actions-container">
+                    <div class="col-md-12">
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Ações de Aprovação</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-info mb-3">
+                                    <i class="ri-information-line me-2"></i>
+                                    Como aprovador, você pode aprovar ou rejeitar esta solicitação.
+                                </div>
+                                <div class="d-flex gap-2" id="approval-actions">
+                                    <!-- Botões de aprovação serão adicionados aqui via JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scroll To Top -->
+    <div class="scrollToTop">
+        <span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span>
+    </div>
+    <div id="responsive-overlay"></div>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="./assets/js/view-expense-request.js"></script>
+</body>
+</html> 

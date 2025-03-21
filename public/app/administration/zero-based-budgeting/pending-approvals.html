@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Aprovações Pendentes - Orçamento Base Zero</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    
+    <!-- Material Design Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
+
+    <!-- Remix Icons -->
+    <link href="../../assets/libs/remix-icon/remixicon.css" rel="stylesheet">
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.0/css/responsive.dataTables.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./assets/css/view.css">
+    <link rel="stylesheet" href="./assets/css/pending-approvals.css">
+    
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="page-loader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+    </div>
+
+    <div class="bodyWindows">
+        <div class="mb-3">
+            <a href="javascript:void(0);" onclick="window.close();" class="btn btn-outline-primary btn-sm">
+                <i class="ri-close-line me-1"></i> Fechar
+            </a>
+        </div>
+        
+        <div class="card custom-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="ri-checkbox-circle-line me-2"></i> 
+                    Aprovações Pendentes
+                </h5>
+                <span class="text-muted fs-12">Solicitações de gastos que aguardam sua aprovação</span>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" id="pending-approvals-table" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Centro de Custo</th>
+                                <th>Descrição</th>
+                                <th>Valor</th>
+                                <th>Categoria</th>
+                                <th>Data Solicitação</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-approvals-table-body">
+                            <!-- Dados carregados via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Aprovação Rápida -->
+    <div class="modal fade" id="quickApprovalModal" tabindex="-1" aria-labelledby="quickApprovalModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="quickApprovalModalLabel">Aprovar Solicitação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="approvalForm">
+                        <input type="hidden" id="expense-request-id">
+                        <div class="mb-3">
+                            <label for="approval-comments" class="form-label">Comentários (opcional)</label>
+                            <textarea class="form-control" id="approval-comments" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="submitApproval()">Aprovar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Rejeição Rápida -->
+    <div class="modal fade" id="quickRejectionModal" tabindex="-1" aria-labelledby="quickRejectionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="quickRejectionModalLabel">Rejeitar Solicitação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="rejectionForm">
+                        <input type="hidden" id="rejection-expense-request-id">
+                        <div class="mb-3">
+                            <label for="rejection-comments" class="form-label">Motivo da Rejeição <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="rejection-comments" rows="3" required></textarea>
+                            <div class="form-text text-danger">É necessário informar o motivo da rejeição.</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" onclick="submitRejection()">Rejeitar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SweetAlert JS -->
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+    
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
+    
+    <!-- Socket.io for real-time updates -->
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="./assets/js/pending-approvals.js"></script>
+</body>
+
+</html> 

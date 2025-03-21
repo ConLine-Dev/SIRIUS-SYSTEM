@@ -1,0 +1,88 @@
+/* Estilos para a página principal do Centro de Custos Base Zero */
+
+/* Ocultar o loader quando a página estiver carregada */
+#loader2.d-none {
+    display: none !important;
+    
+}
+
+#loader2{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--custom-white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+#cost-centers-table_filter{
+    padding: 7px;
+}
+#expense-requests-table_filter{
+    padding: 7px;
+}
+
+
+/* Estilo para o botão de tutorial */
+#btn-tutorial {
+    cursor: pointer;
+}
+
+/* Estilos para os badges de status */
+.badge-pending {
+    background-color: #f5a623;
+    color: white;
+}
+
+.badge-approved {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-rejected {
+    background-color: #dc3545;
+    color: white;
+}
+
+.badge-partial {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* Estilo para os cartões de relatório */
+.card .avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Tabelas */
+.table-hover tbody tr:hover {
+    cursor: pointer;
+    background-color: rgba(249, 66, 58, 0.05);
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+    .col-lg-4 {
+        margin-bottom: 15px;
+    }
+}
+
+/* Estilos para o badge de aprovações pendentes */
+#pending-approvals-badge {
+    font-size: 0.8rem;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+}
+
+/* Adicionar destaque quando houver aprovações pendentes */
+.approval-card:hover #pending-approvals-badge {
+    transform: scale(1.2);
+    transition: transform 0.3s ease;
+} 

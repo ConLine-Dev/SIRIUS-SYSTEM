@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Editar Orçamento Base Zero</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    
+    <!-- Select2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="page-loader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+    </div>
+    
+    <div class="bodyWindows">
+        <div class="card custom-card mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-edit-line me-2"></i> Editar Centro de Custo
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="edit-cost-center-form">
+                    <input type="hidden" id="cost-center-id">
+                    
+                    <div class="mb-3">
+                        <label for="cost-center-name" class="form-label">Nome do Centro de Custo</label>
+                        <input type="text" class="form-control" id="cost-center-name" name="name" placeholder="Digite o nome do centro de custo" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="responsible-id" class="form-label">Responsável</label>
+                        <select class="form-select select2" id="responsible-id" name="responsibleId" required>
+                            <option value="">Selecionar Responsável</option>
+                            <!-- Opções serão carregadas via JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="cost-center-description" class="form-label">Descrição</label>
+                        <textarea class="form-control" id="cost-center-description" name="description" rows="4" placeholder="Digite uma descrição para o centro de custo"></textarea>
+                    </div>
+                    
+                    <div class="text-end mt-4">
+                        <button type="button" id="cancel-btn" class="btn btn-light me-2">
+                            <i class="ri-close-line me-1"></i> Cancelar
+                        </button>
+                        <button type="submit" id="save-btn" class="btn btn-primary">
+                            <i class="ri-save-line me-1"></i> Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scroll To Top -->
+    <div class="scrollToTop">
+        <span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span>
+    </div>
+    <div id="responsive-overlay"></div>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="./assets/js/edit-cost-center.js"></script>
+</body>
+</html> 

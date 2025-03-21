@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Visualizar Orçamento Base Zero</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./assets/css/view.css">
+    
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+    <!-- Loader -->
+    <div class="page-loader">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+    </div>
+    
+    <div class="bodyWindows">
+        <div class="card custom-card mt-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="ri-building-line me-2"></i> 
+                    Centro de Custo: <span id="cost-center-name">Carregando...</span>
+                </h5>
+                <div>
+                    <button id="print-btn" class="btn btn-sm btn-outline-secondary">
+                        <i class="ri-printer-line"></i> Imprimir
+                    </button>
+                    <button id="edit-btn" class="btn btn-sm btn-info">
+                        <i class="ri-edit-line"></i> Editar
+                    </button>
+                    <button id="back-btn" class="btn btn-sm btn-primary">
+                        <i class="ri-arrow-left-line"></i> Voltar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <div class="row">
+                    <!-- Informações do Centro de Custo -->
+                    <div class="col-md-6">
+                        <div class="card custom-card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Informações Gerais</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-2 row">
+                                    <label class="col-sm-4 fw-bold">ID:</label>
+                                    <div class="col-sm-8" id="cost-center-id"></div>
+                                </div>
+                                <div class="mb-2 row">
+                                    <label class="col-sm-4 fw-bold">Nome:</label>
+                                    <div class="col-sm-8" id="cost-center-name-display"></div>
+                                </div>
+                                <div class="mb-2 row">
+                                    <label class="col-sm-4 fw-bold">Criado em:</label>
+                                    <div class="col-sm-8" id="cost-center-created"></div>
+                                </div>
+                                <div class="mb-2 row">
+                                    <label class="col-sm-4 fw-bold">Atualizado em:</label>
+                                    <div class="col-sm-8" id="cost-center-updated"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Informações do Responsável -->
+                    <div class="col-md-6">
+                        <div class="card custom-card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Responsável</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="me-3">
+                                        <span class="avatar avatar-xl">
+                                            <img id="responsible-avatar" src="" alt="Avatar">
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <h6 id="responsible-name"></h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Descrição do Centro de Custo -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card custom-card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Descrição</h6>
+                            </div>
+                            <div class="card-body">
+                                <p id="cost-center-description"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Solicitações de Gastos Relacionadas -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card custom-card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">Solicitações de Gastos Relacionadas</h6>
+                                <button id="new-expense-btn" class="btn btn-sm btn-success">
+                                    <i class="ri-add-line"></i> Nova Solicitação
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover data-table" id="related-expenses-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Mês</th>
+                                                <th>Categoria</th>
+                                                <th>Valor</th>
+                                                <th>Status</th>
+                                                <th>Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="related-expenses-body">
+                                            <!-- Será preenchido via JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scroll To Top -->
+    <div class="scrollToTop">
+        <span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span>
+    </div>
+    <div id="responsive-overlay"></div>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+    
+    <!-- Socket.io -->
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="./assets/js/view-cost-center.js"></script>
+</body>
+</html> 

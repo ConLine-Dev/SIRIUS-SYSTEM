@@ -297,7 +297,7 @@ function populateExpensesTable(expenses) {
                 <td>${expense.month}</td>
                 <td>${expense.category}</td>
                 <td>${expense.description.substring(0, 50)}${expense.description.length > 50 ? '...' : ''}</td>
-                <td>R$ ${parseFloat(expense.amount).toFixed(2).replace('.', ',')}</td>
+                <td>R$ ${parseFloat(expense.total_amount).toFixed(2).replace('.', ',')}</td>
                 <td><span class="badge ${statusClass}">${statusText}</span></td>
                 <td>${expense.requesterName}</td>
                 <td>

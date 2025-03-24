@@ -255,11 +255,14 @@ const zeroBasedCostCenter = {
         `);
 
         const formattedRequests = result.map(item => {
-            // Formatação do valor para exibição
-            const amount = new Intl.NumberFormat('pt-BR', { 
+            // Calcular o valor total (quantidade * valor unitário)
+            const totalValue = parseFloat(item.quantity) * parseFloat(item.amount);
+            
+            // Formatação do valor total para exibição
+            const formattedTotalAmount = new Intl.NumberFormat('pt-BR', { 
                 style: 'currency', 
                 currency: 'BRL' 
-            }).format(item.amount);
+            }).format(totalValue);
             
             // Formatação do status com badge
             let statusBadge;
@@ -284,9 +287,11 @@ const zeroBasedCostCenter = {
                 category: item.category,
                 description: item.description,
                 quantity: item.quantity,
-                amount: amount,
+                amount: formattedTotalAmount,
+                unit_amount: parseFloat(item.amount),
                 status: statusBadge,
-                created_at: this.formatDateToPtBr(item.created_at)
+                created_at: this.formatDateToPtBr(item.created_at),
+                requesterId: item.requester_id
             };
         });
 
@@ -338,11 +343,20 @@ const zeroBasedCostCenter = {
                 ea.created_at ASC
         `);
         
-        // Formatação do valor para exibição
-        const amount = new Intl.NumberFormat('pt-BR', { 
+        // Calcular o valor total (quantidade * valor unitário)
+        const totalValue = parseFloat(item.quantity) * parseFloat(item.amount);
+        
+        // Formatação do valor unitário para exibição
+        const unitAmount = new Intl.NumberFormat('pt-BR', { 
             style: 'currency', 
             currency: 'BRL' 
         }).format(item.amount);
+        
+        // Formatação do valor total para exibição
+        const totalAmount = new Intl.NumberFormat('pt-BR', { 
+            style: 'currency', 
+            currency: 'BRL' 
+        }).format(totalValue);
         
         const formattedRequest = {
             id: item.id,
@@ -353,8 +367,10 @@ const zeroBasedCostCenter = {
             category_id: item.category,
             description: item.description,
             quantity: item.quantity,
-            amount: amount,
+            amount: unitAmount,
             raw_amount: item.amount,
+            total_amount: totalAmount,
+            raw_total_amount: totalValue,
             strategic_contribution: item.strategic_contribution,
             status: item.status,
             requester_id: item.requester_id,
@@ -410,9 +426,10 @@ const zeroBasedCostCenter = {
         // Criar registros de aprovação padrão (os 3 aprovadores fixos)
         const expenseRequestId = result.insertId;
         const approvers = [
+            { id: 1, name: 'Eduardo Cunha' },
             { id: 174, name: 'Eduardo Cunha' }, // ID fictício, usar ID real no ambiente de produção
-            { id: 42, name: 'Natally Sagas' }, // ID fictício, usar ID real no ambiente de produção
-            { id: 37, name: 'Edson Tavares' }  // ID fictício, usar ID real no ambiente de produção
+            // { id: 42, name: 'Natally Sagas' }, // ID fictício, usar ID real no ambiente de produção
+            // { id: 37, name: 'Edson Tavares' }  // ID fictício, usar ID real no ambiente de produção
         ];
         
         // Buscar informações do solicitante e centro de custo para o email
@@ -435,10 +452,26 @@ const zeroBasedCostCenter = {
             WHERE id = ?
         `, [categoryId]);
 
+        // Calcular o valor total
+        const totalValue = parseFloat(form.quantity) * parseFloat(form.amount);
+        
+        // Formatar os valores para exibição
+        const unitAmount = new Intl.NumberFormat('pt-BR', { 
+            style: 'currency', 
+            currency: 'BRL' 
+        }).format(form.amount);
+        
+        const totalAmount = new Intl.NumberFormat('pt-BR', { 
+            style: 'currency', 
+            currency: 'BRL' 
+        }).format(totalValue);
+
         // Preparar dados para o email
         const emailData = {
             costCenterName: costCenterInfo.costCenterName,
-            amount: form.amount,
+            amount: unitAmount,
+            total_amount: totalAmount,
+            quantity: form.quantity,
             category: categoryInfo.categoryName,
             description: form.description,
             requesterName: `${requesterInfo.name} ${requesterInfo.family_name}`
@@ -633,10 +666,26 @@ const zeroBasedCostCenter = {
 
         // Enviar email para o solicitante
         if (requestInfo && requestInfo.requesterEmail) {
+            // Calcular o valor total
+            const totalValue = parseFloat(requestInfo.quantity) * parseFloat(requestInfo.amount);
+            
+            // Formatar os valores para exibição
+            const unitAmount = new Intl.NumberFormat('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL' 
+            }).format(requestInfo.amount);
+            
+            const totalAmount = new Intl.NumberFormat('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL' 
+            }).format(totalValue);
+            
             const emailData = {
                 id: requestInfo.id,
                 costCenterName: requestInfo.costCenterName,
-                amount: requestInfo.amount,
+                amount: unitAmount,
+                total_amount: totalAmount,
+                quantity: requestInfo.quantity,
                 category: requestInfo.categoryName,
                 description: requestInfo.description,
                 status: form.status,
@@ -729,15 +778,23 @@ const zeroBasedCostCenter = {
                 er.id,
                 er.month,
                 cc.name as costCenterName,
-                er.category,
+                er.category as category_id,
+                zc.name as category_name,
                 er.description,
+                er.quantity,
                 er.amount,
+                (er.quantity * er.amount) as total_amount,
                 er.status,
-                er.created_at
+                er.created_at,
+                c.name as requesterName
             FROM 
                 zero_based_expense_requests er
             JOIN 
                 zero_based_cost_centers cc ON cc.id = er.cost_center_id
+            JOIN 
+                collaborators c ON c.id = er.requester_id
+            LEFT JOIN
+                zero_based_categories zc ON zc.id = er.category
             ${expensesWhereClause}
             ORDER BY
                 er.created_at DESC
@@ -750,10 +807,13 @@ const zeroBasedCostCenter = {
             id: item.id,
             costCenterName: item.costCenterName.toUpperCase(),
             month: item.month,
-            category: item.category,
+            category: item.category_name || `Categoria ID: ${item.category_id}`,
             description: item.description,
-            amount: item.amount,
+            quantity: item.quantity || 1,
+            amount: parseFloat(item.amount),
+            total_amount: item.total_amount || (parseFloat(item.quantity || 1) * parseFloat(item.amount)),
             status: item.status,
+            requesterName: item.requesterName,
             created_at: this.formatDateToPtBr(item.created_at)
         }));
         
@@ -909,15 +969,23 @@ const zeroBasedCostCenter = {
                 er.id,
                 er.month,
                 cc.name as costCenterName,
-                er.category,
+                er.category as category_id,
+                zc.name as category_name,
                 er.description,
+                er.quantity,
                 er.amount,
+                (er.quantity * er.amount) as total_amount,
                 er.status,
-                er.created_at
+                er.created_at,
+                c.name as requesterName
             FROM 
                 zero_based_expense_requests er
             JOIN 
                 zero_based_cost_centers cc ON cc.id = er.cost_center_id
+            JOIN 
+                collaborators c ON c.id = er.requester_id
+            LEFT JOIN
+                zero_based_categories zc ON zc.id = er.category
             ${whereClause}
             ORDER BY
                 er.created_at DESC
@@ -930,10 +998,13 @@ const zeroBasedCostCenter = {
             id: item.id,
             costCenterName: item.costCenterName.toUpperCase(),
             month: item.month,
-            category: item.category,
+            category: item.category_name || `Categoria ID: ${item.category_id}`,
             description: item.description,
-            amount: item.amount,
+            quantity: item.quantity || 1,
+            amount: parseFloat(item.amount),
+            total_amount: item.total_amount || (parseFloat(item.quantity || 1) * parseFloat(item.amount)),
             status: item.status,
+            requesterName: item.requesterName,
             created_at: this.formatDateToPtBr(item.created_at)
         }));
         
@@ -978,7 +1049,7 @@ const zeroBasedCostCenter = {
             SELECT 
                 er.month, 
                 COUNT(er.id) as count,
-                SUM(er.amount) as total
+                SUM(er.quantity * er.amount) as total
             FROM 
                 zero_based_expense_requests er
             ${whereClause}
@@ -1005,19 +1076,21 @@ const zeroBasedCostCenter = {
         // Obter dados de gastos por categoria
         const categoryQuery = `
             SELECT 
-                er.category, 
-                SUM(er.amount) as total
+                zc.name as category_name, 
+                SUM(er.quantity * er.amount) as total
             FROM 
                 zero_based_expense_requests er
+            LEFT JOIN
+                zero_based_categories zc ON zc.id = er.category
             ${whereClause}
             GROUP BY
-                er.category
+                er.category, zc.name
         `;
         
         const categoryResult = await executeQuery(categoryQuery, whereParams);
         
         // Preparar os dados para o gráfico de pizza de categorias
-        const categoryLabels = categoryResult.map(item => item.category);
+        const categoryLabels = categoryResult.map(item => item.category_name || `Categoria ID: ${item.category}`);
         const categoryValues = categoryResult.map(item => parseFloat(item.total));
         
         // Obter as solicitações detalhadas
@@ -1026,9 +1099,12 @@ const zeroBasedCostCenter = {
                 er.id,
                 er.month,
                 cc.name as costCenterName,
-                er.category,
+                er.category as category_id,
+                zc.name as category_name,
                 er.description,
+                er.quantity,
                 er.amount,
+                (er.quantity * er.amount) as total_amount,
                 er.status,
                 er.created_at,
                 c.name as requesterName
@@ -1038,6 +1114,8 @@ const zeroBasedCostCenter = {
                 zero_based_cost_centers cc ON cc.id = er.cost_center_id
             JOIN 
                 collaborators c ON c.id = er.requester_id
+            LEFT JOIN
+                zero_based_categories zc ON zc.id = er.category
             ${whereClause}
             ORDER BY
                 er.created_at DESC
@@ -1050,9 +1128,11 @@ const zeroBasedCostCenter = {
             id: item.id,
             costCenterName: item.costCenterName.toUpperCase(),
             month: item.month,
-            category: item.category,
+            category: item.category_name || `Categoria ID: ${item.category_id}`,
             description: item.description,
+            quantity: item.quantity,
             amount: item.amount,
+            total_amount: item.total_amount,
             status: item.status,
             requesterName: item.requesterName,
             created_at: this.formatDateToPtBr(item.created_at)
@@ -1062,9 +1142,9 @@ const zeroBasedCostCenter = {
         const totalRequests = formattedExpenses.length;
         const totalApproved = formattedExpenses
             .filter(e => e.status === 'Aprovado')
-            .reduce((sum, e) => sum + parseFloat(e.amount), 0);
+            .reduce((sum, e) => sum + parseFloat(e.total_amount), 0);
         const totalAmount = formattedExpenses
-            .reduce((sum, e) => sum + parseFloat(e.amount), 0);
+            .reduce((sum, e) => sum + parseFloat(e.total_amount), 0);
         
         return {
             summary: {
@@ -1131,7 +1211,8 @@ const zeroBasedCostCenter = {
                 cc.name as costCenterName,
                 ea.id as approval_id,
                 c.name as requesterName,
-                c.family_name as requesterFamilyName
+                c.family_name as requesterFamilyName,
+                zc.name as category_name
             FROM 
                 zero_based_expense_approvals ea
             JOIN 
@@ -1140,6 +1221,8 @@ const zeroBasedCostCenter = {
                 zero_based_cost_centers cc ON cc.id = er.cost_center_id
             JOIN
                 collaborators c ON c.id = er.requester_id
+            LEFT JOIN
+                zero_based_categories zc ON zc.id = er.category
             WHERE 
                 ea.approver_id = ${collaborator_id}
                 AND ea.status = 'Pendente'
@@ -1148,12 +1231,16 @@ const zeroBasedCostCenter = {
         `);
 
         const formattedRequests = result.map(item => {
+            const totalAmount = parseFloat(item.quantity || 1) * parseFloat(item.amount);
+            
             return {
                 id: item.id,
                 costCenterName: item.costCenterName.toUpperCase(),
-                category: item.category,
+                category: item.category_name || `Categoria ID: ${item.category}`,
                 description: item.description,
-                amount: item.amount,
+                quantity: item.quantity || 1,
+                amount: parseFloat(item.amount),
+                total_amount: totalAmount,
                 requestDate: item.created_at,
                 requesterName: `${item.requesterName} ${item.requesterFamilyName}`,
                 approval_id: item.approval_id

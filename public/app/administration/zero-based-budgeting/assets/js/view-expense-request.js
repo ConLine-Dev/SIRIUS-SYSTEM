@@ -88,6 +88,7 @@ async function loadExpenseRequestData(id) {
         setElementContent('expense-description', data.description);
         setElementContent('expense-quantity', data.quantity);
         setElementContent('expense-amount', data.amount);
+        setElementContent('expense-total-amount', data.total_amount);
         setElementContent('expense-strategic', data.strategic_contribution || 'Não informado');
         
         // Exibir informações do solicitante

@@ -514,11 +514,6 @@ const emailCustom = {
     },
     // Template para notificar aprovadores sobre nova solicitação
     expenseRequestNotification: async function(data) {
-        const amount = new Intl.NumberFormat('pt-BR', { 
-            style: 'currency', 
-            currency: 'BRL' 
-        }).format(data.amount);
-
         return `
             <!DOCTYPE html>
             <html>
@@ -612,12 +607,20 @@ const emailCustom = {
                                 <span class="info-value">${data.costCenterName}</span>
                             </div>
                             <div class="info-item">
-                                <span class="info-label">Valor:</span>
-                                <span class="info-value">${amount}</span>
-                            </div>
-                            <div class="info-item">
                                 <span class="info-label">Categoria:</span>
                                 <span class="info-value">${data.category}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Quantidade:</span>
+                                <span class="info-value">${data.quantity}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Valor Unitário:</span>
+                                <span class="info-value">${data.amount}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Valor Total:</span>
+                                <span class="info-value">${data.total_amount}</span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Descrição:</span>
@@ -644,11 +647,6 @@ const emailCustom = {
 
     // Template para notificar solicitante sobre aprovação/rejeição
     expenseRequestStatusUpdate: async function(data) {
-        const amount = new Intl.NumberFormat('pt-BR', { 
-            style: 'currency', 
-            currency: 'BRL' 
-        }).format(data.amount);
-
         const statusColor = data.status === 'Aprovado' ? '#28a745' : '#e60012';
         const statusText = data.status === 'Aprovado' ? 'Aprovada' : 'Rejeitada';
 
@@ -749,12 +747,20 @@ const emailCustom = {
                                 <span class="info-value">${data.costCenterName}</span>
                             </div>
                             <div class="info-item">
-                                <span class="info-label">Valor:</span>
-                                <span class="info-value">${amount}</span>
-                            </div>
-                            <div class="info-item">
                                 <span class="info-label">Categoria:</span>
                                 <span class="info-value">${data.category}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Quantidade:</span>
+                                <span class="info-value">${data.quantity}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Valor Unitário:</span>
+                                <span class="info-value">${data.amount}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Valor Total:</span>
+                                <span class="info-value">${data.total_amount}</span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Descrição:</span>

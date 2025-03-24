@@ -215,6 +215,22 @@ async function loadExpenseRequestData(id) {
         }
         document.getElementById('amount').value = amountValue;
         
+        // Calcular e preencher o valor total
+        const quantity = parseFloat(data.quantity) || 1;
+        const amount = parseFloat(amountValue) || 0;
+        const total = quantity * amount;
+        
+        // Formatar o valor total para exibição
+        const formattedTotal = new Intl.NumberFormat('pt-BR', { 
+            style: 'currency', 
+            currency: 'BRL' 
+        }).format(total);
+        
+        const totalAmountInput = document.getElementById('total-amount');
+        if (totalAmountInput) {
+            totalAmountInput.value = formattedTotal;
+        }
+        
         document.getElementById('strategic-contribution').value = data.strategic_contribution || '';
         
         // Definir os valores dos selects usando as instâncias do Choices.js
@@ -260,6 +276,36 @@ function setupForm(expenseRequestId) {
             });
         }
     });
+    
+    // Configurar os listeners para cálculo automático do valor total
+    const quantityInput = document.getElementById('quantity');
+    const amountInput = document.getElementById('amount');
+    
+    if (quantityInput && amountInput) {
+        const updateTotalAmount = () => {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            const amount = parseFloat(amountInput.value) || 0;
+            const total = quantity * amount;
+            
+            // Formatar o valor total para exibição
+            const formattedTotal = new Intl.NumberFormat('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL' 
+            }).format(total);
+            
+            const totalAmountInput = document.getElementById('total-amount');
+            if (totalAmountInput) {
+                totalAmountInput.value = formattedTotal;
+            }
+        };
+        
+        // Calcular o valor total inicialmente
+        updateTotalAmount();
+        
+        // Adicionar listeners para recalcular quando os valores mudarem
+        quantityInput.addEventListener('input', updateTotalAmount);
+        amountInput.addEventListener('input', updateTotalAmount);
+    }
     
     // Formulário de edição
     const form = document.getElementById('edit-expense-request-form');

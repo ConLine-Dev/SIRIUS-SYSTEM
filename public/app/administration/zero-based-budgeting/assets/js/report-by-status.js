@@ -271,7 +271,7 @@ function populateExpensesTable(expenses) {
     if (!tableBody) return;
     
     if (!expenses || expenses.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="8" class="text-center">Nenhuma solicitação encontrada</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="9" class="text-center">Nenhuma solicitação encontrada</td></tr>';
         return;
     }
     
@@ -302,9 +302,10 @@ function populateExpensesTable(expenses) {
                 <td>${expense.id}</td>
                 <td>${expense.costCenterName}</td>
                 <td>${expense.month}</td>
-                <td>${expense.category}</td>
+                <td>${expense.category_name}</td>
                 <td>${expense.description.substring(0, 50)}${expense.description.length > 50 ? '...' : ''}</td>
-                <td>R$ ${parseFloat(expense.amount).toFixed(2).replace('.', ',')}</td>
+                <td>${expense.quantity}</td>
+                <td>R$ ${parseFloat(expense.total_amount).toFixed(2).replace('.', ',')}</td>
                 <td><span class="badge ${statusClass}">${statusText}</span></td>
                 <td>
                     <button class="btn btn-sm btn-primary view-expense-btn" data-id="${expense.id}">
@@ -394,7 +395,9 @@ function exportTableToCSV() {
     
     // Criar o blob e fazer o download
     const csvContent = csv.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // Adicionar BOM UTF-8 para garantir que os caracteres especiais sejam exibidos corretamente
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);

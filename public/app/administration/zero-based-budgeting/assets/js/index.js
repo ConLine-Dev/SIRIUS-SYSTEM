@@ -208,17 +208,32 @@ async function loadExpenseRequestsTable() {
             {
                 data: null,
                 render: function (data, type, row) {
+                    // Verifica se o usuário logado é o solicitante do gasto
+                    let isRequestCreator = false;
+                    
+                    // Verifica a propriedade requesterId no objeto da linha
+                    if (row.requesterId !== undefined) {
+                        // Obtém o ID do usuário logado do localStorage
+                        const storageGoogle = JSON.parse(localStorage.getItem('StorageGoogle') || '{}');
+                        const currentUserId = storageGoogle.system_collaborator_id;
+                        
+                        // Compara o ID do solicitante com o ID do usuário logado
+                        isRequestCreator = row.requesterId == currentUserId;
+                    }
+                    
                     return `
                         <div class="hstack gap-2 fs-15">
                             <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-info-transparent rounded-pill" onclick="openExpenseRequestView(${row.id})" title="Visualizar">
                                 <i class="ri-eye-line"></i>
                             </a>
+                            ${isRequestCreator ? `
                             <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-primary-transparent rounded-pill" onclick="openExpenseRequestEdit(${row.id})" title="Editar">
                                 <i class="ri-edit-line"></i>
                             </a>
                             <a href="javascript:void(0);" class="btn btn-icon btn-sm btn-danger-transparent rounded-pill" onclick="confirmarDelecaoExpenseRequest(${row.id})" title="Excluir">
                                 <i class="ri-delete-bin-line"></i>
                             </a>
+                            ` : ''}
                         </div>
                     `;
                 },

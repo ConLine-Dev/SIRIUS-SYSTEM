@@ -37,7 +37,7 @@ async function loadPendingApprovalsTable() {
         responsive: true,
         lengthChange: false,
         info: false,
-        order: [[4, 'desc']], // Ordenar por data de solicitação decrescente
+        order: [[5, 'desc']], // Ordenar por data de solicitação decrescente
         ajax: {
             url: `/api/zero-based-budgeting/getPendingApprovals?id_collaborator=${userLogged.system_collaborator_id}`,
             dataSrc: ''
@@ -45,13 +45,19 @@ async function loadPendingApprovalsTable() {
         columns: [
             { data: 'costCenterName' },
             { data: 'description' },
+            { data: 'category' },
             { 
-                data: 'amount',
+                data: 'quantity',
+                render: function(data) {
+                    return data;
+                }
+            },
+            { 
+                data: 'total_amount',
                 render: function(data) {
                     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(data);
                 }
             },
-            { data: 'category' },
             { 
                 data: 'requestDate',
                 render: function(data) {

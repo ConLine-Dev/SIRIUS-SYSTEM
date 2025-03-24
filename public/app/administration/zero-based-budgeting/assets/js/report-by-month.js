@@ -388,7 +388,9 @@ function exportTableToCSV() {
     
     // Criar o blob e fazer o download
     const csvContent = csv.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // Adicionar BOM UTF-8 para garantir que os caracteres especiais sejam exibidos corretamente
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);

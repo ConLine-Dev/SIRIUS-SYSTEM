@@ -1,9 +1,11 @@
 const { executeQuery } = require('../connect/mysql');
+const { sendEmail } = require('../support/send-email');
+const { emailCustom } = require('../support/emails-template');
 
 const zeroBasedCostCenter = {
     // ==================== Centros de Custo ====================
     
-    // Obter todos os centros de custo relacionados ao usuário (responsável ou visualizador)
+    // Obter todos os centros de custo existentes no sistema
     getAllCostCenters: async function(collaborator_id) {
         const result = await executeQuery(`
             SELECT 
@@ -15,14 +17,7 @@ const zeroBasedCostCenter = {
                 zero_based_cost_centers cc
             JOIN 
                 collaborators c ON c.id = cc.responsible_id
-            WHERE 
-                c.id = ${collaborator_id}
-                OR cc.id IN (
-                    SELECT cost_center_id FROM zero_based_expense_requests 
-                    WHERE requester_id = ${collaborator_id}
-                )
-            GROUP BY
-                cc.id
+            ORDER BY cc.name ASC
         `);
 
         const formattedCostCenters = result.map(item => {
@@ -173,7 +168,7 @@ const zeroBasedCostCenter = {
     
     // ==================== Solicitações de Gastos ====================
     
-    // Obter todas as solicitações de gastos relacionadas ao usuário
+    // Obter todas as solicitações de gastos
     getAllExpenseRequests: async function(collaborator_id) {
         const result = await executeQuery(`
             SELECT 
@@ -183,14 +178,6 @@ const zeroBasedCostCenter = {
                 zero_based_expense_requests er
             JOIN 
                 zero_based_cost_centers cc ON cc.id = er.cost_center_id
-            LEFT JOIN 
-                zero_based_expense_approvals ea ON ea.expense_request_id = er.id
-            WHERE 
-                er.requester_id = ${collaborator_id}
-                OR cc.responsible_id = ${collaborator_id}
-                OR ea.approver_id = ${collaborator_id}
-            GROUP BY
-                er.id
             ORDER BY
                 er.created_at DESC
         `);
@@ -351,12 +338,58 @@ const zeroBasedCostCenter = {
         // Criar registros de aprovação padrão (os 3 aprovadores fixos)
         const expenseRequestId = result.insertId;
         const approvers = [
-            { id: 174, name: 'Eduardo Cunha' }, // ID fictício, usar ID real no ambiente de produção
-            { id: 42, name: 'Natally Sagas' }, // ID fictício, usar ID real no ambiente de produção
-            { id: 37, name: 'Edson Tavares' }  // ID fictício, usar ID real no ambiente de produção
+            { id: 1, name: 'Eduardo Cunha' }, // ID fictício, usar ID real no ambiente de produção
+            // { id: 174, name: 'Eduardo Cunha' }, // ID fictício, usar ID real no ambiente de produção
+            // { id: 42, name: 'Natally Sagas' }, // ID fictício, usar ID real no ambiente de produção
+            // { id: 37, name: 'Edson Tavares' }  // ID fictício, usar ID real no ambiente de produção
         ];
         
+        // Buscar informações do solicitante e centro de custo para o email
+        const [requesterInfo] = await executeQuery(`
+            SELECT c.name, c.family_name, u.email
+            FROM collaborators c
+            JOIN users u ON u.collaborator_id = c.id
+            WHERE c.id = ?
+        `, [form.requester_id]);
+
+        const [costCenterInfo] = await executeQuery(`
+            SELECT cc.name as costCenterName
+            FROM zero_based_cost_centers cc
+            WHERE cc.id = ?
+        `, [form.cost_center_id]);
+
+        const [categoryInfo] = await executeQuery(`
+            SELECT name as categoryName
+            FROM zero_based_categories
+            WHERE id = ?
+        `, [categoryId]);
+
+        // Preparar dados para o email
+        const emailData = {
+            costCenterName: costCenterInfo.costCenterName,
+            amount: form.amount,
+            category: categoryInfo.categoryName,
+            description: form.description,
+            requesterName: `${requesterInfo.name} ${requesterInfo.family_name}`
+        };
+
+        // Enviar email para cada aprovador
         for (const approver of approvers) {
+            const [approverInfo] = await executeQuery(`
+                SELECT u.email
+                FROM users u
+                WHERE u.collaborator_id = ?
+            `, [approver.id]);
+
+            if (approverInfo && approverInfo.email) {
+                const emailContent = await emailCustom.expenseRequestNotification(emailData);
+                sendEmail(
+                    approverInfo.email,
+                    'Nova Solicitação de Gasto - Aprovação Pendente',
+                    emailContent
+                );
+            }
+
             await executeQuery(`
                 INSERT INTO zero_based_expense_approvals 
                 (expense_request_id, approver_id, status, created_at, updated_at) 
@@ -499,6 +532,54 @@ const zeroBasedCostCenter = {
             formattedDate,
             form.expense_request_id
         ]);
+
+        // Buscar informações para o email
+        const [requestInfo] = await executeQuery(`
+            SELECT 
+                er.*,
+                cc.name as costCenterName,
+                c.name as requesterName,
+                c.family_name as requesterFamilyName,
+                u.email as requesterEmail,
+                zc.name as categoryName,
+                approver.name as approverName,
+                approver.family_name as approverFamilyName
+            FROM 
+                zero_based_expense_requests er
+            JOIN 
+                zero_based_cost_centers cc ON cc.id = er.cost_center_id
+            JOIN
+                collaborators c ON c.id = er.requester_id
+            JOIN
+                users u ON u.collaborator_id = c.id
+            LEFT JOIN
+                zero_based_categories zc ON zc.id = er.category
+            JOIN
+                collaborators approver ON approver.id = ?
+            WHERE 
+                er.id = ?
+        `, [form.approver_id, form.expense_request_id]);
+
+        // Enviar email para o solicitante
+        if (requestInfo && requestInfo.requesterEmail) {
+            const emailData = {
+                id: requestInfo.id,
+                costCenterName: requestInfo.costCenterName,
+                amount: requestInfo.amount,
+                category: requestInfo.categoryName,
+                description: requestInfo.description,
+                status: form.status,
+                approverName: `${requestInfo.approverName} ${requestInfo.approverFamilyName}`,
+                comment: form.comment
+            };
+
+            const emailContent = await emailCustom.expenseRequestStatusUpdate(emailData);
+            sendEmail(
+                requestInfo.requesterEmail,
+                `Atualização de Status - Solicitação de Gasto ${form.status}`,
+                emailContent
+            );
+        }
         
         return result;
     },

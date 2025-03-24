@@ -108,6 +108,16 @@ function initializeSelects() {
             console.error('Erro ao inicializar selects:', error);
         });
         
+    // Inicializa o select para mês de referência
+    const monthSelect = document.getElementById('month');
+    if (monthSelect) {
+        sMonth = new Choices(monthSelect, {
+            searchEnabled: false,
+            itemSelectText: '',
+            shouldSort: false
+        });
+    }
+        
     // Inicializa o select para modo de pagamento
     const paymentModeSelect = document.getElementById('payment-mode-select');
     if (paymentModeSelect) {
@@ -219,6 +229,12 @@ async function loadExpenseRequestData(id) {
         if (sMonth) {
             sMonth.setChoiceByValue(data.month);
             console.log('Mês selecionado:', data.month);
+        } else {
+            // Fallback caso o Choices.js não esteja inicializado
+            const monthSelect = document.getElementById('month');
+            if (monthSelect) {
+                monthSelect.value = data.month;
+            }
         }
         
         // Selecionar a categoria no dropdown
@@ -251,72 +267,53 @@ function setupForm(expenseRequestId) {
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Verificar se os campos obrigatórios foram preenchidos
-            const costCenterId = sCostCenter ? sCostCenter.getValue().value : null;
-            const month = sMonth ? sMonth.getValue().value : null;
-            const category = sCategory ? sCategory.getValue().value : null;
-            const description = document.getElementById('description').value.trim();
+            // Validar campos obrigatórios
+            const costCenter = sCostCenter ? sCostCenter.getValue(true) : document.getElementById('cost-center').value;
+            const month = sMonth ? sMonth.getValue(true) : document.getElementById('month').value;
+            const category = sCategory ? sCategory.getValue(true) : document.getElementById('category-select').value;
             const quantity = document.getElementById('quantity').value;
             const amount = document.getElementById('amount').value;
+            const description = document.getElementById('description').value;
             
-            if (!costCenterId || !month || !category || !description || !quantity || !amount) {
-                showAlert('Erro', 'Por favor, preencha todos os campos obrigatórios', 'error');
+            // Verificar se todos os campos obrigatórios estão preenchidos
+            if (!costCenter || !month || !category || !quantity || !amount || !description) {
+                showAlert('Atenção', 'Por favor, preencha todos os campos obrigatórios', 'warning');
                 return;
             }
             
-            // Obter os dados do formulário
-            const strategicContribution = document.getElementById('strategic-contribution').value.trim();
-            
             try {
-                // Obter as informações do usuário logado
-                const userLogged = await getInfosLogin();
-                
-                // Exibir loader durante o processamento
+                // Exibir loader
                 const loader = document.querySelector('.page-loader');
                 if (loader) {
                     loader.classList.remove('d-none');
                 }
                 
-                // Enviar dados para atualização
-                const result = await makeRequest('/api/zero-based-budgeting/updateExpenseRequest', 'POST', {
+                // Preparar os dados para envio
+                const formData = {
                     id: expenseRequestId,
-                    cost_center_id: costCenterId,
+                    cost_center_id: costCenter,
                     month: month,
                     category: category,
+                    quantity: quantity,
+                    amount: amount,
                     description: description,
-                    quantity: parseInt(quantity),
-                    amount: parseFloat(amount),
-                    strategic_contribution: strategicContribution,
-                    requester_id: userLogged.system_collaborator_id
-                });
+                    strategic_contribution: document.getElementById('strategic-contribution').value
+                };
                 
-                // Esconder loader após o processamento
-                if (loader) {
-                    loader.classList.add('d-none');
-                }
+                // Enviar os dados para a API
+                const response = await makeRequest('/api/zero-based-budgeting/updateExpenseRequest', 'POST', formData);
                 
-                if (result && result.success) {
-                    Swal.fire({
-                        title: 'Sucesso',
-                        text: 'Solicitação de gasto atualizada com sucesso!',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    }).then(() => {
-                        // Recarregar a página que abriu esta
-                        if (window.opener && !window.opener.closed) {
-                            window.opener.location.reload();
-                        }
-                        window.close();
-                    });
+                if (response.success) {
+                    showAlert('Sucesso', 'Solicitação atualizada com sucesso!', 'success');
+                    window.close();
                 } else {
-                    showAlert('Erro', result?.message || 'Falha ao atualizar a solicitação de gasto', 'error');
+                    showAlert('Erro', response.message || 'Ocorreu um erro ao atualizar a solicitação', 'error');
                 }
-                
             } catch (error) {
-                console.error('Erro ao atualizar solicitação de gasto:', error);
-                showAlert('Erro', 'Ocorreu um erro ao atualizar a solicitação de gasto', 'error');
-                
-                // Esconder loader em caso de erro
+                console.error('Erro ao atualizar solicitação:', error);
+                showAlert('Erro', 'Ocorreu um erro ao atualizar a solicitação', 'error');
+            } finally {
+                // Esconder loader
                 const loader = document.querySelector('.page-loader');
                 if (loader) {
                     loader.classList.add('d-none');

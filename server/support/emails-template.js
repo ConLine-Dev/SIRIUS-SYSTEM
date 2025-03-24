@@ -512,6 +512,271 @@ const emailCustom = {
         const year = date.getFullYear(); // Obtém o ano
         return `${day}/${month}/${year}`; // Retorna a data formatada
     },
+    // Template para notificar aprovadores sobre nova solicitação
+    expenseRequestNotification: async function(data) {
+        const amount = new Intl.NumberFormat('pt-BR', { 
+            style: 'currency', 
+            currency: 'BRL' 
+        }).format(data.amount);
+
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Nova Solicitação de Gasto</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                        margin: 0;
+                        padding: 0;
+                        background-color: #f4f4f4;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        background-color: #ffffff;
+                    }
+                    .header {
+                        background-color: #f9423a;
+                        color: white;
+                        padding: 20px;
+                        text-align: center;
+                        border-radius: 5px 5px 0 0;
+                    }
+                    .header h1 {
+                        margin: 0;
+                        font-size: 24px;
+                        font-weight: bold;
+                    }
+                    .content {
+                        padding: 20px;
+                        background-color: #ffffff;
+                        border: 1px solid #f9423a;
+                        border-top: none;
+                        border-radius: 0 0 5px 5px;
+                    }
+                    .info-box {
+                        background-color: #f8f8f8;
+                        border-left: 4px solid #f9423a;
+                        padding: 15px;
+                        margin: 15px 0;
+                    }
+                    .info-item {
+                        margin: 10px 0;
+                    }
+                    .info-label {
+                        font-weight: bold;
+                        color: #666;
+                    }
+                    .info-value {
+                        color: #333;
+                    }
+                    .footer {
+                        text-align: center;
+                        padding: 20px;
+                        color: #666;
+                        font-size: 14px;
+                        margin-top: 20px;
+                        border-top: 1px solid #eee;
+                    }
+                    .message {
+                        background-color: #fff3f3;
+                        border: 1px solid #f9423a;
+                        padding: 15px;
+                        margin: 15px 0;
+                        border-radius: 4px;
+                    }
+                    .message p {
+                        margin: 0;
+                        color: #f9423a;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>Nova Solicitação de Gasto</h1>
+                    </div>
+                    <div class="content">
+                        <p>Olá,</p>
+                        <p>Uma nova solicitação de gasto foi criada e requer sua aprovação.</p>
+                        
+                        <div class="info-box">
+                            <div class="info-item">
+                                <span class="info-label">Centro de Custo:</span>
+                                <span class="info-value">${data.costCenterName}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Valor:</span>
+                                <span class="info-value">${amount}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Categoria:</span>
+                                <span class="info-value">${data.category}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Descrição:</span>
+                                <span class="info-value">${data.description}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Solicitante:</span>
+                                <span class="info-value">${data.requesterName}</span>
+                            </div>
+                        </div>
+
+                        <div class="message">
+                            <p>Para aprovar ou rejeitar esta solicitação, acesse o módulo de Orçamento Base Zero no sistema Sirius.</p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <p>Este é um email automático do sistema Sirius. Por favor, não responda.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+    },
+
+    // Template para notificar solicitante sobre aprovação/rejeição
+    expenseRequestStatusUpdate: async function(data) {
+        const amount = new Intl.NumberFormat('pt-BR', { 
+            style: 'currency', 
+            currency: 'BRL' 
+        }).format(data.amount);
+
+        const statusColor = data.status === 'Aprovado' ? '#28a745' : '#e60012';
+        const statusText = data.status === 'Aprovado' ? 'Aprovada' : 'Rejeitada';
+
+        return `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Atualização de Status - Solicitação de Gasto</title>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333;
+                        margin: 0;
+                        padding: 0;
+                        background-color: #f4f4f4;
+                    }
+                    .container {
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 20px;
+                        background-color: #ffffff;
+                    }
+                    .header {
+                        background-color: ${statusColor};
+                        color: white;
+                        padding: 20px;
+                        text-align: center;
+                        border-radius: 5px 5px 0 0;
+                    }
+                    .header h1 {
+                        margin: 0;
+                        font-size: 24px;
+                        font-weight: bold;
+                    }
+                    .content {
+                        padding: 20px;
+                        background-color: #ffffff;
+                        border: 1px solid ${statusColor};
+                        border-top: none;
+                        border-radius: 0 0 5px 5px;
+                    }
+                    .info-box {
+                        background-color: #f8f8f8;
+                        border-left: 4px solid ${statusColor};
+                        padding: 15px;
+                        margin: 15px 0;
+                    }
+                    .info-item {
+                        margin: 10px 0;
+                    }
+                    .info-label {
+                        font-weight: bold;
+                        color: #666;
+                    }
+                    .info-value {
+                        color: #333;
+                    }
+                    .footer {
+                        text-align: center;
+                        padding: 20px;
+                        color: #666;
+                        font-size: 14px;
+                        margin-top: 20px;
+                        border-top: 1px solid #eee;
+                    }
+                    .comment-box {
+                        background-color: #fff3f3;
+                        border: 1px solid ${statusColor};
+                        padding: 15px;
+                        margin: 15px 0;
+                        border-radius: 4px;
+                    }
+                    .comment-box p {
+                        margin: 0;
+                        color: ${statusColor};
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1>Solicitação ${statusText}</h1>
+                    </div>
+                    <div class="content">
+                        <p>Olá,</p>
+                        <p>Sua solicitação de gasto foi ${statusText.toLowerCase()} por ${data.approverName}.</p>
+                        
+                        <div class="info-box">
+                            <div class="info-item">
+                                <span class="info-label">ID da Solicitação:</span>
+                                <span class="info-value">#${data.id}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Centro de Custo:</span>
+                                <span class="info-value">${data.costCenterName}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Valor:</span>
+                                <span class="info-value">${amount}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Categoria:</span>
+                                <span class="info-value">${data.category}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Descrição:</span>
+                                <span class="info-value">${data.description}</span>
+                            </div>
+                        </div>
+
+                        ${data.comment ? `
+                            <div class="comment-box">
+                                <p><strong>Comentário do Aprovador:</strong></p>
+                                <p>${data.comment}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="footer">
+                        <p>Este é um email automático do sistema Sirius. Por favor, não responda.</p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+    },
 }
 
 

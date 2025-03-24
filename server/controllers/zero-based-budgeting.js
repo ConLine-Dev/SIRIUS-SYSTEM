@@ -338,10 +338,9 @@ const zeroBasedCostCenter = {
         // Criar registros de aprovação padrão (os 3 aprovadores fixos)
         const expenseRequestId = result.insertId;
         const approvers = [
-            { id: 1, name: 'Eduardo Cunha' }, // ID fictício, usar ID real no ambiente de produção
-            // { id: 174, name: 'Eduardo Cunha' }, // ID fictício, usar ID real no ambiente de produção
-            // { id: 42, name: 'Natally Sagas' }, // ID fictício, usar ID real no ambiente de produção
-            // { id: 37, name: 'Edson Tavares' }  // ID fictício, usar ID real no ambiente de produção
+            { id: 174, name: 'Eduardo Cunha' }, // ID fictício, usar ID real no ambiente de produção
+            { id: 42, name: 'Natally Sagas' }, // ID fictício, usar ID real no ambiente de produção
+            { id: 37, name: 'Edson Tavares' }  // ID fictício, usar ID real no ambiente de produção
         ];
         
         // Buscar informações do solicitante e centro de custo para o email

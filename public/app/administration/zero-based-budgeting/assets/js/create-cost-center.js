@@ -23,8 +23,11 @@ async function getAllResponsible() {
     sAllResponsible = new Choices('select[name="responsible"]', {
         choices: listaDeOpcoes,
         shouldSort: false,
-        removeItemButton: false,
+        removeItemButton: true,
         noChoicesText: 'Não há opções disponíveis',
+        placeholder: true,
+        placeholderValue: 'Selecione os responsáveis',
+        maxItemCount: -1
     });
 }
 
@@ -32,9 +35,12 @@ async function getAllResponsible() {
 async function getForm() {
     const maxNameLength = 100; // Limite de caracteres para o nome
 
+    // Obter os valores dos responsáveis selecionados
+    const responsibleValues = await getSelectValues('responsible');
+
     const form = {
         name: document.querySelector('input[name="name"]').value,
-        responsible: document.querySelector('select[name="responsible"]').value,
+        responsibles: responsibleValues,
         description: document.querySelector('textarea[name="description"]').value,
     };
 

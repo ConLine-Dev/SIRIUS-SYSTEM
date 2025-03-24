@@ -80,7 +80,35 @@ async function loadCostCentersTable() {
         },
         columns: [
             { data: 'name' },
-            { data: 'responsibleName' },
+            { 
+                data: null,
+                render: function (data, type, row) {
+                    if (!row.responsibleNames || row.responsibleNames.length === 0) {
+                        return '<div class="text-muted">Sem responsáveis</div>';
+                    }
+                    
+                    // Limitar a exibição para 3 avatares + contador
+                    const maxVisible = 3;
+                    const totalResponsibles = row.responsibleCount;
+                    const visibleCount = Math.min(maxVisible, totalResponsibles);
+                    const extraCount = totalResponsibles > maxVisible ? totalResponsibles - maxVisible : 0;
+                    
+                    let html = '<div class="avatar-list-stacked">';
+                    
+                    // Adicionar os avatares visíveis - sem quebras de linha
+                    for (let i = 0; i < visibleCount; i++) {
+                        html += `<span class="avatar avatar-sm avatar-rounded"><img src="https://cdn.conlinebr.com.br/colaboradores/${row.responsibleAvatars[i]}" alt="${row.responsibleNames[i]}"></span>`;
+                    }
+                    
+                    // Adicionar o contador se necessário - sem quebras de linha
+                    if (extraCount > 0) {
+                        html += `<a class="avatar avatar-sm bg-primary text-fixed-white avatar-rounded" href="javascript:void(0);" title="${extraCount} mais responsáveis">+${extraCount}</a>`;
+                    }
+                    
+                    html += '</div>';
+                    return html;
+                }
+            },
             {
                 data: null,
                 render: function (data, type, row) {

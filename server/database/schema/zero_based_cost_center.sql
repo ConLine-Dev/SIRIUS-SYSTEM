@@ -2,12 +2,22 @@
 CREATE TABLE IF NOT EXISTS `zero_based_cost_centers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `responsible_id` int(11) NOT NULL,
   `description` text,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabela de Responsáveis por Centro de Custo
+CREATE TABLE IF NOT EXISTS `zero_based_cost_center_responsibles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cost_center_id` int(11) NOT NULL,
+  `responsible_id` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
+  KEY `idx_cost_center` (`cost_center_id`),
   KEY `idx_responsible` (`responsible_id`),
+  CONSTRAINT `fk_cost_center_responsible` FOREIGN KEY (`cost_center_id`) REFERENCES `zero_based_cost_centers` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_responsible_collaborator` FOREIGN KEY (`responsible_id`) REFERENCES `collaborators` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

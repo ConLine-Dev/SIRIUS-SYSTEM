@@ -63,7 +63,6 @@ async function loadCollaborators() {
 // Função para carregar os dados do centro de custo
 async function loadCostCenterData(id) {
     try {
-        // Fazer a requisição para obter os dados do centro de custo
         const response = await fetch(`/api/zero-based-budgeting/getCostCenterView`, {
             method: 'POST',
             headers: {
@@ -79,31 +78,26 @@ async function loadCostCenterData(id) {
             return;
         }
         
-        // Dados do centro de custo
         const data = result.data;
         
-        // Preencher os campos do formulário com os dados
+        // Preencher os campos do formulário
         document.getElementById('cost-center-id').value = data.id;
         document.getElementById('cost-center-name').value = data.name;
         document.getElementById('cost-center-description').value = data.description || '';
         
-        // Selecionar o responsável no dropdown
+        // Configurar o select de responsáveis
         const responsibleSelect = document.getElementById('responsible-id');
         if (responsibleSelect) {
-            console.log('Responsável ID do centro de custo:', data.responsible_id);
             // Verificar se o valor existe como uma opção
-            const option = Array.from(responsibleSelect.options).find(opt => {
-                console.log('Opção:', opt.value, 'Comparando com:', data.responsible_id);
-                return opt.value == data.responsible_id;
-            });
-            
-            if (option) {
-                responsibleSelect.value = data.responsible_id;
+            if (data.responsible_ids && data.responsible_ids.length > 0) {
+                data.responsible_ids.forEach(id => {
+                    const option = Array.from(responsibleSelect.options).find(opt => opt.value == id);
+                    if (option) {
+                        option.selected = true;
+                    }
+                });
                 // Atualizar o Select2
                 $(responsibleSelect).trigger('change');
-                console.log('Responsável selecionado:', option.text);
-            } else {
-                console.warn(`Responsável com ID ${data.responsible_id} não encontrado nas opções`);
             }
         }
         
@@ -131,9 +125,10 @@ function setupForm(costCenterId) {
             
             // Verificar se os campos obrigatórios foram preenchidos
             const name = document.getElementById('cost-center-name').value.trim();
-            const responsibleId = document.getElementById('responsible-id').value;
+            const responsibleSelect = document.getElementById('responsible-id');
+            const selectedResponsibles = Array.from(responsibleSelect.selectedOptions).map(option => option.value);
             
-            if (!name || !responsibleId) {
+            if (!name || selectedResponsibles.length === 0) {
                 showAlert('Erro', 'Por favor, preencha todos os campos obrigatórios', 'error');
                 return;
             }
@@ -141,55 +136,34 @@ function setupForm(costCenterId) {
             // Obter os dados do formulário
             const description = document.getElementById('cost-center-description').value.trim();
             
+            // Preparar os dados para envio
+            const formData = {
+                id: costCenterId,
+                name: name,
+                description: description,
+                responsibles: selectedResponsibles
+            };
+            
             try {
-                // Exibir loader durante o processamento
-                const loader = document.querySelector('.page-loader');
-                if (loader) {
-                    loader.classList.remove('d-none');
-                }
-                
-                // Enviar dados para atualização
                 const response = await fetch('/api/zero-based-budgeting/updateCostCenter', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        id: costCenterId,
-                        name: name,
-                        description: description,
-                        responsible: responsibleId // Alterado de responsible_id para responsible para combinar com a API
-                    })
+                    body: JSON.stringify(formData)
                 });
                 
                 const result = await response.json();
                 
-                // Esconder loader após o processamento
-                if (loader) {
-                    loader.classList.add('d-none');
-                }
-                
                 if (result.success) {
                     showAlert('Sucesso', 'Centro de custo atualizado com sucesso!', 'success');
-                    
-                    // Esperar um pouco antes de fechar a janela
-                    setTimeout(() => {
-                        window.opener.location.reload(); // Recarregar a página que abriu esta
-                        window.close();
-                    }, 1500);
+                    window.close();
                 } else {
-                    showAlert('Erro', result.message || 'Falha ao atualizar o centro de custo', 'error');
+                    showAlert('Erro', result.message || 'Erro ao atualizar o centro de custo', 'error');
                 }
-                
             } catch (error) {
-                console.error('Erro ao atualizar centro de custo:', error);
+                console.error('Erro ao atualizar:', error);
                 showAlert('Erro', 'Ocorreu um erro ao atualizar o centro de custo', 'error');
-                
-                // Esconder loader em caso de erro
-                const loader = document.querySelector('.page-loader');
-                if (loader) {
-                    loader.classList.add('d-none');
-                }
             }
         });
     }

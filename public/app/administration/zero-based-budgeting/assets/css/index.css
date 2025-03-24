@@ -85,4 +85,26 @@
 .approval-card:hover #pending-approvals-badge {
     transform: scale(1.2);
     transition: transform 0.3s ease;
+}
+
+/* Estilos para avatar-list-stacked */
+.avatar-list-stacked {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.avatar-list-stacked .avatar {
+    margin-right: -0.5rem;
+    border: 2px solid #fff;
+    transition: transform 0.2s;
+}
+
+.avatar-list-stacked .avatar:hover {
+    transform: translateY(-5px);
+    z-index: 10;
+}
+
+.avatar-list-stacked .avatar:last-child {
+    margin-right: 0;
 } 

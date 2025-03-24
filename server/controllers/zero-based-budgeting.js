@@ -10,35 +10,39 @@ const zeroBasedCostCenter = {
         const result = await executeQuery(`
             SELECT 
                 cc.*, 
-                c.name as responsibleName, 
-                c.id_headcargo,
-                c.family_name as responsibleFamilyName
+                GROUP_CONCAT(
+                    CONCAT(c.name, ' ', c.family_name) 
+                    ORDER BY c.name
+                    SEPARATOR '|'
+                ) as responsibleNames,
+                GROUP_CONCAT(
+                    c.id_headcargo 
+                    ORDER BY c.name
+                    SEPARATOR '|'
+                ) as responsibleAvatars
             FROM 
                 zero_based_cost_centers cc
-            JOIN 
-                collaborators c ON c.id = cc.responsible_id
+            LEFT JOIN 
+                zero_based_cost_center_responsibles ccr ON ccr.cost_center_id = cc.id
+            LEFT JOIN 
+                collaborators c ON c.id = ccr.responsible_id
+            GROUP BY cc.id
             ORDER BY cc.name ASC
         `);
 
         const formattedCostCenters = result.map(item => {
-            const users = `${item.responsibleName} ${item.responsibleFamilyName}`;
+            const responsibleNames = item.responsibleNames ? item.responsibleNames.split('|') : [];
+            const responsibleAvatars = item.responsibleAvatars ? item.responsibleAvatars.split('|') : [];
             
             return {
                 id: item.id,
                 name: item.name.toUpperCase(),
                 description: item.description,
-                responsibleName: `<div class="d-flex align-items-center">
-                    <div class="me-2 lh-1">
-                        <span class="avatar avatar-sm">
-                            <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt="">
-                        </span>
-                    </div>
-                    <div class="fs-14">${users}</div>
-                </div>`
+                responsibleNames: responsibleNames,
+                responsibleAvatars: responsibleAvatars,
+                responsibleCount: responsibleNames.length
             };
         });
-
-  
 
         return formattedCostCenters;
     },
@@ -46,12 +50,14 @@ const zeroBasedCostCenter = {
     // Obter apenas os centros de custo onde o usuário é responsável
     getCostCentersByUser: async function(collaborator_id) {
         const result = await executeQuery(`
-            SELECT 
+            SELECT DISTINCT
                 cc.id, cc.name
             FROM 
                 zero_based_cost_centers cc
+            JOIN 
+                zero_based_cost_center_responsibles ccr ON ccr.cost_center_id = cc.id
             WHERE 
-                cc.responsible_id = ${collaborator_id}
+                ccr.responsible_id = ${collaborator_id}
         `);
 
         return result;
@@ -61,16 +67,31 @@ const zeroBasedCostCenter = {
     getCostCenterView: async function(id) {
         const result = await executeQuery(`
             SELECT 
-                cc.*, 
-                c.name as responsibleName, 
-                c.id_headcargo,
-                c.family_name as responsibleFamilyName
+                cc.*,
+                GROUP_CONCAT(
+                    CONCAT(c.name, ' ', c.family_name) 
+                    ORDER BY c.name
+                    SEPARATOR '|'
+                ) as responsibleNames,
+                GROUP_CONCAT(
+                    c.id_headcargo 
+                    ORDER BY c.name
+                    SEPARATOR '|'
+                ) as responsibleAvatars,
+                GROUP_CONCAT(
+                    c.id 
+                    ORDER BY c.name
+                    SEPARATOR '|'
+                ) as responsibleIds
             FROM 
                 zero_based_cost_centers cc
-            JOIN 
-                collaborators c ON c.id = cc.responsible_id
+            LEFT JOIN 
+                zero_based_cost_center_responsibles ccr ON ccr.cost_center_id = cc.id
+            LEFT JOIN 
+                collaborators c ON c.id = ccr.responsible_id
             WHERE 
                 cc.id = ${id}
+            GROUP BY cc.id
         `);
 
         if (result.length === 0) {
@@ -78,15 +99,17 @@ const zeroBasedCostCenter = {
         }
 
         const item = result[0];
-        const users = `${item.responsibleName} ${item.responsibleFamilyName}`;
+        const responsibleNames = item.responsibleNames ? item.responsibleNames.split('|') : [];
+        const responsibleAvatars = item.responsibleAvatars ? item.responsibleAvatars.split('|') : [];
+        const responsibleIds = item.responsibleIds ? item.responsibleIds.split('|') : [];
         
         return {
             id: item.id,
             name: item.name.toUpperCase(),
             description: item.description,
-            responsible_id: item.responsible_id,
-            responsibleName: users,
-            responsibleAvatar: `https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}`,
+            responsible_ids: responsibleIds,
+            responsibleNames: responsibleNames,
+            responsibleAvatars: responsibleAvatars,
             created_at: this.formatDateToPtBr(item.created_at),
             updated_at: this.formatDateToPtBr(item.updated_at)
         };
@@ -99,22 +122,45 @@ const zeroBasedCostCenter = {
         
         const name = form.name.toUpperCase();
         
-        const query = `
-            INSERT INTO zero_based_cost_centers 
-            (name, responsible_id, description, created_at, updated_at) 
-            VALUES 
-            (?, ?, ?, ?, ?)
-        `;
+        // Iniciar transação
+        await executeQuery('START TRANSACTION');
         
-        const result = await executeQuery(query, [
-            name,
-            form.responsible,
-            form.description,
-            formattedDate,
-            formattedDate
-        ]);
-        
-        return result;
+        try {
+            // Inserir o centro de custo
+            const costCenterResult = await executeQuery(`
+                INSERT INTO zero_based_cost_centers 
+                (name, description, created_at, updated_at) 
+                VALUES 
+                (?, ?, ?, ?)
+            `, [
+                name,
+                form.description,
+                formattedDate,
+                formattedDate
+            ]);
+            
+            const costCenterId = costCenterResult.insertId;
+            
+            // Inserir os responsáveis
+            if (form.responsibles && form.responsibles.length > 0) {
+                const responsibleValues = form.responsibles.map(responsibleId => 
+                    [costCenterId, responsibleId, formattedDate]
+                );
+                
+                await executeQuery(`
+                    INSERT INTO zero_based_cost_center_responsibles 
+                    (cost_center_id, responsible_id, created_at) 
+                    VALUES ?
+                `, [responsibleValues]);
+            }
+            
+            await executeQuery('COMMIT');
+            return costCenterResult;
+            
+        } catch (error) {
+            await executeQuery('ROLLBACK');
+            throw error;
+        }
     },
     
     // Atualizar um centro de custo existente
@@ -124,25 +170,51 @@ const zeroBasedCostCenter = {
         
         const name = form.name.toUpperCase();
         
-        const query = `
-            UPDATE zero_based_cost_centers 
-            SET 
-                name = ?, 
-                responsible_id = ?, 
-                description = ?, 
-                updated_at = ? 
-            WHERE id = ?
-        `;
+        // Iniciar transação
+        await executeQuery('START TRANSACTION');
         
-        const result = await executeQuery(query, [
-            name,
-            form.responsible,
-            form.description,
-            formattedDate,
-            form.id
-        ]);
-        
-        return result;
+        try {
+            // Atualizar o centro de custo
+            await executeQuery(`
+                UPDATE zero_based_cost_centers 
+                SET 
+                    name = ?, 
+                    description = ?, 
+                    updated_at = ? 
+                WHERE id = ?
+            `, [
+                name,
+                form.description,
+                formattedDate,
+                form.id
+            ]);
+            
+            // Remover responsáveis existentes
+            await executeQuery(`
+                DELETE FROM zero_based_cost_center_responsibles 
+                WHERE cost_center_id = ?
+            `, [form.id]);
+            
+            // Inserir novos responsáveis
+            if (form.responsibles && form.responsibles.length > 0) {
+                const responsibleValues = form.responsibles.map(responsibleId => 
+                    [form.id, responsibleId, formattedDate]
+                );
+                
+                await executeQuery(`
+                    INSERT INTO zero_based_cost_center_responsibles 
+                    (cost_center_id, responsible_id, created_at) 
+                    VALUES ?
+                `, [responsibleValues]);
+            }
+            
+            await executeQuery('COMMIT');
+            return { success: true };
+            
+        } catch (error) {
+            await executeQuery('ROLLBACK');
+            throw error;
+        }
     },
     
     // Deletar um centro de custo

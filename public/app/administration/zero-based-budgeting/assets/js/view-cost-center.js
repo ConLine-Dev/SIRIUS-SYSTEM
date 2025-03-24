@@ -85,9 +85,25 @@ async function loadCostCenterData(id) {
         setElementContent('cost-center-created', formatDate(data.created_at));
         setElementContent('cost-center-updated', formatDate(data.updated_at));
         
-        // Exibir informações do responsável
-        setElementContent('responsible-name', data.responsibleName);
-        setImageSrc('responsible-avatar', data.responsibleAvatar || '/assets/images/avatar-placeholder.png');
+        // Exibir informações dos responsáveis
+        const responsibleList = document.getElementById('responsible-list');
+        if (data.responsibleNames && data.responsibleNames.length > 0) {
+            const responsibleHtml = data.responsibleNames.map((name, index) => `
+                <div class="d-flex align-items-center mb-3">
+                    <div class="me-3">
+                        <span class="avatar avatar-xl">
+                            <img src="https://cdn.conlinebr.com.br/colaboradores/${data.responsibleAvatars[index]}" alt="">
+                        </span>
+                    </div>
+                    <div>
+                        <h6>${name}</h6>
+                    </div>
+                </div>
+            `).join('');
+            responsibleList.innerHTML = responsibleHtml;
+        } else {
+            responsibleList.innerHTML = '<div class="text-muted">Sem responsáveis cadastrados</div>';
+        }
         
         // Carregar solicitações de gastos relacionadas
         loadRelatedExpenseRequests(id);

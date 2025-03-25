@@ -79,6 +79,15 @@
     border-left: 0.25rem solid #36b9cc;
 }
 
+.card-info {
+    /* background-color: #17a2b8;
+    color: white; */
+}
+
+.card-info .card-title {
+    /* color: rgba(255, 255, 255, 0.8); */
+}
+
 /* Badges para status */
 .badge {
     padding: 0.35em 0.65em;
@@ -124,19 +133,19 @@
 .data-table th {
     padding: 0.75rem;
     vertical-align: top;
-    border-top: 1px solid #e3e6f0;
+ 
 }
 
 .data-table thead th {
     vertical-align: bottom;
-    border-bottom: 2px solid #e3e6f0;
-    background-color: #f8f9fc;
-    color: #6e707e;
+
+
+
     font-weight: 700;
 }
 
 .data-table tbody + tbody {
-    border-top: 2px solid #e3e6f0;
+
 }
 
 .data-table tbody tr:hover {
@@ -146,7 +155,7 @@
 .data-table td {
     padding: 0.75rem;
     vertical-align: middle;
-    border-top: 1px solid #e3e6f0;
+
 }
 
 /* Estilos para o form de filtros */

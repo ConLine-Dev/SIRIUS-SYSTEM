@@ -79,22 +79,6 @@
                                     <div class="col-sm-8" id="expense-cost-center"></div>
                                 </div>
                                 <div class="mb-2 row">
-                                    <label class="col-sm-4 fw-bold">Categoria:</label>
-                                    <div class="col-sm-8" id="expense-category"></div>
-                                </div>
-                                <div class="mb-2 row">
-                                    <label class="col-sm-4 fw-bold">Quantidade:</label>
-                                    <div class="col-sm-8" id="expense-quantity"></div>
-                                </div>
-                                <div class="mb-2 row">
-                                    <label class="col-sm-4 fw-bold">Valor Unitário:</label>
-                                    <div class="col-sm-8" id="expense-amount"></div>
-                                </div>
-                                <div class="mb-2 row">
-                                    <label class="col-sm-4 fw-bold">Valor Total:</label>
-                                    <div class="col-sm-8" id="expense-total-amount"></div>
-                                </div>
-                                <div class="mb-2 row">
                                     <label class="col-sm-4 fw-bold">Status:</label>
                                     <div class="col-sm-8" id="expense-status"></div>
                                 </div>
@@ -133,10 +117,31 @@
                     <div class="col-md-12">
                         <div class="card custom-card mb-3">
                             <div class="card-header">
-                                <h6 class="mb-0">Descrição</h6>
+                                <h6 class="mb-0">Itens da Solicitação</h6>
                             </div>
                             <div class="card-body">
-                                <p id="expense-description"></p>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Categoria</th>
+                                                <th>Descrição</th>
+                                                <th>Quantidade</th>
+                                                <th>Valor Unitário</th>
+                                                <th>Subtotal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="expense-items">
+                                            <!-- Será preenchido via JavaScript -->
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="4" class="text-end fw-bold">Total:</td>
+                                                <td class="fw-bold" id="expense-total-amount"></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -167,6 +172,25 @@
                                 <ul class="timeline list-unstyled" id="approval-timeline">
                                     <!-- Será preenchido via JavaScript -->
                                 </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ações de Aprovação -->
+                <div class="row mt-3" id="approval-actions-container">
+                    <div class="col-md-12">
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Ações de Aprovação</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="approval-actions" class="d-flex gap-2">
+                                    <!-- Botões de aprovação serão adicionados via JavaScript -->
+                                </div>
+                                <div id="change-approval-actions" class="mt-3">
+                                    <!-- Botão para alterar aprovação prévia, será exibido ou escondido via JavaScript -->
+                                </div>
                             </div>
                         </div>
                     </div>

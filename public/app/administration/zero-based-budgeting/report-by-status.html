@@ -61,24 +61,18 @@
                         <form id="report-filters-form" class="filters-form">
                             <div class="row">
                                 <div class="col-md-4">
-                                    <label for="filter-status" class="form-label">Status</label>
-                                    <select class="form-control" id="filter-status">
-                                        <option value="">Todos os Status</option>
-                                        <option value="1">Pendente</option>
-                                        <option value="2">Aprovado</option>
-                                        <option value="3">Rejeitado</option>
-                                        <option value="4">Parcialmente Aprovado</option>
+                                    <label for="filter-cost-center" class="form-label">Centro de Custo</label>
+                                    <select class="form-control " id="filter-cost-center">
+                                        <option value="">Todos os Centros de Custo</option>
+                                        <!-- Opções serão carregadas dinamicamente -->
                                     </select>
                                 </div>
                                 
                                 <div class="col-md-4">
-                                    <label for="filter-period" class="form-label">Período</label>
-                                    <select class="form-control" id="filter-period">
-                                        <option value="7">Últimos 7 dias</option>
-                                        <option value="30" selected>Últimos 30 dias</option>
-                                        <option value="90">Últimos 90 dias</option>
-                                        <option value="180">Últimos 6 meses</option>
-                                        <option value="365">Último ano</option>
+                                    <label for="filter-year" class="form-label">Ano</label>
+                                    <select class="form-control" id="filter-year">
+                                        <option value="">Todos os Anos</option>
+                                        <!-- Opções serão carregadas dinamicamente -->
                                     </select>
                                 </div>
                                 
@@ -175,7 +169,7 @@
                 <div class="card custom-card h-100">
                     <div class="card-header">
                         <h5 class="card-title mb-0">
-                            <i class="ri-line-chart-line me-2"></i> Timeline
+                            <i class="ri-line-chart-line me-2"></i> Timeline de Valores Aprovados
                         </h5>
                     </div>
                     <div class="card-body">
@@ -199,21 +193,21 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-striped table-hover data-table" id="requests-table">
+                            <table class="table table-striped table-hover data-table" id="expenses-table">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
                                         <th>Centro de Custo</th>
                                         <th>Mês</th>
-                                        <th>Categoria</th>
-                                        <th>Descrição</th>
-                                        <th>Quantidade</th>
-                                        <th>Valor Total (R$)</th>
+                                        <th>Categorias</th>
+                                        <th>Qtd. Itens</th>
+                                        <th>Valor Total</th>
                                         <th>Status</th>
+                                        <th>Solicitante</th>
+                                        <th>Data</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
-                                <tbody id="requests-table-body">
+                                <tbody>
                                     <!-- Será preenchido via JavaScript -->
                                 </tbody>
                             </table>

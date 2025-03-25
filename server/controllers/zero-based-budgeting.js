@@ -254,9 +254,60 @@ const zeroBasedCostCenter = {
                 er.created_at DESC
         `);
 
-        const formattedRequests = result.map(item => {
-            // Calcular o valor total (quantidade * valor unitário)
-            const totalValue = parseFloat(item.quantity) * parseFloat(item.amount);
+        // Processamento em lote para buscar todos os itens de todas as solicitações
+        const requestIds = result.map(item => item.id);
+        
+        // Se não há solicitações, retornar array vazio
+        if (requestIds.length === 0) {
+            return [];
+        }
+        
+        // Buscar todos os itens de todas as solicitações de uma vez
+        const itemsResult = await executeQuery(`
+            SELECT 
+                i.*,
+                zc.name as categoryName
+            FROM 
+                zero_based_expense_items i
+            LEFT JOIN
+                zero_based_categories zc ON zc.id = i.category
+            WHERE 
+                i.expense_request_id IN (?)
+            ORDER BY
+                i.expense_request_id, i.id
+        `, [requestIds]);
+        
+        // Agrupar os itens por solicitação
+        const itemsByRequest = {};
+        itemsResult.forEach(item => {
+            if (!itemsByRequest[item.expense_request_id]) {
+                itemsByRequest[item.expense_request_id] = [];
+            }
+            itemsByRequest[item.expense_request_id].push(item);
+        });
+        
+        // Formatar as solicitações com seus itens e totais
+        const formattedRequests = result.map(request => {
+            // Obter os itens para esta solicitação
+            const items = itemsByRequest[request.id] || [];
+            
+            // Calcular o total da solicitação
+            let totalValue = 0;
+            let mainCategory = '';
+            let mainDescription = '';
+            
+            if (items.length > 0) {
+                // Calcular o total somando todos os itens
+                totalValue = items.reduce((sum, item) => {
+                    return sum + (parseFloat(item.quantity) * parseFloat(item.amount));
+                }, 0);
+                
+                // Usar categoria e descrição do primeiro item como referência
+                mainCategory = items[0].categoryName || `Categoria ID: ${items[0].category}`;
+                mainDescription = items.length === 1 
+                    ? items[0].description 
+                    : `${items[0].description} e mais ${items.length - 1} ${items.length === 2 ? 'item' : 'itens'}`;
+            }
             
             // Formatação do valor total para exibição
             const formattedTotalAmount = new Intl.NumberFormat('pt-BR', { 
@@ -266,7 +317,7 @@ const zeroBasedCostCenter = {
             
             // Formatação do status com badge
             let statusBadge;
-            switch(item.status) {
+            switch(request.status) {
                 case 'Aprovado':
                     statusBadge = `<span class="badge badge-approved">Aprovado</span>`;
                     break;
@@ -281,17 +332,16 @@ const zeroBasedCostCenter = {
             }
             
             return {
-                id: item.id,
-                month: item.month,
-                costCenterName: item.costCenterName.toUpperCase(),
-                category: item.category,
-                description: item.description,
-                quantity: item.quantity,
+                id: request.id,
+                month: request.month,
+                costCenterName: request.costCenterName.toUpperCase(),
+                category: mainCategory,
+                description: mainDescription,
+                item_count: items.length,
                 amount: formattedTotalAmount,
-                unit_amount: parseFloat(item.amount),
                 status: statusBadge,
-                created_at: this.formatDateToPtBr(item.created_at),
-                requesterId: item.requester_id
+                created_at: this.formatDateToPtBr(request.created_at),
+                requesterId: request.requester_id
             };
         });
 
@@ -300,96 +350,133 @@ const zeroBasedCostCenter = {
     
     // Obter detalhes de uma solicitação de gasto específica
     getExpenseRequestView: async function(id) {
-        const result = await executeQuery(`
-            SELECT 
-                er.*,
-                cc.name as costCenterName,
-                c.name as requesterName,
-                c.family_name as requesterFamilyName,
-                c.id_headcargo as requesterAvatar,
-                zc.name as categoryName
-            FROM 
-                zero_based_expense_requests er
-            JOIN 
-                zero_based_cost_centers cc ON cc.id = er.cost_center_id
-            JOIN
-                collaborators c ON c.id = er.requester_id
-            LEFT JOIN
-                zero_based_categories zc ON zc.id = er.category
-            WHERE 
-                er.id = ${id}
-        `);
+        try {
+            if (!id) {
+                throw new Error('ID da solicitação não informado');
+            }
+            
+            console.log('Buscando solicitação com ID:', id);
+            
+            const result = await executeQuery(`
+                SELECT 
+                    er.*,
+                    cc.name as costCenterName,
+                    c.name as requesterName,
+                    c.family_name as requesterFamilyName,
+                    c.id_headcargo as requesterAvatar
+                FROM 
+                    zero_based_expense_requests er
+                JOIN 
+                    zero_based_cost_centers cc ON cc.id = er.cost_center_id
+                JOIN
+                    collaborators c ON c.id = er.requester_id
+                WHERE 
+                    er.id = ?
+            `, [id]);
 
-        if (result.length === 0) {
-            return null;
+            if (result.length === 0) {
+                return null;
+            }
+
+            const item = result[0];
+            
+            // Buscar os itens da solicitação
+            const items = await executeQuery(`
+                SELECT 
+                    i.*,
+                    zc.name as categoryName
+                FROM 
+                    zero_based_expense_items i
+                LEFT JOIN
+                    zero_based_categories zc ON zc.id = i.category
+                WHERE 
+                    i.expense_request_id = ?
+                ORDER BY
+                    i.id ASC
+            `, [id]);
+            
+            // Formatar os itens e calcular subtotais
+            const formattedItems = [];
+            let totalValue = 0;
+            
+            for (const expenseItem of items) {
+                const itemTotal = parseFloat(expenseItem.quantity) * parseFloat(expenseItem.amount);
+                totalValue += itemTotal;
+                
+                formattedItems.push({
+                    id: expenseItem.id,
+                    category_id: expenseItem.category,
+                    categoryName: expenseItem.categoryName || `Categoria ID: ${expenseItem.category}`,
+                    description: expenseItem.description,
+                    quantity: expenseItem.quantity,
+                    amount: new Intl.NumberFormat('pt-BR', { 
+                        style: 'currency', 
+                        currency: 'BRL' 
+                    }).format(expenseItem.amount),
+                    raw_amount: expenseItem.amount,
+                    subtotal: new Intl.NumberFormat('pt-BR', { 
+                        style: 'currency', 
+                        currency: 'BRL' 
+                    }).format(itemTotal),
+                    raw_subtotal: itemTotal
+                });
+            }
+            
+            // Formatação do valor total para exibição
+            const totalAmount = new Intl.NumberFormat('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL' 
+            }).format(totalValue);
+            
+            // Buscar as aprovações
+            const approvals = await executeQuery(`
+                SELECT 
+                    ea.*,
+                    c.name as approverName,
+                    c.family_name as approverFamilyName,
+                    c.id_headcargo as approverAvatar
+                FROM 
+                    zero_based_expense_approvals ea
+                JOIN
+                    collaborators c ON c.id = ea.approver_id
+                WHERE 
+                    ea.expense_request_id = ?
+                ORDER BY
+                    ea.created_at ASC
+            `, [id]);
+            
+            const formattedRequest = {
+                id: item.id,
+                month: item.month,
+                cost_center_id: item.cost_center_id,
+                costCenterName: item.costCenterName.toUpperCase(),
+                strategic_contribution: item.strategic_contribution,
+                status: item.status,
+                requester_id: item.requester_id,
+                requesterName: `${item.requesterName} ${item.requesterFamilyName}`,
+                requesterAvatar: `https://cdn.conlinebr.com.br/colaboradores/${item.requesterAvatar}`,
+                created_at: this.formatDateToPtBr(item.created_at),
+                updated_at: this.formatDateToPtBr(item.updated_at),
+                items: formattedItems,
+                total_amount: totalAmount,
+                raw_total_amount: totalValue,
+                approvals: approvals.map(approval => ({
+                    id: approval.id,
+                    expense_request_id: approval.expense_request_id,
+                    approver_id: approval.approver_id,
+                    approverName: `${approval.approverName} ${approval.approverFamilyName}`,
+                    approverAvatar: `https://cdn.conlinebr.com.br/colaboradores/${approval.approverAvatar}`,
+                    status: approval.status,
+                    comment: approval.comment,
+                    created_at: this.formatDateToPtBr(approval.created_at)
+                }))
+            };
+            
+            return formattedRequest;
+        } catch (error) {
+            console.error('Erro ao buscar detalhes da solicitação:', error);
+            throw error;
         }
-
-        const item = result[0];
-        
-        // Buscar as aprovações
-        const approvals = await executeQuery(`
-            SELECT 
-                ea.*,
-                c.name as approverName,
-                c.family_name as approverFamilyName,
-                c.id_headcargo as approverAvatar
-            FROM 
-                zero_based_expense_approvals ea
-            JOIN
-                collaborators c ON c.id = ea.approver_id
-            WHERE 
-                ea.expense_request_id = ${id}
-            ORDER BY
-                ea.created_at ASC
-        `);
-        
-        // Calcular o valor total (quantidade * valor unitário)
-        const totalValue = parseFloat(item.quantity) * parseFloat(item.amount);
-        
-        // Formatação do valor unitário para exibição
-        const unitAmount = new Intl.NumberFormat('pt-BR', { 
-            style: 'currency', 
-            currency: 'BRL' 
-        }).format(item.amount);
-        
-        // Formatação do valor total para exibição
-        const totalAmount = new Intl.NumberFormat('pt-BR', { 
-            style: 'currency', 
-            currency: 'BRL' 
-        }).format(totalValue);
-        
-        const formattedRequest = {
-            id: item.id,
-            month: item.month,
-            cost_center_id: item.cost_center_id,
-            costCenterName: item.costCenterName.toUpperCase(),
-            category: item.categoryName || `Categoria ID: ${item.category}`,
-            category_id: item.category,
-            description: item.description,
-            quantity: item.quantity,
-            amount: unitAmount,
-            raw_amount: item.amount,
-            total_amount: totalAmount,
-            raw_total_amount: totalValue,
-            strategic_contribution: item.strategic_contribution,
-            status: item.status,
-            requester_id: item.requester_id,
-            requesterName: `${item.requesterName} ${item.requesterFamilyName}`,
-            requesterAvatar: `https://cdn.conlinebr.com.br/colaboradores/${item.requesterAvatar}`,
-            created_at: this.formatDateToPtBr(item.created_at),
-            updated_at: this.formatDateToPtBr(item.updated_at),
-            approvals: approvals.map(approval => ({
-                id: approval.id,
-                approver_id: approval.approver_id,
-                approverName: `${approval.approverName} ${approval.approverFamilyName}`,
-                approverAvatar: `https://cdn.conlinebr.com.br/colaboradores/${approval.approverAvatar}`,
-                status: approval.status,
-                comment: approval.comment,
-                created_at: this.formatDateToPtBr(approval.created_at)
-            }))
-        };
-        
-        return formattedRequest;
     },
     
     // Criar uma nova solicitação de gasto
@@ -397,25 +484,17 @@ const zeroBasedCostCenter = {
         const created_at = new Date();
         const formattedDate = this.formatDateForDatabase(created_at);
         
-        // Verificar se o categoria_id está sendo recebido
-        const categoryId = form.category_id || form.category;
-        
-        // Criar a solicitação principal
+        // Criar a solicitação principal (agora sem os campos de item)
         const query = `
             INSERT INTO zero_based_expense_requests 
-            (month, cost_center_id, category, description, quantity, amount, 
-            strategic_contribution, status, requester_id, created_at, updated_at) 
+            (month, cost_center_id, strategic_contribution, status, requester_id, created_at, updated_at) 
             VALUES 
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?)
         `;
         
         const result = await executeQuery(query, [
             form.month,
             form.cost_center_id,
-            categoryId,
-            form.description,
-            form.quantity,
-            form.amount,
             form.strategic_contribution,
             'Pendente', // Status inicial
             form.requester_id,
@@ -423,8 +502,38 @@ const zeroBasedCostCenter = {
             formattedDate
         ]);
         
-        // Criar registros de aprovação padrão (os 3 aprovadores fixos)
+        // Obter o ID da solicitação criada
         const expenseRequestId = result.insertId;
+        
+        // Inserir os itens da solicitação
+        if (form.items && Array.isArray(form.items) && form.items.length > 0) {
+            // Preparar a query para inserção em massa de itens
+            const itemsValues = [];
+            const itemsParams = [];
+            
+            for (const item of form.items) {
+                itemsValues.push('(?, ?, ?, ?, ?, ?, ?)');
+                itemsParams.push(
+                    expenseRequestId,
+                    item.category,
+                    item.description,
+                    item.quantity,
+                    item.amount,
+                    formattedDate,
+                    formattedDate
+                );
+            }
+            
+            const itemsQuery = `
+                INSERT INTO zero_based_expense_items 
+                (expense_request_id, category, description, quantity, amount, created_at, updated_at) 
+                VALUES ${itemsValues.join(', ')}
+            `;
+            
+            await executeQuery(itemsQuery, itemsParams);
+        }
+        
+        // Criar registros de aprovação padrão (os 3 aprovadores fixos)
         const approvers = [
             { id: 1, name: 'Eduardo Cunha' },
             { id: 174, name: 'Eduardo Cunha' }, // ID fictício, usar ID real no ambiente de produção
@@ -446,34 +555,50 @@ const zeroBasedCostCenter = {
             WHERE cc.id = ?
         `, [form.cost_center_id]);
 
-        const [categoryInfo] = await executeQuery(`
-            SELECT name as categoryName
-            FROM zero_based_categories
-            WHERE id = ?
-        `, [categoryId]);
-
-        // Calcular o valor total
-        const totalValue = parseFloat(form.quantity) * parseFloat(form.amount);
+        // Calcular o valor total de todos os itens para o email
+        let totalValue = 0;
+        const itemsInfo = [];
         
-        // Formatar os valores para exibição
-        const unitAmount = new Intl.NumberFormat('pt-BR', { 
-            style: 'currency', 
-            currency: 'BRL' 
-        }).format(form.amount);
+        if (form.items && Array.isArray(form.items)) {
+            for (const item of form.items) {
+                const itemTotal = parseFloat(item.quantity) * parseFloat(item.amount);
+                totalValue += itemTotal;
+                
+                // Obter o nome da categoria para cada item
+                const [categoryInfo] = await executeQuery(`
+                    SELECT name as categoryName
+                    FROM zero_based_categories
+                    WHERE id = ?
+                `, [item.category]);
+                
+                itemsInfo.push({
+                    category: categoryInfo ? categoryInfo.categoryName : 'Categoria não encontrada',
+                    description: item.description,
+                    quantity: item.quantity,
+                    unitAmount: new Intl.NumberFormat('pt-BR', { 
+                        style: 'currency', 
+                        currency: 'BRL' 
+                    }).format(item.amount),
+                    subtotal: new Intl.NumberFormat('pt-BR', { 
+                        style: 'currency', 
+                        currency: 'BRL' 
+                    }).format(itemTotal)
+                });
+            }
+        }
         
-        const totalAmount = new Intl.NumberFormat('pt-BR', { 
+        // Formatar o valor total para exibição
+        const totalAmountFormatted = new Intl.NumberFormat('pt-BR', { 
             style: 'currency', 
             currency: 'BRL' 
         }).format(totalValue);
 
         // Preparar dados para o email
         const emailData = {
+            id: expenseRequestId,
             costCenterName: costCenterInfo.costCenterName,
-            amount: unitAmount,
-            total_amount: totalAmount,
-            quantity: form.quantity,
-            category: categoryInfo.categoryName,
-            description: form.description,
+            total_amount: totalAmountFormatted,
+            items: itemsInfo,
             requesterName: `${requesterInfo.name} ${requesterInfo.family_name}`
         };
 
@@ -508,7 +633,7 @@ const zeroBasedCostCenter = {
             ]);
         }
         
-        return result;
+        return { ...result, id: expenseRequestId };
     },
     
     // Atualizar uma solicitação de gasto
@@ -525,33 +650,87 @@ const zeroBasedCostCenter = {
         const updated_at = new Date();
         const formattedDate = this.formatDateForDatabase(updated_at);
         
+        // Atualizar a solicitação principal
         const query = `
             UPDATE zero_based_expense_requests 
             SET 
                 month = ?, 
                 cost_center_id = ?, 
-                category = ?, 
-                description = ?, 
-                quantity = ?, 
-                amount = ?, 
                 strategic_contribution = ?, 
                 updated_at = ? 
             WHERE id = ?
         `;
         
-        const result = await executeQuery(query, [
+        await executeQuery(query, [
             form.month,
             form.cost_center_id,
-            form.category,
-            form.description,
-            form.quantity,
-            form.amount,
             form.strategic_contribution,
             formattedDate,
             form.id
         ]);
         
-        return result;
+        // Gerenciar os itens da solicitação
+        if (form.items && Array.isArray(form.items)) {
+            // Primeiro, vamos buscar os itens existentes
+            const existingItems = await executeQuery(`
+                SELECT id FROM zero_based_expense_items WHERE expense_request_id = ?
+            `, [form.id]);
+            
+            // Mapeamos os IDs existentes para facilitar a comparação
+            const existingItemIds = existingItems.map(item => item.id);
+            const updatedItemIds = form.items.filter(item => item.id).map(item => parseInt(item.id));
+            
+            // Identificar itens para remover (existentes que não estão no update)
+            const itemsToRemove = existingItemIds.filter(id => !updatedItemIds.includes(id));
+            
+            // Remover os itens que não existem mais no formulário
+            if (itemsToRemove.length > 0) {
+                await executeQuery(`
+                    DELETE FROM zero_based_expense_items WHERE id IN (?)
+                `, [itemsToRemove]);
+            }
+            
+            // Atualizar ou inserir itens
+            for (const item of form.items) {
+                if (item.id && existingItemIds.includes(parseInt(item.id))) {
+                    // Atualizar item existente
+                    await executeQuery(`
+                        UPDATE zero_based_expense_items 
+                        SET 
+                            category = ?,
+                            description = ?,
+                            quantity = ?,
+                            amount = ?,
+                            updated_at = ?
+                        WHERE id = ?
+                    `, [
+                        item.category,
+                        item.description,
+                        item.quantity,
+                        item.amount,
+                        formattedDate,
+                        item.id
+                    ]);
+                } else {
+                    // Inserir novo item
+                    await executeQuery(`
+                        INSERT INTO zero_based_expense_items 
+                        (expense_request_id, category, description, quantity, amount, created_at, updated_at) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    `, [
+                        form.id,
+                        item.category,
+                        item.description,
+                        item.quantity,
+                        item.amount,
+                        formattedDate,
+                        formattedDate
+                    ]);
+                }
+            }
+        }
+        
+        return { success: true, message: 'Solicitação atualizada com sucesso', id: form.id };
     },
     
     // Deletar uma solicitação de gasto
@@ -582,126 +761,197 @@ const zeroBasedCostCenter = {
     
     // Processar aprovação/rejeição de uma solicitação
     processExpenseRequest: async function(form) {
-        const updated_at = new Date();
-        const formattedDate = this.formatDateForDatabase(updated_at);
-        
-        // Atualizar o registro de aprovação específico
-        await executeQuery(`
-            UPDATE zero_based_expense_approvals 
-            SET 
-                status = ?, 
-                comment = ?, 
-                updated_at = ? 
-            WHERE 
-                expense_request_id = ? AND approver_id = ?
-        `, [
-            form.status, // 'Aprovado' ou 'Rejeitado'
-            form.comment,
-            formattedDate,
-            form.expense_request_id,
-            form.approver_id
-        ]);
-        
-        // Verificar o status de todas as aprovações
-        const approvals = await executeQuery(`
-            SELECT status FROM zero_based_expense_approvals 
-            WHERE expense_request_id = ?
-        `, [form.expense_request_id]);
-        
-        // Definir o status geral da solicitação
-        let overallStatus = 'Pendente';
-        
-        // Se todas foram aprovadas -> Aprovado
-        if (approvals.every(approval => approval.status === 'Aprovado')) {
-            overallStatus = 'Aprovado';
-        } 
-        // Se alguma foi rejeitada -> Rejeitado
-        else if (approvals.some(approval => approval.status === 'Rejeitado')) {
-            overallStatus = 'Rejeitado';
-        }
-        // Se algumas aprovadas e outras pendentes -> Aprovação Parcial
-        else if (approvals.some(approval => approval.status === 'Aprovado')) {
-            overallStatus = 'Aprovação Parcial';
-        }
-        
-        // Atualizar o status geral da solicitação
-        const result = await executeQuery(`
-            UPDATE zero_based_expense_requests 
-            SET 
-                status = ?, 
-                updated_at = ? 
-            WHERE id = ?
-        `, [
-            overallStatus,
-            formattedDate,
-            form.expense_request_id
-        ]);
-
-        // Buscar informações para o email
-        const [requestInfo] = await executeQuery(`
-            SELECT 
-                er.*,
-                cc.name as costCenterName,
-                c.name as requesterName,
-                c.family_name as requesterFamilyName,
-                u.email as requesterEmail,
-                zc.name as categoryName,
-                approver.name as approverName,
-                approver.family_name as approverFamilyName
-            FROM 
-                zero_based_expense_requests er
-            JOIN 
-                zero_based_cost_centers cc ON cc.id = er.cost_center_id
-            JOIN
-                collaborators c ON c.id = er.requester_id
-            JOIN
-                users u ON u.collaborator_id = c.id
-            LEFT JOIN
-                zero_based_categories zc ON zc.id = er.category
-            JOIN
-                collaborators approver ON approver.id = ?
-            WHERE 
-                er.id = ?
-        `, [form.approver_id, form.expense_request_id]);
-
-        // Enviar email para o solicitante
-        if (requestInfo && requestInfo.requesterEmail) {
-            // Calcular o valor total
-            const totalValue = parseFloat(requestInfo.quantity) * parseFloat(requestInfo.amount);
+        try {
+            // Verificar parâmetros obrigatórios
+            if (!form.expense_request_id) {
+                throw new Error('ID da solicitação não informado');
+            }
             
-            // Formatar os valores para exibição
-            const unitAmount = new Intl.NumberFormat('pt-BR', { 
-                style: 'currency', 
-                currency: 'BRL' 
-            }).format(requestInfo.amount);
+            if (!form.approver_id) {
+                throw new Error('ID do aprovador não informado');
+            }
             
-            const totalAmount = new Intl.NumberFormat('pt-BR', { 
-                style: 'currency', 
-                currency: 'BRL' 
-            }).format(totalValue);
+            if (!form.status) {
+                throw new Error('Status não informado');
+            }
             
-            const emailData = {
-                id: requestInfo.id,
-                costCenterName: requestInfo.costCenterName,
-                amount: unitAmount,
-                total_amount: totalAmount,
-                quantity: requestInfo.quantity,
-                category: requestInfo.categoryName,
-                description: requestInfo.description,
-                status: form.status,
-                approverName: `${requestInfo.approverName} ${requestInfo.approverFamilyName}`,
-                comment: form.comment
-            };
+            console.log('Processando solicitação:', form);
+            
+            const updated_at = new Date();
+            const formattedDate = this.formatDateForDatabase(updated_at);
+            
+            // Verificar se é uma alteração de status anterior
+            if (form.is_change) {
+                console.log('Alterando decisão anterior:', form);
+                
+                // Registrar a alteração no comentário
+                let statusComment = form.comment || '';
+                statusComment = `[ALTERAÇÃO DE DECISÃO] ${statusComment}`;
+                
+                // Atualizar o registro de aprovação específico
+                await executeQuery(`
+                    UPDATE zero_based_expense_approvals 
+                    SET 
+                        status = ?, 
+                        comment = ?, 
+                        updated_at = ? 
+                    WHERE 
+                        expense_request_id = ? AND approver_id = ?
+                `, [
+                    form.status, // 'Aprovado' ou 'Rejeitado'
+                    statusComment,
+                    formattedDate,
+                    form.expense_request_id,
+                    form.approver_id
+                ]);
+            } else {
+                // Fluxo normal para nova aprovação/rejeição
+                await executeQuery(`
+                    UPDATE zero_based_expense_approvals 
+                    SET 
+                        status = ?, 
+                        comment = ?, 
+                        updated_at = ? 
+                    WHERE 
+                        expense_request_id = ? AND approver_id = ?
+                `, [
+                    form.status, // 'Aprovado' ou 'Rejeitado'
+                    form.comment || '',
+                    formattedDate,
+                    form.expense_request_id,
+                    form.approver_id
+                ]);
+            }
+            
+            // Verificar o status de todas as aprovações
+            const approvals = await executeQuery(`
+                SELECT status FROM zero_based_expense_approvals 
+                WHERE expense_request_id = ?
+            `, [form.expense_request_id]);
+            
+            // Definir o status geral da solicitação
+            let overallStatus = 'Pendente';
+            
+            // Se todas foram aprovadas -> Aprovado
+            if (approvals.every(approval => approval.status === 'Aprovado')) {
+                overallStatus = 'Aprovado';
+            } 
+            // Se alguma foi rejeitada -> Rejeitado
+            else if (approvals.some(approval => approval.status === 'Rejeitado')) {
+                overallStatus = 'Rejeitado';
+            }
+            // Se algumas aprovadas e outras pendentes -> Aprovação Parcial
+            else if (approvals.some(approval => approval.status === 'Aprovado')) {
+                overallStatus = 'Aprovação Parcial';
+            }
+            
+            // Atualizar o status geral da solicitação
+            await executeQuery(`
+                UPDATE zero_based_expense_requests 
+                SET 
+                    status = ?, 
+                    updated_at = ? 
+                WHERE id = ?
+            `, [
+                overallStatus,
+                formattedDate,
+                form.expense_request_id
+            ]);
 
-            const emailContent = await emailCustom.expenseRequestStatusUpdate(emailData);
-            sendEmail(
-                requestInfo.requesterEmail,
-                `Atualização de Status - Solicitação de Gasto ${form.status}`,
-                emailContent
-            );
+            // Buscar informações para o email
+            const [requestInfo] = await executeQuery(`
+                SELECT 
+                    er.*,
+                    cc.name as costCenterName,
+                    c.name as requesterName,
+                    c.family_name as requesterFamilyName,
+                    u.email as requesterEmail,
+                    approver.name as approverName,
+                    approver.family_name as approverFamilyName
+                FROM 
+                    zero_based_expense_requests er
+                JOIN 
+                    zero_based_cost_centers cc ON cc.id = er.cost_center_id
+                JOIN
+                    collaborators c ON c.id = er.requester_id
+                JOIN
+                    users u ON u.collaborator_id = c.id
+                JOIN
+                    collaborators approver ON approver.id = ?
+                WHERE 
+                    er.id = ?
+            `, [form.approver_id, form.expense_request_id]);
+
+            // Enviar email para o solicitante
+            if (requestInfo && requestInfo.requesterEmail) {
+                // Buscar os itens da solicitação
+                const items = await executeQuery(`
+                    SELECT 
+                        i.*,
+                        zc.name as categoryName
+                    FROM 
+                        zero_based_expense_items i
+                    LEFT JOIN
+                        zero_based_categories zc ON zc.id = i.category
+                    WHERE 
+                        i.expense_request_id = ?
+                    ORDER BY
+                        i.id ASC
+                `, [form.expense_request_id]);
+                
+                // Formatar os itens e calcular o total
+                let totalValue = 0;
+                const itemsInfo = [];
+                
+                for (const expenseItem of items) {
+                    const itemTotal = parseFloat(expenseItem.quantity) * parseFloat(expenseItem.amount);
+                    totalValue += itemTotal;
+                    
+                    itemsInfo.push({
+                        category: expenseItem.categoryName || `Categoria ID: ${expenseItem.category}`,
+                        description: expenseItem.description,
+                        quantity: expenseItem.quantity,
+                        unitAmount: new Intl.NumberFormat('pt-BR', { 
+                            style: 'currency', 
+                            currency: 'BRL' 
+                        }).format(expenseItem.amount),
+                        subtotal: new Intl.NumberFormat('pt-BR', { 
+                            style: 'currency', 
+                            currency: 'BRL' 
+                        }).format(itemTotal)
+                    });
+                }
+                
+                // Formatar o valor total para exibição
+                const totalAmount = new Intl.NumberFormat('pt-BR', { 
+                    style: 'currency', 
+                    currency: 'BRL' 
+                }).format(totalValue);
+                
+                const emailData = {
+                    id: requestInfo.id,
+                    costCenterName: requestInfo.costCenterName,
+                    total_amount: totalAmount,
+                    items: itemsInfo,
+                    status: form.status,
+                    approverName: `${requestInfo.approverName} ${requestInfo.approverFamilyName}`,
+                    comment: form.comment
+                };
+
+                const emailContent = await emailCustom.expenseRequestStatusUpdate(emailData);
+                sendEmail(
+                    requestInfo.requesterEmail,
+                    `Atualização de Status - Solicitação de Gasto ${form.status}`,
+                    emailContent
+                );
+            }
+            
+            return { success: true };
+            
+        } catch (error) {
+            console.error('Erro ao processar solicitação:', error);
+            throw error;
         }
-        
-        return result;
     },
     
     // ==================== Relatórios ====================
@@ -723,30 +973,54 @@ const zeroBasedCostCenter = {
             whereParams.push(params.year);
         }
         
+        // Query principal para obter dados por centro de custo
         const query = `
             SELECT 
                 cc.name, 
-                SUM(er.amount) as total,
-                COUNT(er.id) as num_requests,
-                COUNT(CASE WHEN er.status = 'Aprovado' THEN 1 END) as approved,
-                COUNT(CASE WHEN er.status = 'Rejeitado' THEN 1 END) as rejected,
-                COUNT(CASE WHEN er.status = 'Pendente' OR er.status = 'Aprovação Parcial' THEN 1 END) as pending
+                cc.id,
+                COUNT(DISTINCT er.id) as num_requests,
+                COUNT(DISTINCT CASE WHEN er.status = 'Aprovado' THEN er.id END) as approved,
+                COUNT(DISTINCT CASE WHEN er.status = 'Rejeitado' THEN er.id END) as rejected,
+                COUNT(DISTINCT CASE WHEN er.status = 'Pendente' THEN er.id END) as pending,
+                COUNT(DISTINCT CASE WHEN er.status = 'Aprovação Parcial' THEN er.id END) as partial
             FROM 
                 zero_based_expense_requests er
             JOIN 
                 zero_based_cost_centers cc ON cc.id = er.cost_center_id
             ${whereClause}
             GROUP BY
-                cc.id
-            ORDER BY
-                total DESC
+                cc.id, cc.name
         `;
         
         const result = await executeQuery(query, whereParams);
         
+        // Buscar os totais por centro de custo (considerando os itens)
+        const totalsQuery = `
+            SELECT 
+                cc.id,
+                SUM(ei.quantity * ei.amount) as total
+            FROM 
+                zero_based_expense_requests er
+            JOIN 
+                zero_based_cost_centers cc ON cc.id = er.cost_center_id
+            JOIN
+                zero_based_expense_items ei ON ei.expense_request_id = er.id
+            ${whereClause}
+            GROUP BY
+                cc.id
+        `;
+        
+        const totalsResult = await executeQuery(totalsQuery, whereParams);
+        
+        // Mapear totais por centro de custo
+        const totalsByCostCenter = {};
+        totalsResult.forEach(item => {
+            totalsByCostCenter[item.id] = parseFloat(item.total) || 0;
+        });
+        
         // Preparar os dados para o gráfico de pizza de centros de custo
         const labels = result.map(item => item.name.toUpperCase());
-        const values = result.map(item => parseFloat(item.total));
+        const values = result.map(item => totalsByCostCenter[item.id] || 0);
         
         // Preparar os dados para o gráfico de barras de status
         const statusData = {
@@ -760,9 +1034,10 @@ const zeroBasedCostCenter = {
         let totalPartial = 0;
         
         result.forEach(item => {
-            totalPending += item.pending;
-            totalApproved += item.approved;
-            totalRejected += item.rejected;
+            totalPending += item.pending || 0;
+            totalApproved += item.approved || 0;
+            totalRejected += item.rejected || 0;
+            totalPartial += item.partial || 0;
         });
         
         statusData.values = [totalPending, totalApproved, totalRejected, totalPartial];
@@ -778,24 +1053,26 @@ const zeroBasedCostCenter = {
                 er.id,
                 er.month,
                 cc.name as costCenterName,
-                er.category as category_id,
-                zc.name as category_name,
-                er.description,
-                er.quantity,
-                er.amount,
-                (er.quantity * er.amount) as total_amount,
                 er.status,
                 er.created_at,
-                c.name as requesterName
+                c.name as requesterName,
+                GROUP_CONCAT(DISTINCT zc.name) as categories,
+                SUM(ei.quantity * ei.amount) as total_amount,
+                SUM(ei.quantity) as total_quantity,
+                COUNT(ei.id) as item_count
             FROM 
                 zero_based_expense_requests er
             JOIN 
                 zero_based_cost_centers cc ON cc.id = er.cost_center_id
             JOIN 
                 collaborators c ON c.id = er.requester_id
+            JOIN
+                zero_based_expense_items ei ON ei.expense_request_id = er.id
             LEFT JOIN
-                zero_based_categories zc ON zc.id = er.category
+                zero_based_categories zc ON zc.id = ei.category
             ${expensesWhereClause}
+            GROUP BY
+                er.id, er.month, cc.name, er.status, er.created_at, c.name
             ORDER BY
                 er.created_at DESC
             LIMIT 100
@@ -807,12 +1084,10 @@ const zeroBasedCostCenter = {
             id: item.id,
             costCenterName: item.costCenterName.toUpperCase(),
             month: item.month,
-            category: item.category_name || `Categoria ID: ${item.category_id}`,
-            category_name: item.category_name || `Categoria ID: ${item.category_id}`,
-            description: item.description,
-            quantity: item.quantity || 1,
-            amount: parseFloat(item.amount),
-            total_amount: item.total_amount || (parseFloat(item.quantity || 1) * parseFloat(item.amount)),
+            categories: item.categories ? item.categories.split(',') : [],
+            item_count: parseInt(item.item_count),
+            total_quantity: parseInt(item.total_quantity) || 0,
+            total_amount: parseFloat(item.total_amount) || 0,
             status: item.status,
             requesterName: item.requesterName,
             created_at: this.formatDateToPtBr(item.created_at)
@@ -821,8 +1096,12 @@ const zeroBasedCostCenter = {
         // Calcular totais para os cards de resumo
         const summary = {
             totalRequests: formattedExpenses.length,
-            totalApproved: formattedExpenses.filter(e => e.status === 'Aprovado').reduce((sum, e) => sum + parseFloat(e.amount), 0),
-            totalRejected: formattedExpenses.filter(e => e.status === 'Rejeitado').reduce((sum, e) => sum + parseFloat(e.amount), 0)
+            totalApproved: formattedExpenses
+                .filter(e => e.status === 'Aprovado')
+                .reduce((sum, e) => sum + e.total_amount, 0),
+            totalRejected: formattedExpenses
+                .filter(e => e.status === 'Rejeitado')
+                .reduce((sum, e) => sum + e.total_amount, 0)
         };
         
         return {
@@ -832,7 +1111,13 @@ const zeroBasedCostCenter = {
                 values
             },
             statusData,
-            expenses: formattedExpenses
+            expenses: formattedExpenses.map(e => ({
+                ...e,
+                total_amount: new Intl.NumberFormat('pt-BR', { 
+                    style: 'currency', 
+                    currency: 'BRL' 
+                }).format(e.total_amount)
+            }))
         };
     },
     
@@ -842,152 +1127,73 @@ const zeroBasedCostCenter = {
         let whereClause = '';
         const whereParams = [];
         
-        if (params.statusFilter) {
-            whereClause += ' WHERE er.status = ?';
-            whereParams.push(params.statusFilter);
+        if (params.costCenterId) {
+            whereClause += ' WHERE cc.id = ?';
+            whereParams.push(params.costCenterId);
         }
         
-        if (params.days) {
-            const daysAgo = new Date();
-            daysAgo.setDate(daysAgo.getDate() - parseInt(params.days));
-            const formattedDate = this.formatDateForDatabase(daysAgo);
-            
+        if (params.year) {
             whereClause += whereClause ? ' AND ' : ' WHERE ';
-            whereClause += 'er.created_at >= ?';
-            whereParams.push(formattedDate);
+            whereClause += 'YEAR(er.created_at) = ?';
+            whereParams.push(params.year);
         }
         
-        // Obter contagem por status
-        const statusQuery = `
+        // Query principal para obter dados por status
+        const query = `
             SELECT 
-                er.status, 
-                COUNT(er.id) as count
+                er.status,
+                COUNT(DISTINCT er.id) as num_requests,
+                SUM(ei.quantity * ei.amount) as total_amount
             FROM 
                 zero_based_expense_requests er
+            JOIN 
+                zero_based_cost_centers cc ON cc.id = er.cost_center_id
+            JOIN
+                zero_based_expense_items ei ON ei.expense_request_id = er.id
             ${whereClause}
             GROUP BY
                 er.status
         `;
         
-        const statusResult = await executeQuery(statusQuery, whereParams);
+        const result = await executeQuery(query, whereParams);
         
-        // Preparar os dados para o gráfico de distribuição por status
-        const statusLabels = [];
-        const statusValues = [];
-        
-        let pendingCount = 0;
-        let approvedCount = 0;
-        let rejectedCount = 0;
-        let partialCount = 0;
-        
-        statusResult.forEach(item => {
-            statusLabels.push(item.status);
-            statusValues.push(item.count);
-            
-            switch(item.status) {
-                case 'Pendente':
-                    pendingCount = item.count;
-                    break;
-                case 'Aprovado':
-                    approvedCount = item.count;
-                    break;
-                case 'Rejeitado':
-                    rejectedCount = item.count;
-                    break;
-                case 'Aprovação Parcial':
-                    partialCount = item.count;
-                    break;
-            }
-        });
-        
-        // Obter dados para o gráfico de linha (evolução no tempo)
-        const timelineQuery = `
-            SELECT 
-                DATE(er.created_at) as date,
-                er.status,
-                COUNT(er.id) as count
-            FROM 
-                zero_based_expense_requests er
-            ${whereClause}
-            GROUP BY
-                DATE(er.created_at), er.status
-            ORDER BY
-                date ASC
-        `;
-        
-        const timelineResult = await executeQuery(timelineQuery, whereParams);
-        
-        // Organizar os dados por data e status
-        const timelineData = {};
-        const statusSet = new Set();
-        
-        timelineResult.forEach(item => {
-            const dateStr = this.formatDateToPtBr(item.date).split(' ')[0]; // Apenas a data
-            
-            if (!timelineData[dateStr]) {
-                timelineData[dateStr] = {};
-            }
-            
-            timelineData[dateStr][item.status] = item.count;
-            statusSet.add(item.status);
-        });
-        
-        // Preparar os dados para o Chart.js
-        const timelineDates = Object.keys(timelineData);
-        const allStatus = Array.from(statusSet);
-        
-        const datasets = allStatus.map(status => {
-            let color;
-            switch(status) {
-                case 'Pendente':
-                    color = '#ffc107';
-                    break;
-                case 'Aprovado':
-                    color = '#28a745';
-                    break;
-                case 'Rejeitado':
-                    color = '#dc3545';
-                    break;
-                case 'Aprovação Parcial':
-                    color = '#17a2b8';
-                    break;
-                default:
-                    color = '#6c757d';
-            }
-            
-            return {
-                label: status,
-                data: timelineDates.map(date => timelineData[date][status] || 0),
-                borderColor: color,
-                backgroundColor: color + '33',
-                tension: 0.1
-            };
-        });
+        // Preparar os dados para o gráfico de pizza de status
+        const statusData = {
+            labels: result.map(item => item.status),
+            values: result.map(item => parseFloat(item.total_amount) || 0)
+        };
         
         // Obter as solicitações detalhadas
+        let expensesWhereClause = whereClause;
+        if (!expensesWhereClause) {
+            expensesWhereClause = ' WHERE 1=1';
+        }
+        
         const expensesQuery = `
             SELECT 
                 er.id,
                 er.month,
                 cc.name as costCenterName,
-                er.category as category_id,
-                zc.name as category_name,
-                er.description,
-                er.quantity,
-                er.amount,
-                (er.quantity * er.amount) as total_amount,
                 er.status,
                 er.created_at,
-                c.name as requesterName
+                c.name as requesterName,
+                GROUP_CONCAT(DISTINCT zc.name) as categories,
+                SUM(ei.quantity * ei.amount) as total_amount,
+                SUM(ei.quantity) as total_quantity,
+                COUNT(ei.id) as item_count
             FROM 
                 zero_based_expense_requests er
             JOIN 
                 zero_based_cost_centers cc ON cc.id = er.cost_center_id
             JOIN 
                 collaborators c ON c.id = er.requester_id
+            JOIN
+                zero_based_expense_items ei ON ei.expense_request_id = er.id
             LEFT JOIN
-                zero_based_categories zc ON zc.id = er.category
-            ${whereClause}
+                zero_based_categories zc ON zc.id = ei.category
+            ${expensesWhereClause}
+            GROUP BY
+                er.id, er.month, cc.name, er.status, er.created_at, c.name
             ORDER BY
                 er.created_at DESC
             LIMIT 100
@@ -999,33 +1205,36 @@ const zeroBasedCostCenter = {
             id: item.id,
             costCenterName: item.costCenterName.toUpperCase(),
             month: item.month,
-            category: item.category_name || `Categoria ID: ${item.category_id}`,
-            category_name: item.category_name || `Categoria ID: ${item.category_id}`,
-            description: item.description,
-            quantity: item.quantity || 1,
-            amount: parseFloat(item.amount),
-            total_amount: item.total_amount || (parseFloat(item.quantity || 1) * parseFloat(item.amount)),
+            categories: item.categories ? item.categories.split(',') : [],
+            item_count: parseInt(item.item_count),
+            total_quantity: parseInt(item.total_quantity) || 0,
+            total_amount: parseFloat(item.total_amount) || 0,
             status: item.status,
             requesterName: item.requesterName,
             created_at: this.formatDateToPtBr(item.created_at)
         }));
         
+        // Calcular totais para os cards de resumo
+        const summary = {
+            totalRequests: formattedExpenses.length,
+            totalApproved: formattedExpenses
+                .filter(e => e.status === 'Aprovado')
+                .reduce((sum, e) => sum + e.total_amount, 0),
+            totalRejected: formattedExpenses
+                .filter(e => e.status === 'Rejeitado')
+                .reduce((sum, e) => sum + e.total_amount, 0)
+        };
+        
         return {
-            summary: {
-                pending: pendingCount,
-                approved: approvedCount,
-                rejected: rejectedCount,
-                partial: partialCount
-            },
-            statusDistribution: {
-                labels: statusLabels,
-                values: statusValues
-            },
-            timeline: {
-                labels: timelineDates,
-                datasets: datasets
-            },
-            expenses: formattedExpenses
+            summary,
+            statusData,
+            expenses: formattedExpenses.map(e => ({
+                ...e,
+                total_amount: new Intl.NumberFormat('pt-BR', { 
+                    style: 'currency', 
+                    currency: 'BRL' 
+                }).format(e.total_amount)
+            }))
         };
     },
     
@@ -1035,90 +1244,92 @@ const zeroBasedCostCenter = {
         let whereClause = '';
         const whereParams = [];
         
-        if (params.monthFilter) {
-            whereClause += ' WHERE er.month = ?';
-            whereParams.push(params.monthFilter);
+        if (params.costCenterId) {
+            whereClause += ' WHERE cc.id = ?';
+            whereParams.push(params.costCenterId);
         }
         
-        if (params.yearFilter) {
+        if (params.year) {
             whereClause += whereClause ? ' AND ' : ' WHERE ';
             whereClause += 'YEAR(er.created_at) = ?';
-            whereParams.push(params.yearFilter);
+            whereParams.push(params.year);
         }
         
-        // Obter dados de gastos por mês
-        const monthQuery = `
+        // Query principal para obter dados por mês
+        const query = `
             SELECT 
-                er.month, 
-                COUNT(er.id) as count,
-                SUM(er.quantity * er.amount) as total
+                er.month,
+                COUNT(DISTINCT er.id) as num_requests,
+                COUNT(DISTINCT CASE WHEN er.status = 'Aprovado' THEN er.id END) as approved,
+                COUNT(DISTINCT CASE WHEN er.status = 'Rejeitado' THEN er.id END) as rejected,
+                COUNT(DISTINCT CASE WHEN er.status = 'Pendente' THEN er.id END) as pending,
+                COUNT(DISTINCT CASE WHEN er.status = 'Aprovação Parcial' THEN er.id END) as partial,
+                SUM(ei.quantity * ei.amount) as total_amount
             FROM 
                 zero_based_expense_requests er
+            JOIN 
+                zero_based_cost_centers cc ON cc.id = er.cost_center_id
+            JOIN
+                zero_based_expense_items ei ON ei.expense_request_id = er.id
             ${whereClause}
             GROUP BY
                 er.month
+            ORDER BY
+                FIELD(er.month, 
+                    'Janeiro', 'Fevereiro', 'Março', 'Abril', 
+                    'Maio', 'Junho', 'Julho', 'Agosto', 
+                    'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+                )
         `;
         
-        const monthResult = await executeQuery(monthQuery, whereParams);
+        const result = await executeQuery(query, whereParams);
         
-        // Ordenar os meses corretamente
-        const months = [
-            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-        ];
+        // Preparar os dados para o gráfico de linha de gastos por mês
+        const monthlyData = {
+            labels: result.map(item => item.month),
+            values: result.map(item => parseFloat(item.total_amount) || 0)
+        };
         
-        monthResult.sort((a, b) => {
-            return months.indexOf(a.month) - months.indexOf(b.month);
-        });
-        
-        // Preparar os dados para o gráfico de barras de gastos por mês
-        const monthLabels = monthResult.map(item => item.month);
-        const monthValues = monthResult.map(item => parseFloat(item.total));
-        
-        // Obter dados de gastos por categoria
-        const categoryQuery = `
-            SELECT 
-                zc.name as category_name, 
-                SUM(er.quantity * er.amount) as total
-            FROM 
-                zero_based_expense_requests er
-            LEFT JOIN
-                zero_based_categories zc ON zc.id = er.category
-            ${whereClause}
-            GROUP BY
-                er.category, zc.name
-        `;
-        
-        const categoryResult = await executeQuery(categoryQuery, whereParams);
-        
-        // Preparar os dados para o gráfico de pizza de categorias
-        const categoryLabels = categoryResult.map(item => item.category_name || `Categoria ID: ${item.category}`);
-        const categoryValues = categoryResult.map(item => parseFloat(item.total));
+        // Preparar os dados para o gráfico de barras de status por mês
+        const statusData = {
+            labels: result.map(item => item.month),
+            approved: result.map(item => item.approved),
+            rejected: result.map(item => item.rejected),
+            pending: result.map(item => item.pending),
+            partial: result.map(item => item.partial)
+        };
         
         // Obter as solicitações detalhadas
+        let expensesWhereClause = whereClause;
+        if (!expensesWhereClause) {
+            expensesWhereClause = ' WHERE 1=1';
+        }
+        
         const expensesQuery = `
             SELECT 
                 er.id,
                 er.month,
                 cc.name as costCenterName,
-                er.category as category_id,
-                zc.name as category_name,
-                er.description,
-                er.quantity,
-                er.amount,
-                (er.quantity * er.amount) as total_amount,
                 er.status,
                 er.created_at,
-                c.name as requesterName
+                c.name as requesterName,
+                GROUP_CONCAT(DISTINCT zc.name) as categories,
+                SUM(ei.quantity * ei.amount) as total_amount,
+                SUM(ei.quantity) as total_quantity,
+                COUNT(ei.id) as item_count
             FROM 
                 zero_based_expense_requests er
             JOIN 
                 zero_based_cost_centers cc ON cc.id = er.cost_center_id
             JOIN 
                 collaborators c ON c.id = er.requester_id
+            JOIN
+                zero_based_expense_items ei ON ei.expense_request_id = er.id
             LEFT JOIN
-                zero_based_categories zc ON zc.id = er.category
-            ${whereClause}
+                zero_based_categories zc ON zc.id = ei.category
+            ${expensesWhereClause}
+            GROUP BY
+                er.id, er.month, cc.name, er.status, er.created_at, c.name
             ORDER BY
                 er.created_at DESC
             LIMIT 100
@@ -1130,40 +1341,37 @@ const zeroBasedCostCenter = {
             id: item.id,
             costCenterName: item.costCenterName.toUpperCase(),
             month: item.month,
-            category: item.category_name || `Categoria ID: ${item.category_id}`,
-            category_name: item.category_name || `Categoria ID: ${item.category_id}`,
-            description: item.description,
-            quantity: item.quantity,
-            amount: item.amount,
-            total_amount: item.total_amount,
+            categories: item.categories ? item.categories.split(',') : [],
+            item_count: parseInt(item.item_count),
+            total_quantity: parseInt(item.total_quantity) || 0,
+            total_amount: parseFloat(item.total_amount) || 0,
             status: item.status,
             requesterName: item.requesterName,
             created_at: this.formatDateToPtBr(item.created_at)
         }));
         
         // Calcular totais para os cards de resumo
-        const totalRequests = formattedExpenses.length;
-        const totalApproved = formattedExpenses
-            .filter(e => e.status === 'Aprovado')
-            .reduce((sum, e) => sum + parseFloat(e.total_amount), 0);
-        const totalAmount = formattedExpenses
-            .reduce((sum, e) => sum + parseFloat(e.total_amount), 0);
+        const summary = {
+            totalRequests: formattedExpenses.length,
+            totalApproved: formattedExpenses
+                .filter(e => e.status === 'Aprovado')
+                .reduce((sum, e) => sum + e.total_amount, 0),
+            totalRejected: formattedExpenses
+                .filter(e => e.status === 'Rejeitado')
+                .reduce((sum, e) => sum + e.total_amount, 0)
+        };
         
         return {
-            summary: {
-                totalRequests,
-                totalApproved,
-                totalAmount
-            },
-            monthlyData: {
-                labels: monthLabels,
-                values: monthValues
-            },
-            categoryData: {
-                labels: categoryLabels,
-                values: categoryValues
-            },
-            expenses: formattedExpenses
+            summary,
+            monthlyData,
+            statusData,
+            expenses: formattedExpenses.map(e => ({
+                ...e,
+                total_amount: new Intl.NumberFormat('pt-BR', { 
+                    style: 'currency', 
+                    currency: 'BRL' 
+                }).format(e.total_amount)
+            }))
         };
     },
     
@@ -1184,20 +1392,77 @@ const zeroBasedCostCenter = {
                 er.created_at DESC
         `);
 
-        const formattedRequests = result.map(item => {
-            // Formatação do valor para exibição
-            const amount = parseFloat(item.amount).toFixed(2);
+        // Se não houver solicitações, retornar array vazio
+        if (result.length === 0) {
+            return [];
+        }
+        
+        // Obter IDs de todas as solicitações para buscar seus itens
+        const requestIds = result.map(request => request.id);
+        
+        // Buscar todos os itens de todas as solicitações
+        const itemsResult = await executeQuery(`
+            SELECT 
+                i.*,
+                zc.name as categoryName
+            FROM 
+                zero_based_expense_items i
+            LEFT JOIN
+                zero_based_categories zc ON zc.id = i.category
+            WHERE 
+                i.expense_request_id IN (?)
+            ORDER BY
+                i.expense_request_id, i.id
+        `, [requestIds]);
+        
+        // Agrupar os itens por solicitação
+        const itemsByRequest = {};
+        itemsResult.forEach(item => {
+            if (!itemsByRequest[item.expense_request_id]) {
+                itemsByRequest[item.expense_request_id] = [];
+            }
+            itemsByRequest[item.expense_request_id].push(item);
+        });
+
+        const formattedRequests = result.map(request => {
+            // Obter os itens para esta solicitação
+            const items = itemsByRequest[request.id] || [];
+            
+            // Calcular o total da solicitação
+            let totalValue = 0;
+            let mainCategory = '';
+            let mainDescription = '';
+            
+            if (items.length > 0) {
+                // Calcular o total somando todos os itens
+                totalValue = items.reduce((sum, item) => {
+                    return sum + (parseFloat(item.quantity) * parseFloat(item.amount));
+                }, 0);
+                
+                // Usar categoria e descrição do primeiro item como referência
+                mainCategory = items[0].categoryName || `Categoria ID: ${items[0].category}`;
+                mainDescription = items.length === 1 
+                    ? items[0].description 
+                    : `${items[0].description} e mais ${items.length - 1} ${items.length === 2 ? 'item' : 'itens'}`;
+            }
+            
+            // Formatação do valor total para exibição
+            const formattedAmount = new Intl.NumberFormat('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL' 
+            }).format(totalValue);
             
             return {
-                id: item.id,
-                month: item.month,
-                category: item.category,
-                description: item.description,
-                quantity: item.quantity,
-                amount: amount,
-                status: item.status,
-                requesterName: `${item.requesterName} ${item.requesterFamilyName}`,
-                created_at: item.created_at
+                id: request.id,
+                month: request.month,
+                category: mainCategory,
+                description: mainDescription,
+                item_count: items.length,
+                amount: formattedAmount,
+                raw_amount: totalValue,
+                status: request.status,
+                requesterName: `${request.requesterName} ${request.requesterFamilyName}`,
+                created_at: this.formatDateToPtBr(request.created_at)
             };
         });
 
@@ -1214,8 +1479,7 @@ const zeroBasedCostCenter = {
                 cc.name as costCenterName,
                 ea.id as approval_id,
                 c.name as requesterName,
-                c.family_name as requesterFamilyName,
-                zc.name as category_name
+                c.family_name as requesterFamilyName
             FROM 
                 zero_based_expense_approvals ea
             JOIN 
@@ -1224,8 +1488,6 @@ const zeroBasedCostCenter = {
                 zero_based_cost_centers cc ON cc.id = er.cost_center_id
             JOIN
                 collaborators c ON c.id = er.requester_id
-            LEFT JOIN
-                zero_based_categories zc ON zc.id = er.category
             WHERE 
                 ea.approver_id = ${collaborator_id}
                 AND ea.status = 'Pendente'
@@ -1233,20 +1495,80 @@ const zeroBasedCostCenter = {
                 er.created_at DESC
         `);
 
-        const formattedRequests = result.map(item => {
-            const totalAmount = parseFloat(item.quantity || 1) * parseFloat(item.amount);
+        // Se não houver solicitações pendentes, retornar array vazio
+        if (result.length === 0) {
+            return [];
+        }
+        
+        // Obter IDs de todas as solicitações para buscar seus itens
+        const requestIds = result.map(request => request.id);
+        
+        // Buscar todos os itens de todas as solicitações
+        const itemsResult = await executeQuery(`
+            SELECT 
+                i.*,
+                zc.name as categoryName
+            FROM 
+                zero_based_expense_items i
+            LEFT JOIN
+                zero_based_categories zc ON zc.id = i.category
+            WHERE 
+                i.expense_request_id IN (?)
+            ORDER BY
+                i.expense_request_id, i.id
+        `, [requestIds]);
+        
+        // Agrupar os itens por solicitação
+        const itemsByRequest = {};
+        itemsResult.forEach(item => {
+            if (!itemsByRequest[item.expense_request_id]) {
+                itemsByRequest[item.expense_request_id] = [];
+            }
+            itemsByRequest[item.expense_request_id].push(item);
+        });
+
+        const formattedRequests = result.map(request => {
+            // Obter os itens para esta solicitação
+            const items = itemsByRequest[request.id] || [];
+            
+            // Calcular o total da solicitação
+            let totalValue = 0;
+            let mainCategory = '';
+            let mainDescription = '';
+            
+            if (items.length > 0) {
+                // Calcular o total somando todos os itens
+                totalValue = items.reduce((sum, item) => {
+                    return sum + (parseFloat(item.quantity) * parseFloat(item.amount));
+                }, 0);
+                
+                // Usar categoria e descrição do primeiro item como referência
+                mainCategory = items[0].categoryName || `Categoria ID: ${items[0].category}`;
+                mainDescription = items.length === 1 
+                    ? items[0].description 
+                    : `${items[0].description} e mais ${items.length - 1} ${items.length === 2 ? 'item' : 'itens'}`;
+            }
             
             return {
-                id: item.id,
-                costCenterName: item.costCenterName.toUpperCase(),
-                category: item.category_name || `Categoria ID: ${item.category}`,
-                description: item.description,
-                quantity: item.quantity || 1,
-                amount: parseFloat(item.amount),
-                total_amount: totalAmount,
-                requestDate: item.created_at,
-                requesterName: `${item.requesterName} ${item.requesterFamilyName}`,
-                approval_id: item.approval_id
+                id: request.id,
+                costCenterName: request.costCenterName.toUpperCase(),
+                category: mainCategory,
+                description: mainDescription,
+                item_count: items.length,
+                amount: new Intl.NumberFormat('pt-BR', { 
+                    style: 'currency', 
+                    currency: 'BRL' 
+                }).format(totalValue),
+                raw_amount: totalValue,
+                requestDate: this.formatDateToPtBr(request.created_at),
+                requesterName: `${request.requesterName} ${request.requesterFamilyName}`,
+                items: items.map(item => ({
+                    id: item.id,
+                    categoryName: item.categoryName || `Categoria ID: ${item.category}`,
+                    description: item.description,
+                    quantity: parseInt(item.quantity) || 0,
+                    amount: parseFloat(item.amount) || 0
+                }))
             };
         });
 

@@ -58,7 +58,20 @@ function setElementHTML(elementId, html) {
 // Função para carregar os dados da solicitação
 async function loadExpenseRequestData(id) {
     try {
+        if (!id) {
+            console.error('ID da solicitação não fornecido para carregamento');
+            showAlert('Erro', 'ID da solicitação não fornecido', 'error');
+            return;
+        }
+        
+        console.log('Carregando dados da solicitação:', id);
+        
         const userLogged = await getInfosLogin();
+        if (!userLogged || !userLogged.system_collaborator_id) {
+            console.error('Informações do usuário não disponíveis');
+            showAlert('Erro', 'Não foi possível obter informações do usuário logado', 'error');
+            return;
+        }
         
         // Fazer a requisição para obter os dados da solicitação
         const response = await fetch(`/api/zero-based-budgeting/getExpenseRequestView`, {
@@ -66,7 +79,7 @@ async function loadExpenseRequestData(id) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ id: id })
+            body: JSON.stringify({ id: parseInt(id) })
         });
         
         const result = await response.json();
@@ -95,6 +108,27 @@ async function loadExpenseRequestData(id) {
         setElementContent('requester-name', data.requesterName);
         setImageSrc('requester-avatar', data.requesterAvatar);
         setElementContent('expense-created', data.created_at);
+        
+        // Renderizar os itens da solicitação
+        const itemsContainer = document.getElementById('expense-items');
+        if (itemsContainer && data.items && Array.isArray(data.items)) {
+            let itemsHTML = '';
+            data.items.forEach(item => {
+                itemsHTML += `
+                    <tr>
+                        <td>${item.categoryName}</td>
+                        <td>${item.description}</td>
+                        <td class="text-center">${item.quantity}</td>
+                        <td class="text-end">${item.amount}</td>
+                        <td class="text-end">${item.subtotal}</td>
+                    </tr>
+                `;
+            });
+            itemsContainer.innerHTML = itemsHTML;
+        }
+        
+        // Exibir o valor total
+        setElementContent('expense-total-amount', data.total_amount);
         
         // Exibir o status
         let statusClass, statusText;
@@ -235,42 +269,249 @@ function renderApprovalsTimeline(approvals) {
 // Verifica se o usuário atual é um aprovador e mostra botões de ação
 function checkApproverActions(approvals, currentUserId, requestStatus) {
     const actionsContainer = document.getElementById('approval-actions');
-    if (!actionsContainer) {
+    const changeContainer = document.getElementById('change-approval-actions');
+    
+    if (!actionsContainer || !changeContainer) {
         console.warn("Container de ações não encontrado");
         return false;
     }
+    
+    // Limpar os contêineres
+    actionsContainer.innerHTML = '';
+    changeContainer.innerHTML = '';
     
     // Verificar se o usuário atual é um aprovador pendente
     const pendingApproval = approvals.find(a => 
         a.approver_id == currentUserId && a.status === 'Pendente'
     );
     
-    // Se não for um aprovador pendente ou se a solicitação já tiver sido finalizada, retornar false
-    if (!pendingApproval || (requestStatus !== 'Pendente' && requestStatus !== 'Aprovação Parcial')) {
-        actionsContainer.innerHTML = '';
+    // Verificar se o usuário já processou esta solicitação
+    const processedApproval = approvals.find(a =>
+        a.approver_id == currentUserId && (a.status === 'Aprovado' || a.status === 'Rejeitado')
+    );
+    
+    // Se não for um aprovador pendente nem já tiver processado, retornar false
+    if (!pendingApproval && !processedApproval) {
         return false;
     }
     
-    // Mostrar botões de ação
-    actionsContainer.innerHTML = `
-        <button class="btn btn-success approve-request-btn" id="approve-btn">
-            <i class="ri-check-line me-1"></i> Aprovar
-        </button>
-        <button class="btn btn-danger reject-request-btn" id="reject-btn">
-            <i class="ri-close-line me-1"></i> Rejeitar
-        </button>
-    `;
+    let userCanAct = false;
     
-    // Adicionar listeners para os botões
-    document.getElementById('approve-btn').addEventListener('click', function() {
-        processRequest(pendingApproval.expense_request_id, currentUserId, 'Aprovado');
+    // Obter o ID da solicitação
+    const requestId = document.getElementById('request-id').textContent;
+    if (!requestId || requestId === 'Carregando...') {
+        console.error('ID da solicitação não encontrado ou ainda não carregado');
+        return false;
+    }
+    
+    console.log('ID da solicitação:', requestId);
+    console.log('ID do aprovador:', currentUserId);
+    
+    // Se tiver aprovação pendente e a solicitação não estiver finalizada, mostrar botões padrão
+    if (pendingApproval && (requestStatus === 'Pendente' || requestStatus === 'Aprovação Parcial')) {
+        // Mostrar botões de ação para aprovação pendente
+        actionsContainer.innerHTML = `
+            <button class="btn btn-success approve-request-btn" id="approve-btn">
+                <i class="ri-check-line me-1"></i> Aprovar
+            </button>
+            <button class="btn btn-danger reject-request-btn" id="reject-btn">
+                <i class="ri-close-line me-1"></i> Rejeitar
+            </button>
+        `;
+        
+        // Adicionar listeners para os botões
+        document.getElementById('approve-btn').addEventListener('click', function() {
+            processRequest(requestId, currentUserId, 'Aprovado');
+        });
+        
+        document.getElementById('reject-btn').addEventListener('click', function() {
+            showRejectDialog(requestId, currentUserId);
+        });
+        
+        userCanAct = true;
+    }
+    
+    // Se já tiver processado, mostrar opção para mudar decisão
+    if (processedApproval) {
+        const statusActual = processedApproval.status;
+        const newStatus = statusActual === 'Aprovado' ? 'Rejeitado' : 'Aprovado';
+        const buttonClass = newStatus === 'Aprovado' ? 'btn-success' : 'btn-danger';
+        const iconClass = newStatus === 'Aprovado' ? 'ri-check-line' : 'ri-close-line';
+        
+        changeContainer.innerHTML = `
+            <h6 class="mb-2">Alterar sua decisão anterior</h6>
+            <div class="alert alert-info">
+                <p class="mb-2">
+                    <i class="ri-information-line me-1"></i> 
+                    Você já ${statusActual === 'Aprovado' ? 'aprovou' : 'rejeitou'} esta solicitação. Caso deseje alterar sua decisão, utilize o botão abaixo.
+                </p>
+            </div>
+            <button class="btn ${buttonClass} change-approval-btn" id="change-btn">
+                <i class="${iconClass} me-1"></i> Alterar para ${newStatus}
+            </button>
+        `;
+        
+        // Adicionar listener para o botão de alteração
+        document.getElementById('change-btn').addEventListener('click', function() {
+            showChangeDialog(requestId, currentUserId, newStatus, statusActual);
+        });
+        
+        userCanAct = true;
+    }
+    
+    return userCanAct;
+}
+
+// Função para mostrar diálogo de alteração de status com comentário
+function showChangeDialog(requestId, approverId, newStatus, currentStatus) {
+    const title = `Alterar para ${newStatus}`;
+    const text = `Por favor, informe o motivo da alteração de "${currentStatus}" para "${newStatus}":`;
+    
+    Swal.fire({
+        title: title,
+        text: text,
+        input: 'textarea',
+        inputPlaceholder: 'Digite o motivo aqui...',
+        inputAttributes: {
+            'aria-label': 'Motivo da alteração'
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar Alteração',
+        cancelButtonText: 'Cancelar',
+        showLoaderOnConfirm: true,
+        preConfirm: (comment) => {
+            if (!comment || comment.trim() === '') {
+                Swal.showValidationMessage('O motivo da alteração é obrigatório');
+                return false;
+            }
+            return comment;
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+        if (result.isConfirmed) {
+            console.log('Processando alteração de status:', {
+                requestId, 
+                approverId, 
+                newStatus,
+                currentStatus,
+                comment: result.value
+            });
+            
+            changeApprovalStatus(requestId, approverId, newStatus, result.value);
+        }
     });
-    
-    document.getElementById('reject-btn').addEventListener('click', function() {
-        showRejectDialog(pendingApproval.expense_request_id, currentUserId);
+}
+
+// Função para mudar o status de uma aprovação
+async function changeApprovalStatus(requestId, approverId, newStatus, comment = '') {
+    try {
+        // Mostrar mensagem de confirmação
+        const result = await Swal.fire({
+            title: 'Alterar Decisão',
+            text: `Você tem certeza que deseja alterar sua decisão para "${newStatus}"?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, alterar',
+            cancelButtonText: 'Cancelar'
+        });
+        
+        if (!result.isConfirmed) return;
+        
+        console.log('Enviando alteração de status:', {
+            expense_request_id: requestId,
+            approver_id: approverId,
+            status: newStatus,
+            comment: comment,
+            is_change: true
+        });
+        
+        // Executar a alteração
+        const response = await fetch('/api/zero-based-budgeting/processExpenseRequest', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                expense_request_id: parseInt(requestId),
+                approver_id: parseInt(approverId),
+                status: newStatus,
+                comment: comment,
+                is_change: true
+            })
+        });
+        
+        const apiResult = await response.json();
+        
+        if (apiResult.success) {
+            showAlert('Sucesso', `Sua decisão foi alterada para ${newStatus} com sucesso!`, 'success');
+            
+            // Recarregar os dados para mostrar as alterações
+            setTimeout(() => {
+                loadExpenseRequestData(requestId);
+            }, 1000);
+        } else {
+            showAlert('Erro', apiResult.message || `Falha ao alterar para ${newStatus}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erro ao alterar status:', error);
+        showAlert('Erro', `Ocorreu um erro ao alterar o status`, 'error');
+    }
+}
+
+// Mostrar diálogo para rejeição com comentário (manter para compatibilidade)
+function showRejectDialog(requestId, approverId, isChange = false) {
+    if (isChange) {
+        showChangeDialog(requestId, approverId, 'Rejeitado', 'Aprovado');
+    } else {
+        Swal.fire({
+            title: 'Rejeitar Solicitação',
+            text: 'Por favor, informe o motivo da rejeição:',
+            input: 'textarea',
+            inputPlaceholder: 'Digite o motivo aqui...',
+            inputAttributes: {
+                'aria-label': 'Motivo da rejeição'
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Rejeitar',
+            cancelButtonText: 'Cancelar',
+            showLoaderOnConfirm: true,
+            preConfirm: (comment) => {
+                if (!comment || comment.trim() === '') {
+                    Swal.showValidationMessage('O motivo da rejeição é obrigatório');
+                    return false;
+                }
+                return comment;
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                console.log('Processando rejeição:', {
+                    requestId, 
+                    approverId, 
+                    comment: result.value
+                });
+                
+                processRequest(requestId, approverId, 'Rejeitado', result.value);
+            }
+        });
+    }
+}
+
+// Exibir alerta com SweetAlert2
+function showAlert(title, message, icon) {
+    Swal.fire({
+        title: title,
+        text: message,
+        icon: icon,
+        confirmButtonText: 'OK'
     });
-    
-    return true;
+}
+
+// Obter as informações do usuário logado do localStorage
+async function getInfosLogin() {
+    const StorageGoogleData = localStorage.getItem('StorageGoogle');
+    const StorageGoogle = JSON.parse(StorageGoogleData);
+    return StorageGoogle;   
 }
 
 // Configurar os botões de ação
@@ -300,14 +541,21 @@ function setupActionButtons(requestId) {
 // Função para processar aprovação/rejeição
 async function processRequest(requestId, approverId, status, comment = '') {
     try {
+        console.log('Processando solicitação:', {
+            requestId,
+            approverId,
+            status,
+            comment
+        });
+        
         const response = await fetch('/api/zero-based-budgeting/processExpenseRequest', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                expense_request_id: requestId,
-                approver_id: approverId,
+                expense_request_id: parseInt(requestId),
+                approver_id: parseInt(approverId),
                 status: status,
                 comment: comment
             })
@@ -329,50 +577,4 @@ async function processRequest(requestId, approverId, status, comment = '') {
         console.error('Erro ao processar solicitação:', error);
         showAlert('Erro', `Ocorreu um erro ao ${status.toLowerCase()} a solicitação`, 'error');
     }
-}
-
-// Mostrar diálogo para rejeição com comentário
-function showRejectDialog(requestId, approverId) {
-    Swal.fire({
-        title: 'Rejeitar Solicitação',
-        text: 'Por favor, informe o motivo da rejeição:',
-        input: 'textarea',
-        inputPlaceholder: 'Digite o motivo aqui...',
-        inputAttributes: {
-            'aria-label': 'Motivo da rejeição'
-        },
-        showCancelButton: true,
-        confirmButtonText: 'Rejeitar',
-        cancelButtonText: 'Cancelar',
-        showLoaderOnConfirm: true,
-        preConfirm: (comment) => {
-            if (!comment || comment.trim() === '') {
-                Swal.showValidationMessage('O motivo da rejeição é obrigatório');
-                return false;
-            }
-            return comment;
-        },
-        allowOutsideClick: () => !Swal.isLoading()
-    }).then((result) => {
-        if (result.isConfirmed) {
-            processRequest(requestId, approverId, 'Rejeitado', result.value);
-        }
-    });
-}
-
-// Exibir alerta com SweetAlert2
-function showAlert(title, message, icon) {
-    Swal.fire({
-        title: title,
-        text: message,
-        icon: icon,
-        confirmButtonText: 'OK'
-    });
-}
-
-// Obter as informações do usuário logado do localStorage
-async function getInfosLogin() {
-    const StorageGoogleData = localStorage.getItem('StorageGoogle');
-    const StorageGoogle = JSON.parse(StorageGoogleData);
-    return StorageGoogle;   
 } 

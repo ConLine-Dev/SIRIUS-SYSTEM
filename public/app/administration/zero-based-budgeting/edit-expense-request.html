@@ -44,105 +44,118 @@
         </div>
     </div>
     
-    <div class="bodyWindows">
-        <div class="card custom-card mt-3">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">
-                    <i class="ri-edit-line me-2"></i> Editar Solicitação de Gasto
-                </h5>
-                <div>
-                    <button id="cancel-btn" class="btn btn-sm btn-outline-secondary">
-                        <i class="ri-close-line"></i> Cancelar
-                    </button>
+    <div class="">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card custom-card bodyWindows">
+                    <!-- BOTÕES DE AÇÃO -->
+                    <div class="justify-content-between headerButtons">
+                        <ul class="nav nav-tabs border-0" role="tablist">
+                            <li class="nav-item" role="presentation"> 
+                                <a class="nav-link label-btn" id="btn-save">
+                                    <i class="ri-save-3-line label-btn-icon me-2"></i>
+                                    Salvar
+                                </a> 
+                            </li>
+                            <li class="nav-item" role="presentation"> 
+                                <a class="nav-link label-btn" id="btn-cancel">
+                                    <i class="ri-close-line label-btn-icon me-2"></i>
+                                    Cancelar
+                                </a> 
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card-body">
+                        <input type="hidden" id="expense-request-id">
+                        
+                        <div class="row">
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12"> 
+                                <label class="form-label">Mês de Referência</label>
+                                <select class="form-control" name="month" id="month">
+                                    <option value="">Selecione o mês</option>
+                                    <option value="Janeiro">Janeiro</option>
+                                    <option value="Fevereiro">Fevereiro</option>
+                                    <option value="Março">Março</option>
+                                    <option value="Abril">Abril</option>
+                                    <option value="Maio">Maio</option>
+                                    <option value="Junho">Junho</option>
+                                    <option value="Julho">Julho</option>
+                                    <option value="Agosto">Agosto</option>
+                                    <option value="Setembro">Setembro</option>
+                                    <option value="Outubro">Outubro</option>
+                                    <option value="Novembro">Novembro</option>
+                                    <option value="Dezembro">Dezembro</option>
+                                </select>
+                            </div>
+                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                                <label class="form-label">Centro de Custo</label>
+                                <select class="form-control" name="cost_center" id="cost-center">
+                                    <option value="">Selecione o centro de custo</option>
+                                </select>
+                            </div>
+                        </div>
+                        <br>
+
+                        <!-- Seção de Itens -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="card-title mb-0">Itens da Solicitação</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="items-container">
+                                            <!-- Container para itens dinâmicos -->
+                                        </div>
+                                        
+                                        <div class="row mt-3">
+                                            <div class="col-12">
+                                                <button type="button" id="add-item-btn" class="btn btn-primary btn-sm">
+                                                    <i class="ri-add-line"></i> Adicionar Item
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row mt-3">
+                                            <div class="col-12 text-end">
+                                                <div class="fs-5">
+                                                    <span>Total: R$ </span>
+                                                    <span id="total-amount">0,00</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12"> 
+                                <label class="form-label">Contribuição para a Estratégia da Empresa</label> 
+                                <textarea id="strategic-contribution" name="strategic_contribution" class="form-control form-input" cols="30" rows="5" placeholder="Descreva como este gasto contribui para os objetivos estratégicos da empresa"></textarea>
+                            </div>
+                        </div>
+                        <br>
+
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="alert alert-info" role="alert">
+                                    <div class="d-flex align-items-center">
+                                        <i class="ri-information-line me-2 fs-16"></i>
+                                        <div>
+                                            <strong>Fluxo de aprovação:</strong> Sua solicitação será enviada para análise e deverá ser aprovada por: Eduardo Cunha, Natally Sagas e Edson Tavares.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="card-body">
-                <form id="edit-expense-request-form">
-                    <input type="hidden" id="expense-request-id">
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="cost-center" class="form-label">Centro de Custo <span class="text-danger">*</span></label>
-                            <select class="form-control form-select" id="cost-center" required>
-                                <option value="">Selecione um centro de custo</option>
-                                <!-- Opções serão carregadas dinamicamente -->
-                            </select>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="month" class="form-label">Mês de Referência <span class="text-danger">*</span></label>
-                            <select class="form-control form-select" id="month" required>
-                                <option value="">Selecione o mês</option>
-                                <option value="Janeiro">Janeiro</option>
-                                <option value="Fevereiro">Fevereiro</option>
-                                <option value="Março">Março</option>
-                                <option value="Abril">Abril</option>
-                                <option value="Maio">Maio</option>
-                                <option value="Junho">Junho</option>
-                                <option value="Julho">Julho</option>
-                                <option value="Agosto">Agosto</option>
-                                <option value="Setembro">Setembro</option>
-                                <option value="Outubro">Outubro</option>
-                                <option value="Novembro">Novembro</option>
-                                <option value="Dezembro">Dezembro</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="category-select" class="form-label">Categoria</label>
-                        <select id="category-select" name="category" class="form-select" required>
-                            <!-- As opções serão carregadas dinamicamente da API -->
-                        </select>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-3">
-                            <label for="quantity" class="form-label">Quantidade <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="quantity" min="1" value="1" required>
-                        </div>
-                        
-                        <div class="col-md-3">
-                            <label for="amount" class="form-label">Valor Unitário (R$) <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="amount" min="0" step="0.01" required>
-                        </div>
-                        
-                        <div class="col-md-3">
-                            <label for="total-amount" class="form-label">Valor Total (R$)</label>
-                            <input type="text" class="form-control" id="total-amount" readonly>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="description" class="form-label">Descrição <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="description" rows="3" required></textarea>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <label for="strategic-contribution" class="form-label">Contribuição Estratégica</label>
-                            <textarea class="form-control" id="strategic-contribution" rows="3" placeholder="Descreva como este gasto contribui para os objetivos estratégicos do departamento ou empresa..."></textarea>
-                        </div>
-                    </div>
-                    
-                    <div class="row mt-4">
-                        <div class="col-md-12 d-flex justify-content-end gap-2">
-                            <button type="button" id="cancel-btn-bottom" class="btn btn-outline-secondary">
-                                <i class="ri-close-line me-1"></i> Cancelar
-                            </button>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="ri-save-line me-1"></i> Salvar Alterações
-                            </button>
-                        </div>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
-    
+
     <!-- Scroll To Top -->
     <div class="scrollToTop">
         <span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span>

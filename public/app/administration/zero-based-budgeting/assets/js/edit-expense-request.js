@@ -1,263 +1,150 @@
 // Variaveis globais para gerenciamento de selects com o Choices
 let sMonth, sCostCenter, sCategory;
 
-// Script para a página de edição de solicitação de gasto
+// Script para a página de edição de solicitações de gastos
 document.addEventListener("DOMContentLoaded", async () => {
+    // Esconder o loader quando a página estiver carregada
+    const loader = document.querySelector('.page-loader');
+    if (loader) {
+        loader.classList.add('d-none');
+    }
+    
     // Obter o ID da solicitação da URL
     const urlParams = new URLSearchParams(window.location.search);
-    const expenseRequestId = urlParams.get('id');
+    const requestId = urlParams.get('id');
     
-    if (!expenseRequestId) {
+    if (!requestId) {
         showAlert('Erro', 'ID da solicitação não fornecido!', 'error');
         return;
     }
 
-    try {
-        // Exibir loader
-        const loader = document.querySelector('.page-loader');
-        if (loader) {
-            loader.classList.remove('d-none');
-        }
-        
-        // 1. Inicializar os selects com Choices.js
-        await initializeSelects();
-        
-        // 2. Carregar os dados da solicitação e preencher o formulário
-        await loadExpenseRequestData(expenseRequestId);
-        
-        // 3. Configurar os botões e o formulário
-        setupForm(expenseRequestId);
-        
-        // Esconder o loader quando tudo estiver carregado
-        if (loader) {
-            loader.classList.add('d-none');
-        }
-    } catch (error) {
-        console.error('Erro na inicialização da página:', error);
-        showAlert('Erro', 'Ocorreu um erro ao carregar a página', 'error');
-        
-        // Esconder loader em caso de erro
-        const loader = document.querySelector('.page-loader');
-        if (loader) {
-            loader.classList.add('d-none');
-        }
-    }
+    // Carregar os centros de custo
+    await loadCostCenters();
+    
+    // Carregar as categorias
+    await loadCategories();
+    
+    // Carregar os dados da solicitação
+    await loadExpenseRequestData(requestId);
+    
+    // Configurar os eventos
+    setupEventListeners();
 });
 
-// Função para carregar as categorias ativas da API
-async function loadCategories() {
-    try {
-        const response = await fetch('/api/zero-based-budgeting/getActiveCategories');
-        const result = await response.json();
-        
-        if (!result.success) {
-            console.error('Erro ao carregar categorias:', result.message);
-            return;
-        }
-        
-        const categories = result.data;
-        
-        // Verificar se já existe um select de categorias
-        const existingCategorySelect = document.querySelector('#category-select');
-        if (existingCategorySelect && existingCategorySelect._choice) {
-            existingCategorySelect._choice.destroy();
-        }
-        
-        // Limpar qualquer opção existente
-        if (existingCategorySelect) {
-            existingCategorySelect.innerHTML = '';
-        }
-        
-        // Adicionar as categorias como opções
-        const selectElement = existingCategorySelect || document.createElement('select');
-        
-        // Formatar as categorias para o Choices.js
-        const formattedCategories = categories.map(category => ({
-            value: category.id.toString(),
-            label: category.name
-        }));
-        
-        // Inicializar o Choices.js para o select de categoria
-        const categorySelect = new Choices(selectElement, {
-            searchEnabled: true,
-            itemSelectText: '',
-            shouldSort: false,
-            allowHTML: true,
-            choices: formattedCategories
-        });
-        
-        // Guardar referência para uso posterior
-        if (existingCategorySelect) {
-            existingCategorySelect._choice = categorySelect;
-        }
-        
-    } catch (error) {
-        console.error('Erro ao carregar categorias:', error);
-    }
-}
-
-// Função para inicializar os selects com Choices.js
-function initializeSelects() {
-    // Inicializa o select para centro de custo
-    loadCostCenters()
-        .then(() => {
-            // Depois de carregar os centros de custo, carrega as categorias
-            loadCategories();
-        })
-        .catch((error) => {
-            console.error('Erro ao inicializar selects:', error);
-        });
-        
-    // Inicializa o select para mês de referência
-    const monthSelect = document.getElementById('month');
-    if (monthSelect) {
-        sMonth = new Choices(monthSelect, {
-            searchEnabled: false,
-            itemSelectText: '',
-            shouldSort: false
-        });
-    }
-        
-    // Inicializa o select para modo de pagamento
-    const paymentModeSelect = document.getElementById('payment-mode-select');
-    if (paymentModeSelect) {
-        new Choices(paymentModeSelect, {
-            searchEnabled: false,
-            itemSelectText: '',
-            shouldSort: false
-        });
-    }
-}
-
-// Função para carregar a lista de centros de custo
+// Função para carregar os centros de custo
 async function loadCostCenters() {
     try {
         // Obter as informações do usuário logado
         const user = await getInfosLogin();
         
         // Fazer a requisição para obter os centros de custo
-        const costCenters = await makeRequest(`/api/zero-based-budgeting/getCostCentersByUser?id_collaborator=${user.system_collaborator_id}`);
+        const response = await fetch(`/api/zero-based-budgeting/getCostCentersByUser?id_collaborator=${user.system_collaborator_id}`);
+        const result = await response.json();
         
-        if (!costCenters || costCenters.length === 0) {
-            console.error('Falha ao carregar centros de custo');
-            return;
+        if (result.success) {
+            const costCenterSelect = document.getElementById('cost-center');
+            result.data.forEach(costCenter => {
+                const option = new Option(costCenter.name, costCenter.id);
+                costCenterSelect.add(option);
+            });
         }
-        
-        // Formata o array para ser usado com o Choices.js
-        const listaDeOpcoes = costCenters.map(function (element) {
-            return {
-                value: `${element.id}`,
-                label: `${element.name}`,
-            };
-        });
-        
-        // Verifica se o select já existe, caso exista destroi
-        if (sCostCenter) {
-            sCostCenter.destroy();
-        }
-        
-        // Renderiza o select com as opções formatadas
-        sCostCenter = new Choices('#cost-center', {
-            choices: listaDeOpcoes,
-            shouldSort: false,
-            removeItemButton: false,
-            noChoicesText: 'Não há opções disponíveis',
-        });
-        
-        console.log('Centros de custo carregados:', costCenters.length);
-        
     } catch (error) {
         console.error('Erro ao carregar centros de custo:', error);
-        showAlert('Erro', 'Ocorreu um erro ao carregar a lista de centros de custo', 'error');
+        showAlert('Erro', 'Falha ao carregar os centros de custo', 'error');
     }
 }
 
-// Função para carregar os dados da solicitação de gasto
+// Função para carregar as categorias
+async function loadCategories() {
+    try {
+        const response = await fetch('/api/zero-based-budgeting/getActiveCategories');
+        const result = await response.json();
+        
+        if (result.success) {
+            window.categoriesList = result.data;
+            populateCategorySelects();
+        }
+    } catch (error) {
+        console.error('Erro ao carregar categorias:', error);
+        showAlert('Erro', 'Falha ao carregar as categorias', 'error');
+    }
+}
+
+// Função para popular os selects de categoria
+function populateCategorySelects() {
+    const categorySelects = document.querySelectorAll('.item-category');
+    categorySelects.forEach(select => {
+        if (select.options.length <= 1) { // Se ainda não foi populado
+            window.categoriesList.forEach(category => {
+                const option = new Option(category.name, category.id);
+                select.add(option);
+            });
+        }
+    });
+}
+
+// Função para carregar os dados da solicitação
 async function loadExpenseRequestData(id) {
     try {
-        // Fazer a requisição para obter os dados da solicitação usando método POST
-        const data = await makeRequest(`/api/zero-based-budgeting/getExpenseRequestView`, 'POST', { id: id });
+        const response = await fetch(`/api/zero-based-budgeting/getExpenseRequestView`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: id })
+        });
         
-        if (!data) {
-            showAlert('Erro', 'Não foi possível carregar os dados da solicitação', 'error');
+        const result = await response.json();
+        
+        if (!result.success) {
+            showAlert('Erro', result.message || 'Falha ao carregar os dados da solicitação', 'error');
             return;
         }
         
-        console.log('Dados carregados:', data);
+        // Dados da solicitação
+        const data = result.data;
+        console.log('Dados recebidos:', data); // Debug
         
-        // Verificar se a solicitação pode ser editada (apenas solicitações pendentes)
-        if (data.status !== 'Pendente') {
-            showAlert('Aviso', 'Apenas solicitações com status Pendente podem ser editadas.', 'warning');
-            
-            // Desabilitar o formulário
-            const form = document.getElementById('edit-expense-request-form');
-            if (form) {
-                const inputs = form.querySelectorAll('input, select, textarea');
-                inputs.forEach(input => input.disabled = true);
-                
-                const submitBtn = form.querySelector('button[type="submit"]');
-                if (submitBtn) submitBtn.disabled = true;
-            }
-            
-            return;
-        }
-        
-        // Preencher os campos do formulário com os dados
+        // Preencher os campos do formulário
         document.getElementById('expense-request-id').value = data.id;
-        document.getElementById('description').value = data.description || '';
-        document.getElementById('quantity').value = data.quantity || 1;
-        
-        // Formatar o valor removendo a formatação de moeda, se necessário
-        let amountValue = data.raw_amount || data.amount;
-        if (typeof amountValue === 'string' && amountValue.includes('R$')) {
-            // Remover formatação de moeda
-            amountValue = amountValue.replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
-        }
-        document.getElementById('amount').value = amountValue;
-        
-        // Calcular e preencher o valor total
-        const quantity = parseFloat(data.quantity) || 1;
-        const amount = parseFloat(amountValue) || 0;
-        const total = quantity * amount;
-        
-        // Formatar o valor total para exibição
-        const formattedTotal = new Intl.NumberFormat('pt-BR', { 
-            style: 'currency', 
-            currency: 'BRL' 
-        }).format(total);
-        
-        const totalAmountInput = document.getElementById('total-amount');
-        if (totalAmountInput) {
-            totalAmountInput.value = formattedTotal;
-        }
-        
+        document.getElementById('month').value = data.month;
+        document.getElementById('cost-center').value = data.cost_center_id;
         document.getElementById('strategic-contribution').value = data.strategic_contribution || '';
         
-        // Definir os valores dos selects usando as instâncias do Choices.js
+        // Limpar o container de itens
+        const itemsContainer = document.getElementById('items-container');
+        itemsContainer.innerHTML = '';
         
-        // Selecionar o centro de custo no dropdown
-        if (sCostCenter) {
-            sCostCenter.setChoiceByValue(data.cost_center_id.toString());
-            console.log('Centro de custo selecionado:', data.cost_center_id);
-        }
-        
-        // Selecionar o mês no dropdown
-        if (sMonth) {
-            sMonth.setChoiceByValue(data.month);
-            console.log('Mês selecionado:', data.month);
+        // Adicionar os itens existentes
+        if (data.items && Array.isArray(data.items)) {
+            data.items.forEach(item => {
+                console.log('Item a ser formatado:', item); // Debug
+                
+                // Remover formatação de moeda se necessário
+                let amount = item.amount;
+                if (typeof amount === 'string') {
+                    amount = amount.replace('R$', '').replace(/\./g, '').replace(',', '.').trim();
+                }
+                amount = parseFloat(amount);
+                
+                // Formatar o item antes de passar para addItemRow
+                const formattedItem = {
+                    category: item.category_id || item.category,
+                    description: item.description,
+                    quantity: parseFloat(item.quantity) || 1,
+                    amount: amount,
+                    categoryName: item.category_name || ''
+                };
+                console.log('Item formatado:', formattedItem); // Debug
+                addItemRow(formattedItem);
+            });
         } else {
-            // Fallback caso o Choices.js não esteja inicializado
-            const monthSelect = document.getElementById('month');
-            if (monthSelect) {
-                monthSelect.value = data.month;
-            }
+            // Adicionar pelo menos uma linha de item
+            addItemRow();
         }
         
-        // Selecionar a categoria no dropdown
-        if (sCategory) {
-            sCategory.setChoiceByValue(data.category);
-            console.log('Categoria selecionada:', data.category);
-        }
+        // Calcular o total
+        calculateTotal();
         
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
@@ -265,152 +152,286 @@ async function loadExpenseRequestData(id) {
     }
 }
 
-// Configurar o formulário e os botões
-function setupForm(expenseRequestId) {
-    // Botões para cancelar
-    const cancelButtons = document.querySelectorAll('#cancel-btn, #cancel-btn-bottom');
-    cancelButtons.forEach(button => {
-        if (button) {
-            button.addEventListener('click', function() {
-                window.close();
-            });
-        }
+// Função para adicionar uma nova linha de item
+function addItemRow(itemData = null) {
+    const itemsContainer = document.getElementById('items-container');
+    const newRow = document.createElement('div');
+    newRow.className = 'item-row mb-3';
+    
+    newRow.innerHTML = `
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-2">
+                <label class="form-label">Categoria</label>
+                <select class="form-control item-category" required>
+                    <option value="">Selecione a categoria</option>
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-2">
+                <label class="form-label">Descrição</label>
+                <input type="text" class="form-control item-description" placeholder="Descreva o item" required>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-2">
+                <label class="form-label">Quantidade</label>
+                <input type="number" class="form-control item-quantity" min="1" value="1" required>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-2">
+                <label class="form-label">Valor Unitário (R$)</label>
+                <input type="text" class="form-control item-amount" placeholder="0,00" required>
+            </div>
+            <div class="col-lg-2 col-md-4 mb-2">
+                <label class="form-label">Subtotal</label>
+                <div class="input-group">
+                    <input type="text" class="form-control item-subtotal" readonly>
+                    <button type="button" class="btn btn-danger remove-item-btn" ${itemsContainer.children.length === 0 ? 'disabled' : ''}>
+                        <i class="ri-delete-bin-line"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Adicionar a nova linha ao container
+    itemsContainer.appendChild(newRow);
+    
+    // Popular o select de categorias
+    const categorySelect = newRow.querySelector('.item-category');
+    if (window.categoriesList) {
+        window.categoriesList.forEach(category => {
+            const option = new Option(category.name, category.id);
+            categorySelect.add(option);
+        });
+    }
+    
+    // Se houver dados do item, preencher os campos
+    if (itemData) {
+        // Definir a categoria
+        categorySelect.value = itemData.category;
+        
+        // Preencher os outros campos
+        newRow.querySelector('.item-description').value = itemData.description || '';
+        newRow.querySelector('.item-quantity').value = itemData.quantity || 1;
+        
+        // Formatar o valor unitário
+        const formattedAmount = new Intl.NumberFormat('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(itemData.amount || 0);
+        newRow.querySelector('.item-amount').value = formattedAmount;
+        
+        // Calcular e exibir o subtotal
+        calculateSubtotal(newRow);
+    } else {
+        // Para nova linha, inicializar o subtotal como 0
+        newRow.querySelector('.item-subtotal').value = 'R$ 0,00';
+    }
+    
+    // Configurar máscara para o campo de valor unitário
+    const amountInput = newRow.querySelector('.item-amount');
+    amountInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        value = (parseFloat(value) / 100).toFixed(2);
+        e.target.value = new Intl.NumberFormat('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(value);
+        calculateSubtotal(newRow);
     });
     
-    // Configurar os listeners para cálculo automático do valor total
-    const quantityInput = document.getElementById('quantity');
-    const amountInput = document.getElementById('amount');
+    // Atualizar o estado dos botões de remoção
+    updateRemoveButtons();
     
-    if (quantityInput && amountInput) {
-        const updateTotalAmount = () => {
-            const quantity = parseFloat(quantityInput.value) || 0;
-            const amount = parseFloat(amountInput.value) || 0;
-            const total = quantity * amount;
-            
-            // Formatar o valor total para exibição
+    // Adicionar os event listeners para os campos
+    setupItemRowEvents(newRow);
+}
+
+// Função para configurar os eventos da linha de item
+function setupItemRowEvents(row) {
+    const quantityInput = row.querySelector('.item-quantity');
+    const amountInput = row.querySelector('.item-amount');
+    const removeButton = row.querySelector('.remove-item-btn');
+    
+    // Eventos para calcular o subtotal
+    quantityInput.addEventListener('input', () => calculateSubtotal(row));
+    amountInput.addEventListener('input', () => calculateSubtotal(row));
+    
+    // Evento para remover o item
+    removeButton.addEventListener('click', () => {
+        row.remove();
+        updateRemoveButtons();
+        calculateTotal();
+    });
+}
+
+// Função para calcular o subtotal de uma linha
+function calculateSubtotal(row) {
+    const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
+    const amountStr = row.querySelector('.item-amount').value;
+    // Remover pontos e trocar vírgula por ponto para converter para número
+    const amount = parseFloat(amountStr.replace(/\./g, '').replace(',', '.')) || 0;
+    
+    const subtotal = quantity * amount;
+    
+    // Formatar o subtotal em reais
+    const formattedSubtotal = new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    }).format(subtotal);
+    
+    row.querySelector('.item-subtotal').value = formattedSubtotal;
+    
+    // Armazenar o valor numérico para cálculos
+    row.querySelector('.item-subtotal').dataset.value = subtotal;
+    
+    calculateTotal();
+}
+
+// Função para calcular o total geral
+function calculateTotal() {
+    const items = document.querySelectorAll('.item-row');
+    let total = 0;
+    
+    items.forEach(item => {
+        // Usar o valor numérico armazenado no dataset
+        const subtotal = parseFloat(item.querySelector('.item-subtotal').dataset.value) || 0;
+        total += subtotal;
+    });
+    
+    // Formatar o total em reais
             const formattedTotal = new Intl.NumberFormat('pt-BR', { 
                 style: 'currency', 
                 currency: 'BRL' 
             }).format(total);
             
-            const totalAmountInput = document.getElementById('total-amount');
-            if (totalAmountInput) {
-                totalAmountInput.value = formattedTotal;
-            }
-        };
-        
-        // Calcular o valor total inicialmente
-        updateTotalAmount();
-        
-        // Adicionar listeners para recalcular quando os valores mudarem
-        quantityInput.addEventListener('input', updateTotalAmount);
-        amountInput.addEventListener('input', updateTotalAmount);
-    }
-    
-    // Formulário de edição
-    const form = document.getElementById('edit-expense-request-form');
-    if (form) {
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Validar campos obrigatórios
-            const costCenter = sCostCenter ? sCostCenter.getValue(true) : document.getElementById('cost-center').value;
-            const month = sMonth ? sMonth.getValue(true) : document.getElementById('month').value;
-            const category = sCategory ? sCategory.getValue(true) : document.getElementById('category-select').value;
-            const quantity = document.getElementById('quantity').value;
-            const amount = document.getElementById('amount').value;
-            const description = document.getElementById('description').value;
-            
-            // Verificar se todos os campos obrigatórios estão preenchidos
-            if (!costCenter || !month || !category || !quantity || !amount || !description) {
-                showAlert('Atenção', 'Por favor, preencha todos os campos obrigatórios', 'warning');
-                return;
-            }
-            
-            try {
-                // Exibir loader
-                const loader = document.querySelector('.page-loader');
-                if (loader) {
-                    loader.classList.remove('d-none');
-                }
-                
-                // Preparar os dados para envio
-                const formData = {
-                    id: expenseRequestId,
-                    cost_center_id: costCenter,
-                    month: month,
-                    category: category,
-                    quantity: quantity,
-                    amount: amount,
-                    description: description,
-                    strategic_contribution: document.getElementById('strategic-contribution').value
-                };
-                
-                // Enviar os dados para a API
-                const response = await makeRequest('/api/zero-based-budgeting/updateExpenseRequest', 'POST', formData);
-                
-                if (response.success) {
-                    showAlert('Sucesso', 'Solicitação atualizada com sucesso!', 'success');
-                    window.close();
-                } else {
-                    showAlert('Erro', response.message || 'Ocorreu um erro ao atualizar a solicitação', 'error');
-                }
-            } catch (error) {
-                console.error('Erro ao atualizar solicitação:', error);
-                showAlert('Erro', 'Ocorreu um erro ao atualizar a solicitação', 'error');
-            } finally {
-                // Esconder loader
-                const loader = document.querySelector('.page-loader');
-                if (loader) {
-                    loader.classList.add('d-none');
-                }
-            }
-        });
-    }
+    document.getElementById('total-amount').textContent = formattedTotal;
 }
 
-// Função genérica para fazer requisições
-async function makeRequest(url, method = 'GET', data = null) {
+// Função para atualizar o estado dos botões de remoção
+function updateRemoveButtons() {
+    const items = document.querySelectorAll('.item-row');
+    const removeButtons = document.querySelectorAll('.remove-item-btn');
+    
+    removeButtons.forEach(button => {
+        button.disabled = items.length === 1;
+    });
+}
+
+// Função para configurar os event listeners
+function setupEventListeners() {
+    // Botão para adicionar novo item
+    document.getElementById('add-item-btn').addEventListener('click', () => {
+        addItemRow();
+        calculateTotal();
+    });
+    
+    // Botão para salvar
+    document.getElementById('btn-save').addEventListener('click', saveExpenseRequest);
+    
+    // Botão para cancelar
+    document.getElementById('btn-cancel').addEventListener('click', () => {
+        window.history.back();
+    });
+}
+
+// Função para salvar a solicitação
+async function saveExpenseRequest() {
     try {
-        console.log(`Fazendo requisição: ${method} ${url}`, data);
+        // Validar campos obrigatórios
+        if (!validateForm()) {
+            return;
+        }
         
-        const options = {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            }
+        // Coletar os dados do formulário
+        const requestData = {
+            id: document.getElementById('expense-request-id').value,
+            month: document.getElementById('month').value,
+            cost_center_id: document.getElementById('cost-center').value,
+            strategic_contribution: document.getElementById('strategic-contribution').value,
+            items: []
         };
         
-        if (data && method !== 'GET') {
-            options.body = JSON.stringify(data);
-        }
+        // Coletar os dados dos itens
+        document.querySelectorAll('.item-row').forEach(row => {
+            const amountStr = row.querySelector('.item-amount').value;
+            const amount = parseFloat(amountStr.replace(/\./g, '').replace(',', '.'));
+            
+            requestData.items.push({
+                category: row.querySelector('.item-category').value,
+                description: row.querySelector('.item-description').value,
+                quantity: row.querySelector('.item-quantity').value,
+                amount: amount
+            });
+        });
         
-        const response = await fetch(url, options);
-        
-        if (!response.ok) {
-            throw new Error(`Erro na requisição: ${response.status}`);
-        }
+        // Enviar a requisição
+        const response = await fetch('/api/zero-based-budgeting/updateExpenseRequest', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData)
+        });
         
         const result = await response.json();
-        console.log(`Resposta da requisição ${url}:`, result);
         
-        if (method === 'POST') {
-            if (url.includes('getExpenseRequestView')) {
-                // Esta API retorna o dado no objeto 'data'
-                return result.data || result;
-            }
-            return result;
+        if (result.success) {
+            await Swal.fire({
+                title: 'Sucesso',
+                text: 'Solicitação atualizada com sucesso!',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+            
+            // Fechar a janela
+            window.close();
+            
+            // Se a janela não fechar (alguns navegadores podem bloquear), tentar voltar
+            setTimeout(() => {
+                if (!window.closed) {
+                    window.history.back();
+                }
+            }, 100);
         } else {
-            return result.data || result;
+            showAlert('Erro', result.message || 'Falha ao atualizar a solicitação', 'error');
         }
     } catch (error) {
-        console.error('Erro ao fazer requisição:', error);
-        showAlert('Erro', 'Ocorreu um erro na comunicação com o servidor', 'error');
-        return null;
+        console.error('Erro ao salvar solicitação:', error);
+        showAlert('Erro', 'Ocorreu um erro ao salvar a solicitação', 'error');
     }
 }
 
-// Exibir alerta com SweetAlert2
+// Função para validar o formulário
+function validateForm() {
+    const month = document.getElementById('month').value;
+    const costCenter = document.getElementById('cost-center').value;
+    
+    if (!month) {
+        showAlert('Erro', 'Por favor, selecione o mês de referência', 'error');
+        return false;
+    }
+    
+    if (!costCenter) {
+        showAlert('Erro', 'Por favor, selecione o centro de custo', 'error');
+        return false;
+    }
+    
+    let isValid = true;
+    document.querySelectorAll('.item-row').forEach(row => {
+        const category = row.querySelector('.item-category').value;
+        const description = row.querySelector('.item-description').value;
+        const quantity = row.querySelector('.item-quantity').value;
+        const amount = row.querySelector('.item-amount').value;
+        
+        if (!category || !description || !quantity || !amount) {
+            showAlert('Erro', 'Por favor, preencha todos os campos dos itens', 'error');
+            isValid = false;
+            return;
+        }
+    });
+    
+    return isValid;
+}
+
+// Função para exibir alertas
 function showAlert(title, message, icon) {
     Swal.fire({
         title: title,

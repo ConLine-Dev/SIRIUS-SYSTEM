@@ -590,6 +590,26 @@ const emailCustom = {
                         margin: 0;
                         color: #f9423a;
                     }
+                    .items-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 15px 0;
+                    }
+                    .items-table th {
+                        background-color: #f8f8f8;
+                        padding: 10px;
+                        text-align: left;
+                        border-bottom: 2px solid #ddd;
+                        color: #666;
+                    }
+                    .items-table td {
+                        padding: 10px;
+                        border-bottom: 1px solid #eee;
+                    }
+                    .total-row {
+                        font-weight: bold;
+                        background-color: #f8f8f8;
+                    }
                 </style>
             </head>
             <body>
@@ -603,34 +623,50 @@ const emailCustom = {
                         
                         <div class="info-box">
                             <div class="info-item">
+                                <span class="info-label">ID da Solicitação:</span>
+                                <span class="info-value">#${data.id}</span>
+                            </div>
+                            <div class="info-item">
                                 <span class="info-label">Centro de Custo:</span>
                                 <span class="info-value">${data.costCenterName}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Categoria:</span>
-                                <span class="info-value">${data.category}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Quantidade:</span>
-                                <span class="info-value">${data.quantity}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Valor Unitário:</span>
-                                <span class="info-value">${data.amount}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Valor Total:</span>
-                                <span class="info-value">${data.total_amount}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Descrição:</span>
-                                <span class="info-value">${data.description}</span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">Solicitante:</span>
                                 <span class="info-value">${data.requesterName}</span>
                             </div>
+                            <div class="info-item">
+                                <span class="info-label">Total da Solicitação:</span>
+                                <span class="info-value">${data.total_amount}</span>
+                            </div>
                         </div>
+                        
+                        <h3>Itens Solicitados</h3>
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th>Categoria</th>
+                                    <th>Descrição</th>
+                                    <th>Quant.</th>
+                                    <th>Valor Unit.</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.items.map(item => `
+                                <tr>
+                                    <td>${item.category}</td>
+                                    <td>${item.description}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${item.unitAmount}</td>
+                                    <td>${item.subtotal}</td>
+                                </tr>
+                                `).join('')}
+                                <tr class="total-row">
+                                    <td colspan="4" style="text-align: right;">Total:</td>
+                                    <td>${data.total_amount}</td>
+                                </tr>
+                            </tbody>
+                        </table>
 
                         <div class="message">
                             <p>Para aprovar ou rejeitar esta solicitação, acesse o módulo de Orçamento Base Zero no sistema Sirius.</p>
@@ -726,6 +762,26 @@ const emailCustom = {
                         margin: 0;
                         color: ${statusColor};
                     }
+                    .items-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 15px 0;
+                    }
+                    .items-table th {
+                        background-color: #f8f8f8;
+                        padding: 10px;
+                        text-align: left;
+                        border-bottom: 2px solid #ddd;
+                        color: #666;
+                    }
+                    .items-table td {
+                        padding: 10px;
+                        border-bottom: 1px solid #eee;
+                    }
+                    .total-row {
+                        font-weight: bold;
+                        background-color: #f8f8f8;
+                    }
                 </style>
             </head>
             <body>
@@ -747,26 +803,38 @@ const emailCustom = {
                                 <span class="info-value">${data.costCenterName}</span>
                             </div>
                             <div class="info-item">
-                                <span class="info-label">Categoria:</span>
-                                <span class="info-value">${data.category}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Quantidade:</span>
-                                <span class="info-value">${data.quantity}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Valor Unitário:</span>
-                                <span class="info-value">${data.amount}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Valor Total:</span>
+                                <span class="info-label">Total da Solicitação:</span>
                                 <span class="info-value">${data.total_amount}</span>
                             </div>
-                            <div class="info-item">
-                                <span class="info-label">Descrição:</span>
-                                <span class="info-value">${data.description}</span>
-                            </div>
                         </div>
+                        
+                        <h3>Itens da Solicitação</h3>
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th>Categoria</th>
+                                    <th>Descrição</th>
+                                    <th>Quant.</th>
+                                    <th>Valor Unit.</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.items.map(item => `
+                                <tr>
+                                    <td>${item.category}</td>
+                                    <td>${item.description}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${item.unitAmount}</td>
+                                    <td>${item.subtotal}</td>
+                                </tr>
+                                `).join('')}
+                                <tr class="total-row">
+                                    <td colspan="4" style="text-align: right;">Total:</td>
+                                    <td>${data.total_amount}</td>
+                                </tr>
+                            </tbody>
+                        </table>
 
                         ${data.comment ? `
                             <div class="comment-box">

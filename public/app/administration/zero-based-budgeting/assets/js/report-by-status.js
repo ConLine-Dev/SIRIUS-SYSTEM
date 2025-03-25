@@ -2,13 +2,20 @@
 document.addEventListener("DOMContentLoaded", async () => {
     // Inicializar o Select2
     $('.select2').select2({
-        width: '100%'
+        width: '100%',
+        dropdownParent: $('body')
     });
+    
+    // Carregar os centros de custo para o filtro
+    await loadCostCenters();
+    
+    // Preencher o filtro de anos
+    populateYearFilter();
     
     // Configurar o formulário de filtros
     setupFiltersForm();
     
-    // Carregar os dados iniciais do relatório (com filtro padrão para os últimos 30 dias)
+    // Carregar os dados iniciais do relatório (sem filtros)
     await loadReportData();
     
     // Configurar o botão de exportação
@@ -20,6 +27,73 @@ document.addEventListener("DOMContentLoaded", async () => {
         loader.classList.add('d-none');
     }
 });
+
+// Função para carregar a lista de centros de custo
+async function loadCostCenters() {
+    try {
+        // Obter ID do colaborador logado do localStorage
+        const userLogged = await getInfosLogin();
+        const collaborator_id = userLogged?.system_collaborator_id;
+        
+        if (!collaborator_id) {
+            throw new Error('ID do colaborador não encontrado');
+        }
+        
+        // Fazer a requisição para obter os centros de custo
+        const response = await fetch(`/api/zero-based-budgeting/getAllCostCenters?id_collaborator=${collaborator_id}`);
+        const result = await response.json();
+        
+        // Verificar o resultado - a API retorna diretamente o array de centros de custo
+        if (!Array.isArray(result)) {
+            // Se não for um array, pode ser uma resposta de erro
+            if (result.success === false) {
+                console.error('Falha ao carregar centros de custo:', result.message);
+                return;
+            }
+            console.error('Resposta inesperada da API:', result);
+            return;
+        }
+        
+        const costCenters = result; // O resultado já é o array de centros de custo
+        
+        const selectEl = document.getElementById('filter-cost-center');
+        if (!selectEl) {
+            console.warn('Elemento de seleção não encontrado');
+            return;
+        }
+        
+        // Manter a opção padrão
+        let options = '<option value="">Todos os Centros de Custo</option>';
+        
+        // Adicionar cada centro de custo como uma opção
+        costCenters.forEach(costCenter => {
+            options += `<option value="${costCenter.id}">${costCenter.name}</option>`;
+        });
+        
+        selectEl.innerHTML = options;
+        
+    } catch (error) {
+        console.error('Erro ao carregar centros de custo:', error);
+        showAlert('Erro', 'Ocorreu um erro ao carregar a lista de centros de custo', 'error');
+    }
+}
+
+// Função para preencher o filtro de anos
+function populateYearFilter() {
+    const yearSelect = document.getElementById('filter-year');
+    if (!yearSelect) return;
+    
+    // Obter o ano atual
+    const currentYear = new Date().getFullYear();
+    
+    // Preencher com os últimos 5 anos
+    let options = '<option value="">Todos os Anos</option>';
+    for (let year = currentYear; year >= currentYear - 4; year--) {
+        options += `<option value="${year}">${year}</option>`;
+    }
+    
+    yearSelect.innerHTML = options;
+}
 
 // Configurar o formulário de filtros
 function setupFiltersForm() {
@@ -49,29 +123,10 @@ function setupFiltersForm() {
 async function loadReportData() {
     try {
         // Obter os valores dos filtros
-        const statusFilter = document.getElementById('filter-status').value;
-        const period = document.getElementById('filter-period').value || null;
+        const costCenterId = document.getElementById('filter-cost-center').value || null;
+        const year = document.getElementById('filter-year').value || null;
         
-        // Converter valor numérico do status para texto correspondente
-        let statusParam = null;
-        if (statusFilter) {
-            switch (parseInt(statusFilter)) {
-                case 1:
-                    statusParam = 'Pendente';
-                    break;
-                case 2:
-                    statusParam = 'Aprovado';
-                    break;
-                case 3:
-                    statusParam = 'Rejeitado';
-                    break;
-                case 4:
-                    statusParam = 'Aprovação Parcial';
-                    break;
-                default:
-                    statusParam = null;
-            }
-        }
+        console.log('Enviando requisição com filtros:', { costCenterId, year });
         
         // Fazer a requisição para obter os dados do relatório
         const response = await fetch('/api/zero-based-budgeting/reportByStatus', {
@@ -80,20 +135,31 @@ async function loadReportData() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                statusFilter: statusParam,
-                days: period
+                costCenterId: costCenterId,
+                year: year
             })
         });
         
         const result = await response.json();
+        console.log('Dados recebidos da API:', result);
         
-        if (!result.success) {
-            showAlert('Erro', result.message || 'Falha ao carregar os dados do relatório', 'error');
+        if (!result || !result.success) {
+            console.error('Erro na resposta da API:', result);
+            showAlert('Erro', 'Ocorreu um erro ao carregar os dados do relatório', 'error');
+            return;
+        }
+        
+        // Os dados estão dentro da propriedade 'data' da resposta
+        const data = result.data;
+        
+        if (!data || !data.expenses) {
+            console.error('Estrutura de dados inválida:', data);
+            showAlert('Erro', 'Os dados recebidos do servidor estão em um formato inválido', 'error');
             return;
         }
         
         // Processar e exibir os dados
-        processReportData(result.data);
+        processReportData(data);
         
     } catch (error) {
         console.error('Erro ao carregar dados do relatório:', error);
@@ -103,81 +169,94 @@ async function loadReportData() {
 
 // Função para processar e exibir os dados do relatório
 function processReportData(data) {
+    console.log('Processando dados do relatório:', data);
+    
     // Atualizar os cards de resumo
-    updateStatusCards(data.summary);
+    updateSummaryCards(data.expenses);
     
-    // Renderizar o gráfico de distribuição por status
-    renderStatusDistributionChart(data.statusDistribution);
+    // Renderizar o gráfico de status
+    renderStatusChart(data.expenses);
     
-    // Renderizar o gráfico de evolução no tempo
-    renderTimelineChart(data.timeline);
+    // Renderizar o gráfico de timeline
+    renderTimelineChart(data.expenses);
     
     // Preencher a tabela de detalhes
     populateExpensesTable(data.expenses);
 }
 
-// Atualizar os cards de status
-function updateStatusCards(summary) {
-    if (!summary) return;
+// Atualizar os cards de resumo
+function updateSummaryCards(expenses) {
+    if (!expenses) return;
     
-    // Contagem de solicitações pendentes
+    // Contar status nas despesas
+    const pendingCount = expenses.filter(e => e.status === 'Pendente').length;
+    const approvedCount = expenses.filter(e => e.status === 'Aprovado').length;
+    const rejectedCount = expenses.filter(e => e.status === 'Rejeitado').length;
+    const partialCount = expenses.filter(e => e.status === 'Aprovação Parcial').length;
+    
+    // Pendentes
     const pendingCountEl = document.getElementById('pending-count');
     if (pendingCountEl) {
-        pendingCountEl.textContent = summary.pending || 0;
+        pendingCountEl.textContent = pendingCount;
     }
     
-    // Contagem de solicitações aprovadas
+    // Aprovados
     const approvedCountEl = document.getElementById('approved-count');
     if (approvedCountEl) {
-        approvedCountEl.textContent = summary.approved || 0;
+        approvedCountEl.textContent = approvedCount;
     }
     
-    // Contagem de solicitações rejeitadas
+    // Rejeitados
     const rejectedCountEl = document.getElementById('rejected-count');
     if (rejectedCountEl) {
-        rejectedCountEl.textContent = summary.rejected || 0;
+        rejectedCountEl.textContent = rejectedCount;
     }
     
-    // Contagem de solicitações com aprovação parcial
+    // Aprovação Parcial
     const partialCountEl = document.getElementById('partial-count');
     if (partialCountEl) {
-        partialCountEl.textContent = summary.partial || 0;
+        partialCountEl.textContent = partialCount;
     }
 }
 
-// Renderizar o gráfico de distribuição por status
-function renderStatusDistributionChart(statusData) {
-    if (!statusData || !statusData.labels || !statusData.values) return;
+// Renderizar o gráfico de status
+function renderStatusChart(expenses) {
+    if (!Array.isArray(expenses)) {
+        console.error('Expenses não é um array:', expenses);
+        return;
+    }
     
     const ctx = document.getElementById('status-distribution-chart');
     if (!ctx) return;
     
     // Destruir o gráfico existente, se houver
-    if (window.statusDistributionChart) {
-        window.statusDistributionChart.destroy();
+    if (window.statusChart) {
+        window.statusChart.destroy();
     }
     
-    // Cores para cada status
-    const backgroundColors = {
-        'Pendente': '#ffc107',
-        'Aprovado': '#28a745',
-        'Rejeitado': '#dc3545',
-        'Aprovação Parcial': '#17a2b8'
-    };
+    // Contar as quantidades por status diretamente do array de despesas
+    const pendingCount = expenses.filter(e => e.status === 'Pendente').length;
+    const approvedCount = expenses.filter(e => e.status === 'Aprovado').length;
+    const rejectedCount = expenses.filter(e => e.status === 'Rejeitado').length;
+    const partialCount = expenses.filter(e => e.status === 'Aprovação Parcial').length;
     
-    // Criar arrays de cores baseados nos labels
-    const colors = statusData.labels.map(label => backgroundColors[label] || '#6c757d');
+    console.log('Contagem por status:', {
+        pendingCount,
+        approvedCount,
+        rejectedCount,
+        partialCount
+    });
     
     // Criar o novo gráfico
-    window.statusDistributionChart = new Chart(ctx, {
-        type: 'doughnut',
+    window.statusChart = new Chart(ctx, {
+        type: 'pie',
         data: {
-            labels: statusData.labels,
+            labels: ['Pendente', 'Aprovado', 'Rejeitado', 'Aprovação Parcial'],
             datasets: [{
-                data: statusData.values,
-                backgroundColor: colors,
-                hoverBackgroundColor: colors.map(color => color + 'dd'),
-                hoverBorderColor: 'rgba(234, 236, 244, 1)'
+                data: [pendingCount, approvedCount, rejectedCount, partialCount],
+                backgroundColor: ['#ffc107', '#28a745', '#dc3545', '#17a2b8'],
+                borderColor: ['#ffc107', '#28a745', '#dc3545', '#17a2b8'],
+                borderWidth: 1
             }]
         },
         options: {
@@ -189,16 +268,28 @@ function renderStatusDistributionChart(statusData) {
                     labels: {
                         boxWidth: 12
                     }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw;
+                            return `${label}: ${value} solicitações`;
+                        }
+                    }
                 }
             },
-            cutout: '60%'
+            cutout: '50%'
         }
     });
 }
 
-// Renderizar o gráfico de evolução no tempo
-function renderTimelineChart(timelineData) {
-    if (!timelineData || !timelineData.labels || !timelineData.datasets) return;
+// Renderizar o gráfico de timeline
+function renderTimelineChart(expenses) {
+    if (!Array.isArray(expenses)) {
+        console.error('Expenses não é um array:', expenses);
+        return;
+    }
     
     const ctx = document.getElementById('timeline-chart');
     if (!ctx) return;
@@ -208,39 +299,66 @@ function renderTimelineChart(timelineData) {
         window.timelineChart.destroy();
     }
     
-    // Cores para cada status nas datasets
-    const statusColors = {
-        'Pendente': '#ffc107',
-        'Aprovado': '#28a745',
-        'Rejeitado': '#dc3545',
-        'Aprovação Parcial': '#17a2b8'
-    };
+    // Filtrar apenas as despesas aprovadas
+    const approvedExpenses = expenses.filter(e => e.status === 'Aprovado');
     
-    // Preparar datasets para o gráfico
-    const datasets = timelineData.datasets.map(dataset => {
-        const color = statusColors[dataset.label] || '#6c757d';
-        return {
-            label: dataset.label,
-            data: dataset.data,
-            backgroundColor: color + '33',
-            borderColor: color,
-            borderWidth: 2,
-            pointBackgroundColor: color,
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: color,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            tension: 0.1
-        };
+    // Agrupar as despesas aprovadas por mês
+    const expensesByMonth = {};
+    approvedExpenses.forEach(expense => {
+        // Extrair o mês da data de criação
+        const createdAt = new Date(expense.created_at);
+        const month = createdAt.toLocaleString('pt-BR', { month: 'long' });
+        
+        // Converter valor de texto para número
+        let amount = 0;
+        if (typeof expense.total_amount === 'string') {
+            const amountStr = expense.total_amount.replace('R$ ', '').replace(/\./g, '').replace(',', '.');
+            amount = parseFloat(amountStr) || 0;
+        } else {
+            amount = parseFloat(expense.total_amount) || 0;
+        }
+        
+        if (!expensesByMonth[month]) {
+            expensesByMonth[month] = 0;
+        }
+        expensesByMonth[month] += amount;
     });
+    
+    // Ordenar os meses na ordem correta
+    const monthOrder = [
+        'janeiro', 'fevereiro', 'março', 'abril', 
+        'maio', 'junho', 'julho', 'agosto', 
+        'setembro', 'outubro', 'novembro', 'dezembro'
+    ];
+    
+    // Preparar os dados ordenados para o gráfico
+    const sortedData = Object.keys(expensesByMonth)
+        .map(month => ({
+            month: month,
+            value: expensesByMonth[month],
+            order: monthOrder.indexOf(month.toLowerCase())
+        }))
+        .sort((a, b) => a.order - b.order)
+        .filter(item => item.order !== -1); // Remover meses inválidos
+    
+    // Preparar os dados para o gráfico
+    const labels = sortedData.map(item => item.month);
+    const values = sortedData.map(item => item.value);
     
     // Criar o novo gráfico
     window.timelineChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: timelineData.labels,
-            datasets: datasets
+            labels: labels,
+            datasets: [{
+                label: 'Valor Aprovado (R$)',
+                data: values,
+                backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                borderColor: 'rgba(40, 167, 69, 1)',
+                borderWidth: 2,
+                tension: 0.1,
+                fill: true
+            }]
         },
         options: {
             responsive: true,
@@ -249,15 +367,25 @@ function renderTimelineChart(timelineData) {
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        precision: 0 // Só mostrar números inteiros
+                        callback: function(value) {
+                            return 'R$ ' + value.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        }
                     }
                 }
             },
             plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        boxWidth: 12
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            return 'R$ ' + value.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                        }
                     }
                 }
             }
@@ -265,66 +393,80 @@ function renderTimelineChart(timelineData) {
     });
 }
 
-// Preencher a tabela de detalhes das solicitações
+// Função para preencher a tabela de despesas
 function populateExpensesTable(expenses) {
-    const tableBody = document.getElementById('requests-table-body');
-    if (!tableBody) return;
+    console.log('Populando tabela com despesas:', expenses);
     
-    if (!expenses || expenses.length === 0) {
+    if (!Array.isArray(expenses)) {
+        console.error('Despesas não é um array:', expenses);
+        return;
+    }
+    
+    const tableBody = document.querySelector('#expenses-table tbody');
+    if (!tableBody) {
+        console.error('Elemento tbody não encontrado');
+        return;
+    }
+    
+    // Limpar a tabela
+    tableBody.innerHTML = '';
+    
+    if (expenses.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="9" class="text-center">Nenhuma solicitação encontrada</td></tr>';
         return;
     }
     
-    let html = '';
+    // Preencher com os novos dados
     expenses.forEach(expense => {
-        // Definir a classe do badge com base no status
-        let statusClass, statusText;
-        switch(parseInt(expense.status)) {
-            case 2:
-                statusClass = 'badge-approved';
-                statusText = 'Aprovado';
-                break;
-            case 3:
-                statusClass = 'badge-rejected';
-                statusText = 'Rejeitado';
-                break;
-            case 4:
-                statusClass = 'badge-partial';
-                statusText = 'Parcialmente Aprovado';
-                break;
-            default: // 1 - Pendente
-                statusClass = 'badge-pending';
-                statusText = 'Pendente';
-        }
+        console.log('Processando despesa:', expense);
         
-        html += `
-            <tr>
-                <td>${expense.id}</td>
-                <td>${expense.costCenterName}</td>
-                <td>${expense.month}</td>
-                <td>${expense.category_name}</td>
-                <td>${expense.description.substring(0, 50)}${expense.description.length > 50 ? '...' : ''}</td>
-                <td>${expense.quantity}</td>
-                <td>R$ ${parseFloat(expense.total_amount).toFixed(2).replace('.', ',')}</td>
-                <td><span class="badge ${statusClass}">${statusText}</span></td>
-                <td>
-                    <button class="btn btn-sm btn-primary view-expense-btn" data-id="${expense.id}">
-                        <i class="ri-eye-line"></i>
-                    </button>
-                </td>
-            </tr>
+        const row = document.createElement('tr');
+        
+        // Criar as células da linha
+        row.innerHTML = `
+            <td>${expense.costCenterName || ''}</td>
+            <td>${expense.month || ''}</td>
+            <td>${Array.isArray(expense.categories) ? expense.categories.join(', ') : ''}</td>
+            <td>${expense.total_quantity || 0}</td>
+            <td>${expense.total_amount || 'R$ 0,00'}</td>
+            <td>
+                <span class="badge ${getStatusBadgeClass(expense.status)}">
+                    ${expense.status || ''}
+                </span>
+            </td>
+            <td>${expense.requesterName || ''}</td>
+            <td>${expense.created_at || ''}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-info view-expense" data-id="${expense.id}">
+                    <i class="ri-eye-line"></i>
+                </button>
+            </td>
         `;
+        
+        tableBody.appendChild(row);
     });
     
-    tableBody.innerHTML = html;
-    
-    // Adicionar event listeners para os botões de visualização
+    // Adicionar os listeners para os botões de visualização
     addViewButtonListeners();
+}
+
+// Função auxiliar para obter a classe do badge de status
+function getStatusBadgeClass(status) {
+    switch (status) {
+        case 'Aprovado':
+            return 'bg-success';
+        case 'Rejeitado':
+            return 'bg-danger';
+        case 'Aprovação Parcial':
+            return 'bg-info';
+        default:
+            return 'bg-warning';
+    }
 }
 
 // Adicionar event listeners para os botões de visualização de solicitações
 function addViewButtonListeners() {
-    const viewButtons = document.querySelectorAll('.view-expense-btn');
+    const viewButtons = document.querySelectorAll('.view-expense');
     viewButtons.forEach(button => {
         button.addEventListener('click', function() {
             const expenseId = this.getAttribute('data-id');
@@ -344,17 +486,17 @@ function setupExportButton() {
 // Função para exportar a tabela para CSV
 function exportTableToCSV() {
     // Obter os valores dos filtros
-    const statusFilter = document.getElementById('filter-status');
-    const periodFilter = document.getElementById('filter-period');
+    const costCenterFilter = document.getElementById('filter-cost-center');
+    const yearFilter = document.getElementById('filter-year');
     
-    const status = statusFilter && statusFilter.options[statusFilter.selectedIndex].text || 'Todos';
-    const period = periodFilter && periodFilter.options[periodFilter.selectedIndex].text || 'Todo o período';
+    const costCenterName = costCenterFilter && costCenterFilter.options[costCenterFilter.selectedIndex].text || 'Todos';
+    const year = yearFilter && yearFilter.value || 'Todos';
     
     // Nome do arquivo
-    const fileName = `relatorio_status_${status.replace(/\s+/g, '_')}_${formatDateForFile(new Date())}.csv`;
+    const fileName = `relatorio_por_status_${costCenterName.replace(/\s+/g, '_')}_${year}_${formatDate(new Date())}.csv`;
     
     // Obter a tabela
-    const table = document.getElementById('requests-table');
+    const table = document.getElementById('expenses-table');
     if (!table) return;
     
     // Criar o conteúdo CSV
@@ -362,8 +504,8 @@ function exportTableToCSV() {
     
     // Adicionar o título do relatório
     csv.push(`Relatório por Status - ${formatDate(new Date())}`);
-    csv.push(`Status: ${status}`);
-    csv.push(`Período: ${period}`);
+    csv.push(`Centro de Custo: ${costCenterName}`);
+    csv.push(`Ano: ${year}`);
     csv.push(''); // Linha em branco
     
     // Adicionar cabeçalhos
@@ -408,22 +550,8 @@ function exportTableToCSV() {
     document.body.removeChild(link);
 }
 
-// Formatar data para exibição
-function formatDate(dateString) {
-    if (!dateString) return 'N/A';
-    
-    const date = new Date(dateString);
-    return date.toLocaleString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
-
 // Formatar data para o nome do arquivo
-function formatDateForFile(date) {
+function formatDate(date) {
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
@@ -439,4 +567,12 @@ function showAlert(title, message, icon) {
         confirmButtonText: 'OK'
     });
 }
- 
+
+// Adicionar a função getInfosLogin() no final do arquivo
+// Obter as informações do usuário logado do localStorage
+async function getInfosLogin() {
+    const StorageGoogleData = localStorage.getItem('StorageGoogle');
+    if (!StorageGoogleData) return null;
+    const StorageGoogle = JSON.parse(StorageGoogleData);
+    return StorageGoogle;   
+}

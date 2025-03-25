@@ -168,6 +168,16 @@ module.exports = function(io) {
     router.post('/getExpenseRequestView', async (req, res) => {
         try {
             const id = req.body.id;
+            
+            if (!id) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'ID da solicitação não informado'
+                });
+            }
+            
+            console.log('API - Buscando solicitação:', id);
+            
             const expenseRequest = await zeroBasedCostCenter.getExpenseRequestView(id);
             
             if (!expenseRequest) {
@@ -182,7 +192,7 @@ module.exports = function(io) {
                 data: expenseRequest
             });
         } catch (error) {
-            console.error(error);
+            console.error('Erro ao obter detalhes da solicitação:', error);
             res.status(500).json({
                 success: false,
                 message: 'Erro ao obter detalhes da solicitação de gasto: ' + error.message
@@ -259,6 +269,31 @@ module.exports = function(io) {
     // Processar aprovação/rejeição de solicitação
     router.post('/processExpenseRequest', checkAuth, async (req, res) => {
         try {
+            const { expense_request_id, approver_id, status } = req.body;
+            
+            if (!expense_request_id) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'ID da solicitação não informado'
+                });
+            }
+            
+            if (!approver_id) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'ID do aprovador não informado'
+                });
+            }
+            
+            if (!status) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Status não informado'
+                });
+            }
+            
+            console.log('API - Processando aprovação:', req.body);
+            
             const result = await zeroBasedCostCenter.processExpenseRequest(req.body);
             
             // Emitir evento para atualização em tempo real
@@ -270,7 +305,7 @@ module.exports = function(io) {
                 data: result
             });
         } catch (error) {
-            console.error(error);
+            console.error('Erro ao processar solicitação:', error);
             res.status(500).json({
                 success: false,
                 message: 'Erro ao processar solicitação de gasto: ' + error.message

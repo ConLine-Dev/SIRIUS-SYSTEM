@@ -126,6 +126,8 @@ async function loadReportData() {
         const costCenterId = document.getElementById('filter-cost-center').value || null;
         const year = document.getElementById('filter-year').value || null;
         
+        console.log('Enviando requisição com filtros:', { costCenterId, year });
+        
         // Fazer a requisição para obter os dados do relatório
         const response = await fetch('/api/zero-based-budgeting/reportByCostCenter', {
             method: 'POST',
@@ -139,14 +141,25 @@ async function loadReportData() {
         });
         
         const result = await response.json();
+        console.log('Dados recebidos da API:', result);
         
-        if (!result.success) {
-            showAlert('Erro', result.message || 'Falha ao carregar os dados do relatório', 'error');
+        if (!result || !result.success) {
+            console.error('Erro na resposta da API:', result);
+            showAlert('Erro', 'Ocorreu um erro ao carregar os dados do relatório', 'error');
+            return;
+        }
+        
+        // Os dados estão dentro da propriedade 'data' da resposta
+        const data = result.data;
+        
+        if (!data || !data.expenses) {
+            console.error('Estrutura de dados inválida:', data);
+            showAlert('Erro', 'Os dados recebidos do servidor estão em um formato inválido', 'error');
             return;
         }
         
         // Processar e exibir os dados
-        processReportData(result.data);
+        processReportData(data);
         
     } catch (error) {
         console.error('Erro ao carregar dados do relatório:', error);
@@ -156,6 +169,8 @@ async function loadReportData() {
 
 // Função para processar e exibir os dados do relatório
 function processReportData(data) {
+    console.log('Processando dados do relatório:', data);
+    
     // Atualizar os cards de resumo
     updateSummaryCards(data.summary);
     
@@ -303,66 +318,80 @@ function renderStatusChart(statusData) {
     });
 }
 
-// Preencher a tabela de detalhes das solicitações
+// Função para preencher a tabela de despesas
 function populateExpensesTable(expenses) {
-    const tableBody = document.getElementById('expenses-table-body');
-    if (!tableBody) return;
+    console.log('Populando tabela com despesas:', expenses);
     
-    if (!expenses || expenses.length === 0) {
+    if (!Array.isArray(expenses)) {
+        console.error('Despesas não é um array:', expenses);
+        return;
+    }
+    
+    const tableBody = document.querySelector('#expenses-table tbody');
+    if (!tableBody) {
+        console.error('Elemento tbody não encontrado');
+        return;
+    }
+    
+    // Limpar a tabela
+    tableBody.innerHTML = '';
+    
+    if (expenses.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="9" class="text-center">Nenhuma solicitação encontrada</td></tr>';
         return;
     }
     
-    let html = '';
+    // Preencher com os novos dados
     expenses.forEach(expense => {
-        // Definir a classe do badge com base no status
-        let statusClass, statusText;
-        switch(parseInt(expense.status)) {
-            case 2:
-                statusClass = 'badge-approved';
-                statusText = 'Aprovado';
-                break;
-            case 3:
-                statusClass = 'badge-rejected';
-                statusText = 'Rejeitado';
-                break;
-            case 4:
-                statusClass = 'badge-partial';
-                statusText = 'Parcialmente Aprovado';
-                break;
-            default: // 1 - Pendente
-                statusClass = 'badge-pending';
-                statusText = 'Pendente';
-        }
+        console.log('Processando despesa:', expense);
         
-        html += `
-            <tr>
-                <td>${expense.id}</td>
-                <td>${expense.costCenterName}</td>
-                <td>${expense.month}</td>
-                <td>${expense.category_name}</td>
-                <td>${expense.description.substring(0, 50)}${expense.description.length > 50 ? '...' : ''}</td>
-                <td>${expense.quantity}</td>
-                <td>R$ ${parseFloat(expense.total_amount).toFixed(2).replace('.', ',')}</td>
-                <td><span class="badge ${statusClass}">${statusText}</span></td>
-                <td>
-                    <button class="btn btn-sm btn-primary view-expense-btn" data-id="${expense.id}">
-                        <i class="ri-eye-line"></i>
-                    </button>
-                </td>
-            </tr>
+        const row = document.createElement('tr');
+        
+        // Criar as células da linha
+        row.innerHTML = `
+            <td>${expense.costCenterName || ''}</td>
+            <td>${expense.month || ''}</td>
+            <td>${Array.isArray(expense.categories) ? expense.categories.join(', ') : ''}</td>
+            <td>${expense.total_quantity || 0}</td>
+            <td>${expense.total_amount || 'R$ 0,00'}</td>
+            <td>
+                <span class="badge ${getStatusBadgeClass(expense.status)}">
+                    ${expense.status || ''}
+                </span>
+            </td>
+            <td>${expense.requesterName || ''}</td>
+            <td>${expense.created_at || ''}</td>
+            <td>
+                <button type="button" class="btn btn-sm btn-info view-expense" data-id="${expense.id}">
+                    <i class="ri-eye-line"></i>
+                </button>
+            </td>
         `;
+        
+        tableBody.appendChild(row);
     });
     
-    tableBody.innerHTML = html;
-    
-    // Adicionar event listeners para os botões de visualização
+    // Adicionar os listeners para os botões de visualização
     addViewButtonListeners();
+}
+
+// Função auxiliar para obter a classe do badge de status
+function getStatusBadgeClass(status) {
+    switch (status) {
+        case 'Aprovado':
+            return 'bg-success';
+        case 'Rejeitado':
+            return 'bg-danger';
+        case 'Aprovação Parcial':
+            return 'bg-info';
+        default:
+            return 'bg-warning';
+    }
 }
 
 // Adicionar event listeners para os botões de visualização de solicitações
 function addViewButtonListeners() {
-    const viewButtons = document.querySelectorAll('.view-expense-btn');
+    const viewButtons = document.querySelectorAll('.view-expense');
     viewButtons.forEach(button => {
         button.addEventListener('click', function() {
             const expenseId = this.getAttribute('data-id');

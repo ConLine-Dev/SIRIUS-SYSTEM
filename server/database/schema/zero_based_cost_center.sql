@@ -21,15 +21,11 @@ CREATE TABLE IF NOT EXISTS `zero_based_cost_center_responsibles` (
   CONSTRAINT `fk_responsible_collaborator` FOREIGN KEY (`responsible_id`) REFERENCES `collaborators` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Tabela de Solicitações de Gastos
+-- Tabela de Solicitações de Gastos (modificada para relacionamento com itens)
 CREATE TABLE IF NOT EXISTS `zero_based_expense_requests` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `month` varchar(20) NOT NULL,
   `cost_center_id` int(11) NOT NULL,
-  `category` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `quantity` int(11) NOT NULL DEFAULT '1',
-  `amount` decimal(15,2) NOT NULL,
   `strategic_contribution` text,
   `status` enum('Pendente','Aprovado','Rejeitado','Aprovação Parcial') NOT NULL DEFAULT 'Pendente',
   `requester_id` int(11) NOT NULL,
@@ -42,6 +38,21 @@ CREATE TABLE IF NOT EXISTS `zero_based_expense_requests` (
   KEY `idx_month` (`month`),
   CONSTRAINT `fk_cost_center` FOREIGN KEY (`cost_center_id`) REFERENCES `zero_based_cost_centers` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `fk_requester_collaborator` FOREIGN KEY (`requester_id`) REFERENCES `collaborators` (`id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Nova tabela para armazenar itens de solicitações
+CREATE TABLE IF NOT EXISTS `zero_based_expense_items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `expense_request_id` int(11) NOT NULL,
+  `category` varchar(100) NOT NULL,
+  `description` text NOT NULL,
+  `quantity` int(11) NOT NULL DEFAULT '1',
+  `amount` decimal(15,2) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_expense_request` (`expense_request_id`),
+  CONSTRAINT `fk_expense_item_request` FOREIGN KEY (`expense_request_id`) REFERENCES `zero_based_expense_requests` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Tabela de Aprovações de Gastos

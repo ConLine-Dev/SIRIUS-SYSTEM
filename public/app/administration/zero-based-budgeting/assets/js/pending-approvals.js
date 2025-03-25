@@ -44,24 +44,53 @@ async function loadPendingApprovalsTable() {
         },
         columns: [
             { data: 'costCenterName' },
-            { data: 'description' },
-            { data: 'category' },
             { 
-                data: 'quantity',
-                render: function(data) {
-                    return data;
+                data: 'description',
+                render: function(data, type, row) {
+                    const tooltip = row.item_count > 1 ? 
+                        `Solicitação com ${row.item_count} itens` : 
+                        data;
+                    return `<span title="${tooltip}">${data}</span>`;
                 }
             },
             { 
-                data: 'total_amount',
-                render: function(data) {
-                    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(data);
+                data: 'category',
+                render: function(data, type, row) {
+                    if (!row.items || !row.items.length) return data;
+                    
+                    const categories = [...new Set(row.items.map(item => item.categoryName))];
+                    if (categories.length <= 2) {
+                        return categories.join(', ');
+                    } else {
+                        return `${categories[0]}, ${categories[1]} +${categories.length - 2}`;
+                    }
+                }
+            },
+            { 
+                data: 'item_count',
+                render: function(data, type, row) {
+                    if (row.items && row.items.length > 0) {
+                        const totalQuantity = row.items.reduce((total, item) => {
+                            return total + (parseInt(item.quantity) || 0);
+                        }, 0);
+                        return totalQuantity;
+                    }
+                    return data || 1;
+                }
+            },
+            { 
+                data: 'amount',
+                render: function(data, type, row) {
+                    if (type === 'display') {
+                        return row.amount;
+                    }
+                    return row.raw_amount || 0;
                 }
             },
             { 
                 data: 'requestDate',
                 render: function(data) {
-                    return formatDate(data);
+                    return data;
                 }
             },
             {
@@ -88,20 +117,6 @@ async function loadPendingApprovalsTable() {
             url: 'https://cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json',
             searchPlaceholder: 'Buscar solicitação...'
         }
-    });
-}
-
-// Formatação de data para o padrão brasileiro
-function formatDate(dateString) {
-    if (!dateString) return '';
-    
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
     });
 }
 
@@ -141,10 +156,10 @@ async function submitApproval() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ 
-                expense_request_id: requestId,
-                approver_id: userLogged.system_collaborator_id,
+                expense_request_id: parseInt(requestId),
+                approver_id: parseInt(userLogged.system_collaborator_id),
                 status: 'Aprovado',
-                comment: comments
+                comment: comments || ''
             })
         });
         
@@ -156,7 +171,7 @@ async function submitApproval() {
             modal.hide();
             
             // Exibir mensagem de sucesso
-            Swal.fire({
+            await Swal.fire({
                 title: 'Aprovado!',
                 text: 'Solicitação aprovada com sucesso!',
                 icon: 'success',
@@ -208,8 +223,8 @@ async function submitRejection() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ 
-                expense_request_id: requestId,
-                approver_id: userLogged.system_collaborator_id,
+                expense_request_id: parseInt(requestId),
+                approver_id: parseInt(userLogged.system_collaborator_id),
                 status: 'Rejeitado',
                 comment: comments
             })
@@ -223,7 +238,7 @@ async function submitRejection() {
             modal.hide();
             
             // Exibir mensagem de sucesso
-            Swal.fire({
+            await Swal.fire({
                 title: 'Rejeitado!',
                 text: 'Solicitação rejeitada com sucesso!',
                 icon: 'success',

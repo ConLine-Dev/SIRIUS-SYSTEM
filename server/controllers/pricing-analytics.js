@@ -301,14 +301,14 @@ const pricingAnalytics = {
             )
             SELECT
                 CASE
-                    WHEN Rank <= 5 THEN Agente
+                    WHEN Rank <= 8 THEN Agente
                     ELSE 'OUTROS'
                 END AS Agente,
                 SUM(Total_TEUS) AS Total_TEUS
             FROM Top5
             GROUP BY
                 CASE
-                    WHEN Rank <= 5 THEN Agente
+                    WHEN Rank <= 8 THEN Agente
                     ELSE 'OUTROS'
                 END
             ORDER BY Total_TEUS DESC;`);

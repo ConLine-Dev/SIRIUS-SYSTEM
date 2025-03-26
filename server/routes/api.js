@@ -48,6 +48,7 @@ const api_pricing_analytics = require('./api-pricing-analytics');
 const api_process_query_filter = require('./api-process-query-filter'); // Nova rota para consulta de processos
 const api_ce_merchant = require('./api-ce-merchant'); // Nova rota para CE-Merchant
 const api_link_tree = require('./api-link-tree');
+const apiOrganizationalChart = require('./api-organizational-chart');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -217,17 +218,20 @@ const setIO = (io) => {
   // Use as rotas do arquivo api-pricing-analytics.js
   router.use('/pricing-analytics', api_pricing_analytics(io));
 
-   // Use as rotas do arquivo api-process-query-filter.js
-   router.use('/process-query-filter', api_process_query_filter(io));
+  // Use as rotas do arquivo api-process-query-filter.js
+  router.use('/process-query-filter', api_process_query_filter(io));
 
-   // Use as rotas do arquivo api-ce-merchant.js
-   router.use('/ce-merchant', api_ce_merchant(io));
+  // Use as rotas do arquivo api-ce-merchant.js
+  router.use('/ce-merchant', api_ce_merchant(io));
 
-   // Use as rotas do arquivo api-zero-based-budgeting.js
-   router.use('/zero-based-budgeting', api_zero_based_cost_center(io));
+  // Use as rotas do arquivo api-zero-based-budgeting.js
+  router.use('/zero-based-budgeting', api_zero_based_cost_center(io));
 
-   // Adicionar rotas do user-tracker
+  // Adicionar rotas do user-tracker
   router.use('/user-tracker', apiUserTracker(io));
+
+  // Adicionar rotas do organizational-chart
+  router.use('/organizational-chart', apiOrganizationalChart(io));
 
   return router;
 };

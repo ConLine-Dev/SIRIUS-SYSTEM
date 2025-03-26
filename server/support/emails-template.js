@@ -561,7 +561,7 @@ const emailCustom = {
                 <h3 style="color: #3498db; margin-top: 0;">Ações Necessárias</h3>
                 <p>Por favor, acesse o sistema para aprovar ou rejeitar esta solicitação:</p>
                 <p>1. Faça login no sistema Sirius</p>
-                <p>2. Navegue até "Zero-Based Budgeting" > "Aprovações Pendentes"</p>
+                <p>2. Navegue até "Orçamento Base Zero" > "Aprovações Pendentes"</p>
                 <p>3. Localize a solicitação #${data.id} e revise os detalhes</p>
                 <p>4. Aprove ou rejeite a solicitação com base na análise</p>
             </div>

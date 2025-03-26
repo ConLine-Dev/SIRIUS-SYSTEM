@@ -6,9 +6,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         dropdownParent: $('body')
     });
     
-    // Carregar os centros de custo para o filtro
-    await loadCostCenters();
-    
     // Preencher o filtro de anos
     populateYearFilter();
     
@@ -28,56 +25,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-// Função para carregar a lista de centros de custo
-async function loadCostCenters() {
-    try {
-        // Obter ID do colaborador logado do localStorage
-        const userLogged = await getInfosLogin();
-        const collaborator_id = userLogged?.system_collaborator_id;
-        
-        if (!collaborator_id) {
-            throw new Error('ID do colaborador não encontrado');
-        }
-        
-        // Fazer a requisição para obter os centros de custo
-        const response = await fetch(`/api/zero-based-budgeting/getAllCostCenters?id_collaborator=${collaborator_id}`);
-        const result = await response.json();
-        
-        // Verificar o resultado - a API retorna diretamente o array de centros de custo
-        if (!Array.isArray(result)) {
-            // Se não for um array, pode ser uma resposta de erro
-            if (result.success === false) {
-                console.error('Falha ao carregar centros de custo:', result.message);
-                return;
-            }
-            console.error('Resposta inesperada da API:', result);
-            return;
-        }
-        
-        const costCenters = result; // O resultado já é o array de centros de custo
-        
-        const selectEl = document.getElementById('filter-cost-center');
-        if (!selectEl) {
-            console.warn('Elemento de seleção não encontrado');
-            return;
-        }
-        
-        // Manter a opção padrão
-        let options = '<option value="">Todos os Centros de Custo</option>';
-        
-        // Adicionar cada centro de custo como uma opção
-        costCenters.forEach(costCenter => {
-            options += `<option value="${costCenter.id}">${costCenter.name}</option>`;
-        });
-        
-        selectEl.innerHTML = options;
-        
-    } catch (error) {
-        console.error('Erro ao carregar centros de custo:', error);
-        showAlert('Erro', 'Ocorreu um erro ao carregar a lista de centros de custo', 'error');
-    }
-}
-
 // Função para preencher o filtro de anos
 function populateYearFilter() {
     const yearSelect = document.getElementById('filter-year');
@@ -86,16 +33,13 @@ function populateYearFilter() {
     // Obter o ano atual
     const currentYear = new Date().getFullYear();
     
-    // Preencher com os últimos 5 anos
+    // Preencher com os anos de 2021 até o ano atual + 1
     let options = '<option value="">Todos os Anos</option>';
-    for (let year = currentYear; year >= currentYear - 4; year--) {
+    for (let year = currentYear + 1; year >= 2021; year--) {
         options += `<option value="${year}">${year}</option>`;
     }
     
     yearSelect.innerHTML = options;
-    
-    // Selecionar o ano atual por padrão
-    yearSelect.value = currentYear.toString();
 }
 
 // Configurar o formulário de filtros
@@ -126,10 +70,10 @@ function setupFiltersForm() {
 async function loadReportData() {
     try {
         // Obter os valores dos filtros
-        const costCenterId = document.getElementById('filter-cost-center').value || null;
+        const month = document.getElementById('filter-month').value || null;
         const year = document.getElementById('filter-year').value || null;
         
-        console.log('Enviando requisição com filtros:', { costCenterId, year });
+        console.log('Enviando requisição com filtros:', { month, year });
         
         // Fazer a requisição para obter os dados do relatório
         const response = await fetch('/api/zero-based-budgeting/reportByMonth', {
@@ -138,7 +82,7 @@ async function loadReportData() {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                costCenterId: costCenterId,
+                month: month,
                 year: year
             })
         });
@@ -200,14 +144,22 @@ function updateSummaryCards(summary, expenses) {
     // Total aprovado
     const totalApprovedEl = document.getElementById('total-approved');
     if (totalApprovedEl) {
-        totalApprovedEl.textContent = `R$ ${(summary.totalApproved || 0).toFixed(2).replace('.', ',')}`;
+        const formattedApproved = new Intl.NumberFormat('pt-BR', { 
+            style: 'currency', 
+            currency: 'BRL' 
+        }).format(summary.totalApproved || 0);
+        totalApprovedEl.textContent = formattedApproved;
     }
     
     // Total rejeitado
     const averageAmountEl = document.getElementById('average-amount');
     if (averageAmountEl) {
         const totalRejected = summary.totalRejected || 0;
-        averageAmountEl.textContent = `R$ ${totalRejected.toFixed(2).replace('.', ',')}`;
+        const formattedRejected = new Intl.NumberFormat('pt-BR', { 
+            style: 'currency', 
+            currency: 'BRL' 
+        }).format(totalRejected);
+        averageAmountEl.textContent = formattedRejected;
     }
     
     // Média por mês
@@ -223,13 +175,31 @@ function updateSummaryCards(summary, expenses) {
                 const month = expense.month;
                 if (!month) return;
                 
-                // Converter valor de texto para número
+                // Converter valor de texto para número de forma robusta
                 let amount = 0;
-                if (typeof expense.total_amount === 'string') {
-                    const amountStr = expense.total_amount.replace('R$ ', '').replace(/\./g, '').replace(',', '.');
-                    amount = parseFloat(amountStr) || 0;
-                } else {
-                    amount = parseFloat(expense.total_amount) || 0;
+                try {
+                    if (typeof expense.total_amount === 'string') {
+                        // Remover "R$ ", substituir "." por "" (para milhares) e "," por "." (decimal)
+                        let amountStr = expense.total_amount.replace(/R\$\s?/g, '');
+                        
+                        // Tratar números com formato brasileiro (ex: 12.345.678,90)
+                        // Primeiro remove todos os pontos e depois substitui a vírgula por ponto
+                        amountStr = amountStr.replace(/\./g, '').replace(',', '.');
+                        
+                        // Tentar converter para número
+                        const parsedAmount = parseFloat(amountStr);
+                        
+                        // Verificar se o resultado é um número válido
+                        if (!isNaN(parsedAmount)) {
+                            amount = parsedAmount;
+                        } else {
+                            console.error(`Falha na conversão: "${expense.total_amount}" => "${amountStr}" => NaN`);
+                        }
+                    } else if (typeof expense.total_amount === 'number') {
+                        amount = expense.total_amount;
+                    }
+                } catch (e) {
+                    console.error('Erro ao converter valor:', e, expense.total_amount);
                 }
                 
                 if (!expensesByMonth[month]) {
@@ -246,12 +216,20 @@ function updateSummaryCards(summary, expenses) {
             
             // Mostrar a média ou zero se não houver meses
             const monthlyAverage = totalMonths > 0 ? totalAmount / totalMonths : 0;
-            monthlyAverageEl.textContent = `R$ ${monthlyAverage.toFixed(2).replace('.', ',')}`;
+            
+            // Formatar com separador de milhares
+            const formattedAverage = new Intl.NumberFormat('pt-BR', { 
+                style: 'currency', 
+                currency: 'BRL' 
+            }).format(monthlyAverage);
+            
+            monthlyAverageEl.textContent = formattedAverage;
             
             console.log('Média por mês:', {
                 totalMonths,
                 totalAmount,
-                monthlyAverage
+                monthlyAverage,
+                formattedAverage
             });
         }
     }
@@ -282,13 +260,31 @@ function renderMonthExpensesChart(expenses) {
         const month = expense.month;
         if (!month) return;
         
-        // Converter valor de texto para número (remover 'R$ ' e substituir ',' por '.')
+        // Converter valor de texto para número de forma robusta
         let amount = 0;
-        if (typeof expense.total_amount === 'string') {
-            const amountStr = expense.total_amount.replace('R$ ', '').replace(/\./g, '').replace(',', '.');
-            amount = parseFloat(amountStr) || 0;
-        } else {
-            amount = parseFloat(expense.total_amount) || 0;
+        try {
+            if (typeof expense.total_amount === 'string') {
+                // Remover "R$ ", substituir "." por "" (para milhares) e "," por "." (decimal)
+                let amountStr = expense.total_amount.replace(/R\$\s?/g, '');
+                
+                // Tratar números com formato brasileiro (ex: 12.345.678,90)
+                // Primeiro remove todos os pontos e depois substitui a vírgula por ponto
+                amountStr = amountStr.replace(/\./g, '').replace(',', '.');
+                
+                // Tentar converter para número
+                const parsedAmount = parseFloat(amountStr);
+                
+                // Verificar se o resultado é um número válido
+                if (!isNaN(parsedAmount)) {
+                    amount = parsedAmount;
+                } else {
+                    console.error(`Falha na conversão: "${expense.total_amount}" => "${amountStr}" => NaN`);
+                }
+            } else if (typeof expense.total_amount === 'number') {
+                amount = expense.total_amount;
+            }
+        } catch (e) {
+            console.error('Erro ao converter valor:', e, expense.total_amount);
         }
         
         if (!expensesByMonth[month]) {
@@ -435,58 +431,47 @@ function renderStatusChart(expenses) {
 
 // Função para preencher a tabela de despesas
 function populateExpensesTable(expenses) {
-    console.log('Populando tabela com despesas:', expenses);
+    const table = document.getElementById('expenses-table');
+    if (!table) return;
     
-    if (!Array.isArray(expenses)) {
-        console.error('Despesas não é um array:', expenses);
-        return;
-    }
-    
-    const tableBody = document.querySelector('#expenses-table tbody');
-    if (!tableBody) {
-        console.error('Elemento tbody não encontrado');
-        return;
-    }
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return;
     
     // Limpar a tabela
-    tableBody.innerHTML = '';
+    tbody.innerHTML = '';
     
-    if (expenses.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="9" class="text-center">Nenhuma solicitação encontrada</td></tr>';
+    if (!expenses || !expenses.length) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center">Nenhum dado encontrado</td></tr>';
         return;
     }
     
-    // Preencher com os novos dados
+    // Preencher a tabela com os dados
     expenses.forEach(expense => {
-        console.log('Processando despesa:', expense);
-        
         const row = document.createElement('tr');
         
-        // Criar as células da linha
+        // Obter a classe do badge de status
+        const statusClass = getStatusBadgeClass(expense.status);
+        
         row.innerHTML = `
-            <td>${expense.costCenterName || ''}</td>
-            <td>${expense.month || ''}</td>
-            <td>${Array.isArray(expense.categories) ? expense.categories.join(', ') : ''}</td>
-            <td>${expense.total_quantity || 0}</td>
-            <td>${expense.total_amount || 'R$ 0,00'}</td>
-            <td>
-                <span class="badge ${getStatusBadgeClass(expense.status)}">
-                    ${expense.status || ''}
-                </span>
-            </td>
-            <td>${expense.requesterName || ''}</td>
-            <td>${expense.created_at || ''}</td>
-            <td>
-                <button type="button" class="btn btn-sm btn-info view-expense" data-id="${expense.id}">
+            <td>${expense.costCenterName || 'N/A'}</td>
+            <td>${expense.month} ${expense.year || ''}</td>
+            <td>${Array.isArray(expense.categories) ? expense.categories.join(', ') : 'N/A'}</td>
+            <td class="text-center">${expense.item_count}</td>
+            <td class="text-end">${expense.total_amount}</td>
+            <td class="text-center"><span class="badge ${statusClass}">${expense.status}</span></td>
+            <td>${expense.requesterName || 'N/A'}</td>
+            <td>${expense.created_at || 'N/A'}</td>
+            <td class="text-center">
+                <button class="btn btn-sm btn-primary view-request-btn" data-id="${expense.id}">
                     <i class="ri-eye-line"></i>
                 </button>
             </td>
         `;
         
-        tableBody.appendChild(row);
+        tbody.appendChild(row);
     });
     
-    // Adicionar os listeners para os botões de visualização
+    // Adicionar listeners para os botões de visualização
     addViewButtonListeners();
 }
 
@@ -506,7 +491,7 @@ function getStatusBadgeClass(status) {
 
 // Adicionar event listeners para os botões de visualização de solicitações
 function addViewButtonListeners() {
-    const viewButtons = document.querySelectorAll('.view-expense');
+    const viewButtons = document.querySelectorAll('.view-request-btn');
     viewButtons.forEach(button => {
         button.addEventListener('click', function() {
             const expenseId = this.getAttribute('data-id');
@@ -526,14 +511,14 @@ function setupExportButton() {
 // Função para exportar a tabela para CSV
 function exportTableToCSV() {
     // Obter os valores dos filtros
-    const costCenterFilter = document.getElementById('filter-cost-center');
+    const monthFilter = document.getElementById('filter-month');
     const yearFilter = document.getElementById('filter-year');
     
-    const costCenterName = costCenterFilter && costCenterFilter.options[costCenterFilter.selectedIndex].text || 'Todos';
+    const monthName = monthFilter && monthFilter.options[monthFilter.selectedIndex].text || 'Todos';
     const year = yearFilter && yearFilter.value || 'Todos';
     
     // Nome do arquivo
-    const fileName = `relatorio_mensal_${costCenterName.replace(/\s+/g, '_')}_${year}_${formatDate(new Date())}.csv`;
+    const fileName = `relatorio_mensal_${monthName.replace(/\s+/g, '_')}_${year}_${formatDate(new Date())}.csv`;
     
     // Obter a tabela
     const table = document.getElementById('expenses-table');
@@ -544,7 +529,7 @@ function exportTableToCSV() {
     
     // Adicionar o título do relatório
     csv.push(`Relatório por Mês - ${formatDate(new Date())}`);
-    csv.push(`Centro de Custo: ${costCenterName}`);
+    csv.push(`Mês: ${monthName}`);
     csv.push(`Ano: ${year}`);
     csv.push(''); // Linha em branco
     

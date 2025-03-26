@@ -86,9 +86,9 @@ function populateYearFilter() {
     // Obter o ano atual
     const currentYear = new Date().getFullYear();
     
-    // Preencher com os últimos 5 anos
+    // Preencher com os anos de 2021 até o ano atual + 1
     let options = '<option value="">Todos os Anos</option>';
-    for (let year = currentYear; year >= currentYear - 4; year--) {
+    for (let year = currentYear + 1; year >= 2021; year--) {
         options += `<option value="${year}">${year}</option>`;
     }
     
@@ -197,13 +197,21 @@ function updateSummaryCards(summary) {
     // Total aprovado
     const totalApprovedEl = document.getElementById('total-approved');
     if (totalApprovedEl) {
-        totalApprovedEl.textContent = `R$ ${(summary.totalApproved || 0).toFixed(2).replace('.', ',')}`;
+        const formattedApproved = new Intl.NumberFormat('pt-BR', { 
+            style: 'currency', 
+            currency: 'BRL' 
+        }).format(summary.totalApproved || 0);
+        totalApprovedEl.textContent = formattedApproved;
     }
     
     // Total rejeitado
     const totalRejectedEl = document.getElementById('total-rejected');
     if (totalRejectedEl) {
-        totalRejectedEl.textContent = `R$ ${(summary.totalRejected || 0).toFixed(2).replace('.', ',')}`;
+        const formattedRejected = new Intl.NumberFormat('pt-BR', { 
+            style: 'currency', 
+            currency: 'BRL' 
+        }).format(summary.totalRejected || 0);
+        totalRejectedEl.textContent = formattedRejected;
     }
 }
 
@@ -252,7 +260,10 @@ function renderCostCenterChart(costCenterData) {
                         label: function(context) {
                             const label = context.label || '';
                             const value = context.raw;
-                            return `${label}: R$ ${value.toFixed(2).replace('.', ',')}`;
+                            return `${label}: ${new Intl.NumberFormat('pt-BR', { 
+                                style: 'currency', 
+                                currency: 'BRL' 
+                            }).format(value)}`;
                         }
                     }
                 }
@@ -320,58 +331,47 @@ function renderStatusChart(statusData) {
 
 // Função para preencher a tabela de despesas
 function populateExpensesTable(expenses) {
-    console.log('Populando tabela com despesas:', expenses);
+    const table = document.getElementById('expenses-table');
+    if (!table) return;
     
-    if (!Array.isArray(expenses)) {
-        console.error('Despesas não é um array:', expenses);
-        return;
-    }
-    
-    const tableBody = document.querySelector('#expenses-table tbody');
-    if (!tableBody) {
-        console.error('Elemento tbody não encontrado');
-        return;
-    }
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return;
     
     // Limpar a tabela
-    tableBody.innerHTML = '';
+    tbody.innerHTML = '';
     
-    if (expenses.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="9" class="text-center">Nenhuma solicitação encontrada</td></tr>';
+    if (!expenses || !expenses.length) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center">Nenhum dado encontrado</td></tr>';
         return;
     }
     
-    // Preencher com os novos dados
+    // Preencher a tabela com os dados
     expenses.forEach(expense => {
-        console.log('Processando despesa:', expense);
-        
         const row = document.createElement('tr');
         
-        // Criar as células da linha
+        // Obter a classe do badge de status
+        const statusClass = getStatusBadgeClass(expense.status);
+        
         row.innerHTML = `
-            <td>${expense.costCenterName || ''}</td>
-            <td>${expense.month || ''}</td>
-            <td>${Array.isArray(expense.categories) ? expense.categories.join(', ') : ''}</td>
-            <td>${expense.total_quantity || 0}</td>
-            <td>${expense.total_amount || 'R$ 0,00'}</td>
-            <td>
-                <span class="badge ${getStatusBadgeClass(expense.status)}">
-                    ${expense.status || ''}
-                </span>
-            </td>
-            <td>${expense.requesterName || ''}</td>
-            <td>${expense.created_at || ''}</td>
-            <td>
-                <button type="button" class="btn btn-sm btn-info view-expense" data-id="${expense.id}">
+            <td>${expense.costCenterName || 'N/A'}</td>
+            <td>${expense.month} ${expense.year || ''}</td>
+            <td>${Array.isArray(expense.categories) ? expense.categories.join(', ') : 'N/A'}</td>
+            <td class="text-center">${expense.item_count}</td>
+            <td class="text-end">${expense.total_amount}</td>
+            <td class="text-center"><span class="badge ${statusClass}">${expense.status}</span></td>
+            <td>${expense.requesterName || 'N/A'}</td>
+            <td>${expense.created_at || 'N/A'}</td>
+            <td class="text-center">
+                <button class="btn btn-sm btn-primary view-request-btn" data-id="${expense.id}">
                     <i class="ri-eye-line"></i>
                 </button>
             </td>
         `;
         
-        tableBody.appendChild(row);
+        tbody.appendChild(row);
     });
     
-    // Adicionar os listeners para os botões de visualização
+    // Adicionar listeners para os botões de visualização
     addViewButtonListeners();
 }
 
@@ -391,7 +391,7 @@ function getStatusBadgeClass(status) {
 
 // Adicionar event listeners para os botões de visualização de solicitações
 function addViewButtonListeners() {
-    const viewButtons = document.querySelectorAll('.view-expense');
+    const viewButtons = document.querySelectorAll('.view-request-btn');
     viewButtons.forEach(button => {
         button.addEventListener('click', function() {
             const expenseId = this.getAttribute('data-id');

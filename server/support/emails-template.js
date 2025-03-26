@@ -512,343 +512,130 @@ const emailCustom = {
         const year = date.getFullYear(); // Obtém o ano
         return `${day}/${month}/${year}`; // Retorna a data formatada
     },
-    // Template para notificar aprovadores sobre nova solicitação
-    expenseRequestNotification: async function(data) {
+    // Template de notificação de solicitação de gasto
+    expenseRequestNotification: function(data) {
         return `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Nova Solicitação de Gasto</title>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        line-height: 1.6;
-                        color: #333;
-                        margin: 0;
-                        padding: 0;
-                        background-color: #f4f4f4;
-                    }
-                    .container {
-                        max-width: 600px;
-                        margin: 0 auto;
-                        padding: 20px;
-                        background-color: #ffffff;
-                    }
-                    .header {
-                        background-color: #f9423a;
-                        color: white;
-                        padding: 20px;
-                        text-align: center;
-                        border-radius: 5px 5px 0 0;
-                    }
-                    .header h1 {
-                        margin: 0;
-                        font-size: 24px;
-                        font-weight: bold;
-                    }
-                    .content {
-                        padding: 20px;
-                        background-color: #ffffff;
-                        border: 1px solid #f9423a;
-                        border-top: none;
-                        border-radius: 0 0 5px 5px;
-                    }
-                    .info-box {
-                        background-color: #f8f8f8;
-                        border-left: 4px solid #f9423a;
-                        padding: 15px;
-                        margin: 15px 0;
-                    }
-                    .info-item {
-                        margin: 10px 0;
-                    }
-                    .info-label {
-                        font-weight: bold;
-                        color: #666;
-                    }
-                    .info-value {
-                        color: #333;
-                    }
-                    .footer {
-                        text-align: center;
-                        padding: 20px;
-                        color: #666;
-                        font-size: 14px;
-                        margin-top: 20px;
-                        border-top: 1px solid #eee;
-                    }
-                    .message {
-                        background-color: #fff3f3;
-                        border: 1px solid #f9423a;
-                        padding: 15px;
-                        margin: 15px 0;
-                        border-radius: 4px;
-                    }
-                    .message p {
-                        margin: 0;
-                        color: #f9423a;
-                    }
-                    .items-table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin: 15px 0;
-                    }
-                    .items-table th {
-                        background-color: #f8f8f8;
-                        padding: 10px;
-                        text-align: left;
-                        border-bottom: 2px solid #ddd;
-                        color: #666;
-                    }
-                    .items-table td {
-                        padding: 10px;
-                        border-bottom: 1px solid #eee;
-                    }
-                    .total-row {
-                        font-weight: bold;
-                        background-color: #f8f8f8;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>Nova Solicitação de Gasto</h1>
-                    </div>
-                    <div class="content">
-                        <p>Olá,</p>
-                        <p>Uma nova solicitação de gasto foi criada e requer sua aprovação.</p>
-                        
-                        <div class="info-box">
-                            <div class="info-item">
-                                <span class="info-label">ID da Solicitação:</span>
-                                <span class="info-value">#${data.id}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Centro de Custo:</span>
-                                <span class="info-value">${data.costCenterName}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Solicitante:</span>
-                                <span class="info-value">${data.requesterName}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Total da Solicitação:</span>
-                                <span class="info-value">${data.total_amount}</span>
-                            </div>
-                        </div>
-                        
-                        <h3>Itens Solicitados</h3>
-                        <table class="items-table">
-                            <thead>
-                                <tr>
-                                    <th>Categoria</th>
-                                    <th>Descrição</th>
-                                    <th>Quant.</th>
-                                    <th>Valor Unit.</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${data.items.map(item => `
-                                <tr>
-                                    <td>${item.category}</td>
-                                    <td>${item.description}</td>
-                                    <td>${item.quantity}</td>
-                                    <td>${item.unitAmount}</td>
-                                    <td>${item.subtotal}</td>
-                                </tr>
-                                `).join('')}
-                                <tr class="total-row">
-                                    <td colspan="4" style="text-align: right;">Total:</td>
-                                    <td>${data.total_amount}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        <div class="message">
-                            <p>Para aprovar ou rejeitar esta solicitação, acesse o módulo de Orçamento Base Zero no sistema Sirius.</p>
-                        </div>
-                    </div>
-                    <div class="footer">
-                        <p>Este é um email automático do sistema Sirius. Por favor, não responda.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
+        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+            <h2 style="color: #2c3e50; text-align: center;">Nova Solicitação de Gasto Pendente</h2>
+            
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <h3 style="color: #3498db; margin-top: 0;">Informações da Solicitação</h3>
+                <p><strong>ID da Solicitação:</strong> #${data.id}</p>
+                <p><strong>Centro de Custo:</strong> ${data.costCenterName}</p>
+                <p><strong>Período:</strong> ${data.month}/${data.year}</p>
+                <p><strong>Solicitante:</strong> ${data.requesterName}</p>
+                <p><strong>Valor Total:</strong> ${data.total_amount}</p>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <h3 style="color: #3498db;">Itens Solicitados</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #3498db; color: white;">
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Categoria</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Descrição</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Quantidade</th>
+                            <th style="padding: 10px; text-align: right; border: 1px solid #ddd;">Valor Unitário</th>
+                            <th style="padding: 10px; text-align: right; border: 1px solid #ddd;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.items.map(item => `
+                            <tr>
+                                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">${item.category}</td>
+                                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">${item.description}</td>
+                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">${item.quantity}</td>
+                                <td style="padding: 10px; text-align: right; border: 1px solid #ddd;">${item.unitAmount}</td>
+                                <td style="padding: 10px; text-align: right; border: 1px solid #ddd;">${item.subtotal}</td>
+                            </tr>
+                        `).join('')}
+                        <tr style="background-color: #f9f9f9;">
+                            <td colspan="4" style="padding: 10px; text-align: right; border: 1px solid #ddd;"><strong>Total:</strong></td>
+                            <td style="padding: 10px; text-align: right; border: 1px solid #ddd;"><strong>${data.total_amount}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="background-color: #f2f9ff; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <h3 style="color: #3498db; margin-top: 0;">Ações Necessárias</h3>
+                <p>Por favor, acesse o sistema para aprovar ou rejeitar esta solicitação:</p>
+                <p>1. Faça login no sistema Sirius</p>
+                <p>2. Navegue até "Zero-Based Budgeting" > "Aprovações Pendentes"</p>
+                <p>3. Localize a solicitação #${data.id} e revise os detalhes</p>
+                <p>4. Aprove ou rejeite a solicitação com base na análise</p>
+            </div>
+            
+            <div style="text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 30px;">
+                <p>Esta é uma mensagem automática do sistema Sirius. Por favor, não responda a este e-mail.</p>
+            </div>
+        </div>
         `;
     },
-
-    // Template para notificar solicitante sobre aprovação/rejeição
-    expenseRequestStatusUpdate: async function(data) {
-        const statusColor = data.status === 'Aprovado' ? '#28a745' : '#e60012';
-        const statusText = data.status === 'Aprovado' ? 'Aprovada' : 'Rejeitada';
-
+    
+    // Template de atualização de status de solicitação de gasto
+    expenseRequestStatusUpdate: function(data) {
+        const statusColor = data.status === 'Aprovado' ? '#27ae60' : '#e74c3c';
+        const statusText = data.status === 'Aprovado' ? 'APROVADA' : 'REJEITADA';
+        
         return `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Atualização de Status - Solicitação de Gasto</title>
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        line-height: 1.6;
-                        color: #333;
-                        margin: 0;
-                        padding: 0;
-                        background-color: #f4f4f4;
-                    }
-                    .container {
-                        max-width: 600px;
-                        margin: 0 auto;
-                        padding: 20px;
-                        background-color: #ffffff;
-                    }
-                    .header {
-                        background-color: ${statusColor};
-                        color: white;
-                        padding: 20px;
-                        text-align: center;
-                        border-radius: 5px 5px 0 0;
-                    }
-                    .header h1 {
-                        margin: 0;
-                        font-size: 24px;
-                        font-weight: bold;
-                    }
-                    .content {
-                        padding: 20px;
-                        background-color: #ffffff;
-                        border: 1px solid ${statusColor};
-                        border-top: none;
-                        border-radius: 0 0 5px 5px;
-                    }
-                    .info-box {
-                        background-color: #f8f8f8;
-                        border-left: 4px solid ${statusColor};
-                        padding: 15px;
-                        margin: 15px 0;
-                    }
-                    .info-item {
-                        margin: 10px 0;
-                    }
-                    .info-label {
-                        font-weight: bold;
-                        color: #666;
-                    }
-                    .info-value {
-                        color: #333;
-                    }
-                    .footer {
-                        text-align: center;
-                        padding: 20px;
-                        color: #666;
-                        font-size: 14px;
-                        margin-top: 20px;
-                        border-top: 1px solid #eee;
-                    }
-                    .comment-box {
-                        background-color: #fff3f3;
-                        border: 1px solid ${statusColor};
-                        padding: 15px;
-                        margin: 15px 0;
-                        border-radius: 4px;
-                    }
-                    .comment-box p {
-                        margin: 0;
-                        color: ${statusColor};
-                    }
-                    .items-table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin: 15px 0;
-                    }
-                    .items-table th {
-                        background-color: #f8f8f8;
-                        padding: 10px;
-                        text-align: left;
-                        border-bottom: 2px solid #ddd;
-                        color: #666;
-                    }
-                    .items-table td {
-                        padding: 10px;
-                        border-bottom: 1px solid #eee;
-                    }
-                    .total-row {
-                        font-weight: bold;
-                        background-color: #f8f8f8;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <h1>Solicitação ${statusText}</h1>
-                    </div>
-                    <div class="content">
-                        <p>Olá,</p>
-                        <p>Sua solicitação de gasto foi ${statusText.toLowerCase()} por ${data.approverName}.</p>
-                        
-                        <div class="info-box">
-                            <div class="info-item">
-                                <span class="info-label">ID da Solicitação:</span>
-                                <span class="info-value">#${data.id}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Centro de Custo:</span>
-                                <span class="info-value">${data.costCenterName}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Total da Solicitação:</span>
-                                <span class="info-value">${data.total_amount}</span>
-                            </div>
-                        </div>
-                        
-                        <h3>Itens da Solicitação</h3>
-                        <table class="items-table">
-                            <thead>
-                                <tr>
-                                    <th>Categoria</th>
-                                    <th>Descrição</th>
-                                    <th>Quant.</th>
-                                    <th>Valor Unit.</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${data.items.map(item => `
-                                <tr>
-                                    <td>${item.category}</td>
-                                    <td>${item.description}</td>
-                                    <td>${item.quantity}</td>
-                                    <td>${item.unitAmount}</td>
-                                    <td>${item.subtotal}</td>
-                                </tr>
-                                `).join('')}
-                                <tr class="total-row">
-                                    <td colspan="4" style="text-align: right;">Total:</td>
-                                    <td>${data.total_amount}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-
-                        ${data.comment ? `
-                            <div class="comment-box">
-                                <p><strong>Comentário do Aprovador:</strong></p>
-                                <p>${data.comment}</p>
-                            </div>
-                        ` : ''}
-                    </div>
-                    <div class="footer">
-                        <p>Este é um email automático do sistema Sirius. Por favor, não responda.</p>
-                    </div>
-                </div>
-            </body>
-            </html>
+        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px;">
+            <h2 style="color: #2c3e50; text-align: center;">Atualização de Status da Solicitação de Gasto</h2>
+            
+            <div style="background-color: ${statusColor}; color: white; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
+                <h3 style="margin: 0; font-size: 24px;">Solicitação ${statusText}</h3>
+            </div>
+            
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <h3 style="color: #3498db; margin-top: 0;">Informações da Solicitação</h3>
+                <p><strong>ID da Solicitação:</strong> #${data.id}</p>
+                <p><strong>Centro de Custo:</strong> ${data.costCenterName}</p>
+                <p><strong>Período:</strong> ${data.month}/${data.year}</p>
+                <p><strong>Aprovador:</strong> ${data.approverName}</p>
+                <p><strong>Valor Total:</strong> ${data.total_amount}</p>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <h3 style="color: #3498db;">Itens Solicitados</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background-color: #3498db; color: white;">
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Categoria</th>
+                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Descrição</th>
+                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd;">Quantidade</th>
+                            <th style="padding: 10px; text-align: right; border: 1px solid #ddd;">Valor Unitário</th>
+                            <th style="padding: 10px; text-align: right; border: 1px solid #ddd;">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.items.map(item => `
+                            <tr>
+                                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">${item.category}</td>
+                                <td style="padding: 10px; text-align: left; border: 1px solid #ddd;">${item.description}</td>
+                                <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">${item.quantity}</td>
+                                <td style="padding: 10px; text-align: right; border: 1px solid #ddd;">${item.unitAmount}</td>
+                                <td style="padding: 10px; text-align: right; border: 1px solid #ddd;">${item.subtotal}</td>
+                            </tr>
+                        `).join('')}
+                        <tr style="background-color: #f9f9f9;">
+                            <td colspan="4" style="padding: 10px; text-align: right; border: 1px solid #ddd;"><strong>Total:</strong></td>
+                            <td style="padding: 10px; text-align: right; border: 1px solid #ddd;"><strong>${data.total_amount}</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            ${data.comment ? `
+            <div style="background-color: #f2f9ff; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                <h3 style="color: #3498db; margin-top: 0;">Comentário do Aprovador</h3>
+                <p style="background-color: white; padding: 10px; border-radius: 3px; border-left: 4px solid ${statusColor};">${data.comment}</p>
+            </div>
+            ` : ''}
+            
+            <div style="text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 30px;">
+                <p>Esta é uma mensagem automática do sistema Sirius. Por favor, não responda a este e-mail.</p>
+            </div>
+        </div>
         `;
     },
 }

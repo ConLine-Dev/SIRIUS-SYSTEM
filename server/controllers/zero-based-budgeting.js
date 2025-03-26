@@ -487,13 +487,14 @@ const zeroBasedCostCenter = {
         // Criar a solicitação principal (agora sem os campos de item)
         const query = `
             INSERT INTO zero_based_expense_requests 
-            (month, cost_center_id, strategic_contribution, status, requester_id, created_at, updated_at) 
+            (month, year, cost_center_id, strategic_contribution, status, requester_id, created_at, updated_at) 
             VALUES 
-            (?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?)
         `;
         
         const result = await executeQuery(query, [
             form.month,
+            form.year,
             form.cost_center_id,
             form.strategic_contribution,
             'Pendente', // Status inicial
@@ -597,6 +598,8 @@ const zeroBasedCostCenter = {
         const emailData = {
             id: expenseRequestId,
             costCenterName: costCenterInfo.costCenterName,
+            month: form.month,
+            year: form.year,
             total_amount: totalAmountFormatted,
             items: itemsInfo,
             requesterName: `${requesterInfo.name} ${requesterInfo.family_name}`
@@ -655,6 +658,7 @@ const zeroBasedCostCenter = {
             UPDATE zero_based_expense_requests 
             SET 
                 month = ?, 
+                year = ?, 
                 cost_center_id = ?, 
                 strategic_contribution = ?, 
                 updated_at = ? 
@@ -663,6 +667,7 @@ const zeroBasedCostCenter = {
         
         await executeQuery(query, [
             form.month,
+            form.year,
             form.cost_center_id,
             form.strategic_contribution,
             formattedDate,
@@ -931,6 +936,8 @@ const zeroBasedCostCenter = {
                 const emailData = {
                     id: requestInfo.id,
                     costCenterName: requestInfo.costCenterName,
+                    month: requestInfo.month,
+                    year: requestInfo.year,
                     total_amount: totalAmount,
                     items: itemsInfo,
                     status: form.status,
@@ -969,7 +976,7 @@ const zeroBasedCostCenter = {
         
         if (params.year) {
             whereClause += whereClause ? ' AND ' : ' WHERE ';
-            whereClause += 'YEAR(er.created_at) = ?';
+            whereClause += 'er.year = ?';
             whereParams.push(params.year);
         }
         
@@ -1052,6 +1059,7 @@ const zeroBasedCostCenter = {
             SELECT 
                 er.id,
                 er.month,
+                er.year,
                 cc.name as costCenterName,
                 er.status,
                 er.created_at,
@@ -1072,7 +1080,7 @@ const zeroBasedCostCenter = {
                 zero_based_categories zc ON zc.id = ei.category
             ${expensesWhereClause}
             GROUP BY
-                er.id, er.month, cc.name, er.status, er.created_at, c.name
+                er.id, er.month, er.year, cc.name, er.status, er.created_at, c.name
             ORDER BY
                 er.created_at DESC
             LIMIT 100
@@ -1084,6 +1092,7 @@ const zeroBasedCostCenter = {
             id: item.id,
             costCenterName: item.costCenterName.toUpperCase(),
             month: item.month,
+            year: item.year,
             categories: item.categories ? item.categories.split(',') : [],
             item_count: parseInt(item.item_count),
             total_quantity: parseInt(item.total_quantity) || 0,
@@ -1127,14 +1136,14 @@ const zeroBasedCostCenter = {
         let whereClause = '';
         const whereParams = [];
         
-        if (params.costCenterId) {
-            whereClause += ' WHERE cc.id = ?';
-            whereParams.push(params.costCenterId);
+        if (params.status) {
+            whereClause += ' WHERE er.status = ?';
+            whereParams.push(params.status);
         }
         
         if (params.year) {
             whereClause += whereClause ? ' AND ' : ' WHERE ';
-            whereClause += 'YEAR(er.created_at) = ?';
+            whereClause += 'er.year = ?';
             whereParams.push(params.year);
         }
         
@@ -1173,6 +1182,7 @@ const zeroBasedCostCenter = {
             SELECT 
                 er.id,
                 er.month,
+                er.year,
                 cc.name as costCenterName,
                 er.status,
                 er.created_at,
@@ -1193,7 +1203,7 @@ const zeroBasedCostCenter = {
                 zero_based_categories zc ON zc.id = ei.category
             ${expensesWhereClause}
             GROUP BY
-                er.id, er.month, cc.name, er.status, er.created_at, c.name
+                er.id, er.month, er.year, cc.name, er.status, er.created_at, c.name
             ORDER BY
                 er.created_at DESC
             LIMIT 100
@@ -1205,6 +1215,7 @@ const zeroBasedCostCenter = {
             id: item.id,
             costCenterName: item.costCenterName.toUpperCase(),
             month: item.month,
+            year: item.year,
             categories: item.categories ? item.categories.split(',') : [],
             item_count: parseInt(item.item_count),
             total_quantity: parseInt(item.total_quantity) || 0,
@@ -1251,7 +1262,7 @@ const zeroBasedCostCenter = {
         
         if (params.year) {
             whereClause += whereClause ? ' AND ' : ' WHERE ';
-            whereClause += 'YEAR(er.created_at) = ?';
+            whereClause += 'er.year = ?';
             whereParams.push(params.year);
         }
         
@@ -1259,6 +1270,7 @@ const zeroBasedCostCenter = {
         const query = `
             SELECT 
                 er.month,
+                er.year,
                 COUNT(DISTINCT er.id) as num_requests,
                 COUNT(DISTINCT CASE WHEN er.status = 'Aprovado' THEN er.id END) as approved,
                 COUNT(DISTINCT CASE WHEN er.status = 'Rejeitado' THEN er.id END) as rejected,
@@ -1273,7 +1285,7 @@ const zeroBasedCostCenter = {
                 zero_based_expense_items ei ON ei.expense_request_id = er.id
             ${whereClause}
             GROUP BY
-                er.month
+                er.month, er.year
             ORDER BY
                 FIELD(er.month, 
                     'Janeiro', 'Fevereiro', 'Março', 'Abril', 
@@ -1286,13 +1298,13 @@ const zeroBasedCostCenter = {
         
         // Preparar os dados para o gráfico de linha de gastos por mês
         const monthlyData = {
-            labels: result.map(item => item.month),
+            labels: result.map(item => `${item.month}/${item.year}`),
             values: result.map(item => parseFloat(item.total_amount) || 0)
         };
         
         // Preparar os dados para o gráfico de barras de status por mês
         const statusData = {
-            labels: result.map(item => item.month),
+            labels: result.map(item => `${item.month}/${item.year}`),
             approved: result.map(item => item.approved),
             rejected: result.map(item => item.rejected),
             pending: result.map(item => item.pending),
@@ -1309,6 +1321,7 @@ const zeroBasedCostCenter = {
             SELECT 
                 er.id,
                 er.month,
+                er.year,
                 cc.name as costCenterName,
                 er.status,
                 er.created_at,
@@ -1329,7 +1342,7 @@ const zeroBasedCostCenter = {
                 zero_based_categories zc ON zc.id = ei.category
             ${expensesWhereClause}
             GROUP BY
-                er.id, er.month, cc.name, er.status, er.created_at, c.name
+                er.id, er.month, er.year, cc.name, er.status, er.created_at, c.name
             ORDER BY
                 er.created_at DESC
             LIMIT 100
@@ -1341,6 +1354,7 @@ const zeroBasedCostCenter = {
             id: item.id,
             costCenterName: item.costCenterName.toUpperCase(),
             month: item.month,
+            year: item.year,
             categories: item.categories ? item.categories.split(',') : [],
             item_count: parseInt(item.item_count),
             total_quantity: parseInt(item.total_quantity) || 0,
@@ -1455,6 +1469,7 @@ const zeroBasedCostCenter = {
             return {
                 id: request.id,
                 month: request.month,
+                year: request.year,
                 category: mainCategory,
                 description: mainDescription,
                 item_count: items.length,

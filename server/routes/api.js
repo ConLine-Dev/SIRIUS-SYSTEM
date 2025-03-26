@@ -55,6 +55,9 @@ const Posts = require('./apiPosts');
 const api_zero_based_cost_center = require('./api-zero-based-budgeting');
 // const Posts = require('./apiPosts');
 
+// Importando as rotas da API user-tracker
+const apiUserTracker = require('./api-user-tracker');
+
 
 // Function to set io instance
 const setIO = (io) => {
@@ -222,6 +225,9 @@ const setIO = (io) => {
 
    // Use as rotas do arquivo api-zero-based-budgeting.js
    router.use('/zero-based-budgeting', api_zero_based_cost_center(io));
+
+   // Adicionar rotas do user-tracker
+  router.use('/user-tracker', apiUserTracker(io));
 
   return router;
 };

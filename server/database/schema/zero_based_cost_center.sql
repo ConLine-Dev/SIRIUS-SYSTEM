@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS `zero_based_cost_center_responsibles` (
 CREATE TABLE IF NOT EXISTS `zero_based_expense_requests` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `month` varchar(20) NOT NULL,
+  `year` varchar(4) NOT NULL,
   `cost_center_id` int(11) NOT NULL,
   `strategic_contribution` text,
   `status` enum('Pendente','Aprovado','Rejeitado','Aprovação Parcial') NOT NULL DEFAULT 'Pendente',
@@ -36,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `zero_based_expense_requests` (
   KEY `idx_requester` (`requester_id`),
   KEY `idx_status` (`status`),
   KEY `idx_month` (`month`),
+  KEY `idx_year` (`year`),
   CONSTRAINT `fk_cost_center` FOREIGN KEY (`cost_center_id`) REFERENCES `zero_based_cost_centers` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `fk_requester_collaborator` FOREIGN KEY (`requester_id`) REFERENCES `collaborators` (`id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -18,6 +18,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
+    // Preencher as opções de ano
+    populateYearOptions();
+    
     // Carregar os centros de custo
     await loadCostCenters();
     
@@ -30,6 +33,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Configurar os eventos
     setupEventListeners();
 });
+
+// Função para preencher as opções do select de ano
+function populateYearOptions() {
+    const yearSelect = document.getElementById('year');
+    const currentYear = new Date().getFullYear();
+    
+    // Limpar opções existentes, mantendo apenas a primeira
+    while (yearSelect.options.length > 1) {
+        yearSelect.remove(1);
+    }
+    
+    // Adicionar anos de 2021 até o ano atual + 1
+    for (let i = 2021; i <= currentYear + 1; i++) {
+        const option = new Option(i.toString(), i.toString());
+        yearSelect.add(option);
+    }
+}
 
 // Função para carregar os centros de custo
 async function loadCostCenters() {
@@ -108,6 +128,7 @@ async function loadExpenseRequestData(id) {
         // Preencher os campos do formulário
         document.getElementById('expense-request-id').value = data.id;
         document.getElementById('month').value = data.month;
+        document.getElementById('year').value = data.year;
         document.getElementById('cost-center').value = data.cost_center_id;
         document.getElementById('strategic-contribution').value = data.strategic_contribution || '';
         
@@ -340,27 +361,37 @@ async function saveExpenseRequest() {
             return;
         }
         
-        // Coletar os dados do formulário
-        const requestData = {
-            id: document.getElementById('expense-request-id').value,
-            month: document.getElementById('month').value,
-            cost_center_id: document.getElementById('cost-center').value,
-            strategic_contribution: document.getElementById('strategic-contribution').value,
-            items: []
-        };
+        const requestId = document.getElementById('expense-request-id').value;
+        const month = document.getElementById('month').value;
+        const year = document.getElementById('year').value;
+        const costCenterId = document.getElementById('cost-center').value;
+        const strategicContribution = document.getElementById('strategic-contribution').value;
         
-        // Coletar os dados dos itens
+        // Obter todos os itens
+        const items = [];
         document.querySelectorAll('.item-row').forEach(row => {
-            const amountStr = row.querySelector('.item-amount').value;
-            const amount = parseFloat(amountStr.replace(/\./g, '').replace(',', '.'));
+            const category = row.querySelector('.item-category').value;
+            const description = row.querySelector('.item-description').value;
+            const quantity = row.querySelector('.item-quantity').value;
+            const amount = row.querySelector('.item-amount').value.replace(/\./g, '').replace(',', '.');
             
-            requestData.items.push({
-                category: row.querySelector('.item-category').value,
-                description: row.querySelector('.item-description').value,
-                quantity: row.querySelector('.item-quantity').value,
-                amount: amount
+            items.push({
+                category,
+                description,
+                quantity,
+                amount
             });
         });
+        
+        // Preparar os dados para envio
+        const requestData = {
+            id: requestId,
+            month: month,
+            year: year,
+            cost_center_id: costCenterId,
+            strategic_contribution: strategicContribution,
+            items: items
+        };
         
         // Enviar a requisição
         const response = await fetch('/api/zero-based-budgeting/updateExpenseRequest', {
@@ -399,18 +430,25 @@ async function saveExpenseRequest() {
     }
 }
 
-// Função para validar o formulário
+// Validar o formulário antes de enviar
 function validateForm() {
+    // Validar campos obrigatórios
     const month = document.getElementById('month').value;
+    const year = document.getElementById('year').value;
     const costCenter = document.getElementById('cost-center').value;
     
     if (!month) {
-        showAlert('Erro', 'Por favor, selecione o mês de referência', 'error');
+        showAlert('Atenção', 'Selecione o mês de referência', 'warning');
+        return false;
+    }
+    
+    if (!year) {
+        showAlert('Atenção', 'Selecione o ano de referência', 'warning');
         return false;
     }
     
     if (!costCenter) {
-        showAlert('Erro', 'Por favor, selecione o centro de custo', 'error');
+        showAlert('Atenção', 'Selecione o centro de custo', 'warning');
         return false;
     }
     

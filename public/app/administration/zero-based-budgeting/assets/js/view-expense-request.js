@@ -96,6 +96,7 @@ async function loadExpenseRequestData(id) {
         setElementContent('request-id', data.id);
         setElementContent('expense-id', data.id);
         setElementContent('expense-month', data.month);
+        setElementContent('expense-year', data.year);
         setElementContent('expense-cost-center', data.costCenterName);
         setElementContent('expense-category', data.category);
         setElementContent('expense-description', data.description);

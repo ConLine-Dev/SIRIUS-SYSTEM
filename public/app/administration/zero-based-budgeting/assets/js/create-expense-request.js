@@ -1,5 +1,5 @@
 // Variaveis globais para gerenciamento de selects com o Choices
-let sMonth, sCostCenter;
+let sMonth, sYear, sCostCenter;
 let itemCategories = []; // Array para armazenar as instâncias de Choices para categorias dos itens
 
 // ESPERA A PAGINA SER COMPLETAMENTE CARREGADA
@@ -12,6 +12,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     // Define o mês atual como padrão
     setCurrentMonth();
+    
+    // Define o ano atual como padrão
+    setCurrentYear();
     
     // Inicializa os eventos para os itens
     initializeItemEvents();
@@ -26,11 +29,38 @@ async function initializeSelects() {
         noChoicesText: 'Não há opções disponíveis',
     });
     
+    // Select de Ano
+    sYear = new Choices('select[name="year"]', {
+        shouldSort: false,
+        removeItemButton: false,
+        noChoicesText: 'Não há opções disponíveis',
+    });
+    
+    // Preencher as opções de anos (atual + 3 anos para frente e 2 para trás)
+    populateYearOptions();
+    
     // Select de Centro de Custo
     await loadCostCenters();
     
     // Carrega as categorias para o primeiro item
     await loadItemCategories();
+}
+
+// Preenche as opções do select de ano
+function populateYearOptions() {
+    const currentYear = new Date().getFullYear();
+    
+    // Criar array com os anos de 2021 até o ano atual + 1
+    const years = [];
+    for (let i = 2021; i <= currentYear + 1; i++) {
+        years.push({
+            value: i.toString(),
+            label: i.toString()
+        });
+    }
+    
+    // Adicionar as opções ao select
+    sYear.setChoices(years, 'value', 'label', true);
 }
 
 // Carrega os centros de custo do usuário logado
@@ -114,6 +144,12 @@ function setCurrentMonth() {
     ];
     const currentMonth = new Date().getMonth();
     sMonth.setChoiceByValue(monthNames[currentMonth]);
+}
+
+// Define o ano atual como padrão
+function setCurrentYear() {
+    const currentYear = new Date().getFullYear().toString();
+    sYear.setChoiceByValue(currentYear);
 }
 
 // Inicializa os eventos para os itens
@@ -268,16 +304,78 @@ function addNewItem() {
     updateTotalAmount();
 }
 
-// Esta função coleta dados do formulário e faz a requisição para criar uma nova solicitação de gasto
+// Obter o objeto do formulário
 async function getForm() {
-    // Coletar dados básicos da solicitação
+    // Recuperar valores dos inputs e selects
+    const [inputsValues, selectsValues] = await Promise.all([
+        getValuesFromInputs(),
+        getValuesFromSelects()
+    ]);
+    
+    // Verificação de campos
+    if (!selectsValues.month) {
+        showAlert('Atenção', 'O mês de referência é obrigatório', 'warning');
+        return null;
+    }
+    
+    if (!selectsValues.year) {
+        showAlert('Atenção', 'O ano de referência é obrigatório', 'warning');
+        return null;
+    }
+    
+    if (!selectsValues.cost_center_id) {
+        showAlert('Atenção', 'O centro de custo é obrigatório', 'warning');
+        return null;
+    }
+    
+    if (!inputsValues.items || !inputsValues.items.length) {
+        showAlert('Atenção', 'Adicione pelo menos um item à solicitação', 'warning');
+        return null;
+    }
+    
+    for (const item of inputsValues.items) {
+        if (!item.category) {
+            showAlert('Atenção', 'A categoria é obrigatória para todos os itens', 'warning');
+            return null;
+        }
+        
+        if (!item.description.trim()) {
+            showAlert('Atenção', 'A descrição é obrigatória para todos os itens', 'warning');
+            return null;
+        }
+        
+        if (item.quantity <= 0) {
+            showAlert('Atenção', 'A quantidade deve ser maior que zero para todos os itens', 'warning');
+            return null;
+        }
+        
+        if (item.amount <= 0) {
+            showAlert('Atenção', 'O valor unitário deve ser maior que zero para todos os itens', 'warning');
+            return null;
+        }
+    }
+    
+    // Construir o objeto do formulário
     const baseForm = {
-        month: document.querySelector('select[name="month"]').value,
-        cost_center_id: document.querySelector('select[name="cost_center"]').value,
-        strategic_contribution: document.querySelector('textarea[name="strategic_contribution"]').value,
-        status: 'Pendente', // Status inicial
-        requester_id: (await getInfosLogin()).system_collaborator_id, // ID do solicitante
+        month: selectsValues.month,
+        year: selectsValues.year,
+        cost_center_id: selectsValues.cost_center_id,
+        strategic_contribution: inputsValues.strategic_contribution,
+        items: inputsValues.items
     };
+    
+    // Adicionar o ID do usuário logado (solicitante)
+    const userLogged = await getInfosLogin();
+    return {
+        ...baseForm,
+        requester_id: userLogged.system_collaborator_id
+    };
+}
+
+// Obter valores dos inputs
+async function getValuesFromInputs() {
+    // Obter valores dos campos de texto/textarea
+    const strategicContribution = document.querySelector('textarea[name="strategic_contribution"]').value.trim();
     
     // Coletar os itens da solicitação
     const items = [];
@@ -285,145 +383,109 @@ async function getForm() {
     
     itemRows.forEach(row => {
         const categorySelect = row.querySelector('.item-category');
-        const categoryValue = categorySelect.value;
+        const categoryId = categorySelect.value;
+        
+        const description = row.querySelector('.item-description').value.trim();
+        const quantity = parseInt(row.querySelector('.item-quantity').value) || 0;
+        const amount = parseFloat(row.querySelector('.item-amount').value) || 0;
         
         const item = {
-            category: categoryValue,
-            description: row.querySelector('.item-description').value,
-            quantity: parseInt(row.querySelector('.item-quantity').value) || 1,
-            amount: parseFloat(row.querySelector('.item-amount').value) || 0
+            category: categoryId,
+            description: description,
+            quantity: quantity,
+            amount: amount
         };
         
         items.push(item);
     });
     
-    // Adicionar os itens ao formulário
-    baseForm.items = items;
-    
-    console.log('Dados da solicitação a ser enviada:', baseForm);
-    
-    // Enviar a solicitação para a API
-    const result = await makeRequest(`/api/zero-based-budgeting/createExpenseRequest`, 'POST', baseForm);
-    
-    if (result) {
-        Swal.fire({
-            title: 'Solicitação Registrada!',
-            text: 'Sua solicitação de gasto foi registrada com sucesso e será analisada pelos aprovadores.',
-            icon: 'success',
-            confirmButtonText: 'OK'
-        }).then(() => {
-            window.close();
-        });
-    }
+    return {
+        strategic_contribution: strategicContribution,
+        items: items
+    };
 }
 
-// Função para verificar se os campos obrigatórios estão preenchidos
-async function getValuesFromInputs() {
-    let allValid = true;
-    
-    // Verificar campo de contribuição estratégica
-    const strategicContribution = document.querySelector('textarea[name="strategic_contribution"]');
-    if (!strategicContribution.value.trim()) {
-        Swal.fire('O campo CONTRIBUIÇÃO PARA A ESTRATÉGIA DA EMPRESA é obrigatório.');
-        return false;
-    }
-    
-    // Verificar todos os itens
-    const itemRows = document.querySelectorAll('.item-row');
-    
-    for (let i = 0; i < itemRows.length; i++) {
-        const row = itemRows[i];
-        const category = row.querySelector('.item-category').value;
-        const description = row.querySelector('.item-description').value;
-        const quantity = row.querySelector('.item-quantity').value;
-        const amount = row.querySelector('.item-amount').value;
-        
-        if (!category) {
-            Swal.fire(`No item ${i+1}, o campo CATEGORIA é obrigatório.`);
-            allValid = false;
-            break;
-        }
-        
-        if (!description.trim()) {
-            Swal.fire(`No item ${i+1}, o campo DESCRIÇÃO é obrigatório.`);
-            allValid = false;
-            break;
-        }
-        
-        if (!quantity || quantity <= 0) {
-            Swal.fire(`No item ${i+1}, o campo QUANTIDADE é obrigatório e deve ser maior que zero.`);
-            allValid = false;
-            break;
-        }
-        
-        if (!amount || amount <= 0) {
-            Swal.fire(`No item ${i+1}, o campo VALOR UNITÁRIO é obrigatório e deve ser maior que zero.`);
-            allValid = false;
-            break;
-        }
-    }
-    
-    return allValid;
-}
-
-// Função para verificar se os selects obrigatórios estão preenchidos
+// Obter valores dos selects
 async function getValuesFromSelects() {
-    // Array com os names dos selects que não devem ficar em branco e suas mensagens personalizadas
+    let selectValues = {};
+    
+    // Obter os valores dos selects definidos
     let selectNames = [
         { name: 'month', message: 'O campo MÊS DE REFERÊNCIA é obrigatório.' },
+        { name: 'year', message: 'O campo ANO DE REFERÊNCIA é obrigatório.' },
         { name: 'cost_center', message: 'O campo CENTRO DE CUSTO é obrigatório.' }
     ];
     
-    let allValid = true;
-    
-    for (let i = 0; i < selectNames.length; i++) {
-        const selectName = selectNames[i];
-        const values = await getSelectValues(selectName.name);
-        if (!values || values.length === 0) {
-            Swal.fire(`${selectName.message}`);
-            allValid = false;
-            break;
-        }
-    }
-    
-    // Verificar se há pelo menos um item adicionado
-    const itemRows = document.querySelectorAll('.item-row');
-    if (itemRows.length === 0) {
-        Swal.fire('Adicione pelo menos um item à solicitação.');
-        allValid = false;
-    }
-    
-    return allValid;
-}
-
-// Função para obter valores de qualquer select
-async function getSelectValues(selectName) {
-    const selectElement = document.querySelector(`select[name="${selectName}"]`);
-    if (selectElement) {
-        const selectedOptions = Array.from(selectElement.selectedOptions);
-        if (!selectedOptions || selectedOptions.length === 0 || selectedOptions[0].value === '') {
-            return undefined;
+    for (const select of selectNames) {
+        const value = await getSelectValues(select.name);
+        if (select.name === 'cost_center') {
+            selectValues['cost_center_id'] = value;
         } else {
-            const selectedValues = selectedOptions.map(option => option.value);
-            return selectedValues;
+            selectValues[select.name] = value;
         }
-    } else {
-        return undefined;
     }
+    
+    return selectValues;
 }
 
-// Esta função adiciona um evento de clique ao botão de salvar
+// Função auxiliar para obter valores de selects
+async function getSelectValues(selectName) {
+    const select = document.querySelector(`select[name="${selectName}"]`);
+    if (!select) return null;
+    
+    // Retornar o valor selecionado
+    return select.value;
+}
+
+// Configurar os eventos de clique
 async function eventClick() {
-    // ==== Salvar ==== //
-    document.getElementById('btn-save').addEventListener('click', async function (){
-        const inputsValid = await getValuesFromInputs();
-        const selectsValid = await getValuesFromSelects();
+    // Botão de salvar
+    document.getElementById('btn-save').addEventListener('click', async () => {
+        // Obter os dados do formulário
+        const formData = await getForm();
         
-        if (inputsValid && selectsValid) {
-            await getForm();
+        if (!formData) {
+            return; // Se retornou null, houve algum erro nos dados
+        }
+        
+        console.log('Dados da solicitação a ser enviada:', formData);
+        
+        // Mostrar indicador de carregamento
+        Swal.fire({
+            title: 'Enviando solicitação...',
+            text: 'Por favor, aguarde enquanto processamos sua solicitação.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        try {
+            // Enviar a solicitação para a API
+            const result = await makeRequest(`/api/zero-based-budgeting/createExpenseRequest`, 'POST', formData);
+            
+            if (result) {
+                Swal.fire({
+                    title: 'Solicitação Registrada!',
+                    text: 'Sua solicitação de gasto foi registrada com sucesso e será analisada pelos aprovadores.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.close();
+                });
+            }
+        } catch (error) {
+            console.error('Erro ao enviar solicitação:', error);
+            Swal.fire({
+                title: 'Erro',
+                text: 'Ocorreu um erro ao enviar a solicitação. Por favor, tente novamente.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
         }
     });
-    // ==== /Salvar ==== //
 }
 
 // Obtém informações do usuário logado

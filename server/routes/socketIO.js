@@ -1,11 +1,11 @@
 // const { executeQuerySQL } = require('../connect/headCargo');
 
-const userTracker = require('../controllers/user-tracker');
+// const userTracker = require('../controllers/user-tracker');
 
 // Exportando como função que recebe o objeto io
 module.exports = function(io) {
     // Inicializar o rastreador de usuários
-    userTracker.initialize(io);
+    // userTracker.initialize(io);
     
     // Configurações adicionais de Socket.io
     io.on('connection', (socket) => {

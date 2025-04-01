@@ -14,10 +14,10 @@ const userTracker = {
     // Inicializa o tracker com Socket.io
     initialize: function(io) {
         this.io = io;
-        this.setupSocketEvents();
+        // this.setupSocketEvents();
         
         // Limpar usuários inativos a cada 5 minutos
-        setInterval(() => this.cleanInactiveUsers(), 5 * 60 * 1000);
+        // setInterval(() => this.cleanInactiveUsers(), 5 * 60 * 1000);
         
         // Salvar estatísticas no banco a cada 15 minutos
         // setInterval(() => this.saveStatsToDatabase(), 15 * 60 * 1000);

@@ -440,11 +440,11 @@ const ExpenseManagement = {
     },
 }
 
-cron.schedule('0 * * * *', async () => {
-    ExpenseManagement.generateRecurringExpenses();
-});
+// cron.schedule('0 * * * *', async () => {
+//     ExpenseManagement.generateRecurringExpenses();
+// });
 
-ExpenseManagement.generateRecurringExpenses();
+// ExpenseManagement.generateRecurringExpenses();
 
 module.exports = {
     ExpenseManagement,

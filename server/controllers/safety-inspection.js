@@ -473,9 +473,15 @@ async function generateWeeklyInspections() {
 
 // safetyInspection.scheduleInspections();
 // // Agendar a função para rodar a cada 10 minutos
-cron.schedule('*/1 * * * *', async () => {
-    await safetyInspection.scheduleInspections();
-});
+// cron.schedule('*/1 * * * *', async () => {
+//     await safetyInspection.scheduleInspections();
+// });
+
+
+setTimeout(() => {
+    safetyInspection.scheduleInspections();
+}, 1000 * 60 * 60 * 24); // 1 dia
+
 
 module.exports = {
     safetyInspection

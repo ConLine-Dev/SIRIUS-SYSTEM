@@ -58,6 +58,8 @@ const api_zero_based_cost_center = require('./api-zero-based-budgeting');
 
 // Importando as rotas da API user-tracker
 const apiUserTracker = require('./api-user-tracker');
+// Flag para controlar se o user-tracker está ativado
+const USER_TRACKER_ENABLED = false; // Desativado temporariamente
 
 
 // Function to set io instance
@@ -227,8 +229,13 @@ const setIO = (io) => {
   // Use as rotas do arquivo api-zero-based-budgeting.js
   router.use('/zero-based-budgeting', api_zero_based_cost_center(io));
 
-  // Adicionar rotas do user-tracker
-  router.use('/user-tracker', apiUserTracker(io));
+  // Adicionar rotas do user-tracker - TEMPORARIAMENTE DESATIVADO
+  if (USER_TRACKER_ENABLED) {
+    router.use('/user-tracker', apiUserTracker(io));
+    console.log('User-tracker API ativada');
+  } else {
+    // console.log('User-tracker API desativada temporariamente para economizar memória');
+  }
 
   // Adicionar rotas do organizational-chart
   router.use('/organizational-chart', apiOrganizationalChart(io));

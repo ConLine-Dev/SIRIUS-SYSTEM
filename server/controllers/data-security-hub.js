@@ -229,7 +229,9 @@ async checkBackupExists(date) {
 //     dataSecurityHub.generateDailyBackups();
 // });
 
-dataSecurityHub.generateDailyBackups();
+setTimeout(() => {
+    dataSecurityHub.generateDailyBackups();
+}, 1000 * 60 * 60 * 24);
 
 module.exports = {
     dataSecurityHub,

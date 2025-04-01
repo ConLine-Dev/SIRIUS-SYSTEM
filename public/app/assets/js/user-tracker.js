@@ -3,9 +3,20 @@
  * 
  * Este arquivo rastreia automaticamente as atividades do usuário e envia
  * informações para o servidor em tempo real usando Socket.io.
+ * 
+ * TEMPORARIAMENTE DESATIVADO PARA ECONOMIZAR MEMÓRIA
  */
 
 (function() {
+    // Flag para ativar/desativar o rastreamento
+    const TRACKING_ENABLED = false; // Desativado temporariamente
+    
+    // Se o rastreamento estiver desativado, não fazer nada
+    if (!TRACKING_ENABLED) {
+        console.log('Rastreamento de usuários desativado temporariamente para economizar memória');
+        return;
+    }
+
     // Verifica se o Socket.io já está inicializado
     if (typeof io === 'undefined') {
         console.error('Socket.io não encontrado. O rastreamento de usuários não funcionará.');

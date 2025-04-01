@@ -20,9 +20,9 @@ const userTracker = {
         setInterval(() => this.cleanInactiveUsers(), 5 * 60 * 1000);
         
         // Salvar estatísticas no banco a cada 15 minutos
-        setInterval(() => this.saveStatsToDatabase(), 15 * 60 * 1000);
+        // setInterval(() => this.saveStatsToDatabase(), 15 * 60 * 1000);
         
-        console.log('Sistema de rastreamento de usuários inicializado');
+        // console.log('Sistema de rastreamento de usuários inicializado');
         return this;
     },
     

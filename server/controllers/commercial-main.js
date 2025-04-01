@@ -43,7 +43,7 @@ const commercialMain = {
         return result;
     },
 
-    listAllProcesses: async function(userId){
+    listAllProcesses: async function (userId) {
 
         let userFilter = ''
 
@@ -80,11 +80,11 @@ const commercialMain = {
                 AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
                 AND Lms.Tipo_Operacao = 2 /* IMPORTACAO */
         `);
-     
-        return result;
-     },
 
-     listActiveClients: async function(userId){
+        return result;
+    },
+
+    listActiveClients: async function (userId) {
 
         let userFilter = ''
 
@@ -110,12 +110,12 @@ const commercialMain = {
                 DATEPART(MONTH, Lhs.Data_Abertura_Processo)
             ORDER BY 
                 Mes;`);
-     
-        return result;
-     },
 
-     countProcesses: async function (userId){
-        
+        return result;
+    },
+
+    countProcesses: async function (userId) {
+
         let userFilter = ''
 
         if (userId) {
@@ -161,15 +161,15 @@ const commercialMain = {
                 END
             ORDER BY
                 Mes, Tipo_Processo`);
-     
-        return result;
-     },
 
-     profitByUser: async function (userId) {
+        return result;
+    },
+
+    profitByUser: async function (userId) {
 
         let userFilter = ''
 
-        if (userId){
+        if (userId) {
             userFilter = `WHERE fcx.IdInside = ${userId} OR fcx.IdSales = ${userId}`
         }
 
@@ -181,13 +181,13 @@ const commercialMain = {
             ORDER BY Mes`);
 
         return result;
-     },
+    },
 
-     getOffers: async function (userId) {
+    getOffers: async function (userId) {
 
         let userFilter = ''
 
-        if (userId){
+        if (userId) {
             userFilter = `AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})`
         }
 
@@ -213,6 +213,99 @@ const commercialMain = {
                 AND oft.Tipo_Operacao = 2
             GROUP BY DATEPART(MONTH, pft.Data_Proposta), pfc.Tipo_Carga
             ORDER BY Mes, pfc.Tipo_Carga;`)
+
+        return result;
+    },
+
+    totalProcesses: async function () {
+
+        let result = await executeQuerySQL(`
+           SELECT 
+                DATEPART(MONTH, Lhs.Data_Abertura_Processo) AS Mes,
+                CASE 
+                    WHEN Lhs.Tipo_Carga = 1 /* Aéreo */ 
+                        AND Lms.IdCompanhia_Transporte IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/) THEN 'IA-COURIER'
+                    WHEN Lhs.Tipo_Carga = 1 /* Aéreo */ 
+                        AND Lms.IdCompanhia_Transporte NOT IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/) THEN 'IA-NORMAL'
+                    WHEN Lhs.Tipo_Carga = 3 /* FCL */ THEN 'IM-FCL'
+                    WHEN Lhs.Tipo_Carga = 4 /* LCL */ THEN 'IM-LCL'
+                END AS Tipo_Processo,
+                COUNT(*) AS Quantidade_Processos, 
+                SUM(COALESCE(Lmh.Total_TEUS, 0)) AS Total_TEUS
+            FROM 
+                mov_Logistica_House Lhs
+            JOIN 
+                mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+            LEFT OUTER JOIN 
+                mov_Logistica_Maritima_House Lmh ON Lmh.IdLogistica_House = Lhs.IdLogistica_House
+            WHERE 
+                DATEPART(YEAR, Lhs.Data_Abertura_Processo) = 2025
+                AND Lhs.Situacao_Agenciamento NOT IN (7 /* CANCELADO */)
+                AND Lms.Situacao_Embarque NOT IN (4 /* CANCELADO */)
+                AND Lhs.Numero_Processo NOT LIKE '%test%'
+                AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
+                AND Lms.Tipo_Operacao = 2 /* IMPORTACAO */
+            GROUP BY 
+                DATEPART(MONTH, Lhs.Data_Abertura_Processo),
+                CASE 
+                    WHEN Lhs.Tipo_Carga = 1 /* Aéreo */ 
+                        AND Lms.IdCompanhia_Transporte IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/) THEN 'IA-COURIER'
+                    WHEN Lhs.Tipo_Carga = 1 /* Aéreo */ 
+                        AND Lms.IdCompanhia_Transporte NOT IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/) THEN 'IA-NORMAL'
+                    WHEN Lhs.Tipo_Carga = 3 /* FCL */ THEN 'IM-FCL'
+                    WHEN Lhs.Tipo_Carga = 4 /* LCL */ THEN 'IM-LCL'
+                END
+            ORDER BY 
+                Mes, Tipo_Processo`);
+
+        return result;
+    },
+
+    filteredProcesses: async function (userId) {
+
+        let result = await executeQuerySQL(`
+           SELECT 
+                DATEPART(MONTH, Lhs.Data_Abertura_Processo) AS Mes,
+                CASE 
+                    WHEN Lhs.Tipo_Carga = 1 /* Aéreo */ 
+                        AND Lms.IdCompanhia_Transporte IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/) THEN 'IA-COURIER'
+                    WHEN Lhs.Tipo_Carga = 1 /* Aéreo */ 
+                        AND Lms.IdCompanhia_Transporte NOT IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/) THEN 'IA-NORMAL'
+                    WHEN Lhs.Tipo_Carga = 3 /* FCL */ THEN 'IM-FCL'
+                    WHEN Lhs.Tipo_Carga = 4 /* LCL */ THEN 'IM-LCL'
+                END AS Tipo_Processo,
+                COUNT(*) AS Quantidade_Processos, 
+                SUM(COALESCE(Lmh.Total_TEUS, 0)) AS Total_TEUS
+            FROM
+                mov_Logistica_House Lhs
+            JOIN 
+                mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+            LEFT OUTER JOIN 
+                mov_Logistica_Maritima_House Lmh ON Lmh.IdLogistica_House = Lhs.IdLogistica_House
+            LEFT OUTER JOIN
+                mov_Projeto_Atividade_Responsavel iss ON iss.IdProjeto_Atividade = lhs.IdProjeto_Atividade AND (iss.IdPapel_Projeto = 12)
+            LEFT OUTER JOIN
+                mov_Projeto_Atividade_Responsavel sls ON sls.IdProjeto_Atividade = lhs.IdProjeto_Atividade AND (sls.IdPapel_Projeto = 3)
+            WHERE
+                DATEPART(YEAR, Lhs.Data_Abertura_Processo) = 2025
+                AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
+                AND Lhs.Situacao_Agenciamento NOT IN (7 /* CANCELADO */)
+                AND Lms.Situacao_Embarque NOT IN (4 /* CANCELADO */)
+                AND Lhs.Numero_Processo NOT LIKE '%test%'
+                AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
+                AND Lms.Tipo_Operacao = 2 /* IMPORTACAO */
+            GROUP BY 
+                DATEPART(MONTH, Lhs.Data_Abertura_Processo),
+                CASE 
+                    WHEN Lhs.Tipo_Carga = 1 /* Aéreo */ 
+                        AND Lms.IdCompanhia_Transporte IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/) THEN 'IA-COURIER'
+                    WHEN Lhs.Tipo_Carga = 1 /* Aéreo */ 
+                        AND Lms.IdCompanhia_Transporte NOT IN (88 /*FEDEX*/, 49339 /*DHL*/, 58828 /*UPS*/) THEN 'IA-NORMAL'
+                    WHEN Lhs.Tipo_Carga = 3 /* FCL */ THEN 'IM-FCL'
+                    WHEN Lhs.Tipo_Carga = 4 /* LCL */ THEN 'IM-LCL'
+                END
+            ORDER BY 
+                Mes, Tipo_Processo`);
 
         return result;
     },

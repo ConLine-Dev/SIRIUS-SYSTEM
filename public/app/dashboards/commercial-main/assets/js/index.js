@@ -142,6 +142,79 @@ async function createAssertivityArrays() {
   }
 }
 
+async function createGoalsArrays() {
+
+  let data = getInfosLogin();
+  let totalProcesses = await makeRequest(`/api/commercial-main/totalProcesses`);
+  let filteredProcesses = await makeRequest(`/api/commercial-main/filteredProcesses`, 'POST', {userId: data.system_id_headcargo});
+
+  let LCLTotal = []
+  let FCLTotal = []
+  let AirTotal = []
+  let CourierTotal = []
+  let LCLPart = []
+  let FCLPart = []
+  let AirPart = []
+  let CourierPart = []
+
+  for (let index = 0; index < totalProcesses.length; index++) {
+    if (totalProcesses[index].Tipo_Processo == 'IM-FCL') {
+      if (!FCLTotal[totalProcesses[index].Mes - 1]) {
+        FCLTotal[totalProcesses[index].Mes - 1] = 0;
+      }
+      FCLTotal[totalProcesses[index].Mes - 1] = totalProcesses[index].Total_TEUS;
+    }
+    if (totalProcesses[index].Tipo_Processo == 'IM-LCL') {
+      if (!LCLTotal[totalProcesses[index].Mes - 1]) {
+        LCLTotal[totalProcesses[index].Mes - 1] = 0;
+      }
+      LCLTotal[totalProcesses[index].Mes - 1] = totalProcesses[index].Quantidade_Processos;
+    }
+    if (totalProcesses[index].Tipo_Processo == 'IA-COURIER') {
+      if (!CourierTotal[totalProcesses[index].Mes - 1]) {
+        CourierTotal[totalProcesses[index].Mes - 1] = 0;
+      }
+      CourierTotal[totalProcesses[index].Mes - 1] = totalProcesses[index].Quantidade_Processos;
+    }
+    if (totalProcesses[index].Tipo_Processo == 'IA-NORMAL') {
+      if (!AirTotal[totalProcesses[index].Mes - 1]) {
+        AirTotal[totalProcesses[index].Mes - 1] = 0;
+      }
+      AirTotal[totalProcesses[index].Mes - 1] = totalProcesses[index].Quantidade_Processos;
+    }
+  }
+
+  for (let index = 0; index < filteredProcesses.length; index++) {
+    if (filteredProcesses[index].Tipo_Processo == 'IM-FCL') {
+      if (!FCLPart[filteredProcesses[index].Mes - 1]) {
+        FCLPart[filteredProcesses[index].Mes - 1] = 0;
+      }
+      FCLPart[filteredProcesses[index].Mes - 1] = filteredProcesses[index].Total_TEUS;
+    }
+    if (filteredProcesses[index].Tipo_Processo == 'IM-LCL') {
+      if (!LCLPart[filteredProcesses[index].Mes - 1]) {
+        LCLPart[filteredProcesses[index].Mes - 1] = 0;
+      }
+      LCLPart[filteredProcesses[index].Mes - 1] = filteredProcesses[index].Quantidade_Processos;
+    }
+    if (filteredProcesses[index].Tipo_Processo == 'IA-COURIER') {
+      if (!CourierPart[filteredProcesses[index].Mes - 1]) {
+        CourierPart[filteredProcesses[index].Mes - 1] = 0;
+      }
+      CourierPart[filteredProcesses[index].Mes - 1] = filteredProcesses[index].Quantidade_Processos;
+    }
+    if (filteredProcesses[index].Tipo_Processo == 'IA-NORMAL') {
+      if (!AirPart[filteredProcesses[index].Mes - 1]) {
+        AirPart[filteredProcesses[index].Mes - 1] = 0;
+      }
+      AirPart[filteredProcesses[index].Mes - 1] = filteredProcesses[index].Quantidade_Processos;
+    }
+  }
+  createIMChart(FCLTotal, FCLPart, LCLTotal, LCLPart);
+  createIAChart(AirTotal, AirPart, CourierTotal, CourierPart);
+
+}
+
 function createTEUsChart() {
 
   let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -478,6 +551,146 @@ function createAssertivityChart() {
   chart.render();
 }
 
+function createIMChart(FCLTotal, FCLPart, LCLTotal, LCLPart) {
+
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  var options = {
+    series: [
+      {
+        name: 'FCL - TEUs',
+        data: FCLTotal,
+        group: 'Grupo 1'
+      }, 
+      {
+        name: 'FCL - TEUs',
+        data: FCLPart,
+        group: 'Grupo 1'
+      },
+      {
+        name: 'LCL - Processos',
+        data: LCLTotal,
+        group: 'Grupo 2'
+      }, 
+      {
+        name: 'LCL - Processos',
+        data: LCLPart,
+        group: 'Grupo 2'
+      }
+    ],
+    chart: {
+      type: 'bar',
+      height: 400,
+      stacked: true,
+      toolbar: {
+        show: false,
+      }
+    },
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        borderRadius: 5,
+        columnWidth: "50%",
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      width: 1,
+      colors: ['#fff']
+    },
+    xaxis: {
+      categories: months
+    },
+    tooltip: {
+      enabled: true,
+      shared: true,
+      intersect: false,
+    },
+    fill: {
+      opacity: 0.80
+    },
+    legend: {
+      show: false
+    }
+  };
+
+  let IMchart = new ApexCharts(document.querySelector("#im-chart"), options);
+  IMchart.render();
+}
+
+function createIAChart(AirTotal, AirPart, CourierTotal, CourierPart) {
+
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  var options = {
+    series: [
+      {
+        name: 'Aéreo - TEUs',
+        data: AirTotal,
+        group: 'Grupo 1'
+      }, 
+      {
+        name: 'Aéreo - TEUs',
+        data: AirPart,
+        group: 'Grupo 1'
+      },
+      {
+        name: 'Courier - Processos',
+        data: CourierTotal,
+        group: 'Grupo 2'
+      }, 
+      {
+        name: 'Courier - Processos',
+        data: CourierPart,
+        group: 'Grupo 2'
+      }
+    ],
+    chart: {
+      type: 'bar',
+      height: 400,
+      stacked: true,
+      toolbar: {
+        show: false,
+      }
+    },
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        borderRadius: 5,
+        columnWidth: "50%",
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    stroke: {
+      width: 1,
+      colors: ['#fff']
+    },
+    xaxis: {
+      categories: months
+    },
+    tooltip: {
+      enabled: true,
+      shared: true,
+      intersect: false,
+    },
+    fill: {
+      opacity: 0.80
+    },
+    legend: {
+      show: false
+    }
+  };
+
+  let IAchart = new ApexCharts(document.querySelector("#ia-chart"), options);
+  IAchart.render();
+}
+
 function openWindow(url, width, height) {
   window.open(url, '_blank', `width=${width},height=${height},resizable=yes,scrollbars=yes`);
 }
@@ -489,8 +702,9 @@ document.addEventListener('DOMContentLoaded', async function () {
   await createProfitArray();
   await createAssertivityArrays();
   await createActivityArray();
+  await createGoalsArrays();
   createTEUsChart();
-  createProfitChart();
+  // createProfitChart();
   createAssertivityChart();
 
   document.querySelector('#loader2').classList.add('d-none')

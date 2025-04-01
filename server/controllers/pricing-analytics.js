@@ -5,7 +5,7 @@ const path = require('path');
 
 const pricingAnalytics = {
 
-    getVolumes: async function() {
+    getVolumes: async function () {
         const result = executeQuerySQL(`
             SELECT
                 pss.Nome AS Agente,
@@ -100,8 +100,8 @@ const pricingAnalytics = {
                 AND lme.Quantidade > 0`)
 
         return result;
-     },
-     getAgents: async function () {
+    },
+    getAgents: async function () {
         let result = await executeQuerySQL(`
             SELECT DISTINCT
                 pss.Nome AS Agente,
@@ -131,10 +131,10 @@ const pricingAnalytics = {
                 AND pss.Nome is not NULL
                 AND lme.Quantidade > 0
             ORDER BY pss.Nome ASC`)
-        
+
         return result;
-     },
-     getCountries: async function () {
+    },
+    getCountries: async function () {
         let result = await executeQuerySQL(`
             SELECT DISTINCT
                 pais.Nome AS Pais,
@@ -164,10 +164,10 @@ const pricingAnalytics = {
                 AND pss.Nome is not NULL
                 AND lme.Quantidade > 0
             ORDER BY pais.Nome ASC`)
-        
+
         return result;
-     },
-     getYears: async function () {
+    },
+    getYears: async function () {
         let result = await executeQuerySQL(`
             SELECT DISTINCT
                 DATEPART(year, lhs.Data_Abertura_Processo) AS Ano
@@ -195,10 +195,10 @@ const pricingAnalytics = {
                 AND lhs.Numero_Processo not like '%test%'
                 AND pss.Nome is not NULL
                 AND lme.Quantidade > 0`)
-        
+
         return result;
-     },
-     getMoveByOrigin: async function (year) {
+    },
+    getMoveByOrigin: async function (year) {
 
         let yearFilter = `DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2023`
 
@@ -259,8 +259,8 @@ const pricingAnalytics = {
             ORDER BY Total_TEUS DESC;`);
 
         return result;
-     },
-     getMoveByAgent: async function (data) {
+    },
+    getMoveByAgent: async function (data) {
 
         let countryFilter = '';
         let yearFilter = `AND DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2023`
@@ -314,7 +314,7 @@ const pricingAnalytics = {
             ORDER BY Total_TEUS DESC;`);
 
         return result;
-     }
+    },
 
 };
 

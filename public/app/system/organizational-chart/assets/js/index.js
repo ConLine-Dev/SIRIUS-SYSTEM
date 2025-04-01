@@ -1,139 +1,75 @@
-async function printAll() {
+async function printTree() {
 
-    const sumOffers = await makeRequest(`/api/organizational-chart/totalProcesses`);
+    const people = await makeRequest(`/api/organizational-chart/getPeople`)
 
-    console.log(sumOffers);
-
-}
-
-function createChart(dataArray, totalArray, goal, div) {
-    const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-
-    const goalArray = [];
-    for (let index = 0; index < totalArray.length; index++) {
-        goalArray[index] = ((totalArray[index] * goal) / 100).toFixed();
-        goalArray[index] = parseInt(goalArray[index]);
-    }
-
-    var chartData = {
-        series: [
-            {
-                name: "Cotações Totais",
-                type: "column",
-                data: totalArray,
+    // Criando um mapa de nós para facilitar a construção da árvore
+    const nodes = {};
+    
+    // Criando os nós baseados nos dados do array
+    people.forEach(person => {
+        nodes[person.id] = {
+            id: person.id,
+            data: {
+                imageURL: `https://cdn.conlinebr.com.br/colaboradores/${person.img}`,
+                name: person.name,
             },
-            {
-                name: "Cotações Aprovadas",
-                type: "line",
-                data: dataArray,
+            options: {
+                nodeBGColor: '#f8ad9d',
+                nodeBGColorHover: '#f8ad9d',
             },
-            {
-                name: "Meta",
-                type: "line",
-                data: goalArray,
-            },
-        ],
-        colors: ["#F9423A", "#348ceb", "#30c229"],
+            children: []
+        };
+    });
 
-        markers: {
-            size: [0, 4],
-            strokeColors: ["#30c229", "#348ceb"],
-            strokeWidth: 2,
-            strokeOpacity: 0.9,
-            fillOpacity: 1,
-            shape: "circle",
-            showNullDataPoints: true,
+    // Associando os filhos aos pais
+    let root = {
+        id: 45,
+        data: {
+            imageURL: 'https://cdn.conlinebr.com.br/colaboradores/48901',
+            name: 'Marcone Vidal',
         },
-
-        chart: {
-            height: 200,
-            type: "area",
-            stacked: false,
-            toolbar: {
-                show: false,
-            },
+        options: {
+            nodeBGColor: '#cdb4db',
+            nodeBGColorHover: '#cdb4db',
         },
-
-        stroke: {
-            width: [0, 5, 2],
-            curve: "smooth",
-        },
-
-        plotOptions: {
-            bar: {
-                borderRadius: 7,
-                columnWidth: "40%",
-            },
-        },
-
-        fill: {
-            type: ["solid", "solid", "solid"],
-        },
-
-        dataLabels: {
-            enabled: true,
-            enabledOnSeries: [0],
-            offsetY: -15,
-            style: {
-                fontSize: "12px",
-                colors: ["#F9423A"],
-            },
-        },
-
-        xaxis: {
-            categories: months,
-            position: "bottom",
-            axisBorder: {
-                show: false,
-            },
-            axisTicks: {
-                show: false,
-            },
-            crosshairs: {
-                fill: {
-                    type: "gradient",
-                    gradient: {
-                        colorFrom: "#D8E3F0",
-                        colorTo: "#BED1E6",
-                        stops: [0, 100],
-                        opacityFrom: 0.4,
-                        opacityTo: 0.5,
-                    },
-                },
-            },
-        },
-
-        yaxis: [
-            {
-                show: false,
-                min: 0,
-            },
-        ],
-
-        legend: {
-            show: true
-        },
-
-        tooltip: {
-            y: {
-                formatter: function (value, { seriesIndex, dataPointIndex }) {
-                    if (seriesIndex === 1) {
-                        const total = totalArray[dataPointIndex] || 1;
-                        const percentage = ((value / total) * 100).toFixed(2);
-                        return percentage + "%";
-                    } else if (seriesIndex === 2) {
-                        const total = totalArray[dataPointIndex] || 1;
-                        const percentage = (value / total * 100).toFixed();
-                        return percentage + "%";
-                    }
-                    return value;
-                }
-            }
-        }
+        children: []
     };
 
-    var chart = new ApexCharts(document.querySelector(div), chartData);
-    chart.render();
+    people.forEach(person => {
+        if (person.parent === 45) {
+            root.children.push(nodes[person.id]);
+        } else {
+            nodes[person.parent].children.push(nodes[person.id]);
+        }
+    });
+
+    // Opções da árvore
+    const options = {
+        contentKey: 'data',
+        width: window.innerWidth, 
+        height: window.innerHeight, 
+        nodeWidth: 150,
+        nodeHeight: 100,
+        fontColor: '#fff',
+        borderColor: '#333',
+        childrenSpacing: 50,
+        siblingSpacing: 20,
+        direction: 'top',
+        enableExpandCollapse: true,
+        nodeTemplate: (content) =>
+            `<div style='display: flex;flex-direction: column;gap: 10px;justify-content: center;align-items: center;height: 100%;'>
+          <img style='width: 50px;height: 50px;border-radius: 50%;' src='${content.imageURL}' alt='' />
+          <div style="font-weight: bold; font-family: Arial; font-size: 14px">${content.name}</div>
+         </div>`,
+        canvasStyle: 'border: 1px solid black; background: #f6f6f6;',
+        enableToolbar: true,
+    };
+
+    // Renderizando a árvore
+    const treeContainer = document.getElementById('svg-tree');
+    treeContainer.innerHTML = ''; 
+    const tree = new ApexTree(treeContainer, options);
+    tree.render(root);
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -144,6 +80,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     //   calendar.refetchEvents();
     // })
 
-    await printAll();
+    await printTree();
 
 });

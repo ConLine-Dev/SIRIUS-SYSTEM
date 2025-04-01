@@ -78,5 +78,6 @@ module.exports = function (io) {
                   res.status(404).json('Erro')
             }
       });
+
       return router;
 };

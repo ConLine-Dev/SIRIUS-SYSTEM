@@ -61,6 +61,9 @@ const apiUserTracker = require('./api-user-tracker');
 // Flag para controlar se o user-tracker está ativado
 const USER_TRACKER_ENABLED = false; // Desativado temporariamente
 
+// ------------------- Importar as rotas de APIs -------------------
+const apiZeroBasedBudgeting = require('./api-zero-based-budgeting');
+const apiPDIHub = require('./api-pdi-hub'); // Nova rota para o PDI Hub
 
 // Function to set io instance
 const setIO = (io) => {
@@ -240,6 +243,10 @@ const setIO = (io) => {
   // Adicionar rotas do organizational-chart
   router.use('/organizational-chart', apiOrganizationalChart(io));
 
+  // ------------------- Montar as rotas -------------------
+  router.use('/zero-based-budgeting', apiZeroBasedBudgeting(io));
+  router.use('/pdi-hub', apiPDIHub(io)); // Montar as rotas do PDI Hub
+  
   return router;
 };
 

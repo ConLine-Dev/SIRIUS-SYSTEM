@@ -638,6 +638,50 @@ const emailCustom = {
         </div>
         `;
     },
+    // Template de notificação para novos PDIs
+    pdiNotification: async function(data) {
+        return `<!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9;">
+            <div style="width: 80%; margin: 20px auto; background-color: #ffffff; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                <div style="background-color: #007bff; color: #ffffff; padding: 10px; text-align: center;">
+                    <h1 style="margin: 0;">Novo Plano de Desenvolvimento Individual (PDI)</h1>
+                </div>
+                <div style="padding: 20px;">
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+                            Olá ${data.collaborator_name},
+                            <br><br>
+                            Um novo Plano de Desenvolvimento Individual (PDI) foi criado para você.
+                            <br>
+                            Por favor, acesse o sistema para visualizar os detalhes e acompanhar seu progresso.
+                        </h4>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="background-color: #f4f4f9; padding: 10px; border-left: 4px solid #007bff; margin-bottom: 10px;">Informações do PDI</h4>
+                        <p><strong>ID do PDI:</strong> ${data.pdi_id}</p>
+                        <p><strong>Data de Criação:</strong> ${new Date().toLocaleDateString('pt-BR')}</p>
+                        <p><strong>Supervisor/Coordenador:</strong> ${data.supervisor_name || 'Não especificado'}</p>
+                    </div>
+                    <div style="margin-top: 30px; text-align: center;">
+                        <a href="${process.env.APP_URL || 'https://sirius.conlinebr.com.br'}/app/administration/pdi-hub/collaborator.html" 
+                           style="background-color: #007bff; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                           Acessar Meu PDI
+                        </a>
+                    </div>
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eeeeee; font-size: 12px; color: #777777; text-align: center;">
+                        <p>Este é um e-mail automático. Por favor, não responda.</p>
+                        <p>© ${new Date().getFullYear()} CONLINE Brasil. Todos os direitos reservados.</p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>`;
+    },
 }
 
 

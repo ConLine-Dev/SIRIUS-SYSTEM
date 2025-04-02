@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>PDI Hub - Avaliação Mensal do Colaborador</title>
+    <meta name="Description" content="Sistema de Gestão de PDIs">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./assets/css/styles.css">
+    
+    <style>
+        .rating-group {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+        .rating-group input {
+            display: none;
+        }
+        .rating-group label {
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 2px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+        .rating-group input:checked ~ label {
+            background-color: #dee2e6;
+        }
+        .rating-group input:checked + label {
+            background-color: var(--primary);
+            color: white;
+        }
+    </style>
+    
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+
+    <!-- Loader -->
+    <div id="loader">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+    <!-- Loader -->
+
+    <!-- Mensagens de alerta -->
+    <div id="alertContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        <!-- Os alertas serão inseridos aqui dinamicamente -->
+    </div>
+
+    <div class="page">
+        <!-- app-header -->
+      
+        <!-- /app-header -->
+
+        <div class="main-content pt-0">
+            <div class="container-fluid">
+              
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="ri-medal-line me-2"></i>Avaliação de Desempenho Mensal
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="monthlyEvaluationForm">
+                                    <!-- Campos ocultos -->
+                                    <input type="hidden" id="evaluationPdiId" name="pdi_id">
+                                    <input type="hidden" id="evaluationMonth" name="month">
+                                    <input type="hidden" id="evaluationYear" name="year">
+                                    
+                                    <!-- Informações do colaborador -->
+                                    <div class="row mb-4">
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-semibold">Colaborador</label>
+                                            <h5 id="evaluationCollaboratorName" class="form-control-plaintext border-bottom pb-2"></h5>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Período de avaliação -->
+                                    <div class="row mb-4">
+                                        <div class="col-12">
+                                            <div class="card custom-card border">
+                                                <div class="card-header bg-light">
+                                                    <h6 class="card-title mb-0">
+                                                        <i class="ri-calendar-line me-2"></i>Período de Avaliação
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3 mb-md-0">
+                                                            <label for="evaluationMonthSelect" class="form-label fw-semibold">Mês</label>
+                                                            <select id="evaluationMonthSelect" class="form-select">
+                                                                <option value="1">Janeiro</option>
+                                                                <option value="2">Fevereiro</option>
+                                                                <option value="3">Março</option>
+                                                                <option value="4">Abril</option>
+                                                                <option value="5">Maio</option>
+                                                                <option value="6">Junho</option>
+                                                                <option value="7">Julho</option>
+                                                                <option value="8">Agosto</option>
+                                                                <option value="9">Setembro</option>
+                                                                <option value="10">Outubro</option>
+                                                                <option value="11">Novembro</option>
+                                                                <option value="12">Dezembro</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="evaluationYearSelect" class="form-label fw-semibold">Ano</label>
+                                                            <select id="evaluationYearSelect" class="form-select">
+                                                                <!-- Será preenchido via JavaScript -->
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tabela de avaliação -->
+                                    <div class="row mb-4">
+                                        <div class="col-12">
+                                            <div class="card custom-card">
+                                                <div class="card-header">
+                                                    <h6 class="card-title mb-0">
+                                                        <i class="ri-list-check me-2"></i>Controle Mensal do Gestor
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered">
+                                                            <thead class="table-primary">
+                                                                <tr>
+                                                                    <th style="width: 40%">Fatores</th>
+                                                                    <th>Ótimo</th>
+                                                                    <th>Bom</th>
+                                                                    <th>Regular</th>
+                                                                    <th>Ruim</th>
+                                                                    <th>Péssimo</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>Assiduidade (comparece ao trabalho sem faltas)</td>
+                                                                    <td class="text-center"><input type="radio" name="attendance" id="attendance5" value="5" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="attendance" id="attendance4" value="4" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="attendance" id="attendance3" value="3" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="attendance" id="attendance2" value="2" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="attendance" id="attendance1" value="1" class="form-check-input"></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Pontualidade (Comparece ao trabalho sempre no horário)</td>
+                                                                    <td class="text-center"><input type="radio" name="punctuality" id="punctuality5" value="5" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="punctuality" id="punctuality4" value="4" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="punctuality" id="punctuality3" value="3" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="punctuality" id="punctuality2" value="2" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="punctuality" id="punctuality1" value="1" class="form-check-input"></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Trabalho em equipe</td>
+                                                                    <td class="text-center"><input type="radio" name="teamwork" id="teamwork5" value="5" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="teamwork" id="teamwork4" value="4" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="teamwork" id="teamwork3" value="3" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="teamwork" id="teamwork2" value="2" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="teamwork" id="teamwork1" value="1" class="form-check-input"></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Criatividade (capacidade de inovar)</td>
+                                                                    <td class="text-center"><input type="radio" name="creativity" id="creativity5" value="5" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="creativity" id="creativity4" value="4" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="creativity" id="creativity3" value="3" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="creativity" id="creativity2" value="2" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="creativity" id="creativity1" value="1" class="form-check-input"></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Produção (Realiza o trabalho solicitado)</td>
+                                                                    <td class="text-center"><input type="radio" name="productivity" id="productivity5" value="5" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="productivity" id="productivity4" value="4" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="productivity" id="productivity3" value="3" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="productivity" id="productivity2" value="2" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="productivity" id="productivity1" value="1" class="form-check-input"></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>Resolução de problemas</td>
+                                                                    <td class="text-center"><input type="radio" name="problem_solving" id="problem_solving5" value="5" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="problem_solving" id="problem_solving4" value="4" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="problem_solving" id="problem_solving3" value="3" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="problem_solving" id="problem_solving2" value="2" class="form-check-input"></td>
+                                                                    <td class="text-center"><input type="radio" name="problem_solving" id="problem_solving1" value="1" class="form-check-input"></td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Observações -->
+                                    <div class="row mb-4">
+                                        <div class="col-12">
+                                            <div class="card custom-card">
+                                                <div class="card-header">
+                                                    <h6 class="card-title mb-0">
+                                                        <i class="ri-file-text-line me-2"></i>Observações do Gestor
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <textarea id="evaluationComments" class="form-control" rows="5" 
+                                                              placeholder="Insira suas observações sobre o desempenho do colaborador neste período..."></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Botões de ação -->
+                                    <div class="row">
+                                        <div class="col-12 d-flex justify-content-end">
+                                            <button type="button" class="btn btn-secondary me-2" onclick="window.close()">
+                                                <i class="ri-close-line me-1"></i>Cancelar
+                                            </button>
+                                            <button type="button" id="btnSaveEvaluation" class="btn btn-primary">
+                                                <i class="ri-save-line me-1"></i>Salvar Avaliação
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer mt-auto py-3 bg-white text-center">
+            <!-- <div class="container">
+                <span class="text-muted"> &copy; 2023-2024 - PDI Hub</span>
+            </div> -->
+        </footer>
+        <!-- Footer -->
+    </div>
+    
+    <!-- Scripts -->
+    <!-- Jquery JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Sweet Alert JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="./assets/js/evaluation.js"></script>
+</body>
+</html> 

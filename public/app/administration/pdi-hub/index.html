@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>PDI Hub - Gestão de Planos de Desenvolvimento</title>
+    <meta name="Description" content="Sistema de Gestão de PDIs">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./assets/css/styles.css">
+    
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+
+    <!-- Loader -->
+    <div id="loader">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+    <!-- Loader -->
+
+    <div class="page">
+        <!-- app-header -->
+      
+      
+        <!-- /app-header -->
+
+        <div class="main-content pt-0">
+            <div class="container-fluid mt-2">
+                <div class="row">
+                    <div class="card custom-card">
+                        <div class="card-header justify-content-between">
+                           <div class="card-title fw-semibold fs-14">PDI Hub - Gestão de Planos de Desenvolvimento</div>
+                           <button id="btnToggleIndicators" class="btn btn-sm btn-primary">
+                               <i class="ri-bar-chart-2-line me-1"></i><span id="btnToggleText">Mostrar Indicadores</span>
+                           </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Indicadores -->
+                <div id="dashboardIndicators" class="d-none">
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card custom-card card-bg-primary">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <span class="avatar avatar-lg bg-primary-transparent">
+                                                <i class="ri-file-list-3-line fs-20"></i>
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span class="d-block fs-15 fw-semibold">Total de PDIs</span>
+                                            <span class="d-block fs-25 fw-bold" id="totalPDIs">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-0">
+                                    <small class="text-muted">PDIs registrados no sistema</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card custom-card card-bg-warning">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <span class="avatar avatar-lg bg-warning-transparent">
+                                                <i class="ri-time-line fs-20"></i>
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span class="d-block fs-15 fw-semibold">Em Andamento</span>
+                                            <span class="d-block fs-25 fw-bold" id="inProgressPDIs">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-0">
+                                    <small class="text-muted">PDIs com pelo menos uma ação em andamento</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card custom-card card-bg-success">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <span class="avatar avatar-lg bg-success-transparent">
+                                                <i class="ri-check-double-line fs-20"></i>
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span class="d-block fs-15 fw-semibold">Concluídos</span>
+                                            <span class="d-block fs-25 fw-bold" id="completedPDIs">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-0">
+                                    <small class="text-muted">PDIs com status "Concluído"</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card custom-card card-bg-danger">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-3">
+                                            <span class="avatar avatar-lg bg-danger-transparent">
+                                                <i class="ri-alarm-warning-line fs-20"></i>
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span class="d-block fs-15 fw-semibold">Atrasados</span>
+                                            <span class="d-block fs-25 fw-bold" id="latePDIs">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-0">
+                                    <small class="text-muted">PDIs com ações em atraso</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos e Estatísticas -->
+                    <div class="row mb-4">
+                        <div class="col-xl-6 col-lg-12">
+                            <div class="card custom-card">
+                                <div class="card-header">
+                                    <div class="card-title">Distribuição por Perfil</div>
+                                </div>
+                                <div class="card-body">
+                                    <div id="profileDistributionChart" style="height: 300px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-lg-12">
+                            <div class="card custom-card">
+                                <div class="card-header">
+                                    <div class="card-title">Avaliações por Período</div>
+                                </div>
+                                <div class="card-body">
+                                    <div id="monthlyEvaluationsChart" style="height: 300px;"></div>
+                                </div>
+                                <div class="card-footer bg-transparent border-0">
+                                    <small class="text-muted">Dados agrupados pelo período avaliado (mês/ano), não pela data da avaliação</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Últimas Avaliações -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card custom-card">
+                                <div class="card-header">
+                                    <div class="card-title">
+                                        <i class="ri-medal-line me-2"></i>Últimas Avaliações
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Colaborador</th>
+                                                    <th>Período Avaliado</th>
+                                                    <th>Média</th>
+                                                    <th>Avaliado por</th>
+                                                    <th>Data da Avaliação</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="recentEvaluationsList">
+                                                <!-- Dados serão carregados via JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div id="noRecentEvaluations" class="text-center py-4 d-none">
+                                        <p class="text-muted mb-0">Nenhuma avaliação recente encontrada.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12 mb-4">
+                        <div class="card custom-card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="card-title mb-0">
+                                    <i class="ri-user-settings-line me-2"></i>PDIs dos Colaboradores
+                                </h6>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <select id="statusFilter" class="form-select form-select-sm">
+                                            <option value="Todos">Todos os Status</option>
+                                            <option value="Ativo">Ativo</option>
+                                            <option value="Em Andamento">Em Andamento</option>
+                                            <option value="Atrasado">Atrasado</option>
+                                            <option value="Concluído">Concluído</option>
+                                            <option value="Cancelado">Cancelado</option>
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary" id="btnNewPDI">
+                                        <i class="ri-add-line me-1"></i>Novo PDI
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Colaborador</th>
+                                                <th>Cargo</th>
+                                                <th>Supervisor</th>
+                                                <th>Perfil</th>
+                                                <th>Status</th>
+                                                <th>Data de Criação</th>
+                                                <th>Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="pdiList">
+                                            <!-- Os dados virão via JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="emptyFilterMessage" class="alert alert-info text-center d-none">
+                                    Nenhum PDI com este status encontrado.
+                                </div>
+                                <div id="emptyPDIs" class="text-center py-4 d-none">
+                                    <img src="./assets/images/empty-data.svg" alt="Sem dados" style="width: 120px;">
+                                    <h5 class="mt-3">Nenhum PDI encontrado</h5>
+                                    <p class="text-muted">Clique em "Novo PDI" para adicionar um plano de desenvolvimento.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer mt-auto py-3 bg-white text-center">
+        
+        </footer>
+        <!-- Footer -->
+    </div>
+
+    <!-- Modal Visualizar PDI -->
+    <div class="modal fade" id="viewPDIModal" tabindex="-1" aria-labelledby="viewPDIModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewPDIModalLabel">Detalhes do PDI</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="me-3">
+                            <img id="viewCollaboratorAvatar" src="" alt="Avatar" class="rounded-circle" width="70" height="70">
+                        </div>
+                        <div>
+                            <h5 id="viewCollaboratorName" class="mb-1"></h5>
+                            <p id="viewJobPosition" class="text-muted mb-0"></p>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="card custom-card h-100">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="ri-user-heart-line me-2"></i>Quem é você hoje?
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <p id="viewWhoAreYou" class="mb-0"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card custom-card h-100">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="ri-book-read-line me-2"></i>Resumo Acadêmico
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <p id="viewAcademicSummary" class="mb-0"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="card custom-card h-100">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="ri-award-line me-2"></i>Pontos Fortes
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <p id="viewStrengths" class="mb-0"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card custom-card h-100">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="ri-scales-3-line me-2"></i>Pontos de Melhoria
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <p id="viewImprovementPoints" class="mb-0"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="card custom-card h-100">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="ri-goal-line me-2"></i>No que quer se desenvolver?
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <p id="viewDevelopmentGoals" class="mb-0"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card custom-card h-100">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="ri-profile-line me-2"></i>Perfil
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <p id="viewProfileType" class="mb-0"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mt-4 mb-3">
+                        <i class="ri-todo-line me-2"></i>Planos e Ações
+                    </h5>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Ação</th>
+                                    <th>Prazo</th>
+                                    <th>Status</th>
+                                    <th>Data de Conclusão</th>
+                                </tr>
+                            </thead>
+                            <tbody id="viewActionsTable">
+                                <!-- Ações serão adicionadas aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="noActions" class="alert alert-info text-center d-none">
+                        Nenhuma ação cadastrada para este PDI.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="btnEditPDI">Editar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Jquery JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Sweet Alert JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+    
+    <!-- ApexCharts JS -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    
+    <!-- Tippy JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tippy.js@6.3.1/dist/tippy-bundle.umd.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="./assets/js/index.js"></script>
+</body>
+</html> 

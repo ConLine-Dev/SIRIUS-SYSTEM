@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>PDI Hub - Visualização do Plano de Desenvolvimento Individual</title>
+    <meta name="Description" content="Sistema de Gestão de PDIs">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./assets/css/styles.css">
+    
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+
+    <!-- Loader -->
+    <div id="loader">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+    <!-- Loader -->
+
+    <!-- Mensagens de alerta -->
+    <div id="alertContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        <!-- Os alertas serão inseridos aqui dinamicamente -->
+    </div>
+
+    <div class="page">
+        <!-- app-header -->
+     
+        <!-- /app-header -->
+
+        <div class="main-content pt-0">
+            <div class="container-fluid">
+                <div class="row p-2">
+                    <div class="card custom-card">
+                        <div class="card-header justify-content-between">
+                           <div class="card-title fw-semibold fs-14">PDI Hub - Visualização</div>
+                          
+                        </div>
+                    </div>
+                </div>
+                <!-- Perfil e informações pessoais -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card custom-card overflow-hidden">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="ri-user-3-line me-2"></i>Informações do Colaborador
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex flex-column flex-md-row align-items-center">
+                                    <div class="me-4 mb-3 mb-md-0 text-center">
+                                        <img id="collaboratorAvatar" src="" alt="Avatar" class="rounded-circle avatar-xl">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h4 id="collaboratorName" class="mb-1 text-center text-md-start fw-semibold"></h4>
+                                        <p id="jobPosition" class="text-muted mb-3 text-center text-md-start fs-14"></p>
+                                        <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
+                                            <span class="badge bg-light text-dark">
+                                                <i class="ri-user-follow-line me-1"></i>
+                                                Supervisor: <span id="supervisorName" class="fw-semibold"></span>
+                                            </span>
+                                            <span class="badge bg-primary text-white profile-badge">
+                                                <i class="ri-profile-line me-1"></i>
+                                                Perfil: <span id="profileType" class="fw-semibold"></span>
+                                            </span>
+                                            <span class="badge" id="performanceBadge">
+                                                <i class="ri-bar-chart-line me-1"></i>
+                                                Desempenho: <span id="performanceLevel" class="fw-semibold"></span>
+                                            </span>
+                                            <span class="badge bg-secondary" id="pdiStatus">
+                                                <i class="ri-checkbox-multiple-line me-1"></i>
+                                                Status: <span class="fw-semibold">Carregando...</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Coluna da Esquerda - Perfil e Escala -->
+                    <div class="col-lg-4 mb-4 mb-lg-0">
+                        <!-- Tipo de Perfil -->
+                        <div class="card custom-card mb-4 profile-card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="ri-user-settings-line me-2"></i>Tipo de Perfil
+                                </h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <div id="profileImage" class="mb-3"></div>
+                                <h4 id="profileTypeName" class="mb-2 fw-semibold"></h4>
+                                <p id="profileDescription" class="text-muted mb-0"></p>
+                            </div>
+                        </div>
+
+                        <!-- Escala de Avaliação -->
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="ri-bar-chart-2-line me-2"></i>Nível de Desempenho
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="rating-scale">
+                                    <div class="rating-scale-background">
+                                        <h6 class="text-center mb-3 text-muted">Escala de Avaliação</h6>
+                                        <div class="rating-scale-gauge"></div>
+                                    </div>
+                                    
+                                    <div class="rating-scale-items">
+                                        <div class="rating-item" data-level="Estacionado">
+                                            <img src="./assets/img/estacionado.png" alt="Estacionado" class="rating-icon">
+                                            <h6>Estacionado</h6>
+                                        </div>
+                                        <div class="rating-item" data-level="Ajustando a Rota">
+                                            <img src="./assets/img/ajustando-rota.png" alt="Ajustando a Rota" class="rating-icon">
+                                            <h6>Ajustando a Rota</h6>
+                                        </div>
+                                        <div class="rating-item" data-level="Na Rota">
+                                            <img src="./assets/img/na-rota.png" alt="Na Rota" class="rating-icon">
+                                            <h6>Na Rota</h6>
+                                        </div>
+                                        <div class="rating-item" data-level="Brilhou na Entrega">
+                                            <img src="./assets/img/brilhou-na-entrega.png" alt="Brilhou na Entrega" class="rating-icon">
+                                            <h6>Brilhou na Entrega</h6>
+                                        </div>
+                                        <div class="rating-item" data-level="Voando Alto">
+                                            <img src="./assets/img/voando-alto.png" alt="Voando Alto" class="rating-icon">
+                                            <h6>Voando Alto</h6>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="progress mt-4" style="height: 8px;">
+                                        <div class="progress-bar" role="progressbar" id="performanceProgressBar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Coluna da Direita - Informações do PDI -->
+                    <div class="col-lg-8">
+                        <!-- Resumo do PDI -->
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="card custom-card h-100">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">
+                                            <i class="ri-book-read-line me-2"></i>Resumo Acadêmico
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p id="academicSummary" class="mb-0"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card custom-card h-100">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">
+                                            <i class="ri-user-heart-line me-2"></i>Quem é você hoje?
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p id="whoAreYou" class="mb-0"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <div class="card custom-card h-100">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">
+                                            <i class="ri-award-line me-2"></i>Pontos Fortes
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p id="strengths" class="mb-0"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card custom-card h-100">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">
+                                            <i class="ri-scales-3-line me-2"></i>Pontos de Melhoria
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p id="improvementPoints" class="mb-0"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card custom-card">
+                                    <div class="card-header">
+                                        <h5 class="card-title mb-0">
+                                            <i class="ri-goal-line me-2"></i>Objetivos de Desenvolvimento
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p id="developmentGoals" class="mb-0"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Planos e Ações -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card custom-card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5 class="card-title mb-0">
+                                            <i class="ri-todo-line me-2"></i>Planos e Ações
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-hover">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>Ação</th>
+                                                        <th width="120">Prazo</th>
+                                                        <th width="120">Status</th>
+                                                        <th width="150">Data de Conclusão</th>
+                                                        <th width="120">Ações</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="actionsList">
+                                                    <!-- Os dados virão via JavaScript -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div id="noActions" class="alert alert-info text-center d-none">
+                                            <i class="ri-information-line me-2"></i>Nenhuma ação cadastrada para seu PDI.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Histórico de Avaliações Mensais - Visível apenas para supervisores -->
+        <div id="evaluationHistorySection" class="container-fluid mt-4 d-none">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Histórico de Avaliações Mensais</h5>
+                            <button id="btnOpenEvaluation" type="button" class="btn btn-success btn-sm">
+                                <i class="ri-add-line align-middle me-1"></i>Nova Avaliação
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="noEvaluations" class="alert alert-info">
+                                Nenhuma avaliação mensal registrada para este colaborador.
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Período</th>
+                                            <th>Média</th>
+                                            <th>Observações</th>
+                                            <th>Data de Registro</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="evaluationHistoryList">
+                                        <!-- Histórico de avaliações será carregado via JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer mt-auto py-3 bg-white text-center">
+            <!-- <div class="container">
+                <span class="text-muted"> &copy; 2023-2024 - PDI Hub</span>
+            </div> -->
+        </footer>
+        <!-- Footer -->
+    </div>
+    
+    <!-- Modal de Avaliação Mensal (Visível apenas para Gestores) -->
+    <div id="supervisorEvaluationSection" class="modal fade" tabindex="-1" aria-labelledby="supervisorEvaluationLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="supervisorEvaluationLabel">
+                        <i class="ri-medal-line me-2"></i>Avaliação Mensal do Colaborador
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="monthlyEvaluationForm">
+                        <input type="hidden" id="evaluationPdiId" name="pdi_id">
+                        <input type="hidden" id="evaluationMonth" name="month">
+                        <input type="hidden" id="evaluationYear" name="year">
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Colaborador</label>
+                            <p id="evaluationCollaboratorName" class="form-control-plaintext fw-semibold"></p>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Período de Avaliação</label>
+                            <div class="d-flex gap-2">
+                                <select class="form-select w-auto" id="evaluationMonthSelect">
+                                    <option value="1">Janeiro</option>
+                                    <option value="2">Fevereiro</option>
+                                    <option value="3">Março</option>
+                                    <option value="4">Abril</option>
+                                    <option value="5">Maio</option>
+                                    <option value="6">Junho</option>
+                                    <option value="7">Julho</option>
+                                    <option value="8">Agosto</option>
+                                    <option value="9">Setembro</option>
+                                    <option value="10">Outubro</option>
+                                    <option value="11">Novembro</option>
+                                    <option value="12">Dezembro</option>
+                                </select>
+                                <select class="form-select w-auto" id="evaluationYearSelect">
+                                    <!-- Anos serão preenchidos via JavaScript -->
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="card custom-card mb-4">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Controle Mensal do Gestor</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="table-primary">
+                                            <tr>
+                                                <th style="width: 40%">Fatores</th>
+                                                <th>Ótimo</th>
+                                                <th>Bom</th>
+                                                <th>Regular</th>
+                                                <th>Ruim</th>
+                                                <th>Péssimo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Assiduidade (comparece ao trabalho sem faltas)</td>
+                                                <td class="text-center"><input type="radio" name="attendance" value="5" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="attendance" value="4" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="attendance" value="3" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="attendance" value="2" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="attendance" value="1" class="form-check-input"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Pontualidade (Comparece ao trabalho sempre no horário)</td>
+                                                <td class="text-center"><input type="radio" name="punctuality" value="5" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="punctuality" value="4" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="punctuality" value="3" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="punctuality" value="2" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="punctuality" value="1" class="form-check-input"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Trabalho em equipe</td>
+                                                <td class="text-center"><input type="radio" name="teamwork" value="5" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="teamwork" value="4" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="teamwork" value="3" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="teamwork" value="2" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="teamwork" value="1" class="form-check-input"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Criatividade (capacidade de inovar)</td>
+                                                <td class="text-center"><input type="radio" name="creativity" value="5" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="creativity" value="4" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="creativity" value="3" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="creativity" value="2" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="creativity" value="1" class="form-check-input"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Produção (Realiza o trabalho solicitado)</td>
+                                                <td class="text-center"><input type="radio" name="productivity" value="5" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="productivity" value="4" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="productivity" value="3" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="productivity" value="2" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="productivity" value="1" class="form-check-input"></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Resolução de problemas</td>
+                                                <td class="text-center"><input type="radio" name="problem_solving" value="5" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="problem_solving" value="4" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="problem_solving" value="3" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="problem_solving" value="2" class="form-check-input"></td>
+                                                <td class="text-center"><input type="radio" name="problem_solving" value="1" class="form-check-input"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="evaluationComments" class="form-label">Observações do Gestor</label>
+                            <textarea class="form-control" id="evaluationComments" name="comments" rows="4" placeholder="Insira suas observações sobre o desempenho do colaborador neste período..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveEvaluation">Salvar Avaliação</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Atualizar Status da Ação -->
+    <div class="modal fade" id="updateActionModal" tabindex="-1" aria-labelledby="updateActionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateActionModalLabel">Atualizar Status da Ação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateActionForm">
+                        <input type="hidden" id="actionId" name="action_id">
+                        <input type="hidden" id="pdiId" name="pdi_id">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Descrição da Ação</label>
+                            <p id="actionDescription" class="form-control-plaintext"></p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Prazo</label>
+                            <p id="actionDeadline" class="form-control-plaintext"></p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="actionStatus" class="form-label">Status</label>
+                            <select class="form-select" id="actionStatus" name="status" required>
+                                <option value="Pendente">Pendente</option>
+                                <option value="Em Andamento">Em Andamento</option>
+                                <option value="Concluído">Concluído</option>
+                            </select>
+                        </div>
+                        
+                        <div id="completionDateSection" class="mb-3 d-none">
+                            <label for="completionDate" class="form-label">Data de Conclusão</label>
+                            <input type="date" class="form-control" id="completionDate" name="completion_date">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnSaveActionStatus">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Jquery JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Sweet Alert JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="./assets/js/collaborator.js"></script>
+
+    <script>
+        // Adicionar informações extras para debug
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Verificar quem é o usuário atual
+            try {
+                const userLogged = await getInfosLogin();
+                if (userLogged) {
+                    console.log('Usuário logado:', userLogged);
+                    console.log('ID do Colaborador do usuário logado:', userLogged.system_collaborator_id);
+                } else {
+                    console.log('Nenhum usuário encontrado no StorageGoogle');
+                }
+            } catch (error) {
+                console.error('Erro ao verificar usuário logado:', error);
+            }
+        });
+    </script>
+</body>
+</html> 

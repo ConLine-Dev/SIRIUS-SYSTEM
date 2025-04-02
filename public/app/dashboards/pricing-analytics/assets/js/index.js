@@ -1,4 +1,4 @@
-let agentsTable, cancelChart, originQChart, originTChart, agentChart;
+let agentsTable, teusChart, processesChart, originQChart, originTChart, agentChart;
 
 async function updateTable() {
   const countrySelect = document.getElementById("countrySelect");
@@ -9,12 +9,14 @@ async function updateTable() {
   let agent = agentSelect.value;
   let year = yearSelect.value;
 
-  const getVolumes = await makeRequest(`/api/pricing-analytics/updateTable`, 'POST', {country, agent, year});
+  const getVolumes = await makeRequest(`/api/pricing-analytics/updateTable`, 'POST', { country, agent, year });
   await createTable(getVolumes);
   await createTEUsArrays(getVolumes);
 }
 
 async function createSelects() {
+
+  let months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
 
   const countrySelect = document.getElementById("countrySelect");
   const countrySelect2 = document.getElementById("countrySelect2");
@@ -22,6 +24,7 @@ async function createSelects() {
   const yearSelect = document.getElementById("yearSelect");
   const yearSelect2 = document.getElementById("yearSelect2");
   const yearSelect3 = document.getElementById("yearSelect3");
+  const monthSelect3 = document.getElementById("monthSelect3");
 
   const getCountries = await makeRequest(`/api/pricing-analytics/getCountries`)
   const getAgents = await makeRequest(`/api/pricing-analytics/getAgents`)
@@ -69,6 +72,12 @@ async function createSelects() {
     option.textContent = element;
     yearSelect3.appendChild(option);
   }
+  for (let index = 0; index < months.length; index++) {
+    let option = document.createElement("option");
+    option.value = index + 1;
+    option.textContent = months[index];
+    monthSelect3.appendChild(option);
+  }
 }
 
 async function createTable(getVolumes) {
@@ -87,6 +96,7 @@ async function createTable(getVolumes) {
       monthYear: monthYear,
       quantity: quantity,
       teus: item.Teus,
+      process: item.Numero_Processo
     });
   }
 
@@ -108,6 +118,7 @@ async function createTable(getVolumes) {
       { "data": "monthYear" },
       { "data": "quantity" },
       { "data": "teus" },
+      { "data": "process" },
     ],
     "language": {
       url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
@@ -117,7 +128,7 @@ async function createTable(getVolumes) {
     "searching": true,
   });
 
-  $('#searchBox2').off('keyup').on('keyup', function() {
+  $('#searchBox2').off('keyup').on('keyup', function () {
     agentsTable.search(this.value).draw();
   });
 }
@@ -125,38 +136,57 @@ async function createTable(getVolumes) {
 async function createTEUsArrays(getVolumes) {
   let teus2024 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   let teus2025 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  let processes2024 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  let processes2025 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
   for (let index = 0; index < getVolumes.length; index++) {
     if (getVolumes[index].Ano == 2024) {
       teus2024[getVolumes[index].Mes - 1] += getVolumes[index].Teus;
+      processes2024[getVolumes[index].Mes - 1]++;
     }
     if (getVolumes[index].Ano == 2025) {
       teus2025[getVolumes[index].Mes - 1] += getVolumes[index].Teus;
+      processes2025[getVolumes[index].Mes - 1]++;
     }
   }
-  createTEUsChart(teus2024, teus2025);
+  createTEUsChart(teus2024, teus2025, processes2024, processes2025);
 }
 
-function createTEUsChart(teus2024, teus2025) {
+function createTEUsChart(teus2024, teus2025, processes2024, processes2025) {
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-  if (cancelChart) {
-    cancelChart.destroy();
+  if (processesChart) {
+    processesChart.destroy();
   }
 
   var chartData = {
 
-    series: [{
-      data: teus2024,
-      name: 'TEUs 2024'
-    }, {
-      data: teus2025,
-      name: 'TEUs 2025'
-    }],
+    series: [
+      {
+        name: 'TEUs 2024',
+        group: '2024',
+        data: teus2024
+      },
+      {
+        name: 'TEUs 2025',
+        group: '2025',
+        data: teus2025
+      },
+      {
+        name: 'Processos 2024',
+        group: '2024',
+        data: processes2024
+      },
+      {
+        name: 'Processos 2025',
+        group: '2025',
+        data: processes2025
+      }
+    ],
     chart: {
       height: 680,
       type: "bar",
-      stacked: false,
+      stacked: true,
       toolbar: {
         show: false,
       },
@@ -180,12 +210,12 @@ function createTEUsChart(teus2024, teus2025) {
       },
     },
     tooltip: {
-      enabled: false,
+      enabled: true,
     },
-    colors: ["#F9423A", "#3f2021"],
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
     markers: {
       size: [0, 0],
-      strokeColors: ["#F9423A", "#3f2021"],
+      strokeColors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
       strokeWidth: 2,
       strokeOpacity: 0.9,
       fillOpacity: 1,
@@ -207,19 +237,21 @@ function createTEUsChart(teus2024, teus2025) {
     }
   };
 
-  cancelChart = new ApexCharts(document.querySelector('#totalYear-fcl'), chartData);
-  cancelChart.render();
+  processesChart = new ApexCharts(document.querySelector('#totalYear-teus'), chartData);
+  processesChart.render();
 }
 
-async function createOriginArrays(){
+async function createOriginArrays() {
   let labels = [];
   let quantity = [];
   let teus = [];
 
   const yearSelect3 = document.getElementById("yearSelect3");
   let year = yearSelect3.value;
+  const monthSelect3 = document.getElementById("monthSelect3");
+  let month = monthSelect3.value;
 
-  const moveByOrigin = await makeRequest(`/api/pricing-analytics/getMoveByOrigin`, 'POST', {year});
+  const moveByOrigin = await makeRequest(`/api/pricing-analytics/getMoveByOrigin`, 'POST', { year, month });
 
   for (let index = 0; index < moveByOrigin.length; index++) {
     labels[index] = moveByOrigin[index].Pais;
@@ -242,29 +274,29 @@ function createOriginChart(labels, quantity, teus) {
   var options = {
     series: quantity,
     chart: {
-    width: 500,
-    type: 'pie',
-  },
-  labels: labels,
-  colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
-  tooltip: {
-    y: {
-      formatter: function (val) {
-        return val + " processos"
+      width: 500,
+      type: 'pie',
+    },
+    labels: labels,
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
+    tooltip: {
+      y: {
+        formatter: function (val) {
+          return val + " processos"
+        }
       }
-    }
-  },
-  responsive: [{
-    breakpoint: 480,
-    options: {
-      chart: {
-        width: 200
-      },
-      legend: {
-        position: 'left'
+    },
+    responsive: [{
+      breakpoint: 480,
+      options: {
+        chart: {
+          width: 200
+        },
+        legend: {
+          position: 'left'
+        }
       }
-    }
-  }]
+    }]
   };
 
   originQChart = new ApexCharts(document.querySelector("#moveByQuantity"), options);
@@ -273,29 +305,29 @@ function createOriginChart(labels, quantity, teus) {
   var options2 = {
     series: teus,
     chart: {
-    width: 500,
-    type: 'pie',
-  },
-  labels: labels,
-  colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
-  tooltip: {
-    y: {
-      formatter: function (val) {
-        return val + " TEUs"
+      width: 500,
+      type: 'pie',
+    },
+    labels: labels,
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
+    tooltip: {
+      y: {
+        formatter: function (val) {
+          return val + " TEUs"
+        }
       }
-    }
-  },
-  responsive: [{
-    breakpoint: 480,
-    options: {
-      chart: {
-        width: 200
-      },
-      legend: {
-        position: 'left'
+    },
+    responsive: [{
+      breakpoint: 480,
+      options: {
+        chart: {
+          width: 200
+        },
+        legend: {
+          position: 'left'
+        }
       }
-    }
-  }]
+    }]
   };
 
   originTChart = new ApexCharts(document.querySelector("#moveByTEUs"), options2);
@@ -322,7 +354,7 @@ async function createAgentArrays() {
 
 function createAgentChart(labels, quantity) {
 
-  if (agentChart){
+  if (agentChart) {
     agentChart.destroy();
   }
 

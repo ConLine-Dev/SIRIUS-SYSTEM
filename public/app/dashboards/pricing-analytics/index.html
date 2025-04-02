@@ -107,6 +107,7 @@
                                                     <th scope="col">Mês/Ano</th>
                                                     <th scope="col">Container</th>
                                                     <th scope="col">Teus</th>
+                                                    <th scope="col">Número Processo</th>
                                                 </tr>
                                             </thead>
                                             <tbody></tbody>
@@ -118,9 +119,10 @@
                         <div class="col-xl-5 d-flex flex-column">
                             <div class="card custom-card flex-fill mb-3">
                                 <div class="card-header justify-content-between">
-                                    <div class="card-title">Comparativo TEUs 2024/2025</div>
+                                    <div class="card-title">Comparativo 2024/2025</div>
                                 </div>
-                                <div class="card-body d-flex" id="totalYear-fcl" style="padding: 0"></div>
+                                <div class="card-body d-flex" id="totalYear-teus" style="padding: 0"></div>
+                                <div class="card-body d-flex" id="totalYear-processes" style="padding: 0"></div>
                             </div>
                         </div>
                     </div>
@@ -134,6 +136,11 @@
                                         <div class="card-title d-flex" style="height: 38px; align-items: center;">Movimentação - Processos/TEUs</div>
                                     </div>
                                     <div class="col-6 d-flex" style="justify-content: right;">
+                                        <div>
+                                            <select class="form-control" id="monthSelect3">
+                                                <option value="">Mês</option>
+                                            </select>
+                                        </div>
                                         <div>
                                             <select class="form-control" id="yearSelect3">
                                                 <option value="">Ano</option>

@@ -32,7 +32,7 @@ const pricingAnalytics = {
             LEFT OUTER JOIN mov_Logistica_Maritima_House lmh
                 ON lmh.IdLogistica_House = lhs.IdLogistica_House
             WHERE
-                DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2023
+                DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2022
                 AND lhs.Situacao_Agenciamento != 7
                 AND lhs.Tipo_Carga = 3
                 AND lms.Tipo_Operacao = 2
@@ -87,7 +87,7 @@ const pricingAnalytics = {
             LEFT OUTER JOIN mov_Logistica_Maritima_House lmh
                 ON lmh.IdLogistica_House = lhs.IdLogistica_House
             WHERE
-                DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2023
+                DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2022
                 ${countryFilter}
                 ${agentFilter}
                 ${yearFilter}
@@ -122,7 +122,7 @@ const pricingAnalytics = {
             LEFT OUTER JOIN mov_Logistica_Maritima_House lmh
                 ON lmh.IdLogistica_House = lhs.IdLogistica_House
             WHERE
-                DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2023
+                DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2022
                 AND lhs.Situacao_Agenciamento != 7
                 AND lhs.Tipo_Carga = 3
                 AND lms.Tipo_Operacao = 2
@@ -155,7 +155,7 @@ const pricingAnalytics = {
             LEFT OUTER JOIN mov_Logistica_Maritima_House lmh
                 ON lmh.IdLogistica_House = lhs.IdLogistica_House
             WHERE
-                DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2023
+                DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2022
                 AND lhs.Situacao_Agenciamento != 7
                 AND lhs.Tipo_Carga = 3
                 AND lms.Tipo_Operacao = 2
@@ -187,7 +187,7 @@ const pricingAnalytics = {
             LEFT OUTER JOIN mov_Logistica_Maritima_House lmh
                 ON lmh.IdLogistica_House = lhs.IdLogistica_House
             WHERE
-                DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2023
+                DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2022
                 AND lhs.Situacao_Agenciamento != 7
                 AND lhs.Tipo_Carga = 3
                 AND lms.Tipo_Operacao = 2
@@ -198,12 +198,16 @@ const pricingAnalytics = {
 
         return result;
     },
-    getMoveByOrigin: async function (year) {
+    getMoveByOrigin: async function (data) {
 
-        let yearFilter = `DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2023`
+        let yearFilter = `DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2022`
+        let monthFilter = '';
 
-        if (year) {
-            yearFilter = `DATEPART(YEAR, lhs.Data_Abertura_Processo) = ${year}`
+        if (data.year) {
+            yearFilter = `DATEPART(YEAR, lhs.Data_Abertura_Processo) = ${data.year}`
+        }
+        if (data.month) {
+            monthFilter = `AND DATEPART(MONTH, lhs.Data_Abertura_Processo) = ${data.month}`
         }
 
         let result = await executeQuerySQL(`
@@ -229,6 +233,7 @@ const pricingAnalytics = {
                     ON lmh.IdLogistica_House = lhs.IdLogistica_House
                 WHERE
                     ${yearFilter}
+                    ${monthFilter}
                     AND lhs.Situacao_Agenciamento != 7
                     AND lhs.Tipo_Carga = 3
                     AND lms.Tipo_Operacao = 2
@@ -263,7 +268,7 @@ const pricingAnalytics = {
     getMoveByAgent: async function (data) {
 
         let countryFilter = '';
-        let yearFilter = `AND DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2023`
+        let yearFilter = `AND DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2022`
 
         if (data.idCountry) {
             countryFilter = `AND pss.IdPais = ${data.idCountry}`;

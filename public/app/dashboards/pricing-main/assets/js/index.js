@@ -63,8 +63,8 @@ async function printAll() {
                             <span class="text-dark fw-semibold fs-16 lh-1 vertical-bottom mb-2"> Cotações/Ano - FCL </span> 
                         </div>
                         <div>Aprovadas: ${yearApprovedFCL}</div>
-                        <div>Pendentes: ${yearRejectedFCL}</div>
-                        <div>Reprovadas: ${yearPendingFCL}</div>
+                        <div>Pendentes: ${yearPendingFCL}</div>
+                        <div>Reprovadas: ${yearRejectedFCL}</div>
                         <div>Total: ${yearFCL}</div>
                         <br>
                         <div class="text-muted mb-2 fs-12"> 
@@ -76,8 +76,8 @@ async function printAll() {
                             <span class="text-dark fw-semibold fs-16 lh-1 vertical-bottom mb-2"> Cotações/Ano - LCL </span> 
                         </div>
                         <div>Aprovadas: ${yearApprovedLCL}</div>
-                        <div>Pendentes: ${yearRejectedLCL}</div>
-                        <div>Reprovadas: ${yearPendingLCL}</div>
+                        <div>Pendentes: ${yearPendingLCL}</div>
+                        <div>Reprovadas: ${yearRejectedLCL}</div>
                         <div>Total: ${yearLCL}</div>
                         <br>
                         <div class="text-muted mb-2 fs-12"> 
@@ -89,8 +89,8 @@ async function printAll() {
                             <span class="text-dark fw-semibold fs-16 lh-1 vertical-bottom mb-2"> Cotações/Ano - AIR </span> 
                         </div>
                         <div>Aprovadas: ${yearApprovedAIR}</div>
-                        <div>Pendentes: ${yearRejectedAIR}</div>
-                        <div>Reprovadas: ${yearPendingAIR}</div>
+                        <div>Pendentes: ${yearPendingAIR}</div>
+                        <div>Reprovadas: ${yearRejectedAIR}</div>
                         <div>Total: ${yearAIR}</div>
                         <br>
                         <div class="text-muted mb-2 fs-12"> 

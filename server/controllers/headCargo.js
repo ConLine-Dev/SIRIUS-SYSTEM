@@ -14,25 +14,25 @@ const headcargo = {
    
 
       const modalidade = (value.modalidade).join(',');
-
+  
       
       const comissaoVendedor = value.vendedorID != '000' ? `AND Comissao_Vendedor_Pago IN (${(value.comissaoVendedor).join(',')})` : ''
-
+  
       const ComissaoInside = value.InsideID != '000' ? `AND Comissao_Inside_Sales_Pago IN (${(value.ComissaoInside).join(',')})` : '';
    
       const vendedorID = value.vendedorID != '000' ? `AND IdVendedor = ${value.vendedorID}` : '';
       const InsideID = value.InsideID != '000' ? `AND IdInside_Sales = ${value.InsideID}` : '';
-
+  
       // console.log('aqui', value.recebimento, value.pagamento)
       // console.log(value.recebimento, value.pagamento)
       const recebimento = `AND RecebimentoCodigo IN (${(value.recebimento).join(',')})`;
       const pagamento = `AND PagamentoCodigo IN (${(value.pagamento).join(',')})`;
-
+  
       
       const AgenteCodigo = `AND AgenteCodigo IN (${[0, ...value.ComissaoAgente].join(',')})`;
       
       const Abertura_Processo = `AND (CAST(Data_Compensacao AS DATE) >= '${value.dataDe}' AND CAST(Data_Compensacao AS DATE) <= '${value.dataAte}')`;
-
+  
       
       
       const sql = `WITH CTE_Logistica AS (
@@ -315,12 +315,11 @@ const headcargo = {
          LEFT OUTER JOIN (
             SELECT
                Ltx.IdLogistica_House,
-               Ltx.IdTaxa_Logistica_Exibicao,
-               COUNT(Ltx.IdRegistro_Recebimento) AS Qtd_Fatura,
-               CASE
-                  WHEN Ltx.IdMoeda_Recebimento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Recebimento_Total * Lfc.Fator_Conversao), 2)
+               SUM(CASE 
+                  WHEN Ltx.IdMoeda_Recebimento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Recebimento_Total * COALESCE(Lfc.Fator_Conversao, 1)), 2)
                   ELSE Ltx.Valor_Recebimento_Total
-               END AS Valor_Recebimento_Total
+               END) AS Valor_Recebimento_Total,
+               COUNT(Ltx.IdRegistro_Recebimento) AS Qtd_Fatura
             FROM
                mov_Logistica_Taxa Ltx
             LEFT OUTER JOIN
@@ -330,22 +329,17 @@ const headcargo = {
             WHERE
                Ltx.IdTaxa_Logistica_Exibicao IN (245 /*INCENTIVO ASIA*/, 441/*INCENTIVO TERMINAL*/, 517/*INCENTIVO ASIA MARITIMO*/)
             GROUP BY
-               Ltx.IdLogistica_House,
-               Ltx.IdTaxa_Logistica_Exibicao,
-               Ltx.IdMoeda_Recebimento,
-               Ltx.Valor_Recebimento_Total,
-               Lfc.Fator_Conversao
+               Ltx.IdLogistica_House
          ) Inc ON Inc.IdLogistica_House = Lhs.IdLogistica_House
       
          -- Soma o valor das taxas de incentivo que estejam em faturas baixadas
          LEFT OUTER JOIN (
             SELECT
                Ltx.IdLogistica_House,
-               Ltx.IdTaxa_Logistica_Exibicao,
-               CASE
-                  WHEN Ltx.IdMoeda_Recebimento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Recebimento_Total * Lfc.Fator_Conversao), 2)
+               SUM(CASE
+                  WHEN Ltx.IdMoeda_Recebimento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Recebimento_Total * COALESCE(Lfc.Fator_Conversao, 1)), 2)
                   ELSE Ltx.Valor_Recebimento_Total
-               END AS Valor_Recebimento_Total
+               END) AS Valor_Recebimento_Total
             FROM
                mov_Logistica_Taxa Ltx
             LEFT OUTER JOIN
@@ -355,17 +349,19 @@ const headcargo = {
             WHERE
                Ltx.IdTaxa_Logistica_Exibicao IN (245 /*INCENTIVO ASIA*/, 441/*INCENTIVO TERMINAL*/, 517/*INCENTIVO ASIA MARITIMO*/)
                AND Vlf.Situacao = 2 /*QUITADA*/
+            GROUP BY
+               Ltx.IdLogistica_House
          ) Incbai ON Incbai.IdLogistica_House = Lhs.IdLogistica_House
       
          -- Verifica se existe fatura com taxa de Comissao Intermediario e se a mesma esta paga
          LEFT OUTER JOIN (
             SELECT
                Ltx.IdLogistica_House,
-               Vlf.Situacao,
-               CASE
-                  WHEN Ltx.IdMoeda_Pagamento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Pagamento_Total * Lfc.Fator_Conversao), 2)
+               MAX(Vlf.Situacao) AS Situacao,
+               SUM(CASE
+                  WHEN Ltx.IdMoeda_Pagamento != 110 /*Real*/ THEN ROUND((Ltx.Valor_Pagamento_Total * COALESCE(Lfc.Fator_Conversao, 1)), 2)
                   ELSE Ltx.Valor_Pagamento_Total
-               END AS Valor_Pagamento_Total
+               END) AS Valor_Pagamento_Total
             FROM
                mov_Logistica_Taxa Ltx
             LEFT OUTER JOIN
@@ -374,6 +370,8 @@ const headcargo = {
                mov_Logistica_Fatura_Conversao Lfc ON Lfc.IdLogistica_Fatura = Vlf.IdRegistro_Financeiro AND Ltx.IdMoeda_Pagamento = Lfc.IdMoeda_Origem
             WHERE
                Ltx.IdTaxa_Logistica_Exibicao IN (16 /*COMISSAO INTERMEDIARIO*/)
+            GROUP BY
+               Ltx.IdLogistica_House
          ) ComInter ON ComInter.IdLogistica_House = Lhs.IdLogistica_House
       
          WHERE
@@ -432,44 +430,73 @@ const headcargo = {
             Cpg.IdCondicao_Pagamento
          HAVING
             DATEDIFF(DAY, MIN(Fnc.Data_Vencimento), GETDATE()) <> 0
+      ),
+      -- Nova CTE para agregar as informações de faturas vencidas
+      FaturasVencidasAgregadas AS (
+          SELECT 
+              IdLogistica_House,
+              MAX(Status_Faturas) as Status_Faturas,
+              MAX(Qtd_Fatura_Vencidas) as Qtd_Fatura_Vencidas,
+              MAX(Dias_Vencido) as Dias_Vencido,
+              MAX(Valor_Vencido) as Valor_Vencido,
+              MAX(Pessoa_Fatura) as Pessoa_Fatura
+          FROM (
+              SELECT 
+                  Cte.IdLogistica_House,
+                  Vfv.Status_Faturas,
+                  Vfv.Qtd_Fatura_Vencidas,
+                  Vfv.Dias_Vencido,
+                  Vfv.Valor_Vencido,
+                  Vfv.IdPessoa AS Pessoa_Fatura
+              FROM 
+                  CTE_Logistica Cte
+              LEFT OUTER JOIN
+                  Verifica_Fatura_Vencida Vfv ON (
+                      Vfv.IdPessoa = Cte.IdCliente OR 
+                      Vfv.IdPessoa = Cte.IdImportador OR 
+                      Vfv.IdPessoa = Cte.IdExportador OR 
+                      Vfv.IdPessoa = Cte.IdDespachante_Aduaneiro
+                  )
+          ) AS FaturasExpandidas
+          GROUP BY IdLogistica_House
       )
-      SELECT DISTINCT
-         Vfv.Status_Faturas,
-         Vfv.Qtd_Fatura_Vencidas,
-         Vfv.Dias_Vencido,
-         Vfv.Valor_Vencido,
-         Vfv.IdPessoa AS Pessoa_Fatura,
+      SELECT
+         Fva.Status_Faturas,
+         Fva.Qtd_Fatura_Vencidas,
+         Fva.Dias_Vencido,
+         Fva.Valor_Vencido,
+         Fva.Pessoa_Fatura,
          Cte.*
       FROM
          CTE_Logistica Cte
       LEFT OUTER JOIN
-         Verifica_Fatura_Vencida Vfv ON (Vfv.IdPessoa = Cte.IdCliente OR Vfv.IdPessoa = Cte.IdImportador OR Vfv.IdPessoa = Cte.IdExportador OR Vfv.IdPessoa = Cte.IdDespachante_Aduaneiro)
-   WHERE
-      ModalidadeCodigo IN (${modalidade})
-      ${comissaoVendedor}
-      ${ComissaoInside}
-      ${vendedorID}
-      ${InsideID}
-      ${pagamento}
-      ${recebimento}
-      ${AgenteCodigo}
-      ${Abertura_Processo}`
-
-
-
+         FaturasVencidasAgregadas Fva ON Fva.IdLogistica_House = Cte.IdLogistica_House
+      WHERE
+         ModalidadeCodigo IN (${modalidade})
+         ${comissaoVendedor}
+         ${ComissaoInside}
+         ${vendedorID}
+         ${InsideID}
+         ${pagamento}
+         ${recebimento}
+         ${AgenteCodigo}
+         ${Abertura_Processo}`
+  
+  
+  
          
       const commissions = await executeQuerySQL(sql)
-
-
+  
+  
    
-
+  
       let valor_Estimado_total = 0
       let valor_Comissao_total = 0
       let valor_Efetivo_total = 0
-
+  
       let userComission = InsideID != "" ? value.InsideID : vendedorID != "" ? value.vendedorID : null
       let commissioned_type = InsideID != "" ? 2 : vendedorID != "" ? 1 : null
-
+  
       // comissão por processo 
       // for (let index = 0; index < commissions.length; index++) {
       //   const element = commissions[index];
@@ -479,16 +506,16 @@ const headcargo = {
       //   if (percentagemResult.status) {
       //       percentagem = percentagemResult.percentage;
       //   }
-
+  
       
-
+  
          
       //     valor_Estimado_total += element.Valor_Estimado
       //     valor_Comissao_total += element.Valor_Efetivo * (percentagem / 100)
       //     valor_Efetivo_total += element.Valor_Efetivo
       // }
       // end comissão por processo 
-
+  
       // comissão por lucro total 
       for (let index = 0; index < commissions.length; index++) {
          const element = commissions[index];
@@ -496,14 +523,14 @@ const headcargo = {
          valor_Estimado_total += element.Valor_Estimado
          valor_Efetivo_total += element.Valor_Efetivo
       }
-
+  
       const percentagemResult = await headcargo.getPercentagemComissionByHeadID(userComission, commissioned_type, valor_Efetivo_total);
       let percentagem = 0;
          if (percentagemResult.status) {
             percentagem = percentagemResult.percentage;
       }
       valor_Comissao_total = valor_Efetivo_total * (percentagem / 100)
-
+  
       // Mapear os resultados e formatar a data
       const resultadosFormatados = commissions.map(item => ({
          'IdLogistica_House': item.IdLogistica_House,
@@ -531,10 +558,10 @@ const headcargo = {
          'fatura_valor_vencimento': item.Valor_Vencido,
          'fatura_pessoa_fatura': item.Pessoa_Fatura,
    }));
-
-
+  
+  
    // end comissão por lucro total 
-
+  
       const format = {
          "data": resultadosFormatados,
          percentagem:percentagem,
@@ -543,9 +570,9 @@ const headcargo = {
          valor_Comissao_total:(valor_Comissao_total).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}),
          quantidade_processo:commissions.length
       }
-
+  
       return format;
-
+  
    },
    ListInvoicesByProcessId: async function(id){
    const sql = `SELECT

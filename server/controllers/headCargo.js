@@ -433,7 +433,7 @@ const headcargo = {
          HAVING
             DATEDIFF(DAY, MIN(Fnc.Data_Vencimento), GETDATE()) <> 0
       )
-      SELECT
+      SELECT DISTINCT
          Vfv.Status_Faturas,
          Vfv.Qtd_Fatura_Vencidas,
          Vfv.Dias_Vencido,

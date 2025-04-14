@@ -470,6 +470,18 @@ async function sendEmailRegisterComissionByColab(email) {
     return sendEmail;
 }
 
+
+function converterMoedaParaFloat(valorMoeda) {
+    // Remove o "R$" e quaisquer espaços em branco
+    let valorLimpo = valorMoeda.replace(/R\$\s*/g, '');
+    
+    // Substitui a vírgula decimal por ponto
+    valorLimpo = valorLimpo.replace(',', '.');
+    
+    // Converte para número de ponto flutuante
+    return parseFloat(valorLimpo);
+}
+
 /**
  * Função para exportar os registros de comissão para um arquivo Excel
  * @param {Array} data - Dados a serem exportados
@@ -484,6 +496,9 @@ function exportToExcel(data, fileName) {
             const match = str.match(regex);
             row.payment = match[2]; // Extrai a data de pagamento do HTML
         }
+
+
+
         return {
             "Modal": row.modal,
             "Processo": row.processo,
@@ -491,7 +506,9 @@ function exportToExcel(data, fileName) {
             "Vendedor": row.seller,
             "Inside": row.inside,
             "Profit": row.ValueProfit,
+            "Profit sem formatação": converterMoedaParaFloat(row.ValueProfit),
             "Comissão": row.valueComission,
+            "Comissão sem formatação": converterMoedaParaFloat(row.valueComission),
             "Criado em": row.create_date,
             "Gerado por": row.byUser,
             "Status": row.status,

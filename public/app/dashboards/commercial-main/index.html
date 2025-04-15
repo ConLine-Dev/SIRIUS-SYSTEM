@@ -66,109 +66,227 @@
     <div class="container-fluid corpo-dashboard">
         <div class="row">
             <div class="row d-flex align-items-stretch">
-                <div class="col-xxl-12 col-xl-12">
+                <div class="col-xxl-6 col-xl-6">
                     <div class="row d-flex align-items-stretch">
-                        <div class="col-xl-3 d-flex">
+                        <div class="col-xl-12 d-flex">
                             <div class="card custom-card flex-fill">
-                                <div class="card-header justify-content-between">
-                                    <div class="card-title">Processos</div>
+                                <div class="card-body" style="height: 832px;">
+                                    <div class="table-responsive">
+                                        <table class="table text-nowrap table-bordered" id="clientsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Cliente</th>
+                                                    <th scope="col">Processos</th>
+                                                    <th scope="col">TEUs</th>
+                                                    <th scope="col">Lucro Estimado</th>
+                                                    <th scope="col">Data Último Embarque</th>
+                                                    <th scope="col">Dias do Último Embarque</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                                <div class="card-body" style="padding: 0; height: 300px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-6 col-xl-6">
+                    <div class="row d-flex align-items-stretch">
+                        <div class="col-xl-6 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-body" style="padding: 0; height: 405px;">
+                                    <div class="card-header d-flex" style="justify-content: space-between;">
+                                        <div class="card-title fw-semibold fs-14">Clientes Novos</div>
+                                    </div>
+                                    <div>
+                                        <div id="newClients-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-body" style="padding: 0; height: 405px;">
+                                    <div>
+                                        <div id="newModal-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row d-flex align-items-stretch">
+                        <div class="col-xl-6 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-body" style="padding: 0; height: 405px;">
+                                    <div class="card-header d-flex" style="justify-content: space-between;">
+                                        <div class="card-title fw-semibold fs-14">Clientes Ativos</div>
+                                    </div>
+                                    <div>
+                                        <div id="activeClients-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-body" style="padding: 0; height: 405px;">
+                                    <div>
+                                        <div id="activeModal-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="row d-flex align-items-stretch">
+                <div class="col-xxl-3 col-xl-3">
+                    <div class="row d-flex align-items-stretch">
+                        <div class="col-xl-12 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-body" style="height: 250px;">
+                                    <div class="table-responsive">
+                                        <table class="table text-nowrap table-bordered" id="profitTable">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Cliente</th>
+                                                    <th scope="col">Lucro Estimado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-6 col-xl-6">
+                    <div class="row d-flex align-items-stretch">
+                        <div class="col-xl-12 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-body" style="padding: 0; height: 250px;">
+                                    <div>
+                                        <div id="profit-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-3 col-xl-3">
+                    <div class="row d-flex align-items-stretch">
+                        <div class="col-xl-12 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-body" style="padding: 0; height: 250px;">
+                                    <div>
+                                        <div id="profitPercent-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row d-flex align-items-stretch">
+                <div class="col-xxl-3 col-xl-3">
+                    <div class="row d-flex align-items-stretch">
+                        <div class="col-xl-12 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-body" style="height: 250px;">
+                                    <div class="table-responsive">
+                                        <table class="table text-nowrap table-bordered" id="teusTable">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Cliente</th>
+                                                    <th scope="col">TEUs</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-6 col-xl-6">
+                    <div class="row d-flex align-items-stretch">
+                        <div class="col-xl-12 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-body" style="padding: 0; height: 250px;">
+                                    <div>
+                                        <div id="teus-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-3 col-xl-3">
+                    <div class="row d-flex align-items-stretch">
+                        <div class="col-xl-12 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-body" style="padding: 0; height: 250px;">
+                                    <div>
+                                        <div id="teusPercent-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row d-flex align-items-stretch">
+                <div class="col-xxl-3 col-xl-3">
+                    <div class="row d-flex align-items-stretch">
+                        <div class="col-xl-12 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-body" style="height: 250px;">
+                                    <div class="table-responsive">
+                                        <table class="table text-nowrap table-bordered" id="processesTable">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Cliente</th>
+                                                    <th scope="col">Processos</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-6 col-xl-6">
+                    <div class="row d-flex align-items-stretch">
+                        <div class="col-xl-12 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-body" style="padding: 0; height: 250px;">
                                     <div>
                                         <div id="processes-chart"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-9 d-flex">
-                            <div class="card custom-card flex-fill">
-                                <div class="card-header justify-content-between">
-                                    <div class="card-title">Assertividade</div>
-                                </div>
-                                <div class="card-body" style="padding: 0; height: 300px;">
-                                    <div>
-                                        <div id="assertiveness-chart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
+                </div>
+                <div class="col-xxl-3 col-xl-3">
                     <div class="row d-flex align-items-stretch">
-                        <!-- <div class="col-xl-4 d-flex">
+                        <div class="col-xl-12 d-flex">
                             <div class="card custom-card flex-fill">
-                                <div class="card-header justify-content-between">
-                                    <div class="card-title">Faturamento</div>
-                                </div>
-                                <div class="card-body" style="padding: 0; height: 400px;">
+                                <div class="card-body" style="padding: 0; height: 250px;">
                                     <div>
-                                        <div id="billing-chart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> -->
-                        <div class="col-xl-4 d-flex">
-                            <div class="card custom-card flex-fill">
-                                <div class="card-header justify-content-between">
-                                    <div class="card-title">Participação - Impo Marítima</div>
-                                </div>
-                                <div class="card-body" style="padding: 0; height: 400px;">
-                                    <div>
-                                        <div id="im-chart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-4 d-flex">
-                            <div class="card custom-card flex-fill">
-                                <div class="card-header justify-content-between">
-                                    <div class="card-title">Participação - Impo Aérea</div>
-                                </div>
-                                <div class="card-body" style="padding: 0; height: 400px;">
-                                    <div>
-                                        <div id="ia-chart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-4 d-flex">
-                            <div class="card custom-card flex-fill">
-                                <div class="card-header justify-content-between">
-                                    <div class="card-title">Clientes Ativos</div>
-                                </div>
-                                <div class="card-body" style="padding: 0; height: 400px;">
-                                    <div>
-                                        <div id="activity-chart"></div>
+                                        <div id="processesPercent-chart"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- <div class="row d-flex align-items-stretch">
-                        <div class="col-xl-6 d-flex">
-                            <div class="card custom-card flex-fill">
-                                <div class="card-header justify-content-between">
-                                    <div class="card-title">Participação - Impo Marítima</div>
-                                </div>
-                                <div class="card-body" style="padding: 0; height: 400px;">
-                                    <div>
-                                        <div id="im-chart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-6 d-flex">
-                            <div class="card custom-card flex-fill">
-                                <div class="card-header justify-content-between">
-                                    <div class="card-title">Participação - Impo Aérea</div>
-                                </div>
-                                <div class="card-body" style="padding: 0; height: 400px;">
-                                    <div>
-                                        <div id="ia-chart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
                 </div>
             </div>
         </div>

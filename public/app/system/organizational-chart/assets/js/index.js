@@ -29,8 +29,8 @@ async function printTree() {
             name: 'Marcone Vidal',
         },
         options: {
-            nodeBGColor: '#cdb4db',
-            nodeBGColorHover: '#cdb4db',
+            nodeBGColor: '#f9423a',
+            nodeBGColorHover: '#f9423a',
         },
         children: []
     };
@@ -49,19 +49,26 @@ async function printTree() {
         width: window.innerWidth, 
         height: window.innerHeight, 
         nodeWidth: 150,
-        nodeHeight: 100,
-        fontColor: '#fff',
-        borderColor: '#333',
+        nodeHeight: 120,
+        fontColor: 'var(--custom-white);',
+        borderColor: '#f9423a',
         childrenSpacing: 50,
-        siblingSpacing: 20,
+        siblingSpacing: 10,
         direction: 'top',
         enableExpandCollapse: true,
         nodeTemplate: (content) =>
             `<div style='display: flex;flex-direction: column;gap: 10px;justify-content: center;align-items: center;height: 100%;'>
           <img style='width: 50px;height: 50px;border-radius: 50%;' src='${content.imageURL}' alt='' />
-          <div style="font-weight: bold; font-family: Arial; font-size: 14px">${content.name}</div>
+          <div class="row">
+            <div class="col-12 d-flex justify-content-center">
+                <label style="font-size: 12px; font-weight: bold;">${content.name}</label>
+            </div>
+            <div class="col-12 d-flex justify-content-center">
+                <label style="font-size: 8px; font-weight: light;">${content.job_position}</label>
+            </div>
+          </div>
          </div>`,
-        canvasStyle: 'border: 1px solid black; background: #f6f6f6;',
+        canvasStyle: 'border: 1px solid black; background: var(--custom-white);',
         enableToolbar: true,
     };
 

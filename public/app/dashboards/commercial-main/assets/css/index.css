@@ -44,3 +44,13 @@
     font-size: 12px;
     padding: 6px 8px;
 }
+
+#airProcessesTable td {
+    font-size: 12px;
+    padding: 6px 8px;
+}
+
+#airProcessesTable th {
+    font-size: 12px;
+    padding: 6px 8px;
+}

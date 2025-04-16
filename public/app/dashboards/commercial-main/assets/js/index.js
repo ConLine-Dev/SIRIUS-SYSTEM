@@ -12,7 +12,9 @@ function getInfosLogin() {
 }
 async function createClientTable() {
 
-  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`);
+  let dataByUser = getInfosLogin();
+  let userId = dataByUser.system_id_headcargo;
+  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`, 'POST', {userId});
 
   const listTable = [];
 
@@ -78,7 +80,9 @@ async function createClientTable() {
 }
 async function createProfitTable() {
 
-  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`);
+  let dataByUser = getInfosLogin();
+  let userId = dataByUser.system_id_headcargo;
+  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`, 'POST', {userId});
 
   const listTable = [];
 
@@ -126,7 +130,9 @@ async function createProfitTable() {
 }
 async function createTeusTable() {
 
-  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`);
+  let dataByUser = getInfosLogin();
+  let userId = dataByUser.system_id_headcargo;
+  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`, 'POST', {userId});
 
   const listTable = [];
 
@@ -171,7 +177,9 @@ async function createTeusTable() {
 }
 async function createLCLProcessesTable() {
 
-  let clientsLCLDetails = await makeRequest(`/api/commercial-main/clientsLCLDetails`);
+  let dataByUser = getInfosLogin();
+  let userId = dataByUser.system_id_headcargo;
+  let clientsLCLDetails = await makeRequest(`/api/commercial-main/clientsLCLDetails`, 'POST', {userId});
 
   const listTable = [];
 
@@ -216,7 +224,9 @@ async function createLCLProcessesTable() {
 }
 async function createAirProcessesTable() {
 
-  let clientsAirDetails = await makeRequest(`/api/commercial-main/clientsAirDetails`);
+  let dataByUser = getInfosLogin();
+  let userId = dataByUser.system_id_headcargo;
+  let clientsAirDetails = await makeRequest(`/api/commercial-main/clientsAirDetails`, 'POST', {userId});
 
   const listTable = [];
 
@@ -277,7 +287,9 @@ async function createActivityArray() {
   let EANormalCount = 0;
   let EMFCLCount = 0;
   let EMLCLCount = 0;
-  let activeClients = await makeRequest(`/api/commercial-main/activeClients`);
+  let dataByUser = getInfosLogin();
+  let userId = dataByUser.system_id_headcargo;
+  let activeClients = await makeRequest(`/api/commercial-main/activeClients`, 'POST', {userId});
 
   for (let index = 0; index < activeClients.length; index++) {
     activityArray[activeClients[index].Mes - 1]++;
@@ -391,7 +403,9 @@ async function createNewClientsArray() {
   let EANormalCount = 0;
   let EMFCLCount = 0;
   let EMLCLCount = 0;
-  let newClients = await makeRequest(`/api/commercial-main/newClients`);
+  let dataByUser = getInfosLogin();
+  let userId = dataByUser.system_id_headcargo;
+  let newClients = await makeRequest(`/api/commercial-main/newClients`, 'POST', {userId});
 
   for (let index = 0; index < newClients.length; index++) {
     newClientsArray[newClients[index].Mes - 1]++;

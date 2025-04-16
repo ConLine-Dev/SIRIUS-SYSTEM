@@ -28,10 +28,10 @@ module.exports = function (io) {
       }
    });
 
-   router.get('/clientsDetails', async (req, res, next) => {
+   router.post('/clientsDetails', async (req, res, next) => {
 
       try {
-         const result = await commercialMain.clientsDetails();
+         const result = await commercialMain.clientsDetails(req.body.userId);
 
          res.status(200).json(result)
       } catch (error) {
@@ -40,10 +40,10 @@ module.exports = function (io) {
       }
    });
 
-   router.get('/clientsLCLDetails', async (req, res, next) => {
+   router.post('/clientsLCLDetails', async (req, res, next) => {
 
       try {
-         const result = await commercialMain.clientsLCLDetails();
+         const result = await commercialMain.clientsLCLDetails(req.body.userId);
 
          res.status(200).json(result)
       } catch (error) {
@@ -52,10 +52,10 @@ module.exports = function (io) {
       }
    });
 
-   router.get('/clientsAirDetails', async (req, res, next) => {
+   router.post('/clientsAirDetails', async (req, res, next) => {
 
       try {
-         const result = await commercialMain.clientsAirDetails();
+         const result = await commercialMain.clientsAirDetails(req.body.userId);
 
          res.status(200).json(result)
       } catch (error) {
@@ -64,10 +64,10 @@ module.exports = function (io) {
       }
    });
 
-   router.get('/activeClients', async (req, res, next) => {
+   router.post('/activeClients', async (req, res, next) => {
 
       try {
-         const result = await commercialMain.activeClients();
+         const result = await commercialMain.activeClients(req.body.userId);
 
          res.status(200).json(result)
       } catch (error) {
@@ -76,10 +76,10 @@ module.exports = function (io) {
       }
    });
 
-   router.get('/newClients', async (req, res, next) => {
+   router.post('/newClients', async (req, res, next) => {
 
       try {
-         const result = await commercialMain.newClients();
+         const result = await commercialMain.newClients(req.body.userId);
 
          res.status(200).json(result)
       } catch (error) {

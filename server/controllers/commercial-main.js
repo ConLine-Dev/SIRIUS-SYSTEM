@@ -121,7 +121,7 @@ const commercialMain = {
         return result;
     },
 
-    clientsDetails: async function () {
+    clientsDetails: async function (userId) {
 
         let result = await executeQuerySQL(`
             SELECT
@@ -142,16 +142,21 @@ const commercialMain = {
                     mov_Logistica_Moeda lma ON lma.IdLogistica_House = lhs.IdLogistica_House
                 LEFT OUTER JOIN
                     mov_Logistica_Viagem lvm ON lvm.IdLogistica_House = lhs.IdLogistica_House
+                LEFT OUTER JOIN
+                    mov_Projeto_Atividade_Responsavel Iss on Iss.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Iss.IdPapel_Projeto = 12)
+                LEFT OUTER JOIN
+                    mov_Projeto_Atividade_Responsavel Sls on Sls.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Sls.IdPapel_Projeto = 3)
             WHERE
                 YEAR(lvm.Data_Embarque) = 2025
                 AND lma.idmoeda IN (110)
+                AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
             GROUP BY
                 cli.nome`);
 
         return result;
     },
 
-    clientsLCLDetails: async function () {
+    clientsLCLDetails: async function (userId) {
 
         let result = await executeQuerySQL(`
             SELECT
@@ -172,17 +177,22 @@ const commercialMain = {
                     mov_Logistica_Moeda lma ON lma.IdLogistica_House = lhs.IdLogistica_House
                 LEFT OUTER JOIN
                     mov_Logistica_Viagem lvm ON lvm.IdLogistica_House = lhs.IdLogistica_House
+                LEFT OUTER JOIN
+                    mov_Projeto_Atividade_Responsavel Iss on Iss.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Iss.IdPapel_Projeto = 12)
+                LEFT OUTER JOIN
+                    mov_Projeto_Atividade_Responsavel Sls on Sls.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Sls.IdPapel_Projeto = 3)
             WHERE
                 YEAR(lvm.Data_Embarque) = 2025
                 AND lma.idmoeda IN (110)
                 AND lhs.Tipo_Carga = 4
+                AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
             GROUP BY
                 cli.nome`);
 
         return result;
     },
 
-    clientsAirDetails: async function () {
+    clientsAirDetails: async function (userId) {
 
         let result = await executeQuerySQL(`
             SELECT
@@ -203,17 +213,22 @@ const commercialMain = {
                     mov_Logistica_Moeda lma ON lma.IdLogistica_House = lhs.IdLogistica_House
                 LEFT OUTER JOIN
                     mov_Logistica_Viagem lvm ON lvm.IdLogistica_House = lhs.IdLogistica_House
+                LEFT OUTER JOIN
+                    mov_Projeto_Atividade_Responsavel Iss on Iss.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Iss.IdPapel_Projeto = 12)
+                LEFT OUTER JOIN
+                    mov_Projeto_Atividade_Responsavel Sls on Sls.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Sls.IdPapel_Projeto = 3)
             WHERE
                 YEAR(lvm.Data_Embarque) = 2025
                 AND lma.idmoeda IN (110)
                 AND lhs.Tipo_Carga = 1
+                AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
             GROUP BY
                 cli.nome`);
 
         return result;
     },
 
-    activeClients: async function () {
+    activeClients: async function (userId) {
 
         let result = await executeQuerySQL(`
             WITH ProcessosOrdenados AS (
@@ -232,8 +247,13 @@ const commercialMain = {
                     mov_logistica_house lhs
                 LEFT JOIN cad_pessoa cli ON cli.IdPessoa = lhs.IdCliente
                 LEFT JOIN mov_Logistica_Master lms ON lms.IdLogistica_Master = lhs.IdLogistica_Master
+                LEFT OUTER JOIN
+                    mov_Projeto_Atividade_Responsavel Iss on Iss.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Iss.IdPapel_Projeto = 12)
+                LEFT OUTER JOIN
+                    mov_Projeto_Atividade_Responsavel Sls on Sls.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Sls.IdPapel_Projeto = 3)
                 WHERE
                     YEAR(lhs.Data_Abertura_Processo) = YEAR(GETDATE())
+                    AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
             )
             SELECT
                 Nome,
@@ -260,7 +280,7 @@ const commercialMain = {
         return result;
     },
 
-    newClients: async function () {
+    newClients: async function (userId) {
 
         let result = await executeQuerySQL(`
             WITH PrimeirosProcessos AS (
@@ -284,6 +304,11 @@ const commercialMain = {
                     mov_logistica_house lhs
                     LEFT JOIN cad_pessoa cli ON cli.IdPessoa = lhs.IdCliente
                     LEFT JOIN mov_Logistica_Master lms ON lms.IdLogistica_Master = lhs.IdLogistica_Master
+                    LEFT OUTER JOIN
+                        mov_Projeto_Atividade_Responsavel Iss on Iss.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Iss.IdPapel_Projeto = 12)
+                    LEFT OUTER JOIN
+                        mov_Projeto_Atividade_Responsavel Sls on Sls.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Sls.IdPapel_Projeto = 3)
+                    WHERE (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
             )
             SELECT
                 Nome,

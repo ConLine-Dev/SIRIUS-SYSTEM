@@ -476,13 +476,10 @@ async function sendEmailRegisterComissionByColab(email) {
  * @returns {number} - Valor convertido para número de ponto flutuante
  */
 function converterMoedaParaFloat(valorMoeda) {
-    // Remove todos os caracteres não numéricos exceto vírgula e ponto
-    let valorLimpo = valorMoeda.replace(/[^\d,.-]/g, '');
+    // Remove o "R$" e quaisquer espaços em branco
+    let valorLimpo = valorMoeda.replace(/R\$\s*/g, '');
     
-    // Remove pontos usados como separadores de milhar
-    valorLimpo = valorLimpo.replace(/\./g, '');
-    
-    // Substitui vírgula decimal por ponto
+    // Substitui a vírgula decimal por ponto
     valorLimpo = valorLimpo.replace(',', '.');
     
     // Converte para número de ponto flutuante

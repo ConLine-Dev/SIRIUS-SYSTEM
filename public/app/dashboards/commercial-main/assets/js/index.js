@@ -39,7 +39,7 @@ async function createClientTable() {
       client: item.Nome.slice(0, 20),
       processes: item.Total_Processos,
       teus: item.Total_TEUS,
-      profit: 'BRL ' + profit,
+      profit: profit,
       lastProcess: formattedDate,
       daysNoProcess: diffDays
     });
@@ -90,7 +90,7 @@ async function createProfitTable() {
 
     listTable.push({
       client: item.Nome.slice(0, 20),
-      profit: 'BRL ' + profit,
+      profit: profit,
     });
   }
 

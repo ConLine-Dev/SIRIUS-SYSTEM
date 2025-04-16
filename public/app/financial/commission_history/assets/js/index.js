@@ -470,12 +470,19 @@ async function sendEmailRegisterComissionByColab(email) {
     return sendEmail;
 }
 
-
+/**
+ * Função para converter o valor da moeda para um número de ponto flutuante
+ * @param {string} valorMoeda - Valor da moeda
+ * @returns {number} - Valor convertido para número de ponto flutuante
+ */
 function converterMoedaParaFloat(valorMoeda) {
-    // Remove o "R$" e quaisquer espaços em branco
-    let valorLimpo = valorMoeda.replace(/R\$\s*/g, '');
+    // Remove todos os caracteres não numéricos exceto vírgula e ponto
+    let valorLimpo = valorMoeda.replace(/[^\d,.-]/g, '');
     
-    // Substitui a vírgula decimal por ponto
+    // Remove pontos usados como separadores de milhar
+    valorLimpo = valorLimpo.replace(/\./g, '');
+    
+    // Substitui vírgula decimal por ponto
     valorLimpo = valorLimpo.replace(',', '.');
     
     // Converte para número de ponto flutuante

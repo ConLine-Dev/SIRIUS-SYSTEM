@@ -186,6 +186,12 @@ router.delete('/agent-guide', async (req, res) => {
 // Rota para visualizar o guia do agente (URL fixa)
 router.get('/agent-guide/view', async (req, res) => {
     try {
+        // Configurar CORS para permitir acesso externo
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Methods', 'GET');
+        res.header('Access-Control-Allow-Headers', 'Content-Type');
+        res.header('Cache-Control', 'max-age=300'); // Cache de 5 minutos
+        
         const guideInfo = await linkTree.getAgentGuidePath();
         
         // Enviar o arquivo como resposta

@@ -24,10 +24,10 @@ module.exports = function (io) {
             }
       });
 
-      router.get('/getAgents', async (req, res, next) => {
+      router.post('/getAgents', async (req, res, next) => {
 
             try {
-                  const result = await pricingAnalytics.getAgents();
+                  const result = await pricingAnalytics.getAgents(req.body.countryId);
                   res.status(200).json(result)
             } catch (error) {
 

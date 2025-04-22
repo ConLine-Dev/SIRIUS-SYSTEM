@@ -101,7 +101,12 @@ const pricingAnalytics = {
 
         return result;
     },
-    getAgents: async function () {
+    getAgents: async function (countryId) {
+
+        let countryFilter = '';
+        if (countryId) {
+            countryFilter = `AND org.IdPais = ${countryId}`
+        }
         let result = await executeQuerySQL(`
             SELECT DISTINCT
                 pss.Nome AS Agente,
@@ -124,6 +129,7 @@ const pricingAnalytics = {
             WHERE
                 DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2022
                 AND lhs.Situacao_Agenciamento != 7
+                ${countryFilter}
                 AND lhs.Tipo_Carga = 3
                 AND lms.Tipo_Operacao = 2
                 AND lhs.Numero_Processo not like '%DEMU%'
@@ -250,7 +256,7 @@ const pricingAnalytics = {
             )
             SELECT 
                 CASE 
-                    WHEN Rank <= 5 THEN Pais 
+                    WHEN Rank <= 7 THEN Pais 
                     ELSE 'OUTROS' 
                 END AS Pais,
                 SUM(Quantidade_Aparicoes) AS Quantidade_Aparicoes,
@@ -258,7 +264,7 @@ const pricingAnalytics = {
             FROM Top9
             GROUP BY 
                 CASE 
-                    WHEN Rank <= 5 THEN Pais 
+                    WHEN Rank <= 7 THEN Pais 
                     ELSE 'OUTROS' 
                 END
             ORDER BY Total_TEUS DESC;`);
@@ -276,6 +282,9 @@ const pricingAnalytics = {
         if (data.year) {
             yearFilter = `AND DATEPART(YEAR, lhs.Data_Abertura_Processo) = ${data.year}`
         }
+        if (data.month) {
+            monthFilter = `AND DATEPART(MONTH, lhs.Data_Abertura_Processo) = ${data.month}`
+        }
 
         let result = await executeQuerySQL(`
             WITH RankedAgents AS (
@@ -292,6 +301,7 @@ const pricingAnalytics = {
                 WHERE
                     lhs.Situacao_Agenciamento != 7
                     ${yearFilter}
+                    ${monthFilter}
                     ${countryFilter}
                     AND lhs.Tipo_Carga = 3
                     AND lms.Tipo_Operacao = 2

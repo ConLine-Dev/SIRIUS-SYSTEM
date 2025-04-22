@@ -20,14 +20,13 @@ async function createSelects() {
 
   const countrySelect = document.getElementById("countrySelect");
   const countrySelect2 = document.getElementById("countrySelect2");
-  const agentSelect = document.getElementById("agentSelect");
   const yearSelect = document.getElementById("yearSelect");
   const yearSelect2 = document.getElementById("yearSelect2");
   const yearSelect3 = document.getElementById("yearSelect3");
+  const monthSelect2 = document.getElementById("monthSelect2");
   const monthSelect3 = document.getElementById("monthSelect3");
 
   const getCountries = await makeRequest(`/api/pricing-analytics/getCountries`)
-  const getAgents = await makeRequest(`/api/pricing-analytics/getAgents`)
   const getYears = await makeRequest(`/api/pricing-analytics/getYears`)
 
   for (let index = 0; index < getCountries.length; index++) {
@@ -37,13 +36,7 @@ async function createSelects() {
     option.textContent = element.Pais;
     countrySelect.appendChild(option);
   }
-  for (let index = 0; index < getAgents.length; index++) {
-    const element = getAgents[index];
-    let option = document.createElement("option");
-    option.value = element.IdPessoa;
-    option.textContent = element.Agente;
-    agentSelect.appendChild(option);
-  }
+
   for (let index = 0; index < getYears.length; index++) {
     const element = getYears[index].Ano;
     let option = document.createElement("option");
@@ -76,7 +69,27 @@ async function createSelects() {
     let option = document.createElement("option");
     option.value = index + 1;
     option.textContent = months[index];
+    monthSelect2.appendChild(option);
+  }
+  for (let index = 0; index < months.length; index++) {
+    let option = document.createElement("option");
+    option.value = index + 1;
+    option.textContent = months[index];
     monthSelect3.appendChild(option);
+  }
+}
+
+async function updateAgentSelect(countryId) {
+
+  const agentSelect = document.getElementById("agentSelect");
+  const getAgents = await makeRequest(`/api/pricing-analytics/getAgents`, 'POST', {countryId})
+
+  for (let index = 0; index < getAgents.length; index++) {
+    const element = getAgents[index];
+    let option = document.createElement("option");
+    option.value = element.IdPessoa;
+    option.textContent = element.Agente;
+    agentSelect.appendChild(option);
   }
 }
 
@@ -234,7 +247,7 @@ function createTEUsChart(teus2024, teus2025, processes2024, processes2025) {
     },
     legend: {
       show: false
-    }
+    },
   };
 
   processesChart = new ApexCharts(document.querySelector('#totalYear-teus'), chartData);
@@ -342,8 +355,10 @@ async function createAgentArrays() {
   let idCountry = countrySelect2.value;
   const yearSelect2 = document.getElementById("yearSelect2");
   let year = yearSelect2.value;
+  const monthSelect2 = document.getElementById("monthSelect2");
+  let month = monthSelect2.value;
 
-  const moveByAgent = await makeRequest(`/api/pricing-analytics/getMoveByAgent`, 'POST', { idCountry, year });
+  const moveByAgent = await makeRequest(`/api/pricing-analytics/getMoveByAgent`, 'POST', { idCountry, year, month });
 
   for (let index = 0; index < moveByAgent.length; index++) {
     labels[index] = moveByAgent[index].Agente.slice(0, 30);
@@ -394,6 +409,11 @@ document.addEventListener('DOMContentLoaded', async function () {
   await createTEUsArrays(getVolumes);
   await createSelects();
   await createOriginArrays();
+
+  $('#countrySelect').on('change', function() {
+    let countryId = $(this).val();
+    updateAgentSelect(countryId);
+  });
 
   document.querySelector('#loader2').classList.add('d-none')
 });

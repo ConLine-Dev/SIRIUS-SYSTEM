@@ -1,44 +1,41 @@
-let teusChart, billingChart, processesChart, assertivityChart;
-
-function getInfosLogin() {
-  const StorageGoogleData = localStorage.getItem('StorageGoogle');
-  const StorageGoogle = JSON.parse(StorageGoogleData);
-
-  return StorageGoogle;
-}
+let clientsTable;
+let profitTable;
+let teusTable;
+let processesTable;
+let airProcessesTable;
 
 async function reloadCharts(id_headcargo) {
   document.querySelector('#loader2').classList.remove('d-none');
   document.querySelector('#salesMenu').classList.add('d-none');
-  await createTEUsArrays(id_headcargo);
-  await createProfitArray(id_headcargo);
-  await createProcessesArrays(id_headcargo);
-  await createAssertivityArrays(id_headcargo);
+  document.querySelector('#salesMenu').classList.remove('d-flex');
+  await createTables(id_headcargo);
+  await createActivityArray(id_headcargo);
+  await createNewClientsArray(id_headcargo);
+  await createProcessesArray(id_headcargo);
+  await createTeusProfitArray(id_headcargo);
   document.querySelector('#loader2').classList.add('d-none');
 }
-
 function openSalesList() {
+  
+  document.querySelector('#salesMenu').classList.add('d-flex');
   document.querySelector('#salesMenu').classList.remove('d-none');
 }
-
 async function createFilters() {
   let divCommercialList = document.getElementById('commercialList');
   let getCommercials = await makeRequest(`/api/commercial-adm/getCommercials`);
 
   let printCommercialList = ''
 
-  console.time('timer')
   for (let index = 0; index < getCommercials.length; index++) {
 
     let userId = getCommercials[index].id_headcargo;
     let getByCommercial = await makeRequest(`/api/commercial-adm/getByCommercial`, 'POST', {userId});
 
-    let value = getByCommercial[0].Total_Valor;
-    value = value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    console.log(getByCommercial);
 
     let assertiveness = 0;
     if ((getByCommercial[0].Total_Aprovada + getByCommercial[0].Total_Reprovada + getByCommercial[0].Total_Pendente) > 0) {
-      assertiveness = getByCommercial[0].Total_Aprovada / (getByCommercial[0].Total_Reprovada + getByCommercial[0].Total_Pendente) * 100;
+      assertiveness = getByCommercial[0].Total_Aprovada / (getByCommercial[0].Total_Reprovada + getByCommercial[0].Total_Pendente + getByCommercial[0].Total_Aprovada) * 100;
     }
     assertiveness = assertiveness.toFixed(2);
 
@@ -54,14 +51,13 @@ async function createFilters() {
                     </div>
                     <div class="col-10 d-flex" style="flex-direction: column;">
                       <h6>${getCommercials[index].name} ${getCommercials[index].family_name}</h6>
-                      <label>${getByCommercial[0].Quantidade} Processos no ano</label>
                     </div>
                   </div>
               </div>
               <div class="card-body row d-flex" style="justify-content: space-evenly;">
                   <div class="col-4 details">
-                      <div>Faturamento</div>
-                      <div>${value}</div>
+                      <div>Processos</div>
+                      <div>${getByCommercial[0].Quantidade}</div>
                   </div>
                   <div class="col-4 details">
                       <div>TEUs</div>
@@ -75,153 +71,329 @@ async function createFilters() {
           </div>
       </div>`
   }
-  console.timeEnd('timer')
   divCommercialList.innerHTML = printCommercialList;
 }
+function getInfosLogin() {
+  const StorageGoogleData = localStorage.getItem('StorageGoogle');
+  const StorageGoogle = JSON.parse(StorageGoogleData);
 
-async function createArrays(item) {
-  document.querySelector('#loader2').classList.remove('d-none')
-  await createTEUsArrays(item.id_headcargo);
-  await createProfitArray(item.id_headcargo);
-  await createProcessesArrays(item.id_headcargo);
-  await createAssertivityArrays(item.id_headcargo);
-  document.querySelector('#loader2').classList.add('d-none')
+  return StorageGoogle;
 }
+async function createClientTable(userId) {
 
-async function createTEUsArrays(userId) {
+  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`, 'POST', {userId});
 
-  let processes = await makeRequest(`/api/commercial-adm/listAllProcesses`, 'POST', {userId});
-  let teusArray = [];
-  let actualMonth = new Date().getMonth();
+  const listTable = [];
 
-  for (let index = 0; index <= actualMonth; index++) {
-    teusArray[index] = 0;
+  for (let index = 0; index < clientsDetails.length; index++) {
+    const item = clientsDetails[index];
+
+    let profit = parseFloat(item.Lucro_Estimado);
+    profit = profit.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    let date = new Date(item.Ultimo_Embarque)
+    let today = new Date()
+    date.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    let diffTime = today - date;
+    let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    let day = String(date.getDate()).padStart(2, '0');
+    let month = String(date.getMonth() + 1).padStart(2, '0');
+    let year = date.getFullYear();
+
+    let formattedDate = `${day}/${month}/${year}`;
+
+    listTable.push({
+      client: item.Nome.slice(0, 20),
+      processes: item.Total_Processos,
+      teus: item.Total_TEUS,
+      profit: profit,
+      lastProcess: formattedDate,
+      daysNoProcess: diffDays
+    });
   }
 
-  for (let index = 0; index < processes.length; index++) {
-    if (!teusArray[processes[index].Mes - 1]) {
-      teusArray[processes[index].Mes - 1] = 0.0;
-    }
-    teusArray[processes[index].Mes - 1] += processes[index].Teus;
+  if ($.fn.DataTable.isDataTable("#clientsTable")) {
+    $('#clientsTable').DataTable().clear().destroy(); // Limpa e destrói a DataTable
   }
-  createTEUsChart(teusArray);
+
+  $('#clientsTable tbody').empty(); // Remove apenas as linhas, mantendo os cabeçalhos
+
+  // Recria a DataTable
+  clientsTable = $('#clientsTable').DataTable({
+    "data": listTable,
+    "columns": [
+      { "data": "client" },
+      { "data": "processes" },
+      { "data": "teus" },
+      { "data": "profit" },
+      { "data": "lastProcess" },
+      { "data": "daysNoProcess" },
+    ],
+    "language": {
+      url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+    },
+    "order": [[1, 'desc']],
+    "lengthMenu": [[15], [15]],
+    "searching": true,
+    "info": false,
+    "lengthChange": false
+  });
+
+  $('#searchBox2').off('keyup').on('keyup', function () {
+    clientsTable.search(this.value).draw();
+  });
 }
+async function createProfitTable(userId) {
 
-async function createProcessesArrays(userId) {
+  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`, 'POST', {userId});
 
-  let processes = await makeRequest(`/api/commercial-adm/countProcesses`, 'POST', { userId });
-  let FCLArray = [];
-  let LCLArray = [];
-  let AirArray = [];
-  let CourierArray = [];
-  let actualMonth = new Date().getMonth();
+  const listTable = [];
 
-  for (let index = 0; index <= actualMonth; index++) {
-    FCLArray[index] = 0;
-    LCLArray[index] = 0;
-    AirArray[index] = 0;
-    CourierArray[index] = 0;
+  for (let index = 0; index < clientsDetails.length; index++) {
+    const item = clientsDetails[index];
+
+    let profit = parseFloat(item.Lucro_Estimado);
+    profit = profit.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    listTable.push({
+      client: item.Nome.slice(0, 20),
+      profit: profit,
+    });
   }
 
-  for (let index = 0; index < processes.length; index++) {
-    if (processes[index].Tipo_Processo == 'IA-COURIER') {
-      if (!CourierArray[processes[index].Mes - 1]) {
-        CourierArray[processes[index].Mes - 1] = 0;
-      }
-      CourierArray[processes[index].Mes - 1] += processes[index].Quantidade;
-    }
-    if (processes[index].Tipo_Processo == 'IA-NORMAL') {
-      if (!AirArray[processes[index].Mes - 1]) {
-        AirArray[processes[index].Mes - 1] = 0;
-      }
-      AirArray[processes[index].Mes - 1] += processes[index].Quantidade;
-    }
-    if (processes[index].Tipo_Processo == 'IM-FCL') {
-      if (!FCLArray[processes[index].Mes - 1]) {
-        FCLArray[processes[index].Mes - 1] = 0;
-      }
-      FCLArray[processes[index].Mes - 1] += processes[index].Quantidade;
-    }
-    if (processes[index].Tipo_Processo == 'IM-LCL') {
-      if (!LCLArray[processes[index].Mes - 1]) {
-        LCLArray[processes[index].Mes - 1] = 0;
-      }
-      LCLArray[processes[index].Mes - 1] += processes[index].Quantidade;
-    }
+  if ($.fn.DataTable.isDataTable("#profitTable")) {
+    $('#profitTable').DataTable().clear().destroy(); // Limpa e destrói a DataTable
   }
-  createProcessesChart(CourierArray, AirArray, FCLArray, LCLArray);
+
+  $('#profitTable tbody').empty(); // Remove apenas as linhas, mantendo os cabeçalhos
+
+  // Recria a DataTable
+  profitTable = $('#profitTable').DataTable({
+    // "autoWidth": false,
+    // "responsive": true,
+    // "scrollX": true,
+    "data": listTable,
+    "columns": [
+      { "data": "client" },
+      { "data": "profit" },
+    ],
+    "language": {
+      url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+    },
+    "order": [[1, 'desc']],
+    "lengthMenu": [[4], [4]],
+    "searching": true,
+    "info": false,
+    "lengthChange": false
+  });
+
+  $('#searchBox2').off('keyup').on('keyup', function () {
+    profitTable.search(this.value).draw();
+  });
 }
+async function createTeusTable(userId) {
 
-async function createProfitArray(userId) {
+  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`, 'POST', {userId});
 
-  let profitByUser = await makeRequest(`/api/commercial-adm/profitByUser`, 'POST', {userId});
-  let profitArray = [];
-  let actualMonth = new Date().getMonth();
+  const listTable = [];
 
-  for (let index = 0; index <= actualMonth; index++) {
-    profitArray[index] = 0;
+  for (let index = 0; index < clientsDetails.length; index++) {
+    const item = clientsDetails[index];
+
+    listTable.push({
+      client: item.Nome.slice(0, 20),
+      teus: item.Total_TEUS,
+    });
   }
 
-  for (let index = 0; index < profitByUser.length; index++) {
-    if (!profitArray[profitByUser[index].Mes-1]){
-      profitArray[profitByUser[index].Mes-1] = 0;
-    }
-    profitArray[profitByUser[index].Mes-1] += profitByUser[index].Total_Valor;
+  if ($.fn.DataTable.isDataTable("#teusTable")) {
+    $('#teusTable').DataTable().clear().destroy(); // Limpa e destrói a DataTable
   }
 
-  createProfitChart(profitArray);
+  $('#teusTable tbody').empty(); // Remove apenas as linhas, mantendo os cabeçalhos
+
+  // Recria a DataTable
+  teusTable = $('#teusTable').DataTable({
+    // "autoWidth": false,
+    // "responsive": true,
+    // "scrollX": true,
+    "data": listTable,
+    "columns": [
+      { "data": "client" },
+      { "data": "teus" },
+    ],
+    "language": {
+      url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+    },
+    "order": [[1, 'desc']],
+    "lengthMenu": [[4], [4]],
+    "searching": true,
+    "info": false,
+    "lengthChange": false
+  });
+
+  $('#searchBox2').off('keyup').on('keyup', function () {
+    teusTable.search(this.value).draw();
+  });
 }
+async function createLCLProcessesTable(userId) {
 
-async function createAssertivityArrays(userId) {
+  let clientsLCLDetails = await makeRequest(`/api/commercial-main/clientsLCLDetails`, 'POST', {userId});
 
-  let offersByUser = await makeRequest(`/api/commercial-adm/getOffers`, 'POST', {userId});
+  const listTable = [];
 
-  let LCLArray = [];
-  let AirArray = [];
-  let FCLArray = [];
-  let actualMonth = new Date().getMonth();
+  for (let index = 0; index < clientsLCLDetails.length; index++) {
+    const item = clientsLCLDetails[index];
 
-  for (let index = 0; index < actualMonth.length; index++) {
-    LCLArray[index] = 0;
-    AirArray[index] = 0;
-    FCLArray[index] = 0;
+    listTable.push({
+      client: item.Nome.slice(0, 20),
+      processes: item.Total_Processos,
+    });
   }
 
-  for (let index = 0; index < offersByUser.length; index++) {
-    if (offersByUser[index].Tipo_Carga == 'FCL') {
-      FCLArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente + offersByUser[index].Total_Aprovada)*100;
-      FCLArray[offersByUser[index].Mes - 1] = FCLArray[offersByUser[index].Mes - 1].toFixed(2);
-    }
-    if (offersByUser[index].Tipo_Carga == 'LCL') {
-      LCLArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente + offersByUser[index].Total_Aprovada)*100;
-      LCLArray[offersByUser[index].Mes - 1] = LCLArray[offersByUser[index].Mes - 1].toFixed(2);
-    }
-    if (offersByUser[index].Tipo_Carga == 'Aéreo') {
-      AirArray[offersByUser[index].Mes - 1] = offersByUser[index].Total_Aprovada/(offersByUser[index].Total_Reprovada + offersByUser[index].Total_Pendente + offersByUser[index].Total_Aprovada)*100;
-      AirArray[offersByUser[index].Mes - 1] = AirArray[offersByUser[index].Mes - 1].toFixed(2);
-    }
+  if ($.fn.DataTable.isDataTable("#processesTable")) {
+    $('#processesTable').DataTable().clear().destroy(); // Limpa e destrói a DataTable
   }
 
-  createAssertivityChart(AirArray, FCLArray, LCLArray);
+  $('#processesTable tbody').empty(); // Remove apenas as linhas, mantendo os cabeçalhos
+
+  // Recria a DataTable
+  processesTable = $('#processesTable').DataTable({
+    // "autoWidth": false,
+    // "responsive": true,
+    // "scrollX": true,
+    "data": listTable,
+    "columns": [
+      { "data": "client" },
+      { "data": "processes" },
+    ],
+    "language": {
+      url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+    },
+    "order": [[1, 'desc']],
+    "lengthMenu": [[4], [4]],
+    "searching": true,
+    "info": false,
+    "lengthChange": false
+  });
+
+  $('#searchBox2').off('keyup').on('keyup', function () {
+    processesTable.search(this.value).draw();
+  });
 }
+async function createAirProcessesTable(userId) {
 
-function createTEUsChart(teusArray) {
+  let clientsAirDetails = await makeRequest(`/api/commercial-main/clientsAirDetails`, 'POST', {userId});
+
+  const listTable = [];
+
+  for (let index = 0; index < clientsAirDetails.length; index++) {
+    const item = clientsAirDetails[index];
+
+    listTable.push({
+      client: item.Nome.slice(0, 20),
+      processes: item.Total_Processos,
+    });
+  }
+
+  if ($.fn.DataTable.isDataTable("#airProcessesTable")) {
+    $('#airProcessesTable').DataTable().clear().destroy(); // Limpa e destrói a DataTable
+  }
+
+  $('#airProcessesTable tbody').empty(); // Remove apenas as linhas, mantendo os cabeçalhos
+
+  // Recria a DataTable
+  airProcessesTable = $('#airProcessesTable').DataTable({
+    // "autoWidth": false,
+    // "responsive": true,
+    // "scrollX": true,
+    "data": listTable,
+    "columns": [
+      { "data": "client" },
+      { "data": "processes" },
+    ],
+    "language": {
+      url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+    },
+    "order": [[1, 'desc']],
+    "lengthMenu": [[4], [4]],
+    "searching": true,
+    "info": false,
+    "lengthChange": false
+  });
+
+  $('#searchBox2').off('keyup').on('keyup', function () {
+    airProcessesTable.search(this.value).draw();
+  });
+}
+async function createTables(id_headcargo) {
+  await createClientTable(id_headcargo);
+  await createProfitTable(id_headcargo);
+  await createTeusTable(id_headcargo);
+  await createLCLProcessesTable(id_headcargo);
+  await createAirProcessesTable(id_headcargo);
+}
+async function createActivityArray(userId) {
+
+  let activityArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let IACourierCount = 0;
+  let IANormalCount = 0;
+  let IMFCLCount = 0;
+  let IMLCLCount = 0;
+  let EACourierCount = 0;
+  let EANormalCount = 0;
+  let EMFCLCount = 0;
+  let EMLCLCount = 0;
+  let activeClients = await makeRequest(`/api/commercial-main/activeClients`, 'POST', {userId});
+
+  for (let index = 0; index < activeClients.length; index++) {
+    activityArray[activeClients[index].Mes - 1]++;
+    if (activeClients[index].Tipo_Processo == 'IA-COURIER') {
+      IACourierCount++;
+    }
+    if (activeClients[index].Tipo_Processo == 'IA-NORMAL') {
+      IANormalCount++;
+    }
+    if (activeClients[index].Tipo_Processo == 'IM-FCL') {
+      IMFCLCount++;
+    }
+    if (activeClients[index].Tipo_Processo == 'IM-LCL') {
+      IMLCLCount++;
+    }
+    if (activeClients[index].Tipo_Processo == 'EA-COURIER') {
+      EACourierCount++;
+    }
+    if (activeClients[index].Tipo_Processo == 'EA-NORMAL') {
+      EANormalCount++;
+    }
+    if (activeClients[index].Tipo_Processo == 'EM-FCL') {
+      EMFCLCount++;
+    }
+    if (activeClients[index].Tipo_Processo == 'EM-LCL') {
+      EMLCLCount++;
+    }
+  }
+
+  modalData = [IACourierCount, IANormalCount, IMFCLCount, IMLCLCount, EACourierCount, EANormalCount, EMFCLCount, EMLCLCount]
+  modalLabel = ['IA-Courier', 'IA-Normal', 'IM-FCL', 'IM-LCL', 'EA-Courier', 'EA-Normal', 'EM-FCL', 'EM-LCL']
+  createActivityChart(activityArray);
+  createActiveModalChart(modalData, modalLabel);
+}
+function createActivityChart(activityArray) {
 
   let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-
-  if (teusChart) {
-    teusChart.destroy();
-  }
 
   var chartData = {
 
     series: [{
-      name: 'TEUs',
-      data: teusArray
+      name: 'Clientes Ativos',
+      data: activityArray
     }],
     chart: {
-      height: 400,
-      width: 920,
+      height: 340,
+      width: 450,
       type: "bar",
       stacked: false,
       toolbar: {
@@ -241,7 +413,7 @@ function createTEUsChart(teusArray) {
     dataLabels: {
       enabled: true,
       style: {
-        fontSize: '12px',
+        fontSize: '10px',
         colors: ['#fff']
       }
     },
@@ -274,29 +446,279 @@ function createTEUsChart(teusArray) {
     },
   };
 
-  teusChart = new ApexCharts(document.querySelector('#teus-chart'), chartData);
-  teusChart.render();
+  var activeChart = new ApexCharts(document.querySelector('#activeClients-chart'), chartData);
+  activeChart.render();
 }
+async function createNewClientsArray(userId) {
 
-function createProfitChart(profitArray) {
+  let newClientsArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let IACourierCount = 0;
+  let IANormalCount = 0;
+  let IMFCLCount = 0;
+  let IMLCLCount = 0;
+  let EACourierCount = 0;
+  let EANormalCount = 0;
+  let EMFCLCount = 0;
+  let EMLCLCount = 0;
+  let newClients = await makeRequest(`/api/commercial-main/newClients`, 'POST', {userId});
+
+  for (let index = 0; index < newClients.length; index++) {
+    newClientsArray[newClients[index].Mes - 1]++;
+    if (newClients[index].Tipo_Processo == 'IA-COURIER') {
+      IACourierCount++;
+    }
+    if (newClients[index].Tipo_Processo == 'IA-NORMAL') {
+      IANormalCount++;
+    }
+    if (newClients[index].Tipo_Processo == 'IM-FCL') {
+      IMFCLCount++;
+    }
+    if (newClients[index].Tipo_Processo == 'IM-LCL') {
+      IMLCLCount++;
+    }
+    if (newClients[index].Tipo_Processo == 'EA-COURIER') {
+      EACourierCount++;
+    }
+    if (newClients[index].Tipo_Processo == 'EA-NORMAL') {
+      EANormalCount++;
+    }
+    if (newClients[index].Tipo_Processo == 'EM-FCL') {
+      EMFCLCount++;
+    }
+    if (newClients[index].Tipo_Processo == 'EM-LCL') {
+      EMLCLCount++;
+    }
+  }
+
+  modalData = [IACourierCount, IANormalCount, IMFCLCount, IMLCLCount, EACourierCount, EANormalCount, EMFCLCount, EMLCLCount]
+  modalLabel = ['IA-Courier', 'IA-Normal', 'IM-FCL', 'IM-LCL', 'EA-Courier', 'EA-Normal', 'EM-FCL', 'EM-LCL']
+  createNewClientsChart(newClientsArray);
+  createNewModalChart(modalData, modalLabel)
+}
+function createNewClientsChart(newClientsArray) {
 
   let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-  if (billingChart) {
-    billingChart.destroy();
-  }
-
   var chartData = {
+
     series: [{
-      name: 'Faturamento/Mês',
-      data: profitArray
+      name: 'Clientes Novos',
+      data: newClientsArray
     }],
     chart: {
-      height: 400,
-      width: 920,
+      height: 340,
+      width: 450,
       type: "bar",
       stacked: false,
-      toolbar: { show: false },
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        borderRadius: 5,
+        columnWidth: "60%",
+        dataLabels: {
+          position: 'top',
+        },
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: '10px',
+        colors: ['#fff']
+      }
+    },
+    tooltip: {
+      enabled: false
+    },
+    colors: ["#F9423A"],
+    markers: {
+      size: 0,
+      strokeColors: ["#F9423A"],
+      strokeWidth: 2,
+      strokeOpacity: 0.9,
+      fillOpacity: 1,
+      shape: "circle",
+      showNullDataPoints: true,
+    },
+    stroke: {
+      width: 0,
+      curve: "smooth",
+    },
+    xaxis: {
+      categories: months,
+      position: "bottom",
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+  };
+
+  var newClientsChart = new ApexCharts(document.querySelector('#newClients-chart'), chartData);
+  newClientsChart.render();
+}
+function createActiveModalChart(modalData, modalLabel) {
+
+  var options = {
+    series: modalData,
+    chart: {
+      width: 450,
+      type: 'pie',
+    },
+    labels: modalLabel,
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
+    tooltip: {
+      y: {
+        formatter: function (val) {
+          return val + " processos"
+        }
+      }
+    },
+    fill: {
+      type: 'gradient',
+      opacity: 0.85,
+    },
+    legend: {
+      show: true,
+      position: 'bottom'
+    },
+    responsive: [{
+      options: {
+        chart: {
+          toolbar: {
+            show: false,
+          }
+        }
+      }
+    }],
+  };
+
+  let activeModalChart = new ApexCharts(document.querySelector("#activeModal-chart"), options);
+  activeModalChart.render();
+}
+function createNewModalChart(modalData, modalLabel) {
+
+  var options = {
+    series: modalData,
+    chart: {
+      width: 450,
+      type: 'pie',
+    },
+    labels: modalLabel,
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
+    tooltip: {
+      y: {
+        formatter: function (val) {
+          return val + " processos"
+        }
+      }
+    },
+    fill: {
+      type: 'gradient',
+      opacity: 0.85,
+    },
+    legend: {
+      show: true,
+      position: 'bottom'
+    },
+    responsive: [{
+      options: {
+        chart: {
+          toolbar: {
+            show: false,
+          }
+        }
+      }
+    }],
+  };
+
+  let newModalChart = new ApexCharts(document.querySelector("#newModal-chart"), options);
+  newModalChart.render();
+}
+async function createProcessesArray(userId) {
+  let processesArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let processesUserArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let AirprocessesArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let AirprocessesUserArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let IACourierCount = 0;
+  let IANormalCount = 0;
+  let IMLCLCount = 0;
+  let EACourierCount = 0;
+  let EANormalCount = 0;
+  let EMLCLCount = 0;
+  let LCLProcesses = await makeRequest(`/api/commercial-main/totalLCLProcesses`);
+  let AirProcesses = await makeRequest(`/api/commercial-main/totalAirProcesses`);
+  let LCLprocessesByUser = await makeRequest(`/api/commercial-main/LCLProcessesByUser`, 'POST', {userId})
+  let AirprocessesByUser = await makeRequest(`/api/commercial-main/AirProcessesByUser`, 'POST', {userId})
+
+  for (let index = 0; index < LCLProcesses.length; index++) {
+    processesArray[LCLProcesses[index].Mes-1] += LCLProcesses[index].Quantidade;
+  }
+
+  for (let index = 0; index < AirProcesses.length; index++) {
+    AirprocessesArray[AirProcesses[index].Mes-1] += AirProcesses[index].Quantidade;
+  }
+
+  for (let index = 0; index < LCLprocessesByUser.length; index++) {
+    processesUserArray[LCLprocessesByUser[index].Mes - 1] += LCLprocessesByUser[index].Quantidade;
+    if (LCLprocessesByUser[index].Tipo_Processo == 'IM-LCL') {
+      IMLCLCount += LCLprocessesByUser[index].Quantidade;
+    }
+    if (LCLprocessesByUser[index].Tipo_Processo == 'EM-LCL') {
+      EMLCLCount += LCLprocessesByUser[index].Quantidade;
+    }
+  }
+
+  for (let index = 0; index < AirprocessesByUser.length; index++) {
+    AirprocessesUserArray[AirprocessesByUser[index].Mes - 1] += AirprocessesByUser[index].Quantidade;
+    if (AirprocessesByUser[index].Tipo_Processo == 'IA-COURIER') {
+      IACourierCount += AirprocessesByUser[index].Quantidade;
+    }
+    if (AirprocessesByUser[index].Tipo_Processo == 'IA-NORMAL') {
+      IANormalCount += AirprocessesByUser[index].Quantidade;
+    }
+    if (AirprocessesByUser[index].Tipo_Processo == 'EA-COURIER') {
+      EACourierCount += AirprocessesByUser[index].Quantidade;
+    }
+    if (AirprocessesByUser[index].Tipo_Processo == 'EA-NORMAL') {
+      EANormalCount += AirprocessesByUser[index].Quantidade;
+    }
+  }
+  LCLModalData = [IMLCLCount, EMLCLCount]
+  LCLModalLabel = ['IM-LCL', 'EM-LCL']
+  AirModalData = [IACourierCount, IANormalCount, EACourierCount, EANormalCount]
+  AirModalLabel = ['IA-Courier', 'IA-Normal', 'EA-Courier', 'EA-Normal']
+  createLCLProcessesChart(processesArray, processesUserArray);
+  createAirProcessesChart(AirprocessesArray, AirprocessesUserArray);
+  createLCLProcessesPercentChart(LCLModalData, LCLModalLabel);
+  createAirProcessesPercentChart(AirModalData, AirModalLabel);
+}
+function createLCLProcessesChart(processesArray, processesUserArray) {
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  var chartData = {
+
+    series: [{
+      name: 'Processos LCL Abertos - Total',
+      data: processesArray
+    }, {
+      name: 'Processos LCL Abertos - Individual',
+      data: processesUserArray
+    }],
+    chart: {
+      height: 250,
+      width: 910,
+      type: "bar",
+      stacked: true,
+      toolbar: {
+        show: false,
+      },
     },
     plotOptions: {
       bar: {
@@ -310,21 +732,22 @@ function createProfitChart(profitArray) {
     },
     dataLabels: {
       enabled: false,
-      offsetX: -50,
-      style: {
-        fontSize: '12px',
-        colors: ['#fff']
-      },
-      formatter: function (value) {
-        return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-      }
     },
     tooltip: {
       enabled: true,
-      y: {
-        formatter: function (value) {
-          return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
+      shared: false,
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        const seriesAValue = series[0][dataPointIndex];
+        const seriesBValue = series[1][dataPointIndex];
+        const percentage = ((seriesBValue / seriesAValue) * 100).toFixed(2);
+        return `
+          <div style="padding: 10px; font-size: 12px; border-radius: 5px; background: rgba(0, 0, 0, 0.7); color: #fff;">
+            <strong>${w.globals.labels[dataPointIndex]}</strong><br>
+            Processos Abertos - Total: ${seriesAValue}<br>
+            Processos Abertos - Individual: ${seriesBValue}<br>
+            Porcentagem de Participação - ${percentage}%<br>
+          </div>
+        `;
       }
     },
     colors: ["#F9423A", "#3f2021"],
@@ -338,55 +761,125 @@ function createProfitChart(profitArray) {
       showNullDataPoints: true,
     },
     stroke: {
-      width: [0, 0],
+      width: 0,
       curve: "smooth",
     },
     xaxis: {
       categories: months,
       position: "bottom",
-      axisBorder: { show: false },
-      axisTicks: { show: false },
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
     },
+    legend: {
+      show: false,
+    },
+    yaxis: {
+      show: false,
+    }
   };
 
-  billingChart = new ApexCharts(document.querySelector('#billing-chart'), chartData);
-  billingChart.render();
+  var processesChart = new ApexCharts(document.querySelector('#processes-chart'), chartData);
+  processesChart.render();
 }
+function createAirProcessesChart(processesArray, processesUserArray) {
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-function createProcessesChart(CourierArray, AirArray, FCLArray, LCLArray) {
+  var chartData = {
 
-  if (processesChart) {
-    processesChart.destroy();
-  }
+    series: [{
+      name: 'Processos Abertos - Total',
+      data: processesArray
+    }, {
+      name: 'Processos Abertos - Individual',
+      data: processesUserArray
+    }],
+    chart: {
+      height: 250,
+      width: 910,
+      type: "bar",
+      stacked: true,
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        borderRadius: 5,
+        columnWidth: "60%",
+        dataLabels: {
+          position: 'top',
+        },
+      }
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    tooltip: {
+      enabled: true,
+      shared: false,
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        const seriesAValue = series[0][dataPointIndex];
+        const seriesBValue = series[1][dataPointIndex];
+        const percentage = ((seriesBValue / seriesAValue) * 100).toFixed(2);
+        return `
+          <div style="padding: 10px; font-size: 12px; border-radius: 5px; background: rgba(0, 0, 0, 0.7); color: #fff;">
+            <strong>${w.globals.labels[dataPointIndex]}</strong><br>
+            Processos Abertos - Total: ${seriesAValue}<br>
+            Processos Abertos - Individual: ${seriesBValue}<br>
+            Porcentagem de Participação - ${percentage}%<br>
+          </div>
+        `;
+      }
+    },
+    colors: ["#F9423A", "#3f2021"],
+    markers: {
+      size: [0, 0],
+      strokeColors: ["#F9423A", "#3f2021"],
+      strokeWidth: 2,
+      strokeOpacity: 0.9,
+      fillOpacity: 1,
+      shape: "circle",
+      showNullDataPoints: true,
+    },
+    stroke: {
+      width: 0,
+      curve: "smooth",
+    },
+    xaxis: {
+      categories: months,
+      position: "bottom",
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+    legend: {
+      show: false,
+    },
+    yaxis: {
+      show: false,
+    }
+  };
 
-  let finalLCL = 0;
-  let finalFCL = 0;
-  let finalAir = 0;
-  let finalCourier = 0;
-
-  for (let index = 0; index < LCLArray.length; index++) {
-    finalLCL += LCLArray[index];
-  }
-
-  for (let index = 0; index < FCLArray.length; index++) {
-    finalFCL += FCLArray[index];
-  }
-
-  for (let index = 0; index < AirArray.length; index++) {
-    finalAir += AirArray[index];
-  }
-
-  for (let index = 0; index < CourierArray.length; index++) {
-    finalCourier += CourierArray[index];
-  }
+  var airProcessesChart = new ApexCharts(document.querySelector('#airProcesses-chart'), chartData);
+  airProcessesChart.render();
+}
+function createLCLProcessesPercentChart(modalData, modalLabel) {
 
   var options = {
-    series: [finalLCL, finalFCL, finalAir, finalCourier],
+    series: modalData,
     chart: {
-      width: 450,
+      width: 400,
       type: 'pie',
     },
-    labels: ['IM LCL', 'IM FCL', 'IA Padrão', 'IA Expresso'],
+    labels: modalLabel,
     colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
     tooltip: {
       y: {
@@ -414,92 +907,381 @@ function createProcessesChart(CourierArray, AirArray, FCLArray, LCLArray) {
     }],
   };
 
-  processesChart = new ApexCharts(document.querySelector("#processes-chart"), options);
-  processesChart.render();
+  let processesPercentChart = new ApexCharts(document.querySelector("#processesPercent-chart"), options);
+  processesPercentChart.render();
 }
-
-function createAssertivityChart(AirArray, FCLArray, LCLArray) {
-
-  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-
-  if (assertivityChart) {
-    assertivityChart.destroy();
-  }
+function createAirProcessesPercentChart(modalData, modalLabel) {
 
   var options = {
-    series: [{
-      name: 'LCL',
-      data: LCLArray
-    }, {
-      name: 'FCL',
-      data: FCLArray
-    }, {
-      name: 'IA',
-      data: AirArray
-    }],
+    series: modalData,
     chart: {
-      type: 'bar',
-      height: 300,
-      stacked: false,
-      toolbar: {
-        show: false,
+      width: 400,
+      type: 'pie',
+    },
+    labels: modalLabel,
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
+    tooltip: {
+      y: {
+        formatter: function (val) {
+          return val + " processos"
+        }
       }
     },
-    colors: ["#F9423A", "#D0CFCD", "#781B17"],
+    fill: {
+      type: 'gradient',
+      opacity: 0.85,
+    },
+    legend: {
+      show: true,
+      position: 'right'
+    },
+    responsive: [{
+      options: {
+        chart: {
+          toolbar: {
+            show: false,
+          }
+        }
+      }
+    }],
+  };
+
+  let airProcessesPercentChart = new ApexCharts(document.querySelector("#airProcessesPercent-chart"), options);
+  airProcessesPercentChart.render();
+}
+async function createTeusProfitArray(userId) {
+  let teusArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let teusUserArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let profitArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let profitUserArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let totalEACourier = 0;
+  let totalIACourier = 0;
+  let totalEANormal = 0;
+  let totalIANormal = 0;
+  let totalIMFCL = 0;
+  let totalIMLCL = 0;
+  let totalEMFCL = 0;
+  let totalEMLCL = 0;
+  let IM20 = 0;
+  let IM40 = 0;
+  let EM20 = 0;
+  let EM40 = 0;
+  let teusAndProfit = await makeRequest(`/api/commercial-main/teusAndProfit`);
+  let teusAndProfitByUser = await makeRequest(`/api/commercial-main/teusAndProfitByUser`, 'POST', {userId})
+
+  for (let index = 0; index < teusAndProfit.length; index++) {
+    teusArray[teusAndProfit[index].Mes-1] += teusAndProfit[index].Total_TEUS;
+    profitArray[teusAndProfit[index].Mes-1] += teusAndProfit[index].Lucro_Estimado;
+  }
+  for (let index = 0; index < teusAndProfitByUser.length; index++) {
+    teusUserArray[teusAndProfitByUser[index].Mes-1] += teusAndProfitByUser[index].Total_TEUS;
+    profitUserArray[teusAndProfitByUser[index].Mes-1] += teusAndProfitByUser[index].Lucro_Estimado;
+    if (teusAndProfitByUser[index].Tipo_Processo == 'IA-COURIER') {
+      totalIACourier += teusAndProfitByUser[index].Lucro_Estimado;
+    }
+    if (teusAndProfitByUser[index].Tipo_Processo == 'IA-NORMAL') {
+      totalIANormal += teusAndProfitByUser[index].Lucro_Estimado;
+    }
+    if (teusAndProfitByUser[index].Tipo_Processo == 'IM-FCL') {
+      totalIMFCL += teusAndProfitByUser[index].Lucro_Estimado;
+      IM20 += teusAndProfitByUser[index].Total_Container_20;
+      IM40 += teusAndProfitByUser[index].Total_Container_40;
+    }
+    if (teusAndProfitByUser[index].Tipo_Processo == 'IM-LCL') {
+      totalIMLCL += teusAndProfitByUser[index].Lucro_Estimado;
+    }
+    if (teusAndProfitByUser[index].Tipo_Processo == 'EA-COURIER') {
+      totalEACourier += teusAndProfitByUser[index].Lucro_Estimado;
+    }
+    if (teusAndProfitByUser[index].Tipo_Processo == 'EA-NORMAL') {
+      totalEANormal += teusAndProfitByUser[index].Lucro_Estimado;
+    }
+    if (teusAndProfitByUser[index].Tipo_Processo == 'EM-FCL') {
+      totalEMFCL += teusAndProfitByUser[index].Lucro_Estimado;
+      EM20 += teusAndProfitByUser[index].Total_Container_20;
+      EM40 += teusAndProfitByUser[index].Total_Container_40;
+    }
+    if (teusAndProfitByUser[index].Tipo_Processo == 'EM-LCL') {
+      totalEMLCL += teusAndProfitByUser[index].Lucro_Estimado;
+    }
+  }
+
+  totalEACourier = totalEACourier.toFixed(2);
+  totalIACourier = totalIACourier.toFixed(2);
+  totalEANormal = totalEANormal.toFixed(2);
+  totalIANormal = totalIANormal.toFixed(2);
+  totalIMFCL = totalIMFCL.toFixed(2);
+  totalIMLCL = totalIMLCL.toFixed(2);
+  totalEMFCL = totalEMFCL.toFixed(2);
+  totalEMLCL = totalEMLCL.toFixed(2);
+
+  modalData = [totalIACourier, totalIANormal, totalIMFCL, totalIMLCL, totalEACourier, totalEANormal, totalEMFCL, totalEMLCL]
+  modalData = modalData.map(s => parseFloat(s.replace(",", ".")));
+  modalLabel = ['IA-Courier', 'IA-Normal', 'IM-FCL', 'IM-LCL', 'EA-Courier', 'EA-Normal', 'EM-FCL', 'EM-LCL']
+  containerData = [IM20, EM20, IM40, EM40];
+  containerLabel = [`20' - IM`, `20' - EM`, `40' - IM`, `40' - EM`];
+  createTEUsChart(teusArray, teusUserArray);
+  createProfitChart(profitArray, profitUserArray);
+  createProfitPercentChart(modalData, modalLabel);
+  createContainerPercentChart(containerData, containerLabel);
+}
+function createTEUsChart(teusArray, teusUserArray) {
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  var chartData = {
+
+    series: [{
+      name: 'TEUs - Total',
+      data: teusArray
+    }, {
+      name: 'TEUs - Individual',
+      data: teusUserArray
+    }],
+    chart: {
+      height: 250,
+      width: 910,
+      type: "bar",
+      stacked: true,
+      toolbar: {
+        show: false,
+      },
+    },
     plotOptions: {
       bar: {
         horizontal: false,
         borderRadius: 5,
         columnWidth: "60%",
+        dataLabels: {
+          position: 'top',
+        },
       }
     },
     dataLabels: {
       enabled: false,
-      formatter: function (value) {
-        return value + "%";
-      }
-    },
-    stroke: {
-      width: 1,
-      colors: ['#fff']
-    },
-    xaxis: {
-      categories: months,
     },
     tooltip: {
       enabled: true,
-      shared: true, // Ativar compartilhamento do tooltip entre todas as séries
-      intersect: false, // Permite exibição ao passar sobre qualquer barra
-      y: {
-        formatter: function (val) {
-          return val + "%";
-        }
+      shared: false,
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        const seriesAValue = series[0][dataPointIndex];
+        const seriesBValue = series[1][dataPointIndex];
+        const percentage = ((seriesBValue / seriesAValue) * 100).toFixed(2);
+        return `
+          <div style="padding: 10px; font-size: 12px; border-radius: 5px; background: rgba(0, 0, 0, 0.7); color: #fff;">
+            <strong>${w.globals.labels[dataPointIndex]}</strong><br>
+            TEUs - Total: ${seriesAValue}<br>
+            TEUs - Individual: ${seriesBValue}<br>
+            Porcentagem de Participação - ${percentage}%<br>
+          </div>
+        `;
       }
     },
-    fill: {
-      opacity: 0.80
+    colors: ["#F9423A", "#3f2021"],
+    markers: {
+      size: [0, 0],
+      strokeColors: ["#F9423A", "#3f2021"],
+      strokeWidth: 2,
+      strokeOpacity: 0.9,
+      fillOpacity: 1,
+      shape: "circle",
+      showNullDataPoints: true,
+    },
+    stroke: {
+      width: 0,
+      curve: "smooth",
+    },
+    xaxis: {
+      categories: months,
+      position: "bottom",
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
     },
     legend: {
-      show: false
+      show: false,
+    },
+    yaxis: {
+      show: false,
     }
-  };  
+  };
 
-  assertivityChart = new ApexCharts(document.querySelector("#assertiveness-chart"), options);
-  assertivityChart.render();
+  var teusChart = new ApexCharts(document.querySelector('#teus-chart'), chartData);
+  teusChart.render();
 }
+function createProfitChart(profitArray, profitUserArray) {
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-function openWindow(url, width, height) {
-  window.open(url, '_blank', `width=${width},height=${height},resizable=yes,scrollbars=yes`);
+  var chartData = {
+
+    series: [{
+      name: 'Lucro Estimado - Total',
+      data: profitArray
+    }, {
+      name: 'Lucro Estimado - Individual',
+      data: profitUserArray
+    }],
+    chart: {
+      height: 250,
+      width: 910,
+      type: "bar",
+      stacked: true,
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        borderRadius: 5,
+        columnWidth: "60%",
+        dataLabels: {
+          position: 'top',
+        },
+      }
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    tooltip: {
+      enabled: true,
+      shared: false,
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        const seriesAValue = series[0][dataPointIndex].toFixed(2);
+        const seriesBValue = series[1][dataPointIndex].toFixed(2);
+        const percentage = ((seriesBValue / seriesAValue) * 100).toFixed(2);
+        return `
+          <div style="padding: 10px; font-size: 12px; border-radius: 5px; background: rgba(0, 0, 0, 0.7); color: #fff;">
+            <strong>${w.globals.labels[dataPointIndex]}</strong><br>
+            Porcentagem de Participação - ${percentage}%<br>
+          </div>
+        `;
+      }
+    },
+    colors: ["#F9423A", "#3f2021"],
+    markers: {
+      size: [0, 0],
+      strokeColors: ["#F9423A", "#3f2021"],
+      strokeWidth: 2,
+      strokeOpacity: 0.9,
+      fillOpacity: 1,
+      shape: "circle",
+      showNullDataPoints: true,
+    },
+    stroke: {
+      width: 0,
+      curve: "smooth",
+    },
+    xaxis: {
+      categories: months,
+      position: "bottom",
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+    legend: {
+      show: false,
+    },
+    yaxis: {
+      show: false,
+    }
+  };
+
+  var profitChart = new ApexCharts(document.querySelector('#profit-chart'), chartData);
+  profitChart.render();
+}
+function createProfitPercentChart(modalData, modalLabel) {
+
+  var options = {
+    series: modalData,
+    chart: {
+      width: 400,
+      type: 'pie',
+    },
+    labels: modalLabel,
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
+    tooltip: {
+      // y: {
+      //   formatter: function (val) {
+      //     return new Intl.NumberFormat('pt-BR', {
+      //       style: 'currency',
+      //       currency: 'BRL'
+      //     }).format(val);
+      //   }
+      // }
+      enabled: false,
+    },    
+    fill: {
+      type: 'gradient',
+      opacity: 0.85,
+    },
+    legend: {
+      show: true,
+      position: 'right'
+    },
+    responsive: [{
+      options: {
+        chart: {
+          toolbar: {
+            show: false,
+          }
+        }
+      }
+    }],
+  };
+
+  let profitPercentChart = new ApexCharts(document.querySelector("#profitPercent-chart"), options);
+  profitPercentChart.render();
+}
+function createContainerPercentChart(containerData, containerLabel) {
+
+  var options = {
+    series: containerData,
+    chart: {
+      width: 390,
+      type: 'pie',
+    },
+    labels: containerLabel,
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
+    tooltip: {
+      y: {
+        formatter: function (val) {
+          return val + " containers"
+        }
+      }
+    },    
+    fill: {
+      type: 'gradient',
+      opacity: 0.85,
+    },
+    legend: {
+      show: true,
+      position: 'right'
+    },
+    responsive: [{
+      options: {
+        chart: {
+          toolbar: {
+            show: false,
+          }
+        }
+      }
+    }],
+  };
+
+  let teusPercentChart = new ApexCharts(document.querySelector("#teusPercent-chart"), options);
+  teusPercentChart.render();
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
 
   await createFilters();
-  await createTEUsArrays(0);
-  await createProfitArray(0);
-  await createProcessesArrays(0);
-  await createAssertivityArrays(0);
 
-  // document.querySelector('#salesMenu').classList.add('d-none')
+  document.querySelector('#salesMenu').classList.add('d-flex')
   document.querySelector('#loader2').classList.add('d-none')
 });

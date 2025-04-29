@@ -1227,10 +1227,6 @@ function createContainerPercentChart(containerData, containerLabel) {
   teusPercentChart.render();
 }
 
-function openWindow(url, width, height) {
-  window.open(url, '_blank', `width=${width},height=${height},resizable=yes,scrollbars=yes`);
-}
-
 document.addEventListener('DOMContentLoaded', async function () {
 
   await createTables();

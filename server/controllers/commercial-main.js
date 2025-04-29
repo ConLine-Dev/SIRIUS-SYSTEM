@@ -141,13 +141,11 @@ const commercialMain = {
                 LEFT OUTER JOIN
                     mov_Logistica_Moeda lma ON lma.IdLogistica_House = lhs.IdLogistica_House
                 LEFT OUTER JOIN
-                    mov_Logistica_Viagem lvm ON lvm.IdLogistica_House = lhs.IdLogistica_House
-                LEFT OUTER JOIN
                     mov_Projeto_Atividade_Responsavel Iss on Iss.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Iss.IdPapel_Projeto = 12)
                 LEFT OUTER JOIN
                     mov_Projeto_Atividade_Responsavel Sls on Sls.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Sls.IdPapel_Projeto = 3)
             WHERE
-                YEAR(lvm.Data_Embarque) = 2025
+                DATEPART(year, lhs.Data_Abertura_Processo) = 2025
                 AND lma.idmoeda IN (110)
                 AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
             GROUP BY

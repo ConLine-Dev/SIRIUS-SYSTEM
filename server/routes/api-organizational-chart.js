@@ -4,9 +4,9 @@ const { organizationalChart } = require('../controllers/organizational-chart.js'
 
 module.exports = function (io) {
 
-    router.get('/totalProcesses', async (req, res, next) => {
+    router.get('/getPeople', async (req, res, next) => {
         try {
-            const result = await organizationalChart.totalProcesses();
+            const result = await organizationalChart.getPeople();
             res.status(200).json(result)
         } catch (error) {
 

@@ -1,0 +1,132 @@
+#loader2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--custom-white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td {
+    margin: 0;
+    padding: 0;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+fieldset, img {
+    border: 0;
+}
+
+address, caption, cite, code, dfn, em, strong, th, var {
+    font-style: normal;
+    font-weight: normal;
+}
+
+caption, th {
+    text-align: left;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-size: 100%;
+    font-weight: normal;
+}
+
+q:before, q:after {
+    content: '';
+}
+
+abbr, acronym {
+    border: 0;
+}
+
+body {
+    background: #6b6b6b;
+}
+
+/* optional Container STYLES */
+.chart {
+    height: 550px;
+    margin: 5px;
+    width: 900px;
+}
+
+.Treant>p {
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.node-name {
+    font-weight: bold;
+}
+
+.nodeExample1 {
+    padding: 2px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    background-color: #ffffff;
+    border: 1px solid #000;
+    width: 200px;
+    font-family: Tahoma;
+    font-size: 12px;
+}
+
+.nodeExample1 img {
+    margin-right: 10px;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.red {
+    background-color: #ffffff;
+    border-top: 3px solid #F9423A;
+    border-radius: 4px;
+    color: #000000;
+}
+
+.gray {
+    background-color: #ffffff;
+    border-top: 3px solid #474747;
+    border-radius: 4px;
+    color: #000000;
+}
+
+.blue {
+    background-color: #ffffff;
+    border-top: 3px solid #015e75;
+    border-radius: 4px;
+    color: #000000;
+}
+
+.black {
+    background-color: #ffffff;
+    border-top: 3px solid #131313;
+    border-radius: 4px;
+    color: #000000;
+}
+
+.golden {
+    background-color: #ffffff;
+    border-top: 3px solid #B8860B;
+    border-radius: 4px;
+    color: #000000;
+}
+
+#tree-wrapper{
+    position:relative;
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+  }
+  

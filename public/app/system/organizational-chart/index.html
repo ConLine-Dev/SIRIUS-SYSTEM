@@ -39,8 +39,9 @@
 
     <link href="../../assets/libs/fullCalender/main.min.css" rel="stylesheet">
 
-
+    <link rel="stylesheet" href="./assets/css/treant.css">
     <link rel="stylesheet" href="./assets/css/index.css">
+
     <meta http-equiv="imagetoolbar" content="no">
 </head>
 
@@ -51,11 +52,14 @@
      </span> -->
 
     <!-- Loader -->
-    <!-- <div id="loader2">
+    <div id="loader2">
         <img src="../../assets/images/media/loader.svg" alt="">
-    </div> -->
-    <div id="svg-tree">
     </div>
+
+    <div id="tree-wrapper">
+        <div class="chart" id="custom-colored"></div>
+    </div>
+
 </html>
 
 
@@ -94,13 +98,13 @@
 <!-- ApexCharts -->
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-<!-- ApexTree -->
-<script src="https://cdn.jsdelivr.net/npm/apextree"></script>
+<!-- Treant -->
+<script src="./assets/js/raphael.js"></script>
+<script src="./assets/js/Treant.js"></script>
+<script src="./assets/js/index.js"></script>
 
 <!-- SweetAlert JS -->
 <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
-
-<script src="./assets/js/index.js"></script>
 
 </body>
 

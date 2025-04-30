@@ -5,34 +5,18 @@ const path = require('path');
 
 const organizationalChart = {
 
-    totalProcesses: async function () {
+    getPeople: async function () {
 
-        const result = await executeQuerySQL(`
+        const result = await executeQuery(`
             SELECT
-            lhs.Numero_Processo,
-            DATEPART(month, lhs.Data_Abertura_Processo) as Mes,
-            Iss.IdResponsavel,
-            Sls.IdResponsavel
-            FROM mov_Logistica_House lhs
-            JOIN
-            mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
-            LEFT OUTER JOIN
-            mov_Logistica_Maritima_Container lmc on lmc.IdLogistica_House = lhs.IdLogistica_House
-            LEFT OUTER JOIN
-            mov_Projeto_Atividade_Responsavel Iss on Iss.IdProjeto_Atividade = Lhs.IdProjeto_Atividade and (Iss.IdPapel_Projeto = 12)
-            LEFT OUTER JOIN
-            mov_Projeto_Atividade_Responsavel Sls on Sls.IdProjeto_Atividade = Lhs.IdProjeto_Atividade and (Sls.IdPapel_Projeto = 3)
-            WHERE
-            lhs.Situacao_Agenciamento != 7
-            AND DATEPART(year, lhs.Data_Abertura_Processo) = 2025
-            AND lms.Tipo_Operacao = 2
-            AND lhs.Numero_Processo not like '%DEMU%'
-            AND lhs.Numero_Processo not like '%test%'
-            GROUP BY
-            lhs.Numero_Processo,
-            lhs.Data_Abertura_Processo,
-            Iss.IdResponsavel,
-            Sls.IdResponsavel`)
+                oc.id_collaborator AS 'id',
+                CONCAT(SUBSTRING_INDEX(cl.name, ' ',  1), ' ', SUBSTRING_INDEX(cl.family_name, ' ', -1)) AS name,
+                cl.id_headcargo AS 'img',
+                oc.id_parent AS 'parent',
+                cl.job_position
+            FROM
+                organizational_chart oc
+            LEFT OUTER JOIN collaborators cl ON cl.id = oc.id_collaborator`);
 
         return result;
     },

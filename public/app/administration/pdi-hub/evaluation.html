@@ -99,165 +99,45 @@
                             </div>
                             <div class="card-body">
                                 <form id="monthlyEvaluationForm">
-                                    <!-- Campos ocultos -->
                                     <input type="hidden" id="evaluationPdiId" name="pdi_id">
                                     <input type="hidden" id="evaluationMonth" name="month">
                                     <input type="hidden" id="evaluationYear" name="year">
-                                    
-                                    <!-- Informações do colaborador -->
-                                    <div class="row mb-4">
-                                        <div class="col-md-12">
-                                            <label class="form-label fw-semibold">Colaborador</label>
-                                            <h5 id="evaluationCollaboratorName" class="form-control-plaintext border-bottom pb-2"></h5>
-                                        </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Mês</label>
+                                        <select id="evaluationMonthSelect" class="form-select">
+                                            <option value="1">Janeiro</option>
+                                            <option value="2">Fevereiro</option>
+                                            <option value="3">Março</option>
+                                            <option value="4">Abril</option>
+                                            <option value="5">Maio</option>
+                                            <option value="6">Junho</option>
+                                            <option value="7">Julho</option>
+                                            <option value="8">Agosto</option>
+                                            <option value="9">Setembro</option>
+                                            <option value="10">Outubro</option>
+                                            <option value="11">Novembro</option>
+                                            <option value="12">Dezembro</option>
+                                        </select>
                                     </div>
-                                    
-                                    <!-- Período de avaliação -->
-                                    <div class="row mb-4">
-                                        <div class="col-12">
-                                            <div class="card custom-card border">
-                                                <div class="card-header bg-light">
-                                                    <h6 class="card-title mb-0">
-                                                        <i class="ri-calendar-line me-2"></i>Período de Avaliação
-                                                    </h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="row">
-                                                        <div class="col-md-6 mb-3 mb-md-0">
-                                                            <label for="evaluationMonthSelect" class="form-label fw-semibold">Mês</label>
-                                                            <select id="evaluationMonthSelect" class="form-select">
-                                                                <option value="1">Janeiro</option>
-                                                                <option value="2">Fevereiro</option>
-                                                                <option value="3">Março</option>
-                                                                <option value="4">Abril</option>
-                                                                <option value="5">Maio</option>
-                                                                <option value="6">Junho</option>
-                                                                <option value="7">Julho</option>
-                                                                <option value="8">Agosto</option>
-                                                                <option value="9">Setembro</option>
-                                                                <option value="10">Outubro</option>
-                                                                <option value="11">Novembro</option>
-                                                                <option value="12">Dezembro</option>
-                                                            </select>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <label for="evaluationYearSelect" class="form-label fw-semibold">Ano</label>
-                                                            <select id="evaluationYearSelect" class="form-select">
-                                                                <!-- Será preenchido via JavaScript -->
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Ano</label>
+                                        <select id="evaluationYearSelect" class="form-select">
+                                            <!-- Anos serão preenchidos dinamicamente -->
+                                        </select>
                                     </div>
-                                    
-                                    <!-- Tabela de avaliação -->
-                                    <div class="row mb-4">
-                                        <div class="col-12">
-                                            <div class="card custom-card">
-                                                <div class="card-header">
-                                                    <h6 class="card-title mb-0">
-                                                        <i class="ri-list-check me-2"></i>Controle Mensal do Gestor
-                                                    </h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-bordered">
-                                                            <thead class="table-primary">
-                                                                <tr>
-                                                                    <th style="width: 40%">Fatores</th>
-                                                                    <th>Ótimo</th>
-                                                                    <th>Bom</th>
-                                                                    <th>Regular</th>
-                                                                    <th>Ruim</th>
-                                                                    <th>Péssimo</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td>Assiduidade (comparece ao trabalho sem faltas)</td>
-                                                                    <td class="text-center"><input type="radio" name="attendance" id="attendance5" value="5" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="attendance" id="attendance4" value="4" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="attendance" id="attendance3" value="3" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="attendance" id="attendance2" value="2" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="attendance" id="attendance1" value="1" class="form-check-input"></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Pontualidade (Comparece ao trabalho sempre no horário)</td>
-                                                                    <td class="text-center"><input type="radio" name="punctuality" id="punctuality5" value="5" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="punctuality" id="punctuality4" value="4" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="punctuality" id="punctuality3" value="3" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="punctuality" id="punctuality2" value="2" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="punctuality" id="punctuality1" value="1" class="form-check-input"></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Trabalho em equipe</td>
-                                                                    <td class="text-center"><input type="radio" name="teamwork" id="teamwork5" value="5" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="teamwork" id="teamwork4" value="4" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="teamwork" id="teamwork3" value="3" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="teamwork" id="teamwork2" value="2" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="teamwork" id="teamwork1" value="1" class="form-check-input"></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Criatividade (capacidade de inovar)</td>
-                                                                    <td class="text-center"><input type="radio" name="creativity" id="creativity5" value="5" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="creativity" id="creativity4" value="4" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="creativity" id="creativity3" value="3" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="creativity" id="creativity2" value="2" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="creativity" id="creativity1" value="1" class="form-check-input"></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Produção (Realiza o trabalho solicitado)</td>
-                                                                    <td class="text-center"><input type="radio" name="productivity" id="productivity5" value="5" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="productivity" id="productivity4" value="4" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="productivity" id="productivity3" value="3" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="productivity" id="productivity2" value="2" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="productivity" id="productivity1" value="1" class="form-check-input"></td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>Resolução de problemas</td>
-                                                                    <td class="text-center"><input type="radio" name="problem_solving" id="problem_solving5" value="5" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="problem_solving" id="problem_solving4" value="4" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="problem_solving" id="problem_solving3" value="3" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="problem_solving" id="problem_solving2" value="2" class="form-check-input"></td>
-                                                                    <td class="text-center"><input type="radio" name="problem_solving" id="problem_solving1" value="1" class="form-check-input"></td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Colaborador</label>
+                                        <span id="evaluationCollaboratorName" class="fw-bold"></span>
                                     </div>
-                                    
-                                    <!-- Observações -->
-                                    <div class="row mb-4">
-                                        <div class="col-12">
-                                            <div class="card custom-card">
-                                                <div class="card-header">
-                                                    <h6 class="card-title mb-0">
-                                                        <i class="ri-file-text-line me-2"></i>Observações do Gestor
-                                                    </h6>
-                                                </div>
-                                                <div class="card-body">
-                                                    <textarea id="evaluationComments" class="form-control" rows="5" 
-                                                              placeholder="Insira suas observações sobre o desempenho do colaborador neste período..."></textarea>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div id="factorsContainer">
+                                        <!-- Fatores serão carregados dinamicamente -->
                                     </div>
-                                    
-                                    <!-- Botões de ação -->
-                                    <div class="row">
-                                        <div class="col-12 d-flex justify-content-end">
-                                            <button type="button" class="btn btn-secondary me-2" onclick="window.close()">
-                                                <i class="ri-close-line me-1"></i>Cancelar
-                                            </button>
-                                            <button type="button" id="btnSaveEvaluation" class="btn btn-primary">
-                                                <i class="ri-save-line me-1"></i>Salvar Avaliação
-                                            </button>
-                                        </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Observações</label>
+                                        <textarea id="evaluationComments" class="form-control" rows="3"></textarea>
+                                    </div>
+                                    <div class="text-end">
+                                        <button type="button" class="btn btn-primary" id="btnSaveEvaluation">Salvar Avaliação</button>
                                     </div>
                                 </form>
                             </div>

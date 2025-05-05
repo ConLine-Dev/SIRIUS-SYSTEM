@@ -1,0 +1,17 @@
+/* Permite clicar no nome do arquivo do FilePond */
+.filepond--file-info-main {
+    pointer-events: auto !important;
+    cursor: pointer;
+    /* text-decoration: underline dotted; */
+}
+
+/* Corrige o FilePond para permitir clique no nome do arquivo e ícones */
+.filepond--file-info {
+    pointer-events: auto !important;
+}
+.filepond--file-info-main,
+.filepond--file-info-link,
+.filepond--download-icon {
+    pointer-events: auto !important;
+    cursor: pointer !important;
+} 

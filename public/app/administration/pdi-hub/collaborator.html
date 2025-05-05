@@ -30,9 +30,14 @@
     
     <!-- Choices Css -->
     <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+
+    <link href="https://unpkg.com/filepond@^4/dist/filepond.min.css" rel="stylesheet" />
+    <link href="https://unpkg.com/filepond-plugin-get-file/dist/filepond-plugin-get-file.min.css" rel="stylesheet" />
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./assets/css/styles.css">
+
+    <link rel="stylesheet" href="./assets/css/custom.css">
     
     <meta http-equiv="imagetoolbar" content="no">
 </head>
@@ -133,10 +138,10 @@
                             </div>
                             <div class="card-body">
                                 <div class="rating-scale">
-                                    <div class="rating-scale-background">
+                                    <!-- <div class="rating-scale-background">
                                         <h6 class="text-center mb-3 text-muted">Escala de Avaliação</h6>
                                         <div class="rating-scale-gauge"></div>
-                                    </div>
+                                    </div> -->
                                     
                                     <div class="rating-scale-items">
                                         <div class="rating-item" data-level="Estacionado">
@@ -249,6 +254,9 @@
                                         <h5 class="card-title mb-0">
                                             <i class="ri-todo-line me-2"></i>Planos e Ações
                                         </h5>
+                                        <button id="btnAddAction" class="btn btn-success d-none">
+                                          <i class="ri-add-line"></i> Adicionar Ação
+                                        </button>
                                     </div>
                                     <div class="card-body">
                                         <div class="table-responsive">
@@ -478,18 +486,24 @@
                             <p id="actionDeadline" class="form-control-plaintext"></p>
                         </div>
                         
+                        
                         <div class="mb-3">
                             <label for="actionStatus" class="form-label">Status</label>
                             <select class="form-select" id="actionStatus" name="status" required>
                                 <option value="Pendente">Pendente</option>
                                 <option value="Em Andamento">Em Andamento</option>
-                                <option value="Concluído">Concluído</option>
+                                <option disabled value="Concluído">Concluído</option>
                             </select>
                         </div>
                         
+                        
                         <div id="completionDateSection" class="mb-3 d-none">
                             <label for="completionDate" class="form-label">Data de Conclusão</label>
-                            <input type="date" class="form-control" id="completionDate" name="completion_date">
+                            <input disabled type="date" class="form-control" id="completionDate" name="completion_date">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Anexos</label>
+                            <input type="file" id="actionAttachment" name="actionAttachment" multiple />
                         </div>
                     </form>
                 </div>
@@ -499,6 +513,34 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Modal Nova Ação -->
+    <div class="modal fade" id="addActionModal" tabindex="-1" aria-labelledby="addActionModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addActionModalLabel">Adicionar Nova Ação</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+          </div>
+          <div class="modal-body">
+            <form id="addActionForm">
+              <div class="mb-3">
+                <label for="newActionDescription" class="form-label">Descrição da Ação</label>
+                <input type="text" class="form-control" id="newActionDescription" name="description" required maxlength="255">
+              </div>
+              <div class="mb-3">
+                <label for="newActionDeadline" class="form-label">Prazo</label>
+                <input type="date" class="form-control" id="newActionDeadline" name="deadline" required>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary" id="btnSaveNewAction">Salvar</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Scripts -->
@@ -514,7 +556,10 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     
-    <!-- Custom JS -->
+    <!-- Adicionar FilePond CSS/JS e plugin de download -->
+
+    <script src="https://unpkg.com/filepond@^4/dist/filepond.min.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-get-file/dist/filepond-plugin-get-file.min.js"></script>
     <script src="./assets/js/collaborator.js"></script>
 
     <script>

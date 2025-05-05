@@ -7,6 +7,8 @@ let actionCounter = 0;
 let actionsToDelete = [];
 let profileChartInstance = null;
 let evaluationsChartInstance = null;
+let allGlobalActions = [];
+let allRecentEvaluations = [];
 
 // Esperar o documento carregar
 document.addEventListener('DOMContentLoaded', function() {
@@ -29,6 +31,11 @@ document.addEventListener('DOMContentLoaded', function() {
             dashboardIndicators.dataset.loaded = 'true';
         }
     }
+
+    // Carregar lista de ações globais ao iniciar a página
+    setTimeout(() => {
+        loadGlobalActionsList('', '');
+    }, 500);
 });
 
 // Configurar os listeners de eventos
@@ -270,37 +277,47 @@ function renderMonthlyEvaluationsChart(data) {
 
 // Renderizar avaliações recentes
 function renderRecentEvaluations(evaluations) {
+    allRecentEvaluations = evaluations || [];
     const tableBody = document.getElementById('recentEvaluationsList');
     const noEvaluations = document.getElementById('noRecentEvaluations');
-    
+    const filterSelect = document.getElementById('filterColaborador');
+
+    // Preencher filtro de colaborador
+    if (filterSelect) {
+        const uniqueNames = [...new Set(allRecentEvaluations.map(e => e.collaborator_name))];
+        const currentValue = filterSelect.value;
+        filterSelect.innerHTML = '<option value="">Todos</option>' + uniqueNames.map(name => `<option value="${name}">${name}</option>`).join('');
+        filterSelect.value = currentValue || '';
+    }
+
+    function getFilteredEvaluations() {
+        if (!filterSelect || !filterSelect.value) return allRecentEvaluations;
+        return allRecentEvaluations.filter(e => e.collaborator_name === filterSelect.value);
+    }
+
+    if (filterSelect && !filterSelect._listenerAdded) {
+        filterSelect.addEventListener('change', () => {
+            renderRecentEvaluations(getFilteredEvaluations());
+        });
+        filterSelect._listenerAdded = true;
+    }
+
+    const evaluationsToShow = getFilteredEvaluations();
     tableBody.innerHTML = '';
-    
-    if (!evaluations || evaluations.length === 0) {
+    if (!evaluationsToShow || evaluationsToShow.length === 0) {
         noEvaluations.classList.remove('d-none');
         return;
     }
-    
     noEvaluations.classList.add('d-none');
-    
-    evaluations.forEach(evaluation => {
+    evaluationsToShow.forEach(evaluation => {
         const row = document.createElement('tr');
         
-        // Calcular média
-        const ratings = [
-            evaluation.attendance || 0,
-            evaluation.punctuality || 0,
-            evaluation.teamwork || 0,
-            evaluation.creativity || 0,
-            evaluation.productivity || 0,
-            evaluation.problem_solving || 0
-        ];
-        
-        const validRatings = ratings.filter(r => r > 0);
-        const average = validRatings.length > 0 
-            ? (validRatings.reduce((sum, r) => sum + parseInt(r), 0) / validRatings.length).toFixed(1)
-            : 'N/A';
-        
-        // Definir a classe de cor com base na média
+        // Usar a média pronta do backend
+        const average = (typeof evaluation.media === 'number') ? evaluation.media.toFixed(2)
+                       : (typeof evaluation.average_score === 'number') ? evaluation.average_score.toFixed(2)
+                       : (typeof evaluation.score === 'number') ? evaluation.score.toFixed(2)
+                       : 'N/A';
+        // Badge de cor
         let badgeClass = 'bg-secondary';
         if (average !== 'N/A') {
             const avgNum = parseFloat(average);
@@ -309,13 +326,17 @@ function renderRecentEvaluations(evaluations) {
             else if (avgNum >= 2.5) badgeClass = 'bg-warning';
             else badgeClass = 'bg-danger';
         }
-        
-        // Formatar período avaliado
-        const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
-                          'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        // Período avaliado
+        const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         const monthName = monthNames[evaluation.month - 1];
         const period = `${monthName}/${evaluation.year}`;
-        
+        // Botão de ação para abrir avaliação
+        const actionBtn = `
+            <button type="button" class="btn btn-sm btn-outline-primary" title="Visualizar Avaliação"
+                onclick="openEvaluationWindowFromCoordinator(${evaluation.pdi_id}, ${evaluation.month}, ${evaluation.year}, '${encodeURIComponent(evaluation.collaborator_name)}')">
+                <i class=\"ri-eye-line\"></i>
+            </button>
+        `;
         row.innerHTML = `
             <td>
                 <div class="d-flex align-items-center">
@@ -332,6 +353,7 @@ function renderRecentEvaluations(evaluations) {
             <td><span class="badge ${badgeClass}">${average}</span></td>
             <td>${evaluation.supervisor_name}</td>
             <td>${formatDate(evaluation.created_at)}</td>
+            <td>${actionBtn}</td>
         `;
         
         tableBody.appendChild(row);
@@ -425,7 +447,7 @@ async function loadPDIList() {
                         <button type="button" class="btn btn-sm btn-primary" onclick="viewPDI(${pdi.id}, ${pdi.collaborator_id})">
                             <i class="ri-eye-line"></i>
                         </button>
-                        <button type="button" class="btn btn-sm btn-warning" onclick="editPDI(${pdi.id})">
+                        <button type="button" class="btn btn-sm btn-warning" onclick="openEditPDIWindow(${pdi.id})">
                             <i class="ri-edit-line"></i>
                         </button>
                         <button type="button" class="btn btn-sm btn-danger" onclick="deletePDI(${pdi.id})">
@@ -771,8 +793,8 @@ function resetPDIForm() {
 // Formatar data para exibição
 function formatDate(dateString) {
     if (!dateString) return '-';
-    
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '-';
     return new Intl.DateTimeFormat('pt-BR').format(date);
 }
 
@@ -905,4 +927,198 @@ function filterPDIsByStatus() {
             emptyMessage.classList.add('d-none');
         }
     }
+}
+
+// ==================== AÇÕES DOS PDIs (GLOBAL) ====================
+
+async function loadGlobalActionsList(status = '', collaborator = '') {
+    try {
+        showLoader();
+        // Buscar todas as ações, sem filtro de status
+        const response = await fetch(`/api/pdi-hub/getAllActionsGlobal`);
+        const result = await response.json();
+        hideLoader();
+        allGlobalActions = result.success ? result.data : [];
+        populateCollaboratorFilterIndex(allGlobalActions);
+        renderGlobalActionsList(filterGlobalActions(allGlobalActions, status, collaborator));
+    } catch (error) {
+        hideLoader();
+        renderGlobalActionsList([]);
+    }
+}
+
+function populateCollaboratorFilterIndex(actions) {
+    const collaboratorFilter = document.getElementById('collaboratorFilterIndex');
+    if (!collaboratorFilter) return;
+    const uniqueNames = [...new Set(actions.map(a => a.collaborator_name).filter(Boolean))];
+    const currentValue = collaboratorFilter.value;
+    collaboratorFilter.innerHTML = '<option value="">Todos</option>' +
+        uniqueNames.map(name => `<option value="${name}">${name}</option>`).join('');
+    collaboratorFilter.value = currentValue;
+}
+
+function filterGlobalActions(actions, status, collaborator) {
+    return actions.filter(action => {
+        let matchStatus = true;
+        let matchCollaborator = true;
+        if (status && status !== '' && status !== 'Todos') {
+            if (status === 'Atrasado') {
+                // Atrasado: prazo passou e não está concluído/cancelado
+                const deadlineDate = new Date(action.deadline);
+                matchStatus = (action.status !== 'Concluído' && action.status !== 'Cancelado' && deadlineDate < new Date());
+            } else {
+                let displayStatus = action.status;
+                if (displayStatus !== 'Concluído' && displayStatus !== 'Cancelado') {
+                    const deadlineDate = new Date(action.deadline);
+                    if (deadlineDate < new Date()) {
+                        displayStatus = 'Atrasado';
+                    }
+                }
+                matchStatus = displayStatus === status;
+            }
+        }
+        if (collaborator && collaborator !== '') {
+            matchCollaborator = action.collaborator_name === collaborator;
+        }
+        return matchStatus && matchCollaborator;
+    });
+}
+
+function renderGlobalActionsList(actions) {
+    const actionsListElement = document.getElementById('actionsListIndex');
+    const noActions = document.getElementById('noActionsIndex');
+    actionsListElement.innerHTML = '';
+    if (!actions || actions.length === 0) {
+        noActions.classList.remove('d-none');
+        return;
+    }
+    noActions.classList.add('d-none');
+    const today = new Date();
+    actions.forEach(action => {
+        const row = document.createElement('tr');
+        let displayStatus = action.status;
+        if (displayStatus !== 'Concluído' && displayStatus !== 'Cancelado') {
+            const deadlineDate = new Date(action.deadline);
+            if (deadlineDate < today) {
+                displayStatus = 'Atrasado';
+            }
+        }
+        row.innerHTML = `
+            <td>${action.collaborator_name}</td>
+            <td>${action.description}</td>
+            <td>${formatDate(action.deadline)}</td>
+            <td><span class="badge ${getStatusClass(displayStatus)}">${displayStatus}</span></td>
+            <td>${action.completion_date ? formatDate(action.completion_date) : '-'}</td>
+        `;
+        // Ao clicar na linha, abrir o modal de visualização
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', function() {
+            openViewActionModal(action.id);
+        });
+        actionsListElement.appendChild(row);
+    });
+}
+
+async function openViewActionModal(actionId) {
+    try {
+        // Buscar dados completos da ação
+        const response = await fetch(`/api/pdi-hub/getActionById?actionId=${actionId}`);
+        const result = await response.json();
+        if (!result.success || !result.data) {
+            Swal.fire('Erro', 'Não foi possível carregar os detalhes da ação.', 'error');
+            return;
+        }
+        const action = result.data;
+        // Buscar nome do colaborador (se não vier na ação, buscar na lista já carregada)
+        let collaboratorName = action.collaborator_name;
+        if (!collaboratorName) {
+            // Tenta encontrar na lista já carregada
+            const found = allGlobalActions.find(a => a.id == actionId);
+            collaboratorName = found ? found.collaborator_name : '-';
+        }
+        // Adicionar campo do colaborador no modal (se não existir)
+        let collaboratorField = document.getElementById('viewActionCollaborator');
+        if (!collaboratorField) {
+            const descField = document.getElementById('viewActionDescription');
+            const dt = document.createElement('dt');
+            dt.className = 'col-sm-4';
+            dt.textContent = 'Colaborador';
+            const dd = document.createElement('dd');
+            dd.className = 'col-sm-8';
+            dd.id = 'viewActionCollaborator';
+            dd.textContent = collaboratorName;
+            descField.parentNode.insertBefore(dt, descField);
+            descField.parentNode.insertBefore(dd, descField);
+        } else {
+            collaboratorField.textContent = collaboratorName;
+        }
+        document.getElementById('viewActionDescription').textContent = action.description || '-';
+        document.getElementById('viewActionDeadline').textContent = formatDate(action.deadline);
+        document.getElementById('viewActionStatus').textContent = action.status || '-';
+        document.getElementById('viewActionCompletionDate').textContent = action.completion_date ? formatDate(action.completion_date) : '-';
+        // Anexos
+        const attachmentsContainer = document.getElementById('viewActionAttachments');
+        let attachments = action.attachment || [];
+        if (typeof attachments === 'string') {
+            try {
+                attachments = JSON.parse(attachments);
+            } catch (e) {
+                attachments = attachments ? [attachments] : [];
+            }
+        }
+        if (attachments && attachments.length > 0) {
+            attachmentsContainer.innerHTML = `
+                <ul class="list-group list-group-flush">
+                    ${attachments.map(filename => `
+                        <li class="list-group-item d-flex align-items-center justify-content-between px-2 py-2">
+                            <div class="d-flex align-items-center flex-grow-1">
+                                <i class="ri-attachment-2 text-primary me-2 fs-5"></i>
+                                <span class="text-break text-truncate" style="max-width: 220px;" title="${filename}">${filename}</span>
+                            </div>
+                            <div class="d-flex align-items-center ms-2">
+                                <a href="/uploads/pdi-hub/attachment_actions/${filename}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary me-1" title="Abrir em nova aba">
+                                    <i class="ri-eye-line"></i>
+                                </a>
+                                <a href="/uploads/pdi-hub/attachment_actions/${filename}" download class="btn btn-sm btn-outline-success" title="Baixar">
+                                    <i class="ri-download-2-line"></i>
+                                </a>
+                            </div>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        } else {
+            attachmentsContainer.textContent = 'Nenhum anexo';
+        }
+        // Abrir modal
+        const modal = new bootstrap.Modal(document.getElementById('viewActionModal'));
+        modal.show();
+    } catch (error) {
+        Swal.fire('Erro', 'Erro ao carregar detalhes da ação.', 'error');
+    }
+}
+
+// Listeners dos filtros de ações globais
+const actionStatusFilterIndex = document.getElementById('actionStatusFilterIndex');
+const collaboratorFilterIndex = document.getElementById('collaboratorFilterIndex');
+if (actionStatusFilterIndex && collaboratorFilterIndex) {
+    actionStatusFilterIndex.addEventListener('change', function() {
+        loadGlobalActionsList(this.value, collaboratorFilterIndex.value);
+    });
+    collaboratorFilterIndex.addEventListener('change', function() {
+        loadGlobalActionsList(actionStatusFilterIndex.value, this.value);
+    });
+}
+
+// Adicionar função global para abrir a edição em nova janela
+function openEditPDIWindow(id) {
+    const url = 'edit-pdi.html?id=' + id;
+    const windowFeatures = 'width=1000,height=800,resizable=yes,scrollbars=yes';
+    window.open(url, '_blank', windowFeatures);
+}
+
+// Função global para abrir avaliação em nova janela/aba
+function openEvaluationWindowFromCoordinator(pdiId, month, year, collaboratorName) {
+    const url = `evaluation.html?pdi_id=${pdiId}&collaborator_name=${collaboratorName}&month=${month}&year=${year}`;
+    window.open(url, '_blank', 'width=800,height=800,resizable=yes,scrollbars=yes');
 }

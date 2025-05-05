@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="color-scheme" content="light">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Apresentação do Módulo de PDI - Sirius | ConLine</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; background: #f8f9fa; color: #222; }
+        .capa-pro { position: relative; height: 520px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; overflow: hidden; margin-bottom: 32px; }
+        .capa-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #e31b23 0%, #fff 100%); z-index: 1; }
+        .capa-logo { width: 180px; z-index: 2; margin-bottom: 18px; filter: drop-shadow(0 4px 16px #0005); }
+        .capa-titulo { font-size: 3.2rem; font-weight: bold; letter-spacing: 3px; z-index: 2; text-shadow: 0 2px 8px #0006; }
+        .capa-subtitulo { font-size: 1.5rem; z-index: 2; margin: 8px 0 0 0; text-align: center; text-shadow: 0 1px 4px #0004; }
+        .capa-subtitulo span { font-size: 1.1rem; color: #fffbe6; }
+        .capa-empresa { font-size: 1.2rem; font-weight: 500; margin-top: 18px; z-index: 2; letter-spacing: 1px; }
+        .capa-slogan { font-size: 1.1rem; color: #fffbe6; margin-top: 8px; z-index: 2; }
+        .capa-rodape { position: absolute; bottom: 18px; right: 32px; font-size: 1rem; color: #fffbe6; z-index: 2; }
+        .sumario { background: #fff; padding: 32px 48px 24px 48px; margin-bottom: 24px; border-bottom: 1px solid #eee; }
+        .sumario h2 { margin-top: 0; }
+        .sumario ul { list-style: none; padding-left: 0; }
+        .sumario li { margin-bottom: 8px; }
+        .sumario a { color: #e31b23; text-decoration: none; }
+        .sumario a:hover { text-decoration: underline; }
+        .section { background: #fff; margin: 32px auto; padding: 32px 48px; max-width: 900px; border-radius: 8px; box-shadow: 0 2px 8px #0001; }
+        h2 { color: #e31b23; font-size: 2.1rem; margin-top: 0; }
+        h3 { color: #e31b23; font-size: 1.3rem; margin-bottom: 0.5em; }
+        table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+        th, td { border: 1px solid #ccc; padding: 8px 12px; text-align: left; }
+        th { background: #f1f1f1; }
+        .mermaid, pre.codeblock { background: #f8f8f8; border: 1px dashed #aaa; padding: 12px; margin: 16px 0; font-family: monospace; color: #222; white-space: pre; overflow-x: auto; }
+        .destaque { background: #fbeee6; border-left: 4px solid #e31b23; padding: 12px 18px; margin: 18px 0; font-size: 1.1em; }
+        .box-mvv { background: #e31b23; color: #fff; border-radius: 10px; padding: 24px 32px; margin: 24px 0; box-shadow: 0 2px 8px #0001; }
+        .box-mvv h3 { color: #fff; margin-top: 0; }
+        .box-politica { background: #fff3f0; border-left: 6px solid #e31b23; border-radius: 8px; padding: 20px 28px; margin: 24px 0; }
+        .footer { text-align: center; color: #888; font-size: 1em; margin: 32px 0 12px 0; }
+        .slogan { color: #e31b23; font-weight: bold; font-size: 1.1em; margin-top: 8px; }
+        .formula-box { display: flex; align-items: center; background: #fff6f0; border-left: 5px solid #e31b23; padding: 10px 18px; margin: 18px 0; font-family: 'Fira Mono', 'Consolas', monospace; font-size: 1.13em; color: #222; }
+        .formula-icon { font-size: 1.5em; color: #e31b23; margin-right: 12px; font-weight: bold; }
+        
+        /* Estilo do botão de impressão */
+        .print-button-container { text-align: center; margin: 20px 0; }
+        #print-button {
+            background-color: #e31b23;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        #print-button:hover {
+            background-color: #c01820;
+        }
+        
+        /* Estilos específicos para impressão */
+        @media print {
+            /* Esconder botão de impressão */
+            .print-button-container { display: none; }
+            
+            body { background: white; color: black; margin: 0; padding: 0; }
+            
+            /* Forçar cores na impressão */
+            h2, h3 { color: #e31b23 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .sumario a { color: #e31b23 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .slogan { color: #e31b23 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            
+            /* Manter fundos coloridos */
+            .capa-bg { background: linear-gradient(135deg, #e31b23 0%, #fff 100%) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .box-mvv { background: #e31b23 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .box-mvv h3 { color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .box-politica { background: #fff3f0 !important; border-left: 6px solid #e31b23 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .destaque { background: #fbeee6 !important; border-left: 4px solid #e31b23 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .formula-box { background: #fff6f0 !important; border-left: 5px solid #e31b23 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .formula-icon { color: #e31b23 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            th { background: #f1f1f1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            
+            /* Ajustes para a capa */
+            .capa-pro { height: auto; min-height: 500px; page-break-after: always; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .capa-subtitulo span, .capa-slogan, .capa-rodape { color: #fffbe6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            
+            /* Remove sombras e ajusta outras propriedades para impressão */
+            .section { box-shadow: none; border: 1px solid #eee; margin: 20px auto; page-break-inside: avoid; }
+            
+            /* Controle de quebra de página */
+            h2 { page-break-after: avoid; }
+            h3 { page-break-after: avoid; }
+            table { page-break-inside: avoid; }
+            ul, ol { page-break-inside: avoid; }
+            .box-mvv, .box-politica, .formula-box { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="capa-pro">
+        <div class="capa-bg"></div>
+        <div class="capa-titulo">SIRIUS</div>
+        <div class="capa-subtitulo">Módulo de PDI<br><span>Plano de Desenvolvimento Individual</span></div>
+        <div class="capa-empresa">ConLine</div>
+        <div class="capa-slogan">Próximos deixamos os limites distantes</div>
+        <div class="capa-rodape">2024 • v1.0</div>
+    </div>
+    
+    <div class="print-button-container">
+        <button id="print-button" onclick="window.print()">Imprimir Apresentação</button>
+    </div>
+    
+    <div class="sumario">
+        <h2>Sumário</h2>
+        <ul>
+            <li><a href="#institucional">1. Apresentação Institucional</a></li>
+            <li><a href="#missao">2. Missão, Visão, Valores e Política</a></li>
+            <li><a href="#visao-geral">3. Visão Geral do Módulo de PDI</a></li>
+            <li><a href="#funcionalidades">4. Funcionalidades Principais</a></li>
+            <li><a href="#fluxo">5. Fluxo de Uso (Passo a Passo)</a></li>
+            <li><a href="#telas">6. Telas do Sistema</a></li>
+            <li><a href="#acesso">7. Níveis de Acesso e Permissões</a></li>
+            <li><a href="#avaliacoes">8. Avaliações Mensais e Cálculo de Níveis</a></li>
+            <li><a href="#acoes">9. Gestão de Ações do PDI</a></li>
+            <li><a href="#indicadores">10. Indicadores e Dashboards</a></li>
+            <li><a href="#fluxogramas">11. Fluxogramas dos Principais Processos</a></li>
+            <li><a href="#diferenciais">12. Diferenciais do Sistema</a></li>
+            <li><a href="#conclusao">13. Conclusão</a></li>
+        </ul>
+    </div>
+    <div class="section" id="institucional">
+        <h2>1. Apresentação Institucional</h2>
+        <p>A ConLine é referência em soluções logísticas, facilitando a operação global de seus clientes de maneira personalizada, flexível e ágil. Atua com excelência, ética e inovação, promovendo o desenvolvimento sustentável e o crescimento dos seus colaboradores, parceiros e clientes.</p>
+    </div>
+    <div class="section" id="missao">
+        <h2>2. Missão, Visão, Valores e Política</h2>
+        <div class="box-mvv">
+            <h3>Missão</h3>
+            <p>Facilitar a operação logística global de maneira personalizada, flexível e ágil.</p>
+            <h3>Visão</h3>
+            <p>Ser reconhecido como um dos principais agentes de carga a nível nacional.</p>
+            <h3>Valores / Cultura da empresa</h3>
+            <ul>
+                <li>Ética</li>
+                <li>Proatividade</li>
+                <li>Capacidade de construir bons relacionamentos</li>
+                <li>Resiliência</li>
+                <li>Sentimento de dono</li>
+            </ul>
+        </div>
+        <div class="box-politica">
+            <b>Política de empresa:</b><br>
+            A Conline se compromete em manter a prestação de serviços logísticos com qualidade e segurança, atendendo os requisitos dos seus clientes em conformidade com os requisitos legais aplicáveis, aprimorando continuamente os processos, e ao mesmo tempo, preservando a lucratividade e a sustentabilidade do negócio. Para isso, é imprescindível o desenvolvimento profissional dos colaboradores e parceiros estratégicos.<br>
+            <span style="font-size:0.95em; color:#888;">(Rev01 de 10/07/23).</span>
+        </div>
+    </div>
+    <div class="section" id="visao-geral">
+        <h2>3. Visão Geral do Módulo de PDI</h2>
+        <p>O módulo de PDI do sistema Sirius é uma solução completa para a gestão do desenvolvimento individual dos colaboradores, permitindo o acompanhamento de planos, ações, avaliações e resultados, promovendo o crescimento profissional alinhado aos objetivos estratégicos da empresa.</p>
+    </div>
+    <div class="section" id="funcionalidades">
+        <h2>4. Funcionalidades Principais</h2>
+        <ul>
+            <li>Criação, edição e exclusão de PDIs</li>
+            <li>Cadastro e acompanhamento de ações de desenvolvimento</li>
+            <li>Avaliações mensais com fatores personalizados e pesos</li>
+            <li>Histórico completo de avaliações e ações</li>
+            <li>Dashboards e indicadores gerenciais</li>
+            <li>Notificações automáticas por e-mail</li>
+            <li>Controle de permissões por perfil de acesso</li>
+            <li>Filtros dinâmicos por colaborador, status, período, etc.</li>
+        </ul>
+    </div>
+    <div class="section" id="fluxo">
+        <h2>5. Fluxo de Uso (Passo a Passo)</h2>
+        <h3>Supervisor/Coordenador</h3>
+        <ol>
+            <li>Acessa o dashboard e visualiza indicadores dos PDIs sob sua responsabilidade.</li>
+            <li>Cria um novo PDI para um colaborador, preenchendo dados e objetivos.</li>
+            <li>Adiciona ações ao PDI, definindo prazos e responsáveis.</li>
+            <li>Acompanha o progresso das ações e do PDI.</li>
+            <li>Realiza avaliações mensais dos colaboradores.</li>
+            <li>Consulta o histórico de avaliações e evolução dos colaboradores.</li>
+            <li>Recebe notificações sobre conclusões de ações e PDIs.</li>
+        </ol>
+        <h3>Colaborador</h3>
+        <ol>
+            <li>Visualiza seus próprios PDIs e ações atribuídas.</li>
+            <li>Acompanha o status de cada ação e pode anexar evidências.</li>
+            <li>Recebe feedbacks e avaliações do supervisor.</li>
+            <li>Consulta o histórico de avaliações e seu progresso individual.</li>
+        </ol>
+    </div>
+    <div class="section" id="telas">
+        <h2>6. Telas do Sistema</h2>
+        <ul>
+            <li><b>Dashboard Principal:</b> Indicadores gerais, gráficos, tabelas de avaliações e ações, filtros dinâmicos.</li>
+            <li><b>Gestão do Supervisor/Coordenador:</b> Indicadores específicos, tabelas de avaliações e ações sob sua responsabilidade, filtros.</li>
+            <li><b>Tela do Colaborador:</b> Visualização dos próprios PDIs, histórico de avaliações, anexação de evidências.</li>
+            <li><b>Tela de Avaliação Mensal:</b> Formulário dinâmico para avaliação dos fatores do PDI, registro de comentários.</li>
+            <li><b>Tela de Criação/Edição de PDI:</b> Cadastro e edição dos dados do PDI, adição e edição de ações.</li>
+        </ul>
+    </div>
+    <div class="section" id="acesso">
+        <h2>7. Níveis de Acesso e Permissões</h2>
+        <table>
+            <tr>
+                <th>Perfil</th>
+                <th>Visualiza</th>
+                <th>Cria/edita PDI</th>
+                <th>Avalia</th>
+                <th>Anexa Evidências</th>
+                <th>Gerencia Ações</th>
+                <th>Recebe Notificações</th>
+            </tr>
+            <tr>
+                <td>Supervisor/Coordenador</td>
+                <td>✔</td>
+                <td>✔</td>
+                <td>✔</td>
+                <td>✔</td>
+                <td>✔</td>
+                <td>✔</td>
+            </tr>
+            <tr>
+                <td>Colaborador</td>
+                <td>✔</td>
+                <td>✖</td>
+                <td>✖</td>
+                <td>✔</td>
+                <td>✖</td>
+                <td>✔</td>
+            </tr>
+            <tr>
+                <td>Administrador</td>
+                <td>✔</td>
+                <td>✔</td>
+                <td>✔</td>
+                <td>✔</td>
+                <td>✔</td>
+                <td>✔</td>
+            </tr>
+        </table>
+    </div>
+    <div class="section" id="avaliacoes">
+        <h2>8. Avaliações Mensais e Cálculo de Níveis</h2>
+        <ul>
+            <li><b>Fatores de Avaliação:</b> Personalizáveis por PDI (ex: Comunicação, Proatividade).</li>
+            <li><b>Notas:</b> Ótimo (5), Bom (4), Regular (3), Ruim (2), Péssimo (1).</li>
+            <li><b>Peso dos Fatores:</b> Cada fator pode ter peso diferente.</li>
+            <li><b>Cálculo da Média Ponderada:</b></li>
+        </ul>
+        <div class="formula-box"><span class="formula-icon">∑</span><span class="formula-text">Média = (Soma das notas × peso de cada fator) / Soma dos pesos</span></div>
+        <ul>
+            <li><b>Níveis de Desempenho:</b>
+                <ul>
+                    <li>Estacionado: 0 a 39,99%</li>
+                    <li>Ajustando a Rota: 40 a 69,99%</li>
+                    <li>Na Rota: 70 a 89,99%</li>
+                    <li>Brilhou na Entrega: 90 a 99,99%</li>
+                    <li>Voando Alto: 100 a 120%</li>
+                </ul>
+            </li>
+            <li><b>Percentual:</b></li>
+        </ul>
+        <div class="formula-box"><span class="formula-icon">%</span><span class="formula-text">Percentual = (Média / 5) × 100</span></div>
+    </div>
+    <div class="section" id="acoes">
+        <h2>9. Gestão de Ações do PDI</h2>
+        <ul>
+            <li>Cadastro de ações com descrição, prazo e status.</li>
+            <li>Status: Pendente, Em Andamento, Concluído, Cancelado, Atrasado.</li>
+            <li>Conclusão pode exigir anexos/evidências.</li>
+            <li>Atualização automática do status do PDI conforme progresso das ações.</li>
+        </ul>
+    </div>
+    <div class="section" id="indicadores">
+        <h2>10. Indicadores e Dashboards</h2>
+        <ul>
+            <li>Total de PDIs, em andamento, concluídos, atrasados.</li>
+            <li>Distribuição por perfil (gráfico de pizza).</li>
+            <li>Avaliações por período (gráfico de barras).</li>
+            <li>Últimas avaliações (tabela com filtro de colaborador).</li>
+            <li>Ações dos PDIs (tabela com filtros).</li>
+        </ul>
+    </div>
+    <div class="section" id="fluxogramas">
+        <h2>11. Fluxogramas dos Principais Processos</h2>
+        <h3>Fluxo de Criação e Acompanhamento do PDI</h3>
+        <img src="FluxodeCriaçãoeAcompanhamento.png" alt="Fluxograma de Criação e Acompanhamento do PDI" style="max-width:100%;margin:16px 0 24px 0;box-shadow:0 2px 8px #0002;border-radius:8px;">
+        
+        <h3>Fluxo de Avaliação Mensal</h3>
+        <img src="FluxodeAvaliaçãoMensal.png" alt="Fluxograma de Avaliação Mensal" style="max-width:100%;margin:16px 0 24px 0;box-shadow:0 2px 8px #0002;border-radius:8px;">
+       
+    </div>
+    <div class="section" id="diferenciais">
+        <h2>12. Diferenciais do Sistema</h2>
+        <ul>
+            <li>Interface intuitiva e responsiva</li>
+            <li>Filtros dinâmicos e busca rápida</li>
+            <li>Notificações automáticas por e-mail</li>
+            <li>Controle de permissões robusto</li>
+            <li>Histórico completo de avaliações e ações</li>
+            <li>Cálculo transparente de médias e níveis</li>
+            <li>Possibilidade de anexar evidências nas ações</li>
+        </ul>
+    </div>
+    <div class="section" id="conclusao">
+        <h2>13. Conclusão</h2>
+        <p>O módulo de PDI do sistema Sirius, da ConLine, oferece uma solução robusta, flexível e transparente para o desenvolvimento de pessoas, promovendo o crescimento individual e organizacional, com acompanhamento contínuo, avaliações justas e indicadores claros para tomada de decisão.</p>
+    </div>
+    <div class="footer">
+        <p>Apresentação interna do módulo de PDI - Sirius | ConLine &copy; 2025</p>
+        <div class="slogan">Próximos deixamos os limites distantes</div>
+    </div>
+    
+    <script>
+        // Script para melhorar compatibilidade de impressão com cores
+        window.onbeforeprint = function() {
+            // Forçar o navegador a reconhecer as configurações de cor para impressão
+            document.querySelectorAll('[style*="color"]').forEach(function(el) {
+                if (el.style.color) {
+                    el.setAttribute('data-original-color', el.style.color);
+                    el.style.cssText += '; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;';
+                }
+            });
+            
+            document.querySelectorAll('[style*="background"]').forEach(function(el) {
+                if (el.style.background || el.style.backgroundColor) {
+                    el.setAttribute('data-original-bg', el.style.background || el.style.backgroundColor);
+                    el.style.cssText += '; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;';
+                }
+            });
+        };
+        
+        // Função para configurações específicas do Chrome
+        function forceChromePrintColors() {
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @media print {
+                    * {
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                        color-adjust: exact !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Executar a função quando a página carregar
+        window.addEventListener('load', forceChromePrintColors);
+    </script>
+</body>
+</html> 

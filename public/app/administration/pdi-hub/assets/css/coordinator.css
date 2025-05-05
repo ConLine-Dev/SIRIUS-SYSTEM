@@ -1,0 +1,55 @@
+/* CSS específico para a página de PDIs do Supervisor (coordinator.html) */
+
+/* Estendendo os estilos básicos já definidos em styles.css */
+.card-title {
+    font-weight: 600;
+}
+
+/* Badge específico para supervisor - se necessário */
+.badge-supervisor {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.35em 0.65em;
+    border-radius: 0.4rem;
+}
+
+/* Customização para a tabela de PDIs na visão do supervisor */
+#pdiList tr:hover {
+    background-color: rgba(var(--primary-rgb), 0.05);
+    transition: all 0.2s ease;
+}
+
+/* Estilo para botões de ação mais compactos */
+.btn-group .btn-sm {
+    padding: 0.25rem 0.5rem;
+}
+
+/* Responsividade específica para esta página */
+@media (max-width: 576px) {
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    
+    .card-header .d-flex {
+        margin-top: 10px;
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .me-3 {
+        margin-right: 0 !important;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+    
+    #btnNewPDI {
+        width: 100%;
+    }
+    
+    #statusFilter {
+        width: 100%;
+    }
+}
+
+/* Adicione customizações visuais aqui se necessário */ 

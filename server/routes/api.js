@@ -54,6 +54,7 @@ const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
 const Posts = require('./apiPosts');
 const api_zero_based_cost_center = require('./api-zero-based-budgeting');
+const api_procuration_control = require('./api-procuration-control');
 // const Posts = require('./apiPosts');
 
 // Importando as rotas da API user-tracker
@@ -231,6 +232,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-zero-based-budgeting.js
   router.use('/zero-based-budgeting', api_zero_based_cost_center(io));
+
+  // Use as rotas do arquivo api-procuration-control.js
+  router.use('/procuration-control', api_procuration_control(io));
 
   // Adicionar rotas do user-tracker - TEMPORARIAMENTE DESATIVADO
   if (USER_TRACKER_ENABLED) {

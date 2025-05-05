@@ -668,14 +668,130 @@ const emailCustom = {
                         <p><strong>Supervisor/Coordenador:</strong> ${data.supervisor_name || 'Não especificado'}</p>
                     </div>
                     <div style="margin-top: 30px; text-align: center;">
-                        <a href="${process.env.APP_URL || 'https://sirius.conlinebr.com.br'}/app/administration/pdi-hub/collaborator.html" 
-                           style="background-color: #007bff; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">
-                           Acessar Meu PDI
-                        </a>
+                        <p style="font-size: 16px; color: #007bff; font-weight: bold;">Para acessar todas as informações do seu PDI, entre no Sirius e pesquise por <span style='background: #e6f0ff; padding: 2px 6px; border-radius: 4px; font-weight: bold;'>"PDI Hub"</span>.</p>
                     </div>
                     <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eeeeee; font-size: 12px; color: #777777; text-align: center;">
                         <p>Este é um e-mail automático. Por favor, não responda.</p>
-                        <p>© ${new Date().getFullYear()} CONLINE Brasil. Todos os direitos reservados.</p>
+                        <p>© ${new Date().getFullYear()} CONLINE. Todos os direitos reservados.</p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>`;
+    },
+    // Notificação para o supervisor quando uma ação é concluída
+    pdiActionCompletedSupervisor: function(data) {
+        return `<!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9;">
+            <div style="width: 80%; margin: 20px auto; background-color: #ffffff; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                <div style="background-color: #007bff; color: #ffffff; padding: 10px; text-align: center;">
+                    <h1 style="margin: 0;">Ação de PDI Concluída</h1>
+                </div>
+                <div style="padding: 20px;">
+                    <h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+                        Olá ${data.supervisor_name},<br><br>
+                        Uma ação do PDI sob sua supervisão foi concluída.<br>
+                        Veja os detalhes abaixo:
+                    </h4>
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="background-color: #f4f4f9; padding: 10px; border-left: 4px solid #007bff; margin-bottom: 10px;">Detalhes da Ação</h4>
+                        <p><strong>Colaborador:</strong> ${data.collaborator_name}</p>
+                        <p><strong>Descrição da Ação:</strong> ${data.action_description}</p>
+                        <p><strong>Prazo:</strong> ${data.deadline}</p>
+                        <p><strong>Data de Conclusão:</strong> ${data.completion_date}</p>
+                        <p><strong>ID do PDI:</strong> ${data.pdi_id}</p>
+                    </div>
+                    ${data.supervisor_alert ? `<div style="margin-bottom: 20px;"><strong>${data.supervisor_alert}</strong></div>` : ''}
+                    ${(data.pending_actions && data.pending_actions.length > 0) ? `
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="background-color: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; margin-bottom: 10px;">Ações Pendentes deste PDI</h4>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background-color: #f9f9f9;">
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Descrição</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Prazo</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.pending_actions.map(a => `
+                                    <tr>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">${a.description}</td>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">${a.deadline}</td>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">${a.status}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    ` : ''}
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eeeeee; font-size: 12px; color: #777777; text-align: center;">
+                        <p>Este é um e-mail automático. Por favor, não responda.</p>
+                        <p>© ${new Date().getFullYear()} CONLINE. Todos os direitos reservados.</p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>`;
+    },
+
+    // Parabenização ao colaborador pela conclusão da ação
+    pdiActionCompletedCongrats: function(data) {
+        return `<!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9;">
+            <div style="width: 80%; margin: 20px auto; background-color: #ffffff; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                <div style="background-color: #28a745; color: #ffffff; padding: 10px; text-align: center;">
+                    <h1 style="margin: 0;">Parabéns pela Conclusão da Ação!</h1>
+                </div>
+                <div style="padding: 20px;">
+                    <h4 style="background-color: #f4f4f9; padding: 10px; margin-bottom: 10px;">
+                        Olá ${data.collaborator_name},<br><br>
+                        Parabéns! Você concluiu uma ação do seu Plano de Desenvolvimento Individual (PDI).<br>
+                        <span style="color: #28a745; font-weight: bold;">${data.motivacional_msg || ''}</span>
+                    </h4>
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="background-color: #f4f4f9; padding: 10px; border-left: 4px solid #28a745; margin-bottom: 10px;">Detalhes da Ação</h4>
+                        <p><strong>Descrição da Ação:</strong> ${data.action_description}</p>
+                        <p><strong>Prazo:</strong> ${data.deadline}</p>
+                        <p><strong>Data de Conclusão:</strong> ${data.completion_date}</p>
+                        <p><strong>ID do PDI:</strong> ${data.pdi_id}</p>
+                    </div>
+                    ${(data.pending_actions && data.pending_actions.length > 0) ? `
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="background-color: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; margin-bottom: 10px;">Ações Pendentes do seu PDI</h4>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background-color: #f9f9f9;">
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Descrição</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Prazo</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.pending_actions.map(a => `
+                                    <tr>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">${a.description}</td>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">${a.deadline}</td>
+                                        <td style="padding: 8px; border: 1px solid #ddd;">${a.status}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    ` : ''}
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eeeeee; font-size: 12px; color: #777777; text-align: center;">
+                        <p>Este é um e-mail automático. Por favor, não responda.</p>
+                        <p>© ${new Date().getFullYear()} CONLINE. Todos os direitos reservados.</p>
                     </div>
                 </div>
             </div>

@@ -10,9 +10,7 @@ const Users = {
         join cad_Equipe_Tarefa Etaf ON Etaf.IdEquipe_Tarefa = etm.IdEquipe_Tarefa
         JOIN cad_Pessoa cP ON cP.IdPessoa = etm.IdFuncionario
         WHERE 
-        etm.IdEquipe_Tarefa IN (${dept})
-        AND 
-        NOT etm.IdFuncionario IN (62194,62195)`)
+        etm.IdEquipe_Tarefa IN (${dept})`)
         return users;
     }
 }

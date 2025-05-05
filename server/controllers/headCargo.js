@@ -484,7 +484,7 @@ const headcargo = {
   
   
   
-         
+         // console.log(sql)
       const commissions = await executeQuerySQL(sql)
   
   

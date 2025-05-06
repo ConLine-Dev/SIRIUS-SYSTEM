@@ -23,6 +23,7 @@ function filterTicketsByCollaborator(collabId) {
 
         for (let i = 0; i < userTiAttributed.length; i++) {
             const item = userTiAttributed[i];
+            console.log(item)
 
             // Quando encontrar um chamado que tenha o colaborador, da display block no ticket
             if (item && item.getAttribute('data-collabid') == collabId) {
@@ -579,7 +580,11 @@ async function listAllTickets() {
     for (let index = 0; index < tickets.length; index++) {
         const ticket = tickets[index];
 
-        if (ticket.responsible == idCollaborator) {
+
+        // Exemplo de verificação se um usuário está entre os envolvidos
+        const isUserInvolved = ticket.involved.some(person => person.collaborator_id === loginData.system_collaborator_id);
+      
+        if (ticket.responsible == idCollaborator || isUserInvolved) {
             const users = ticket.atribuido.map(item => `
                 <span class="avatar avatar-sm avatar-rounded userTiAtributed" title="${item.name}" data-collabID="${item.collaborator_id}" data-headcargoId="${item.id_headcargo}">
                     <img src="https://cdn.conlinebr.com.br/colaboradores/${item.id_headcargo}" alt="img">

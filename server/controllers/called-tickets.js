@@ -62,6 +62,14 @@ const tickets = {
         WHERE clm.ticket_id IN (${tickets.map(t => t.id).join(',')})
         `);
 
+        // Obter todos os envolvidos de uma vez
+        const allInvolved = await executeQuery(`
+        SELECT cti.*, collab.name, collab.family_name, collab.id_headcargo 
+        FROM called_tickets_involved cti
+        JOIN collaborators collab ON collab.id = cti.collaborator_id
+        WHERE cti.ticket_id IN (${tickets.map(t => t.id).join(',')})
+        `);
+
         // Organizar atribuições e mensagens por ticket_id
         const atribuidoMap = {};
         allAtribuidos.forEach(atribuido => {
@@ -77,6 +85,15 @@ const tickets = {
             messageMap[msg.ticket_id] = [];
         }
         messageMap[msg.ticket_id].push(msg);
+        });
+
+        // Organizar envolvidos por ticket_id
+        const involvedMap = {};
+        allInvolved.forEach(involved => {
+        if (!involvedMap[involved.ticket_id]) {
+            involvedMap[involved.ticket_id] = [];
+        }
+        involvedMap[involved.ticket_id].push(involved);
         });
 
         // Construir a lista de tickets com as informações agregadas
@@ -97,7 +114,8 @@ const tickets = {
             atribuido: atribuidoMap[ticket.id] || [],
             messageCount: messageMap[ticket.id] ? messageMap[ticket.id].length : 0,
             responsible_name: ticket.name,
-            responsible_family_name: ticket.family_name
+            responsible_family_name: ticket.family_name,
+            involved: involvedMap[ticket.id] || []
         });
         });
 

@@ -33,6 +33,7 @@ const procurationControl = {
 
         const result = executeQuery(`
             SELECT
+                ph.id,
                 ph.created_time,
                 ph.file,
                 cl.name,
@@ -77,6 +78,45 @@ const procurationControl = {
             []
         );
 
+        return true;
+    },
+
+    removeAttachment: async function({ historyId, fileName }) {
+        // Remove registro do banco
+        await executeQuery(
+            'DELETE FROM procuration_history WHERE id = ?',
+            [historyId]
+        );
+        // Remove arquivo físico
+        const filePath = path.join(__dirname, '../../uploads/procuration-control/anexos', fileName);
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+        return true;
+    },
+
+    updateTitle: async function({ id, title }) {
+        await executeQuery(
+            'UPDATE procuration_control SET name = ? WHERE id = ?',
+            [title, id]
+        );
+        return true;
+    },
+
+    removeDoc: async function({ id }) {
+        // Remove todos os históricos e arquivos relacionados
+        const history = await executeQuery(
+            'SELECT file FROM procuration_history WHERE id_procuration = ?',
+            [id]
+        );
+        for (const h of history) {
+            const filePath = path.join(__dirname, '../../uploads/procuration-control/anexos', h.file);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+        }
+        await executeQuery('DELETE FROM procuration_history WHERE id_procuration = ?', [id]);
+        await executeQuery('DELETE FROM procuration_control WHERE id = ?', [id]);
         return true;
     },
 

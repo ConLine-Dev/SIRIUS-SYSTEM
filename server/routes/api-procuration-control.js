@@ -1,28 +1,37 @@
 const express = require('express');
 const router = express.Router();
-const { pricingMain } = require('../controllers/pricing-main.js');
+const { procurationControl } = require('../controllers/procuration-control.js');
 
 module.exports = function(io) {
 
-    router.get('/getOffers', async (req, res, next) => {
+    router.get('/procurationData', async (req, res, next) => {
         try {
-            const result = await pricingMain.getOffers();
+            const result = await procurationControl.procurationData();
             res.status(200).json(result);
         } catch (error) {
             res.status(404).json(error);
         }
     });
 
-    router.post('/commentsByModule', async (req, res, next) => {
-
+    router.post('/documentHistory', async (req, res, next) => {
         try {
-              const result = await pricingMain.commentsByModule(req.body.moduleId);
-              res.status(200).json(result)
+            const result = await procurationControl.documentHistory(req.body.documentId);
+            res.status(200).json(result);
         } catch (error) {
-  
-              res.status(404).json('Erro')
+            res.status(404).json(error);
         }
-     });
+    });
+
+    router.post('/saveEvent', async (req, res, next) => {
+        try {
+            const result = await procurationControl.saveEvent(req.body);
+    
+            // io.emit('updateCalendarEvents', '')
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json(error);
+        }
+    });
 
     return router;
 };

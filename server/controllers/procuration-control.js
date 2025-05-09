@@ -3,54 +3,85 @@ const { executeQuerySQL } = require('../connect/sqlServer');
 const fs = require('fs');
 const path = require('path');
 
-const pricingMain = {
+const procurationControl = {
 
-    getOffers: async function() {
-        const result = executeQuerySQL(`
-            SELECT
-                DATEPART(MONTH, prf.Data_Proposta) AS 'mes',
-                SUM(CASE WHEN prf.Situacao = 2 THEN 1 ELSE 0 END) AS 'aprovadas',
-                SUM(CASE WHEN prf.Situacao = 3 THEN 1 ELSE 0 END) AS 'reprovadas',
-                SUM(CASE WHEN prf.Situacao NOT IN (2, 3) THEN 1 ELSE 0 END) AS 'pendentes',
-                CASE pfc.Tipo_Carga 
-                    WHEN 1 THEN 'AIR' 
-                    WHEN 3 THEN 'FCL' 
-                    WHEN 4 THEN 'LCL' 
-                END AS 'tipo'
-            FROM 
-                mov_Proposta_Frete prf
-            LEFT OUTER JOIN
-                mov_Proposta_Frete_Carga pfc ON pfc.IdProposta_Frete = prf.IdProposta_Frete
-            LEFT OUTER JOIN
-                mov_Oferta_Frete oft ON oft.IdProposta_Frete = prf.IdProposta_Frete
-            WHERE 
-                DATEPART(YEAR, prf.Data_Proposta) = 2025
-                AND pfc.Tipo_Carga IN (1, 3, 4)
-                AND oft.Tipo_Operacao = 2
-            GROUP BY 
-                DATEPART(MONTH, prf.Data_Proposta),
-                pfc.Tipo_Carga
-            ORDER BY 
-                mes;`);
+    procurationData: async function() {
+
+        const result = executeQuery(`
+            WITH latest_history AS (
+                SELECT
+                    ph.*, 
+                    ROW_NUMBER() OVER (PARTITION BY ph.id_procuration ORDER BY ph.created_time DESC) AS rn
+                FROM procuration_history ph
+            )
+                SELECT
+                    pc.id,
+                    pc.name AS title, 
+                    pc.deadline, 
+                    pc.created_at, 
+                    pc.updated_at, 
+                    cl.name, 
+                    cl.family_name
+                FROM procuration_control pc
+                LEFT JOIN latest_history ph ON ph.id_procuration = pc.id AND ph.rn = 1
+                LEFT JOIN collaborators cl ON cl.id = ph.id_responsible;`);
 
         return result;
     },
-    commentsByModule: async function (moduleId) {
 
-        let result = await executeQuery(`
-           SELECT ic.title, ic.description, ic.comment_date,
-           cl.id_headcargo, cl.name, cl.family_name, md.title as 'module'
-           FROM internal_comments ic
-           LEFT OUTER JOIN collaborators cl on cl.id = ic.collab_id
-           LEFT OUTER JOIN modules md on md.id = ic.module_id
-           WHERE module_id = ${moduleId}
-           ORDER BY ic.comment_date DESC`)
+    documentHistory: async function(documentId) {
+
+        const result = executeQuery(`
+            SELECT
+                ph.created_time,
+                ph.file,
+                cl.name,
+                cl.family_name,
+                cl.id_headcargo
+            FROM procuration_history ph
+            LEFT OUTER JOIN collaborators cl ON cl.id = ph.id_responsible
+            WHERE ph.id_procuration = ${documentId}`);
 
         return result;
-     },
+    },
+
+    saveEvent: async function (eventData) {
+
+        const now = new Date();
+
+        const pad = num => String(num).padStart(2, '0');
+        const formattedDate = [
+            now.getFullYear(),
+            pad(now.getMonth() + 1),
+            pad(now.getDate())
+        ].join('-');
+
+        const formattedHour = [
+            pad(now.getHours()),
+            pad(now.getMinutes()),
+            pad(now.getSeconds())
+        ].join(':');
+
+        let dateTime = `${formattedDate} ${formattedHour}`
+
+        await executeQuery(
+            'INSERT INTO procuration_history (id_procuration, created_time, id_responsible, file) VALUES (?, ?, ?, ?)',
+            [eventData.documentId, dateTime, eventData.userId, eventData.fileName]
+        );
+
+        await executeQuery(
+            `UPDATE procuration_control
+            SET deadline = '${eventData.newDeadline}',
+                updated_at = NOW()
+            WHERE id = ${eventData.documentId}`,
+            []
+        );
+
+        return true;
+    },
 
 };
 
 module.exports = {
-    pricingMain,
+    procurationControl,
 };

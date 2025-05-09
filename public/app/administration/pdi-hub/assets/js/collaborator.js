@@ -288,10 +288,12 @@ async function checkIfCurrentUserIsSupervisor(pdi) {
             window.isColaboradorPDI = false;
             return false;
         }
+
         // Converter para números para garantir comparação correta
         const supervisorId = parseInt(pdi.supervisor_id);
         const loggedUserId = parseInt(userLogged.system_collaborator_id);
         const collaboratorId = parseInt(pdi.collaborator_id);
+        
         // Flags globais
         window.isSupervisorPDI = supervisorId === loggedUserId;
         window.isColaboradorPDI = collaboratorId === loggedUserId;

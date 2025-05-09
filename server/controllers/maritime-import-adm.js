@@ -213,37 +213,38 @@ const IMADM = {
     },
 
     repurchases: async function (userId) {
-
-        let userFilter = ''
-
+        // Consulta agrupando por mês, status e moeda, somando o valor de recompra ((old_purchase_value - purchase_value) + (sale_value - old_sale_value)), apenas quando as moedas são iguais
+        // Status: APPROVED, PENDING, PAID, ano atual
+        let query = `
+            SELECT 
+                MONTH(creation_date) AS mes,
+                status,
+                coin_purchase AS moeda,
+                SUM((old_purchase_value - purchase_value) + (sale_value - old_sale_value)) AS total_recompra
+            FROM repurchases
+            WHERE 
+                status IN ('APPROVED', 'PENDING', 'PAID')
+                AND YEAR(creation_date) = YEAR(CURDATE())
+                AND coin_purchase = coin_sale
+        `;
+        let params = [];
         if (userId) {
-            userFilter = `AND Par.IdResponsavel = ${userId}`
+            query += ` AND created_by = ?`;
+            params.push(userId);
         }
+        query += ` GROUP BY mes, status, moeda ORDER BY mes, status, moeda`;
 
-        let repurchases = [];
-        const result = await executeQuery(`
-            SELECT rps.id, rps.value_repurchase_comission, MONTH(rps.payment_date) as 'month', rps.reference_process
-            FROM repurchase_payments rps`)
+        const result = await executeQuery(query, params);
 
-        for (let index = 0; index < result.length; index++) {
-            item = result[index];
-            const head = await executeQuerySQL(`
-                SELECT pss.Nome, Par.IdResponsavel
-                FROM mov_Logistica_House lhs
-                LEFT OUTER JOIN
-                mov_Projeto_Atividade_Responsavel Par on Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade
-                and (Par.IdPapel_Projeto = 2)
-                LEFT OUTER JOIN
-                cad_Pessoa pss on pss.IdPessoa = Par.IdResponsavel
-                WHERE lhs.Numero_Processo = '${item.reference_process}'
-                ${userFilter}`)
+        // Retorna mês, status, moeda e total
+        const data = result.map(item => ({
+            mes: item.mes,
+            status: item.status,
+            moeda: item.moeda,
+            total: Number(item.total_recompra) || 0
+        }));
 
-            if (head.length > 0) {
-                repurchases[index] = {value: item.value_repurchase_comission, month: item.month, operational: head[0].Nome, idHead: head[0].IdResponsavel}
-            }
-        }
-
-        return repurchases;
+        return data;
     },
 
 };

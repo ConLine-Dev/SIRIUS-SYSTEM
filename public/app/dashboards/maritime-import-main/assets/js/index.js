@@ -126,21 +126,139 @@ async function createMailArrays() {
 
 async function createRepurchaseArrays() {
   let loggedData = await getInfosLogin();
-  let userId = loggedData.system_id_headcargo
+  console.log(loggedData)
+  let userId = loggedData.system_collaborator_id;
   let repurchases = await makeRequest(`/api/maritime-import-main/repurchases`, 'POST', { userId });
 
-  for (let index = 0; index < repurchases.length; index++) {
-    for (let index2 = 0; index2 < 12; index2++) {
-      if (repurchases[index].month - 1 == index2) {
-        if (repurchaseArray[index2] == null) {
-          repurchaseArray[index2] = 0;
+  const statusList = ['APPROVED', 'PENDING', 'PAID'];
+  const statusMap = {
+    'APPROVED': 'Aprovado',
+    'PENDING': 'Pendente',
+    'PAID': 'Finalizado'
+  };
+  const statusColor = {
+    'Aprovado': '#F9423A',
+    'Pendente': '#ffc107',
+    'Finalizado': '#3f2021'
+  };
+  const moedas = [...new Set(repurchases.map(item => item.moeda))];
+
+  let series = [];
+  let colors = [];
+  let tooltipDetails = {};
+  statusList.forEach(status => {
+    let data = Array(12).fill(0);
+    let details = Array(12).fill(null).map(() => ({}));
+    repurchases.forEach(item => {
+      if (item.status === status) {
+        const mesIndex = item.mes - 1;
+        data[mesIndex] += item.total;
+        if (!details[mesIndex][item.moeda]) details[mesIndex][item.moeda] = 0;
+        details[mesIndex][item.moeda] += item.total;
+      }
+    });
+    series.push({
+      name: statusMap[status],
+      data: data,
+      stack: statusMap[status]
+    });
+    colors.push(statusColor[statusMap[status]]);
+    tooltipDetails[statusMap[status]] = details;
+  });
+
+  createRepurchaseChart(series, moedas, colors, tooltipDetails);
+}
+
+function createRepurchaseChart(series, moedas, colors, tooltipDetails) {
+  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  if (window.repurchaseChart) {
+    window.repurchaseChart.destroy();
+  }
+
+  var chartData = {
+    series: series,
+    chart: {
+      height: 600,
+      type: 'bar',
+      stacked: true,
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        borderRadius: 0,
+        columnWidth: "40%",
+        dataLabels: {
+          position: 'top',
+        },
+      }
+    },
+    dataLabels: {
+      enabled: false
+    },
+    tooltip: {
+      enabled: true,
+      shared: true,
+      intersect: false,
+      custom: function({series, seriesIndex, dataPointIndex, w}) {
+        const monthName = months[dataPointIndex];
+        let tooltipHtml = `<div style='padding:8px 12px;'><div style='font-weight:bold;font-size:14px;margin-bottom:4px;'>${monthName}</div>`;
+        w.config.series.forEach((s, idx) => {
+          const status = w.globals.seriesNames[idx];
+          const value = series[idx][dataPointIndex];
+          if (value && value !== 0) {
+            tooltipHtml += `<div style='font-weight:bold;margin-bottom:2px;'>${status}</div>`;
+            const details = tooltipDetails[status][dataPointIndex];
+            Object.keys(details).forEach(moeda => {
+              if (details[moeda] && details[moeda] !== 0) {
+                tooltipHtml += `<div style='margin-left:10px;'>${moeda}: <b>${details[moeda].toLocaleString('pt-BR', { style: 'currency', currency: moeda, maximumFractionDigits: 2 })}</b></div>`;
+              }
+            });
+          }
+        });
+        tooltipHtml += `</div>`;
+        return tooltipHtml;
+      }
+    },
+    xaxis: {
+      categories: months,
+      position: 'bottom',
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
+      },
+    },
+    yaxis: {
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false,
+      },
+      labels: {
+        formatter: function(val) {
+          return val ? val.toLocaleString('pt-BR', { maximumFractionDigits: 2 }) : '';
         }
-        repurchaseArray[index2] += parseFloat(repurchases[index].value);
-      } else if (repurchaseArray[index2] == null) {
-        repurchaseArray[index2] = 0;
+      }
+    },
+    colors: colors,
+    legend: {
+      show: true,
+      position: 'top',
+      labels: {
+        colors: '#333',
+        useSeriesColors: false
       }
     }
-  }
+  };
+
+  window.repurchaseChart = new ApexCharts(document.querySelector('#repurchase-chart'), chartData);
+  window.repurchaseChart.render();
 }
 
 async function createProcessesArray() {
@@ -242,6 +360,14 @@ function createMailChart() {
         show: false,
       },
     },
+    legend: {
+      show: true,
+      position: 'top',
+      labels: {
+        colors: '#333',
+        useSeriesColors: false
+      }
+    },
   };
 
   var chart = new ApexCharts(document.querySelector('#mails-chart'), chartData);
@@ -325,77 +451,16 @@ function createCancelChart() {
       },
     },
     legend: {
-      show: false
+      show: true,
+      position: 'top',
+      labels: {
+        colors: '#333',
+        useSeriesColors: false
+      }
     }
   };
 
   var chart = new ApexCharts(document.querySelector('#cancels-chart'), chartData);
-  chart.render();
-}
-
-function createRepurchaseChart() {
-  const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-
-  var chartData = {
-    series: [{
-      name: 'Recompras',
-      data: repurchaseArray
-    }],
-    chart: {
-      height: 600,
-      type: 'bar',
-      toolbar: {
-        show: false,
-      },
-    },
-    plotOptions: {
-      bar: {
-        horizontal: true,
-        borderRadius: 3,
-        dataLabels: {
-          position: 'center',
-        },
-      }
-    },
-    dataLabels: {
-      enabled: true,
-      formatter: function (val) {
-        return "R$ " + val;
-      },
-      style: {
-        fontSize: '12px',
-        colors: ['#fff'],
-        fontWeight: 'bold',
-      },
-      offsetY: 0,
-      offsetX: 0,
-      textAnchor: 'middle'
-    },
-    tooltip: {
-      enabled: false,
-    },
-    xaxis: {
-      categories: months,
-      position: 'bottom',
-      axisBorder: {
-        show: false
-      },
-      axisTicks: {
-        show: false
-      },
-    },
-    yaxis: {
-      axisBorder: {
-        show: false
-      },
-      axisTicks: {
-        show: false,
-      },
-    },
-    colors: ["#F9423A"],
-  };
-
-  var chart = new ApexCharts(document.querySelector('#repurchase-chart'), chartData);
   chart.render();
 }
 
@@ -420,7 +485,11 @@ function createProcessesChart() {
     },
     legend: {
       show: true,
-      position: 'bottom'
+      position: 'top',
+      labels: {
+        colors: '#333',
+        useSeriesColors: false
+      }
     },
     tooltip: {
       custom: function ({ series, seriesIndex, dataPointIndex, w }) {
@@ -450,7 +519,11 @@ function createProcessesChart() {
     },
     legend: {
       show: true,
-      position: 'bottom'
+      position: 'top',
+      labels: {
+        colors: '#333',
+        useSeriesColors: false
+      }
     },
     tooltip: {
       custom: function ({ series, seriesIndex, dataPointIndex, w }) {
@@ -481,8 +554,6 @@ document.addEventListener('DOMContentLoaded', async function () {
   await createCancelArrays();
   createCancelChart();
   await createRepurchaseArrays();
-  createRepurchaseChart();
-  await createProcessesArray();
   createProcessesChart();
 
   document.querySelector('#loader2').classList.add('d-none')

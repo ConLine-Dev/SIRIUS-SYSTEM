@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Metas - Pricing Geral</title>
+    <title>Controle de Documentos</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
@@ -58,12 +58,7 @@
         <div class="col-xl-12">
             <div class="card custom-card">
                 <div class="card-header d-flex" style="justify-content: space-between;">
-                    <div class="card-title fw-semibold fs-14">Metas - Pricing Geral</div>
-                    <div class="input-group" style="width: 115px; gap: 20px;">
-                        <a class="btn btn-primary" id="createPeople"
-                            style="width: 115px; border-radius: 5px;"
-                            onclick="openComments()">Comentários</a>
-                    </div>
+                    <div class="card-title fw-semibold fs-14">Controle de Documentos</div>
                 </div>
             </div>
         </div>
@@ -72,64 +67,14 @@
         <div class="row">
             <div class="row d-flex align-items-stretch">
                 <div class="col-xxl-12 col-xl-12">
-                    <div class="row d-flex align-items-stretch">
-                        <div class="col-xl-10 d-flex">
-                            <div class="card custom-card flex-fill">
-                                <div class="card-header justify-content-between">
-                                    <div class="card-title">Cotações Aprovadas - FCL</div>
-                                </div>
-                                <div class="card-body" style="padding: 0; height: 200px;">
-                                    <div>
-                                        <div id="fcl-chart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-2 d-flex flex-column">
+                    <div class="row d-flex align-items-stretch" id="docsList">
+                        <div class="col-xl-2 d-flex flex-column" style="height: 100%">
                             <div class="card custom-card flex-fill mb-3">
-                                <div class="card-body d-flex" id="totalYear-fcl" style="flex-direction: column;justify-content: space-between;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xxl-12 col-xl-12">
-                    <div class="row d-flex align-items-stretch">
-                        <div class="col-xl-10 d-flex">
-                            <div class="card custom-card flex-fill">
-                                <div class="card-header justify-content-between">
-                                    <div class="card-title">Cotações Aprovadas - LCL</div>
+                                <div class="card-header d-flex" style="justify-content: space-between;">
+                                    <div class="card-title fw-semibold fs-14">Título do documento</div>
                                 </div>
-                                <div class="card-body" style="padding: 0; height: 200px;">
-                                    <div>
-                                        <div id="lcl-chart"></div>
-                                    </div>
+                                <div class="card-body d-flex" id="totalYear-fcl" style="flex-direction: column;justify-content: space-between;">
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-2 d-flex flex-column">
-                            <div class="card custom-card flex-fill mb-3">
-                                <div class="card-body d-flex" id="totalYear-lcl" style="flex-direction: column;justify-content: space-between;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xxl-12 col-xl-12">
-                    <div class="row d-flex align-items-stretch">
-                        <div class="col-xl-10 d-flex">
-                            <div class="card custom-card flex-fill">
-                                <div class="card-header justify-content-between">
-                                    <div class="card-title">Cotações Aprovadas - AIR</div>
-                                </div>
-                                <div class="card-body" style="padding: 0; height: 200px;">
-                                    <div>
-                                        <div id="air-chart"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-2 d-flex flex-column">
-                            <div class="card custom-card flex-fill mb-3">
-                                <div class="card-body d-flex" id="totalYear-air" style="flex-direction: column;justify-content: space-between;"></div>
                             </div>
                         </div>
                     </div>

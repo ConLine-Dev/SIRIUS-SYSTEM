@@ -33,25 +33,25 @@ async function printAll() {
 
   // Adiciona evento de menu de contexto para cada card
   document.querySelectorAll('.card-procuration').forEach(card => {
-    card.addEventListener('contextmenu', function(e) {
+    card.addEventListener('contextmenu', function (e) {
       e.preventDefault();
       showContextMenu(e, card.id, card.getAttribute('data-title'));
     });
-    card.addEventListener('click', function(e) {
+    card.addEventListener('click', function (e) {
       showContextMenu.hide = true;
       openDetails(card.id);
     });
   });
 }
 
-async function openDetails(documentId){
+async function openDetails(documentId) {
 
   const body = {
-      url: `/app/administration/procuration-control/details?documentId=${documentId}`,
-      width: 1200,
-      height: 715,
-      resizable: false,
-      max: false
+    url: `/app/administration/procuration-control/details?documentId=${documentId}`,
+    width: 1200,
+    height: 715,
+    resizable: false,
+    max: false
   }
   window.ipcRenderer.invoke('open-exWindow', body);
 }
@@ -72,16 +72,16 @@ function showContextMenu(e, docId, docTitle) {
 }
 
 // Esconde o menu ao clicar fora
-window.addEventListener('click', function() {
+window.addEventListener('click', function () {
   document.getElementById('contextMenu').style.display = 'none';
 });
-window.addEventListener('scroll', function() {
+window.addEventListener('scroll', function () {
   document.getElementById('contextMenu').style.display = 'none';
 });
 
 // Opção editar nome
 const editNameOption = document.getElementById('editNameOption');
-editNameOption.addEventListener('click', function(e) {
+editNameOption.addEventListener('click', function (e) {
   e.preventDefault();
   const menu = document.getElementById('contextMenu');
   const docId = menu.getAttribute('data-doc-id');
@@ -111,7 +111,7 @@ editNameOption.addEventListener('click', function(e) {
 
 // Opção remover
 const removeDocOption = document.getElementById('removeDocOption');
-removeDocOption.addEventListener('click', function(e) {
+removeDocOption.addEventListener('click', function (e) {
   e.preventDefault();
   const menu = document.getElementById('contextMenu');
   const docId = menu.getAttribute('data-doc-id');
@@ -143,11 +143,11 @@ async function removeDoc(docId) {
 
 document.addEventListener('DOMContentLoaded', async function () {
 
-  // const socket = io();
+  const socket = io();
 
-  // socket.on('updateCalendarEvents', (data) => {
-  //   calendar.refetchEvents();
-  // })
+  socket.on('updateDocuments', (data) => {
+    printAll();
+  })
 
   await printAll();
 

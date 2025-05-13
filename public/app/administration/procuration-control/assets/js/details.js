@@ -9,7 +9,7 @@ async function createHistory() {
     const documentHistory = await makeRequest(`/api/procuration-control/documentHistory`, 'POST', {documentId});
     const divDocumentHistory = document.getElementById('documentHistory');
     let printDocumentHistory = '<ul class="timeline list-unstyled">';
-    for (let index = 0; index < documentHistory.length; index++) {
+    for (let index = documentHistory.length-1; index >= 0; index--) {
         let createdDate = new Date(documentHistory[index].created_time);
         let dia = String(createdDate.getDate()).padStart(2, '0');
         let mes = String(createdDate.getMonth() + 1).padStart(2, '0');
@@ -199,12 +199,6 @@ window.removeAttachmentJS = async function(historyId, fileName) {
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
-
-    // const socket = io();
-
-    // socket.on('updateCalendarEvents', (data) => {
-    //   calendar.refetchEvents();
-    // })
 
     await createHistory();
   

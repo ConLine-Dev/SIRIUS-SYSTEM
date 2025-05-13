@@ -46,8 +46,8 @@ module.exports = function(io) {
     router.post('/saveEvent', async (req, res, next) => {
         try {
             const result = await procurationControl.saveEvent(req.body);
-    
-            // io.emit('updateCalendarEvents', '')
+
+            io.emit('updateDocuments', '')
             res.status(200).json(result)
         } catch (error) {
             res.status(500).json(error);
@@ -68,6 +68,7 @@ module.exports = function(io) {
                 newDeadline,
                 fileName
             });
+            io.emit('updateDocuments', '')
             res.status(200).json({ success: true, message: 'Arquivo enviado e evento salvo com sucesso!' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Erro ao salvar evento.', error });

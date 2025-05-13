@@ -3,7 +3,7 @@ const sql = require('mssql');
 
 const config = {
   user: 'hc_conline_consulta',
-  password: '3C23D35C-84F4-4205-80A2-D59D58A81BEF',
+  password: 'ACAFEE44-8DF1-47F8-8A7A-9EF5FEDF29CB',
   server: 'CONLINE.SQL.HEADCARGO.COM.BR',
   database: 'headcargo_conline',
   port: 9322,

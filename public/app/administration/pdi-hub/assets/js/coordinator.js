@@ -420,6 +420,7 @@ async function loadPDIList() {
         
         // Verificar se não há PDIs
         if (!pdis || pdis.length === 0) {
+            document.getElementById('pdiList').innerHTML = '';
             document.getElementById('emptyPDIs').classList.remove('d-none');
             return;
         }

@@ -222,7 +222,7 @@ const pdiHub = {
         }
         // ===== FIM NOVO =====
 
-        console.log('performance_level:', performance_level);
+        // console.log('performance_level:', performance_level);
         return {
             id: item.id,
             collaborator_id: item.collaborator_id,
@@ -878,7 +878,7 @@ const pdiHub = {
                 } : null;
             }
 
-            console.log('Histórico de avaliações:', result);
+            // console.log('Histórico de avaliações:', result);
             return result;
         } catch (error) {
             console.error('Erro ao obter histórico de avaliações:', error);

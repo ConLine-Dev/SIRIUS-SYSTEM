@@ -90,7 +90,26 @@ async function loadCollaboratorPDI() {
         const result = await response.json();
         hideLoader();
         if (!result.success || !result.data || result.data.length === 0) {
-            showErrorAlert('Nenhum PDI encontrado para o colaborador.');
+            // Esconder conteúdo principal
+            document.querySelector('.main-content').style.display = 'none';
+            // Exibir mensagem amigável
+            let msg = document.getElementById('noPDIMessage');
+            if (!msg) {
+                msg = document.createElement('div');
+                msg.id = 'noPDIMessage';
+                msg.className = 'alert alert-info text-center';
+                msg.style.position = 'fixed';
+                msg.style.top = '50%';
+                msg.style.left = '50%';
+                msg.style.transform = 'translate(-50%, -50%)';
+                msg.style.zIndex = '9999';
+                msg.style.boxShadow = '0 4px 24px rgba(0,0,0,0.08)';
+                msg.style.fontSize = '1.2rem';
+                msg.innerHTML = '<h4 class="mb-2">Ainda não existe um PDI cadastrado para você.</h4><p>Procure seu gestor para iniciar seu desenvolvimento!</p>';
+                document.body.appendChild(msg);
+            } else {
+                msg.style.display = 'block';
+            }
             return;
         }
         // Pegar o PDI mais recente (assume que está ordenado por data de criação decrescente)

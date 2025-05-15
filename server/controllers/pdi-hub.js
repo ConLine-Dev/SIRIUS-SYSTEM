@@ -765,26 +765,31 @@ const pdiHub = {
                 collaborators c
             WHERE 
                 c.resignation_date IS NULL
-                AND (
-                    c.job_position LIKE '%supervis%'
-                    OR c.job_position LIKE '%coordena%'
-                    OR c.job_position LIKE '%coordi%'
-                    OR c.job_position LIKE '%líder%'
-                    OR c.job_position LIKE '%gerente%'
-                    OR c.job_position LIKE '%diretor%'
-                    OR c.job_position LIKE '%director%'
-                    OR c.job_position LIKE '%head%'
-                    OR c.job_position LIKE '%manag%'
-                )
+               
             ORDER BY 
                 c.name ASC
         `);
+
+        // AND (
+        //     c.job_position LIKE '%supervis%'
+        //     OR c.job_position LIKE '%coordena%'
+        //     OR c.job_position LIKE '%coordi%'
+        //     OR c.job_position LIKE '%líder%'
+        //     OR c.job_position LIKE '%speci%'
+        //     OR c.job_position LIKE '%gerente%'
+        //     OR c.job_position LIKE '%diretor%'
+        //     OR c.job_position LIKE '%director%'
+        //     OR c.job_position LIKE '%head%'
+        //     OR c.job_position LIKE '%manag%'
+        // )
         
         return result.map(item => ({
             id: item.id,
             name: `${item.name} ${item.family_name}`,
             job_position: item.job_position
         }));
+
+
     },
     
     // ==================== Avaliações Mensais ====================

@@ -191,6 +191,38 @@ const pdiHub = {
             };
         });
         
+        // ===== NOVO: Cálculo do nível de desempenho geral =====
+        let performance_level = null;
+        try {
+            const evaluations = await this.getEvaluationHistory(id);
+            if (evaluations && evaluations.length > 0) {
+                // Calcular média das médias
+                const medias = evaluations.map(ev => typeof ev.media === 'number' ? ev.media : null).filter(m => m !== null);
+                if (medias.length > 0) {
+                    const mediaGeral = medias.reduce((a, b) => a + b, 0) / medias.length;
+                    // Buscar níveis de desempenho
+                    const levels = await this.getPdiPerformanceLevels(id);
+                    if (levels && levels.length > 0) {
+                        const percentual = (mediaGeral / 5) * 100;
+                        const nivel = levels.find(lvl => percentual >= parseFloat(lvl.min_percentage) && percentual <= parseFloat(lvl.max_percentage));
+                        if (nivel) {
+                            performance_level = {
+                                name: nivel.level_name,
+                                color: nivel.color,
+                                icon: nivel.icon,
+                                percentual: percentual
+                            };
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            // Se der erro, performance_level fica null
+            performance_level = null;
+        }
+        // ===== FIM NOVO =====
+
+        console.log('performance_level:', performance_level);
         return {
             id: item.id,
             collaborator_id: item.collaborator_id,
@@ -208,7 +240,8 @@ const pdiHub = {
             status: item.status,
             created_at: this.formatDateToPtBr(item.created_at),
             updated_at: this.formatDateToPtBr(item.updated_at),
-            actions: formattedActions
+            actions: formattedActions,
+            performance_level
         };
     },
     

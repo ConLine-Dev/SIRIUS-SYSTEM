@@ -357,8 +357,13 @@ async function saveMonthlyEvaluation() {
         if (result.success) {
             showSuccessAlert('Avaliação mensal salva com sucesso!');
             if (window.opener && !window.opener.closed) {
+                // Atualiza histórico (caso a função exista)
                 if (typeof window.opener.loadEvaluationHistory === 'function') {
                     window.opener.loadEvaluationHistory(pdiId);
+                }
+                // Atualiza todos os dados do PDI (nível de desempenho, barra, etc)
+                if (typeof window.opener.loadPDIDetails === 'function') {
+                    window.opener.loadPDIDetails(pdiId);
                 }
             }
             setTimeout(() => { window.close(); }, 2000);

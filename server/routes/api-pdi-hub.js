@@ -341,7 +341,10 @@ module.exports = function(io) {
     router.post('/saveMonthlyEvaluation', async (req, res) => {
         try {
             const result = await pdiHub.saveMonthlyEvaluation(req.body);
-            
+            // Emitir evento Socket.IO para atualizar o PDI em tempo real
+            if (io && req.body && req.body.pdi_id) {
+                io.emit('pdi:updated', { pdiId: req.body.pdi_id });
+            }
             res.json({
                 success: true,
                 message: 'Avaliação mensal salva com sucesso',

@@ -2,11 +2,24 @@
  * PDI Hub - Script para a página do colaborador
  */
 
+// Variável global para o PDI atual nesta aba
+let currentPdiId = null;
+
+// Conexão com o Socket.IO
+const socket = io();
+
 // Esperar o documento carregar
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar elementos
     setupEventListeners();
     loadCollaboratorPDI();
+
+    // Escutar o evento de atualização do PDI
+    socket.on('pdi:updated', (data) => {
+        if (data.pdiId && String(data.pdiId) === String(currentPdiId)) {
+            loadPDIDetails(data.pdiId);
+        }
+    });
 });
 
 // Configurar os listeners de eventos
@@ -36,92 +49,55 @@ function setupEventListeners() {
 async function loadCollaboratorPDI() {
     try {
         showLoader();
-        
         // Obter dados da URL
         const urlParams = new URLSearchParams(window.location.search);
         let collaboratorId = urlParams.get('id_collaborator');
         let pdiId = urlParams.get('pdi_id');
-        
         // Verificar se estamos acessando diretamente a página (sem parâmetros)
         const isDirectAccess = !collaboratorId && !pdiId;
-        
-        // Se estamos acessando diretamente, ignorar os valores no localStorage
-        // e buscar apenas do usuário logado
         if (isDirectAccess) {
-            console.log('Acesso direto à página - buscando PDI do usuário logado');
-            
-            // Limpar valores antigos do localStorage para evitar confusão
-            localStorage.removeItem('current_collaborator_id');
-            localStorage.removeItem('current_pdi_id');
-            
             // Obter informações do usuário logado
             const userLogged = await getInfosLogin();
-            
             if (userLogged && userLogged.system_collaborator_id) {
                 collaboratorId = userLogged.system_collaborator_id;
-                console.log('Colaborador obtido do usuário logado:', collaboratorId);
             } else {
                 // Tentar obter da sessão
                 try {
                     const sessionResponse = await fetch('/api/session/getSession');
                     const sessionData = await sessionResponse.json();
-                    
                     if (sessionData.success && sessionData.data && sessionData.data.user && sessionData.data.user.collaborator_id) {
                         collaboratorId = sessionData.data.user.collaborator_id;
-                        console.log('Colaborador obtido da sessão:', collaboratorId);
                     }
                 } catch (error) {
                     console.error('Erro ao obter usuário da sessão:', error);
                 }
             }
-        } else {
-            // Se estamos acessando via parâmetros, podemos usar o localStorage como fallback
-            console.log('Acesso via parâmetros URL - usando localStorage como fallback');
-            
-            if (!collaboratorId) {
-                collaboratorId = localStorage.getItem('current_collaborator_id');
-            }
-            
-            if (!pdiId) {
-                pdiId = localStorage.getItem('current_pdi_id');
-            }
         }
-        
         // Se ainda não encontrou, mostrar erro
         if (!collaboratorId && !pdiId) {
             hideLoader();
             showErrorAlert('ID do colaborador ou do PDI não informado. Por favor, acesse através da página principal do PDI Hub.');
             return;
         }
-        
-        console.log('Usando collaboratorId:', collaboratorId, 'pdiId:', pdiId);
-        
         // Se temos o ID do PDI diretamente, carregamos direto
         if (pdiId) {
+            currentPdiId = pdiId;
             await loadPDIDetails(pdiId);
             return;
         }
-        
         // Caso contrário, buscamos o PDI mais recente do colaborador
         const response = await fetch(`/api/pdi-hub/getPDIsByCollaborator?collaborator_id=${collaboratorId}`);
         const result = await response.json();
-        
         hideLoader();
-        
         if (!result.success || !result.data || result.data.length === 0) {
             showErrorAlert('Nenhum PDI encontrado para o colaborador.');
             return;
         }
-        
         // Pegar o PDI mais recente (assume que está ordenado por data de criação decrescente)
         const mostRecentPDI = result.data[0];
-        
-        // Salvar o ID do PDI no localStorage para referência futura
-        localStorage.setItem('current_pdi_id', mostRecentPDI.id);
-        
+        currentPdiId = mostRecentPDI.id;
         // Carregar os detalhes do PDI
         await loadPDIDetails(mostRecentPDI.id);
-        
     } catch (error) {
         console.error('Erro ao carregar PDI do colaborador:', error);
         hideLoader();
@@ -360,11 +336,6 @@ async function loadEvaluationHistory(pdiId) {
         const noEvaluations = document.getElementById('noEvaluations');
         if (result.success && result.data && result.data.length > 0) {
             noEvaluations.classList.add('d-none');
-            // Atualizar o card de nível de desempenho com a avaliação mais recente
-            const latest = result.data[0];
-            if (latest && latest.performance_level) {
-                setupPerformanceLevel(latest.performance_level);
-            }
             // Renderizar cada avaliação no histórico (sem coluna de nível)
             result.data.forEach(evaluation => {
                 const row = document.createElement('tr');
@@ -395,8 +366,6 @@ async function loadEvaluationHistory(pdiId) {
             });
         } else {
             noEvaluations.classList.remove('d-none');
-            // Se não houver avaliações, resetar o card de desempenho
-            setupPerformanceLevel(null);
         }
     } catch (error) {
         console.error('Erro ao carregar histórico de avaliações:', error);

@@ -14,7 +14,7 @@ async function printAll() {
     let deadline = new Date(procurationData[index].deadline)
     let formattedDeadline = deadline.toLocaleDateString('pt-BR')
 
-    printDocsList += `<div class="col-xl-2 d-flex flex-column" style="height: 100%">
+    printDocsList += `<div class="col-xl-2 d-flex flex-column displayed-card" style="height: 100%">
                         <div class="card custom-card flex-fill mb-3 card-procuration" id="${procurationData[index].id}" data-title="${procurationData[index].title}">
                             <div class="card-header d-flex" style="justify-content: space-between;">
                                 <div class="card-title fw-semibold fs-14">${procurationData[index].title}</div>
@@ -44,12 +44,34 @@ async function printAll() {
   });
 }
 
+function initializeFilter() {
+  document.getElementById('btnPesquisa').addEventListener('input', function () {
+    const filter = this.value.toLowerCase();
+    const cards = document.querySelectorAll('.defaultBodyTicket .displayed-card');
+    cards.forEach(card => {
+      card.style.display = card.textContent.toLowerCase().includes(filter) ? '' : 'none';
+    });
+  });
+}
+
 async function openDetails(documentId) {
 
   const body = {
     url: `/app/administration/procuration-control/details?documentId=${documentId}`,
     width: 1200,
     height: 715,
+    resizable: false,
+    max: false
+  }
+  window.ipcRenderer.invoke('open-exWindow', body);
+}
+
+async function openCreate() {
+
+  const body = {
+    url: `/app/administration/procuration-control/create`,
+    width: 700,
+    height: 420,
     resizable: false,
     max: false
   }
@@ -147,9 +169,11 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   socket.on('updateDocuments', (data) => {
     printAll();
+    initializeFilter();
   })
 
   await printAll();
+  initializeFilter();
 
   document.querySelector('#loader2').classList.add('d-none')
 

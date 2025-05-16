@@ -152,6 +152,11 @@ async function createRepurchaseArrays(userId) {
   // Busca os dados do backend
   let repurchases = await makeRequest(`/api/maritime-import-adm/repurchases`, 'POST', { userId });
 
+  // Salva os dados crus para uso no tooltip customizado
+  if (!window.ApexCharts) window.ApexCharts = {};
+  if (!window.ApexCharts._globals) window.ApexCharts._globals = {};
+  window.ApexCharts._globals.rawRepurchases = repurchases;
+
   // Descobre todos os meses, status e moedas presentes
   const statusList = ['APPROVED', 'PENDING', 'PAID'];
   const statusMap = {
@@ -189,6 +194,13 @@ async function createRepurchaseArrays(userId) {
     colors.push(statusColor[statusMap[status]]);
     tooltipDetails[statusMap[status]] = details;
   });
+
+  // Passa os dados crus para o gráfico via globals
+  setTimeout(() => {
+    if (window.repurchaseChart && window.repurchaseChart.w && window.ApexCharts._globals.rawRepurchases) {
+      window.repurchaseChart.w.globals.rawRepurchases = window.ApexCharts._globals.rawRepurchases;
+    }
+  }, 500);
 
   createRepurchaseChart(series, moedas, colors, tooltipDetails);
 }
@@ -242,6 +254,14 @@ function createRepurchaseChart(series, moedas, colors, tooltipDetails) {
                 tooltipHtml += `<div style='margin-left:10px;'>${moeda}: <b>${details[moeda].toLocaleString('pt-BR', { style: 'currency', currency: moeda, maximumFractionDigits: 2 })}</b></div>`;
               }
             });
+            // Se for Aprovado, soma o valor convertido para real e exibe logo após as moedas
+            if (status === 'Aprovado' && w.config.rawRepurchases) {
+              const aprovadosMes = w.config.rawRepurchases.filter(item => item.status === 'APPROVED' && item.mes === dataPointIndex + 1);
+              const totalAprovadoBRL = aprovadosMes.reduce((acc, curr) => acc + (curr.total_recompra_brl || 0), 0);
+              if (totalAprovadoBRL > 0) {
+                tooltipHtml += `<div style='margin-left:10px;margin-top:2px;font-weight:bold;color:#1a7e3c;'>Total em R$: <b>${totalAprovadoBRL.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2 })}</b></div>`;
+              }
+            }
           }
         });
         tooltipHtml += `</div>`;
@@ -279,7 +299,8 @@ function createRepurchaseChart(series, moedas, colors, tooltipDetails) {
         colors: '#333',
         useSeriesColors: false
       }
-    }
+    },
+    rawRepurchases: window.ApexCharts._globals.rawRepurchases // <-- Passa os dados crus para o gráfico
   };
 
   repurchaseChart = new ApexCharts(document.querySelector('#repurchase-chart'), chartData);

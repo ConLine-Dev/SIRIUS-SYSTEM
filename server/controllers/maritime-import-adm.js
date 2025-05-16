@@ -236,13 +236,28 @@ const IMADM = {
 
         const result = await executeQuery(query, params);
 
-        // Retorna mês, status, moeda e total
-        const data = result.map(item => ({
-            mes: item.mes,
-            status: item.status,
-            moeda: item.moeda,
-            total: Number(item.total_recompra) || 0
-        }));
+        // Simulação de cotações (em produção, busque do banco ou API)
+        const cotacoes = {
+            'USD': 5.2,
+            'EUR': 5.6,
+            'BRL': 1
+        };
+
+        // Retorna mês, status, moeda, total e total convertido para real (apenas para aprovadas)
+        const data = result.map(item => {
+            let total_brl = null;
+            if (item.status === 'APPROVED') {
+                const cotacao = cotacoes[item.moeda] || 1;
+                total_brl = Number(item.total_recompra) * cotacao;
+            }
+            return {
+                mes: item.mes,
+                status: item.status,
+                moeda: item.moeda,
+                total: Number(item.total_recompra) || 0,
+                total_recompra_brl: total_brl // só preenchido para aprovadas
+            };
+        });
 
         return data;
     },

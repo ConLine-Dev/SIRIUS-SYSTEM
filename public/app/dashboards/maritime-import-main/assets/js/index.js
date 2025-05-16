@@ -549,7 +549,7 @@ function openWindow(url, width, height) {
 document.addEventListener('DOMContentLoaded', async function () {
 
   await printProcesses();
-  await createMailArrays();
+  // await createMailArrays();
   createMailChart();
   await createCancelArrays();
   createCancelChart();

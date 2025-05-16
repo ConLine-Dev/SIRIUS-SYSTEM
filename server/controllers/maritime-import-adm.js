@@ -112,6 +112,8 @@ const IMADM = {
             vis_Logistica_Prazo lpz ON lpz.IdLogistica_House = lhs.IdLogistica_House
             WHERE
             lhs.Situacao_Agenciamento != 7
+            AND DATEPART(year, lhs.Data_Abertura_Processo) > 2023
+            AND lms.Situacao_Embarque != 4
             AND lhs.Numero_Processo not like '%DEMU%'
             AND lhs.Numero_Processo not like '%test%'
             AND Lms.Tipo_Operacao = 2

@@ -120,6 +120,16 @@ const procurationControl = {
         return true;
     },
 
+    createDocument: async function(details) {
+
+        const result = await executeQuery(
+            'INSERT INTO procuration_control (name, deadline) VALUES (?, ?)',
+            [details.newTitle, details.newDeadline]
+        );
+
+        return result.insertId;
+    }
+
 };
 
 module.exports = {

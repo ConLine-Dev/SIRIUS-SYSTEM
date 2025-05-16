@@ -89,7 +89,7 @@ async function createFilters() {
 
 async function createArrays(item) {
   document.querySelector('#loader2').classList.remove('d-none')
-  await createMailArrays(item.email_business);
+  // await createMailArrays(item.email_business);
   await createCancelArrays(item.id_headcargo);
   await createRepurchaseArrays(item.id_headcargo);
   await createProcessesArray(item.id_headcargo);
@@ -591,7 +591,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   await printProcesses(0);
   await createFilters();
-  await createMailArrays('');
+  // await createMailArrays('');
   await createCancelArrays(0);
   await createRepurchaseArrays(0);
   await createProcessesArray(0);

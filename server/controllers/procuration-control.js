@@ -16,11 +16,12 @@ const procurationControl = {
             )
                 SELECT
                     pc.id,
-                    pc.name AS title, 
-                    pc.deadline, 
-                    pc.created_at, 
-                    pc.updated_at, 
-                    cl.name, 
+                    pc.name AS title,
+                    pc.deadline,
+                    pc.created_at,
+                    pc.updated_at,
+                    pc.description,
+                    cl.name,
                     cl.family_name
                 FROM procuration_control pc
                 LEFT JOIN latest_history ph ON ph.id_procuration = pc.id AND ph.rn = 1
@@ -123,8 +124,8 @@ const procurationControl = {
     createDocument: async function(details) {
 
         const result = await executeQuery(
-            'INSERT INTO procuration_control (name, deadline) VALUES (?, ?)',
-            [details.newTitle, details.newDeadline]
+            'INSERT INTO procuration_control (name, deadline, description) VALUES (?, ?, ?)',
+            [details.newTitle, details.newDeadline, details.newDetails]
         );
 
         return result.insertId;

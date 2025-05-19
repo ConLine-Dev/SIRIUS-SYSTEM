@@ -7,8 +7,10 @@ async function createDocument(attach) {
     let newDeadline = deadline.value;
     let newTitle = document.getElementById('newTitle');
     newTitle = newTitle.value;
+    let newDetails = document.getElementById('newDetails');
+    newDetails = newDetails.value;
 
-    let result = await makeRequest(`/api/procuration-control/createDocument`, 'POST', {newTitle, newDeadline});
+    let result = await makeRequest(`/api/procuration-control/createDocument`, 'POST', {newTitle, newDeadline, newDetails});
 
     window.close();
 

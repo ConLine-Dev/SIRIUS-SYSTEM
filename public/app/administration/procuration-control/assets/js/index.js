@@ -13,17 +13,26 @@ async function printAll() {
     let formattedUpdate = updatedDate.toLocaleDateString('pt-BR')
     let deadline = new Date(procurationData[index].deadline)
     let formattedDeadline = deadline.toLocaleDateString('pt-BR')
+    let actualDate = new Date();
+    let status = '';
+    let badge = 'success'
 
-    printDocsList += `<div class="col-xl-2 d-flex flex-column displayed-card" style="height: 100%">
+    if (actualDate >= deadline) {
+      status = '[VENCIDO] - ';
+      badge = 'danger'
+    }
+
+    printDocsList += `<div class="col-xl-2 d-flex flex-column">
                         <div class="card custom-card flex-fill mb-3 card-procuration" id="${procurationData[index].id}" data-title="${procurationData[index].title}">
                             <div class="card-header d-flex" style="justify-content: space-between;">
-                                <div class="card-title fw-semibold fs-14">${procurationData[index].title}</div>
+                                <div class="card-title fw-semibold fs-14">${status}${procurationData[index].title}</div>
                             </div>
-                            <div class="card-body d-flex" style="flex-direction: column; justify-content: space-between;">
-                                <div>Data Criação: ${formattedCreate}</div><br>
+                            <div class="card-body d-flex" style="flex-direction: column; justify-content: space-between; max-height: 250px; overflow: scroll;">
+                                <span class="badge bg-${badge}-transparent fw-semibold fs-13">Vencimento: ${formattedDeadline}</span>
+                                <br><div>Data Criação: ${formattedCreate}</div><br>
+                                <div>Descrição: ${procurationData[index].description}</div><br>
                                 <div>Última Atualização: ${formattedUpdate}</div><br>
-                                <div>Responsável: ${procurationData[index].name} ${procurationData[index].family_name}</div><br>
-                                <span class="badge bg-success-transparent fw-semibold fs-13">Vencimento: ${formattedDeadline}</span>
+                                <div>Responsável: ${procurationData[index].name} ${procurationData[index].family_name}</div>
                             </div>
                         </div>
                     </div>`
@@ -46,10 +55,22 @@ async function printAll() {
 
 function initializeFilter() {
   document.getElementById('btnPesquisa').addEventListener('input', function () {
-    const filter = this.value.toLowerCase();
-    const cards = document.querySelectorAll('.defaultBodyTicket .displayed-card');
-    cards.forEach(card => {
-      card.style.display = card.textContent.toLowerCase().includes(filter) ? '' : 'none';
+    const filter = this.value.toLowerCase().trim();
+    const columns = document.querySelectorAll('.defaultBodyTicket .col-xl-2');
+
+    columns.forEach(col => {
+      const card = col.querySelector('.card.custom-card');
+      if (!card) return;
+
+      const rawText = card.textContent || '';
+      const cleanText = rawText.replace(/\s+/g, ' ').toLowerCase();
+      const match = cleanText.includes(filter);
+
+      if (match) {
+        col.classList.remove('d-none');
+      } else {
+        col.classList.add('d-none');
+      }
     });
   });
 }
@@ -71,7 +92,7 @@ async function openCreate() {
   const body = {
     url: `/app/administration/procuration-control/create`,
     width: 700,
-    height: 420,
+    height: 590,
     resizable: false,
     max: false
   }

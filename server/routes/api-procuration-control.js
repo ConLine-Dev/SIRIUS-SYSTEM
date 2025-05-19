@@ -53,7 +53,7 @@ module.exports = function(io) {
             res.status(500).json(error);
         }
     });
-    
+
     router.post('/upload', upload.single('file'), async (req, res) => {
         try {
             const { documentId, userId, newDeadline } = req.body;
@@ -74,7 +74,7 @@ module.exports = function(io) {
             res.status(500).json({ success: false, message: 'Erro ao salvar evento.', error });
         }
     });
-    
+
     router.post('/removeAttachment', async (req, res) => {
         try {
             const { historyId, fileName } = req.body;
@@ -84,7 +84,7 @@ module.exports = function(io) {
             res.status(500).json({ success: false, message: 'Erro ao remover anexo.', error });
         }
     });
-    
+
     router.post('/updateTitle', async (req, res) => {
         try {
             await procurationControl.updateTitle(req.body);
@@ -93,7 +93,7 @@ module.exports = function(io) {
             res.status(500).json({ success: false, message: 'Erro ao atualizar nome.', error });
         }
     });
-    
+
     router.post('/removeDoc', async (req, res) => {
         try {
             await procurationControl.removeDoc(req.body);

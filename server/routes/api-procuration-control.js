@@ -55,8 +55,9 @@ module.exports = function(io) {
     });
 
     router.post('/upload', upload.single('file'), async (req, res) => {
+
         try {
-            const { documentId, userId, newDeadline } = req.body;
+            const { documentId, userId, newDeadline, newDescription } = req.body;
             const fileName = req.file ? req.file.filename : null;
             if (!fileName) {
                 return res.status(400).json({ success: false, message: 'Arquivo não enviado.' });
@@ -66,7 +67,8 @@ module.exports = function(io) {
                 documentId,
                 userId,
                 newDeadline,
-                fileName
+                fileName,
+                newDescription
             });
             io.emit('updateDocuments', '')
             res.status(200).json({ success: true, message: 'Arquivo enviado e evento salvo com sucesso!' });

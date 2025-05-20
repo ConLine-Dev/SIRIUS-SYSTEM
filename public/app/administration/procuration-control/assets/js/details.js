@@ -45,6 +45,7 @@ async function createHistory() {
                       Anexo adicionado:
                       <span class="badge bg-primary-transparent fw-semibold mx-1">${fileName}</span>
                     </p>
+                    <br><p class="mb-0 text-muted">${documentHistory[index].description}</p>
                   </div>
                   <div class="ms-auto">
                     <div class="hstack gap-2 fs-15">
@@ -132,6 +133,8 @@ async function addProcurationAttachment() {
     let newDeadline = deadline.value;
     let newFile = document.getElementById('newFile');
     let file = newFile.files[0];
+    let description = document.getElementById('newDescription');
+    let newDescription = description.value;
 
     if (!file) {
         Swal.fire({ icon: 'warning', title: 'Atenção', text: 'Favor adicionar um arquivo como anexo.' });
@@ -147,6 +150,7 @@ async function addProcurationAttachment() {
     formData.append('documentId', documentId);
     formData.append('userId', userId);
     formData.append('newDeadline', newDeadline);
+    formData.append('newDescription', newDescription);
 
     try {
         const response = await fetch('/api/procuration-control/upload', {

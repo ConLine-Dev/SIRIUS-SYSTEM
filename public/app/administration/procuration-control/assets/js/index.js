@@ -30,7 +30,7 @@ async function printAll() {
                             <div class="card-body d-flex" style="flex-direction: column; justify-content: space-between; max-height: 250px; overflow: scroll;">
                                 <span class="badge bg-${badge}-transparent fw-semibold fs-13">Vencimento: ${formattedDeadline}</span>
                                 <br><div>Data Criação: ${formattedCreate}</div><br>
-                                <div>Descrição: ${procurationData[index].description}</div><br>
+                                <div>Última Descrição: ${procurationData[index].description}</div><br>
                                 <div>Última Atualização: ${formattedUpdate}</div><br>
                                 <div>Responsável: ${procurationData[index].name} ${procurationData[index].family_name}</div>
                             </div>

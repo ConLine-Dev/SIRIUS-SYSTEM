@@ -5,7 +5,7 @@ const path = require('path');
 
 const commercialADM = {
 
-    getCommercials: async function () {
+    getCommercialsSC: async function () {
 
         const result = await executeQuery(`
             SELECT DISTINCT cl.name, cl.family_name, cl.email_business, cl.id_headcargo
@@ -18,6 +18,33 @@ const commercialADM = {
             ORDER BY cl.name`)
 
         return result;
+    },
+
+    getCommercialsSP: async function () {
+
+        const result = await executeQuery(`
+            SELECT DISTINCT cl.name, cl.family_name, cl.email_business, cl.id_headcargo
+            FROM collaborators cl
+            LEFT OUTER JOIN departments_relations dr on dr.collaborator_id = cl.id
+            LEFT OUTER JOIN sections_relations sr on sr.collaborator_id = cl.id
+            WHERE (dr.department_id = 1 OR dr.department_id = 2)
+            AND (sr.section_id = 6 OR sr.section_id = 7)
+            AND cl.resignation_date IS NULL
+            ORDER BY cl.name`)
+
+        return result;
+    },
+
+    getUserCompany: async function (userId) {
+
+        const result = await executeQuerySQL(`
+            SELECT
+                emp.IdEmpresa_Sistema
+            FROM cad_Funcionario fnc
+                LEFT OUTER JOIN cad_Empresa emp ON emp.IdEmpresa_Sistema = fnc.IdEmpresa
+            WHERE fnc.IdPessoa = ${userId}`)
+
+        return result[0].IdEmpresa_Sistema;
     },
 
     getByCommercial: async function (userId) {

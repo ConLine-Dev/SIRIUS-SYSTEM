@@ -21,8 +21,19 @@ function openSalesList() {
   document.querySelector('#salesMenu').classList.remove('d-none');
 }
 async function createFilters() {
+
+  let userId = getInfosLogin()
+  userId = userId.system_id_headcargo;
+  let userCompany = await makeRequest(`/api/commercial-adm/getUserCompany`, 'POST', {userId});
+
   let divCommercialList = document.getElementById('commercialList');
-  let getCommercials = await makeRequest(`/api/commercial-adm/getCommercials`);
+  let getCommercials;
+
+  if (userCompany == 1) {
+    getCommercials = await makeRequest(`/api/commercial-adm/getCommercialsSC`);
+  } else {
+    getCommercials = await makeRequest(`/api/commercial-adm/getCommercialsSP`);
+  }
 
   let printCommercialList = ''
 
@@ -30,8 +41,6 @@ async function createFilters() {
 
     let userId = getCommercials[index].id_headcargo;
     let getByCommercial = await makeRequest(`/api/commercial-adm/getByCommercial`, 'POST', {userId});
-
-    console.log(getByCommercial);
 
     let assertiveness = 0;
     if ((getByCommercial[0].Total_Aprovada + getByCommercial[0].Total_Reprovada + getByCommercial[0].Total_Pendente) > 0) {

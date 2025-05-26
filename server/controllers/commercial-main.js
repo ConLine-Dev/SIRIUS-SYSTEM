@@ -148,6 +148,7 @@ const commercialMain = {
                 DATEPART(year, lhs.Data_Abertura_Processo) = 2025
                 AND lma.idmoeda IN (110)
                 AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
+                AND lhs.Situacao_Agenciamento != 7
             GROUP BY
                 cli.nome`);
 

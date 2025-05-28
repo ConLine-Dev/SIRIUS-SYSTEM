@@ -91,7 +91,7 @@ async function createArrays(item) {
   document.querySelector('#loader2').classList.remove('d-none')
   // await createMailArrays(item.email_business);
   await createCancelArrays(item.id_headcargo);
-  await createRepurchaseArrays(item.id_headcargo);
+  await createRepurchaseArrays(item.id);
   await createProcessesArray(item.id_headcargo);
   await printProcesses(item.id_headcargo);
   document.querySelector('#loader2').classList.add('d-none')

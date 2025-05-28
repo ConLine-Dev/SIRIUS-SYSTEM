@@ -203,7 +203,7 @@ const IMADM = {
     getOperationals: async function () {
 
         const result = await executeQuery(`
-            SELECT DISTINCT cl.name, cl.family_name, cl.email_business, cl.id_headcargo
+            SELECT DISTINCT cl.name, cl.family_name, cl.email_business, cl.id_headcargo, cl.id
             FROM collaborators cl
             LEFT OUTER JOIN departments_relations dr on dr.collaborator_id = cl.id
             LEFT OUTER JOIN sections_relations sr on sr.collaborator_id = cl.id

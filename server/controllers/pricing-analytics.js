@@ -255,8 +255,8 @@ const pricingAnalytics = {
                 FROM RankedCountries
             )
             SELECT 
-                CASE 
-                    WHEN Rank <= 7 THEN Pais 
+                CASE
+                    WHEN Rank <= 100 THEN Pais 
                     ELSE 'OUTROS' 
                 END AS Pais,
                 SUM(Quantidade_Aparicoes) AS Quantidade_Aparicoes,
@@ -264,7 +264,7 @@ const pricingAnalytics = {
             FROM Top9
             GROUP BY 
                 CASE 
-                    WHEN Rank <= 7 THEN Pais 
+                    WHEN Rank <= 100 THEN Pais 
                     ELSE 'OUTROS' 
                 END
             ORDER BY Total_TEUS DESC;`);
@@ -316,14 +316,14 @@ const pricingAnalytics = {
             )
             SELECT
                 CASE
-                    WHEN Rank <= 8 THEN Agente
+                    WHEN Rank <= 100 THEN Agente
                     ELSE 'OUTROS'
                 END AS Agente,
                 SUM(Total_TEUS) AS Total_TEUS
             FROM Top5
             GROUP BY
                 CASE
-                    WHEN Rank <= 8 THEN Agente
+                    WHEN Rank <= 100 THEN Agente
                     ELSE 'OUTROS'
                 END
             ORDER BY Total_TEUS DESC;`);

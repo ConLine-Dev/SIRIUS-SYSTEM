@@ -51,6 +51,7 @@ const api_link_tree = require('./api-link-tree');
 const apiOrganizationalChart = require('./api-organizational-chart');
 const api_air_import_main = require('./api-air-import-main');
 const api_air_import_adm = require('./api-air-import-adm');
+const api_speakup_portal = require('./api-speakup-portal');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -244,6 +245,8 @@ const setIO = (io) => {
   // Use as rotas do arquivo api-air-import-main.js oi
   router.use('/air-import-adm', api_air_import_adm(io));
 
+  // Use as rotas do arquivo api-air-import-main.js oi
+  router.use('/speakup-portal', api_speakup_portal(io));
 
   // Adicionar rotas do user-tracker - TEMPORARIAMENTE DESATIVADO
   if (USER_TRACKER_ENABLED) {

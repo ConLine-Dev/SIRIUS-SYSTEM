@@ -1,135 +1,107 @@
-let openedArray = [];
-let canceledArray = [];
-let sentMailArray = [];
-let receivedMailArray = [];
-let repurchaseArray = [];
-let FprocessesArray = [];
-let FprocessesLabels = [];
-let LprocessesArray = [];
-let LprocessesLabels = [];
+let mailChart, cancelChart, repurchaseChart, processesChartFCL, processesChartLCL;
 
-async function printProcesses() {
+async function printProcesses(headcargo) {
 
-  let loggedData = await getInfosLogin();
-  let userId = loggedData.system_id_headcargo;
-  let processes = await makeRequest(`/api/maritime-import-main/totalProcesses`, 'POST', { userId });
+  let processes = await makeRequest(`/api/air-import-adm/openedProcesses`, 'POST', { userId: headcargo });
 
   let divNoETD = document.getElementById('noETD');
   let countNoETD = 0;
-  let fullNoETD = 0;
-  let lessNoETD = 0
+  let normalNoETD = 0;
+  let courierNoETD = 0
 
   let divNoETA = document.getElementById('noETA');
   let countNoETA = 0;
-  let fullNoETA = 0;
-  let lessNoETA = 0;
-
-  let divWithETA = document.getElementById('withETA');
-  let countWithETA = 0;
-  let fullWithETA = 0;
-  let lessWithETA = 0;
+  let normalNoETA = 0;
+  let courierNoETA = 0;
 
   let divTotal = document.getElementById('total');
   let countTotal = processes.length;
 
   for (let index = 0; index < processes.length; index++) {
-    if (processes[index].Data_Desembarque) {
-      if (processes[index].Tipo_Carga == 'FCL') {
-        fullWithETA++;
-      } else if (processes[index].Tipo_Carga == 'LCL') {
-        lessWithETA++;
-      }
-      countWithETA++;
-    } else if (processes[index].Data_Embarque) {
-      if (processes[index].Tipo_Carga == 'FCL') {
-        fullNoETA++;
-      } else if (processes[index].Tipo_Carga == 'LCL') {
-        lessNoETA++;
+    if (processes[index].Data_Embarque) {
+      if (processes[index].IdNivel_Servico_Aereo) {
+        courierNoETA++;
+      } else {
+        normalNoETA++;
       }
       countNoETA++;
     } else {
-      if (processes[index].Tipo_Carga == 'FCL') {
-        fullNoETD++;
-      } else if (processes[index].Tipo_Carga == 'LCL') {
-        lessNoETD++;
+      if (processes[index].IdNivel_Servico_Aereo) {
+        courierNoETD++;
+      } else {
+        normalNoETD++;
       }
       countNoETD++;
     }
   }
 
-  let fullTotal = fullNoETD + fullNoETA + fullWithETA;
-  let lessTotal = lessNoETD + lessNoETA + lessWithETA;
+  let courierTotal = courierNoETD + courierNoETA;
+  let normalTotal = normalNoETD + normalNoETA;
 
   let printNoETD = `<div><h2>${countNoETD}</h2>
-  <h6>FCL: ${fullNoETD} / LCL: ${lessNoETD}</h6></div>`
+  <h6>Normal: ${normalNoETD} / Courier: ${courierNoETD}</h6></div>`
   let printNoETA = `<div><h2>${countNoETA}</h2>
-  <h6>FCL: ${fullNoETA} / LCL: ${lessNoETA}</h6></div>`
-  let printWithETA = `<div><h2>${countWithETA}</h2>
-  <h6>FCL: ${fullWithETA} / LCL: ${lessWithETA}</h6></div>`
+  <h6>Normal: ${normalNoETA} / Courier: ${courierNoETA}</h6></div>`
   let printTotal = `<div><h2>${countTotal}</h2>
-  <h6>FCL: ${fullTotal} / LCL: ${lessTotal}</h6></div>`
+  <h6>Normal: ${normalTotal} / Courier: ${courierTotal}</h6></div>`
 
   divNoETD.innerHTML = printNoETD;
   divNoETA.innerHTML = printNoETA;
-  divWithETA.innerHTML = printWithETA;
   divTotal.innerHTML = printTotal;
 
 }
 
-async function getInfosLogin() {
-  const StorageGoogleData = localStorage.getItem('StorageGoogle');
-  const StorageGoogle = JSON.parse(StorageGoogleData);
+async function createCancelArrays(headcargo) {
 
-  return StorageGoogle;
-};
+  let openedArray = []
+  let canceledArray = []
 
-async function createCancelArrays() {
+  let canceledProcesses = await makeRequest(`/api/air-import-adm/canceledProcesses`, 'POST', { userId: headcargo })
 
-  let loggedData = await getInfosLogin();
+  for (let index = 0; index < canceledProcesses['openedArray'].length; index++) {
+    openedArray[canceledProcesses['openedArray'][index].Mes - 1] = canceledProcesses['openedArray'][index].Processos;
+    canceledArray[canceledProcesses['openedArray'][index].Mes - 1] = 0;
+  }
 
-  let userId = loggedData.system_id_headcargo;
-
-  let openedProcesses = await makeRequest(`/api/maritime-import-main/openedProcesses`, 'POST', { userId })
-  let canceledProcesses = await makeRequest(`/api/maritime-import-main/canceledProcesses`, 'POST', { userId })
-
-  for (let index = 0; index < openedProcesses.length; index++) {
-    if (openedProcesses[index].mes - 1 == index) {
-      openedArray[index] = openedProcesses[index].TotalProcessosAbertos
+  if (canceledProcesses['canceledProcesses']) {
+    for (let index = 0; index < canceledProcesses['canceledProcesses'].length; index++) {
+      canceledArray[canceledProcesses['canceledProcesses'][index.Mes - 1]] = canceledProcesses['canceledArray'][index].TotalProcessosCancelados;
     }
   }
 
-  for (let index = 0; index < canceledProcesses.length; index++) {
-    for (let index2 = 0; index2 < 12; index2++) {
-      if (canceledProcesses[index].mes - 1 == index2) {
-        canceledArray[index2] = canceledProcesses[index].TotalProcessosCancelados
-      } else if (canceledArray[index2] == null) {
-        canceledArray[index2] = 0;
-      }
-    }
-  }
+  createCancelChart(openedArray, canceledArray);
 }
 
-async function createMailArrays() {
-  let loggedData = await getInfosLogin();
+async function createMailArrays(email) {
 
-  let email = loggedData.email
+  let sentMailArray = [];
+  let receivedMailArray = [];
 
-  let emailsList = await makeRequest(`/api/maritime-import-main/totalEmails`, 'POST', { email });
+  let emailsList = await makeRequest(`/api/air-import-adm/totalEmails`, 'POST', { email });
 
-  for (let index = 0; index < emailsList.length; index++) {
-    if (emailsList[index].mes - 1 == index) {
-      sentMailArray[index] = emailsList[index].enviados;
-      receivedMailArray[index] = emailsList[index].recebidos;
-    }
-  }
+  emailsList.forEach(item => {
+    const mesIndex = item.mes - 1;
+
+    if (!sentMailArray[mesIndex]) sentMailArray[mesIndex] = 0;
+    if (!receivedMailArray[mesIndex]) receivedMailArray[mesIndex] = 0;
+
+    sentMailArray[mesIndex] += item.enviados;
+    receivedMailArray[mesIndex] += item.recebidos;
+  });
+
+  createMailChart(sentMailArray, receivedMailArray);
 }
 
-async function createRepurchaseArrays() {
-  let loggedData = await getInfosLogin();
-  console.log(loggedData)
-  let userId = loggedData.system_collaborator_id;
-  let repurchases = await makeRequest(`/api/maritime-import-main/repurchases`, 'POST', { userId });
+async function createRepurchaseArrays(userId) {
+  // Busca os dados do backend
+  let repurchases = await makeRequest(`/api/air-import-adm/repurchases`, 'POST', { userId });
 
+  // Salva os dados crus para uso no tooltip customizado
+  if (!window.ApexCharts) window.ApexCharts = {};
+  if (!window.ApexCharts._globals) window.ApexCharts._globals = {};
+  window.ApexCharts._globals.rawRepurchases = repurchases;
+
+  // Descobre todos os meses, status e moedas presentes
   const statusList = ['APPROVED', 'PENDING', 'PAID'];
   const statusMap = {
     'APPROVED': 'Aprovado',
@@ -138,11 +110,12 @@ async function createRepurchaseArrays() {
   };
   const statusColor = {
     'Aprovado': '#F9423A',
-    'Pendente': '#ffc107',
-    'Finalizado': '#3f2021'
+    'Pendente': '#3f2021',
+    'Finalizado': '#bdbdbd'
   };
   const moedas = [...new Set(repurchases.map(item => item.moeda))];
 
+  // Para cada status, cria um array de totais por mês e um detalhamento por moeda
   let series = [];
   let colors = [];
   let tooltipDetails = {};
@@ -166,14 +139,21 @@ async function createRepurchaseArrays() {
     tooltipDetails[statusMap[status]] = details;
   });
 
+  // Passa os dados crus para o gráfico via globals
+  setTimeout(() => {
+    if (window.repurchaseChart && window.repurchaseChart.w && window.ApexCharts._globals.rawRepurchases) {
+      window.repurchaseChart.w.globals.rawRepurchases = window.ApexCharts._globals.rawRepurchases;
+    }
+  }, 500);
+
   createRepurchaseChart(series, moedas, colors, tooltipDetails);
 }
 
 function createRepurchaseChart(series, moedas, colors, tooltipDetails) {
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-  if (window.repurchaseChart) {
-    window.repurchaseChart.destroy();
+  if (repurchaseChart) {
+    repurchaseChart.destroy();
   }
 
   var chartData = {
@@ -181,7 +161,7 @@ function createRepurchaseChart(series, moedas, colors, tooltipDetails) {
     chart: {
       height: 600,
       type: 'bar',
-      stacked: true,
+      stacked: true, // barras empilhadas
       toolbar: {
         show: false,
       },
@@ -197,13 +177,14 @@ function createRepurchaseChart(series, moedas, colors, tooltipDetails) {
       }
     },
     dataLabels: {
-      enabled: false
+      enabled: false // Remover valores das barras
     },
     tooltip: {
       enabled: true,
       shared: true,
       intersect: false,
-      custom: function({series, seriesIndex, dataPointIndex, w}) {
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        // Mostra detalhamento por moeda para cada status
         const monthName = months[dataPointIndex];
         let tooltipHtml = `<div style='padding:8px 12px;'><div style='font-weight:bold;font-size:14px;margin-bottom:4px;'>${monthName}</div>`;
         w.config.series.forEach((s, idx) => {
@@ -217,6 +198,14 @@ function createRepurchaseChart(series, moedas, colors, tooltipDetails) {
                 tooltipHtml += `<div style='margin-left:10px;'>${moeda}: <b>${details[moeda].toLocaleString('pt-BR', { style: 'currency', currency: moeda, maximumFractionDigits: 2 })}</b></div>`;
               }
             });
+            // Se for Aprovado, soma o valor convertido para real e exibe logo após as moedas
+            if (status === 'Aprovado' && w.config.rawRepurchases) {
+              const aprovadosMes = w.config.rawRepurchases.filter(item => item.status === 'APPROVED' && item.mes === dataPointIndex + 1);
+              const totalAprovadoBRL = aprovadosMes.reduce((acc, curr) => acc + (curr.total_recompra_brl || 0), 0);
+              if (totalAprovadoBRL > 0) {
+                tooltipHtml += `<div style='margin-left:10px;margin-top:2px;font-weight:bold;color:#1a7e3c;'>Total em R$: <b>${totalAprovadoBRL.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 2 })}</b></div>`;
+              }
+            }
           }
         });
         tooltipHtml += `</div>`;
@@ -241,7 +230,7 @@ function createRepurchaseChart(series, moedas, colors, tooltipDetails) {
         show: false,
       },
       labels: {
-        formatter: function(val) {
+        formatter: function (val) {
           return val ? val.toLocaleString('pt-BR', { maximumFractionDigits: 2 }) : '';
         }
       }
@@ -254,18 +243,22 @@ function createRepurchaseChart(series, moedas, colors, tooltipDetails) {
         colors: '#333',
         useSeriesColors: false
       }
-    }
+    },
+    rawRepurchases: window.ApexCharts._globals.rawRepurchases // <-- Passa os dados crus para o gráfico
   };
 
-  window.repurchaseChart = new ApexCharts(document.querySelector('#repurchase-chart'), chartData);
-  window.repurchaseChart.render();
+  repurchaseChart = new ApexCharts(document.querySelector('#repurchase-chart'), chartData);
+  repurchaseChart.render();
 }
 
-async function createProcessesArray() {
+async function createProcessesArray(userId) {
 
-  let loggedData = await getInfosLogin();
-  let userId = loggedData.system_id_headcargo
-  let processes = await makeRequest(`/api/maritime-import-main/filteredProcesses`, 'POST', {userId})
+  let FprocessesArray = [];
+  let FprocessesLabels = [];
+  let LprocessesArray = [];
+  let LprocessesLabels = [];
+
+  let processes = await makeRequest(`/api/air-import-adm/filteredProcesses`, 'POST', { userId })
 
   for (let index = 0; index < processes.length; index++) {
     if (processes[index].Tipo_Carga == 'FCL' && FprocessesArray.length < 4) {
@@ -292,10 +285,15 @@ async function createProcessesArray() {
     LprocessesLabels[index] = LprocessesLabels[index].slice(0, 2).join(' ');
   }
 
+  // createProcessesChart(FprocessesArray, FprocessesLabels, LprocessesArray, LprocessesLabels);
 }
 
-function createMailChart() {
+function createMailChart(sentMailArray, receivedMailArray) {
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  if (mailChart) {
+    mailChart.destroy();
+  }
 
   var chartData = {
 
@@ -370,12 +368,16 @@ function createMailChart() {
     },
   };
 
-  var chart = new ApexCharts(document.querySelector('#mails-chart'), chartData);
-  chart.render();
+  mailChart = new ApexCharts(document.querySelector('#mails-chart'), chartData);
+  mailChart.render();
 }
 
-function createCancelChart() {
+function createCancelChart(openedArray, canceledArray) {
   const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  if (cancelChart) {
+    cancelChart.destroy();
+  }
 
   var chartData = {
 
@@ -451,20 +453,24 @@ function createCancelChart() {
       },
     },
     legend: {
-      show: true,
-      position: 'top',
-      labels: {
-        colors: '#333',
-        useSeriesColors: false
-      }
+      show: false
     }
+
   };
 
-  var chart = new ApexCharts(document.querySelector('#cancels-chart'), chartData);
-  chart.render();
+  cancelChart = new ApexCharts(document.querySelector('#cancels-chart'), chartData);
+  cancelChart.render();
 }
 
-function createProcessesChart() {
+function createProcessesChart(FprocessesArray, FprocessesLabels, LprocessesArray, LprocessesLabels) {
+
+  if (processesChartFCL) {
+    processesChartFCL.destroy();
+  }
+
+  if (processesChartLCL) {
+    processesChartLCL.destroy();
+  }
 
   var chartDataFCL = {
     series: FprocessesArray,
@@ -542,19 +548,25 @@ function createProcessesChart() {
 
 }
 
+function getInfosLogin() {
+  const StorageGoogleData = localStorage.getItem('StorageGoogle');
+  const StorageGoogle = JSON.parse(StorageGoogleData);
+
+  return StorageGoogle;
+}
+
 function openWindow(url, width, height) {
   window.open(url, '_blank', `width=${width},height=${height},resizable=yes,scrollbars=yes`);
 }
 
 document.addEventListener('DOMContentLoaded', async function () {
 
-  await printProcesses();
-  // await createMailArrays();
-  createMailChart();
-  await createCancelArrays();
-  createCancelChart();
-  await createRepurchaseArrays();
-  createProcessesChart();
+  let userData = getInfosLogin()
+
+  await printProcesses(userData.system_id_headcargo);
+  // await createMailArrays('');
+  await createCancelArrays(userData.system_id_headcargo);
+  await createRepurchaseArrays(userData.system_collaborator_id);
 
   document.querySelector('#loader2').classList.add('d-none')
 });

@@ -77,7 +77,7 @@ async function createArrays(item) {
   // await createMailArrays(item.email_business);
   await createCancelArrays(item.id_headcargo);
   await createRepurchaseArrays(item.id);
-  await createProcessesArray(item.id_headcargo);
+  // await createProcessesArray(item.id_headcargo);
   await printProcesses(item.id_headcargo);
   document.querySelector('#loader2').classList.add('d-none')
 }
@@ -590,7 +590,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   // await createMailArrays('');
   await createCancelArrays(0);
   await createRepurchaseArrays(0);
-  await createProcessesArray(0);
+  // await createProcessesArray(0);
 
   document.querySelector('#loader2').classList.add('d-none')
 });

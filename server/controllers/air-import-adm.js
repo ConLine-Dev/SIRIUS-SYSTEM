@@ -27,6 +27,7 @@ const IAADM = {
                 lms.Modalidade_Processo = 1
                 ${userFilter}
                 AND lms.Tipo_Operacao = 2
+                AND lhs.Numero_Processo not like '%test%'
                 AND lms.Situacao_Embarque != 11
                 AND lhs.Situacao_Agenciamento != 7
                 AND DATEPART(year, lhs.Data_Abertura_Processo) > 2024`)
@@ -54,6 +55,7 @@ const IAADM = {
                 AND lms.Tipo_Operacao = 2
                 AND DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2024
                 AND lhs.Data_Cancelamento IS NOT NULL
+                AND lhs.Numero_Processo not like '%test%'
             GROUP BY
                 DATEPART(MONTH, lhs.Data_Cancelamento)
             ORDER BY

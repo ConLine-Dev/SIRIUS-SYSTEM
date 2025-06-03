@@ -11,7 +11,9 @@ const IAMain = {
         let userFilter = ''
 
         if (userId > 0) {
-            userFilter = `AND Par.IdResponsavel = ${userId}`
+            userFilter = `  AND Par.IdResponsavel = ${userId}
+                            AND Pre.IdResponsavel = ${userId}
+                            AND Pos.IdResponsavel = ${userId}`
         }
 
         let result = await executeQuerySQL(`
@@ -23,6 +25,8 @@ const IAMain = {
                 LEFT OUTER JOIN mov_Logistica_Master lms ON lms.IdLogistica_Master = lhs.IdLogistica_Master
                 LEFT OUTER JOIN mov_Logistica_Aerea_House lah ON lah.IdLogistica_House = lhs.IdLogistica_House
                 LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Par ON Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Par.IdPapel_Projeto = 2)
+                LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Pre ON Pre.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Pre.IdPapel_Projeto = 16)
+                LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Pos ON Pos.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Pos.IdPapel_Projeto = 17)
             WHERE
                 lms.Modalidade_Processo = 1
                 ${userFilter}
@@ -39,7 +43,9 @@ const IAMain = {
         let userFilter = ''
 
         if (userId > 0) {
-            userFilter = `AND Par.IdResponsavel = ${userId}`
+            userFilter = `  AND Par.IdResponsavel = ${userId}
+                            AND Pre.IdResponsavel = ${userId}
+                            AND Pos.IdResponsavel = ${userId}`
         }
 
         let canceledArray = await executeQuerySQL(`
@@ -49,6 +55,8 @@ const IAMain = {
             FROM mov_Logistica_House lhs
                 LEFT OUTER JOIN mov_Logistica_Master lms ON lms.IdLogistica_Master = lhs.IdLogistica_Master
                 LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Par ON Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Par.IdPapel_Projeto = 2)
+                LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Pre ON Pre.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Pre.IdPapel_Projeto = 16)
+                LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Pos ON Pos.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Pos.IdPapel_Projeto = 17)
             WHERE
                 lms.Modalidade_Processo = 1
                 ${userFilter}
@@ -68,6 +76,8 @@ const IAMain = {
             FROM mov_Logistica_House lhs
                 LEFT OUTER JOIN mov_Logistica_Master lms ON lms.IdLogistica_Master = lhs.IdLogistica_Master
                 LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Par ON Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Par.IdPapel_Projeto = 2)
+                LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Pre ON Pre.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Pre.IdPapel_Projeto = 16)
+                LEFT OUTER JOIN mov_Projeto_Atividade_Responsavel Pos ON Pos.IdProjeto_Atividade = Lhs.IdProjeto_Atividade AND (Pos.IdPapel_Projeto = 17)
             WHERE
                 lms.Modalidade_Processo = 1
                 ${userFilter}

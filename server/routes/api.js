@@ -58,6 +58,7 @@ const apiSystem = require('./api-system');
 const Posts = require('./apiPosts');
 const api_zero_based_cost_center = require('./api-zero-based-budgeting');
 const api_procuration_control = require('./api-procuration-control');
+const api_procedures_management = require('./api-procedures-management');
 // const Posts = require('./apiPosts');
 
 // Importando as rotas da API user-tracker
@@ -248,6 +249,9 @@ const setIO = (io) => {
   // Use as rotas do arquivo api-air-import-main.js oi
   router.use('/speakup-portal', api_speakup_portal(io));
 
+  // Use as rotas para o novo módulo de gerenciamento de procedimentos
+  router.use('/procedures-management', api_procedures_management);
+
   // Adicionar rotas do user-tracker - TEMPORARIAMENTE DESATIVADO
   if (USER_TRACKER_ENABLED) {
     router.use('/user-tracker', apiUserTracker(io));
@@ -256,7 +260,7 @@ const setIO = (io) => {
     // console.log('User-tracker API desativada temporariamente para economizar memória');
   }
 
-  // Adicionar rotas do organizational-chart
+  // Use as rotas do arquivo api-organizational-chart.js
   router.use('/organizational-chart', apiOrganizationalChart(io));
 
   // ------------------- Montar as rotas -------------------

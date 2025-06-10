@@ -1,0 +1,122 @@
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Novo Procedimento</title>
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="./assets/css/create.css">
+    <style>
+        html, body {
+            height: 100%;
+        }
+        body {
+            background-color: #f8f9fa;
+            overflow: hidden; /* Esconde a rolagem do body */
+        }
+        .card-body {
+            overflow-y: auto; /* Adiciona rolagem apenas ao corpo do card */
+        }
+        #editor-container {
+            height: calc(100vh - 450px); /* Altura dinâmica para o editor */
+            min-height: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="row g-0" style="height: 100%;">
+        <div class="col-xl-12">
+            <form id="form-create-procedure" class="d-flex flex-column h-100">
+                <div class="card custom-card flex-grow-1">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4 class="card-title mb-0">Criar Novo Procedimento</h4>
+                        <button class="btn btn-primary" id="btn-save">
+                            <i class="ri-save-line me-1"></i>
+                            Salvar Procedimento
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Coluna de Conteúdo Principal -->
+                            <main class="col-lg-8">
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Título</label>
+                                    <input type="text" class="form-control" id="title" name="title" required="">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Conteúdo do Procedimento</label>
+                                    <div id="editor-container"></div>
+                                </div>
+                            </main>
+                            
+                            <!-- Sidebar -->
+                            <aside class="col-lg-4">
+                                <div class="card shadow-sm mb-4">
+                                    <div class="card-body">
+                                        <h5 class="text-primary">Detalhes</h5>
+                                        <hr>
+                                        <!-- Campos de select e tags aqui -->
+                                        <div class="mb-3">
+                                            <label for="department" class="form-label">Departamento</label>
+                                            <select class="form-select" id="department" name="department" required=""></select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="role" class="form-label">Cargo</label>
+                                            <select class="form-select" id="role" name="role" required=""></select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="type" class="form-label">Tipo</label>
+                                            <select class="form-select" id="type" name="type" required=""></select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="responsible" class="form-label">Responsável</label>
+                                            <select class="form-select" id="responsible" name="responsible" required=""></select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="tags" class="form-label">Tags (separadas por vírgula)</label>
+                                            <input type="text" class="form-control" id="tags" name="tags">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="text-primary">Anexos</h5>
+                                        <hr class="my-3">
+                                        <div id="attachments-container"></div>
+                                        <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="btn-add-attachment">
+                                            <i class="ri-add-line"></i> Adicionar Anexo
+                                        </button>
+                                    </div>
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/fetchAPI.js"></script>
+
+    <!-- Quill.js Editor -->
+    <link href="https://cdn.quilljs.com/2.0.0-dev.2/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/2.0.0-dev.2/quill.js"></script>
+
+    <script src="./assets/js/create.js"></script>
+</body>
+
+</html> 

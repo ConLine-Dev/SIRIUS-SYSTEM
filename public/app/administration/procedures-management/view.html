@@ -1,0 +1,134 @@
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizar Procedimento</title>
+    <link href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Quill.js - para renderização -->
+    <link href="https://cdn.quilljs.com/2.0.0-dev.2/quill.snow.css" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+        }
+        body {
+            background-color: #f8f9fa;
+            overflow: hidden;
+        }
+        .card-body {
+            overflow-y: auto;
+        }
+        .ql-editor {
+            padding: 0;
+            line-height: 1.7;
+            font-size: 1.05rem;
+        }
+        .ql-container.ql-snow {
+            border: none;
+        }
+        .attachment-item {
+            word-break: break-word;
+        }
+        .attachment-item iframe {
+            max-width: 100%;
+            border-radius: 0.5rem;
+        }
+        @media print {
+            .sidebar, .card-header {
+                display: none !important;
+            }
+            main.col-lg-8 {
+                width: 100% !important;
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            body, .card {
+                background-color: #ffffff;
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+            }
+            .card-body {
+                overflow-y: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="row g-0" style="height: 100%;">
+        <div class="col-xl-12">
+            <div class="card custom-card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 id="title" class="card-title mb-0">Carregando...</h4>
+                    <button class="btn btn-primary" onclick="window.print()" title="Imprimir">
+                        <i class="ri-printer-line me-1"></i> Imprimir
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Coluna de Conteúdo Principal -->
+                        <main class="col-lg-8">
+                            <div class="content-panel h-100">
+                                <h5 class="text-primary">Conteúdo do Procedimento</h5>
+                                <hr class="my-3">
+                                <div id="procedure-content-quill" class="ql-snow">
+                                    <div class="ql-editor"></div>
+                                </div>
+                            </div>
+                        </main>
+                        
+                        <!-- Sidebar de Metadados -->
+                        <aside class="col-lg-4">
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-body">
+                                    <h5 class="text-primary">Detalhes</h5>
+                                    <hr>
+                                    <div id="meta-info"></div>
+                                </div>
+                            </div>
+
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-body">
+                                    <h5 class="text-primary">Anexos</h5>
+                                    <hr>
+                                    <div id="attachments-list"></div>
+                                </div>
+                            </div>
+
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="text-primary">Histórico de Versões</h5>
+                                    <hr>
+                                    <ul id="version-history-list" class="list-group list-group-flush small"></ul>
+                                </div>
+                            </div>
+                        </aside>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Visualização de Imagem -->
+    <div class="modal fade" id="image-viewer-modal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <img id="modal-image" src="" class="img-fluid" alt="Imagem do Anexo">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/fetchAPI.js"></script>
+
+    <!-- Quill.js - para renderização -->
+    <script src="https://cdn.quilljs.com/2.0.0-dev.2/quill.js"></script>
+    
+    <script src="./assets/js/view.js"></script>
+</body>
+</html> 

@@ -1,3 +1,4 @@
+const { exec } = require('child_process');
 const { executeQuery } = require('../connect/mysql');
 const { executeQuerySQL } = require('../connect/sqlServer');
 const fs = require('fs');
@@ -5,7 +6,7 @@ const path = require('path');
 
 const speakUpPortal = {
 
-    getOffers: async function() {
+    getOffers: async function () {
         const result = executeQuerySQL(`
             SELECT
                 DATEPART(MONTH, prf.Data_Proposta) AS 'mes',
@@ -35,20 +36,82 @@ const speakUpPortal = {
 
         return result;
     },
-    commentsByModule: async function (moduleId) {
+    saveOccurrence: async function (req) {
 
-        let result = await executeQuery(`
-           SELECT ic.title, ic.description, ic.comment_date,
-           cl.id_headcargo, cl.name, cl.family_name, md.title as 'module'
-           FROM internal_comments ic
-           LEFT OUTER JOIN collaborators cl on cl.id = ic.collab_id
-           LEFT OUTER JOIN modules md on md.id = ic.module_id
-           WHERE module_id = ${moduleId}
-           ORDER BY ic.comment_date DESC`)
+        const details = req.body
 
+        const occurrence = await executeQuery(`
+            INSERT INTO speakup (create_date, occurrence_date, description, collaborator_id) VALUES (NOW(), ?, ?, ?)`,
+            [details.date, details.description, details.collabId]
+        );
+
+        if (req.files && req.files.length > 0) {
+            for (const file of req.files) {
+                await executeQuery(`
+            INSERT INTO speakup_attachments (id_speakup, file, create_date) VALUES (?, ?, NOW())`,
+            [occurrence.insertId, file.filename]); // ou file.path, se preferir salvar o caminho completo
+            }
+        }
+        return true;
+    },
+    getOccurrences: async function (userId) {
+        const result = await executeQuery(`
+            SELECT
+                sp.id,
+                sp.create_date,
+                sp.occurrence_date,
+                sp.description,
+                st.description AS status
+            FROM speakup sp
+                LEFT OUTER JOIN speakup_status st ON st.id = sp.status
+            WHERE sp.collaborator_id = ${userId}`);
         return result;
-     },
+    },
+    getComments: async function (id) {
+        const result = await executeQuery(`
+            SELECT
+                sc.comment,
+                sc.collaborator_id,
+                sc.create_date,
+                st.description
+            FROM speakup_comments sc
+                LEFT OUTER JOIN speakup_status st ON st.id = sc.currentStatus
+            WHERE sc.speakup_id = ${id}`);
+        return result;
+    },
+    saveComment: async function (details) {
+        const currentStatus = await executeQuery(`
+            SELECT
+            status
+            FROM speakup
+            WHERE id = ${details.id}`);
 
+        await executeQuery(`
+                INSERT INTO speakup_comments (speakup_id, comment, currentStatus, collaborator_id, create_date) VALUES (?, ?, ?, ?, NOW())`,
+            [details.id, details.comment, currentStatus[0].status, details.collabId]
+        );
+        return true;
+    },
+    getDetails: async function (id) {
+        const result = await executeQuery(`
+                SELECT
+                    sp.occurrence_date,
+                    sp.description,
+                    st.description AS 'status'
+                FROM speakup sp
+                    LEFT OUTER JOIN speakup_status st ON st.id = sp.status
+                WHERE sp.id = ${id}`);
+        return result;
+    },
+    getAttachments: async function (id) {
+
+        const result = await executeQuery(`
+            SELECT
+                *
+            FROM speakup_attachments
+            WHERE id_speakup = ${id}`);
+        return result;
+    }
 };
 
 module.exports = {

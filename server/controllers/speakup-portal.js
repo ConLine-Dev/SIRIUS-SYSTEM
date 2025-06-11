@@ -67,13 +67,26 @@ const speakUpPortal = {
             WHERE sp.collaborator_id = ${userId}`);
         return result;
     },
+    getOccurrencesADM: async function () {
+        const result = await executeQuery(`
+            SELECT
+                sp.id,
+                sp.create_date,
+                sp.occurrence_date,
+                sp.description,
+                st.description AS status
+            FROM speakup sp
+                LEFT OUTER JOIN speakup_status st ON st.id = sp.status`);
+        return result;
+    },
     getComments: async function (id) {
         const result = await executeQuery(`
             SELECT
                 sc.comment,
                 sc.collaborator_id,
                 sc.create_date,
-                st.description
+                st.description,
+                sc.screen
             FROM speakup_comments sc
                 LEFT OUTER JOIN speakup_status st ON st.id = sc.currentStatus
             WHERE sc.speakup_id = ${id}`);

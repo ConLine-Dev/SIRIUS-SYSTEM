@@ -51,7 +51,7 @@ async function createHistory() {
     let horaFormatada = `${hora}:${min}`;
 
     let commentName = '';
-    if (getComments[index].collaborator_id == collabId) {
+    if (getComments[index].screen == 'adm') {
       commentName = 'Responsável';
     } else {
       commentName = 'Denunciante';

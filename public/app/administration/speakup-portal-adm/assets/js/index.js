@@ -29,7 +29,7 @@ async function createTable() {
   let collabId = userData.system_collaborator_id;
   const listTable = [];
 
-  const getVolumes = await makeRequest(`/api/speakup-portal/getOccurrences`, 'POST', { collabId });
+  const getVolumes = await makeRequest(`/api/speakup-portal/getOccurrencesADM`);
 
   for (let index = 0; index < getVolumes.length; index++) {
     const item = getVolumes[index];

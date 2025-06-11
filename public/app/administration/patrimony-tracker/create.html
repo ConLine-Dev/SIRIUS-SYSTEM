@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Cadastrar Item</title>
+    <meta name="Description" content="Cadastro de item patrimonial">
+    <meta name="Author" content="SIRIUS SYSTEM">
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./assets/css/create.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body class="bg-white">
+    <!-- Loader -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div class="container-fluid p-3">
+        <div class="card shadow-none border-0">
+            <div class="card-header d-flex justify-content-between align-items-center bg-transparent">
+                <div>
+                    <h5 class="card-title mb-0">Cadastrar Novo Item</h5>
+                    <p class="text-muted mb-0 mt-1 fs-12">Adicione um novo item ao inventário de patrimônio</p>
+                </div>
+                <button type="button" class="btn btn-outline-secondary" onclick="window.close()">
+                    <i class="ri-close-line me-1"></i> Cancelar
+                </button>
+            </div>
+            <div class="card-body">
+                <form id="create-item-form">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="card border h-100">
+                                <div class="card-header bg-light-subtle">
+                                    <h6 class="card-title mb-0">Informações Básicas</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="item-code" class="form-label">Código <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="item-code" required>
+                                        <small class="form-text text-muted">Código único de identificação do item (ex: PAT0001)</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="item-description" class="form-label">Descrição <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="item-description" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="item-location" class="form-label">Localização <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="item-location" required>
+                                            <!-- Preenchido via JavaScript -->
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border h-100">
+                                <div class="card-header bg-light-subtle">
+                                    <h6 class="card-title mb-0">Detalhes Adicionais</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="item-acquisition-date" class="form-label">Data de Aquisição <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="item-acquisition-date" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="item-status" class="form-label">Estado Inicial <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="item-status" required>
+                                            <option value="available">Disponível</option>
+                                            <option value="in_use">Em Uso</option>
+                                            <option value="in_maintenance">Em Manutenção</option>
+                                            <option value="damaged">Danificado</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="item-notes" class="form-label">Notas Adicionais</label>
+                                        <textarea class="form-control" id="item-notes" rows="3" placeholder="Informações complementares sobre o item..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="button" class="btn btn-light me-2" onclick="window.close()">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ri-save-line me-1"></i> Cadastrar Item
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="./assets/js/create.js"></script>
+</body>
+
+</html> 

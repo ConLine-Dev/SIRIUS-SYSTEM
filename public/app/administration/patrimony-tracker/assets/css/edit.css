@@ -1,0 +1,152 @@
+/* Estilos para a página de edição de item */
+body {
+    background-color: #f9f9f9;
+    overflow-x: hidden;
+}
+
+.card {
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+}
+
+.card.border {
+    border-color: #e9ecef !important;
+}
+
+.card-header {
+    padding: 0.75rem 1.25rem;
+}
+
+.bg-light-subtle {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Formulários */
+.form-label {
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.form-control,
+.form-select {
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    border-color: #dee2e6;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    box-shadow: 0 0 0 0.25rem rgba(var(--primary-rgb), 0.25);
+}
+
+.form-text {
+    font-size: 0.75rem;
+}
+
+.form-control:disabled,
+.form-control[readonly] {
+    background-color: #f8f9fa;
+}
+
+/* Alerta informativo */
+.alert-info {
+    background-color: rgba(13, 202, 240, 0.1);
+    border-color: rgba(13, 202, 240, 0.25);
+    color: #055160;
+}
+
+/* Botões */
+.btn {
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: rgb(var(--primary-rgb));
+    border-color: rgb(var(--primary-rgb));
+}
+
+.btn-primary:hover {
+    background-color: rgba(var(--primary-rgb), 0.9);
+    border-color: rgba(var(--primary-rgb), 0.9);
+}
+
+.btn-light {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.btn-light:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Campos obrigatórios */
+.form-label .text-danger {
+    margin-left: 2px;
+}
+
+/* Notificações */
+.alert-notification {
+    animation: slideDown 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Cards */
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Campos somente leitura */
+input[readonly], input[disabled] {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+}
+
+/* Botões */
+#btn-save:disabled {
+    cursor: progress;
+}
+
+.btn-group {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+} 

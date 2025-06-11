@@ -70,6 +70,8 @@ const USER_TRACKER_ENABLED = false; // Desativado temporariamente
 const apiZeroBasedBudgeting = require('./api-zero-based-budgeting');
 const apiPDIHub = require('./api-pdi-hub'); // Nova rota para o PDI Hub
 
+const apiPatrimonyTracker = require('./api-patrimony-tracker');
+
 // Function to set io instance
 const setIO = (io) => {
   // Pass the io instance to the apiDirectMailPricing route
@@ -266,6 +268,9 @@ const setIO = (io) => {
   // ------------------- Montar as rotas -------------------
   router.use('/zero-based-budgeting', apiZeroBasedBudgeting(io));
   router.use('/pdi-hub', apiPDIHub(io)); // Montar as rotas do PDI Hub
+  
+  // Use as rotas do Patrimony Tracker
+  router.use('/patrimony-tracker', apiPatrimonyTracker);
   
   return router;
 };

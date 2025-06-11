@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Visualizar Item</title>
+    <meta name="Description" content="Visualização detalhada de item patrimonial">
+    <meta name="Author" content="SIRIUS SYSTEM">
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./assets/css/view.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body class="bg-white">
+    <!-- Loader -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div class="container-fluid p-3">
+        <div class="card shadow-none border-0">
+            <div class="card-header d-flex justify-content-between align-items-center bg-transparent">
+                <div>
+                    <h5 class="card-title mb-0">Detalhes do Item</h5>
+                    <p class="text-muted mb-0 mt-1 fs-12">Visualização completa e histórico de eventos</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-primary" id="btn-edit-item">
+                        <i class="ri-edit-line me-1"></i> Editar
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.close()">
+                        <i class="ri-close-line me-1"></i> Fechar
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <!-- Informações Básicas -->
+                    <div class="col-12">
+                        <div class="card border">
+                            <div class="card-header bg-light-subtle">
+                                <h6 class="card-title mb-0">Informações Básicas</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <span class="fw-medium d-block">Código:</span>
+                                            <span id="item-code" class="fs-15">-</span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <span class="fw-medium d-block">Descrição:</span>
+                                            <span id="item-description" class="fs-15">-</span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <span class="fw-medium d-block">Localização:</span>
+                                            <span id="item-location" class="fs-15">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <span class="fw-medium d-block">Data de Aquisição:</span>
+                                            <span id="item-acquisition-date" class="fs-15">-</span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <span class="fw-medium d-block">Estado:</span>
+                                            <span id="item-status" class="fs-15">-</span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <span class="fw-medium d-block">Notas:</span>
+                                            <span id="item-notes" class="fs-15">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Atribuição Atual -->
+                    <div class="col-md-6" id="current-assignment-container">
+                        <div class="card border h-100">
+                            <div class="card-header bg-light-subtle">
+                                <h6 class="card-title mb-0">Atribuição Atual</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="no-current-assignment" class="text-center py-4 d-none">
+                                    <i class="ri-user-search-line fs-3 text-muted mb-2"></i>
+                                    <p class="mb-0">Nenhuma atribuição atual</p>
+                                </div>
+                                <div id="current-assignment-info">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="avatar avatar-md bg-primary-subtle text-primary me-3">
+                                            <i class="ri-user-3-line fs-18"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0" id="current-employee-name">-</h6>
+                                            <span class="text-muted small" id="current-employee-department">-</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <span class="fw-medium d-block">Data de Atribuição:</span>
+                                        <span id="current-assignment-date" class="fs-15">-</span>
+                                    </div>
+                                    <div class="mb-0">
+                                        <span class="fw-medium d-block">Observações:</span>
+                                        <span id="current-assignment-notes" class="fs-15">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Histórico de Atribuições -->
+                    <div class="col-md-6">
+                        <div class="card border h-100">
+                            <div class="card-header bg-light-subtle">
+                                <h6 class="card-title mb-0">Histórico de Atribuições</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Colaborador</th>
+                                                <th>Departamento</th>
+                                                <th>Atribuição</th>
+                                                <th>Devolução</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="assignment-history-table-body">
+                                            <!-- Será preenchido via JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div id="no-assignment-history" class="text-center py-4 d-none">
+                                    <p class="mb-0">Nenhum histórico de atribuição</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Log de Eventos -->
+                    <div class="col-12">
+                        <div class="card border">
+                            <div class="card-header bg-light-subtle">
+                                <h6 class="card-title mb-0">Log de Eventos</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <div id="event-log-timeline" class="timeline-activity p-3">
+                                    <!-- Será preenchido via JavaScript -->
+                                </div>
+                                <div id="no-event-log" class="text-center py-4 d-none">
+                                    <p class="mb-0">Nenhum evento registrado</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Relatório de Auditoria (Mostra apenas se existir) -->
+                    <div class="col-12" id="audit-report-container" style="display: none;">
+                        <div class="card border">
+                            <div class="card-header bg-light-subtle d-flex justify-content-between align-items-center">
+                                <h6 class="card-title mb-0">Relatório de Auditoria IA</h6>
+                                <span class="badge bg-primary" id="audit-date">-</span>
+                            </div>
+                            <div class="card-body" id="audit-report-content">
+                                <!-- Será preenchido via JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="./assets/js/view.js"></script>
+</body>
+
+</html> 

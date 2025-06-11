@@ -1,0 +1,146 @@
+<html lang="pt-BR" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Gerenciamento de Patrimônio</title>
+    <meta name="Description" content="Sistema para gerenciamento de ativos empresariais">
+    <meta name="Author" content="SIRIUS SYSTEM">
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+    <!-- Loader -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+    
+    <div class="row" style="height: 100%;">
+        <div class="col-xl-12">
+            <div class="card custom-card" style="height: 100%;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title mb-0">Gerenciamento de Patrimônio</h5>
+                        <p class="text-muted mb-0 mt-1 fs-12">Controle completo do ciclo de vida dos ativos empresariais</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openCreateItem()">
+                        <i class="ri-add-line me-1 align-middle"></i>
+                        Novo Item
+                    </button>
+                </div>
+                <div class="card-body">
+                    <!-- Filtros -->
+                    <div class="row g-3 mb-4 filter-row">
+                        <div class="col-md-4">
+                            <label for="filter-keyword" class="form-label">Buscar</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="ri-search-line"></i></span>
+                                <input type="text" class="form-control" id="filter-keyword" placeholder="Descrição, código...">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="filter-location" class="form-label">Localização</label>
+                            <select id="filter-location" class="form-select"></select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="filter-status" class="form-label">Estado</label>
+                            <select id="filter-status" class="form-select"></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="filter-employee" class="form-label">Colaborador</label>
+                            <select id="filter-employee" class="form-select"></select>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="d-md-block d-none">&nbsp;</label>
+                            <button class="btn btn-light w-100" id="btn-clear-filters">
+                                <i class="ri-refresh-line me-1"></i> Limpar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fs-14 text-muted">
+                            <span id="items-count-display">0 itens encontrados</span>
+                        </div>
+                        <!-- View Options -->
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary active" id="btn-view-table" data-bs-toggle="tooltip" title="Visualização em Tabela">
+                                <i class="ri-table-line"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" id="btn-view-cards" data-bs-toggle="tooltip" title="Visualização em Cards">
+                                <i class="ri-layout-grid-line"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" id="btn-view-grouped" data-bs-toggle="tooltip" title="Visualização Agrupada">
+                                <i class="ri-layout-column-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Table View (Default) -->
+                    <div id="table-view" class="view-container">
+                        <!-- Conteúdo preenchido dinamicamente -->
+                    </div>
+                    
+                    <!-- Cards View -->
+                    <div id="cards-view" class="view-container d-none">
+                        <!-- Conteúdo preenchido dinamicamente -->
+                    </div>
+                    
+                    <!-- Grouped View -->
+                    <div id="grouped-view" class="view-container d-none">
+                        <!-- Conteúdo preenchido dinamicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Datatables -->
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="./assets/js/index.js"></script>
+
+    <!-- Inicializar tooltips -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+</body>
+
+</html> 

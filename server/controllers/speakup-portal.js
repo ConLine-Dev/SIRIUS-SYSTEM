@@ -82,13 +82,21 @@ const speakUpPortal = {
     saveComment: async function (details) {
         const currentStatus = await executeQuery(`
             SELECT
-            status
+                status,
+                collaborator_id
             FROM speakup
             WHERE id = ${details.id}`);
 
+        let screen = ''
+        if (currentStatus[0].collaborator_id == details.collabId) {
+            screen = 'main'
+        } else {
+            screen = 'adm'
+        }
+
         await executeQuery(`
-                INSERT INTO speakup_comments (speakup_id, comment, currentStatus, collaborator_id, create_date) VALUES (?, ?, ?, ?, NOW())`,
-            [details.id, details.comment, currentStatus[0].status, details.collabId]
+                INSERT INTO speakup_comments (speakup_id, comment, currentStatus, collaborator_id, screen, create_date) VALUES (?, ?, ?, ?, ?, NOW())`,
+            [details.id, details.comment, currentStatus[0].status, details.collabId, screen]
         );
         return true;
     },
@@ -97,6 +105,7 @@ const speakUpPortal = {
                 SELECT
                     sp.occurrence_date,
                     sp.description,
+                    st.id AS 'id_status',
                     st.description AS 'status'
                 FROM speakup sp
                     LEFT OUTER JOIN speakup_status st ON st.id = sp.status
@@ -111,7 +120,21 @@ const speakUpPortal = {
             FROM speakup_attachments
             WHERE id_speakup = ${id}`);
         return result;
-    }
+    },
+    updateStatus: async function (data) {
+
+        const result = await executeQuery(`
+            UPDATE speakup SET status = '${data.status}' WHERE (id = '${data.id}');`);
+        return result;
+    },
+    getStatus: async function () {
+
+        const result = await executeQuery(`
+            SELECT
+                *
+            FROM speakup_status`);
+        return result;
+    },
 };
 
 module.exports = {

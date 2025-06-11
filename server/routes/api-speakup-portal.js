@@ -112,5 +112,27 @@ module.exports = function (io) {
         }
     });
 
+    router.post('/updateStatus', async (req, res, next) => {
+
+        try {
+            const result = await speakUpPortal.updateStatus(req.body);
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    router.get('/getStatus', async (req, res, next) => {
+
+        try {
+            const result = await speakUpPortal.getStatus();
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
     return router;
 };

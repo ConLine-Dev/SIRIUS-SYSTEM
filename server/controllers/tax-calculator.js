@@ -98,7 +98,7 @@ exports.getSettings = async (req, res) => {
         } else {
             // Retorna configurações padrão se o usuário ainda não tiver salvo nenhuma
             res.json({
-                defaultAdValoremRate: 13.00,
+                defaultAdValoremRate: 0.13,
                 defaultIcmsRate: 12.00,
                 defaultIcmsReducedBase: 88.00
             });

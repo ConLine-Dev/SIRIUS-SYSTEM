@@ -75,13 +75,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadDefaultRates = async () => {
         try {
             const settings = await makeRequest('/api/tax-calculator/settings');
-            adValoremRateInput.value = parseFloat(settings.defaultAdValoremRate) || 13;
+            adValoremRateInput.value = parseFloat(settings.defaultAdValoremRate) || 0.13;
             icmsRateInput.value = parseFloat(settings.defaultIcmsRate) || 12;
             icmsReducedBaseInput.value = parseFloat(settings.defaultIcmsReducedBase) || 88;
         } catch (error) {
             console.error('Falha ao carregar alíquotas padrão do servidor. Usando valores locais.', error);
             // Fallback para valores padrão caso a API falhe
-            adValoremRateInput.value = 13;
+            adValoremRateInput.value = 0.13;
             icmsRateInput.value = 12;
             icmsReducedBaseInput.value = 88;
         }

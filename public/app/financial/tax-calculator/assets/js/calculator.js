@@ -32,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSettings = document.getElementById('btn-settings');
 
     // --- Functions ---
+    const getFloat = (str) => parseFloat(String(str).replace(',', '.'));
+
     const formatCurrency = (value) => {
         if (isNaN(value)) return "---";
         return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -73,40 +75,56 @@ document.addEventListener('DOMContentLoaded', () => {
     const loadDefaultRates = async () => {
         try {
             const settings = await makeRequest('/api/tax-calculator/settings');
-            adValoremRateInput.value = parseFloat(settings.defaultAdValoremRate) || 1;
-            icmsRateInput.value = parseFloat(settings.defaultIcmsRate) || 18;
-            icmsReducedBaseInput.value = parseFloat(settings.defaultIcmsReducedBase) || 100;
+            adValoremRateInput.value = parseFloat(settings.defaultAdValoremRate) || 13;
+            icmsRateInput.value = parseFloat(settings.defaultIcmsRate) || 12;
+            icmsReducedBaseInput.value = parseFloat(settings.defaultIcmsReducedBase) || 88;
         } catch (error) {
             console.error('Falha ao carregar alíquotas padrão do servidor. Usando valores locais.', error);
             // Fallback para valores padrão caso a API falhe
-            adValoremRateInput.value = 1;
-            icmsRateInput.value = 18;
-            icmsReducedBaseInput.value = 100;
+            adValoremRateInput.value = 13;
+            icmsRateInput.value = 12;
+            icmsReducedBaseInput.value = 88;
         }
     };
 
     const validateInputs = () => {
-        const productValue = parseFloat(productValueInput.value);
+        const productValue = getFloat(productValueInput.value);
         if (isNaN(productValue) || productValue <= 0) {
             errorMessage.textContent = 'Por favor, insira um valor do produto válido e positivo.';
             return false;
         }
 
+        // Validação de limite para o valor do produto (DECIMAL(15,2) -> max 9.999.999.999.999,99)
+        if (productValue >= 10_000_000_000_000) {
+            errorMessage.textContent = 'O valor do produto é muito grande.';
+            return false;
+        }
+
         if (currentTaxType === 'Ad Valorem') {
-            const rate = parseFloat(adValoremRateInput.value);
+            const rate = getFloat(adValoremRateInput.value);
             if (isNaN(rate) || rate < 0) {
                 errorMessage.textContent = 'A alíquota de Ad Valorem deve ser um número não negativo.';
                 return false;
             }
+            // Validação de limite para a alíquota (DECIMAL(10,2) -> max 99.999.999,99)
+            if (rate >= 100_000_000) {
+                errorMessage.textContent = 'O valor da alíquota Ad Valorem é muito grande.';
+                return false;
+            }
         } else { // ICMS
-            const reducedBase = parseFloat(icmsReducedBaseInput.value);
-            const rate = parseFloat(icmsRateInput.value);
+            const reducedBase = getFloat(icmsReducedBaseInput.value);
+            const rate = getFloat(icmsRateInput.value);
             if (isNaN(reducedBase) || reducedBase < 0 || reducedBase > 100) {
                 errorMessage.textContent = 'A base de cálculo reduzida do ICMS deve ser entre 0 e 100.';
                 return false;
             }
             if (isNaN(rate) || rate < 0) {
                 errorMessage.textContent = 'A alíquota de ICMS deve ser um número não negativo.';
+                return false;
+            }
+            // Validação de limite para a alíquota (DECIMAL(10,2) -> max 99.999.999,99)
+            if (rate >= 100_000_000) {
+                errorMessage.textContent = 'O valor da alíquota ICMS é muito grande.';
                 return false;
             }
         }
@@ -120,21 +138,36 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const productValue = parseFloat(productValueInput.value);
+        const productValue = getFloat(productValueInput.value);
         let taxAmount, totalAmount, rate, reducedBase, notes;
 
         if (currentTaxType === 'Ad Valorem') {
-            rate = parseFloat(adValoremRateInput.value);
+            rate = getFloat(adValoremRateInput.value);
             taxAmount = productValue * (rate / 100);
             totalAmount = productValue + taxAmount;
             notes = `Ad Valorem: Valor R$ ${productValue.toFixed(2)}, Alíquota ${rate}%`;
         } else { // ICMS
-            reducedBase = parseFloat(icmsReducedBaseInput.value);
-            rate = parseFloat(icmsRateInput.value);
-            const calculationBase = productValue * (reducedBase / 100);
-            taxAmount = calculationBase * (rate / 100);
+            reducedBase = getFloat(icmsReducedBaseInput.value);
+            rate = getFloat(icmsRateInput.value);
+            const rateDecimal = rate / 100;
+            
+            if (rate >= 100) {
+                errorMessage.textContent = 'A alíquota de ICMS deve ser menor que 100 para o cálculo "por dentro".';
+                taxAmountDisplay.textContent = '---';
+                totalAmountDisplay.textContent = '---';
+                btnSave.disabled = true;
+                return;
+            }
+
+            // A fórmula correta para o cálculo "por dentro", conforme o exemplo do usuário.
+            // Ex: R$ 837,42 / (1 - 0,12) = R$ 951,61 (Base de Cálculo)
+            // R$ 951,61 * 0,12 = R$ 114,19 (Valor do ICMS)
+            const calculationBase = productValue / (1 - rateDecimal);
+            taxAmount = calculationBase * rateDecimal;
+
+            // O valor total é o valor do produto mais o imposto.
             totalAmount = productValue + taxAmount;
-            notes = `ICMS: Valor R$ ${productValue.toFixed(2)}, Base Reduzida ${reducedBase}%, Alíquota ${rate}%`;
+            notes = `ICMS: Valor R$ ${productValue.toFixed(2)}, Alíquota ${rate}%, Base Reduzida ${reducedBase}% (Cálculo por dentro)`;
         }
         
         taxAmountDisplay.textContent = formatCurrency(taxAmount);
@@ -162,6 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await makeRequest('/api/tax-calculator/history', 'POST', lastCalculation);
             alert('Cálculo salvo no histórico com sucesso!');
+            localStorage.setItem('taxHistoryNeedsUpdate', Date.now()); // Notifica outras abas
             btnSave.disabled = true;
         } catch (error) {
             console.error('Erro ao salvar no histórico:', error);
@@ -177,11 +211,11 @@ document.addEventListener('DOMContentLoaded', () => {
     btnSave.addEventListener('click', saveToHistory);
 
     btnHistory.addEventListener('click', () => {
-        window.open('history.html', 'TaxCalculatorHistory', 'width=800,height=600');
+        window.open('history.html', null, 'width=700,height=800');
     });
 
     btnSettings.addEventListener('click', () => {
-        window.open('settings.html', 'TaxCalculatorSettings', 'width=600,height=500');
+        window.open('settings.html', null, 'width=600,height=550');
     });
     
     // --- Initial Load ---

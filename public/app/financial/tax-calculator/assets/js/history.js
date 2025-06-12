@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const formatDate = (isoString) => {
         if (!isoString) return 'Data indisponível';
         const date = new Date(isoString);
+        // Subtrai 3 horas para ajustar ao fuso horário de Brasília (UTC-3)
+        date.setHours(date.getHours() - 3);
         return date.toLocaleString('pt-BR');
     };
 
@@ -55,7 +57,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             <h6 class="card-title text-primary mb-0">${item.type}</h6>
                             <small class="text-muted">por: ${item.authorName || 'N/A'}</small>
                         </div>
-                        <small class="text-muted">${formatDate(item.createdAt)}</small>
+                        <div class="d-flex align-items-center">
+                            <small class="text-muted me-3">${formatDate(item.createdAt)}</small>
+                            <button class="btn btn-sm btn-outline-danger btn-delete-history" data-id="${item.id}" title="Excluir registro">
+                                <i class="ri-delete-bin-line" style="pointer-events: none;"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="mt-3">
                         ${detailsHtml}
@@ -113,10 +120,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const deleteHistoryItem = async (id) => {
+        if (!confirm(`Tem certeza que deseja excluir este registro?`)) {
+            return;
+        }
+
+        loader.style.display = 'block';
+        try {
+            await makeRequest(`/api/tax-calculator/history/${id}`, 'DELETE');
+            fetchHistory(); // Recarrega a lista para refletir a exclusão
+        } catch (error) {
+            console.error('Erro ao excluir registro:', error);
+            alert('Falha ao excluir o registro.');
+        } finally {
+            loader.style.display = 'none';
+        }
+    };
+
     // --- Event Listeners ---
     btnBack.addEventListener('click', () => window.close());
     btnExportJson.addEventListener('click', exportToJson);
     btnClearHistory.addEventListener('click', clearHistory);
+    
+    historyContainer.addEventListener('click', (event) => {
+        if (event.target.closest('.btn-delete-history')) {
+            const id = event.target.closest('.btn-delete-history').dataset.id;
+            deleteHistoryItem(id);
+        }
+    });
+
+    window.addEventListener('storage', (event) => {
+        // Recarrega o histórico se outra aba salvou um novo cálculo
+        if (event.key === 'taxHistoryNeedsUpdate') {
+            fetchHistory();
+        }
+    });
 
     // --- Initial Load ---
     fetchHistory();

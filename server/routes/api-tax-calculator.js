@@ -11,6 +11,9 @@ router.post('/history', taxCalculatorController.saveCalculation);
 // Rota para limpar o histórico
 router.delete('/history', taxCalculatorController.clearHistory);
 
+// Rota para deletar um registro específico do histórico
+router.delete('/history/:id', taxCalculatorController.deleteHistoryEntry);
+
 // Rota para obter as configurações do usuário
 router.get('/settings', taxCalculatorController.getSettings);
 

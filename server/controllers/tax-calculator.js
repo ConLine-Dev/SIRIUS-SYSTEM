@@ -9,7 +9,7 @@ exports.getHistory = async (req, res) => {
                 CONCAT(c.name, ' ', c.family_name) AS authorName
             FROM tax_calc_history h
             JOIN collaborators c ON h.collaborator_id = c.id
-            ORDER BY h.createdAt DESC
+            ORDER BY h.id DESC
         `;
         const history = await executeQuery(sql);
         res.json(history);
@@ -22,7 +22,7 @@ exports.getHistory = async (req, res) => {
 // Salvar um novo cálculo no banco de dados
 exports.saveCalculation = async (req, res) => {
     const { type, productValue, rate, taxAmount, totalAmount, notes, reducedBase } = req.body;
-    const collaboratorId = (req.user && req.user.id) ? req.user.id : 1; // Fallback para usuário 1 se não houver sessão
+    const collaboratorId = (req.user && req.user.system_collaborator_id) ? req.user.system_collaborator_id : 1; // Corrigido para pegar o id do colaborador logado
 
     // Validação básica
     if (!type || productValue === undefined || rate === undefined || taxAmount === undefined || totalAmount === undefined) {
@@ -57,9 +57,24 @@ exports.clearHistory = async (req, res) => {
     }
 };
 
+// Deletar um registro de histórico específico
+exports.deleteHistoryEntry = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await executeQuery('DELETE FROM tax_calc_history WHERE id = ?', [id]);
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ message: 'Registro não encontrado.' });
+        }
+        res.json({ message: 'Registro de histórico deletado com sucesso.' });
+    } catch (error) {
+        console.error(`Erro ao deletar o registro de histórico ${id}:`, error);
+        res.status(500).json({ message: 'Erro interno do servidor ao deletar o registro.' });
+    }
+};
+
 // Obter as configurações do usuário
 exports.getSettings = async (req, res) => {
-    const collaboratorId = (req.user && req.user.id) ? req.user.id : 1; // Fallback para usuário 1 se não houver sessão
+    const collaboratorId = (req.user && req.user.system_collaborator_id) ? req.user.system_collaborator_id : 1; // Corrigido para pegar o id do colaborador logado
 
     try {
         const sql = 'SELECT defaultAdValoremRate, defaultIcmsRate, defaultIcmsReducedBase FROM tax_calc_settings WHERE collaborator_id = ?';
@@ -70,9 +85,9 @@ exports.getSettings = async (req, res) => {
         } else {
             // Retorna configurações padrão se o usuário ainda não tiver salvo nenhuma
             res.json({
-                defaultAdValoremRate: 1.00,
-                defaultIcmsRate: 18.00,
-                defaultIcmsReducedBase: 100.00
+                defaultAdValoremRate: 13.00,
+                defaultIcmsRate: 12.00,
+                defaultIcmsReducedBase: 88.00
             });
         }
     } catch (error) {
@@ -83,7 +98,7 @@ exports.getSettings = async (req, res) => {
 
 // Salvar (criar/atualizar) as configurações do usuário
 exports.saveSettings = async (req, res) => {
-    const collaboratorId = (req.user && req.user.id) ? req.user.id : 1; // Fallback para usuário 1
+    const collaboratorId = (req.user && req.user.system_collaborator_id) ? req.user.system_collaborator_id : 1; // Corrigido para pegar o id do colaborador logado
     const { defaultAdValoremRate, defaultIcmsRate, defaultIcmsReducedBase } = req.body;
 
     if (defaultAdValoremRate === undefined || defaultIcmsRate === undefined || defaultIcmsReducedBase === undefined) {

@@ -1,0 +1,113 @@
+<html lang="pt-BR" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58; height: 100%; overflow: hidden;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Impostos Simplificada</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./assets/css/calculator.css">
+</head>
+
+<body class="d-flex flex-column h-100">
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div class="card shadow-none flex-grow-1 m-0">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Calculadora de Impostos</h5>
+            <div>
+                <button id="btn-history" class="btn btn-light btn-sm me-2" title="Ver Histórico"><i class="ri-history-line me-1"></i>Histórico</button>
+                <button id="btn-settings" class="btn btn-light btn-sm" title="Configurações"><i class="ri-settings-3-line"></i></button>
+            </div>
+        </div>
+        <div class="card-body p-4 d-flex flex-column">
+
+            <!-- Display -->
+            <div class="calculator-display mb-4 p-3 rounded">
+                <div class="text-end">
+                    <small class="text-muted">Valor do Imposto</small>
+                    <h3 id="tax-amount-display" class="m-0">---</h3>
+                </div>
+                <div class="text-end mt-2">
+                    <small class="text-muted">Valor Total</small>
+                    <h2 id="total-amount-display" class="m-0">---</h2>
+                </div>
+            </div>
+
+            <!-- Tax Type Switcher -->
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-4">
+                <button id="btn-ad-valorem" class="btn btn-primary" type="button">Ad Valorem</button>
+                <button id="btn-icms" class="btn btn-outline-primary" type="button">ICMS</button>
+            </div>
+
+            <!-- Form Fields -->
+            <div id="calculator-form" class="flex-grow-1">
+                <div class="mb-3">
+                    <label for="product-value" class="form-label">Valor do Produto (R$)</label>
+                    <input type="number" class="form-control" id="product-value" placeholder="Ex: 1000.00">
+                </div>
+                
+                <div id="ad-valorem-fields">
+                    <div class="mb-3">
+                        <label for="ad-valorem-rate" class="form-label">Alíquota de Ad Valorem (%)</label>
+                        <input type="number" class="form-control" id="ad-valorem-rate" value="1">
+                    </div>
+                </div>
+
+                <div id="icms-fields" class="d-none">
+                    <div class="mb-3">
+                        <label for="icms-reduced-base" class="form-label">Base de Cálculo Reduzida (%)</label>
+                        <input type="number" class="form-control" id="icms-reduced-base" value="100">
+                    </div>
+                    <div class="mb-3">
+                        <label for="icms-rate" class="form-label">Alíquota de ICMS (%)</label>
+                        <input type="number" class="form-control" id="icms-rate" value="18">
+                    </div>
+                </div>
+                
+                <div id="error-message" class="text-danger mb-3"></div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-auto">
+                <div class="row g-2">
+                    <div class="col">
+                        <button id="btn-clear" class="btn btn-light w-100"><i class="ri-delete-bin-line me-1"></i>Limpar</button>
+                    </div>
+                    <div class="col">
+                        <button id="btn-calculate" class="btn btn-primary w-100"><i class="ri-calculator-line me-1"></i>Calcular</button>
+                    </div>
+                </div>
+                <div class="d-grid mt-2">
+                    <button id="btn-save" class="btn btn-outline-secondary" disabled><i class="ri-save-line me-1"></i>Salvar no Histórico</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Custom JS -->
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="./assets/js/calculator.js"></script>
+</body>
+
+</html> 

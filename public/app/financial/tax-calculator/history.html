@@ -1,0 +1,58 @@
+<html lang="pt-BR" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58; height: 100%; overflow: hidden;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Cálculos</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+</head>
+
+<body class="d-flex flex-column h-100">
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div class="card shadow-none flex-grow-1 m-0">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Histórico de Cálculos</h5>
+            <button id="btn-back" class="btn btn-light btn-sm">
+                <i class="ri-arrow-left-line align-middle me-1"></i>Voltar
+            </button>
+        </div>
+        <div class="card-body d-flex flex-column p-0">
+            <div class="p-3">
+                <div class="d-flex justify-content-end">
+                    <button id="btn-export-json" class="btn btn-secondary me-2"><i class="ri-download-2-line me-1"></i>Exportar (JSON)</button>
+                    <button id="btn-clear-history" class="btn btn-danger"><i class="ri-delete-bin-line me-1"></i>Limpar Histórico</button>
+                </div>
+            </div>
+            <div id="history-container" class="flex-grow-1 overflow-auto p-3">
+                <!-- History items will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Custom JS -->
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="./assets/js/history.js"></script>
+</body>
+
+</html> 

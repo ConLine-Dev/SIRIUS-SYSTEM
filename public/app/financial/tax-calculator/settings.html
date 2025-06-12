@@ -1,0 +1,73 @@
+<html lang="pt-BR" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58; height: 100%; overflow: hidden;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Calculadora de Impostos</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+</head>
+
+<body class="d-flex flex-column h-100">
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div class="card shadow-none flex-grow-1 m-0">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Configurações</h5>
+            <button id="btn-back" class="btn btn-light btn-sm">
+                <i class="ri-arrow-left-line align-middle me-1"></i> Voltar
+            </button>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-4">Ajuste os valores padrão para os cálculos. Estes serão usados como valores iniciais.</p>
+            
+            <div class="mb-3">
+                <label for="default-ad-valorem-rate" class="form-label">Alíquota Padrão Ad Valorem (%)</label>
+                <input type="number" class="form-control" id="default-ad-valorem-rate" placeholder="Alíquota padrão para cálculos de Ad Valorem.">
+            </div>
+            
+            <div class="mb-3">
+                <label for="default-icms-rate" class="form-label">Alíquota Padrão ICMS (%)</label>
+                <input type="number" class="form-control" id="default-icms-rate" placeholder="Alíquota padrão para cálculos de ICMS.">
+            </div>
+
+            <div class="mb-3">
+                <label for="default-icms-reduced-base" class="form-label">Base de Cálculo Reduzida Padrão ICMS (%)</label>
+                <input type="number" class="form-control" id="default-icms-reduced-base" placeholder="Percentual da base de cálculo do ICMS que será efetivamente tributada (0-100).">
+            </div>
+            
+            <div id="feedback-message" class="mb-3"></div>
+
+            <button id="btn-save-settings" class="btn btn-primary"><i class="ri-save-line me-1"></i>Salvar Configurações</button>
+            
+            <div class="alert alert-info mt-4">
+                <strong>Atualização de Alíquotas:</strong> No momento, as alíquotas e bases são definidas manualmente aqui. Em futuras versões, poderemos integrar atualizações automáticas de fontes oficiais.
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Custom JS -->
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="./assets/js/settings.js"></script>
+</body>
+
+</html> 

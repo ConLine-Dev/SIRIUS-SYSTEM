@@ -1,5 +1,18 @@
 const { executeQuery } = require('../connect/mysql');
 
+const getCollaboratorId = (req) => {
+    try {
+        if (req.headers['x-user']) {
+            const user = JSON.parse(req.headers['x-user']);
+    
+            return (user && user.system_collaborator_id) ? user.system_collaborator_id : null;
+        }
+    } catch (error) {
+        console.error('Falha ao parsear o cabeçalho x-user:', error);
+    }
+    return 1; // Fallback para ID 1 se o cabeçalho não existir ou falhar
+};
+
 // Obter histórico de cálculos do banco de dados
 exports.getHistory = async (req, res) => {
     try {
@@ -22,7 +35,7 @@ exports.getHistory = async (req, res) => {
 // Salvar um novo cálculo no banco de dados
 exports.saveCalculation = async (req, res) => {
     const { type, productValue, rate, taxAmount, totalAmount, notes, reducedBase } = req.body;
-    const collaboratorId = (req.user && req.user.system_collaborator_id) ? req.user.system_collaborator_id : 1; // Corrigido para pegar o id do colaborador logado
+    const collaboratorId = getCollaboratorId(req);
 
     // Validação básica
     if (!type || productValue === undefined || rate === undefined || taxAmount === undefined || totalAmount === undefined) {
@@ -74,7 +87,7 @@ exports.deleteHistoryEntry = async (req, res) => {
 
 // Obter as configurações do usuário
 exports.getSettings = async (req, res) => {
-    const collaboratorId = (req.user && req.user.system_collaborator_id) ? req.user.system_collaborator_id : 1; // Corrigido para pegar o id do colaborador logado
+    const collaboratorId = getCollaboratorId(req);
 
     try {
         const sql = 'SELECT defaultAdValoremRate, defaultIcmsRate, defaultIcmsReducedBase FROM tax_calc_settings WHERE collaborator_id = ?';
@@ -98,7 +111,7 @@ exports.getSettings = async (req, res) => {
 
 // Salvar (criar/atualizar) as configurações do usuário
 exports.saveSettings = async (req, res) => {
-    const collaboratorId = (req.user && req.user.system_collaborator_id) ? req.user.system_collaborator_id : 1; // Corrigido para pegar o id do colaborador logado
+    const collaboratorId = getCollaboratorId(req);
     const { defaultAdValoremRate, defaultIcmsRate, defaultIcmsReducedBase } = req.body;
 
     if (defaultAdValoremRate === undefined || defaultIcmsRate === undefined || defaultIcmsReducedBase === undefined) {

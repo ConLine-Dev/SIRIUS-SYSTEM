@@ -29,8 +29,23 @@
             overflow-y: auto; /* Adiciona rolagem apenas ao corpo do card */
         }
         #editor-container {
-            height: calc(100vh - 450px); /* Altura dinâmica para o editor */
-            min-height: 200px;
+            min-height: 120px;
+            height: calc(100vh - 350px); /* Ajuste X conforme necessário para seu layout */
+            max-height: 60vh;
+            overflow-y: auto;
+            transition: height 0.2s;
+        }
+        @media (max-width: 900px) {
+            #editor-container {
+                height: calc(100vh - 420px);
+                max-height: 40vh;
+            }
+        }
+        @media (max-width: 600px) {
+            #editor-container {
+                height: calc(100vh - 480px);
+                max-height: 30vh;
+            }
         }
     </style>
 </head>
@@ -70,7 +85,7 @@
                                         <!-- Campos de select e tags aqui -->
                                         <div class="mb-3">
                                             <label for="department" class="form-label">Departamento</label>
-                                            <select class="form-select" id="department" name="department" required=""></select>
+                                            <select class="form-select" id="department" name="department_id" required=""></select>
                                         </div>
                                         <div class="mb-3">
                                             <label for="role" class="form-label">Cargo</label>
@@ -78,7 +93,7 @@
                                         </div>
                                         <div class="mb-3">
                                             <label for="type" class="form-label">Tipo</label>
-                                            <select class="form-select" id="type" name="type" required=""></select>
+                                            <select class="form-select" id="type" name="type_id" required=""></select>
                                         </div>
                                         <div class="mb-3">
                                             <label for="responsible" class="form-label">Responsável</label>

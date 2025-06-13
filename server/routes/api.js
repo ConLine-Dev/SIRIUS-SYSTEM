@@ -244,7 +244,7 @@ const setIO = (io) => {
   router.use('/procuration-control', api_procuration_control(io));
 
   // Use as rotas do arquivo api-procedures-management.js
-  router.use('/procedures-management', api_procedures_management);
+  router.use('/procedures-management', api_procedures_management(io));
 
   // Use as rotas do arquivo api-tax-calculator.js
   router.use('/tax-calculator', api_tax_calculator);

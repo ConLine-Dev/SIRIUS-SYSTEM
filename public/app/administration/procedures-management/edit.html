@@ -29,8 +29,23 @@
             overflow-y: auto; /* Adiciona rolagem apenas ao corpo do card */
         }
         #editor-container {
-            height: calc(100vh - 450px); /* Altura dinâmica para o editor */
-            min-height: 200px;
+            min-height: 120px;
+            height: calc(100vh - 350px); /* Ajuste X conforme necessário para seu layout */
+            max-height: 60vh;
+            overflow-y: auto;
+            transition: height 0.2s;
+        }
+        @media (max-width: 900px) {
+            #editor-container {
+                height: calc(100vh - 420px);
+                max-height: 40vh;
+            }
+        }
+        @media (max-width: 600px) {
+            #editor-container {
+                height: calc(100vh - 480px);
+                max-height: 30vh;
+            }
         }
         .version-item {
             cursor: pointer;
@@ -67,9 +82,6 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Conteúdo do Procedimento</label>
-                                    <div id="preview-mode-indicator" class="alert alert-warning text-center fw-bold" style="display: none;">
-                                        MODO DE VISUALIZAÇÃO
-                                    </div>
                                     <div id="editor-container"></div>
                                 </div>
                             </main>
@@ -119,8 +131,7 @@
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <h5 class="text-primary mb-0">Histórico de Versões</h5>
                                             <div>
-                                                <button type="button" id="btn-back-to-current" class="btn btn-sm btn-secondary" style="display: none;">Voltar à Versão Atual</button>
-                                                <button type="button" id="btn-revert-version" class="btn btn-sm btn-outline-warning" disabled>Reverter</button>
+                                                <button type="button" id="btn-revert-version" class="btn btn-sm btn-warning" style="display: none;">Reverter para esta versão</button>
                                             </div>
                                         </div>
                                         <hr>
@@ -136,6 +147,9 @@
             </form>
         </div>
     </div>
+
+    <!-- Container para notificações (toasts) -->
+    <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1100"></div>
 
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>

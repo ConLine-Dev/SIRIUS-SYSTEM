@@ -31,7 +31,7 @@
         .attachment-item {
             word-break: break-word;
         }
-        .attachment-item iframe {
+        .attachment-item iframe, .attachment-item img {
             max-width: 100%;
             border-radius: 0.5rem;
         }
@@ -52,6 +52,13 @@
             }
             .card-body {
                 overflow-y: visible;
+            }
+            /* Oculta a lista de anexos visual e mostra a lista de impressão */
+            #attachments-list {
+                display: none;
+            }
+            #attachments-list-print {
+                display: block !important;
             }
         }
     </style>
@@ -93,7 +100,12 @@
                                 <div class="card-body">
                                     <h5 class="text-primary">Anexos</h5>
                                     <hr>
-                                    <div id="attachments-list"></div>
+                                    <div id="attachments-list">
+                                        <!-- Anexos para visualização em tela -->
+                                    </div>
+                                    <div id="attachments-list-print" style="display: none;">
+                                        <!-- Anexos para impressão -->
+                                    </div>
                                 </div>
                             </div>
 

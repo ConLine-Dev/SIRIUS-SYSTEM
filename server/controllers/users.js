@@ -69,6 +69,7 @@ const Users = {
                             c.id_headcargo AS 'system_id_headcargo',
                             c.name AS 'system_username',
                             c.image AS 'system_image',
+                            c.job_position,
                             c.family_name AS 'system_familyName',
                             d.department_ids
                         FROM

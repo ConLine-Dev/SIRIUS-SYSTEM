@@ -95,19 +95,16 @@ function editProcedure(id) {
     openPopup(`edit.html?id=${id}`);
 }
 
-function deleteProcedure(id) {
+async function deleteProcedure(id) {
     if (confirm('Tem certeza que deseja excluir este procedimento?')) {
-        // Mocked delete
-        console.log('Excluir procedimento com ID:', id);
-        allProcedures = allProcedures.filter(p => p.id !== id);
-        renderProcedures(allProcedures);
-        // In a real scenario, you would call the API
-        // fetchAPI(`/api/procedures-management/procedures/${id}`, { method: 'DELETE' })
-        //     .then(response => {
-        //         if(response.ok) {
-        //             loadProcedures(); // Reload all procedures
-        //         }
-        //     });
+        try {
+            await makeRequest(`/api/procedures-management/procedures/${id}`, 'DELETE');
+            showGlobalNotification('Procedimento excluído com sucesso.', 'success');
+            loadProcedures(); // Recarrega a lista
+        } catch (error) {
+            console.error('Erro ao excluir procedimento:', error);
+            showGlobalNotification('Falha ao excluir o procedimento.', 'danger');
+        }
     }
 }
 
@@ -151,6 +148,22 @@ function renderProcedures(procedures) {
         const tagsHtml = proc.tags.slice(0, 3).map(tag => `<span class="badge bg-light text-primary fw-semibold me-1">${tag}</span>`).join('');
         const moreTags = proc.tags.length > 3 ? `<span class="badge bg-light text-primary fw-semibold me-1">+ ${proc.tags.length - 3}</span>` : '';
 
+        // Ajuste: pega a data da última versão se disponível
+        let updatedStr = '-';
+        if (proc.versions && proc.versions.length > 0) {
+            const lastVersion = proc.versions.reduce((a, b) => (a.version_number > b.version_number ? a : b));
+            if (lastVersion.created_at) {
+                const date = new Date(lastVersion.created_at);
+                date.setHours(date.getHours() - 3);
+                updatedStr = date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            }
+        } else if (proc.updated_at) {
+            // fallback para updated_at se não houver versões
+            const date = new Date(proc.updated_at);
+            date.setHours(date.getHours() - 3);
+            updatedStr = date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+
         const cardHtml = `
             <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mb-4">
                 <div class="card shadow-sm h-100 procedure-card">
@@ -174,7 +187,7 @@ function renderProcedures(procedures) {
                     <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center">
                         <div class="small text-muted">
                             <div>Responsável: ${proc.responsible}</div>
-                            <div>Última atualização: ${proc.last_update}</div>
+                            <div>Última atualização: ${updatedStr}</div>
                         </div>
                         <div class="btn-group">
                             <button class="btn btn-sm btn-outline-primary" onclick="viewProcedure(${proc.id})" title="Ver"><i class="ri-eye-line"></i></button>
@@ -208,27 +221,34 @@ function applyFilters() {
     renderProcedures(filteredProcedures);
 }
 
-function setupFilters(procedures) {
-    const departments = [...new Set(procedures.map(p => p.department))];
-    const roles = [...new Set(procedures.map(p => p.role))];
+async function setupFilters() {
+    try {
+        const [departments, roles] = await Promise.all([
+            makeRequest('/api/procedures-management/meta/departments'),
+            makeRequest('/api/procedures-management/meta/roles')
+        ]);
 
-    const depSelect = $('#filter-department');
-    depSelect.empty().append('<option value="">Todos os Departamentos</option>');
-    departments.forEach(d => depSelect.append(`<option value="${d}">${d}</option>`));
+        const depSelect = $('#filter-department');
+        depSelect.empty().append('<option value="">Todos os Departamentos</option>');
+        departments.forEach(d => depSelect.append(`<option value="${d.name}">${d.name}</option>`));
 
-    const roleSelect = $('#filter-role');
-    roleSelect.empty().append('<option value="">Todos os Cargos</option>');
-    roles.forEach(r => roleSelect.append(`<option value="${r}">${r}</option>`));
+        const roleSelect = $('#filter-role');
+        roleSelect.empty().append('<option value="">Todos os Cargos</option>');
+        roles.forEach(r => roleSelect.append(`<option value="${r}">${r}</option>`));
 
-    $('#filter-keyword').on('keyup', applyFilters);
-    $('#filter-department, #filter-role').on('change', applyFilters);
-    
-    $('#btn-clear-filters').on('click', () => {
-        $('#filter-keyword').val('');
-        $('#filter-department').val('');
-        $('#filter-role').val('');
-        applyFilters();
-    });
+        $('#filter-keyword').on('keyup', applyFilters);
+        $('#filter-department, #filter-role').on('change', applyFilters);
+        
+        $('#btn-clear-filters').on('click', () => {
+            $('#filter-keyword').val('');
+            $('#filter-department').val('');
+            $('#filter-role').val('');
+            applyFilters();
+        });
+    } catch (error) {
+        console.error('Falha ao carregar filtros:', error);
+        // Pode-se adicionar uma notificação ao usuário aqui, se desejado.
+    }
 }
 
 async function loadProcedures() {
@@ -241,7 +261,7 @@ async function loadProcedures() {
             renderWelcomeState();
         } else {
             renderProcedures(allProcedures);
-            setupFilters(allProcedures);
+            setupFilters(); // Chamará a nova função assíncrona
         }
     } catch (error) {
         console.error('Falha ao carregar procedimentos:', error);
@@ -253,4 +273,30 @@ async function loadProcedures() {
 
 $(document).ready(function() {
     loadProcedures();
+});
+
+// --- Atualização em tempo real via socket.io ---
+// Certifique-se de que o socket.io está incluído no HTML:
+// <script src="/socket.io/socket.io.js"></script>
+const socket = io();
+socket.on('updateProcedures', async (data) => {
+    if (data.action === 'delete') {
+        allProcedures = allProcedures.filter(p => p.id != data.id);
+        renderProcedures(allProcedures);
+    } else if (data.action === 'update' || data.action === 'create') {
+        try {
+            const proc = await makeRequest(`/api/procedures-management/procedures/${data.id}`);
+            const idx = allProcedures.findIndex(p => p.id == data.id);
+            if (idx >= 0) {
+                allProcedures[idx] = proc;
+            } else {
+                allProcedures.push(proc);
+            }
+            renderProcedures(allProcedures);
+        } catch (e) {
+            // Se não encontrar, remove da lista (caso tenha sido deletado)
+            allProcedures = allProcedures.filter(p => p.id != data.id);
+            renderProcedures(allProcedures);
+        }
+    }
 }); 

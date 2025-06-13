@@ -62,9 +62,9 @@ $(document).ready(function() {
         const procedureData = {
             title: $('#title').val(),
             content: contentData, // Salva o Delta do editor
-            department: $('#department').val(),
+            department_id: $('#department').val(),
             role: $('#role').val(),
-            type: $('#type').val(),
+            type_id: $('#type').val(),
             responsible: $('#responsible').val(),
             tags: tagsValue.split(',').map(tag => tag.trim()).filter(tag => tag), // Filtra tags vazias
             attachments: attachments
@@ -84,25 +84,63 @@ $(document).ready(function() {
     });
 });
 
-function loadSelectOptions() {
-    // Mock: futuramente buscar de APIs reais
-    const departments = [{id: 'RH', name: 'Recursos Humanos'}, {id: 'Financeiro', name: 'Financeiro'}, {id: 'TI', name: 'Tecnologia da Informação'}];
-    const roles = [{id: 'Todos', name: 'Todos'}, {id: 'Gestores', name: 'Gestores'}, {id: 'Analistas', name: 'Analistas'}];
-    const types = [{id: 'Processo', name: 'Processo'}, {id: 'Financeiro', name: 'Financeiro'}, {id: 'Suporte', name: 'Suporte'}];
-    const responsibles = [{id: 'Ana Paula', name: 'Ana Paula'}, {id: 'Carlos Alberto', name: 'Carlos Alberto'}, {id: 'Juliana Lima', name: 'Juliana Lima'}];
-
-    populateSelect('#department', departments);
-    populateSelect('#role', roles);
-    populateSelect('#type', types);
-    populateSelect('#responsible', responsibles);
+async function getInfosLogin() {
+    const StorageGoogleData = localStorage.getItem('StorageGoogle');
+    const StorageGoogle = JSON.parse(StorageGoogleData);
+    return StorageGoogle;
 }
 
-function populateSelect(selectId, data) {
+async function loadSelectOptions() {
+    try {
+        const [departments, roles, types, responsibles] = await Promise.all([
+            makeRequest('/api/procedures-management/meta/departments'),
+            makeRequest('/api/procedures-management/meta/roles'),
+            makeRequest('/api/procedures-management/meta/types'),
+            makeRequest('/api/procedures-management/meta/responsibles')
+        ]);
+
+        populateSelect('#department', departments, 'id', 'name');
+        populateSelect('#type', types, 'id', 'name');
+        // Para cargos, o retorno é um array de strings
+        const roleData = roles.map(role => ({ id: role, name: role }));
+        populateSelect('#role', roleData, 'id', 'name');
+        // Responsáveis: lista de colaboradores
+        populateSelect('#responsible', responsibles, 'id', 'name');
+
+        // Seleciona automaticamente o usuário logado usando StorageGoogle
+        const infos = await getInfosLogin();
+        if (infos) {
+            if (infos.system_collaborator_id) {
+                $('#responsible').val(infos.system_collaborator_id);
+            }
+            // Seleciona o primeiro departamento, se houver
+            if (infos.department_ids) {
+                let firstDept = null;
+                if (typeof infos.department_ids === 'string') {
+                    firstDept = infos.department_ids.split(',')[0].trim();
+                } else if (Array.isArray(infos.department_ids)) {
+                    firstDept = infos.department_ids[0];
+                }
+                if (firstDept) {
+                    $('#department').val(firstDept);
+                }
+            }
+            if (infos.job_position) {
+                $('#role').val(infos.job_position);
+            }
+        }
+    } catch (error) {
+        console.error('Falha ao carregar opções para os selects:', error);
+        showNotification('Erro ao carregar dados do formulário. Tente novamente.', 'danger');
+    }
+}
+
+function populateSelect(selectId, data, valueKey, nameKey) {
     const select = $(selectId);
     select.empty();
     select.append('<option value="">Selecione...</option>');
     data.forEach(item => {
-        select.append(`<option value="${item.id}">${item.name}</option>`);
+        select.append(`<option value="${item[valueKey]}">${item[nameKey]}</option>`);
     });
 }
 
@@ -152,7 +190,7 @@ function showNotification(message, type = 'success') {
     }
     
     if (type === 'success') {
-        window.opener.location.reload();
+        // window.opener.location.reload(); // Removido para evitar reload completo
         window.close();
     }
 } 

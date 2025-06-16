@@ -53,11 +53,11 @@ function renderMetaInfo(data) {
     // Pega a data da última versão
     let updatedStr = '-';
     if (data.versions && data.versions.length > 0) {
-        // Ordena para garantir que a última versão é a primeira
         data.versions.sort((a, b) => b.version_number - a.version_number);
         const lastVersion = data.versions[0];
         if (lastVersion.created_at) {
             const date = new Date(lastVersion.created_at);
+            date.setHours(date.getHours() - 3);
             updatedStr = date.toLocaleString('pt-BR', {
                 timeZone: 'America/Sao_Paulo',
                 day: '2-digit', month: '2-digit', year: 'numeric',
@@ -84,60 +84,62 @@ function renderAttachments(attachments) {
         container.html('<p class="text-muted">Nenhum anexo encontrado.</p>');
         return;
     }
-    
-    let attachmentsHtml = '<div class="list-group">';
+
     attachments.forEach(att => {
-        let itemHtml = '';
+        const type = att.type || 'file';
+        const description = att.description || (type === 'file' ? att.url.split('/').pop() : att.url);
+        const url = att.url || '';
+        const isFile = type === 'file';
+        const isImage = type === 'image';
+        const isVideo = type === 'video';
 
-        // Tenta extrair ID de vídeo do YouTube/Vimeo
-        const youtubeId = (url => {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        })(att.url);
-        
-        const vimeoId = (url => {
-            const regExp = /vimeo.*\/(\d+)/i;
-            const match = url.match(regExp);
-            return match ? match[1] : null;
-        })(att.url);
+        let iconHtml = '';
+        if (isImage) {
+            iconHtml = `<img src="${url}" class="attachment-thumbnail" alt="Anexo">`;
+        } else {
+            const iconClass = {
+                link: 'ri-links-line',
+                video: 'ri-film-line',
+                file: 'ri-file-text-line'
+            }[type] || 'ri-links-line';
+            iconHtml = `<div class="attachment-icon"><i class="${iconClass}"></i></div>`;
+        }
 
-        if (att.type === 'video' && (youtubeId || vimeoId)) {
-            const embedUrl = youtubeId 
-                ? `https://www.youtube.com/embed/${youtubeId}` 
-                : `https://player.vimeo.com/video/${vimeoId}`;
-            itemHtml = `
-                <div class="list-group-item attachment-item">
-                    <h6><i class="ri-film-line me-2 text-danger"></i> ${att.description || 'Vídeo Anexado'}</h6>
-                    <div class="ratio ratio-16x9 mt-2">
-                        <iframe src="${embedUrl}" title="Video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        let buttonsHtml = '';
+        if (isFile) {
+            buttonsHtml = `
+                <a href="${url}" target="_blank" class="btn btn-light" title="Visualizar"><i class="ri-eye-line"></i></a>
+                <a href="${url}" download class="btn btn-light" title="Baixar"><i class="ri-download-2-line"></i></a>`;
+        } else if (isImage) {
+            buttonsHtml = `<a href="#" class="btn btn-light image-attachment-view" data-url="${url}" title="Visualizar"><i class="ri-eye-line"></i></a>`;
+        } else { // Link e Vídeo
+            buttonsHtml = `<a href="${url}" target="_blank" class="btn btn-light" title="Abrir Link"><i class="ri-external-link-line"></i></a>`;
+        }
+
+        const cardHtml = `
+            <div class="attachment-card p-2 mb-2" data-type="${type}">
+                <div class="d-flex align-items-center">
+                    <div class="me-2">${iconHtml}</div>
+                    <div class="flex-grow-1 mx-2" style="min-width: 0;">
+                        <p class="m-0 text-truncate attachment-description">${description}</p>
+                        ${isFile ? `<small class="text-muted text-truncate d-block attachment-filename">${url.split('/').pop()}</small>` : ''}
+                        ${isVideo ? `<small class="text-muted text-truncate d-block attachment-filename">${url}</small>` : ''}
+                    </div>
+                    <div class="ms-auto">
+                        <div class="btn-group btn-group-sm">
+                            ${buttonsHtml}
+                        </div>
                     </div>
                 </div>
-            `;
-        } else if (att.type === 'image') {
-            itemHtml = `
-                <a href="#" class="list-group-item list-group-item-action attachment-item image-attachment" data-url="${att.url}" data-bs-toggle="modal" data-bs-target="#image-viewer-modal">
-                    <i class="ri-image-line me-2 text-success"></i> ${att.description || 'Imagem Anexada'}
-                </a>
-            `;
-        } else { // 'link' or default
-            itemHtml = `
-                <a href="${att.url}" target="_blank" rel="noopener noreferrer" class="list-group-item list-group-item-action attachment-item">
-                    <i class="ri-links-line me-2 text-info"></i> ${att.description || att.url}
-                </a>
-            `;
-        }
-        attachmentsHtml += itemHtml;
+            </div>`;
+        container.append(cardHtml);
     });
-    attachmentsHtml += '</div>';
-    container.html(attachmentsHtml);
 
-    // Event listener para o modal de imagem
-    $('.image-attachment').on('click', function(e) {
+    // Event listener para o modal de imagem (agora aplicado na classe dos novos botões)
+    $('.image-attachment-view').on('click', function(e) {
         e.preventDefault();
         const imageUrl = $(this).data('url');
         $('#modal-image').attr('src', imageUrl);
-        // A inicialização do modal foi movida para dentro do manipulador de clique para garantir que funcione
         const imageModal = new bootstrap.Modal(document.getElementById('image-viewer-modal'));
         imageModal.show();
     });
@@ -156,6 +158,7 @@ function renderAttachmentsForPrint(attachments) {
         let iconClass = 'ri-links-line'; // Default para link
         if (att.type === 'image') iconClass = 'ri-image-line';
         if (att.type === 'video') iconClass = 'ri-film-line';
+        if (att.type === 'file') iconClass = 'ri-download-2-line';
 
         attachmentsHtml += `
             <li class="mb-2">
@@ -175,11 +178,11 @@ function renderHistory(versions) {
         list.html('<li class="list-group-item text-muted">Nenhum histórico de versão encontrado.</li>');
         return;
     }
-    // Ordena da mais nova para a mais antiga
     versions.sort((a, b) => b.version_number - a.version_number).forEach(item => {
         let dateStr = '-';
         if (item.created_at) {
             const date = new Date(item.created_at);
+            date.setHours(date.getHours() - 3);
             dateStr = date.toLocaleString('pt-BR', {
                 timeZone: 'America/Sao_Paulo',
                 day: '2-digit', month: '2-digit', year: 'numeric',

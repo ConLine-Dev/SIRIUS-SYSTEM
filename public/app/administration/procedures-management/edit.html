@@ -9,12 +9,18 @@
     <title>Editar Procedimento</title>
     <!-- Favicon -->
     <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
     <!-- Bootstrap Css -->
     <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <!-- Style Css -->
     <link href="../../assets/css/styles.min.css" rel="stylesheet">
     <!-- Icons Css -->
     <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
     
     <link rel="stylesheet" href="./assets/css/edit.css">
     <style>
@@ -25,6 +31,19 @@
             background-color: #f8f9fa;
             overflow: hidden; /* Esconde a rolagem do body */
         }
+        #loader2 {
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: 100%;
+   background-color: var(--custom-white);
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   z-index: 9999;
+}
+
         .card-body {
             overflow-y: auto; /* Adiciona rolagem apenas ao corpo do card */
         }
@@ -56,6 +75,111 @@
         .version-item.active {
             background-color: #e0e0e0;
             font-weight: bold;
+        }
+        .attachment-card {
+            background-color: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            min-height: 62px; /* Altura mínima para consistência */
+        }
+        .attachment-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .attachment-card .handle {
+            cursor: move;
+            color: #adb5bd;
+        }
+        .attachment-thumbnail {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 0.375rem;
+            background-color: #e9ecef;
+        }
+        .attachment-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            border-radius: 0.375rem;
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        .attachment-description-display {
+            cursor: pointer;
+            min-height: 24px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            line-height: 1.2;
+        }
+        .attachment-description-display:hover {
+            background-color: #f8f9fa;
+        }
+        /* Estilo para quando a lista está sendo arrastada */
+        .sortable-ghost {
+            background-color: #e0f3ff;
+            opacity: 0.7;
+        }
+        .attachment-type-selector .btn {
+            border-radius: 0.375rem !important;
+        }
+        .attachment-type-selector .btn.active {
+            background-color: var(--primary-rgb) !important;
+            color: white !important;
+            box-shadow: 0 4px 8px rgba(var(--primary-rgb), 0.3);
+        }
+        .attachment-file-dropzone {
+            border: 2px dashed #ced4da;
+            border-radius: 0.375rem;
+            text-align: center;
+            padding: 1rem;
+            cursor: pointer;
+            background-color: #fff;
+            transition: background-color 0.2s;
+        }
+        .attachment-file-dropzone:hover {
+            background-color: #e9ecef;
+        }
+        .attachment-file-info {
+            background-color: #e9ecef;
+        }
+
+        /* Estilos para o novo Modal */
+        #add-attachment-modal .modal-body { min-height: 250px; }
+        #add-attachment-modal .option-box {
+            border: 2px solid #e9ecef;
+            border-radius: 0.5rem;
+            padding: 2rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        #add-attachment-modal .option-box:hover {
+            background-color: #f8f9fa;
+            border-color: var(--primary-rgb);
+            color: var(--primary-rgb);
+        }
+        #add-attachment-modal .option-box i { font-size: 2.5rem; }
+        #attachment-dropzone { border: 2px dashed #ced4da; border-radius: 0.5rem; padding: 2rem; text-align: center; transition: background-color 0.2s; }
+        #attachment-dropzone.dragover { background-color: #e0f3ff; }
+
+        /* Ajustes finos nos cards de anexo para polimento final */
+        .attachment-card > .d-flex {
+            min-height: inherit; /* Garante que o container flex ocupe toda a altura */
+        }
+        .attachment-icon, .attachment-thumbnail {
+            flex-shrink: 0; /* Impede que o ícone encolha */
+            width: 38px;
+            height: 38px;
+            font-size: 1.2rem;
+        }
+        .attachment-body .text-muted {
+            font-size: 0.75rem; /* Torna o nome do arquivo/URL um pouco menor */
         }
     </style>
 </head>
@@ -148,6 +272,61 @@
         </div>
     </div>
 
+    <!-- Modal para Adicionar Anexos -->
+    <div class="modal fade" id="add-attachment-modal" tabindex="-1" aria-labelledby="addAttachmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAttachmentModalLabel">Adicionar Novo Anexo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body d-flex align-items-center justify-content-center">
+                    <!-- Etapa 1: Escolha do tipo -->
+                    <div id="attachment-type-selection" class="w-100">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="option-box" data-type="url">
+                                    <i class="ri-links-line"></i>
+                                    <p class="mt-2 mb-0 fw-bold">Link / URL</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="option-box" data-type="file">
+                                    <i class="ri-upload-cloud-2-line"></i>
+                                    <p class="mt-2 mb-0 fw-bold">Arquivo do Computador</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Etapa 2: Input de URL -->
+                    <div id="attachment-url-input" class="w-100" style="display: none;">
+                        <div class="mb-3">
+                            <label for="modal-attachment-url" class="form-label">URL do Anexo</label>
+                            <input type="text" class="form-control" id="modal-attachment-url" placeholder="https://...">
+                        </div>
+                        <div class="mb-3">
+                             <label for="modal-attachment-description-url" class="form-label">Descrição (Opcional)</label>
+                            <input type="text" class="form-control" id="modal-attachment-description-url" placeholder="Ex: Documento de Requisitos">
+                        </div>
+                        <button id="btn-save-url-attachment" class="btn btn-primary w-100">Adicionar Anexo</button>
+                    </div>
+
+                    <!-- Etapa 3: Upload de Arquivo -->
+                    <div id="attachment-file-upload" class="w-100" style="display: none;">
+                        <div id="attachment-dropzone">
+                            <p>Arraste e solte o arquivo aqui ou clique para selecionar.</p>
+                        </div>
+                        <input type="file" id="modal-file-input" class="d-none">
+                        <div class="progress mt-3" style="display: none;">
+                            <div id="modal-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Container para notificações (toasts) -->
     <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1100"></div>
 
@@ -158,6 +337,9 @@
     <!-- Quill.js Editor -->
     <link href="https://cdn.quilljs.com/2.0.0-dev.2/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/2.0.0-dev.2/quill.js"></script>
+
+    <!-- SortableJS para arrastar e soltar -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
     <script src="./assets/js/edit.js"></script>
 </body>

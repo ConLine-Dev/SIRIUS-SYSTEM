@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apresentação do Módulo de Gestão de Procedimentos</title>
+    <link rel="stylesheet" href="presentation-style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page" id="title-page">
+        <header>
+            <h1>SIRIUS-SYSTEM</h1>
+            <h2>Módulo de Gestão de Procedimentos</h2>
+        </header>
+        <main>
+            <p class="subtitle">Documentação Técnica e Funcional</p>
+            <div class="metadata">
+                <p><strong>Versão do Documento:</strong> 1.0</p>
+                <p><strong>Data:</strong> 16 de Junho de 2025</p>
+            </div>
+        </main>
+        <footer>
+            <p>Desenvolvido para otimização e padronização de processos.</p>
+        </footer>
+    </div>
+
+    <div class="page">
+        <header>
+            <h2>1. Visão Geral do Módulo</h2>
+        </header>
+        <main>
+            <section>
+                <h3>1.1. Propósito</h3>
+                <p>O módulo de <strong>Gestão de Procedimentos</strong> foi concebido para centralizar, padronizar e gerenciar o ciclo de vida dos procedimentos operacionais e administrativos da organização. Ele substitui a necessidade de documentos dispersos, planilhas e sistemas de arquivos, oferecendo uma fonte única, confiável e sempre atualizada para todo o conhecimento processual.</p>
+            </section>
+            <section>
+                <h3>1.2. Público-Alvo</h3>
+                <ul>
+                    <li><strong>Colaboradores:</strong> Acessam procedimentos relevantes para suas funções, garantindo a execução correta das tarefas.</li>
+                    <li><strong>Gestores de Departamento:</strong> Criam, revisam e aprovam procedimentos, assegurando a conformidade e a eficiência de suas equipes.</li>
+                    <li><strong>Equipe de Qualidade/Compliance:</strong> Auditam e monitoram a adesão aos padrões, utilizando o histórico de versões como trilha de auditoria.</li>
+                </ul>
+            </section>
+            <section>
+                <h3>1.3. Benefícios Chave</h3>
+                <dl>
+                    <dt>Eficiência Operacional</dt>
+                    <dd>Acesso rápido e fácil a informações corretas, reduzindo o tempo de pesquisa e a ocorrência de erros.</dd>
+                    <dt>Padronização e Consistência</dt>
+                    <dd>Garante que todos os colaboradores sigam as mesmas diretrizes, melhorando a qualidade e a previsibilidade dos resultados.</dd>
+                    <dt>Retenção de Conhecimento</dt>
+                    <dd>Centraliza o know-how da empresa, evitando a perda de informações críticas com a rotatividade de pessoal.</dd>
+                    <dt>Trilha de Auditoria Completa</dt>
+                    <dd>O robusto sistema de versionamento registra cada alteração, fornecendo um histórico detalhado de quem mudou o quê e quando.</dd>
+                </dl>
+            </section>
+        </main>
+    </div>
+
+    <div class="page">
+        <header>
+            <h2>2. Funcionalidades Principais</h2>
+        </header>
+        <main>
+            <section>
+                <h3>2.1. Dashboard Principal</h3>
+                <p>O ponto de entrada do módulo é um dashboard visual e intuitivo, que apresenta os procedimentos em formato de cards. Cada card exibe informações essenciais:</p>
+                <ul>
+                    <li>Título, Departamento, Cargo e Resumo.</li>
+                    <li>Tags para fácil identificação.</li>
+                    <li>Data da última atualização e responsável.</li>
+                    <li>Ações rápidas para <strong>Ver</strong>, <strong>Editar</strong> e <strong>Excluir</strong>.</li>
+                </ul>
+                <p>O dashboard inclui um sistema de <strong>filtros avançados</strong> que permite aos usuários localizar procedimentos por palavra-chave, departamento ou cargo. Para novos usuários, uma tela de boas-vindas incentiva a criação do primeiro procedimento.</p>
+            </section>
+            <section>
+                <h3>2.2. Criação e Edição com Editor Avançado</h3>
+                <p>O núcleo da gestão de procedimentos é seu poderoso editor de texto (baseado em Quill.js), que permite a criação de conteúdo rico e bem estruturado. Os usuários podem:</p>
+                <ul>
+                    <li>Formatar texto (negrito, itálico, listas, etc.).</li>
+                    <li>Inserir links e imagens diretamente no corpo do texto (as imagens são salvas em Base64, garantindo portabilidade).</li>
+                    <li>Definir metadados essenciais como Título, Departamento, Cargo, Tipo de Procedimento e Responsável.</li>
+                </ul>
+            </section>
+        </main>
+    </div>
+    
+    <div class="page">
+         <header>
+            <h2>2. Funcionalidades Principais (Continuação)</h2>
+        </header>
+        <main>
+            <section>
+                <h3>2.3. Gestão de Anexos</h3>
+                <p>A funcionalidade de anexos foi projetada para ser flexível e robusta, suportando tanto arquivos físicos quanto links externos. A interface moderna permite:</p>
+                <ul>
+                    <li><strong>Upload de Arquivos:</strong> Uma área de "arrastar e soltar" (dropzone) com barra de progresso para uma experiência de usuário fluida.</li>
+                    <li><strong>Links Externos:</strong> Adição simples de URLs para referenciar documentos externos.</li>
+                    <li><strong>Edição e Reordenação:</strong> Descrições de anexos podem ser editadas diretamente na visualização (inline), e os cards de anexo podem ser reordenados com um simples arrastar e soltar (via SortableJS).</li>
+                </ul>
+            </section>
+            <section>
+                <h3>2.4. Sistema de Versionamento Automático</h3>
+                <p>Esta é uma das funcionalidades mais críticas do módulo. Cada vez que um procedimento é salvo, o sistema analisa de forma inteligente o que foi alterado e, se houver mudanças significativas, cria uma nova versão. O sistema rastreia:</p>
+                <ul>
+                    <li>Alterações no título, departamento, cargo, tipo e responsável.</li>
+                    <li>Modificações no conteúdo do procedimento.</li>
+                    <li>Adição ou remoção de tags.</li>
+                    <li>Adição, remoção ou alteração na descrição dos anexos.</li>
+                </ul>
+                <p>Para cada versão, um <strong>resumo da alteração</strong> é gerado automaticamente (ex: "Título alterado de 'X' para 'Y'"). Os usuários podem visualizar o histórico completo e <strong>reverter o procedimento para qualquer versão anterior</strong> com um único clique.</p>
+            </section>
+             <section>
+                <h3>2.5. Atualizações em Tempo Real</h3>
+                <p>Utilizando WebSockets (Socket.io), o módulo notifica todos os usuários conectados em tempo real sobre eventos importantes. Quando um procedimento é criado, atualizado ou excluído, a visualização de todos os usuários é atualizada instantaneamente, sem a necessidade de recarregar a página, garantindo que todos estejam sempre vendo os dados mais recentes.</p>
+            </section>
+        </main>
+    </div>
+
+    <div class="page">
+        <header>
+            <h2>3. Arquitetura Técnica</h2>
+        </header>
+        <main>
+            <div class="tech-stack">
+                <div class="stack-column">
+                    <h3>Front-End</h3>
+                    <ul>
+                        <li><strong>HTML5 / CSS3:</strong> Estrutura e estilo.</li>
+                        <li><strong>Bootstrap 5:</strong> Framework de UI para responsividade e componentes.</li>
+                        <li><strong>JavaScript (ES6+):</strong> Lógica de cliente.</li>
+                        <li><strong>jQuery:</strong> Manipulação do DOM e AJAX.</li>
+                        <li><strong>Quill.js:</strong> Editor de texto rico.</li>
+                        <li><strong>SortableJS:</strong> Reordenação de elementos com drag-and-drop.</li>
+                        <li><strong>Socket.io-client:</strong> Comunicação em tempo real.</li>
+                    </ul>
+                </div>
+                <div class="stack-column">
+                    <h3>Back-End</h3>
+                    <ul>
+                        <li><strong>Node.js:</strong> Ambiente de execução.</li>
+                        <li><strong>Express.js:</strong> Framework para criação de APIs e roteamento.</li>
+                        <li><strong>MySQL (com `mysql2`):</strong> Banco de dados relacional.</li>
+                        <li><strong>Multer:</strong> Middleware para upload de arquivos.</li>
+                        <li><strong>Socket.io:</strong> Servidor para comunicação WebSocket.</li>
+                    </ul>
+                </div>
+            </div>
+             <section>
+                <h3>3.1. API RESTful</h3>
+                <p>A comunicação entre o front-end e o back-end é feita através de uma API RESTful bem definida. Os endpoints seguem um padrão lógico para gerenciar procedimentos, metadados (departamentos, cargos) e arquivos.</p>
+                <p>Ex: <code>/api/procedures-management/procedures/:id</code></p>
+            </section>
+        </main>
+    </div>
+    
+     <div class="page">
+        <header>
+            <h2>4. Estrutura de Dados (Esquema do Banco de Dados)</h2>
+        </header>
+        <main>
+            <p>O banco de dados foi modelado para garantir integridade, performance e a capacidade de armazenar o histórico de alterações de forma eficiente.</p>
+            <dl>
+                <dt>proc_main</dt>
+                <dd>Tabela principal que armazena o estado atual de cada procedimento (título, metadados, etc.). Contém os dados "vivos".</dd>
+                
+                <dt>proc_versions</dt>
+                <dd>Coração do sistema de auditoria. Cada registro é um snapshot completo de um procedimento em um ponto no tempo, incluindo conteúdo, metadados, tags, anexos e um resumo da alteração.</dd>
+
+                <dt>proc_attachments</dt>
+                <dd>Armazena informações sobre os anexos, seja o caminho para um arquivo no servidor ou uma URL externa.</dd>
+                
+                <dt>proc_tags e proc_procedure_tags</dt>
+                <dd>Implementam uma relação muitos-para-muitos entre procedimentos e tags, permitindo uma categorização flexível.</dd>
+
+                <dt>Tabelas de Suporte</dt>
+                <dd><code>departments</code>, <code>collaborators</code>, e <code>proc_types</code> funcionam como tabelas de metadados para garantir a consistência dos dados selecionáveis.</dd>
+            </dl>
+             <div class="schema-diagram">
+                <p><strong>Diagrama Simplificado de Relacionamento:</strong></p>
+                <pre>
+[proc_main] 1--* [proc_versions]
+[proc_main] 1--* [proc_attachments]
+[proc_main] *--* [proc_tags] (via proc_procedure_tags)
+
+[proc_main] *--1 [departments]
+[proc_main] *--1 [collaborators] (Responsável)
+[proc_main] *--1 [proc_types]
+                </pre>
+            </div>
+        </main>
+        <footer>
+            <p>Fim do Documento</p>
+        </footer>
+    </div>
+
+</body>
+</html>

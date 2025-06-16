@@ -1,4 +1,6 @@
 const { executeQuery } = require('../connect/mysql');
+const fs = require('fs');
+const path = require('path');
 
 // Função auxiliar para obter o ID do colaborador a partir do header x-user.
 const getAuthorIdFromHeader = (req) => {
@@ -196,14 +198,38 @@ function generateDetailedChangeSummary(oldData, newData, versionNumber = 2) {
     if (addedTags.length > 0) changes.push(`Tags adicionadas: ${addedTags.join(', ')}.`);
     if (removedTags.length > 0) changes.push(`Tags removidas: ${removedTags.join(', ')}.`);
     
-    // Anexos (comparação simples por URL)
-    const oldAttachments = Array.isArray(oldData.attachments) ? oldData.attachments.map(a => a.url) : [];
-    const newAttachments = Array.isArray(newData.attachments) ? newData.attachments.map(a => a.url) : [];
-    console.log('Anexos - Old:', oldAttachments.length, 'New:', newAttachments.length);
-    const addedAttachments = newAttachments.filter(a => !oldAttachments.includes(a));
-    const removedAttachments = oldAttachments.filter(a => !newAttachments.includes(a));
-    if (addedAttachments.length > 0) changes.push(`Anexos adicionados: ${addedAttachments.length}.`);
-    if (removedAttachments.length > 0) changes.push(`Anexos removidos: ${removedAttachments.length}.`);
+    // Anexos (comparação detalhada por URL e descrição)
+    const oldAttachments = Array.isArray(oldData.attachments) ? oldData.attachments : [];
+    const newAttachments = Array.isArray(newData.attachments) ? newData.attachments : [];
+
+    const oldUrls = oldAttachments.map(a => a.url);
+    const newUrls = newAttachments.map(a => a.url);
+
+    const addedCount = newAttachments.filter(a => !oldUrls.includes(a.url)).length;
+    const removedCount = oldAttachments.filter(a => !newUrls.includes(a.url)).length;
+
+    if (addedCount > 0) {
+        changes.push(`Adicionado(s) ${addedCount} anexo(s).`);
+    }
+    if (removedCount > 0) {
+        changes.push(`Removido(s) ${removedCount} anexo(s).`);
+    }
+
+    // Verificar mudanças na descrição dos anexos que permaneceram
+    let descriptionChanged = false;
+    const keptNewAttachments = newAttachments.filter(a => oldUrls.includes(a.url));
+    for (const newAttach of keptNewAttachments) {
+        const oldAttach = oldAttachments.find(a => a.url === newAttach.url);
+        // Compara descrições, considerando que podem ser null, undefined ou strings vazias
+        if (oldAttach && normalizeValue(oldAttach.description) !== normalizeValue(newAttach.description)) {
+            descriptionChanged = true;
+            break; // Sai do loop assim que a primeira alteração é encontrada
+        }
+    }
+
+    if (descriptionChanged) {
+        changes.push('Descrição de um ou mais anexos foi alterada.');
+    }
     
     // Verificar se é a primeira edição após a criação
     const isFirstEdit = versionNumber === 2;
@@ -264,6 +290,7 @@ exports.getProcedures = async (req, res) => {
                 p.id,
                 p.title,
                 p.summary,
+                p.department_id,
                 d.name AS department,
                 p.role,
                 pt.name AS type,
@@ -695,6 +722,27 @@ exports.revertToVersion = async (req, res) => {
 exports.deleteProcedure = async (req, res) => {
     const { id } = req.params;
     try {
+        // Antes de deletar o procedimento, encontrar e deletar os arquivos físicos associados
+        const attachments = await executeQuery('SELECT url FROM proc_attachments WHERE procedure_id = ? AND type = ?', [id, 'file']);
+
+        if (attachments.length > 0) {
+            console.log(`Deletando ${attachments.length} arquivos físicos para o procedimento ${id}...`);
+            for (const attachment of attachments) {
+                // O caminho no DB é /storageService/..., precisamos do caminho relativo ao projeto
+                const relativePath = attachment.url.startsWith('/') ? attachment.url.substring(1) : attachment.url;
+                const filePath = path.join(__dirname, '..', '..', relativePath);
+                
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        // Loga o erro mas não impede a exclusão do registro no DB
+                        console.error(`Falha ao deletar o arquivo físico ${filePath}:`, err);
+                    } else {
+                        console.log(`Arquivo ${filePath} deletado com sucesso.`);
+                    }
+                });
+            }
+        }
+
         // A deleção em cascata configurada no DB cuidará das tabelas relacionadas.
         await executeQuery('DELETE FROM proc_main WHERE id = ?', [id]);
         res.json({ message: 'Procedimento deletado com sucesso.' });

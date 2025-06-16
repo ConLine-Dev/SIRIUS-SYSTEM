@@ -1,20 +1,22 @@
-function showGlobalNotification(message, type = 'success') {
-    const container = $('.card-body').first();
-    const alertId = `global-alert-${Date.now()}`;
-    const alertHtml = `
-        <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert" style="position: absolute; top: 80px; left: 50%; transform: translateX(-50%); z-index: 9999; min-width: 300px;">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    `;
-    
-    // Anexa a notificação ao container principal do card
-    container.prepend(alertHtml);
+function showNotification(message, type = 'info') {
+    const notificationContainer = $('#notification-container');
+    if (notificationContainer.length === 0) {
+        console.error('Notification container not found!');
+        return;
+    }
 
-    // Remove o alerta após 5 segundos
-    setTimeout(() => {
-        $(`#${alertId}`).fadeOut('slow', function() { $(this).remove(); });
-    }, 5000);
+    const notification = $(`
+        <div class="toast align-items-center text-bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    `);
+    
+    notificationContainer.append(notification);
+    const toast = new bootstrap.Toast(notification, { delay: 5000 });
+    toast.show();
 }
 
 let allProcedures = []; // To store all procedures for client-side filtering
@@ -99,11 +101,10 @@ async function deleteProcedure(id) {
     if (confirm('Tem certeza que deseja excluir este procedimento?')) {
         try {
             await makeRequest(`/api/procedures-management/procedures/${id}`, 'DELETE');
-            showGlobalNotification('Procedimento excluído com sucesso.', 'success');
-            loadProcedures(); // Recarrega a lista
+            // A notificação será tratada pelo evento de socket
         } catch (error) {
             console.error('Erro ao excluir procedimento:', error);
-            showGlobalNotification('Falha ao excluir o procedimento.', 'danger');
+            showNotification('Falha ao excluir o procedimento.', 'danger');
         }
     }
 }
@@ -204,7 +205,7 @@ function renderProcedures(procedures) {
 
 function applyFilters() {
     const keyword = $('#filter-keyword').val().toLowerCase();
-    const department = $('#filter-department').val();
+    const departmentId = $('#filter-department').val();
     const role = $('#filter-role').val();
 
     let filteredProcedures = allProcedures.filter(proc => {
@@ -212,7 +213,7 @@ function applyFilters() {
             proc.title.toLowerCase().includes(keyword) ||
             proc.tags.some(tag => tag.toLowerCase().includes(keyword));
 
-        const departmentMatch = department === '' || proc.department === department;
+        const departmentMatch = departmentId === '' || proc.department_id == departmentId;
         const roleMatch = role === '' || proc.role === role;
 
         return keywordMatch && departmentMatch && roleMatch;
@@ -221,23 +222,48 @@ function applyFilters() {
     renderProcedures(filteredProcedures);
 }
 
+async function getInfosLogin() {
+    const StorageGoogleData = localStorage.getItem('StorageGoogle');
+    const StorageGoogle = JSON.parse(StorageGoogleData);
+    return StorageGoogle;
+}
+
 async function setupFilters() {
     try {
-        const [departments, roles] = await Promise.all([
+        const [departments, roles, userInfo] = await Promise.all([
             makeRequest('/api/procedures-management/meta/departments'),
-            makeRequest('/api/procedures-management/meta/roles')
+            makeRequest('/api/procedures-management/meta/roles'),
+            getInfosLogin()
         ]);
 
         const depSelect = $('#filter-department');
         depSelect.empty().append('<option value="">Todos os Departamentos</option>');
-        departments.forEach(d => depSelect.append(`<option value="${d.name}">${d.name}</option>`));
+        departments.forEach(d => depSelect.append(`<option value="${d.id}">${d.name}</option>`));
 
         const roleSelect = $('#filter-role');
         roleSelect.empty().append('<option value="">Todos os Cargos</option>');
         roles.forEach(r => roleSelect.append(`<option value="${r}">${r}</option>`));
 
+        // Pré-selecionar o departamento do usuário
+        if (userInfo && userInfo.department_ids) {
+            let userDeptId = null;
+            if (typeof userInfo.department_ids === 'string') {
+                userDeptId = userInfo.department_ids.split(',')[0].trim();
+            } else if (Array.isArray(userInfo.department_ids)) {
+                userDeptId = userInfo.department_ids[0];
+            }
+            
+            if (userDeptId) {
+                // Aqui, estamos definindo o VALOR do select, que é o ID.
+                depSelect.val(userDeptId);
+            }
+        }
+        
         $('#filter-keyword').on('keyup', applyFilters);
         $('#filter-department, #filter-role').on('change', applyFilters);
+        
+        // Após configurar os filtros, aplica-os imediatamente
+        applyFilters();
         
         $('#btn-clear-filters').on('click', () => {
             $('#filter-keyword').val('');
@@ -260,9 +286,26 @@ async function loadProcedures() {
         if (allProcedures.length === 0) {
             renderWelcomeState();
         } else {
-            renderProcedures(allProcedures);
-            setupFilters(); // Chamará a nova função assíncrona
+            // Primeiro, configura os filtros (que irá pré-selecionar e aplicar o filtro)
+            await setupFilters(); 
+            // O renderProcedures já é chamado dentro de applyFilters, que é chamado por setupFilters.
+            // Portanto, a chamada explícita aqui não é mais necessária.
         }
+
+        const socket = io();
+
+        socket.on('procedure_deleted', (data) => {
+            console.log('Evento procedure_deleted recebido:', data);
+            showNotification(`Procedimento "${data.title}" foi excluído.`, 'warning');
+            loadProcedures(); // Recarrega a lista para remover o card
+        });
+        
+        socket.on('procedure_created', (data) => {
+            console.log('Evento procedure_created recebido:', data);
+            showNotification(`Novo procedimento "${data.title}" foi criado.`, 'success');
+            loadProcedures(); // Recarrega a lista para adicionar o novo card
+        });
+
     } catch (error) {
         console.error('Falha ao carregar procedimentos:', error);
         $('#procedures-container').html('<p class="text-center text-danger">Não foi possível carregar os procedimentos. Tente novamente mais tarde.</p>');

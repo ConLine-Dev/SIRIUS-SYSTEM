@@ -1,8 +1,44 @@
 const express = require('express');
 const proceduresController = require('../controllers/procedures-management');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Garante que o diretório de upload exista
+const uploadDir = 'storageService/procedures/attachments';
+fs.mkdirSync(uploadDir, { recursive: true });
+
+// Configuração do Multer para upload de arquivos
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+        // Garante um nome de arquivo único
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ 
+    storage: storage,
+    limits: { fileSize: 25 * 1024 * 1024 } // Limite de 25MB por arquivo
+});
 
 module.exports = function(io) {
     const router = express.Router();
+
+    // Rota para upload de anexo
+    router.post('/procedures/upload', upload.single('attachment'), (req, res) => {
+        if (!req.file) {
+            return res.status(400).send({ message: 'Nenhum arquivo enviado.' });
+        }
+        res.status(201).send({
+            message: 'Arquivo enviado com sucesso!',
+            filePath: `/storageService/procedures/attachments/${req.file.filename}`,
+            fileName: req.file.originalname
+        });
+    });
 
     // Rota para obter todos os procedimentos
     router.get('/procedures', proceduresController.getProcedures);

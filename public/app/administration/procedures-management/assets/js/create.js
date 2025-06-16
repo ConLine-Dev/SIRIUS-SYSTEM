@@ -18,70 +18,255 @@ $(document).ready(function() {
         placeholder: 'Comece a escrever seu procedimento aqui...'
     });
 
-    // Mostra/esconde o campo de URL do vídeo com base no formato
-    $('#format').change(function() {
-        if ($(this).val() === 'Vídeo') {
-            $('#video-url-container').show();
-        } else {
-            $('#video-url-container').hide();
+    // Inicializa o SortableJS para arrastar e soltar
+    const attachmentsContainer = document.getElementById('attachments-container');
+    new Sortable(attachmentsContainer, {
+        animation: 150,
+        handle: '.handle', // Define o ícone de arrastar como o "handle"
+        ghostClass: 'sortable-ghost'
+    });
+    
+    // Lógica para adicionar anexos - ABRE O MODAL
+    $('#btn-add-attachment').click(function() {
+        resetAndShowModal();
+    });
+
+    // Lógica para remover anexos
+    $('#attachments-container').on('click', '.btn-remove-attachment', function() {
+        if (confirm('Tem certeza de que deseja remover este anexo?')) {
+            $(this).closest('.attachment-card').remove();
         }
     });
 
-    // Lógica para adicionar anexos
-    $('#btn-add-attachment').click(function() {
-        addAttachmentRow();
+    // --- Lógica de Edição Inline da Descrição ---
+    $('#attachments-container').on('click', '.attachment-description-display', function() {
+        const $display = $(this);
+        const $input = $display.siblings('.attachment-description-input');
+        $display.hide();
+        $input.show().focus();
+    });
+    // Salvar ao perder o foco ou pressionar Enter
+    $('#attachments-container').on('blur keypress', '.attachment-description-input', function(e) {
+        if (e.type === 'keypress' && e.which !== 13) return;
+        const $input = $(this);
+        const $display = $input.siblings('.attachment-description-display');
+        const newDescription = $input.val();
+        $display.text(newDescription || 'Clique para adicionar uma descrição');
+        $input.hide();
+        $display.show();
+    });
+    
+    // Listener para o clique no botão de upload dentro do card
+    $('#attachments-container').on('click', '.btn-upload-file', function() {
+        $(this).closest('.attachment-card').find('.attachment-file-input-actual').click();
     });
 
-    // Lógica para remover anexos (usando delegação de eventos)
-    $('#attachments-container').on('click', '.btn-remove-attachment', function() {
-        if (confirm('Tem certeza de que deseja remover este anexo?')) {
-            $(this).closest('.attachment-row').remove();
+    // Listener para a mudança do input de arquivo (quando um arquivo é selecionado)
+    $('#attachments-container').on('change', '.attachment-file-input-actual', async function() {
+        const file = this.files[0];
+        if (!file) return;
+
+        const $card = $(this).closest('.attachment-card');
+        const formData = new FormData();
+        formData.append('attachment', file);
+        
+        try {
+            const response = await makeRequest('/api/procedures-management/procedures/upload', 'POST', formData);
+            
+            // Atualiza o card com as informações do arquivo
+            $card.data('type', 'file'); // Garante que o tipo é 'file'
+            $card.find('.attachment-url').val(response.filePath);
+            
+            // Troca o botão de "Selecionar" pelos de "Visualizar/Baixar"
+            const buttonsHtml = `
+                <a href="${response.filePath}" target="_blank" class="btn btn-light" title="Visualizar"><i class="ri-eye-line"></i></a>
+                <a href="${response.filePath}" download class="btn btn-light" title="Baixar"><i class="ri-download-2-line"></i></a>`;
+            $card.find('.btn-group').html(buttonsHtml);
+            
+            // Atualiza o corpo do card para mostrar o nome do arquivo
+            $card.find('.attachment-body').html(`
+                <input type="hidden" class="attachment-url" value="${response.filePath}">
+                <small class="text-muted text-truncate d-block">${response.filePath.split('/').pop()}</small>
+            `);
+
+            // Se a descrição estiver vazia, preenche com o nome do arquivo
+            const $descDisplay = $card.find('.attachment-description-display');
+            if ($descDisplay.text() === 'Clique para adicionar uma descrição') {
+                $descDisplay.text(file.name);
+                $card.find('.attachment-description-input').val(file.name);
+            }
+
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('Falha no upload do arquivo.');
+        }
+    });
+
+    // Listener para o campo de URL (para tipos link, video, image)
+    $('#attachments-container').on('input', '.attachment-url', function() {
+        const $input = $(this);
+        const url = $input.val().trim();
+        const $card = $input.closest('.attachment-card');
+        const $viewButton = $card.find('a[title="Abrir Link"]');
+
+        if (url) {
+            $viewButton.attr('href', url).removeClass('disabled');
+        } else {
+            $viewButton.addClass('disabled').attr('href', '#');
         }
     });
 
     // Ação do botão salvar
     $('#form-create-procedure').submit(async function(e) {
-        e.preventDefault(); // Previne o comportamento padrão do formulário
+        e.preventDefault();
         toggleSaveButton(true);
 
-        const contentData = quill.getContents(); // Pega o conteúdo como Delta
+        const contentData = quill.getContents();
 
-        // Coleta os anexos
         const attachments = [];
-        $('.attachment-row').each(function() {
-            const type = $(this).find('.attachment-type').val();
-            const url = $(this).find('.attachment-url').val();
-            const description = $(this).find('.attachment-description').val();
+        $('.attachment-card').each(function() {
+            const $card = $(this);
+            const type = $card.data('type');
+            const url = $card.find('.attachment-url').val();
+            let description = $card.find('.attachment-description-display').text();
+            if (description === 'Clique para adicionar uma descrição') {
+                description = '';
+            }
+    
             if (url) {
                 attachments.push({ type, url, description });
             }
         });
 
-        const tagsValue = $('#tags').val() || ''; // Garante que seja uma string
+        const tagsValue = $('#tags').val() || '';
 
         const procedureData = {
             title: $('#title').val(),
-            content: contentData, // Salva o Delta do editor
+            content: contentData,
             department_id: $('#department').val(),
             role: $('#role').val(),
             type_id: $('#type').val(),
             responsible: $('#responsible').val(),
-            tags: tagsValue.split(',').map(tag => tag.trim()).filter(tag => tag), // Filtra tags vazias
+            tags: tagsValue.split(',').map(tag => tag.trim()).filter(tag => tag),
             attachments: attachments
         };
 
-        console.log("Dados enviados para a API:", procedureData);
-
         try {
-            await makeRequest('/api/procedures-management/procedures', 'POST', procedureData);
-            showNotification('Procedimento criado com sucesso!', 'success');
+            const response = await makeRequest('/api/procedures-management/procedures', 'POST', procedureData);
+            showNotification(response.message || 'Procedimento criado com sucesso!', 'success');
+             setTimeout(() => {
+                window.close();
+            }, 1000);
         } catch (error) {
-            showNotification('Erro ao salvar o procedimento.', 'danger');
+            const errorMessage = error.responseJSON ? error.responseJSON.message : 'Erro ao salvar o procedimento.';
+            showNotification(errorMessage, 'danger');
             console.error(error);
         } finally {
             toggleSaveButton(false);
         }
     });
+
+    // --- Lógica do Novo Modal de Anexos ---
+    let attachmentModal;
+    
+    function getAttachmentModal() {
+        if (!attachmentModal) {
+            attachmentModal = new bootstrap.Modal(document.getElementById('add-attachment-modal'));
+        }
+        return attachmentModal;
+    }
+
+    function resetAndShowModal() {
+        $('#attachment-type-selection').show();
+        $('#attachment-url-input').hide();
+        $('#attachment-file-upload').hide();
+        $('#modal-attachment-url').val('');
+        $('#modal-attachment-description-url').val('');
+        $('#modal-file-input').val('');
+        $('#modal-progress-bar').css('width', '0%').parent().hide();
+        getAttachmentModal().show();
+    }
+
+    // Navegação do modal: Escolha do tipo
+    $('.option-box').click(function() {
+        const type = $(this).data('type');
+        $('#attachment-type-selection').hide();
+        if (type === 'url') {
+            $('#attachment-url-input').show();
+        } else {
+            $('#attachment-file-upload').show();
+        }
+    });
+
+    // Salvar anexo do tipo URL
+    $('#btn-save-url-attachment').click(function() {
+        const url = $('#modal-attachment-url').val();
+        if (!url) {
+            alert('Por favor, insira uma URL.');
+            return;
+        }
+        const description = $('#modal-attachment-description-url').val();
+        
+        let type = 'link';
+        if (/\.(jpg|jpeg|png|gif)$/i.test(url)) type = 'image';
+        if (/youtube\.com|vimeo\.com/i.test(url)) type = 'video';
+
+        addAttachmentRow({ type, url, description });
+        getAttachmentModal().hide();
+    });
+
+    // Upload de arquivo
+    $('#attachment-dropzone').on('click', () => $('#modal-file-input').click());
+    $('#attachment-dropzone, #add-attachment-modal').on('dragover dragenter', function(e) {
+        e.preventDefault();
+        $('#attachment-dropzone').addClass('dragover');
+    }).on('dragleave drop', function(e) {
+        e.preventDefault();
+        $('#attachment-dropzone').removeClass('dragover');
+    });
+
+    $('#add-attachment-modal').on('drop', function(e) {
+        const files = e.originalEvent.dataTransfer.files;
+        if (files.length) {
+            uploadFile(files[0]);
+        }
+    });
+    $('#modal-file-input').on('change', function() {
+        if (this.files.length) {
+            uploadFile(this.files[0]);
+        }
+    });
+    
+    async function uploadFile(file) {
+        const $progress = $('#modal-progress-bar').parent();
+        const $progressBar = $('#modal-progress-bar');
+        
+        $progress.show();
+        $progressBar.removeClass('bg-success bg-danger').css('width', '0%');
+        
+        const formData = new FormData();
+        formData.append('attachment', file);
+
+        try {
+            $progressBar.animate({ width: '50%' }, 400);
+            const response = await makeRequest('/api/procedures-management/procedures/upload', 'POST', formData);
+            $progressBar.animate({ width: '100%' }, 400, () => $progressBar.addClass('bg-success'));
+
+            setTimeout(() => {
+                addAttachmentRow({
+                    type: 'file',
+                    url: response.filePath,
+                    description: file.name
+                });
+                getAttachmentModal().hide();
+            }, 500);
+
+        } catch (error) {
+            console.error('Upload error:', error);
+            $progressBar.addClass('bg-danger');
+            alert('Falha no upload do arquivo.');
+        }
+    }
 });
 
 async function getInfosLogin() {
@@ -145,28 +330,67 @@ function populateSelect(selectId, data, valueKey, nameKey) {
 }
 
 function addAttachmentRow(attachment = {}) {
-    const attachmentId = Date.now(); // ID único para os elementos
-    const newRow = `
-        <div class="row gx-2 mb-2 attachment-row">
-            <div class="col-md-3">
-                <select class="form-select form-select-sm attachment-type">
-                    <option value="link" ${attachment.type === 'link' ? 'selected' : ''}>Link</option>
-                    <option value="video" ${attachment.type === 'video' ? 'selected' : ''}>Vídeo</option>
-                    <option value="image" ${attachment.type === 'image' ? 'selected' : ''}>Imagem</option>
-                </select>
+    const type = attachment.type || 'file'; 
+    const description = attachment.description || '';
+    const url = attachment.url || '';
+    const isFile = type === 'file';
+
+    let iconHtml = '';
+    if (type === 'image' && url) {
+        iconHtml = `<img src="${url}" class="attachment-thumbnail" alt="Anexo">`;
+    } else {
+        const iconClass = {
+            link: 'ri-links-line', video: 'ri-film-line',
+            image: 'ri-image-line', file: 'ri-file-text-line'
+        }[type] || 'ri-links-line';
+        iconHtml = `<div class="attachment-icon"><i class="${iconClass}"></i></div>`;
+    }
+
+    const newCard = `
+    <div class="attachment-card p-2 mb-2" data-type="${type}">
+        <div class="d-flex align-items-center">
+            <div class="handle me-2 text-muted"><i class="ri-drag-move-2-fill"></i></div>
+            ${iconHtml}
+            <div class="flex-grow-1 mx-2" style="min-width: 0;">
+                <p class="fw-bold m-0 text-truncate attachment-description-display" style="cursor: pointer;">${description || 'Clique para adicionar uma descrição'}</p>
+                <input type="text" class="form-control form-control-sm attachment-description-input" style="display:none;" value="${description}">
+                
+                <div class="attachment-body mt-1">
+                    ${ isFile ? 
+                        (url ? `
+                            <input type="hidden" class="attachment-url" value="${url}">
+                            <small class="text-muted text-truncate d-block">${url.split('/').pop()}</small>
+                        ` : `
+                            <input type="hidden" class="attachment-url" value="">
+                            <small class="text-muted">Aguardando envio de arquivo...</small>
+                        `) : 
+                        `<input type="text" class="form-control form-control-sm attachment-url" placeholder="Cole a URL aqui" value="${url}">`
+                    }
+                </div>
             </div>
-            <div class="col-md-4">
-                <input type="text" class="form-control form-control-sm attachment-url" placeholder="URL" value="${attachment.url || ''}">
-            </div>
-            <div class="col-md-4">
-                <input type="text" class="form-control form-control-sm attachment-description" placeholder="Descrição" value="${attachment.description || ''}">
-            </div>
-            <div class="col-md-1">
-                <button type="button" class="btn btn-sm btn-danger btn-remove-attachment">&times;</button>
+            <div class="ms-auto d-flex align-items-center">
+                <div class="btn-group btn-group-sm">
+                    ${ isFile ? 
+                        (url ? `
+                            <a href="${url}" target="_blank" class="btn btn-light" title="Visualizar"><i class="ri-eye-line"></i></a>
+                            <a href="${url}" download class="btn btn-light" title="Baixar"><i class="ri-download-2-line"></i></a>
+                        ` : `
+                            <button type="button" class="btn btn-primary btn-upload-file">Selecionar</button>
+                        `) : 
+                        (url ? `
+                            <a href="${url}" target="_blank" class="btn btn-light" title="Abrir Link"><i class="ri-external-link-line"></i></a>
+                        ` : `
+                            <!-- Botão desabilitado para links sem URL -->
+                        `)
+                    }
+                </div>
+                <button type="button" class="btn btn-sm btn-light text-danger ms-2 btn-remove-attachment" title="Remover"><i class="ri-close-line"></i></button>
             </div>
         </div>
+        <input type="file" class="d-none attachment-file-input-actual">
+    </div>
     `;
-    $('#attachments-container').append(newRow);
+    $('#attachments-container').append(newCard);
 }
 
 function toggleSaveButton(loading = false) {

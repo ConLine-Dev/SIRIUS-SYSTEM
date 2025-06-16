@@ -1,0 +1,186 @@
+/* General Body Styles */
+body {
+    font-family: 'Lato', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+/* Page Layout */
+.page {
+    background: white;
+    width: 21cm;
+    height: 29.7cm;
+    margin: 2rem auto;
+    padding: 2cm;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+}
+
+.page:last-child {
+    page-break-after: avoid;
+}
+
+/* Header and Footer */
+header, footer {
+    text-align: center;
+    flex-shrink: 0;
+}
+
+header {
+    border-bottom: 2px solid #f9423a;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+footer {
+    border-top: 1px solid #ccc;
+    padding-top: 1rem;
+    margin-top: auto;
+    font-size: 0.8rem;
+    color: #777;
+}
+
+/* Main Content */
+main {
+    flex-grow: 1;
+}
+
+/* Typography */
+h1 {
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+h2 {
+    font-family: 'Roboto', sans-serif;
+    color: #f9423a;
+    font-size: 1.8rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+h3 {
+    font-family: 'Roboto', sans-serif;
+    color: #f9423a;
+    font-size: 1.4rem;
+    font-weight: 500;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+p {
+    margin: 1rem 0;
+    text-align: justify;
+}
+
+ul {
+    list-style-type: disc;
+    padding-left: 2rem;
+}
+
+li {
+    margin-bottom: 0.5rem;
+}
+
+strong {
+    font-weight: 700;
+    color: #333;
+}
+
+/* Definition Lists */
+dl {
+    margin-top: 1rem;
+}
+
+dt {
+    font-weight: 700;
+    color: #f9423a;
+    font-size: 1.1rem;
+}
+
+dd {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+    border-left: 3px solid #eee;
+}
+
+/* Specific Sections */
+#title-page {
+    justify-content: center;
+    text-align: center;
+}
+
+#title-page h1 {
+    font-size: 3.5rem;
+}
+
+#title-page .subtitle {
+    font-size: 1.5rem;
+    color: #555;
+    font-style: italic;
+    margin-top: 1rem;
+}
+
+#title-page .metadata {
+    margin-top: 4rem;
+    font-size: 1rem;
+}
+
+.tech-stack {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.stack-column {
+    width: 48%;
+}
+
+.schema-diagram pre {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 1.5rem;
+    font-family: 'Courier New', Courier, monospace;
+    white-space: pre-wrap;
+    line-height: 1.5;
+}
+
+code {
+    background-color: #e9ecef;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+/* Print-specific Styles */
+@media print {
+    body {
+        background-color: #fff;
+        font-size: 12pt;
+    }
+    .page {
+        width: auto;
+        height: auto;
+        margin: 0;
+        padding: 1cm;
+        box-shadow: none;
+        border: none;
+    }
+    header, footer {
+        text-align: left;
+    }
+    h1, h2, h3 {
+        color: #000 !important;
+    }
+}

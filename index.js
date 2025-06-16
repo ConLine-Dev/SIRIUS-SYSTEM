@@ -61,6 +61,7 @@ app.use('/app', listApp);
 
 app.use('/storageService/collaborators', express.static('storageService/administration/collaborators'));
 app.use('/storageService/tickets/files', express.static('storageService/ti/tickets/files'));
+app.use('/storageService/procedures/attachments', express.static('storageService/procedures/attachments'));
 app.use('/uploads', express.static('uploads'));
 
 // Inicializar controlador de Socket.io

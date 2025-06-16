@@ -3,6 +3,7 @@ const http = require('http'); // Add this line
 const path = require('path');
 const socketIO = require('socket.io');
 require('dotenv').config();
+const cors = require('cors');
 
 // Aumentar limite de memória para lidar com cargas maiores
 // Isso é necessário por padrão, já que o projeto está crescendo
@@ -18,7 +19,11 @@ const ControllerSocket = require('./server/routes/socketIO');
 
 // Middlewares
 const app = express();
-app.use(express.json());
+app.use(cors());
+
+// Aumentando o limite do body-parser para aceitar payloads maiores (ex: 50mb)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Middleware para lidar com CORS
 app.use((req, res, next) => {
@@ -38,7 +43,12 @@ app.use((req, res, next) => {
 const server = http.createServer(app); 
 
 // Initialize Socket.io by passing the HTTP server instance
-const io = socketIO(server);
+const io = socketIO(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 
 // Statics
 app.use('/', express.static(path.join(__dirname, './public')))

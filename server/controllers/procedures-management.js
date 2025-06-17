@@ -294,12 +294,14 @@ exports.getProcedures = async (req, res) => {
                 d.name AS department,
                 p.role,
                 pt.name AS type,
+                p.responsible_id,
                 c.name AS responsible,
                 p.updated_at
             FROM proc_main p
             LEFT JOIN departments d ON p.department_id = d.id
             LEFT JOIN proc_types pt ON p.type_id = pt.id
             LEFT JOIN collaborators c ON p.responsible_id = c.id
+            WHERE p.deleted_at IS NULL
             ORDER BY p.updated_at DESC
         `);
         for (const proc of procedures) {
@@ -721,34 +723,30 @@ exports.revertToVersion = async (req, res) => {
 // Deletar um procedimento
 exports.deleteProcedure = async (req, res) => {
     const { id } = req.params;
-    try {
-        // Antes de deletar o procedimento, encontrar e deletar os arquivos físicos associados
-        const attachments = await executeQuery('SELECT url FROM proc_attachments WHERE procedure_id = ? AND type = ?', [id, 'file']);
+    const userId = getAuthorIdFromHeader(req);
 
-        if (attachments.length > 0) {
-            console.log(`Deletando ${attachments.length} arquivos físicos para o procedimento ${id}...`);
-            for (const attachment of attachments) {
-                // O caminho no DB é /storageService/..., precisamos do caminho relativo ao projeto
-                const relativePath = attachment.url.startsWith('/') ? attachment.url.substring(1) : attachment.url;
-                const filePath = path.join(__dirname, '..', '..', relativePath);
-                
-                fs.unlink(filePath, (err) => {
-                    if (err) {
-                        // Loga o erro mas não impede a exclusão do registro no DB
-                        console.error(`Falha ao deletar o arquivo físico ${filePath}:`, err);
-                    } else {
-                        console.log(`Arquivo ${filePath} deletado com sucesso.`);
-                    }
-                });
-            }
+    try {
+        // 1. Buscar o procedimento para verificar a permissão
+        const procedureResult = await executeQuery('SELECT responsible_id FROM proc_main WHERE id = ?', [id]);
+        if (procedureResult.length === 0) {
+            return res.status(404).json({ message: 'Procedimento não encontrado.' });
+        }
+        const procedure = procedureResult[0];
+
+        // 2. Verificar se o usuário logado é o responsável
+        if (procedure.responsible_id !== userId) {
+            return res.status(403).json({ message: 'Apenas o responsável pelo procedimento tem permissão de exclusão.' });
         }
 
-        // A deleção em cascata configurada no DB cuidará das tabelas relacionadas.
-        await executeQuery('DELETE FROM proc_main WHERE id = ?', [id]);
-        res.json({ message: 'Procedimento deletado com sucesso.' });
+        // 3. Executar o soft delete (marcar como excluído)
+        await executeQuery('UPDATE proc_main SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+        
+        console.log(`Procedimento ${id} marcado como excluído pelo usuário ${userId}.`);
+        
+        res.json({ message: 'Procedimento desativado com sucesso.' });
         return { success: true };
     } catch (error) {
-        console.error(`Erro ao deletar procedimento ${id}:`, error);
+        console.error(`Erro ao desativar procedimento ${id}:`, error);
         res.status(500).json({ message: 'Erro interno do servidor.' });
         return { success: false };
     }

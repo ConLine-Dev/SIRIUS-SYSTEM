@@ -66,6 +66,12 @@
                                             <!-- Preenchido via JavaScript -->
                                         </select>
                                     </div>
+                                    <div class="mb-3">
+                                        <label for="item-category" class="form-label">Categoria <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="item-category" required>
+                                            <!-- Preenchido via JavaScript -->
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -80,8 +86,12 @@
                                         <input type="date" class="form-control" id="item-acquisition-date" required>
                                     </div>
                                     <div class="mb-3">
+                                        <label for="item-acquisition-value" class="form-label">Valor de Aquisição (R$)</label>
+                                        <input type="number" class="form-control" id="item-acquisition-value" step="0.01" placeholder="Ex: 4500.50">
+                                    </div>
+                                    <div class="mb-3">
                                         <label for="item-notes" class="form-label">Notas Adicionais</label>
-                                        <textarea class="form-control" id="item-notes" rows="5" placeholder="Informações complementares sobre o item..."></textarea>
+                                        <textarea class="form-control" id="item-notes" rows="3" placeholder="Informações complementares sobre o item..."></textarea>
                                     </div>
                                 </div>
                             </div>

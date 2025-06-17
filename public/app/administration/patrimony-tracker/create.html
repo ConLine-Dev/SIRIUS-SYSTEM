@@ -66,6 +66,12 @@
                                             <!-- Preenchido via JavaScript -->
                                         </select>
                                     </div>
+                                    <div class="mb-3">
+                                        <label for="item-category" class="form-label">Categoria <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="item-category" required>
+                                            <!-- Preenchido via JavaScript -->
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -80,13 +86,8 @@
                                         <input type="date" class="form-control" id="item-acquisition-date" required>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="item-status" class="form-label">Estado Inicial <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="item-status" required>
-                                            <option value="available">Disponível</option>
-                                            <option value="in_use">Em Uso</option>
-                                            <option value="in_maintenance">Em Manutenção</option>
-                                            <option value="damaged">Danificado</option>
-                                        </select>
+                                        <label for="item-acquisition-value" class="form-label">Valor de Aquisição (R$)</label>
+                                        <input type="number" class="form-control" id="item-acquisition-value" step="0.01" placeholder="Ex: 4500.50">
                                     </div>
                                     <div class="mb-3">
                                         <label for="item-notes" class="form-label">Notas Adicionais</label>

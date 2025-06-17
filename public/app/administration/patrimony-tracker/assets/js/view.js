@@ -19,18 +19,28 @@ $(document).ready(function() {
     setupActionButtons();
 });
 
+function showLoader(show) {
+    if (show) {
+        $('#loader2').show();
+    } else {
+        $('#loader2').fadeOut();
+    }
+}
+
 // Carregar dados do item
 async function fetchItemData(id) {
+    showLoader(true);
     try {
-        // Fazer requisição para a API
         const response = await makeRequest(`/api/patrimony-tracker/items/${id}`);
         currentItem = response;
-        
-        // Preencher os dados na interface
+        console.log('Dados recebidos do item:', currentItem);
         renderItemData();
     } catch (error) {
         console.error('Erro ao buscar dados do item:', error);
-        showError('Não foi possível carregar os detalhes do item. Tente novamente mais tarde.');
+        // Idealmente, mostrar uma mensagem de erro na própria página
+        $('.card-body').html('<div class="alert alert-danger">Não foi possível carregar os detalhes do item. Tente novamente mais tarde.</div>');
+    } finally {
+        showLoader(false);
     }
 }
 
@@ -39,17 +49,18 @@ function renderItemData() {
     if (!currentItem) return;
     
     // Título da página
-    $('#item-title').text(currentItem.description);
+    document.title = currentItem.description;
     
     // Informações básicas
     $('#item-code').text(currentItem.code);
-    $('#item-status').text(getStatusText(currentItem.status));
-    $('#item-status').addClass(getStatusBadgeClass(currentItem.status));
-    $('#item-location').text(currentItem.location);
+    $('#item-status').html(getStatusBadge(currentItem.current_status));
+    $('#item-location').text(currentItem.location_name || 'Não definida');
+    $('#item-category').text(currentItem.category_name || 'Não definida');
     
     // Detalhes do item
     $('#item-description').text(currentItem.description);
     $('#item-acquisition-date').text(currentItem.acquisition_date);
+    $('#item-acquisition-value').text(currentItem.acquisition_value ? `R$ ${parseFloat(currentItem.acquisition_value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-');
     $('#item-notes').text(currentItem.notes || 'Nenhuma nota adicional.');
     
     // Atribuição atual
@@ -65,7 +76,7 @@ function renderItemData() {
         
         // Informações do colaborador
         $('#employee-name').text(employee.employee_name);
-        $('#employee-department').text(employee.employee_department);
+        $('#employee-department').text(employee.employee_job_position || 'Cargo não informado');
         $('#assignment-date').text(employee.assignment_date);
         $('#assignment-notes').text(employee.notes || 'Sem observações.');
     } else {
@@ -118,7 +129,7 @@ function renderAssignmentHistory() {
                     <h6 class="mb-0">${assignment.employee_name}</h6>
                     ${statusBadge}
                 </div>
-                <p class="small text-muted mb-1">${assignment.employee_department}</p>
+                <p class="small text-muted mb-1">${assignment.employee_job_position || 'Cargo não informado'}</p>
                 <p class="small mb-1">
                     <i class="ri-calendar-check-line text-primary me-1"></i> 
                     <strong>Atribuído em:</strong> ${assignment.assignment_date}
@@ -142,7 +153,7 @@ function renderAssignmentHistory() {
 
 // Renderizar log de eventos
 function renderEventLog() {
-    const logList = $('#event-log-list');
+    const logList = $('#event-log-timeline');
     logList.empty();
     
     if (!currentItem.event_log || currentItem.event_log.length === 0) {
@@ -166,7 +177,7 @@ function renderEventLog() {
                             <h6 class="mb-0">${getEventText(event.event_type)}</h6>
                             <small class="text-muted">${event.event_date}</small>
                         </div>
-                        <p class="text-muted small mb-0">${event.details}</p>
+                        <p class="text-muted small mb-0">${event.details || 'Nenhuma anotação fornecida.'}</p>
                     </div>
                 </div>
             </li>
@@ -179,7 +190,7 @@ function renderEventLog() {
 // Atualizar botões de ação com base no estado atual do item
 function updateActionButtons() {
     // Verificar o status atual do item
-    const status = currentItem.status;
+    const status = currentItem.current_status;
     const hasAssignment = !!currentItem.current_assignment;
     
     // Botão de atribuir a colaborador
@@ -204,7 +215,7 @@ function updateActionButtons() {
     }
     
     // Botão de retorno da manutenção
-    if (status === 'in_maintenance') {
+    if (status === 'maintenance') {
         $('#btn-return-maintenance').parent().removeClass('disabled');
     } else {
         $('#btn-return-maintenance').parent().addClass('disabled');
@@ -238,7 +249,7 @@ function setupActionButtons() {
     // Atribuir a colaborador
     $('#btn-assign-item').click(function(e) {
         e.preventDefault();
-        if (currentItem && currentItem.status === 'available') {
+        if (currentItem && currentItem.current_status === 'available') {
             showAssignItemModal();
         }
     });
@@ -246,7 +257,7 @@ function setupActionButtons() {
     // Registrar devolução
     $('#btn-return-item').click(function(e) {
         e.preventDefault();
-        if (currentItem && currentItem.status === 'in_use' && currentItem.current_assignment) {
+        if (currentItem && currentItem.current_status === 'in_use' && currentItem.current_assignment) {
             showReturnItemModal();
         }
     });
@@ -254,7 +265,7 @@ function setupActionButtons() {
     // Enviar para manutenção
     $('#btn-send-maintenance').click(function(e) {
         e.preventDefault();
-        if (currentItem && ['available', 'in_use', 'damaged'].includes(currentItem.status)) {
+        if (currentItem && ['available', 'in_use', 'damaged'].includes(currentItem.current_status)) {
             showSendToMaintenanceModal();
         }
     });
@@ -262,7 +273,7 @@ function setupActionButtons() {
     // Retorno da manutenção
     $('#btn-return-maintenance').click(function(e) {
         e.preventDefault();
-        if (currentItem && currentItem.status === 'in_maintenance') {
+        if (currentItem && currentItem.current_status === 'maintenance') {
             showReturnFromMaintenanceModal();
         }
     });
@@ -270,7 +281,7 @@ function setupActionButtons() {
     // Marcar como danificado
     $('#btn-mark-damaged').click(function(e) {
         e.preventDefault();
-        if (currentItem && ['available', 'in_use'].includes(currentItem.status)) {
+        if (currentItem && ['available', 'in_use'].includes(currentItem.current_status)) {
             showMarkAsDamagedModal();
         }
     });
@@ -278,7 +289,7 @@ function setupActionButtons() {
     // Dar baixa/descartar
     $('#btn-discard-item').click(function(e) {
         e.preventDefault();
-        if (currentItem && currentItem.status !== 'discarded') {
+        if (currentItem && currentItem.current_status !== 'discarded') {
             showDiscardItemModal();
         }
     });
@@ -321,6 +332,139 @@ async function performAuditItem() {
 }
 
 // Funções para exibir modais de ação
+
+function showSendToMaintenanceModal() {
+    showInputModal(
+        'Enviar para Manutenção',
+        'Informe o motivo do envio para manutenção:',
+        'Ex: Tela quebrada, não liga, etc.',
+        'Confirmar Envio',
+        async (notes) => {
+            try {
+                await makeRequest(`/api/patrimony-tracker/items/${currentItem.id}/maintenance/send`, 'POST', { notes });
+                showSuccess('Item enviado para manutenção com sucesso!');
+                fetchItemData(currentItem.id);
+            } catch (error) {
+                showError(error.responseJSON?.message || 'Erro ao enviar para manutenção.');
+            }
+        }
+    );
+}
+
+function showReturnFromMaintenanceModal() {
+    showInputModal(
+        'Retornar da Manutenção',
+        'Descreva o que foi feito no item:',
+        'Ex: Tela trocada, sistema reinstalado, etc.',
+        'Confirmar Retorno',
+        async (notes) => {
+            try {
+                await makeRequest(`/api/patrimony-tracker/items/${currentItem.id}/maintenance/return`, 'POST', { notes });
+                showSuccess('Item retornado da manutenção com sucesso!');
+                fetchItemData(currentItem.id);
+            } catch (error) {
+                showError(error.responseJSON?.message || 'Erro ao retornar da manutenção.');
+            }
+        }
+    );
+}
+
+function showMarkAsDamagedModal() {
+    showInputModal(
+        'Marcar como Danificado',
+        'Descreva o dano apresentado pelo item:',
+        'Ex: Riscos na carcaça, botão quebrado, etc.',
+        'Confirmar Dano',
+        async (notes) => {
+            try {
+                await makeRequest(`/api/patrimony-tracker/items/${currentItem.id}/damage`, 'POST', { notes });
+                showSuccess('Item marcado como danificado!');
+                fetchItemData(currentItem.id);
+            } catch (error) {
+                showError(error.responseJSON?.message || 'Erro ao marcar como danificado.');
+            }
+        }
+    );
+}
+
+function showDiscardItemModal() {
+    showInputModal(
+        'Descartar/Baixar Item',
+        'Informe o motivo do descarte:',
+        'Ex: Obsoleto, sem conserto, etc.',
+        'Confirmar Descarte',
+        async (notes) => {
+            if (!notes) {
+                showError('O motivo do descarte é obrigatório.');
+                return;
+            }
+            try {
+                await makeRequest(`/api/patrimony-tracker/items/${currentItem.id}/discard`, 'POST', { notes });
+                showSuccess('Item descartado com sucesso!');
+                fetchItemData(currentItem.id);
+            } catch (error) {
+                showError(error.responseJSON?.message || 'Erro ao descartar item.');
+            }
+        }
+    );
+}
+
+function showReturnItemModal() {
+    showInputModal(
+        'Registrar Devolução',
+        'Adicione observações sobre a devolução (opcional):',
+        'Ex: Devolvido com todos os acessórios.',
+        'Confirmar Devolução',
+        async (notes) => {
+            try {
+                await makeRequest(`/api/patrimony-tracker/items/${currentItem.id}/return`, 'POST', { notes });
+                showSuccess('Devolução registrada com sucesso!');
+                fetchItemData(currentItem.id);
+            } catch (error) {
+                showError(error.responseJSON?.message || 'Erro ao registrar devolução.');
+            }
+        }
+    );
+}
+
+function showInputModal(title, message, placeholder, confirmBtnText, onConfirm) {
+    $('.modal').remove();
+    const modalHtml = `
+        <div class="modal fade" id="input-modal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">${title}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>${message}</p>
+                        <textarea id="input-modal-value" class="form-control" rows="3" placeholder="${placeholder}"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" id="btn-confirm-input">${confirmBtnText}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    $('body').append(modalHtml);
+    const modalInstance = new bootstrap.Modal(document.getElementById('input-modal'));
+    
+    $('#btn-confirm-input').click(async function() {
+        const value = $('#input-modal-value').val();
+        const button = $(this);
+        button.prop('disabled', true).html('<i class="ri-loader-4-line fa-spin"></i>');
+        
+        await onConfirm(value);
+        
+        button.prop('disabled', false).html(confirmBtnText);
+        modalInstance.hide();
+    });
+
+    modalInstance.show();
+}
 
 // Modal para atribuir item a colaborador
 function showAssignItemModal() {
@@ -439,7 +583,8 @@ async function loadEmployeeOptions(selectSelector) {
         select.append('<option value="">Selecione um colaborador...</option>');
         
         options.employees.forEach(employee => {
-            select.append(`<option value="${employee.id}">${employee.name} (${employee.department})</option>`);
+            const jobTitle = employee.job_position ? `(${employee.job_position})` : '';
+            select.append(`<option value="${employee.id}">${employee.name} ${jobTitle}</option>`);
         });
     } catch (error) {
         console.error('Erro ao carregar opções de colaboradores:', error);
@@ -454,7 +599,7 @@ function getStatusText(status) {
     const statusMap = {
         'available': 'Disponível',
         'in_use': 'Em Uso',
-        'in_maintenance': 'Em Manutenção',
+        'maintenance': 'Em Manutenção',
         'damaged': 'Danificado',
         'discarded': 'Baixado/Descartado'
     };
@@ -467,7 +612,7 @@ function getStatusBadgeClass(status) {
     const classMap = {
         'available': 'bg-success-transparent',
         'in_use': 'bg-primary-transparent',
-        'in_maintenance': 'bg-warning-transparent',
+        'maintenance': 'bg-warning-transparent',
         'damaged': 'bg-danger-transparent',
         'discarded': 'bg-dark-transparent'
     };
@@ -491,9 +636,9 @@ function getEventIcon(eventType) {
         'updated': 'ri-edit-line',
         'assigned': 'ri-user-add-line',
         'returned': 'ri-user-received-2-line',
-        'sent_to_maintenance': 'ri-tools-line',
-        'returned_from_maintenance': 'ri-tools-fill',
-        'marked_damaged': 'ri-error-warning-line',
+        'maintenance_start': 'ri-tools-line',
+        'maintenance_end': 'ri-tools-fill',
+        'damaged': 'ri-error-warning-line',
         'discarded': 'ri-delete-bin-line',
         'audited': 'ri-ai-generate'
     };
@@ -508,9 +653,9 @@ function getEventClass(eventType) {
         'updated': 'bg-info',
         'assigned': 'bg-primary',
         'returned': 'bg-secondary',
-        'sent_to_maintenance': 'bg-warning',
-        'returned_from_maintenance': 'bg-warning',
-        'marked_damaged': 'bg-danger',
+        'maintenance_start': 'bg-warning',
+        'maintenance_end': 'bg-warning',
+        'damaged': 'bg-danger',
         'discarded': 'bg-dark',
         'audited': 'bg-info'
     };
@@ -525,12 +670,24 @@ function getEventText(eventType) {
         'updated': 'Informações Atualizadas',
         'assigned': 'Atribuído a Colaborador',
         'returned': 'Devolvido por Colaborador',
-        'sent_to_maintenance': 'Enviado para Manutenção',
-        'returned_from_maintenance': 'Retornado da Manutenção',
-        'marked_damaged': 'Marcado como Danificado',
+        'maintenance_start': 'Enviado para Manutenção',
+        'maintenance_end': 'Retornado da Manutenção',
+        'damaged': 'Marcado como Danificado',
         'discarded': 'Dado Baixa/Descartado',
         'audited': 'Auditoria Realizada'
     };
     
     return textMap[eventType] || eventType;
+}
+
+function getStatusBadge(status) {
+    const statusMap = {
+        'available': { text: 'Disponível', class: 'bg-success-transparent' },
+        'in_use': { text: 'Em Uso', class: 'bg-primary-transparent' },
+        'maintenance': { text: 'Em Manutenção', class: 'bg-warning-transparent' },
+        'damaged': { text: 'Danificado', class: 'bg-danger-transparent' },
+        'discarded': { text: 'Baixado', class: 'bg-secondary-transparent' }
+    };
+    const { text = 'Desconhecido', class: badgeClass = 'bg-light' } = statusMap[status] || {};
+    return `<span class="badge ${badgeClass}">${text}</span>`;
 } 

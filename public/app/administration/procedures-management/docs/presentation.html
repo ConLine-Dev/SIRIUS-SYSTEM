@@ -12,7 +12,7 @@
 <body>
     <div class="page" id="title-page">
         <header>
-            <h1>SIRIUS-SYSTEM</h1>
+            <!-- <h1>Gestão de Procedimentos</h1> -->
             <h2>Módulo de Gestão de Procedimentos</h2>
         </header>
         <main>
@@ -120,78 +120,10 @@
         </main>
     </div>
 
-    <div class="page">
-        <header>
-            <h2>3. Arquitetura Técnica</h2>
-        </header>
-        <main>
-            <div class="tech-stack">
-                <div class="stack-column">
-                    <h3>Front-End</h3>
-                    <ul>
-                        <li><strong>HTML5 / CSS3:</strong> Estrutura e estilo.</li>
-                        <li><strong>Bootstrap 5:</strong> Framework de UI para responsividade e componentes.</li>
-                        <li><strong>JavaScript (ES6+):</strong> Lógica de cliente.</li>
-                        <li><strong>jQuery:</strong> Manipulação do DOM e AJAX.</li>
-                        <li><strong>Quill.js:</strong> Editor de texto rico.</li>
-                        <li><strong>SortableJS:</strong> Reordenação de elementos com drag-and-drop.</li>
-                        <li><strong>Socket.io-client:</strong> Comunicação em tempo real.</li>
-                    </ul>
-                </div>
-                <div class="stack-column">
-                    <h3>Back-End</h3>
-                    <ul>
-                        <li><strong>Node.js:</strong> Ambiente de execução.</li>
-                        <li><strong>Express.js:</strong> Framework para criação de APIs e roteamento.</li>
-                        <li><strong>MySQL (com `mysql2`):</strong> Banco de dados relacional.</li>
-                        <li><strong>Multer:</strong> Middleware para upload de arquivos.</li>
-                        <li><strong>Socket.io:</strong> Servidor para comunicação WebSocket.</li>
-                    </ul>
-                </div>
-            </div>
-             <section>
-                <h3>3.1. API RESTful</h3>
-                <p>A comunicação entre o front-end e o back-end é feita através de uma API RESTful bem definida. Os endpoints seguem um padrão lógico para gerenciar procedimentos, metadados (departamentos, cargos) e arquivos.</p>
-                <p>Ex: <code>/api/procedures-management/procedures/:id</code></p>
-            </section>
-        </main>
-    </div>
+
     
      <div class="page">
-        <header>
-            <h2>4. Estrutura de Dados (Esquema do Banco de Dados)</h2>
-        </header>
-        <main>
-            <p>O banco de dados foi modelado para garantir integridade, performance e a capacidade de armazenar o histórico de alterações de forma eficiente.</p>
-            <dl>
-                <dt>proc_main</dt>
-                <dd>Tabela principal que armazena o estado atual de cada procedimento (título, metadados, etc.). Contém os dados "vivos".</dd>
-                
-                <dt>proc_versions</dt>
-                <dd>Coração do sistema de auditoria. Cada registro é um snapshot completo de um procedimento em um ponto no tempo, incluindo conteúdo, metadados, tags, anexos e um resumo da alteração.</dd>
-
-                <dt>proc_attachments</dt>
-                <dd>Armazena informações sobre os anexos, seja o caminho para um arquivo no servidor ou uma URL externa.</dd>
-                
-                <dt>proc_tags e proc_procedure_tags</dt>
-                <dd>Implementam uma relação muitos-para-muitos entre procedimentos e tags, permitindo uma categorização flexível.</dd>
-
-                <dt>Tabelas de Suporte</dt>
-                <dd><code>departments</code>, <code>collaborators</code>, e <code>proc_types</code> funcionam como tabelas de metadados para garantir a consistência dos dados selecionáveis.</dd>
-            </dl>
-             <div class="schema-diagram">
-                <p><strong>Diagrama Simplificado de Relacionamento:</strong></p>
-                <pre>
-[proc_main] 1--* [proc_versions]
-[proc_main] 1--* [proc_attachments]
-[proc_main] *--* [proc_tags] (via proc_procedure_tags)
-
-[proc_main] *--1 [departments]
-[proc_main] *--1 [collaborators] (Responsável)
-[proc_main] *--1 [proc_types]
-                </pre>
-            </div>
-        </main>
+        
         <footer>
             <p>Fim do Documento</p>
         </footer>

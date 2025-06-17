@@ -20,4 +20,16 @@ router.post('/items/:id/damage', patrimonyController.markAsDamaged);
 router.post('/items/:id/discard', patrimonyController.discardItem);
 router.post('/items/:id/audit', patrimonyController.auditItem);
 
+// Rotas para gerenciamento de Localizações
+router.get('/locations', patrimonyController.getLocations);
+router.post('/locations', patrimonyController.createLocation);
+router.put('/locations/:id', patrimonyController.updateLocation);
+router.delete('/locations/:id', patrimonyController.deleteLocation);
+
+// Rotas para gerenciamento de Categorias
+router.get('/categories', patrimonyController.getCategories);
+router.post('/categories', patrimonyController.createCategory);
+router.put('/categories/:id', patrimonyController.updateCategory);
+router.delete('/categories/:id', patrimonyController.deleteCategory);
+
 module.exports = router; 

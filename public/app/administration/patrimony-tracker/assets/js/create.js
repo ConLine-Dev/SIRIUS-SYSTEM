@@ -1,47 +1,41 @@
 // Quando o documento estiver pronto
 $(document).ready(function() {
-    // Mostrar loader enquanto carrega dados iniciais
-    $('#loader2').show();
-    
-    // Carregar opções do formulário
-    loadFormOptions()
-        .then(() => {
-            // Inicializar o formulário
-            initializeForm();
-            
-            // Esconder loader quando tudo estiver pronto
-            $('#loader2').hide();
-        })
-        .catch(error => {
-            console.error('Erro ao carregar opções do formulário:', error);
-            showErrorToast('Não foi possível carregar as opções do formulário. Tente novamente mais tarde.');
-            $('#loader2').hide();
-        });
+    loadFormOptions();
 });
+
+function showLoader(show) {
+    if (show) {
+        $('#loader2').show();
+    } else {
+        $('#loader2').fadeOut();
+    }
+}
 
 // Carregar opções para os selects
 async function loadFormOptions() {
+    showLoader(true);
     try {
-        // Carregar localizações
-        const locationsResponse = await makeRequest('/api/patrimony-tracker/locations');
-        const locations = await locationsResponse;
+        const options = await makeRequest('/api/patrimony-tracker/options');
         
-        // Preencher select de localização
         const locationSelect = $('#item-location');
-        locationSelect.empty();
-        locationSelect.append('<option value="">Selecione...</option>');
-        
-        if (locations && locations.length > 0) {
-            locations.forEach(location => {
-                locationSelect.append(`<option value="${location.name}">${location.name}</option>`);
-            });
-        } else {
-            locationSelect.append('<option value="" disabled>Não foi possível carregar localizações</option>');
-        }
-        
+        locationSelect.empty().append('<option value="">Selecione...</option>');
+        options.locations.forEach(location => {
+            locationSelect.append(`<option value="${location.id}">${location.name}</option>`);
+        });
+
+        const categorySelect = $('#item-category');
+        categorySelect.empty().append('<option value="">Selecione...</option>');
+        options.categories.forEach(category => {
+            categorySelect.append(`<option value="${category.id}">${category.name}</option>`);
+        });
+
+        initializeForm();
+
     } catch (error) {
         console.error('Erro ao carregar opções:', error);
-        showErrorToast('Não foi possível carregar as opções do formulário. Tente novamente mais tarde.');
+        showErrorToast('Não foi possível carregar as opções do formulário.');
+    } finally {
+        showLoader(false);
     }
 }
 
@@ -119,9 +113,10 @@ async function createItem() {
     const formData = {
         code: $('#item-code').val().trim(),
         description: $('#item-description').val().trim(),
-        location: $('#item-location').val(),
-        status: $('#item-status').val(),
+        location_id: $('#item-location').val(),
+        category_id: $('#item-category').val(),
         acquisition_date: $('#item-acquisition-date').val(),
+        acquisition_value: $('#item-acquisition-value').val() || null,
         notes: $('#item-notes').val().trim()
     };
     

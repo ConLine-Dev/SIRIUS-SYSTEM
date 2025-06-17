@@ -3,40 +3,70 @@ let currentItem = null;
 
 // Inicialização da página
 $(document).ready(function() {
-    // Obter ID do item da URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const itemId = urlParams.get('id');
-    
-    if (itemId) {
-        // Carregar dados do item
-        fetchItemData(itemId);
-        
-        // Carregar opções para os selects
-        loadOptions();
-        
-        // Configurar o botão de cancelar
-        setupCancelButton();
-        
-        // Configurar o formulário de edição
-        setupFormSubmission(itemId);
-    } else {
-        // Mostrar erro se não houver ID
-        showError('ID do item não fornecido. Volte para a lista de itens e tente novamente.');
-    }
+    initializePage();
 });
 
-// Carregar dados do item
-async function fetchItemData(id) {
+function showLoader(show) {
+    if (show) {
+        $('#loader2').show();
+    } else {
+        $('#loader2').fadeOut();
+    }
+}
+
+async function initializePage() {
+    showLoader(true);
+    const urlParams = new URLSearchParams(window.location.search);
+    const itemId = urlParams.get('id');
+
+    if (!itemId) {
+        showError('ID do item não fornecido.');
+        showLoader(false);
+        return;
+    }
+
     try {
-        // Fazer requisição para a API
-        const response = await makeRequest(`/api/patrimony-tracker/items/${id}`);
-        currentItem = response;
+        // Carrega dados do item e opções dos selects em paralelo
+        const [itemData, optionsData] = await Promise.all([
+            makeRequest(`/api/patrimony-tracker/items/${itemId}`),
+            makeRequest('/api/patrimony-tracker/options')
+        ]);
+
+        currentItem = itemData;
+
+        // Popula os selects primeiro
+        populateOptions(optionsData);
         
-        // Preencher o formulário com os dados
+        // Popula o formulário com os dados do item
         populateForm();
+        
+        setupFormSubmission(itemId);
+
     } catch (error) {
-        console.error('Erro ao buscar dados do item:', error);
-        showError('Não foi possível carregar os detalhes do item. Tente novamente mais tarde.');
+        console.error('Erro ao inicializar página de edição:', error);
+        showError('Não foi possível carregar os dados para edição.');
+    } finally {
+        showLoader(false);
+    }
+}
+
+function populateOptions(options) {
+    if (!options) return;
+
+    const locationSelect = $('#item-location');
+    locationSelect.empty().append('<option value="">Selecione...</option>');
+    if (options.locations) {
+        options.locations.forEach(location => {
+            locationSelect.append(`<option value="${location.id}">${location.name}</option>`);
+        });
+    }
+
+    const categorySelect = $('#item-category');
+    categorySelect.empty().append('<option value="">Selecione...</option>');
+    if (options.categories) {
+        options.categories.forEach(category => {
+            categorySelect.append(`<option value="${category.id}">${category.name}</option>`);
+        });
     }
 }
 
@@ -48,10 +78,12 @@ function populateForm() {
     $('#item-description').val(currentItem.description);
     $('#item-code').val(currentItem.code);
     $('#item-acquisition-date').val(formatDateForInput(currentItem.acquisition_date));
+    $('#item-acquisition-value').val(currentItem.acquisition_value);
     $('#item-notes').val(currentItem.notes || '');
     
-    // Preencher selects (após carregamento das opções)
-    $('#item-location').val(currentItem.location);
+    // Preencher selects
+    $('#item-location').val(currentItem.location_id);
+    $('#item-category').val(currentItem.category_id);
     
     // Preencher campos somente leitura
     $('#item-status').val(getStatusText(currentItem.status));
@@ -62,25 +94,6 @@ function populateForm() {
         );
     } else {
         $('#item-current-employee').val('Não atribuído');
-    }
-}
-
-// Carregar opções para os selects
-async function loadOptions() {
-    try {
-        const response = await makeRequest('/api/patrimony-tracker/options');
-        const options = await response;
-        
-        // Preencher o select de localização
-        const locationSelect = $('#item-location');
-        locationSelect.empty();
-        locationSelect.append('<option value="">Selecione uma localização...</option>');
-        options.locations.forEach(location => {
-            locationSelect.append(`<option value="${location.name}">${location.name}</option>`);
-        });
-    } catch (error) {
-        console.error('Erro ao carregar opções:', error);
-        showNotification('Erro ao carregar dados. Por favor, recarregue a página.', 'danger');
     }
 }
 
@@ -112,8 +125,10 @@ function setupFormSubmission(itemId) {
             const itemData = {
                 code: $('#item-code').val(),
                 description: $('#item-description').val(),
-                location: $('#item-location').val(),
+                location_id: $('#item-location').val(),
+                category_id: $('#item-category').val(),
                 acquisition_date: $('#item-acquisition-date').val(),
+                acquisition_value: $('#item-acquisition-value').val() || null,
                 notes: $('#item-notes').val()
             };
             

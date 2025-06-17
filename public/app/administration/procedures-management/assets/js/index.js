@@ -131,38 +131,48 @@ function renderWelcomeState() {
     container.html(welcomeHtml);
 }
 
-function renderProcedures(procedures) {
+async function renderProcedures(procedures) {
     const container = $('#procedures-container');
+    
+    // Não precisamos mais gerenciar instâncias de tooltip do Bootstrap.
+    
     const filters = $('.card-body > .row.g-3.align-items-end');
     container.empty();
-    filters.show(); // Garante que os filtros estejam visíveis
+    filters.show();
 
     if (procedures.length === 0) {
         container.html('<div class="col-12"><div class="alert alert-info text-center">Nenhum procedimento encontrado com os filtros aplicados.</div></div>');
         return;
     }
 
-    procedures.forEach(proc => {
-        // Usa o campo 'summary' para a descrição do card.
-        const description = proc.summary || 'Nenhuma descrição disponível.';
+    // Obter informações do usuário logado uma vez fora do loop
+    const userInfo = await getInfosLogin();
+    const loggedUserId = userInfo ? userInfo.system_collaborator_id : null;
 
+    procedures.forEach(proc => {
+        const description = proc.summary || 'Nenhuma descrição disponível.';
         const tagsHtml = proc.tags.slice(0, 3).map(tag => `<span class="badge bg-light text-primary fw-semibold me-1">${tag}</span>`).join('');
         const moreTags = proc.tags.length > 3 ? `<span class="badge bg-light text-primary fw-semibold me-1">+ ${proc.tags.length - 3}</span>` : '';
 
-        // Ajuste: pega a data da última versão se disponível
         let updatedStr = '-';
-        if (proc.versions && proc.versions.length > 0) {
-            const lastVersion = proc.versions.reduce((a, b) => (a.version_number > b.version_number ? a : b));
-            if (lastVersion.created_at) {
-                const date = new Date(lastVersion.created_at);
-                date.setHours(date.getHours() - 3);
-                updatedStr = date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            }
-        } else if (proc.updated_at) {
-            // fallback para updated_at se não houver versões
+        if (proc.updated_at) {
             const date = new Date(proc.updated_at);
-            date.setHours(date.getHours() - 3);
-            updatedStr = date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            date.setHours(date.getHours() - 3); // Ajuste de fuso
+            updatedStr = date.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Lógica para o botão de exclusão com tooltip customizado
+        const isResponsible = loggedUserId && loggedUserId === proc.responsible_id;
+        let deleteButtonHtml;
+        if (isResponsible) {
+            deleteButtonHtml = `<button class="btn btn-sm btn-outline-danger" onclick="deleteProcedure(${proc.id})" title="Excluir"><i class="ri-delete-bin-line"></i></button>`;
+        } else {
+            const tooltipMessage = 'Apenas o responsável pelo procedimento tem permissão de exclusão.';
+            deleteButtonHtml = `
+                <div class="tooltip-wrapper">
+                    <button class="btn btn-sm btn-outline-danger" disabled><i class="ri-delete-bin-line"></i></button>
+                    <span class="custom-tooltip">${tooltipMessage}</span>
+                </div>`;
         }
 
         const cardHtml = `
@@ -193,7 +203,7 @@ function renderProcedures(procedures) {
                         <div class="btn-group">
                             <button class="btn btn-sm btn-outline-primary" onclick="viewProcedure(${proc.id})" title="Ver"><i class="ri-eye-line"></i></button>
                             <button class="btn btn-sm btn-outline-secondary" onclick="editProcedure(${proc.id})" title="Editar"><i class="ri-pencil-line"></i></button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteProcedure(${proc.id})" title="Excluir"><i class="ri-delete-bin-line"></i></button>
+                            ${deleteButtonHtml}
                         </div>
                     </div>
                 </div>
@@ -201,6 +211,8 @@ function renderProcedures(procedures) {
         `;
         container.append(cardHtml);
     });
+
+    // Não há mais necessidade de inicializar tooltips via JavaScript.
 }
 
 function applyFilters() {

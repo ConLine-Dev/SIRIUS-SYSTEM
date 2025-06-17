@@ -1,5 +1,6 @@
 // Armazena todos os itens para filtros do lado do cliente
 let allItems = [];
+let formOptions = {}; // Armazenar opções de selects (locations, employees, etc.)
 let currentViewMode = 'table'; // 'table', 'cards', ou 'grouped'
 
 // Configuração inicial e carregamento de dados
@@ -16,6 +17,15 @@ $(document).ready(function() {
     // Configurar evento global para os dropdowns de ações
     setupActionDropdowns();
 });
+
+// Adicionada função para gerenciar o loader
+function showLoader(show) {
+    if (show) {
+        $('#loader2').show();
+    } else {
+        $('#loader2').fadeOut(); // Usando fadeOut para uma transição suave
+    }
+}
 
 // Configurar eventos para os dropdowns de ações
 function setupActionDropdowns() {
@@ -47,6 +57,9 @@ function handleItemAction(actionType, itemId) {
             break;
         case 'maintenance':
             confirmMaintenance(itemId);
+            break;
+        case 'return_from_maintenance':
+            confirmReturnFromMaintenance(itemId);
             break;
         case 'damage':
             confirmDamage(itemId);
@@ -89,8 +102,8 @@ function getAvailableActions(item) {
             actions.push({ id: 'damage', label: 'Marcar como Danificado', icon: 'ri-error-warning-line', class: 'text-danger' });
             break;
             
-        case 'in_maintenance':
-            actions.push({ id: 'return', label: 'Retornar da Manutenção', icon: 'ri-arrow-go-back-line', class: 'text-success' });
+        case 'maintenance':
+            actions.push({ id: 'return_from_maintenance', label: 'Retornar da Manutenção', icon: 'ri-arrow-go-back-line', class: 'text-success' });
             actions.push({ id: 'damage', label: 'Marcar como Danificado', icon: 'ri-error-warning-line', class: 'text-danger' });
             break;
             
@@ -276,35 +289,27 @@ function applyFilters() {
 
 // Carregar itens do servidor
 async function loadItems() {
+    showLoader(true);
     try {
-        $('#loader2').show();
-        
-        // Carregar dados dos itens
-        const itemsResponse = await makeRequest('/api/patrimony-tracker/items');
-        allItems = await itemsResponse;
-        
-        // Carregar opções para os filtros
-        const optionsResponse = await makeRequest('/api/patrimony-tracker/options');
-        const options = await optionsResponse;
-        
-        // Preencher os selects de filtro
-        populateFilterOptions(options);
-        
-        // Atualizar contador de itens
-        updateItemsCount(allItems.length);
-        
-        // Renderizar os itens
-        if (allItems.length === 0) {
-            renderWelcomeState();
-        } else {
+        const data = await makeRequest('/api/patrimony-tracker/items');
+        if (data && Array.isArray(data)) {
+            allItems = data;
             renderItems(allItems);
+            updateItemsCount(allItems.length);
+
+            // Carregar e armazenar opções dos filtros com base nos dados
+            formOptions = await makeRequest('/api/patrimony-tracker/options');
+            populateFilterOptions(formOptions);
+
+        } else {
+            console.error('Dados recebidos não são válidos:', data);
+            renderEmptyState();
         }
     } catch (error) {
-        console.error('Falha ao carregar itens:', error);
-        $('#table-view').html('<div class="alert alert-danger">Não foi possível carregar os itens. Tente novamente mais tarde.</div>');
-        updateItemsCount(0);
+        console.error('Erro ao carregar itens:', error);
+        renderErrorState();
     } finally {
-        $('#loader2').hide();
+        showLoader(false);
     }
 }
 
@@ -331,7 +336,8 @@ function populateFilterOptions(options) {
     employeeSelect.empty();
     employeeSelect.append('<option value="">Todos os colaboradores</option>');
     options.employees.forEach(employee => {
-        employeeSelect.append(`<option value="${employee.id}">${employee.name} (${employee.department})</option>`);
+        const jobTitle = employee.job_position ? `(${employee.job_position})` : '';
+        employeeSelect.append(`<option value="${employee.id}">${employee.name} ${jobTitle}</option>`);
     });
 }
 
@@ -392,6 +398,20 @@ function renderEmptyState() {
     $('#table-view').html(emptyMessage);
     $('#cards-view').html(emptyMessage);
     $('#grouped-view').html(emptyMessage);
+}
+
+function renderErrorState() {
+    const errorMessage = `
+        <div class="text-center p-5">
+            <i class="ri-error-warning-line display-4 text-danger mb-3"></i>
+            <h4 class="text-danger">Ocorreu um Erro</h4>
+            <p class="text-muted">Não foi possível carregar os itens do servidor. Por favor, tente novamente mais tarde.</p>
+        </div>
+    `;
+    
+    $('#table-view').html(errorMessage);
+    $('#cards-view').html(errorMessage);
+    $('#grouped-view').html(errorMessage);
 }
 
 // Visualização em tabela
@@ -553,7 +573,7 @@ function getStatusText(status) {
     switch(status) {
         case 'available': return 'Disponível';
         case 'in_use': return 'Em Uso';
-        case 'in_maintenance': return 'Em Manutenção';
+        case 'maintenance': return 'Em Manutenção';
         case 'damaged': return 'Danificado';
         case 'discarded': return 'Baixado/Descartado';
         default: return 'Desconhecido';
@@ -565,7 +585,7 @@ function getStatusClass(status) {
     switch(status) {
         case 'available': return 'success';
         case 'in_use': return 'primary';
-        case 'in_maintenance': return 'warning';
+        case 'maintenance': return 'warning';
         case 'damaged': return 'danger';
         case 'discarded': return 'secondary';
         default: return 'light';
@@ -635,17 +655,16 @@ function openAssignDialog(itemId) {
     $('body').append(modalHtml);
     
     // Carregar colaboradores via AJAX
-    loadEmployees().then(employees => {
-        const select = $('#employee-select');
-        if (employees && employees.length > 0) {
-            employees.forEach(employee => {
-                select.append(`<option value="${employee.id}">${employee.name} (${employee.department})</option>`);
-            });
-        } else {
-            select.append(`<option value="" disabled>Não foi possível carregar colaboradores</option>`);
-            $('#btn-confirm-assign').prop('disabled', true);
-        }
-    });
+    const select = $('#employee-select');
+    if (formOptions.employees && formOptions.employees.length > 0) {
+        formOptions.employees.forEach(employee => {
+            const jobTitle = employee.job_position ? `(${employee.job_position})` : '';
+            select.append(`<option value="${employee.id}">${employee.name} ${jobTitle}</option>`);
+        });
+    } else {
+        select.append(`<option value="" disabled>Não foi possível carregar colaboradores</option>`);
+        $('#btn-confirm-assign').prop('disabled', true);
+    }
     
     // Configurar evento de confirmação
     $('#btn-confirm-assign').click(function() {
@@ -703,13 +722,28 @@ function confirmReturn(itemId) {
     );
 }
 
-function confirmMaintenance(itemId) {
+function confirmReturnFromMaintenance(itemId) {
     showConfirmModal(
-        'Enviar para Manutenção', 
-        'Tem certeza que deseja enviar este item para manutenção?',
-        'Sim, enviar',
+        'Confirmar Retorno da Manutenção', 
+        'Tem certeza que deseja registrar o retorno deste item da manutenção?',
+        'Sim, retornar',
         () => {
-            sendToMaintenance(itemId).then(() => {
+            returnFromMaintenance(itemId).then(() => {
+                showSuccessToast('Item retornado da manutenção com sucesso!');
+                loadItems();
+            });
+        }
+    );
+}
+
+function confirmMaintenance(itemId) {
+    showInputModal(
+        'Enviar para Manutenção',
+        'Informe os detalhes da manutenção:',
+        'Descreva o problema ou o motivo do envio...',
+        'Confirmar envio',
+        (notes) => {
+            sendToMaintenance(itemId, notes).then(() => {
                 showSuccessToast('Item enviado para manutenção com sucesso!');
                 loadItems();
             });
@@ -884,21 +918,10 @@ function openAuditDialog(itemId) {
 }
 
 // Funções para fazer chamadas à API
-async function loadEmployees() {
-    try {
-        const response = await makeRequest('/api/patrimony-tracker/employees');
-        return response;
-    } catch (error) {
-        console.error('Erro ao carregar colaboradores:', error);
-        showErrorToast('Não foi possível carregar a lista de colaboradores.');
-        return [];
-    }
-}
-
 async function assignItem(itemId, employeeId, notes) {
     try {
         const response = await makeRequest('/api/patrimony-tracker/items/' + itemId + '/assign', 'POST', {
-            employee_id: employeeId,
+            userIdToAssign: employeeId,
             notes: notes
         });
         return response;
@@ -918,13 +941,23 @@ async function returnItem(itemId) {
     }
 }
 
-async function sendToMaintenance(itemId) {
+async function sendToMaintenance(itemId, notes) {
     try {
-        const response = await makeRequest('/api/patrimony-tracker/items/' + itemId + '/maintenance', 'POST');
+        const response = await makeRequest('/api/patrimony-tracker/items/' + itemId + '/maintenance/send', 'POST', { notes });
         return response;
     } catch (error) {
         console.error('Erro ao enviar item para manutenção:', error);
         showErrorToast('Não foi possível enviar o item para manutenção. Tente novamente mais tarde.');
+    }
+}
+
+async function returnFromMaintenance(itemId) {
+    try {
+        const response = await makeRequest('/api/patrimony-tracker/items/' + itemId + '/maintenance/return', 'POST');
+        return response;
+    } catch (error) {
+        console.error('Erro ao retornar item da manutenção:', error);
+        showErrorToast('Não foi possível retornar o item da manutenção. Tente novamente mais tarde.');
     }
 }
 

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Tarifas de Frete</title>
+    <link href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <style>
+        .status-badge {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-Ativa { background-color: #198754; }
+        .status-Expira { background-color: #ffc107; }
+        .status-Expirada { background-color: #dc3545; }
+        .table-responsive {
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+        }
+        th {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body style="display: flex; flex-direction: column; height: 100vh; margin: 0; overflow: hidden;">
+    <!-- Loader -->
+    <div id="loader2" style="display: none;">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div class="card custom-card" style="flex: 1; border-radius: 0; border: 0; display: flex; flex-direction: column;">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="card-title mb-0">Tarifário Inteligente</h5>
+                <p class="text-muted mb-0 mt-1 fs-12">Gestão centralizada de tarifas de frete</p>
+            </div>
+            <div>
+                <button class="btn btn-light" id="btn-manage-configs">
+                    <i class="ri-settings-3-line me-1 align-middle"></i> Configurações
+                </button>
+                <button class="btn btn-primary" id="btn-add-tariff">
+                    <i class="ri-add-line me-1 align-middle"></i> Adicionar Nova Tarifa
+                </button>
+            </div>
+        </div>
+        <div class="card-body" style="flex: 1; overflow-y: auto;">
+            <!-- Filtros -->
+            <form id="filter-form" class="row g-3 mb-4 align-items-end">
+                <div class="col-md-2">
+                    <label for="filter-origin" class="form-label">Origem</label>
+                    <select id="filter-origin" class="form-select"></select>
+                </div>
+                <div class="col-md-2">
+                    <label for="filter-destination" class="form-label">Destino</label>
+                    <select id="filter-destination" class="form-select"></select>
+                </div>
+                <div class="col-md-2">
+                    <label for="filter-modality" class="form-label">Modal</label>
+                    <select id="filter-modality" class="form-select"></select>
+                </div>
+                <div class="col-md-2">
+                    <label for="filter-agent" class="form-label">Agente</label>
+                    <select id="filter-agent" class="form-select"></select>
+                </div>
+                <div class="col-md-2">
+                    <label for="filter-status" class="form-label">Status</label>
+                    <select id="filter-status" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="Ativa">Ativa</option>
+                        <option value="Expira Breve">Expira Breve</option>
+                        <option value="Expirada">Expirada</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="ri-filter-3-line"></i> Filtrar
+                    </button>
+                    <button type="button" id="btn-clear-filters" class="btn btn-light">
+                        <i class="ri-refresh-line"></i> Limpar
+                    </button>
+                </div>
+            </form>
+
+            <!-- Tabela de Tarifas -->
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th data-sort="origin_name">Origem</th>
+                            <th data-sort="destination_name">Destino</th>
+                            <th data-sort="modality_name">Modal</th>
+                            <th data-sort="validity_start_date">Validade</th>
+                            <th data-sort="agent_name">Agente/Armador</th>
+                            <th data-sort="total_cost">Custo Total</th>
+                            <th data-sort="transit_time">Tempo de Trânsito</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tariffs-table-body">
+                        <!-- Linhas serão inseridas via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/makeRequest.js"></script>
+    <script src="./assets/js/index.js"></script>
+</body>
+</html> 

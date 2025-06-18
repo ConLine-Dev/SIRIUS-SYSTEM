@@ -60,6 +60,7 @@ const api_zero_based_cost_center = require('./api-zero-based-budgeting');
 const api_procuration_control = require('./api-procuration-control');
 const api_procedures_management = require('./api-procedures-management');
 const api_tax_calculator = require('./api-tax-calculator');
+const api_freight_tariffs = require('./api-freight-tariffs');
 // const Posts = require('./apiPosts');
 
 // Importando as rotas da API user-tracker
@@ -248,6 +249,12 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-tax-calculator.js
   router.use('/tax-calculator', api_tax_calculator);
+
+  // Use as rotas do arquivo api-freight-tariffs.js
+  router.use('/freight-tariffs', api_freight_tariffs(io));
+
+  // Use as rotas para o PDI Hub
+  router.use('/pdi-hub', apiPDIHub(io));
 
   // Use as rotas do arquivo api-air-import-main.js oi
   router.use('/air-import-main', api_air_import_main(io));

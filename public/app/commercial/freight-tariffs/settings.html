@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Tarifário</title>
+    <link href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+</head>
+<body style="display: flex; flex-direction: column; height: 100vh; margin: 0; overflow: hidden;">
+    <div class="card custom-card" style="flex: 1; border-radius: 0; border: 0; display: flex; flex-direction: column;">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <h5 class="card-title mb-0">Configurações do Tarifário</h5>
+                <p class="text-muted mb-0 mt-1 fs-12">Gerencie os dados de apoio para as tarifas</p>
+            </div>
+        </div>
+        <div class="card-body" style="flex: 1; overflow-y: auto;">
+            <ul class="nav nav-tabs" id="settings-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="agents-tab" data-bs-toggle="tab" data-bs-target="#agents-panel" type="button" role="tab">Agentes/Armadores</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="locations-tab" data-bs-toggle="tab" data-bs-target="#locations-panel" type="button" role="tab">Localizações</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="modalities-tab" data-bs-toggle="tab" data-bs-target="#modalities-panel" type="button" role="tab">Modalidades</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="containertypes-tab" data-bs-toggle="tab" data-bs-target="#containertypes-panel" type="button" role="tab">Tipos de Container</button>
+                </li>
+            </ul>
+
+            <div class="tab-content pt-3" id="settings-tabs-content">
+                <!-- Painel de Agentes -->
+                <div class="tab-pane fade show active" id="agents-panel" role="tabpanel">
+                    <div class="d-flex justify-content-end mb-3">
+                        <button class="btn btn-primary btn-sm btn-add" data-type="agent">
+                            <i class="ri-add-line me-1 align-middle"></i>Adicionar Agente
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead><tr><th>Nome</th><th>Contato</th><th>Email</th><th>Telefone</th><th>Ações</th></tr></thead>
+                            <tbody id="agents-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Painel de Localizações -->
+                <div class="tab-pane fade" id="locations-panel" role="tabpanel">
+                    <div class="d-flex justify-content-end mb-3">
+                         <button class="btn btn-primary btn-sm btn-add" data-type="location">
+                            <i class="ri-add-line me-1 align-middle"></i>Adicionar Localização
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead><tr><th>Nome</th><th>Tipo</th><th>Ações</th></tr></thead>
+                            <tbody id="locations-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Painel de Modalidades -->
+                <div class="tab-pane fade" id="modalities-panel" role="tabpanel">
+                    <div class="d-flex justify-content-end mb-3">
+                         <button class="btn btn-primary btn-sm btn-add" data-type="modality">
+                            <i class="ri-add-line me-1 align-middle"></i>Adicionar Modalidade
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead><tr><th>Nome</th><th>Descrição</th><th>Ações</th></tr></thead>
+                            <tbody id="modalities-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Painel de Tipos de Container -->
+                <div class="tab-pane fade" id="containertypes-panel" role="tabpanel">
+                    <div class="d-flex justify-content-end mb-3">
+                         <button class="btn btn-primary btn-sm btn-add" data-type="container_type">
+                            <i class="ri-add-line me-1 align-middle"></i>Adicionar Tipo
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead><tr><th>Nome</th><th>Modalidades Aplicáveis</th><th>Ações</th></tr></thead>
+                            <tbody id="containertypes-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/makeRequest.js"></script>
+    <script src="./assets/js/settings.js"></script>
+</body>
+</html> 

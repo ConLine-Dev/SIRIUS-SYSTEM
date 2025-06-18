@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
         agent: { plural: 'agents', title: 'Agente' },
         location: { plural: 'locations', title: 'Localização' },
         modality: { plural: 'modalities', title: 'Modalidade' },
-        container_type: { plural: 'container_types', title: 'Tipo de Container' }
+        container_type: { plural: 'container-types', title: 'Tipo de Container' }
     };
     
     const config = entityConfig[type];

@@ -274,7 +274,7 @@ const setIO = (io) => {
   router.use('/pdi-hub', apiPDIHub(io)); // Montar as rotas do PDI Hub
   
   // Use as rotas do Patrimony Tracker
-  router.use('/patrimony-tracker', apiPatrimonyTracker);
+  router.use('/patrimony-tracker', apiPatrimonyTracker(io));
   
   return router;
 };

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Patrimônio</title>
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <link href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <style>
+        #loader2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--custom-white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+ }
+    </style>
+    <!-- Loader -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div>
+        <div>
+            <div class="container-fluid">
+                <!-- Título da Página -->
+                <div class="d-flex justify-content-between align-items-center my-4">
+                    <h4 class="mb-0">Configurações do Módulo de Patrimônio</h4>
+                </div>
+
+                <div class="row">
+                    <!-- Card de Localizações -->
+                    <div class="col-xl-6">
+                        <div class="card custom-card">
+                            <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center">
+                                <h5 class="card-title mb-2 mb-sm-0">Gerenciar Localizações</h5>
+                                <button class="btn btn-primary btn-sm" id="btn-add-location">
+                                    <i class="ri-add-line me-1"></i> Nova Localização
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Nome</th>
+                                                <th>Descrição</th>
+                                                <th class="text-center">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="locations-table-body">
+                                            <!-- Dados preenchidos via JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card de Categorias -->
+                    <div class="col-xl-6">
+                        <div class="card custom-card">
+                            <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center">
+                                <h5 class="card-title mb-2 mb-sm-0">Gerenciar Categorias</h5>
+                                <button class="btn btn-primary btn-sm" id="btn-add-category">
+                                    <i class="ri-add-line me-1"></i> Nova Categoria
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Nome</th>
+                                                <th>Descrição</th>
+                                                <th class="text-center">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="categories-table-body">
+                                            <!-- Dados preenchidos via JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Gerenciar Itens (Localização/Categoria) -->
+    <div class="modal fade" id="manage-item-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="manage-item-form">
+                        <input type="hidden" id="item-id">
+                        <input type="hidden" id="item-type">
+                        <div class="mb-3">
+                            <label for="item-name" class="form-label">Nome</label>
+                            <input type="text" class="form-control" id="item-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="item-description" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="item-description" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-save-item">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="./assets/js/settings.js"></script>
+
+</body>
+</html> 

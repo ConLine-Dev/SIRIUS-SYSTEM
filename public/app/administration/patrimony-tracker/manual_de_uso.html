@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual do Módulo de Gerenciamento de Patrimônio</title>
+    <style>
+        :root {
+            --primary-color: #f9423a;
+            --text-color: #333;
+            --bg-color: #fff;
+            --header-bg: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 5px solid #d8352d;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        section {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        section:last-child {
+            border-bottom: none;
+        }
+
+        h2 {
+            font-size: 2em;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            color: #555;
+            margin-top: 30px;
+        }
+
+        p, ul {
+            margin-bottom: 15px;
+        }
+
+        ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+        
+        strong {
+            color: var(--primary-color);
+        }
+
+        .highlight {
+            background-color: #fff3f2;
+            border-left: 4px solid var(--primary-color);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .highlight strong {
+            color: #c53026;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--header-bg);
+            font-weight: bold;
+        }
+
+        .action-button {
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .print-button-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .print-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .print-button:hover {
+            background-color: #d8352d;
+        }
+
+        @media print {
+            body {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            header {
+                background-color: #eee !important;
+                color: #000 !important;
+                border-bottom: 2px solid #ccc;
+            }
+            h2 {
+                color: #000 !important;
+                border-bottom-color: #ccc;
+            }
+            .print-button-container {
+                display: none;
+            }
+            section {
+                page-break-before: always;
+            }
+            section:first-of-type {
+                page-break-before: auto;
+            }
+            .highlight {
+                background-color: #f2f2f2 !important;
+                border-left-color: #ccc;
+            }
+            table, th, td {
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Gerenciamento de Patrimônio</h1>
+            <p>Manual Completo do Módulo</p>
+        </header>
+
+        <main>
+            <div class="print-button-container">
+                <button class="print-button" onclick="window.print()">Imprimir Manual</button>
+            </div>
+
+            <section>
+                <h2>1. Introdução</h2>
+                <p>Bem-vindo ao Módulo de Gerenciamento de Patrimônio! Esta ferramenta foi projetada para simplificar e centralizar o controle de todos os ativos da nossa empresa, desde computadores e equipamentos até móveis e veículos.</p>
+                <p>Com este sistema, podemos:</p>
+                <ul>
+                    <li>Saber exatamente <strong>o que</strong> temos, <strong>onde</strong> está e <strong>quem</strong> está usando.</li>
+                    <li>Acompanhar o ciclo de vida completo de cada item, desde a sua compra até o descarte.</li>
+                    <li>Facilitar a manutenção e garantir que nossos recursos sejam usados da melhor forma possível.</li>
+                </ul>
+                <div class="highlight">
+                    <p><strong>Objetivo Principal:</strong> Ter uma visão clara e organizada de todos os nossos patrimônios para tomar decisões melhores, otimizar custos e aumentar a responsabilidade sobre o uso dos ativos.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2>2. Tela Principal: Seu Painel de Controle</h2>
+                <p>Ao abrir o módulo, você verá a tela principal. Ela é seu ponto de partida para todas as operações.</p>
+                
+                <h3>Buscando e Filtrando Itens</h3>
+                <p>Para encontrar itens específicos, utilize as ferramentas no topo da tela:</p>
+                <ul>
+                    <li><strong>Buscar:</strong> Digite um código (ex: "PAT001") ou parte da descrição (ex: "notebook dell") para uma busca rápida.</li>
+                    <li><strong>Localização:</strong> Filtre para ver apenas os itens de um determinado setor ou sala.</li>
+                    <li><strong>Estado:</strong> Veja apenas os itens que estão "Disponíveis", "Em Uso", "Em Manutenção", etc.</li>
+                    <li><strong>Colaborador:</strong> Encontre todos os itens que estão atualmente sob a responsabilidade de uma pessoa específica.</li>
+                </ul>
+                
+                <h3>Modos de Visualização</h3>
+                <p>Você pode visualizar os itens de três maneiras diferentes, usando os botões no canto superior direito da lista:</p>
+                <ul>
+                    <li><strong>Tabela:</strong> A visão padrão, ideal para ver muitas informações de forma compacta.</li>
+                    <li><strong>Cards:</strong> Uma visão mais visual, que mostra cada item como um "cartão" individual.</li>
+                    <li><strong>Agrupada:</strong> Agrupa todos os itens por sua localização, perfeito para inventários de setores.</li>
+                </ul>
+
+                <h3>Ações Rápidas</h3>
+                <ul>
+                    <li><span class="action-button">Novo Item</span>: Abre a tela para cadastrar um novo patrimônio no sistema.</li>
+                    <li><span class="action-button">Configurações</span>: Permite gerenciar as listas de Localizações e Categorias.</li>
+                    <li><span class="action-button">Exportar para Excel</span>: Gera uma planilha com todos os itens listados, ideal para relatórios.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>3. Operações do Dia a Dia: O que cada ação faz?</h2>
+                <p>Para cada item na lista, existe um menu de <strong>Ações</strong>. Estas são as ferramentas que você usará para gerenciar o ciclo de vida de cada patrimônio.</p>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ação</th>
+                            <th>Quando Usar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Visualizar</strong></td>
+                            <td>Para consultar o histórico completo de um item: quem já usou, quando foi para manutenção, etc. É a "certidão de nascimento" do ativo.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Editar</strong></td>
+                            <td>Para corrigir ou atualizar informações básicas, como a descrição, o valor de aquisição ou a categoria. O código do item não pode ser alterado.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Atribuir</strong></td>
+                            <td>Quando um colaborador passa a ser o responsável por um item. O sistema registrará o nome da pessoa, a data e a hora da atribuição.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Devolver</strong></td>
+                            <td>Quando um colaborador devolve um item. Ele voltará a ficar com o estado "Disponível".</td>
+                        </tr>
+                         <tr>
+                            <td><strong>Enviar para Manutenção</strong></td>
+                            <td>Use esta ação quando um item apresentar defeito. Se estiver com um colaborador, o sistema fará a devolução automaticamente e mudará o estado para "Em Manutenção".</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Retornar da Manutenção</strong></td>
+                            <td>Após o conserto, use esta ação para que o item volte ao estado "Disponível" e possa ser usado novamente.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Marcar como Danificado</strong></td>
+                            <td>Para avarias que não impedem o uso ou que não serão consertadas imediatamente (ex: riscos, pequena parte quebrada). O item continua em uso ou disponível.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Descartar/Baixar</strong></td>
+                            <td>Ação final e <strong>irreversível</strong>. Use para itens que se tornaram obsoletos, não têm conserto ou foram perdidos/roubados. É obrigatório informar o motivo.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                 <div class="highlight">
+                    <p><strong>Dica:</strong> A diferença entre "Danificado" e "Manutenção" é simples. Use <strong>Manutenção</strong> para algo que precisa ser consertado agora. Use <strong>Danificado</strong> para registrar um problema menor que não impede o funcionamento.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2>4. Cadastrando e Visualizando Itens</h2>
+
+                <h3>Como Cadastrar um Novo Item</h3>
+                <ol>
+                    <li>Na tela principal, clique no botão <span class="action-button">Novo Item</span>.</li>
+                    <li>Preencha as <strong>Informações Básicas</strong>. Os campos com * são obrigatórios.</li>
+                    <li><strong>Código:</strong> Crie um identificador único. Sugestão: use um padrão como "TI001", "MOB002", etc.</li>
+                    <li><strong>Descrição:</strong> Seja claro. Em vez de "Computador", use "Notebook Dell Latitude 5420, 16GB RAM".</li>
+                    <li>Preencha os <strong>Detalhes Adicionais</strong> como data e valor da compra.</li>
+                    <li>Clique em "Cadastrar Item". Pronto!</li>
+                </ol>
+
+                <h3>Entendendo a Tela de Visualização</h3>
+                <p>Ao clicar em "Visualizar", você verá a história completa do item, dividida em seções:</p>
+                <ul>
+                    <li><strong>Informações Básicas:</strong> Os dados principais do cadastro.</li>
+                    <li><strong>Atribuição Atual:</strong> Mostra quem está com o item neste exato momento.</li>
+                    <li><strong>Histórico de Atribuições:</strong> Uma lista de todas as pessoas que já utilizaram este item.</li>
+                    <li><strong>Log de Eventos:</strong> O registro mais importante. Mostra, em ordem cronológica, tudo o que aconteceu com o item: quando foi criado, atribuído, enviado para manutenção, etc.</li>
+                </ul>
+            </section>
+            
+            <section>
+                <h2>5. Configurações: Organizando o Sistema</h2>
+                <p>A organização é a chave para um bom gerenciamento. Na tela de "Configurações", você pode personalizar duas listas essenciais:</p>
+                
+                <h3>Localizações</h3>
+                <p>Representam os locais físicos onde os itens podem estar. Criar localizações claras ajuda nos inventários.</p>
+                <ul>
+                    <li><strong>Bons exemplos:</strong> "Sala de Reuniões 1", "Almoxarifado TI", "Setor Financeiro - Térreo".</li>
+                    <li><strong>Maus exemplos:</strong> "Sala", "Prédio". Seja específico!</li>
+                </ul>
+
+                <h3>Categorias</h3>
+                <p>Agrupam itens de natureza semelhante, facilitando relatórios e buscas.</p>
+                 <ul>
+                    <li><strong>Exemplos:</strong> "Notebooks", "Monitores", "Mobiliário de Escritório", "Ferramentas Elétricas".</li>
+                </ul>
+                <p>Você pode adicionar, editar ou remover itens de ambas as listas. Lembre-se que você não poderá remover uma localização ou categoria se ela estiver sendo usada por algum item cadastrado.</p>
+            </section>
+
+        </main>
+    </div>
+
+</body>
+</html> 

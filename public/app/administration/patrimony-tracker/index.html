@@ -42,10 +42,16 @@
                         <h5 class="card-title mb-0">Gerenciamento de Patrimônio</h5>
                         <p class="text-muted mb-0 mt-1 fs-12">Controle completo do ciclo de vida dos ativos empresariais</p>
                     </div>
-                    <button class="btn btn-primary" onclick="openCreateItem()">
-                        <i class="ri-add-line me-1 align-middle"></i>
-                        Novo Item
-                    </button>
+                    <div>
+                        <button class="btn btn-light" onclick="openSettings()">
+                            <i class="ri-settings-3-line me-1 align-middle"></i>
+                            Configurações
+                        </button>
+                        <button class="btn btn-primary" onclick="openCreateItem()">
+                            <i class="ri-add-line me-1 align-middle"></i>
+                            Novo Item
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <!-- Filtros -->
@@ -69,10 +75,9 @@
                             <label for="filter-employee" class="form-label">Colaborador</label>
                             <select id="filter-employee" class="form-select"></select>
                         </div>
-                        <div class="col-md-1">
-                            <label class="d-md-block d-none">&nbsp;</label>
+                        <div class="col-md-1 d-flex align-items-end">
                             <button class="btn btn-light w-100" id="btn-clear-filters">
-                                <i class="ri-refresh-line me-1"></i> Limpar
+                                <i class="ri-refresh-line"></i> Limpar
                             </button>
                         </div>
                     </div>
@@ -80,6 +85,8 @@
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div class="fs-14 text-muted">
                             <span id="items-count-display">0 itens encontrados</span>
+                            <span class="mx-2">|</span>
+                            <strong id="items-total-value-display">Valor total: R$ 0,00</strong>
                         </div>
                         <!-- View Options -->
                         <div class="btn-group" role="group">
@@ -91,6 +98,9 @@
                             </button>
                             <button type="button" class="btn btn-outline-primary" id="btn-view-grouped" data-bs-toggle="tooltip" title="Visualização Agrupada">
                                 <i class="ri-layout-column-line"></i>
+                            </button>
+                             <button type="button" class="btn btn-outline-success" id="btn-export-excel" data-bs-toggle="tooltip" title="Exportar para Excel">
+                                <i class="ri-file-excel-2-line"></i>
                             </button>
                         </div>
                     </div>
@@ -141,6 +151,33 @@
             });
         });
     </script>
+
+    <!-- Modal Genérico para Inputs -->
+    <div class="modal fade" id="input-modal" tabindex="-1" aria-labelledby="modal-input-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-input-title">Input</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="modal-input-label">Please provide input:</p>
+                    <div id="modal-datetime-group" class="mb-3" style="display: none;">
+                        <label for="modal-input-datetime" class="form-label">Data e Hora</label>
+                        <input type="datetime-local" class="form-control" id="modal-input-datetime">
+                    </div>
+                    <textarea class="form-control" id="modal-input-field" rows="3" placeholder=""></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="modal-input-confirm-btn">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 </body>
 
 </html> 

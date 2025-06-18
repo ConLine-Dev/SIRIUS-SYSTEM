@@ -10,6 +10,7 @@ $(document).ready(function() {
     if (itemId) {
         // Carregar dados do item
         fetchItemData(itemId);
+        initializeSocket(itemId);
     } else {
         // Mostrar erro se não houver ID
         showError('ID do item não fornecido. Volte para a lista de itens e tente novamente.');
@@ -65,23 +66,25 @@ function renderItemData() {
     
     // Atribuição atual
     if (currentItem.current_assignment) {
-        $('#current-assignment-container').removeClass('d-none');
-        $('#no-assignment-container').addClass('d-none');
+        $('#current-assignment-info').removeClass('d-none');
+        $('#no-current-assignment').addClass('d-none');
         
         const employee = currentItem.current_assignment;
         
-        // Iniciais para o avatar
+        // Melhora a apresentação do avatar com as iniciais do colaborador
+        const avatar = $('#current-assignment-info .avatar');
         const initials = getInitials(employee.employee_name);
-        $('#employee-initials').text(initials);
+        // Substitui o ícone pelas iniciais e ajusta o estilo para melhor visualização
+        avatar.empty().text(initials).addClass('fw-bold fs-16'); 
         
-        // Informações do colaborador
-        $('#employee-name').text(employee.employee_name);
-        $('#employee-department').text(employee.employee_job_position || 'Cargo não informado');
-        $('#assignment-date').text(employee.assignment_date);
-        $('#assignment-notes').text(employee.notes || 'Sem observações.');
+        // Informações do colaborador usando os IDs corretos do view.html
+        $('#current-employee-name').text(employee.employee_name);
+        $('#current-employee-department').text(employee.employee_job_position || 'Cargo não informado');
+        $('#current-assignment-date').text(employee.assignment_date);
+        $('#current-assignment-notes').text(employee.notes || 'Sem observações.');
     } else {
-        $('#current-assignment-container').addClass('d-none');
-        $('#no-assignment-container').removeClass('d-none');
+        $('#current-assignment-info').addClass('d-none');
+        $('#no-current-assignment').removeClass('d-none');
     }
     
     // Histórico de atribuições
@@ -96,58 +99,55 @@ function renderItemData() {
 
 // Renderizar histórico de atribuições
 function renderAssignmentHistory() {
-    const historyList = $('#assignment-history-list');
-    historyList.empty();
+    const historyBody = $('#assignment-history-table-body');
+    historyBody.empty();
     
     if (!currentItem.assignment_history || currentItem.assignment_history.length === 0) {
-        $('#assignment-history-container').addClass('d-none');
+        // Esconde a tabela e mostra a mensagem de "sem histórico"
+        historyBody.closest('.table-responsive').addClass('d-none');
         $('#no-assignment-history').removeClass('d-none');
         return;
     }
     
-    $('#assignment-history-container').removeClass('d-none');
+    // Garante que a tabela está visível e a mensagem, oculta.
+    historyBody.closest('.table-responsive').removeClass('d-none');
     $('#no-assignment-history').addClass('d-none');
     
-    // Ordenar por data de atribuição (mais recente primeiro)
-    const sortedHistory = [...currentItem.assignment_history].sort((a, b) => {
-        // Converter datas para objetos Date para comparação
-        const dateA = a.assignment_date ? new Date(a.assignment_date.split('/').reverse().join('-')) : new Date(0);
-        const dateB = b.assignment_date ? new Date(b.assignment_date.split('/').reverse().join('-')) : new Date(0);
-        return dateB - dateA;
-    });
-    
-    sortedHistory.forEach(assignment => {
-        const isActive = !assignment.return_date;
-        const statusClass = isActive ? 'border-start border-primary border-3' : '';
-        const statusBadge = isActive 
-            ? '<span class="badge bg-primary-transparent">Atual</span>' 
-            : '';
-        
-        const historyItem = `
-            <li class="list-group-item p-3 ${statusClass}">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="mb-0">${assignment.employee_name}</h6>
-                    ${statusBadge}
-                </div>
-                <p class="small text-muted mb-1">${assignment.employee_job_position || 'Cargo não informado'}</p>
-                <p class="small mb-1">
-                    <i class="ri-calendar-check-line text-primary me-1"></i> 
-                    <strong>Atribuído em:</strong> ${assignment.assignment_date}
-                </p>
-                ${assignment.return_date ? `
-                <p class="small mb-1">
-                    <i class="ri-calendar-close-line text-danger me-1"></i>
-                    <strong>Devolvido em:</strong> ${assignment.return_date}
-                </p>` : ''}
-                ${assignment.notes ? `
-                <p class="small mb-0">
-                    <i class="ri-file-text-line text-muted me-1"></i>
-                    <strong>Observações:</strong> ${assignment.notes}
-                </p>` : ''}
-            </li>
+    // Os dados já vêm ordenados do backend. Apenas iteramos e renderizamos.
+    currentItem.assignment_history.forEach(assignment => {
+        let returnDateDisplay = '-';
+        if (assignment.return_date) {
+            // Analisa a string de data 'DD/MM/YYYY HH:mm' para um objeto Date
+            const parts = assignment.return_date.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/);
+            if (parts) {
+                const date = new Date(parts[3], parts[2] - 1, parts[1], parts[4], parts[5]);
+                
+                // Subtrai 3 horas para ajustar o fuso horário para a exibição
+                date.setHours(date.getHours() - 3);
+
+                // Formata a data de volta para o formato 'DD/MM/YYYY HH:mm'
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                returnDateDisplay = `${day}/${month}/${year} ${hours}:${minutes}`;
+            } else {
+                returnDateDisplay = assignment.return_date; // Fallback se o formato for inesperado
+            }
+        } else if (assignment.status === 'active') {
+            returnDateDisplay = '<span class="badge bg-primary-transparent">Em uso</span>';
+        }
+
+        const historyRow = `
+            <tr>
+                <td>${assignment.employee_name || 'N/A'}</td>
+                <td>${assignment.employee_job_position || 'Não informado'}</td>
+                <td>${assignment.assignment_date || '-'}</td>
+                <td>${returnDateDisplay}</td>
+            </tr>
         `;
-        
-        historyList.append(historyItem);
+        historyBody.append(historyRow);
     });
 }
 
@@ -164,6 +164,26 @@ function renderEventLog() {
         const eventIcon = getEventIcon(event.event_type);
         const eventClass = getEventClass(event.event_type);
         
+        let eventDateDisplay = event.event_date; // Fallback
+        if (event.event_date) {
+            // Analisa a string de data 'DD/MM/YYYY HH:mm:ss'
+            const parts = event.event_date.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
+            if (parts) {
+                const date = new Date(parts[3], parts[2] - 1, parts[1], parts[4], parts[5], parts[6]);
+                
+                // Subtrai 3 horas para ajustar o fuso horário
+                date.setHours(date.getHours() - 3);
+
+                // Formata a data de volta para o padrão
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                eventDateDisplay = `${day}/${month}/${year} ${hours}:${minutes}`; // Mostra sem os segundos para ficar mais limpo
+            }
+        }
+        
         const logItem = `
             <li class="list-group-item p-3">
                 <div class="d-flex">
@@ -175,7 +195,7 @@ function renderEventLog() {
                     <div class="flex-grow-1">
                         <div class="d-flex justify-content-between align-items-center">
                             <h6 class="mb-0">${getEventText(event.event_type)}</h6>
-                            <small class="text-muted">${event.event_date}</small>
+                            <small class="text-muted">${eventDateDisplay}</small>
                         </div>
                         <p class="text-muted small mb-0">${event.details || 'Nenhuma anotação fornecida.'}</p>
                     </div>
@@ -488,7 +508,7 @@ function showAssignItemModal() {
                             </div>
                             <div class="mb-3">
                                 <label for="assign-date" class="form-label">Data de Atribuição</label>
-                                <input type="date" class="form-control" id="assign-date" required>
+                                <input type="datetime-local" class="form-control" id="assign-date" required>
                             </div>
                             <div class="mb-3">
                                 <label for="assign-notes" class="form-label">Observações</label>
@@ -511,8 +531,10 @@ function showAssignItemModal() {
     // Carregar opções de colaboradores
     loadEmployeeOptions('#assign-employee');
     
-    // Preencher a data atual
-    $('#assign-date').val(new Date().toISOString().split('T')[0]);
+    // Preenche o campo com a data e hora atuais locais
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    $('#assign-date').val(now.toISOString().slice(0, 16));
     
     // Mostrar o modal
     const modalInstance = new bootstrap.Modal(document.getElementById('assign-modal'));
@@ -690,4 +712,39 @@ function getStatusBadge(status) {
     };
     const { text = 'Desconhecido', class: badgeClass = 'bg-light' } = statusMap[status] || {};
     return `<span class="badge ${badgeClass}">${text}</span>`;
+}
+
+/**
+ * Inicializa a conexão com o Socket.io e os listeners.
+ * @param {number} itemId - O ID do item que está sendo visualizado.
+ */
+function initializeSocket(itemId) {
+    const socket = io();
+
+    // Evento para quando um item é atualizado
+    socket.on('patrimony:item_updated', (updatedItem) => {
+        // Verifica se o item atualizado é o que está sendo exibido na página
+        if (updatedItem && updatedItem.id === itemId) {
+            console.log('Item atualizado recebido via socket:', updatedItem);
+            showToast(`Os dados do item ${updatedItem.code} foram atualizados em tempo real.`);
+            // Atualiza a variável global e re-renderiza todos os dados na tela
+            currentItem = updatedItem;
+            renderItemData();
+        }
+    });
+
+    // Evento para quando as opções (categorias, localizações) mudam.
+    // Embora não sejam exibidas diretamente, é bom para consistência e pode ser útil no futuro.
+    socket.on('patrimony:options_changed', () => {
+        console.log('Opções de patrimônio foram atualizadas.');
+        // No futuro, se houver modais de edição nesta página, aqui seria o local para recarregar as opções.
+    });
+}
+
+/**
+ * Extrai o ID do item da URL.
+ */
+function getItemIdFromUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('id');
 } 

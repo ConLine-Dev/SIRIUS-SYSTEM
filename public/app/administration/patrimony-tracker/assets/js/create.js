@@ -3,6 +3,11 @@ $(document).ready(function() {
     loadFormOptions();
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    loadOptions();
+    initializeSocket();
+});
+
 function showLoader(show) {
     if (show) {
         $('#loader2').show();
@@ -211,4 +216,25 @@ function showErrorToast(message) {
     $('.toast').on('hidden.bs.toast', function() {
         $('.toast-container').remove();
     });
+}
+
+/**
+ * Inicializa a conexão com o Socket.io e registra os listeners.
+ */
+function initializeSocket() {
+    const socket = io();
+
+    // Listener para quando as opções de Categoria ou Localização mudam em outro lugar
+    socket.on('patrimony:options_changed', () => {
+        console.log('Detectada mudança nas opções de patrimônio. Recarregando...');
+        showToast('As listas de Categoria e Localização foram atualizadas.');
+        loadOptions(); // Recarrega as opções nos campos <select>
+    });
+}
+
+/**
+ * Carrega as opções de categoria e localização para os campos de seleção.
+ */
+async function loadOptions() {
+    await loadFormOptions();
 } 

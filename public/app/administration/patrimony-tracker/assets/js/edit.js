@@ -40,6 +40,7 @@ async function initializePage() {
         // Popula o formulário com os dados do item
         populateForm();
         
+        console.log('Chamando setupFormSubmission com o itemId:', itemId);
         setupFormSubmission(itemId);
 
     } catch (error) {
@@ -112,7 +113,13 @@ function setupCancelButton() {
 
 // Configurar o formulário de edição
 function setupFormSubmission(itemId) {
-    $('#form-edit-item').submit(async function(e) {
+    console.log('setupFormSubmission foi iniciada com o itemId:', itemId);
+    if (!itemId) {
+        console.error('setupFormSubmission recebeu um itemId nulo ou indefinido.');
+        return;
+    }
+
+    $('#btn-save').on('click', async function(e) {
         e.preventDefault();
         
         // Desabilitar botão de salvar para evitar submissões duplicadas
@@ -132,6 +139,9 @@ function setupFormSubmission(itemId) {
                 notes: $('#item-notes').val()
             };
             
+            console.log('Dados enviados para a API:', itemData);
+            console.log(`Enviando requisição PUT para /api/patrimony-tracker/items/${itemId}`);
+
             // Enviar dados para o servidor
             await makeRequest(`/api/patrimony-tracker/items/${itemId}`, 'PUT', itemData);
             
@@ -211,4 +221,28 @@ function formatDateForInput(dateString) {
     }
     
     return dateString;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadItemData();
+    initializeSocket();
+});
+
+/**
+ * Inicializa a conexão com o Socket.io e registra os listeners.
+ */
+function initializeSocket() {
+    const socket = io();
+
+    // Listener para quando as opções de Categoria ou Localização mudam
+    socket.on('patrimony:options_changed', () => {
+        console.log('Detectada mudança nas opções de patrimônio. Recarregando...');
+        showToast('As listas de Categoria e Localização foram atualizadas.');
+        
+        // Mantém o valor que estava selecionado antes de recarregar as opções
+        const selectedLocation = document.getElementById('location_id').value;
+        const selectedCategory = document.getElementById('category_id').value;
+
+        loadFormOptions(selectedLocation, selectedCategory);
+    });
 } 

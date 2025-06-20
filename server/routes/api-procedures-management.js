@@ -46,12 +46,6 @@ module.exports = function(io) {
     // Rota para obter um procedimento por ID
     router.get('/procedures/:id', proceduresController.getProcedureById);
 
-    // Rota para obter versões paginadas de um procedimento
-    router.get('/procedures/:id/versions', proceduresController.getProcedureVersions);
-
-    // Rota para obter conteúdo específico de uma versão
-    router.get('/procedures/:id/versions/:versionNumber/content', proceduresController.getProcedureVersionContent);
-
     // Rotas para criar, atualizar e deletar
     router.post('/procedures', async (req, res) => {
         const result = await proceduresController.createProcedure(req, res);

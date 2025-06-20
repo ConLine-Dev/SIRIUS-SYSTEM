@@ -2,6 +2,16 @@ const { executeQuery } = require('../connect/mysql');
 const fs = require('fs');
 const path = require('path');
 
+// Configurações de performance para evitar problemas de memória
+const PERFORMANCE_CONFIG = {
+    MAX_VERSIONS_DEFAULT: 50,        // Máximo de versões a buscar por padrão
+    MAX_VERSIONS_PAGINATED: 20,      // Máximo de versões por página na paginação
+    ENABLE_FALLBACK_SORTING: true,   // Habilitar ordenação JavaScript como fallback
+    LOG_PERFORMANCE_WARNINGS: true,  // Log de avisos de performance
+    SEPARATE_LARGE_FIELDS: true,     // Buscar campos grandes (content, change_summary) separadamente
+    MAX_CONCURRENT_CONTENT_QUERIES: 5 // Máximo de consultas simultâneas para conteúdo
+};
+
 // Função auxiliar para obter o ID do colaborador a partir do header x-user.
 const getAuthorIdFromHeader = (req) => {
     try {
@@ -317,6 +327,8 @@ exports.getProcedures = async (req, res) => {
 // Obter um procedimento completo por ID
 exports.getProcedureById = async (req, res) => {
     const { id } = req.params;
+    const { includeVersions = 'false' } = req.query; // Novo parâmetro para controlar se deve incluir histórico
+    
     try {
         const procedureResult = await executeQuery(`
             SELECT 
@@ -336,24 +348,136 @@ exports.getProcedureById = async (req, res) => {
         }
         const procedure = procedureResult[0];
 
-        const [versions, attachments, tags] = await Promise.all([
-            executeQuery(`
-                SELECT 
-                    v.*,
-                    c.name as author_name
-                FROM proc_versions v
-                LEFT JOIN collaborators c ON v.author_id = c.id
-                WHERE v.procedure_id = ? 
-                ORDER BY v.version_number DESC
-            `, [id]),
+        // Estratégia otimizada: buscar metadados das versões SEM os campos grandes
+        let versions = [];
+        let latestContent = { ops: [] };
+        
+        try {
+            // Primeira estratégia: buscar apenas metadados das versões (sem content e change_summary)
+            const latestVersionResult = await executeQuery(`
+                SELECT MAX(version_number) as max_version 
+                FROM proc_versions 
+                WHERE procedure_id = ?
+            `, [id]);
+            
+            if (latestVersionResult[0].max_version) {
+                // Buscar apenas o conteúdo da versão mais recente
+                const latestContentResult = await executeQuery(`
+                    SELECT content
+                    FROM proc_versions
+                    WHERE procedure_id = ? AND version_number = ?
+                `, [id, latestVersionResult[0].max_version]);
+                
+                if (latestContentResult.length > 0) {
+                    latestContent = latestContentResult[0].content || { ops: [] };
+                }
+                
+                // Se foi solicitado o histórico completo, buscar metadados das versões
+                if (includeVersions === 'true') {
+                    try {
+                        // Buscar apenas metadados das versões (sem campos grandes) com ORDER BY otimizado
+                        const versionMetadata = await executeQuery(`
+                            SELECT 
+                                v.id,
+                                v.procedure_id,
+                                v.version_number,
+                                v.author_id,
+                                v.created_at,
+                                c.name as author_name
+                            FROM proc_versions v
+                            LEFT JOIN collaborators c ON v.author_id = c.id
+                            WHERE v.procedure_id = ?
+                            ORDER BY v.version_number DESC
+                            LIMIT ?
+                        `, [id, PERFORMANCE_CONFIG.MAX_VERSIONS_DEFAULT]);
+                        
+                        // Para cada versão, buscar apenas o change_summary quando necessário (primeira versão)
+                        for (const version of versionMetadata) {
+                            if (version.version_number === latestVersionResult[0].max_version) {
+                                // Para a versão mais recente, já temos o content
+                                version.content = latestContent;
+                            }
+                            
+                            // Buscar change_summary individualmente para evitar problemas de memória
+                            try {
+                                const summaryResult = await executeQuery(`
+                                    SELECT change_summary
+                                    FROM proc_versions
+                                    WHERE procedure_id = ? AND version_number = ?
+                                `, [id, version.version_number]);
+                                
+                                version.change_summary = summaryResult.length > 0 ? 
+                                    summaryResult[0].change_summary : 'Sem resumo disponível';
+                            } catch (summaryError) {
+                                version.change_summary = 'Erro ao carregar resumo';
+                            }
+                        }
+                        
+                        versions = versionMetadata;
+                        
+                    } catch (historyError) {
+                        if (PERFORMANCE_CONFIG.LOG_PERFORMANCE_WARNINGS) {
+                            console.warn(`Não foi possível buscar histórico completo para procedimento ${id}:`, historyError.message);
+                        }
+                        
+                        // Fallback: criar versão mínima apenas com a versão atual
+                        versions = [{
+                            id: null,
+                            procedure_id: id,
+                            version_number: latestVersionResult[0].max_version,
+                            author_id: null,
+                            author_name: 'Desconhecido',
+                            content: latestContent,
+                            change_summary: 'Versão atual',
+                            created_at: new Date()
+                        }];
+                    }
+                } else {
+                    // Retorna apenas metadados da versão mais recente
+                    const latestVersionMeta = await executeQuery(`
+                        SELECT 
+                            v.id,
+                            v.procedure_id,
+                            v.version_number,
+                            v.author_id,
+                            v.created_at,
+                            c.name as author_name
+                        FROM proc_versions v
+                        LEFT JOIN collaborators c ON v.author_id = c.id
+                        WHERE v.procedure_id = ? AND v.version_number = ?
+                    `, [id, latestVersionResult[0].max_version]);
+                    
+                    if (latestVersionMeta.length > 0) {
+                        latestVersionMeta[0].content = latestContent;
+                        latestVersionMeta[0].change_summary = 'Versão atual';
+                        versions = latestVersionMeta;
+                    }
+                }
+            }
+            
+        } catch (versionError) {
+            console.error(`Erro crítico ao buscar versões para procedimento ${id}:`, versionError);
+            // Em caso de erro total, continua sem versões
+            versions = [];
+            latestContent = { ops: [] };
+        }
+
+        const [attachments, tags] = await Promise.all([
             executeQuery('SELECT * FROM proc_attachments WHERE procedure_id = ?', [id]),
             getTagsForProcedure(id)
         ]);
 
-        procedure.content = versions.length > 0 ? versions[0].content : { ops: [] };
+        procedure.content = latestContent;
         procedure.versions = versions;
         procedure.attachments = attachments;
         procedure.tags = tags;
+
+        // Adicionar metadados sobre versões para o frontend
+        procedure.versionMetadata = {
+            hasMoreVersions: versions.length >= PERFORMANCE_CONFIG.MAX_VERSIONS_DEFAULT,
+            totalVersionsAvailable: versions.length > 0 ? versions[0].version_number : 0,
+            currentVersion: versions.length > 0 ? versions[0].version_number : 0
+        };
 
         res.json(procedure);
     } catch (error) {
@@ -794,6 +918,200 @@ exports.getResponsibles = async (req, res) => {
         res.json(responsibles);
     } catch (error) {
         console.error('Erro ao buscar responsáveis:', error);
+        res.status(500).json({ message: 'Erro interno do servidor.' });
+    }
+};
+
+// Obter versões paginadas de um procedimento
+exports.getProcedureVersions = async (req, res) => {
+    const { id } = req.params;
+    const { page = 1, limit = PERFORMANCE_CONFIG.MAX_VERSIONS_PAGINATED, includeContent = 'false' } = req.query;
+    
+    const offset = (page - 1) * limit;
+    
+    try {
+        // Primeiro, verificar se o procedimento existe
+        const procedureExists = await executeQuery('SELECT id FROM proc_main WHERE id = ?', [id]);
+        if (procedureExists.length === 0) {
+            return res.status(404).json({ message: 'Procedimento não encontrado.' });
+        }
+
+        // Contar total de versões
+        const totalResult = await executeQuery('SELECT COUNT(*) as total FROM proc_versions WHERE procedure_id = ?', [id]);
+        const total = totalResult[0].total;
+
+        // Buscar metadados das versões (sem campos grandes) com estratégia otimizada
+        let versions = [];
+        try {
+            // Buscar apenas metadados das versões (excluindo content e change_summary grandes)
+            const versionMetadata = await executeQuery(`
+                SELECT 
+                    v.id,
+                    v.procedure_id,
+                    v.version_number,
+                    v.author_id,
+                    v.created_at,
+                    c.name as author_name
+                FROM proc_versions v
+                LEFT JOIN collaborators c ON v.author_id = c.id
+                WHERE v.procedure_id = ? 
+                ORDER BY v.version_number DESC
+                LIMIT ? OFFSET ?
+            `, [id, parseInt(limit), parseInt(offset)]);
+            
+            // Para cada versão, buscar dados grandes individualmente se solicitado
+            for (const version of versionMetadata) {
+                // Buscar change_summary individualmente para evitar problemas de memória
+                try {
+                    const summaryResult = await executeQuery(`
+                        SELECT change_summary
+                        FROM proc_versions
+                        WHERE procedure_id = ? AND version_number = ?
+                    `, [id, version.version_number]);
+                    
+                    version.change_summary = summaryResult.length > 0 ? 
+                        summaryResult[0].change_summary : 'Sem resumo disponível';
+                } catch (summaryError) {
+                    version.change_summary = 'Erro ao carregar resumo';
+                }
+                
+                // Buscar content apenas se explicitamente solicitado
+                if (includeContent === 'true') {
+                    try {
+                        const contentResult = await executeQuery(`
+                            SELECT content
+                            FROM proc_versions
+                            WHERE procedure_id = ? AND version_number = ?
+                        `, [id, version.version_number]);
+                        
+                        version.content = contentResult.length > 0 ? 
+                            contentResult[0].content : { ops: [] };
+                    } catch (contentError) {
+                        version.content = { ops: [] };
+                    }
+                } else {
+                    // Placeholder para content se não foi solicitado
+                    version.content = null;
+                }
+            }
+            
+            versions = versionMetadata;
+            
+        } catch (versionError) {
+            if (PERFORMANCE_CONFIG.LOG_PERFORMANCE_WARNINGS) {
+                console.warn(`Erro ao buscar versões paginadas para procedimento ${id}:`, versionError);
+            }
+            
+            // Estratégia alternativa: buscar sem ORDER BY e ordenar no JavaScript
+            if (PERFORMANCE_CONFIG.ENABLE_FALLBACK_SORTING) {
+                const fallbackVersions = await executeQuery(`
+                    SELECT 
+                        v.id,
+                        v.procedure_id,
+                        v.version_number,
+                        v.author_id,
+                        v.created_at,
+                        c.name as author_name
+                    FROM proc_versions v
+                    LEFT JOIN collaborators c ON v.author_id = c.id
+                    WHERE v.procedure_id = ?
+                    LIMIT ? OFFSET ?
+                `, [id, parseInt(limit), parseInt(offset)]);
+                
+                // Ordenação no JavaScript
+                fallbackVersions.sort((a, b) => b.version_number - a.version_number);
+                
+                // Adicionar campos adicionais
+                for (const version of fallbackVersions) {
+                    version.change_summary = 'Resumo não disponível (modo fallback)';
+                    version.content = includeContent === 'true' ? { ops: [] } : null;
+                }
+                
+                versions = fallbackVersions;
+            } else {
+                versions = [];
+            }
+        }
+
+        res.json({
+            versions,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                totalPages: Math.ceil(total / limit),
+                hasNext: (page * limit) < total,
+                hasPrev: page > 1
+            },
+            metadata: {
+                contentIncluded: includeContent === 'true',
+                note: includeContent !== 'true' ? 'Para carregar conteúdo completo, use includeContent=true' : null
+            }
+        });
+    } catch (error) {
+        console.error(`Erro ao buscar versões do procedimento ${id}:`, error);
+        res.status(500).json({ message: 'Erro interno do servidor.' });
+    }
+};
+
+// Obter conteúdo específico de uma versão (para carregamento sob demanda)
+exports.getProcedureVersionContent = async (req, res) => {
+    const { id, versionNumber } = req.params;
+    
+    try {
+        // Verificar se o procedimento e versão existem
+        const versionExists = await executeQuery(`
+            SELECT id FROM proc_versions 
+            WHERE procedure_id = ? AND version_number = ?
+        `, [id, versionNumber]);
+        
+        if (versionExists.length === 0) {
+            return res.status(404).json({ message: 'Versão não encontrada.' });
+        }
+
+        // Buscar apenas o conteúdo da versão específica
+        const contentResult = await executeQuery(`
+            SELECT 
+                content,
+                change_summary,
+                title,
+                department_id,
+                role,
+                type_id,
+                responsible_id,
+                tags,
+                attachments
+            FROM proc_versions
+            WHERE procedure_id = ? AND version_number = ?
+        `, [id, versionNumber]);
+        
+        if (contentResult.length === 0) {
+            return res.status(404).json({ message: 'Conteúdo da versão não encontrado.' });
+        }
+
+        const versionData = contentResult[0];
+        
+        // Processar dados JSON se necessário
+        try {
+            if (typeof versionData.content === 'string') {
+                versionData.content = JSON.parse(versionData.content);
+            }
+            if (typeof versionData.tags === 'string') {
+                versionData.tags = JSON.parse(versionData.tags);
+            }
+            if (typeof versionData.attachments === 'string') {
+                versionData.attachments = JSON.parse(versionData.attachments);
+            }
+        } catch (parseError) {
+            console.warn(`Erro ao processar dados JSON da versão ${versionNumber} do procedimento ${id}:`, parseError);
+        }
+
+        res.json({
+            versionNumber: parseInt(versionNumber),
+            ...versionData
+        });
+    } catch (error) {
+        console.error(`Erro ao buscar conteúdo da versão ${versionNumber} do procedimento ${id}:`, error);
         res.status(500).json({ message: 'Erro interno do servidor.' });
     }
 }; 

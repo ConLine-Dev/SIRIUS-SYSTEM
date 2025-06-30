@@ -13,6 +13,61 @@ module.exports = function(io) {
         }
     });
 
+    router.post('/getProcessesTotal', async (req, res, next) => {
+
+        try {
+            const result = await pricingMain.getProcessesTotal(req.body);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    });
+
+    router.post('/getProcessesMonth', async (req, res, next) => {
+        try {
+            const result = await pricingMain.getProcessesMonth(req.body);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    });
+
+    router.post('/processesByAgent', async (req, res, next) => {
+        try {
+            const result = await pricingMain.processesByAgent(req.body);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    });
+
+    router.post('/processesByCarrier', async (req, res, next) => {
+        try {
+            const result = await pricingMain.processesByCarrier(req.body);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    });
+
+    router.post('/processesByTerminal', async (req, res, next) => {
+        try {
+            const result = await pricingMain.processesByTerminal(req.body);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    });
+
+    router.post('/processesByCustomer', async (req, res, next) => {
+        try {
+            const result = await pricingMain.processesByCustomer(req.body);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    });
+
     router.post('/commentsByModule', async (req, res, next) => {
 
         try {

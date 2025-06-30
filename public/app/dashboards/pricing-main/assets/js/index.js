@@ -1,194 +1,179 @@
-async function printAll() {
+let processesMonth;
+let profitMonth;
+let processesAgent;
+let processesCarrier;
+let processesTerminal;
+let processesCustomer;
 
-  const sumOffers = await makeRequest(`/api/pricing-main/getoffers`);
-  const approvedFCL = []
-  const rejectedFCL = []
-  const pendingFCL = []
-  const totalFCL = []
-  const approvedLCL = []
-  const rejectedLCL = []
-  const pendingLCL = []
-  const totalLCL = []
-  const approvedAIR = []
-  const rejectedAIR = []
-  const pendingAIR = []
-  const totalAIR = []
+async function printProcesses(filters) {
 
-  for (let index = 0; index < sumOffers.length; index++) {
-    if (sumOffers[index].tipo == 'FCL') {
-      approvedFCL[(sumOffers[index].mes) - 1] = sumOffers[index].aprovadas
-      rejectedFCL[(sumOffers[index].mes) - 1] = sumOffers[index].reprovadas
-      pendingFCL[(sumOffers[index].mes) - 1] = sumOffers[index].pendentes
-      totalFCL[(sumOffers[index].mes) - 1] = approvedFCL[(sumOffers[index].mes) - 1] + rejectedFCL[(sumOffers[index].mes) - 1] + pendingFCL[(sumOffers[index].mes) - 1]
-    }
-    if (sumOffers[index].tipo == 'LCL') {
-      approvedLCL[(sumOffers[index].mes) - 1] = sumOffers[index].aprovadas
-      rejectedLCL[(sumOffers[index].mes) - 1] = sumOffers[index].reprovadas
-      pendingLCL[(sumOffers[index].mes) - 1] = sumOffers[index].pendentes
-      totalLCL[(sumOffers[index].mes) - 1] = approvedLCL[(sumOffers[index].mes) - 1] + rejectedLCL[(sumOffers[index].mes) - 1] + pendingLCL[(sumOffers[index].mes) - 1]
-    }
-    if (sumOffers[index].tipo == 'AIR') {
-      approvedAIR[(sumOffers[index].mes) - 1] = sumOffers[index].aprovadas
-      rejectedAIR[(sumOffers[index].mes) - 1] = sumOffers[index].reprovadas
-      pendingAIR[(sumOffers[index].mes) - 1] = sumOffers[index].pendentes
-      totalAIR[(sumOffers[index].mes) - 1] = approvedAIR[(sumOffers[index].mes) - 1] + rejectedAIR[(sumOffers[index].mes) - 1] + pendingAIR[(sumOffers[index].mes) - 1]
-    }
-  }
+  let processes = await makeRequest(`/api/pricing-main/getProcessesTotal`, 'POST', filters);
 
-  let yearFCL = sumArray(totalFCL);
-  let yearApprovedFCL = sumArray(approvedFCL);
-  let yearRejectedFCL = sumArray(rejectedFCL);
-  let yearPendingFCL = sumArray(pendingFCL);
-  let percentApprovedFCL = ((yearApprovedFCL / yearFCL) * 100);
-  let yearLCL = sumArray(totalLCL);
-  let yearApprovedLCL = sumArray(approvedLCL);
-  let yearRejectedLCL = sumArray(rejectedLCL);
-  let yearPendingLCL = sumArray(pendingLCL);
-  let percentApprovedLCL = ((yearApprovedLCL / yearLCL) * 100);
-  let yearAIR = sumArray(totalAIR);
-  let yearApprovedAIR = sumArray(approvedAIR);
-  let yearRejectedAIR = sumArray(rejectedAIR);
-  let yearPendingAIR = sumArray(pendingAIR);
-  let percentApprovedAIR = ((yearApprovedAIR / yearAIR) * 100);
+  let divAIR = document.getElementById('AIR');
+  let divLCL = document.getElementById('LCL');
+  let divFCL = document.getElementById('FCL');
+  let divTotal = document.getElementById('total');
+  let divProfitTotal = document.getElementById('profitTotal');
+  let divProfitProcess = document.getElementById('profitProcess');
 
-  var totalYearFCL = document.getElementById('totalYear-fcl');
-  var totalYearLCL = document.getElementById('totalYear-lcl');
-  var totalYearAIR = document.getElementById('totalYear-air');
+  let printAir = `<div><h2>${processes[0].Total_Aereo}</h2>`
+  let printLCL = `<div><h2>${processes[0].Total_LCL}</h2>`
+  let printFCL = `<div><h2>${processes[0].Total_FCL}</h2>`
+  let printTotal = `<div><h2>${processes[0].Total_Processos}</h2>`
+  let printProfitTotal = `<div><h3>${processes[0].Lucro_Total}</h3>`
+  let printProfitProcess = `<div><h3>${processes[0].Lucro_Medio}</h3>`
 
-  let printTotalYearFCL = '';
-  let printTotalYearLCL = '';
-  let printTotalYearAIR = '';
-
-  printTotalYearFCL = `<div class="text-muted mb-2 fs-12"> 
-                            <span class="text-dark fw-semibold fs-16 lh-1 vertical-bottom mb-2"> Cotações/Ano - FCL </span> 
-                        </div>
-                        <div>Aprovadas: ${yearApprovedFCL}</div>
-                        <div>Pendentes: ${yearPendingFCL}</div>
-                        <div>Reprovadas: ${yearRejectedFCL}</div>
-                        <div>Total: ${yearFCL}</div>
-                        <br>
-                        <div class="text-muted mb-2 fs-12"> 
-                            <span class="text-dark fw-semibold fs-16 lh-1 vertical-bottom mb-2"> Assertividade/Ano - FCL </span> 
-                        </div>
-                        <div>Percentual Aprovação: ${percentApprovedFCL.toFixed(2)}%</div>`
-
-  printTotalYearLCL = `<div class="text-muted mb-2 fs-12"> 
-                            <span class="text-dark fw-semibold fs-16 lh-1 vertical-bottom mb-2"> Cotações/Ano - LCL </span> 
-                        </div>
-                        <div>Aprovadas: ${yearApprovedLCL}</div>
-                        <div>Pendentes: ${yearPendingLCL}</div>
-                        <div>Reprovadas: ${yearRejectedLCL}</div>
-                        <div>Total: ${yearLCL}</div>
-                        <br>
-                        <div class="text-muted mb-2 fs-12"> 
-                            <span class="text-dark fw-semibold fs-16 lh-1 vertical-bottom mb-2"> Assertividade/Ano - LCL </span> 
-                        </div>
-                        <div>Percentual Aprovação: ${percentApprovedLCL.toFixed(2)}%</div>`
-
-  printTotalYearAIR = `<div class="text-muted mb-2 fs-12"> 
-                            <span class="text-dark fw-semibold fs-16 lh-1 vertical-bottom mb-2"> Cotações/Ano - AIR </span> 
-                        </div>
-                        <div>Aprovadas: ${yearApprovedAIR}</div>
-                        <div>Pendentes: ${yearPendingAIR}</div>
-                        <div>Reprovadas: ${yearRejectedAIR}</div>
-                        <div>Total: ${yearAIR}</div>
-                        <br>
-                        <div class="text-muted mb-2 fs-12"> 
-                            <span class="text-dark fw-semibold fs-16 lh-1 vertical-bottom mb-2"> Assertividade/Ano - AIR </span> 
-                        </div>
-                        <div>Percentual Aprovação: ${percentApprovedAIR.toFixed(2)}%</div>`
-
-  totalYearFCL.innerHTML = printTotalYearFCL;
-  totalYearLCL.innerHTML = printTotalYearLCL;
-  totalYearAIR.innerHTML = printTotalYearAIR;
-
-  createChart(approvedFCL, totalFCL, 30, "#fcl-chart");
-  createChart(approvedLCL, totalLCL, 30, "#lcl-chart");
-  createChart(approvedAIR, totalAIR, 20, "#air-chart");
+  divAIR.innerHTML = printAir;
+  divLCL.innerHTML = printLCL;
+  divFCL.innerHTML = printFCL;
+  divTotal.innerHTML = printTotal;
+  divProfitTotal.innerHTML = printProfitTotal;
+  divProfitProcess.innerHTML = printProfitProcess;
 }
 
-function sumArray(array) {
-  let total = 0;
-  for (let index = 0; index < array.length; index++) {
-    total += array[index];
+async function createArrays(filters) {
+
+  const details = await makeRequest(`/api/pricing-main/getProcessesMonth`, 'POST', filters);
+
+  let processes = []
+  let profit = []
+
+  for (let index = 0; index < 12; index++) {
+    processes[index] = 0
+    profit[index] = 0
   }
-  return total;
+
+  for (let index = 0; index < details.length; index++) {
+    processes[details[index].Mes - 1] = details[index].Total_Processos
+    profit[details[index].Mes - 1] = details[index].Lucro_Estimado_Total
+  }
+  createProcessesMonthChart(processes);
+  createProfitMonthChart(profit);
+
+  const processesByAgent = await makeRequest(`/api/pricing-main/processesByAgent`, 'POST', filters);
+  let agentsData = []
+  let agentsNames = []
+  let agentsSize = 10;
+
+  if (processesByAgent.length < agentsSize) {
+    agentsSize = processesByAgent.length;
+  }
+
+  for (let index = 0; index < agentsSize; index++) {
+    if (processesByAgent[index].Total_Processos) {
+      agentsData[index] = processesByAgent[index].Total_Processos;
+      agentsNames[index] = processesByAgent[index].Agente_Origem;
+    }
+  }
+  createProcessesAgentChart(agentsData, agentsNames);
+
+  const processesByCarrier = await makeRequest(`/api/pricing-main/processesByCarrier`, 'POST', filters);
+  let carriersData = []
+  let carriersNames = []
+  let carriersSize = 10;
+
+  if (processesByCarrier.length < carriersSize) {
+    carriersSize = processesByCarrier.length
+  }
+
+  for (let index = 0; index < carriersSize; index++) {
+    if (processesByCarrier[index].Total_Processos) {
+      carriersData[index] = processesByCarrier[index].Total_Processos;
+      carriersNames[index] = processesByCarrier[index].Companhia_Transporte;
+    }
+  }
+  createProcessesCarrierChart(carriersData, carriersNames);
+
+  const processesByTerminal = await makeRequest(`/api/pricing-main/processesByTerminal`, 'POST', filters);
+  let terminalData = []
+  let terminalNames = []
+  let terminalSize = 10;
+
+  if (processesByTerminal.length < terminalSize) {
+    terminalSize = processesByTerminal.length
+  }
+
+  for (let index = 0; index < terminalSize; index++) {
+    if (processesByTerminal[index].Total_Processos) {
+      terminalData[index] = processesByTerminal[index].Total_Processos;
+      terminalNames[index] = processesByTerminal[index].Terminal_Redestinacao;
+    }
+  }
+  createProcessesTerminalChart(terminalData, terminalNames);
+
+  const processesByCustomer = await makeRequest(`/api/pricing-main/processesByCustomer`, 'POST', filters);
+  let customerData = []
+  let customerNames = []
+  let customerSize = 10;
+
+  if (processesByCustomer.length < customerSize) {
+    customerSize = processesByCustomer.length
+  }
+
+  for (let index = 0; index < customerSize; index++) {
+    if (processesByCustomer[index].Total_Processos) {
+      customerData[index] = processesByCustomer[index].Total_Processos;
+      customerNames[index] = processesByCustomer[index].Cliente;
+    }
+  }
+  createProcessesCustomersChart(customerData, customerNames);
 }
 
-function createChart(dataArray, totalArray, goal, div) {
-  const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+function createProcessesMonthChart(data) {
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
-  const goalArray = [];
-  for (let index = 0; index < totalArray.length; index++) {
-    goalArray[index] = ((totalArray[index] * goal) / 100).toFixed();
-    goalArray[index] = parseInt(goalArray[index]);
+  if (processesMonth) {
+    processesMonth.destroy();
   }
 
   var chartData = {
-    series: [
-      {
-        name: "Cotações Totais",
-        type: "column",
-        data: totalArray,
-      },
-      {
-        name: "Cotações Aprovadas",
-        type: "line",
-        data: dataArray,
-      },
-      {
-        name: "Meta",
-        type: "line",
-        data: goalArray,
-      },
-    ],
-    colors: ["#F9423A", "#348ceb", "#30c229"],
 
-    markers: {
-      size: [0, 4],
-      strokeColors: ["#30c229", "#348ceb"],
-      strokeWidth: 2,
-      strokeOpacity: 0.9,
-      fillOpacity: 1,
-      shape: "circle",
-      showNullDataPoints: true,
-  },
-
+    series: [{
+      data: data
+    }],
     chart: {
       height: 200,
-      type: "area",
+      width: 1240,
+      type: "bar",
       stacked: false,
       toolbar: {
         show: false,
       },
     },
-
-    stroke: {
-      width: [0, 5, 2],
-      curve: "smooth",
-    },
-
     plotOptions: {
       bar: {
-        borderRadius: 7,
-        columnWidth: "40%",
-      },
+        horizontal: false,
+        borderRadius: 5,
+        columnWidth: "60%",
+        dataLabels: {
+          position: 'top',
+        },
+      }
     },
-
-    fill: {
-      type: ["solid", "solid", "solid"],
-    },
-
     dataLabels: {
       enabled: true,
-      enabledOnSeries: [0],
-      offsetY: -15,
       style: {
-        fontSize: "12px",
-        colors: ["#F9423A"],
-      },
+        fontSize: '10px',
+        colors: ['#fff']
+      }
     },
-
+    tooltip: {
+      enabled: false
+    },
+    colors: ["#F9423A"],
+    markers: {
+      size: 0,
+      strokeColors: ["#F9423A"],
+      strokeWidth: 2,
+      strokeOpacity: 0.9,
+      fillOpacity: 1,
+      shape: "circle",
+      showNullDataPoints: true,
+    },
+    stroke: {
+      width: 0,
+      curve: "smooth",
+    },
     xaxis: {
       categories: months,
       position: "bottom",
@@ -198,61 +183,403 @@ function createChart(dataArray, totalArray, goal, div) {
       axisTicks: {
         show: false,
       },
-      crosshairs: {
-        fill: {
-          type: "gradient",
-          gradient: {
-            colorFrom: "#D8E3F0",
-            colorTo: "#BED1E6",
-            stops: [0, 100],
-            opacityFrom: 0.4,
-            opacityTo: 0.5,
-          },
-        },
-      },
     },
-
-    yaxis: [
-      {
-        show: false,
-        min: 0,
-      },
-    ],
-
-    legend: {
-      show: true
-    },
-
-    tooltip: {
-      y: {
-        formatter: function (value, { seriesIndex, dataPointIndex }) {
-          if (seriesIndex === 1) {
-            const total = totalArray[dataPointIndex] || 1;
-            const percentage = ((value / total) * 100).toFixed(2);
-            return percentage + "%";
-          } else if (seriesIndex === 2) {
-            const total = totalArray[dataPointIndex] || 1;
-            const percentage = (value / total * 100).toFixed();
-            return percentage + "%";
-          }
-          return value;
-        }
-      }
-    }
   };
 
-  var chart = new ApexCharts(document.querySelector(div), chartData);
-  chart.render();
+  processesMonth = new ApexCharts(document.querySelector('#processesMonthChart'), chartData);
+  processesMonth.render();
 }
 
-async function openComments(){
-  const screenWidth = window.screen.width;
-  const screenHeight = window.screen.height;
+function createProfitMonthChart(data) {
 
-  const windowWidth = screenWidth / 1.3;
-  const windowHeight = screenHeight / 1.3;
-  
-  openWindow('/app/people/internal-comments/moduleComments', windowWidth, windowHeight);
+  let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  if (profitMonth) {
+    profitMonth.destroy();
+  }
+
+  var chartData = {
+
+    series: [{
+      data: data
+    }],
+    chart: {
+      height: 200,
+      width: 1240,
+      type: "bar",
+      stacked: false,
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        borderRadius: 5,
+        columnWidth: "60%",
+        dataLabels: {
+          position: 'top',
+        },
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: '12px',
+        colors: ['#fff']
+      },
+      formatter: function (val) {
+        return new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: 'BRL'
+        }).format(val);
+      }
+    },
+    tooltip: {
+      enabled: false
+    },
+    colors: ["#F9423A"],
+    markers: {
+      size: 0,
+      strokeColors: ["#F9423A"],
+      strokeWidth: 2,
+      strokeOpacity: 0.9,
+      fillOpacity: 1,
+      shape: "circle",
+      showNullDataPoints: true,
+    },
+    stroke: {
+      width: 0,
+      curve: "smooth",
+    },
+    xaxis: {
+      categories: months,
+      position: "bottom",
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+  };
+
+  profitMonth = new ApexCharts(document.querySelector('#profitMonthChart'), chartData);
+  profitMonth.render();
+}
+
+function createProcessesAgentChart(data, names) {
+
+  if (processesAgent) {
+    processesAgent.destroy();
+  }
+
+  var chartData = {
+
+    series: [{
+      data: data
+    }],
+    chart: {
+      height: 500,
+      width: 450,
+      type: "bar",
+      stacked: false,
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        borderRadius: 5,
+        columnWidth: "60%",
+        dataLabels: {
+          position: 'top',
+        },
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: '12px',
+        colors: ['#fff']
+      }
+    },
+    tooltip: {
+      enabled: false
+    },
+    colors: ["#F9423A"],
+    markers: {
+      size: 0,
+      strokeColors: ["#F9423A"],
+      strokeWidth: 2,
+      strokeOpacity: 0.9,
+      fillOpacity: 1,
+      shape: "circle",
+      showNullDataPoints: true,
+    },
+    stroke: {
+      width: 0,
+      curve: "smooth",
+    },
+    xaxis: {
+      categories: names,
+      position: "bottom",
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+  };
+
+  processesAgent = new ApexCharts(document.querySelector('#processesAgentChart'), chartData);
+  processesAgent.render();
+}
+
+function createProcessesCarrierChart(data, names) {
+
+  if (processesCarrier) {
+    processesCarrier.destroy();
+  }
+
+  var chartData = {
+
+    series: [{
+      data: data
+    }],
+    chart: {
+      height: 500,
+      width: 450,
+      type: "bar",
+      stacked: false,
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        borderRadius: 5,
+        columnWidth: "60%",
+        dataLabels: {
+          position: 'top',
+        },
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: '12px',
+        colors: ['#fff']
+      }
+    },
+    tooltip: {
+      enabled: false
+    },
+    colors: ["#F9423A"],
+    markers: {
+      size: 0,
+      strokeColors: ["#F9423A"],
+      strokeWidth: 2,
+      strokeOpacity: 0.9,
+      fillOpacity: 1,
+      shape: "circle",
+      showNullDataPoints: true,
+    },
+    stroke: {
+      width: 0,
+      curve: "smooth",
+    },
+    xaxis: {
+      categories: names,
+      position: "bottom",
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+  };
+
+  processesCarrier = new ApexCharts(document.querySelector('#processesCarrierChart'), chartData);
+  processesCarrier.render();
+}
+
+function createProcessesTerminalChart(data, names) {
+
+  if (processesTerminal) {
+    processesTerminal.destroy();
+  }
+
+  var chartData = {
+
+    series: [{
+      data: data
+    }],
+    chart: {
+      height: 500,
+      width: 450,
+      type: "bar",
+      stacked: false,
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        borderRadius: 5,
+        columnWidth: "60%",
+        dataLabels: {
+          position: 'top',
+        },
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: '12px',
+        colors: ['#fff']
+      }
+    },
+    tooltip: {
+      enabled: false
+    },
+    colors: ["#F9423A"],
+    markers: {
+      size: 0,
+      strokeColors: ["#F9423A"],
+      strokeWidth: 2,
+      strokeOpacity: 0.9,
+      fillOpacity: 1,
+      shape: "circle",
+      showNullDataPoints: true,
+    },
+    stroke: {
+      width: 0,
+      curve: "smooth",
+    },
+    xaxis: {
+      categories: names,
+      position: "bottom",
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+  };
+
+  processesTerminal = new ApexCharts(document.querySelector('#processesTerminalChart'), chartData);
+  processesTerminal.render();
+}
+
+function createProcessesCustomersChart(data, names) {
+
+  if (processesCustomer) {
+    processesCustomer.destroy();
+  }
+
+  var chartData = {
+
+    series: [{
+      data: data
+    }],
+    chart: {
+      height: 500,
+      width: 450,
+      type: "bar",
+      stacked: false,
+      toolbar: {
+        show: false,
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        borderRadius: 5,
+        columnWidth: "60%",
+        dataLabels: {
+          position: 'top',
+        },
+      }
+    },
+    dataLabels: {
+      enabled: true,
+      style: {
+        fontSize: '12px',
+        colors: ['#fff']
+      }
+    },
+    tooltip: {
+      enabled: false
+    },
+    colors: ["#F9423A"],
+    markers: {
+      size: 0,
+      strokeColors: ["#F9423A"],
+      strokeWidth: 2,
+      strokeOpacity: 0.9,
+      fillOpacity: 1,
+      shape: "circle",
+      showNullDataPoints: true,
+    },
+    stroke: {
+      width: 0,
+      curve: "smooth",
+    },
+    xaxis: {
+      categories: names,
+      position: "bottom",
+      axisBorder: {
+        show: false,
+      },
+      axisTicks: {
+        show: false,
+      },
+    },
+  };
+
+  processesCustomer = new ApexCharts(document.querySelector('#processesCustomersChart'), chartData);
+  processesCustomer.render();
+}
+
+const selectedFilters = {
+  ano: [],
+  modal: [],
+  mes: []
+};
+
+// Primeiro: lógica para selecionar/deselecionar os botões
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.classList.toggle('selected');
+  });
+});
+
+async function printFilteredData() {
+  const selected = {
+    ano: [],
+    modal: [],
+    mes: []
+  };
+
+  document.querySelectorAll('.filter-btn.selected').forEach(btn => {
+    const type = btn.dataset.type;
+    const value = btn.dataset.value;
+
+    if (selected[type]) {
+      selected[type].push(value);
+    }
+  });
+  document.querySelector('#loader2').classList.remove('d-none')
+  await printProcesses(selected);
+  await createArrays(selected);
+  document.querySelector('#loader2').classList.add('d-none')
 }
 
 function openWindow(url, width, height) {
@@ -261,12 +588,10 @@ function openWindow(url, width, height) {
 
 document.addEventListener('DOMContentLoaded', async function () {
 
-  // const socket = io();
+  let filters = {}
 
-  // socket.on('updateCalendarEvents', (data) => {
-  //   calendar.refetchEvents();
-  // })
+  await printProcesses(filters);
+  await createArrays(filters);
 
-  await printAll();
-
+  document.querySelector('#loader2').classList.add('d-none')
 });

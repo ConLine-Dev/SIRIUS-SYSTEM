@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Metas - Pricing Geral</title>
+    <title>Indicadores - Pricing</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
@@ -51,74 +51,154 @@
      </span> -->
 
     <!-- Loader -->
-    <!-- <div id="loader2">
+    <div id="loader2">
         <img src="../../assets/images/media/loader.svg" alt="">
-    </div> -->
+    </div>
     <div class="row">
-        <div class="col-xl-12">
-            <div class="card custom-card">
-                <div class="card-header d-flex" style="justify-content: space-between;">
-                    <div class="card-title fw-semibold fs-14">Metas - Pricing Geral</div>
-                    <div class="input-group" style="width: 115px; gap: 20px;">
-                        <a class="btn btn-primary" id="createPeople"
-                            style="width: 115px; border-radius: 5px;"
-                            onclick="openComments()">Comentários</a>
-                    </div>
-                </div>
+        <div class="col-xl-12" style="height: 70px;">
+            <div class="card custom-card" style="height: 80%;">
             </div>
         </div>
     </div>
     <div class="container-fluid corpo-dashboard">
+        <input type="checkbox" class="openSidebarMenu" id="openSidebarMenu">
+        <label for="openSidebarMenu" class="sidebarIconToggle">
+            <div class="spinner diagonal part-1"></div>
+            <div class="spinner horizontal"></div>
+            <div class="spinner diagonal part-2"></div>
+        </label>
+        <div id="sidebarMenu" style="z-index: 1;">
+            <ul class="sidebarMenuInner">
+                <li>Filtros</li>
+                <li>
+                    <span>Ano</span>
+                    <button class="filter-btn" data-type="ano" data-value="2023">2023</button>
+                    <button class="filter-btn" data-type="ano" data-value="2024">2024</button>
+                    <button class="filter-btn" data-type="ano" data-value="2025">2025</button>
+                </li>
+                <li>
+                    <span>Modal</span>
+                    <button class="filter-btn" data-type="modal" data-value="1">AIR</button>
+                    <button class="filter-btn" data-type="modal" data-value="3">FCL</button>
+                    <button class="filter-btn" data-type="modal" data-value="4">LCL</button>
+                </li>
+                <li>
+                    <span>Mês</span>
+                    <button class="filter-btn" data-type="mes" data-value="1">Jan</button>
+                    <button class="filter-btn" data-type="mes" data-value="2">Fev</button>
+                    <button class="filter-btn" data-type="mes" data-value="3">Mar</button>
+                    <button class="filter-btn" data-type="mes" data-value="4">Abr</button>
+                    <button class="filter-btn" data-type="mes" data-value="5">Mai</button>
+                    <button class="filter-btn" data-type="mes" data-value="6">Jun</button>
+                    <button class="filter-btn" data-type="mes" data-value="7">Jul</button>
+                    <button class="filter-btn" data-type="mes" data-value="8">Ago</button>
+                    <button class="filter-btn" data-type="mes" data-value="9">Set</button>
+                    <button class="filter-btn" data-type="mes" data-value="10">Out</button>
+                    <button class="filter-btn" data-type="mes" data-value="11">Nov</button>
+                    <button class="filter-btn" data-type="mes" data-value="12">Dez</button>
+                </li>
+                <li>
+                    <button  class="btn btn-primary me-2 btn-sm" style="width: 100%; font-size: 14px; margin-top: -5px;" onclick="printFilteredData()">Atualizar</button>
+                </li>
+            </ul>
+
+        </div>
         <div class="row">
             <div class="row d-flex align-items-stretch">
                 <div class="col-xxl-12 col-xl-12">
                     <div class="row d-flex align-items-stretch">
-                        <div class="col-xl-10 d-flex">
+                        <div class="col-xl-2 d-flex">
                             <div class="card custom-card flex-fill">
                                 <div class="card-header justify-content-between">
-                                    <div class="card-title">Cotações Aprovadas - FCL</div>
+                                    <div class="card-title">Processos AIR</div>
                                 </div>
-                                <div class="card-body" style="padding: 0; height: 200px;">
-                                    <div>
-                                        <div id="fcl-chart"></div>
-                                    </div>
+                                <div class="card-body d-flex" style="height: 80px; align-items: center;" id="AIR">
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-2 d-flex flex-column">
-                            <div class="card custom-card flex-fill mb-3">
-                                <div class="card-body d-flex" id="totalYear-fcl" style="flex-direction: column;justify-content: space-between;"></div>
+                        <div class="col-xl-2 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Processos LCL</div>
+                                </div>
+                                <div class="card-body d-flex" style="height: 80px; align-items: center;" id="LCL">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-2 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Processos FCL</div>
+                                </div>
+                                <div class="card-body d-flex" style="height: 80px; align-items: center;" id="FCL">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-2 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Processos Total</div>
+                                </div>
+                                <div class="card-body d-flex" style="height: 80px; align-items: center;" id="total">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-2 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Lucro Estimado Total</div>
+                                </div>
+                                <div class="card-body d-flex" style="height: 80px; align-items: center;"
+                                    id="profitTotal">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-2 d-flex">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Lucro Estimado Processo</div>
+                                </div>
+                                <div class="card-body d-flex" style="height: 80px; align-items: center;"
+                                    id="profitProcess">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-xxl-12 col-xl-12">
                     <div class="row d-flex align-items-stretch">
-                        <div class="col-xl-10 d-flex">
-                            <div class="card custom-card flex-fill">
-                                <div class="card-header justify-content-between">
-                                    <div class="card-title">Cotações Aprovadas - LCL</div>
+                        <div class="col-xl-8 d-flex">
+                            <div class="row" style="width: 105%;">
+                                <div class="col-xl-12 d-flex">
+                                    <div class="card custom-card flex-fill">
+                                        <div class="card-header justify-content-between">
+                                            <div class="card-title">Processos/Mês</div>
+                                        </div>
+                                        <div class="card-body" style="padding: 0; height: 200px;">
+                                            <div>
+                                                <div id="processesMonthChart"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="card-body" style="padding: 0; height: 200px;">
-                                    <div>
-                                        <div id="lcl-chart"></div>
+                                <div class="col-xl-12 d-flex">
+                                    <div class="card custom-card flex-fill">
+                                        <div class="card-header justify-content-between">
+                                            <div class="card-title">Lucro Estimado/Mês</div>
+                                        </div>
+                                        <div class="card-body" style="padding: 0; height: 200px;">
+                                            <div>
+                                                <div id="profitMonthChart"></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-2 d-flex flex-column">
-                            <div class="card custom-card flex-fill mb-3">
-                                <div class="card-body d-flex" id="totalYear-lcl" style="flex-direction: column;justify-content: space-between;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xxl-12 col-xl-12">
-                    <div class="row d-flex align-items-stretch">
-                        <div class="col-xl-10 d-flex">
+                        <div class="col-xl-4 d-flex flex-column">
                             <div class="card custom-card flex-fill">
                                 <div class="card-header justify-content-between">
-                                    <div class="card-title">Cotações Aprovadas - AIR</div>
+                                    <div class="card-title">Participação/Região</div>
                                 </div>
                                 <div class="card-body" style="padding: 0; height: 200px;">
                                     <div>
@@ -127,9 +207,56 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-2 d-flex flex-column">
-                            <div class="card custom-card flex-fill mb-3">
-                                <div class="card-body d-flex" id="totalYear-air" style="flex-direction: column;justify-content: space-between;"></div>
+                    </div>
+                </div>
+                <div class="col-xxl-12 col-xl-12">
+                    <div class="row d-flex align-items-stretch">
+                        <div class="col-xl-3 d-flex flex-column">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Processos/Agente de Origem</div>
+                                </div>
+                                <div class="card-body" style="padding: 0; height: 500px;">
+                                    <div>
+                                        <div id="processesAgentChart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 d-flex flex-column">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Processos/Cia de Transporte</div>
+                                </div>
+                                <div class="card-body" style="padding: 0; height: 500px;">
+                                    <div>
+                                        <div id="processesCarrierChart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 d-flex flex-column">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Processos/Terminal de Destino</div>
+                                </div>
+                                <div class="card-body" style="padding: 0; height: 500px;">
+                                    <div>
+                                        <div id="processesTerminalChart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 d-flex flex-column">
+                            <div class="card custom-card flex-fill">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Processos/Cliente</div>
+                                </div>
+                                <div class="card-body" style="padding: 0; height: 500px;">
+                                    <div>
+                                        <div id="processesCustomersChart"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -137,6 +264,7 @@
             </div>
         </div>
     </div>
+
 </html>
 
 

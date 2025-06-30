@@ -5,6 +5,7 @@ const incentiveManagement = {
     getAllSecurity: async function(){
     const result = await executeQuerySQL(`WITH FaturasComTaxaSeguro AS (
         SELECT
+           Ff.Data_Vencimento,
            Reg.IdRegistro_Financeiro,
            Ltx.IdMoeda_Pagamento,
            Ltx.Valor_Pagamento_Total,
@@ -19,11 +20,14 @@ const incentiveManagement = {
            mov_Registro_Financeiro Reg 
         JOIN
            mov_Logistica_Taxa Ltx ON Ltx.IdRegistro_Pagamento = Reg.IdRegistro_Financeiro
+        JOIN
+           mov_Fatura_Financeira Ff ON Ff.IdRegistro_Financeiro = Reg.IdRegistro_Financeiro
         WHERE
            Ltx.IdTaxa_Logistica_Exibicao IN (35 /*SEGURO DE CARGA*/, 740 /*SEGURO AVULSO*/)
      )
      SELECT
         Lhs.Numero_Processo,
+        CONVERT(VARCHAR, CONVERT(DATE, Fts.Data_Vencimento), 103) AS Data_Vencimento,
         CAST(Lhs.Conhecimentos AS VARCHAR(MAX)) AS Conhecimentos,
         MAX(COALESCE(Fts.IdMoeda_Pagamento, NULL)) AS IdMoeda_Pagamento,
         MAX(COALESCE(Moe.Sigla, NULL)) AS Sigla,
@@ -51,6 +55,7 @@ const incentiveManagement = {
      
      GROUP BY
         Lhs.Numero_Processo,
+        Fts.Data_Vencimento,
         CAST(Lhs.Conhecimentos AS VARCHAR(MAX))`);
 
 
@@ -59,19 +64,21 @@ const incentiveManagement = {
     // Consulta banco de dados, taxas de Incentivo
     getAllComission: async function(){
         const result = await executeQuerySQL(`WITH FaturasComTaxaSeguro AS (
-            SELECT
-                Reg.IdRegistro_Financeiro,
-                Ltx.IdMoeda_Recebimento,
-                Ltx.Valor_Recebimento_Total
-            FROM
-                mov_Registro_Financeiro Reg 
-            JOIN
-                mov_Logistica_Taxa Ltx ON Ltx.IdRegistro_Recebimento = Reg.IdRegistro_Financeiro
-            WHERE
-                Ltx.IdTaxa_Logistica_Exibicao IN (441 /*INCENTIVO TERMINAL*/, 245 /*INCENTIVO ASIA*/, 517 /*INCENTIVO ASIA MARITIMO*/)
+        SELECT
+            Reg.Data_Referencia,
+            Reg.IdRegistro_Financeiro,
+            Ltx.IdMoeda_Recebimento,
+            Ltx.Valor_Recebimento_Total
+        FROM
+            mov_Registro_Financeiro Reg 
+        JOIN
+            mov_Logistica_Taxa Ltx ON Ltx.IdRegistro_Recebimento = Reg.IdRegistro_Financeiro
+        WHERE
+            Ltx.IdTaxa_Logistica_Exibicao IN (441 /*INCENTIVO TERMINAL*/, 245 /*INCENTIVO ASIA*/, 517 /*INCENTIVO ASIA MARITIMO*/)
         )
         SELECT
             Lhs.Numero_Processo,
+            CONVERT(VARCHAR, CONVERT(DATE, Fts.Data_Referencia), 103) AS Data_Referencia,
             CAST(Lhs.Conhecimentos AS VARCHAR(MAX)) AS Conhecimentos,
             Fts.IdMoeda_Recebimento,
             Moe.Sigla,
@@ -100,6 +107,7 @@ const incentiveManagement = {
             Lhs.Numero_Processo,
             CAST(Lhs.Conhecimentos AS VARCHAR(MAX)),
             Fts.IdMoeda_Recebimento,
+            Fts.Data_Referencia,
             Moe.Sigla,
             Fts.Valor_Recebimento_Total`);
     

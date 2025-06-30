@@ -34,7 +34,7 @@ exports.getHistory = async (req, res) => {
 
 // Salvar um novo cálculo no banco de dados
 exports.saveCalculation = async (req, res) => {
-    const { type, productValue, rate, taxAmount, totalAmount, notes, reducedBase } = req.body;
+    const { type, productValue, rate, taxAmount, totalAmount, notes, reducedBase, referenceName } = req.body;
     const collaboratorId = getCollaboratorId(req);
 
     // Validação básica
@@ -45,10 +45,10 @@ exports.saveCalculation = async (req, res) => {
     try {
         const sql = `
             INSERT INTO tax_calc_history 
-            (collaborator_id, type, productValue, rate, reducedBase, taxAmount, totalAmount, notes) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (collaborator_id, reference_name, type, productValue, rate, reducedBase, taxAmount, totalAmount, notes) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
-        const params = [collaboratorId, type, productValue, rate, reducedBase, taxAmount, totalAmount, notes];
+        const params = [collaboratorId, referenceName || null, type, productValue, rate, reducedBase, taxAmount, totalAmount, notes];
         
         const result = await executeQuery(sql, params);
 

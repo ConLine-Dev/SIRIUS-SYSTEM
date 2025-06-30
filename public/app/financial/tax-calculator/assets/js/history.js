@@ -4,9 +4,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnBack = document.getElementById('btn-back');
     const btnExportJson = document.getElementById('btn-export-json');
     const btnClearHistory = document.getElementById('btn-clear-history');
+    const searchInput = document.getElementById('searchInput');
+    const btnClearSearch = document.getElementById('btn-clear-search');
     const loader = document.getElementById('loader2');
 
     let historyData = [];
+    let filteredData = [];
 
     // --- Functions ---
     const formatCurrency = (value) => {
@@ -53,8 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
             card.innerHTML = `
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title text-primary mb-0">${item.type}</h6>
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-1">
+                                <h6 class="card-title text-primary mb-0 me-2">${item.type}</h6>
+                                ${item.reference_name ? `<span class="badge bg-info">${item.reference_name}</span>` : ''}
+                            </div>
                             <small class="text-muted">por: ${item.authorName || 'N/A'}</small>
                         </div>
                         <div class="d-flex align-items-center">
@@ -73,11 +79,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    const filterHistory = (searchTerm) => {
+        if (!searchTerm.trim()) {
+            filteredData = [...historyData];
+        } else {
+            const term = searchTerm.toLowerCase();
+            filteredData = historyData.filter(item => {
+                return (
+                    (item.reference_name && item.reference_name.toLowerCase().includes(term)) ||
+                    item.type.toLowerCase().includes(term) ||
+                    (item.authorName && item.authorName.toLowerCase().includes(term)) ||
+                    (item.notes && item.notes.toLowerCase().includes(term))
+                );
+            });
+        }
+        renderHistory(filteredData);
+    };
+
     const fetchHistory = async () => {
         loader.style.display = 'block';
         try {
             historyData = await makeRequest('/api/tax-calculator/history');
-            renderHistory(historyData);
+            filteredData = [...historyData];
+            renderHistory(filteredData);
         } catch (error) {
             console.error('Erro ao buscar histórico:', error);
             historyContainer.innerHTML = '<p class="text-center text-danger">Falha ao carregar o histórico.</p>';
@@ -87,11 +111,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const exportToJson = () => {
-        if (historyData.length === 0) {
+        const dataToExport = filteredData.length > 0 ? filteredData : historyData;
+        if (dataToExport.length === 0) {
             alert('Não há histórico para exportar.');
             return;
         }
-        const dataStr = JSON.stringify(historyData, null, 2);
+        const dataStr = JSON.stringify(dataToExport, null, 2);
         const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
         
         const exportFileDefaultName = 'tax_calculator_history.json';
@@ -141,6 +166,18 @@ document.addEventListener('DOMContentLoaded', () => {
     btnBack.addEventListener('click', () => window.close());
     btnExportJson.addEventListener('click', exportToJson);
     btnClearHistory.addEventListener('click', clearHistory);
+    
+    // Busca em tempo real
+    searchInput.addEventListener('input', (e) => {
+        filterHistory(e.target.value);
+    });
+    
+    // Limpar busca
+    btnClearSearch.addEventListener('click', () => {
+        searchInput.value = '';
+        filterHistory('');
+        searchInput.focus();
+    });
     
     historyContainer.addEventListener('click', (event) => {
         if (event.target.closest('.btn-delete-history')) {

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indicadores - Tarifário de Fretes</title>
+    <link href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- CSS específico para analytics -->
+    <link href="./assets/css/analytics.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- ApexCharts -->
+    <link href="https://cdn.jsdelivr.net/npm/apexcharts@3.35.3/dist/apexcharts.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.35.3/dist/apexcharts.min.js"></script>
+    <style>
+        body {
+            overflow-x: hidden;
+            background-color: #f8f9fa;
+        }
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+        }
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .metric-card {
+            transition: transform 0.2s;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+        .metric-label {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        .filter-bar {
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .currency-badge {
+            background-color: #e9ecef;
+            color: #495057;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        /* Estilo para o tooltip customizado do ApexCharts */
+        .apex-tooltip {
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Estilos para a nova grade de médias de frete */
+        .avg-freight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px;
+            align-items: center;
+        }
+
+        .avg-freight-item {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 4px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .avg-freight-item .value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #212529;
+        }
+        
+        .avg-freight-item .currency-badge {
+            margin-left: 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .more-info-badge {
+            cursor: help;
+            background-color: #f0f1f3 !important;
+            border: 1px solid #dee2e6;
+            color: #495057;
+            font-weight: 600;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-0">Indicadores do Tarifário</h2>
+                <p class="text-muted">Análise de dados e métricas de desempenho</p>
+            </div>
+            <button class="btn btn-outline-secondary" onclick="window.close()">
+                <i class="ri-close-line me-1"></i> Fechar
+            </button>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filter-bar">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="period-filter" class="form-label">Período</label>
+                    <select id="period-filter" class="form-select">
+                        <option value="7">Últimos 7 dias</option>
+                        <option value="30" selected>Últimos 30 dias</option>
+                        <option value="90">Últimos 90 dias</option>
+                        <option value="180">Últimos 6 meses</option>
+                        <option value="365">Último ano</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="modality-filter" class="form-label">Modalidade</label>
+                    <select id="modality-filter" class="form-select">
+                        <option value="all" selected>Todas</option>
+                        <!-- Opções serão preenchidas via JS -->
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="route-filter" class="form-label">Rota</label>
+                    <select id="route-filter" class="form-select">
+                        <option value="all" selected>Todas</option>
+                        <!-- Opções serão preenchidas via JS -->
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button id="apply-filters" class="btn btn-primary w-100">
+                        <i class="ri-filter-3-line me-1"></i> Aplicar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Métricas Principais -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="metric-label">Média de Frete</div>
+                                <!-- Container para a grade de médias -->
+                                <div id="avg-freight-values" class="avg-freight-grid">
+                                    <div class="metric-value">0.00</div> <!-- Valor Padrão -->
+                                </div>
+                                <div class="mt-2 small" id="avg-freight-change">
+                                    <i class="ri-arrow-up-line text-success"></i> 0% vs. período anterior
+                                </div>
+                            </div>
+                            <div class="bg-light rounded p-3">
+                                <i class="ri-ship-line text-primary fs-3"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="metric-label">Tempo Médio de Trânsito</div>
+                                <div class="metric-value" id="avg-transit">0 dias</div>
+                                <div class="mt-2 small" id="avg-transit-change">
+                                    <i class="ri-arrow-down-line text-success"></i> 0% vs. período anterior
+                                </div>
+                            </div>
+                            <div class="bg-light rounded p-3">
+                                <i class="ri-time-line text-warning fs-3"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="metric-label">Tarifas Ativas</div>
+                                <div class="metric-value" id="active-tariffs">0</div>
+                                <div class="mt-2 small" id="active-tariffs-change">
+                                    <i class="ri-arrow-up-line text-success"></i> 0% vs. período anterior
+                                </div>
+                            </div>
+                            <div class="bg-light rounded p-3">
+                                <i class="ri-check-double-line text-success fs-3"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card metric-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="metric-label">Tarifas a Expirar (30d)</div>
+                                <div class="metric-value" id="expiring-tariffs">0</div>
+                                <div class="mt-2 small" id="expiring-tariffs-change">
+                                    <i class="ri-arrow-up-line text-danger"></i> 0% vs. período anterior
+                                </div>
+                            </div>
+                            <div class="bg-light rounded p-3">
+                                <i class="ri-alarm-warning-line text-danger fs-3"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos - Primeira Linha -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Evolução do Custo de Frete</h5>
+                        <p class="card-subtitle text-muted">Tendência de preços ao longo do tempo para diferentes moedas</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="freight-trend-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Distribuição por Modalidade</h5>
+                        <p class="card-subtitle text-muted">Percentual de todas as tarifas por tipo</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="modality-distribution-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráficos - Segunda Linha -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Top 5 Agentes por Tempo de Trânsito</h5>
+                        <p class="card-subtitle text-muted">Agentes com menor tempo médio de trânsito</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="top-agents-transit-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Top 5 Agentes por Custo</h5>
+                        <p class="card-subtitle text-muted">Combinações de agente/moeda com menor custo médio</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="top-agents-cost-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Análise de Rotas -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Análise de Rotas</h5>
+                        <p class="card-subtitle text-muted">Heatmap de densidade de tarifas e custos por rota</p>
+                    </div>
+                    <div class="card-body">
+                        <div id="routes-heatmap-chart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Melhores Opções -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">Melhores Opções por Rota e Moeda</h5>
+                        <p class="card-subtitle text-muted">Tarifas com melhor relação custo-benefício por rota/moeda</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Origem</th>
+                                        <th>Destino</th>
+                                        <th>Modalidade</th>
+                                        <th>Agente</th>
+                                        <th class="currency-column">Custo</th>
+                                        <th>Tempo de Trânsito</th>
+                                        <th>Validade</th>
+                                        <th>Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="best-options-table">
+                                    <!-- Dados serão preenchidos via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/makeRequest.js"></script>
+    <script src="./assets/js/analytics.js"></script>
+</body>
+</html> 

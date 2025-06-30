@@ -186,21 +186,116 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSave.disabled = false;
     };
 
-    const saveToHistory = async () => {
+    const showSaveModal = () => {
         if (!lastCalculation) {
             alert('Nenhum cálculo para salvar.');
             return;
         }
 
-        try {
-            const response = await makeRequest('/api/tax-calculator/history', 'POST', lastCalculation);
-            alert('Cálculo salvo no histórico com sucesso!');
-            localStorage.setItem('taxHistoryNeedsUpdate', Date.now()); // Notifica outras abas
-            btnSave.disabled = true;
-        } catch (error) {
-            console.error('Erro ao salvar no histórico:', error);
-            alert('Falha ao salvar no histórico. Verifique o console para mais detalhes.');
+        // Criar o modal dinamicamente
+        const modalHtml = `
+            <div class="modal fade" id="saveModal" tabindex="-1" aria-labelledby="saveModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="saveModalLabel">
+                                <i class="ri-save-line me-2"></i>Salvar Cálculo no Histórico
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="referenceName" class="form-label">Nome/Referência (opcional)</label>
+                                <input type="text" class="form-control" id="referenceName" 
+                                       placeholder="Ex: Produto ABC - Cliente XYZ" maxlength="255">
+                                <div class="form-text">
+                                    Use um nome descritivo para facilitar a localização posterior no histórico.
+                                </div>
+                            </div>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary">${lastCalculation.type}</h6>
+                                    <p class="mb-1"><strong>Valor do Produto:</strong> ${formatCurrency(lastCalculation.productValue)}</p>
+                                    <p class="mb-1"><strong>Alíquota:</strong> ${lastCalculation.rate}%</p>
+                                    ${lastCalculation.reducedBase ? `<p class="mb-1"><strong>Base Reduzida:</strong> ${lastCalculation.reducedBase}%</p>` : ''}
+                                    <hr class="my-2">
+                                    <p class="mb-1"><strong>Valor do Imposto:</strong> <span class="text-danger">${formatCurrency(lastCalculation.taxAmount)}</span></p>
+                                    <p class="mb-0"><strong>Valor Total:</strong> <span class="text-success fw-bold">${formatCurrency(lastCalculation.totalAmount)}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="ri-close-line me-1"></i>Cancelar
+                            </button>
+                            <button type="button" class="btn btn-primary" id="btnConfirmSave">
+                                <i class="ri-save-line me-1"></i>Salvar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Remover modal existente, se houver
+        const existingModal = document.getElementById('saveModal');
+        if (existingModal) {
+            existingModal.remove();
         }
+
+        // Adicionar modal ao DOM
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        // Configurar eventos do modal
+        const modal = new bootstrap.Modal(document.getElementById('saveModal'));
+        const referenceNameInput = document.getElementById('referenceName');
+        const btnConfirmSave = document.getElementById('btnConfirmSave');
+
+        // Focar no input quando o modal abrir
+        document.getElementById('saveModal').addEventListener('shown.bs.modal', () => {
+            referenceNameInput.focus();
+        });
+
+        // Confirmar salvamento
+        btnConfirmSave.addEventListener('click', async () => {
+            const referenceName = referenceNameInput.value.trim();
+            
+            try {
+                btnConfirmSave.disabled = true;
+                btnConfirmSave.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Salvando...';
+                
+                const calculationData = {
+                    ...lastCalculation,
+                    referenceName: referenceName || null
+                };
+                
+                await makeRequest('/api/tax-calculator/history', 'POST', calculationData);
+                
+                modal.hide();
+                alert('Cálculo salvo no histórico com sucesso!');
+                localStorage.setItem('taxHistoryNeedsUpdate', Date.now());
+                btnSave.disabled = true;
+            } catch (error) {
+                console.error('Erro ao salvar no histórico:', error);
+                alert('Falha ao salvar no histórico. Verifique o console para mais detalhes.');
+                btnConfirmSave.disabled = false;
+                btnConfirmSave.innerHTML = '<i class="ri-save-line me-1"></i>Salvar';
+            }
+        });
+
+        // Salvar com Enter
+        referenceNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                btnConfirmSave.click();
+            }
+        });
+
+        // Limpar modal do DOM quando fechar
+        document.getElementById('saveModal').addEventListener('hidden.bs.modal', () => {
+            document.getElementById('saveModal').remove();
+        });
+
+        modal.show();
     };
 
     // --- Event Listeners ---
@@ -208,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnIcms.addEventListener('click', () => switchTaxType('ICMS'));
     btnCalculate.addEventListener('click', calculate);
     btnClear.addEventListener('click', clearForm);
-    btnSave.addEventListener('click', saveToHistory);
+    btnSave.addEventListener('click', showSaveModal);
 
     btnHistory.addEventListener('click', () => {
         window.open('history.html', null, 'width=700,height=800');

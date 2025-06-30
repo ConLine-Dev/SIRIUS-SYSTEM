@@ -339,7 +339,7 @@ exports.getProcedureById = async (req, res) => {
         const [versions, attachments, tags] = await Promise.all([
             executeQuery(`
                 SELECT 
-                    v.*,
+                    v.id, v.procedure_id, v.version_number, v.author_id, v.change_summary, v.created_at, v.title, v.department_id, v.role, v.type_id, v.responsible_id, v.tags, v.attachments,
                     c.name as author_name
                 FROM proc_versions v
                 LEFT JOIN collaborators c ON v.author_id = c.id
@@ -350,7 +350,30 @@ exports.getProcedureById = async (req, res) => {
             getTagsForProcedure(id)
         ]);
 
-        procedure.content = versions.length > 0 ? versions[0].content : { ops: [] };
+        if (versions.length > 0) {
+            const latestVersionId = versions[0].id;
+            const contentResult = await executeQuery('SELECT content FROM proc_versions WHERE id = ?', [latestVersionId]);
+            
+            let latestContent = { ops: [] };
+            if (contentResult.length > 0) {
+                const rawContent = contentResult[0].content;
+                try {
+                    // O conteúdo pode ser uma string JSON ou um objeto
+                    latestContent = typeof rawContent === 'string' ? JSON.parse(rawContent) : (rawContent || { ops: [] });
+                } catch(e) {
+                    console.error(`Falha ao parsear conteúdo da versão ${latestVersionId}:`, e);
+                    latestContent = { ops: [] }; // Fallback para conteúdo vazio em caso de erro
+                }
+            }
+            
+            // Atribui o conteúdo obtido à versão mais recente e ao objeto principal do procedimento
+            versions[0].content = latestContent;
+            procedure.content = latestContent;
+
+        } else {
+            procedure.content = { ops: [] };
+        }
+        
         procedure.versions = versions;
         procedure.attachments = attachments;
         procedure.tags = tags;

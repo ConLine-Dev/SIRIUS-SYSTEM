@@ -8,6 +8,7 @@
 CREATE TABLE IF NOT EXISTS `tax_calc_history` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `collaborator_id` INT NOT NULL COMMENT 'ID do colaborador que salvou o cálculo',
+  `reference_name` VARCHAR(255) NULL COMMENT 'Nome/referência personalizada para facilitar identificação',
   `type` VARCHAR(50) NOT NULL COMMENT 'Tipo de imposto calculado (ex: Ad Valorem, ICMS)',
   `productValue` DECIMAL(15, 2) NOT NULL COMMENT 'Valor base do produto/mercadoria',
   `rate` DECIMAL(10, 4) NOT NULL COMMENT 'Alíquota aplicada no cálculo (%)',

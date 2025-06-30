@@ -63,4 +63,12 @@ CREATE TABLE ft_tariffs_surcharges (
     value DECIMAL(10, 2) NOT NULL,
     currency VARCHAR(10) NOT NULL,
     FOREIGN KEY (tariff_id) REFERENCES ft_tariffs(id) ON DELETE CASCADE
+);
+
+-- Tabela para Moedas
+CREATE TABLE ft_currencies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(10) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
+    symbol VARCHAR(10) NOT NULL
 ); 

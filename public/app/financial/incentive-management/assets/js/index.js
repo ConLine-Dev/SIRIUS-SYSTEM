@@ -192,6 +192,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       <th>Status Valor</th>
       <th>Status</th>
       <th>Status Fatura</th>
+      <th>Data Vencimento</th>
       <th>Observação</th>
     </tr>`;
     document.querySelector('#incentive_management_table thead').innerHTML = header;
@@ -673,6 +674,7 @@ function formatCurrency(value, currency) {
             } else {
               statusValor = '<span class="text-danger">Valores divergentes</span>';
             }
+            console.log(matchingSecurity.Data_Vencimento)
     
             newData.push({
               check: '<input class="form-check-input me-2 " type="checkbox">',
@@ -681,6 +683,7 @@ function formatCurrency(value, currency) {
               valor_ti: formatToUSD(parseFloat(row[10])) || '',
               observation: rowObservation,
               status: '<span class="text-success">Processo encontrado</span>',
+              Data_Vencimento: '<span class="badge bg-success-transparent">' + (matchingSecurity.Data_Vencimento != null ? matchingSecurity.Data_Vencimento : '-') + '</span>',
               Status_Fatura: '<span class="badge bg-success-transparent">' + matchingSecurity.Status_Fatura + '</span>',
               statusValor: statusValor,
               valorSistema: formatToMoney(parseFloat(matchingSecurity.Valor_Pagamento_Total), matchingSecurity.Sigla),
@@ -694,6 +697,7 @@ function formatCurrency(value, currency) {
               valor_ti: formatToUSD(parseFloat(row[10])) || '',
               observation: rowObservation,
               status: '<span class="text-danger">Processo não encontrado</span>',
+              Data_Vencimento: '<span class="badge bg-danger-transparent">-</span>',
               Status_Fatura: '<span class="badge bg-danger-transparent">-</span>',
               statusValor: '<span class="text-danger">Valor não encontrado</span>',
               valorSistema: '-',
@@ -725,6 +729,7 @@ function formatCurrency(value, currency) {
         { data: 'statusValor' },
         { data: 'status' },
         { data: 'Status_Fatura' },
+        { data: 'Data_Vencimento' },
         { data: 'observation' }
     ],
       buttons: [

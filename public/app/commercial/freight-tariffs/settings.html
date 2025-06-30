@@ -7,16 +7,49 @@
     <link href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../../assets/css/styles.min.css" rel="stylesheet">
     <link href="../../assets/css/icons.css" rel="stylesheet">
+    <style>
+        body { overflow: hidden !important; }
+        .tab-content { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
+        }
+        .tab-pane { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
+        }
+        .table-area-scroll { 
+            flex: 1; 
+            overflow-y: auto;
+            position: relative;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+        }
+        .table { 
+            margin-bottom: 0; 
+            width: 100%;
+        }
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 1;
+            border-bottom: 2px solid #dee2e6;
+        }
+    </style>
 </head>
 <body style="display: flex; flex-direction: column; height: 100vh; margin: 0; overflow: hidden;">
-    <div class="card custom-card" style="flex: 1; border-radius: 0; border: 0; display: flex; flex-direction: column;">
+    <div class="card custom-card" style="flex: 1; border-radius: 0; border: 0; display: flex; flex-direction: column; overflow: hidden;">
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
                 <h5 class="card-title mb-0">Configurações do Tarifário</h5>
                 <p class="text-muted mb-0 mt-1 fs-12">Gerencie os dados de apoio para as tarifas</p>
             </div>
         </div>
-        <div class="card-body" style="flex: 1; overflow-y: auto;">
+        <div class="card-body" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding-bottom: 0.5rem;">
             <ul class="nav nav-tabs" id="settings-tabs" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="agents-tab" data-bs-toggle="tab" data-bs-target="#agents-panel" type="button" role="tab">Agentes/Armadores</button>
@@ -28,21 +61,24 @@
                     <button class="nav-link" id="modalities-tab" data-bs-toggle="tab" data-bs-target="#modalities-panel" type="button" role="tab">Modalidades</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="containertypes-tab" data-bs-toggle="tab" data-bs-target="#containertypes-panel" type="button" role="tab">Tipos de Container</button>
+                    <button class="nav-link" id="container_types-tab" data-bs-toggle="tab" data-bs-target="#container_types-panel" type="button" role="tab">Tipos de Container</button>
                 </li>
             </ul>
 
             <div class="tab-content pt-3" id="settings-tabs-content">
                 <!-- Painel de Agentes -->
                 <div class="tab-pane fade show active" id="agents-panel" role="tabpanel">
-                    <div class="d-flex justify-content-end mb-3">
+                    <div class="d-flex justify-content-between mb-3">
+                        <input type="search" class="form-control form-control-sm" style="max-width: 250px;" placeholder="Pesquisar agente..." data-table="agents-table-body">
                         <button class="btn btn-primary btn-sm btn-add" data-type="agent">
                             <i class="ri-add-line me-1 align-middle"></i>Adicionar Agente
                         </button>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead><tr><th>Nome</th><th>Contato</th><th>Email</th><th>Telefone</th><th>Ações</th></tr></thead>
+                    <div class="table-area-scroll">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr><th>Nome</th><th>Contato</th><th>Email</th><th>Telefone</th><th style="width: 100px;">Ações</th></tr>
+                            </thead>
                             <tbody id="agents-table-body"></tbody>
                         </table>
                     </div>
@@ -50,14 +86,17 @@
 
                 <!-- Painel de Localizações -->
                 <div class="tab-pane fade" id="locations-panel" role="tabpanel">
-                    <div class="d-flex justify-content-end mb-3">
-                         <button class="btn btn-primary btn-sm btn-add" data-type="location">
+                    <div class="d-flex justify-content-between mb-3">
+                        <input type="search" class="form-control form-control-sm" style="max-width: 250px;" placeholder="Pesquisar localização..." data-table="locations-table-body">
+                        <button class="btn btn-primary btn-sm btn-add" data-type="location">
                             <i class="ri-add-line me-1 align-middle"></i>Adicionar Localização
                         </button>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead><tr><th>Nome</th><th>Tipo</th><th>Ações</th></tr></thead>
+                    <div class="table-area-scroll">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr><th>Nome</th><th>Tipo</th><th style="width: 100px;">Ações</th></tr>
+                            </thead>
                             <tbody id="locations-table-body"></tbody>
                         </table>
                     </div>
@@ -65,32 +104,63 @@
 
                 <!-- Painel de Modalidades -->
                 <div class="tab-pane fade" id="modalities-panel" role="tabpanel">
-                    <div class="d-flex justify-content-end mb-3">
-                         <button class="btn btn-primary btn-sm btn-add" data-type="modality">
+                    <div class="d-flex justify-content-between mb-3">
+                        <input type="search" class="form-control form-control-sm" style="max-width: 250px;" placeholder="Pesquisar modalidade..." data-table="modalities-table-body">
+                        <button class="btn btn-primary btn-sm btn-add" data-type="modality">
                             <i class="ri-add-line me-1 align-middle"></i>Adicionar Modalidade
                         </button>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead><tr><th>Nome</th><th>Descrição</th><th>Ações</th></tr></thead>
+                    <div class="table-area-scroll">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr><th>Nome</th><th>Descrição</th><th style="width: 100px;">Ações</th></tr>
+                            </thead>
                             <tbody id="modalities-table-body"></tbody>
                         </table>
                     </div>
                 </div>
 
                 <!-- Painel de Tipos de Container -->
-                <div class="tab-pane fade" id="containertypes-panel" role="tabpanel">
-                    <div class="d-flex justify-content-end mb-3">
-                         <button class="btn btn-primary btn-sm btn-add" data-type="container_type">
+                <div class="tab-pane fade" id="container_types-panel" role="tabpanel">
+                     <div class="d-flex justify-content-between mb-3">
+                        <input type="search" class="form-control form-control-sm" style="max-width: 250px;" placeholder="Pesquisar tipo..." data-table="container_types-table-body">
+                        <button class="btn btn-primary btn-sm btn-add" data-type="container_type">
                             <i class="ri-add-line me-1 align-middle"></i>Adicionar Tipo
                         </button>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead><tr><th>Nome</th><th>Modalidades Aplicáveis</th><th>Ações</th></tr></thead>
-                            <tbody id="containertypes-table-body"></tbody>
+                    <div class="table-area-scroll">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr><th>Nome</th><th>Modalidades Aplicáveis</th><th style="width: 100px;">Ações</th></tr>
+                            </thead>
+                            <tbody id="container_types-table-body"></tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Genérico para Edição/Criação -->
+    <div class="modal fade" id="settings-modal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modal-form">
+                        <input type="hidden" id="edit-id" name="id">
+                        <input type="hidden" id="edit-type" name="type">
+                        <div id="modal-form-content">
+                            <!-- Conteúdo do formulário será injetado aqui -->
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" form="modal-form">Salvar</button>
                 </div>
             </div>
         </div>
@@ -100,5 +170,44 @@
     <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/makeRequest.js"></script>
     <script src="./assets/js/settings.js"></script>
+    <script>
+    // Ajusta a altura da área de tabela para ocupar o espaço disponível
+    function ajustarAlturaTabelas() {
+        // Obter dimensões dos elementos
+        const cardBody = document.querySelector('.card-body');
+        const navTabs = document.querySelector('.nav-tabs');
+        const filterRows = document.querySelectorAll('.d-flex.justify-content-between.mb-3');
+        
+        if (!cardBody || !navTabs) return;
+        
+        // Calcular altura disponível
+        const alturaCardBody = cardBody.clientHeight;
+        const alturaNavTabs = navTabs.offsetHeight;
+        const alturaPadding = 80; // pt-3 + margem inferior
+        
+        // Ajustar cada painel de tabela
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+            const filterRow = pane.querySelector('.d-flex.justify-content-between.mb-3');
+            const alturaFilterRow = filterRow ? filterRow.offsetHeight + 16 : 0; // altura + margem
+            
+            const tableArea = pane.querySelector('.table-area-scroll');
+            if (tableArea) {
+                const alturaDisponivel = alturaCardBody - alturaNavTabs - alturaFilterRow - alturaPadding;
+                tableArea.style.height = `${alturaDisponivel}px`;
+            }
+        });
+    }
+    
+    // Executar o ajuste quando a página carregar e quando redimensionar
+    window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(ajustarAlturaTabelas, 100); // Pequeno delay para garantir que tudo foi renderizado
+    });
+    window.addEventListener('resize', ajustarAlturaTabelas);
+    
+    // Ajustar também quando trocar de aba
+    document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', ajustarAlturaTabelas);
+    });
+    </script>
 </body>
 </html> 

@@ -46,6 +46,68 @@ O sistema gerencia o item em todos os seus possíveis estados:
 - **Log de Eventos**: Registro detalhado de todas as ações realizadas no item.
 - **Timeline de Atividades**: Visualização cronológica de todos os eventos relacionados ao item.
 
+### ✅ Ordenação de Itens
+
+O sistema agora suporta **ordenação completa** em todas as visualizações (Tabela, Cards e Agrupada) pelos seguintes campos:
+
+#### Campos Ordenáveis:
+- **Código** - Ordenação alfabética do código do item
+- **Descrição** - Ordenação alfabética da descrição do item  
+- **Localização** - Ordenação alfabética da localização atual
+- **Colaborador** - Ordenação alfabética pelo nome do colaborador responsável (itens sem atribuição aparecem primeiro/último conforme direção)
+- **Data de Aquisição** - Ordenação cronológica pela data de aquisição
+
+#### Como Usar:
+
+**Na Visualização de Tabela:**
+- Clique nos cabeçalhos das colunas para ordenar
+- Clique novamente no mesmo cabeçalho para alternar entre ascendente/descendente
+- Ícones visuais indicam a direção da ordenação atual
+- Cabeçalho ativo fica destacado com cor diferente
+
+**Nas Visualizações Cards e Agrupada:**
+- Use o dropdown "Ordenar" no canto superior direito
+- Selecione o campo desejado para ordenar
+- Clique novamente no mesmo campo para alternar direção
+- Use "Limpar Ordenação" para remover qualquer ordenação ativa
+
+#### Recursos Técnicos:
+
+1. **Ordenação Inteligente:**
+   - Strings: ordenação alfabética (case-insensitive)
+   - Datas: ordenação cronológica adequada
+   - Colaboradores: trata corretamente itens não atribuídos
+
+2. **Integração com Filtros:**
+   - Ordenação mantida ao aplicar/remover filtros
+   - Funciona perfeitamente com busca por palavra-chave
+   - Compatível com todos os filtros existentes
+
+3. **Interface Responsiva:**
+   - Cabeçalhos clicáveis com hover effects
+   - Indicadores visuais claros (ícones e cores)
+   - Dropdown intuitivo para visualizações alternativas
+
+4. **Performance:**
+   - Ordenação no lado cliente (sem requisições adicionais)
+   - Algoritmo otimizado para grandes volumes
+   - Preserva estado da ordenação entre mudanças de visualização
+
+#### Estados Visuais:
+
+- **Não ordenado:** Ícone cinza sutil (⬆)
+- **Ascendente:** Ícone azul (⬆) + fundo destacado
+- **Descendente:** Ícone azul (⬇) + fundo destacado
+- **Dropdown:** Mostra campo ativo e direção no texto do botão
+
+#### Compatibilidade:
+
+✅ Funciona em todas as visualizações
+✅ Mantém compatibilidade com filtros existentes  
+✅ Preserva estado entre mudanças de modo de visualização
+✅ Responsivo em dispositivos móveis
+✅ Integrado com exportação Excel (mantém ordenação)
+
 ## Arquitetura do Módulo
 
 ### Estrutura de Arquivos

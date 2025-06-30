@@ -3,6 +3,11 @@ let allItems = [];
 let formOptions = {}; // Armazenar opções de selects (locations, employees, etc.)
 let currentViewMode = 'table'; // 'table', 'cards', ou 'grouped'
 
+// Variáveis para controle de ordenação
+let currentSortField = null;
+let currentSortDirection = 'asc'; // 'asc' ou 'desc'
+let filteredItems = []; // Itens após aplicação de filtros
+
 // Configuração inicial e carregamento de dados
 $(document).ready(function() {
     // Inicializar modo de visualização
@@ -10,6 +15,9 @@ $(document).ready(function() {
     
     // Configurar eventos de filtro
     setupFilters();
+    
+    // Configurar eventos de ordenação
+    setupSortDropdown();
     
     // Carregar dados dos itens
     loadItems();
@@ -228,16 +236,22 @@ function setViewMode(mode) {
     if (mode === 'table') {
         $('#table-view').removeClass('d-none');
         $('#btn-view-table').addClass('active');
+        $('#sort-dropdown').hide(); // Esconder dropdown de ordenação na tabela
     } else if (mode === 'cards') {
         $('#cards-view').removeClass('d-none');
         $('#btn-view-cards').addClass('active');
+        $('#sort-dropdown').show(); // Mostrar dropdown de ordenação nos cards
     } else if (mode === 'grouped') {
         $('#grouped-view').removeClass('d-none');
         $('#btn-view-grouped').addClass('active');
+        $('#sort-dropdown').show(); // Mostrar dropdown de ordenação na visualização agrupada
     }
     
+    // Atualizar texto do botão de ordenação
+    updateSortButtonText();
+    
     // Renderizar os itens no modo selecionado
-    renderItems(allItems);
+    renderItems(filteredItems);
 }
 
 // Configuração de filtros
@@ -295,7 +309,7 @@ function applyFilters() {
     const status = $('#filter-status').val();
     const employee = $('#filter-employee').val();
     
-    let filteredItems = allItems.filter(item => {
+    filteredItems = allItems.filter(item => {
         // Filtro por palavra-chave (código ou descrição)
         const keywordMatch = keyword === '' || 
             item.code.toLowerCase().includes(keyword) || 
@@ -317,10 +331,159 @@ function applyFilters() {
         return keywordMatch && locationMatch && statusMatch && employeeMatch;
     });
     
+    // Aplicar ordenação se houver alguma ativa
+    if (currentSortField) {
+        filteredItems = sortItems(filteredItems, currentSortField, currentSortDirection);
+    }
+    
     // Atualizar contador e valor total
     updateTotals(filteredItems);
     
     renderItems(filteredItems);
+}
+
+// Funções de ordenação
+function sortItems(items, field, direction) {
+    return [...items].sort((a, b) => {
+        let valueA, valueB;
+        
+        // Definir valores para comparação baseado no campo
+        switch (field) {
+            case 'code':
+                valueA = a.code.toLowerCase();
+                valueB = b.code.toLowerCase();
+                break;
+            case 'description':
+                valueA = a.description.toLowerCase();
+                valueB = b.description.toLowerCase();
+                break;
+            case 'location':
+                valueA = a.location.toLowerCase();
+                valueB = b.location.toLowerCase();
+                break;
+            case 'employee':
+                valueA = a.current_assignment ? a.current_assignment.employee_name.toLowerCase() : '';
+                valueB = b.current_assignment ? b.current_assignment.employee_name.toLowerCase() : '';
+                break;
+            case 'acquisition_date':
+                valueA = new Date(a.acquisition_date);
+                valueB = new Date(b.acquisition_date);
+                break;
+            default:
+                return 0;
+        }
+        
+        // Comparar valores
+        let comparison = 0;
+        if (valueA > valueB) {
+            comparison = 1;
+        } else if (valueA < valueB) {
+            comparison = -1;
+        }
+        
+        // Aplicar direção da ordenação
+        return direction === 'desc' ? comparison * -1 : comparison;
+    });
+}
+
+function getSortIcon(field) {
+    if (currentSortField !== field) {
+        return '<i class="ri-sort-asc ms-1 text-muted"></i>';
+    }
+    
+    if (currentSortDirection === 'asc') {
+        return '<i class="ri-sort-asc ms-1 text-primary"></i>';
+    } else {
+        return '<i class="ri-sort-desc ms-1 text-primary"></i>';
+    }
+}
+
+function setupSortEvents() {
+    $('.sortable').off('click').on('click', function() {
+        const field = $(this).data('field');
+        
+        // Se o mesmo campo foi clicado, alternar direção
+        if (currentSortField === field) {
+            currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            // Novo campo, começar com ascendente
+            currentSortField = field;
+            currentSortDirection = 'asc';
+        }
+        
+        // Aplicar ordenação
+        filteredItems = sortItems(filteredItems, currentSortField, currentSortDirection);
+        
+        // Atualizar classes visuais
+        $('.sortable').removeClass('active');
+        $(this).addClass('active');
+        
+        // Re-renderizar apenas a visualização atual
+        renderItems(filteredItems);
+    });
+}
+
+function setupSortDropdown() {
+    // Configurar eventos do dropdown de ordenação
+    $('.sort-option').on('click', function(e) {
+        e.preventDefault();
+        const field = $(this).data('field');
+        
+        // Se o mesmo campo foi clicado, alternar direção
+        if (currentSortField === field) {
+            currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            // Novo campo, começar com ascendente
+            currentSortField = field;
+            currentSortDirection = 'asc';
+        }
+        
+        // Aplicar ordenação
+        filteredItems = sortItems(filteredItems, currentSortField, currentSortDirection);
+        
+        // Atualizar texto do botão
+        updateSortButtonText();
+        
+        // Re-renderizar
+        renderItems(filteredItems);
+    });
+    
+    // Configurar evento para limpar ordenação
+    $('#clear-sort').on('click', function(e) {
+        e.preventDefault();
+        currentSortField = null;
+        currentSortDirection = 'asc';
+        
+        // Re-aplicar filtros sem ordenação
+        applyFilters();
+        
+        // Atualizar texto do botão
+        updateSortButtonText();
+    });
+}
+
+function updateSortButtonText() {
+    const button = $('#sort-dropdown .dropdown-toggle');
+    
+    if (!currentSortField) {
+        button.html('<i class="ri-sort-asc me-1"></i>Ordenar');
+        return;
+    }
+    
+    // Mapear nomes dos campos
+    const fieldNames = {
+        'code': 'Código',
+        'description': 'Descrição',
+        'location': 'Localização',
+        'employee': 'Colaborador',
+        'acquisition_date': 'Data Aquisição'
+    };
+    
+    const fieldName = fieldNames[currentSortField] || currentSortField;
+    const directionIcon = currentSortDirection === 'asc' ? 'ri-sort-asc' : 'ri-sort-desc';
+    const directionText = currentSortDirection === 'asc' ? '↑' : '↓';
+    
+    button.html(`<i class="${directionIcon} me-1"></i>${fieldName} ${directionText}`);
 }
 
 // Carregar itens do servidor
@@ -330,8 +493,9 @@ async function loadItems() {
         const data = await makeRequest('/api/patrimony-tracker/items');
         if (data && Array.isArray(data)) {
             allItems = data;
-            renderItems(allItems);
-            updateTotals(allItems); // Atualiza os totais iniciais
+            filteredItems = [...allItems]; // Inicializar itens filtrados
+            renderItems(filteredItems);
+            updateTotals(filteredItems); // Atualiza os totais iniciais
 
             // Carregar e armazenar opções dos filtros com base nos dados
             formOptions = await makeRequest('/api/patrimony-tracker/options');
@@ -457,12 +621,22 @@ function renderTableView(items) {
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
-                        <th>Código</th>
-                        <th>Descrição</th>
-                        <th>Localização</th>
+                        <th class="sortable" data-field="code">
+                            Código ${getSortIcon('code')}
+                        </th>
+                        <th class="sortable" data-field="description">
+                            Descrição ${getSortIcon('description')}
+                        </th>
+                        <th class="sortable" data-field="location">
+                            Localização ${getSortIcon('location')}
+                        </th>
                         <th>Estado</th>
-                        <th>Colaborador</th>
-                        <th>Data Aquisição</th>
+                        <th class="sortable" data-field="employee">
+                            Colaborador ${getSortIcon('employee')}
+                        </th>
+                        <th class="sortable" data-field="acquisition_date">
+                            Data Aquisição ${getSortIcon('acquisition_date')}
+                        </th>
                         <th class="text-center">Ações</th>
                     </tr>
                 </thead>
@@ -480,6 +654,9 @@ function renderTableView(items) {
     `;
     
     $('#table-view').html(tableHtml);
+    
+    // Configurar eventos de clique para ordenação
+    setupSortEvents();
 }
 
 /**

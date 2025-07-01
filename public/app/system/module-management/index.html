@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Registro de Comissões</title>
+    <title>Módulos por Usuário</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
@@ -44,7 +44,7 @@
     <link rel="stylesheet" href="../../assets/libs/quill/quill.bubble.css"> -->
     <link rel="stylesheet" href="https://cdn.quilljs.com/2.0.0-dev.2/quill.snow.css">
     <link rel="stylesheet" href="https://cdn.quilljs.com/2.0.0-dev.2/quill.bubble.css">
-    
+
     <link rel="stylesheet" href="../../assets/libs/sweetalert2/sweetalert2.min.css">
 
     <link rel="stylesheet" href="./assets/css/index.css">
@@ -517,7 +517,8 @@
         <div class="main-content">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
+                    <div
+                        class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
                         <h1 class="page-title fw-semibold fs-18 mb-0">Gerenciamento de Módulos</h1>
                         <div class="ms-md-1 ms-0">
                             <nav>
@@ -531,57 +532,93 @@
                 </div>
                 <div class="row">
                     <div class="col-2">
-                       <div class="file-manager-container">
-                        <div class="file-manager-navigation">
-                            <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
-                                <div>
-                                    <h6 class="fw-semibold mb-0">Usuários</h6> </div>
-                              
-                            </div>
-                            <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
-                                <div style="width: 100%;">
-                                    <input class="form-control searchInput" type="text" placeholder="Pesquisar...">
-                                </div>
-                               
-                            </div>
-                       
-                      
-                            <div class="card-body p-0">
-                                <ul class="list-group list-group-flush listHistory">
-                                    <li class="list-group-item">
-                                        <div class="d-flex align-items-center justify-content-between  flex-wrap">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div> <span class="avatar bg-light"> <img src="https://cdn.conlinebr.com.br/colaboradores/48906" alt=""> </span> </div>
-                                                <div> 
-                                                    <span class="d-block fw-semibold">Gesiane Pezzini <i class="bi bi-patch-check-fill text-success ms-2"></i></span> 
-                                                    <span class="d-block text-muted fs-12 fw-normal">Gerente</span>
-                                                 </div>
-                                            </div>
+                        <div class="file-manager-container" style="height: 100%;">
+                            <div class="file-manager-navigation">
+                                <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
+                                    <div>
+                                        <h6 class="fw-semibold mb-0">Usuários</h6>
+                                    </div>
 
-                                        </div>
-                                    </li>
-                                </ul>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between w-100 p-3 border-bottom">
+                                    <div style="width: 100%;">
+                                        <input class="form-control searchInput" type="text" placeholder="Pesquisar...">
+                                    </div>
+
+                                </div>
+
+
+                                <div class="card-body p-0">
+                                    <ul class="list-group list-group-flush listHistory">
+                                        <li class="list-group-item">
+                                            <div class="d-flex align-items-center justify-content-between  flex-wrap">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div> <span class="avatar bg-light"> <img
+                                                                src="https://cdn.conlinebr.com.br/colaboradores/48906"
+                                                                alt=""> </span> </div>
+                                                    <div>
+                                                        <span class="d-block fw-semibold">Gesiane Pezzini <i
+                                                                class="bi bi-patch-check-fill text-success ms-2"></i></span>
+                                                        <span class="d-block text-muted fs-12 fw-normal">Gerente</span>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+
                             </div>
-                           
                         </div>
-                       </div>
                     </div>
-                  
+
                     <div class="col-10">
                         <div class="container-fluid">
                             <!-- Page Header -->
-                           
+
                             <!-- Page Header Close -->
                             <!-- Start:: row-1 -->
                             <div class="row" id="modules-container">
-                                <div id="defaultEmailsSelecte" class="mails-information border shadow-none projects-tracking-card overflow-hidden text-center col-12">
-                                    <div class="card-body"> <img src="../../assets/images/media/Buffer-amico.png" alt="" class="mb-1">
-                                        <div> <span class="fs-15 fw-semibold d-block mt-4 mb-3">Selecione um usuario ao lado.
-                                            <br>
-                                            <h1>←</h1>
-                                        </span>
+                                <div id="defaultEmailsSelecte"
+                                    class="mails-information border shadow-none projects-tracking-card overflow-hidden text-center col-12">
+                                    <div class="card-body"> <img src="../../assets/images/media/Buffer-amico.png" alt=""
+                                            class="mb-1">
+                                        <div> <span class="fs-15 fw-semibold d-block mt-4 mb-3">Selecione um usuario ao
+                                                lado.
+                                                <br>
+                                                <h1>←</h1>
+                                            </span>
                                             <!-- <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light">Track Here</button> -->
-                                        </div> <span class="shape-1 text-primary"><i class="ti ti-circle fs-20 fw-bold"></i></span> <span class="shape-2 text-secondary"><i class="ti ti-triangle fs-20 fw-bold"></i></span> <span class="shape-3 text-warning"><i class="ti ti-square fs-20 fw-bold"></i></span>        <span class="shape-4 text-info"><i class="ti ti-square-rotated fs-20 fw-bold"></i></span> <span class="shape-5 text-success"><i class="ti ti-pentagon fs-20 fw-bold"></i></span> <span class="shape-6 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span>        <span class="shape-7 text-pink"><i class="ti ti-hexagon fs-20 fw-bold"></i></span> <span class="shape-8 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span> <span class="shape-9 text-primary"><i class="ti ti-circle fs-20 fw-bold"></i></span>        <span class="shape-10 text-secondary"><i class="ti ti-triangle fs-20 fw-bold"></i></span> <span class="shape-11 text-warning"><i class="ti ti-square fs-20 fw-bold"></i></span> <span class="shape-12 text-info"><i class="ti ti-square-rotated fs-20 fw-bold"></i></span>        <span class="shape-13 text-success"><i class="ti ti-pentagon fs-20 fw-bold"></i></span> <span class="shape-14 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span> <span class="shape-15 text-pink"><i class="ti ti-hexagon fs-20 fw-bold"></i></span>        <span class="shape-16 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span> </div>
+                                        </div> <span class="shape-1 text-primary"><i
+                                                class="ti ti-circle fs-20 fw-bold"></i></span> <span
+                                            class="shape-2 text-secondary"><i
+                                                class="ti ti-triangle fs-20 fw-bold"></i></span> <span
+                                            class="shape-3 text-warning"><i
+                                                class="ti ti-square fs-20 fw-bold"></i></span> <span
+                                            class="shape-4 text-info"><i
+                                                class="ti ti-square-rotated fs-20 fw-bold"></i></span> <span
+                                            class="shape-5 text-success"><i
+                                                class="ti ti-pentagon fs-20 fw-bold"></i></span> <span
+                                            class="shape-6 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span>
+                                        <span class="shape-7 text-pink"><i
+                                                class="ti ti-hexagon fs-20 fw-bold"></i></span> <span
+                                            class="shape-8 text-teal"><i class="ti ti-octagon fs-20 fw-bold"></i></span>
+                                        <span class="shape-9 text-primary"><i
+                                                class="ti ti-circle fs-20 fw-bold"></i></span> <span
+                                            class="shape-10 text-secondary"><i
+                                                class="ti ti-triangle fs-20 fw-bold"></i></span> <span
+                                            class="shape-11 text-warning"><i
+                                                class="ti ti-square fs-20 fw-bold"></i></span> <span
+                                            class="shape-12 text-info"><i
+                                                class="ti ti-square-rotated fs-20 fw-bold"></i></span> <span
+                                            class="shape-13 text-success"><i
+                                                class="ti ti-pentagon fs-20 fw-bold"></i></span> <span
+                                            class="shape-14 text-danger"><i class="ti ti-star fs-20 fw-bold"></i></span>
+                                        <span class="shape-15 text-pink"><i
+                                                class="ti ti-hexagon fs-20 fw-bold"></i></span> <span
+                                            class="shape-16 text-teal"><i
+                                                class="ti ti-octagon fs-20 fw-bold"></i></span>
+                                    </div>
                                 </div>
                             </div>
                             <!-- End:: row-8 -->
@@ -590,19 +627,19 @@
                 </div>
             </div>
         </div>
- 
 
     </div>
 
     <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 11">
-       
-      </div>
-    
+
+    </div>
+
     <!-- Scroll To Top -->
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
     <div id="responsive-overlay"></div>
     <!-- Scroll To Top -->
-    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"
+        integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
     <!-- Popper JS -->
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
@@ -619,16 +656,13 @@
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
     <!-- <script src="../../assets/js/defaultmenu.min.js"></script> -->
-  
+
     <!-- Node Waves JS-->
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
     <script src="../../assets/libs/node-waves/waves.min.js"></script>
-  
 
- 
-   
     <!-- Color Picker JS -->
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
@@ -639,18 +673,18 @@
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
     <script src="../../assets/js/custom-switcher.min.js"></script>
- 
+
     <!-- Filepond JS -->
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
     <script src="../../assets/libs/filepond/filepond.min.js"></script>
-  
+
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
     <script src="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js"></script>
-  
+
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
@@ -662,7 +696,7 @@
     </noscript>
     <script
         src="../../assets/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js"></script>
-  
+
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
@@ -676,7 +710,7 @@
     </noscript>
     <script
         src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
-  
+
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
@@ -707,15 +741,13 @@
     </noscript>
     <script src="../../assets/libs/dragula/dragula.min.js"></script>
 
-
-   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <!-- Internal Task  JS -->
     <noscript>
         <p>To display this page you need a browser that supports JavaScript.</p>
     </noscript>
 
-    
     <script src="https://cdn.quilljs.com/2.0.0-dev.2/quill.js"></script>
 
     <script src="../../assets/js/task-kanban-board.js"></script>
@@ -751,14 +783,10 @@
     <!-- <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.js"></script>
     <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.dataTables.js"></script> -->
 
-
-
     <script src="../../assets/js/real-time.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
 
     <script src="./assets/js/index.js"></script>
-
-
 
     <!-- Custom JS -->
     <noscript>

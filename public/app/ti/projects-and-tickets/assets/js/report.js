@@ -463,7 +463,6 @@ async function listCategories() {
         noResultsText: 'Não há opções disponíveis',
     });
 
-
     const users = await makeRequest('/api/users/listAllUsers');
     const selectElement = document.querySelector(`select[name="edit_responsible"]`);
     selectElement.innerHTML = '';

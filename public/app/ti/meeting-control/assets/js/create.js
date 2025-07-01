@@ -11,7 +11,7 @@ function getLinkParams() {
 // Esta função busca todos os usuários responsáveis via uma requisição à API
 async function getAllResponsible(respsArray) {
     // carrega os usuarios responsaveis
-    const Responsible = await makeRequest(`/api/users/listAllUsers`);
+    const Responsible = await makeRequest(`/api/users/listAllUsersActive`);
 
     const loggedData = await getInfosLogin();
     const collabData = await makeRequest(`/api/meeting-control/getCollabData`, 'POST', loggedData);

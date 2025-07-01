@@ -53,7 +53,7 @@ function registerNewEvent() {
 
 async function getAllResponsible(collabId) {
   // carrega os usuarios responsaveis
-  const Responsible = await makeRequest(`/api/users/listAllUsers`);
+  const Responsible = await makeRequest(`/api/users/listAllUsersActive`);
 
   // Formate o array para ser usado com o Choices.js (Biblioteca)
   const listaDeOpcoes = Responsible.map(function (element) {
@@ -111,7 +111,7 @@ async function getAllDepartments() {
 
 async function getAllResponsibles2() {
   // carrega os usuarios responsaveis
-  const Responsible = await makeRequest(`/api/users/listAllUsers`);
+  const Responsible = await makeRequest(`/api/users/listAllUsersActive`);
 
   // Formate o array para ser usado com o Choices.js (Biblioteca)
   const listaDeOpcoes = Responsible.map(function (element) {

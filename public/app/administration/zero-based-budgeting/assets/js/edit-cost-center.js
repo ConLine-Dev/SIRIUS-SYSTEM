@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 // Função para carregar a lista de colaboradores
 async function loadCollaborators() {
     try {
-        const response = await fetch('/api/users/listAllUsers');
+        const response = await fetch('/api/users/listAllUsersActive');
         const result = await response.json();
         
         const selectEl = document.getElementById('responsible-id');

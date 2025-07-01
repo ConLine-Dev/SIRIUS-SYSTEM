@@ -147,8 +147,8 @@ function generateChangeSummary(oldContent, newContent, versionNumber = 2) {
 
 // Função auxiliar para gerar um resumo detalhado de alteração entre dois estados do procedimento
 function generateDetailedChangeSummary(oldData, newData, versionNumber = 2) {
-    console.log('Old Data:', JSON.stringify(oldData));
-    console.log('New Data:', JSON.stringify(newData));
+    // console.log('Old Data:', JSON.stringify(oldData));
+    // console.log('New Data:', JSON.stringify(newData));
     
     if (versionNumber === 1) return 'Criação do procedimento';
     
@@ -238,10 +238,10 @@ function generateDetailedChangeSummary(oldData, newData, versionNumber = 2) {
     const oldText = generateSummaryFromContent(oldData.content, 500);
     const newText = generateSummaryFromContent(newData.content, 500);
     
-    console.log('=== ANÁLISE DE CONTEÚDO ===');
-    console.log('Versão:', versionNumber, '| É primeira edição?', isFirstEdit);
-    console.log('Texto antigo (length:', oldText.length, '):', oldText.substring(0, 50) + (oldText.length > 50 ? '...' : ''));
-    console.log('Texto novo (length:', newText.length, '):', newText.substring(0, 50) + (newText.length > 50 ? '...' : ''));
+    // console.log('=== ANÁLISE DE CONTEÚDO ===');
+    // console.log('Versão:', versionNumber, '| É primeira edição?', isFirstEdit);
+    // console.log('Texto antigo (length:', oldText.length, '):', oldText.substring(0, 50) + (oldText.length > 50 ? '...' : ''));
+    // console.log('Texto novo (length:', newText.length, '):', newText.substring(0, 50) + (newText.length > 50 ? '...' : ''));
     
     // Se ambos têm conteúdo e são diferentes
     if (oldText && newText && oldText !== newText) {
@@ -501,7 +501,7 @@ exports.updateProcedure = async (req, res) => {
             if (lastVersion.length > 0) {
                 try {
                     const rawContent = lastVersion[0].content;
-                    console.log('Conteúdo bruto da última versão:', typeof rawContent, rawContent);
+                    // console.log('Conteúdo bruto da última versão:', typeof rawContent, rawContent);
                     
                     // Se já é um objeto, usa diretamente
                     if (typeof rawContent === 'object' && rawContent !== null) {
@@ -542,9 +542,9 @@ exports.updateProcedure = async (req, res) => {
         
         // Verificar se o conteúdo realmente mudou comparando com a última versão
         console.log('=== VERIFICAÇÃO DE ALTERAÇÃO DE CONTEÚDO ===');
-        console.log('lastContent:', JSON.stringify(lastContent));
-        console.log('lastContentValid:', lastContentValid);
-        console.log('currentContent:', JSON.stringify(currentContent));
+        // console.log('lastContent:', JSON.stringify(lastContent));
+        // console.log('lastContentValid:', lastContentValid);
+        // console.log('currentContent:', JSON.stringify(currentContent));
         
         let contentReallyChanged = false;
         let contentForComparison = currentContent;

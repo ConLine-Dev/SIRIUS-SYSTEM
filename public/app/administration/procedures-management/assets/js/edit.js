@@ -3,24 +3,57 @@ let procedureData = {}; // Armazena todos os dados, incluindo a versão mais rec
 let latestVersionData = {}; // Armazena um snapshot dos dados da versão mais recente para restauração
 let selectedVersionNumber = null; // Armazena o número da versão selecionada
 
+// ===============================
+// SISTEMA DE DEBOUNCE E CACHE
+// ===============================
+let saveTimeout = null;
+let isSaving = false;
+const SAVE_DEBOUNCE_DELAY = 1000;
+
+// Cache para metadados
+let metadataCache = {
+    departments: null,
+    roles: null,
+    types: null,
+    responsibles: null,
+    timestamp: 0
+};
+const METADATA_CACHE_TTL = 300000; // 5 minutos
+
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
     const procedureId = urlParams.get('id');
 
-    // Carrega opções dos selects e depois busca os dados do procedimento
-    loadSelectOptions().then(() => {
-        if (procedureId) {
-            fetchProcedureData(procedureId);
-        }
-    });
+    // Sequência otimizada de carregamento
+    if (procedureId) {
+        initializePage(procedureId);
+    } else {
+        console.error('ID do procedimento não encontrado na URL');
+    }
 
-    // Inicializa o SortableJS para arrastar e soltar
+    // Inicializa o SortableJS para arrastar e soltar (versão otimizada)
     const attachmentsContainer = document.getElementById('attachments-container');
-    new Sortable(attachmentsContainer, {
-        animation: 150,
-        handle: '.handle', // Define o ícone de arrastar como o "handle"
-        ghostClass: 'sortable-ghost'
-    });
+    if (attachmentsContainer) {
+        new Sortable(attachmentsContainer, {
+            animation: 150,
+            handle: '.handle', // Define o ícone de arrastar como o "handle"
+            ghostClass: 'sortable-ghost',
+            // Configurações adicionais para evitar eventos deprecados
+            forceFallback: false,
+            fallbackOnBody: true,
+            swapThreshold: 0.65,
+            // Evitar uso de DOMNodeInserted
+            onStart: function(evt) {
+                console.log('🔄 Sortable: Início do arrastar');
+            },
+            onEnd: function(evt) {
+                console.log('🔄 Sortable: Fim do arrastar');
+            }
+        });
+        console.log('✅ SortableJS inicializado com configurações otimizadas');
+    } else {
+        console.error('❌ Container de anexos não encontrado para SortableJS');
+    }
 
     // Lógica para adicionar anexos - AGORA ABRE O MODAL
     $('#btn-add-attachment').click(function() {
@@ -117,9 +150,11 @@ $(document).ready(function() {
     });
 
     // Lógica para selecionar uma versão para preview
-    $('#version-history').on('click', '.version-item', function() {
+    $('#version-history').on('click', '.version-item', async function() {
         const versionNumber = $(this).data('version-id');
         selectedVersionNumber = versionNumber;
+        
+        console.log('🔍 Versão selecionada:', versionNumber);
         
         $('.version-item').removeClass('active');
         $(this).addClass('active');
@@ -127,10 +162,17 @@ $(document).ready(function() {
         const versionData = procedureData.versions.find(v => v.version_number == versionNumber);
         const isLatestVersion = versionNumber === procedureData.versions[0].version_number;
 
+        console.log('📋 Dados da versão encontrados:', versionData);
+        console.log('🔄 É versão mais recente?', isLatestVersion);
+
         if (isLatestVersion) {
+            console.log('🏠 Saindo do preview mode (versão atual)');
             exitPreviewMode();
         } else if (versionData) {
-            enterPreviewMode(versionData);
+            console.log('👁️ Entrando em preview mode');
+            await enterPreviewMode(versionData);
+        } else {
+            console.error('❌ Dados da versão não encontrados!');
         }
     });
 
@@ -161,9 +203,17 @@ $(document).ready(function() {
         }
     });
 
-    // Ação do botão atualizar (salvar)
+    // Ação do botão atualizar (salvar) COM DEBOUNCE
     $('#form-edit-procedure').submit(async function(e) {
         e.preventDefault();
+        
+        // Evitar múltiplos envios
+        if (isSaving) {
+            console.log('Salvamento já em progresso, ignorando...');
+            return;
+        }
+        
+        isSaving = true;
         toggleUpdateButton(true);
         const contentData = quill.getContents();
         
@@ -205,6 +255,7 @@ $(document).ready(function() {
             console.error(error);
         } finally {
             toggleUpdateButton(false);
+            isSaving = false; // Reset flag
         }
     });
 
@@ -314,12 +365,110 @@ $(document).ready(function() {
     }
 });
 
-async function fetchProcedureData(id) {
+// ===============================
+// FUNÇÃO DE INICIALIZAÇÃO OTIMIZADA
+// ===============================
+async function initializePage(procedureId) {
     try {
-        const data = await makeRequest(`/api/procedures-management/procedures/${id}`);
-        procedureData = data;
+        console.log('🚀 Iniciando carregamento da página de edição...');
         
-        // Inicializa o Quill
+        // Aguardar DOM estar totalmente carregado
+        if (document.readyState !== 'complete') {
+            await new Promise(resolve => {
+                if (document.readyState === 'complete') {
+                    resolve();
+                } else {
+                    window.addEventListener('load', resolve, { once: true });
+                }
+            });
+        }
+        
+        // Mostrar loader
+        $('body').append('<div id="loading-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></div>');
+        
+        // 1. Carregar metadados e dados do procedimento em paralelo
+        console.log('📡 Carregando dados em paralelo...');
+        const [selectsLoaded, procedureData] = await Promise.all([
+            loadSelectOptions(),
+            loadProcedureData(procedureId)
+        ]);
+        
+        // 2. Inicializar Quill apenas APÓS ter os dados
+        console.log('🖊️ Inicializando editor Quill...');
+        initializeQuillEditor();
+        
+        // 3. Aguardar um pouco para garantir que Quill foi totalmente inicializado
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // 4. Popular formulário com dados carregados
+        console.log('📝 Populando formulário...');
+        populateForm(latestVersionData, false);
+        
+        // 5. Configurar histórico de versões
+        console.log('📚 Configurando histórico...');
+        displayVersionHistory(procedureData.versions);
+        
+        // 6. Marcar versão atual como ativa
+        $('#version-history').find('.version-item').first().addClass('active');
+        
+        console.log('✅ Página carregada com sucesso!');
+        
+    } catch (error) {
+        console.error('❌ Erro ao inicializar página:', error);
+        alert('Erro ao carregar o procedimento. Tente novamente.');
+    } finally {
+        // Remover loader
+        $('#loading-overlay').remove();
+    }
+}
+
+// Função separada para carregar dados (sem inicializar Quill)
+async function loadProcedureData(id) {
+    console.log('📡 Fazendo request para carregar procedimento:', id);
+    const data = await makeRequest(`/api/procedures-management/procedures/${id}`);
+    
+    console.log('📥 Dados recebidos do servidor:', data);
+    console.log('🔍 Conteúdo específico recebido:', data.content);
+    
+    // Processar e armazenar dados globalmente
+    procedureData = data;
+    
+    // Ordenar versões
+    procedureData.versions.sort((a, b) => b.version_number - a.version_number);
+    
+    // Preparar dados da versão mais recente
+    latestVersionData = {
+        title: data.title,
+        content: data.content,
+        department_id: data.department_id,
+        role: data.role,
+        type_id: data.type_id,
+        responsible_id: data.responsible_id,
+        tags: data.tags,
+        attachments: data.attachments
+    };
+    
+    console.log('✅ latestVersionData preparado:', latestVersionData);
+    console.log('🔍 latestVersionData.content:', latestVersionData.content);
+    
+    return data;
+}
+
+// Função separada para inicializar o Quill
+function initializeQuillEditor() {
+    if (quill) {
+        console.log('⚠️ Quill já inicializado, pulando...');
+        return;
+    }
+    
+    // Verificar se o container existe
+    const container = document.getElementById('editor-container');
+    if (!container) {
+        console.error('❌ Container #editor-container não encontrado!');
+        return;
+    }
+    
+    try {
         quill = new Quill('#editor-container', {
             theme: 'snow',
             modules: {
@@ -329,50 +478,116 @@ async function fetchProcedureData(id) {
                     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
                     ['link', 'image', 'video']
                 ]
-            }
+            },
+            // Configurações adicionais para evitar problemas
+            bounds: '#editor-container',
+            placeholder: 'Escreva o conteúdo do procedimento aqui...'
         });
-
-        // Ordena as versões da mais nova para a mais antiga
-        procedureData.versions.sort((a, b) => b.version_number - a.version_number);
-
-        // A versão mais recente é a primeira da lista ordenada
-        const latestVersion = procedureData.versions[0];
-        latestVersionData = {
-            title: data.title,
-            content: data.content,
-            department_id: data.department_id,
-            role: data.role,
-            type_id: data.type_id,
-            responsible_id: data.responsible_id,
-            tags: data.tags,
-            attachments: data.attachments
-        };
         
-        populateForm(latestVersionData);
-        displayVersionHistory(procedureData.versions);
-        // Marca a versão atual como ativa
-        $('#version-history').find('.version-item').first().addClass('active');
-
+        // Aguardar a inicialização completa e definir flag
+        quill.on('editor-change', function() {
+            // Quill está pronto
+            window.quillReady = true;
+        });
+        
+        // Definir flag imediatamente também
+        window.quillReady = true;
+        
+        console.log('✅ Editor Quill inicializado com sucesso');
+        
     } catch (error) {
-        console.error('Erro ao buscar dados do procedimento:', error);
-        alert('Não foi possível carregar os detalhes do procedimento.');
+        console.error('❌ Erro ao inicializar Quill:', error);
+        throw error;
     }
 }
 
-function populateForm(data, isPreview = false) {
-    quill.setContents(data.content || { ops: [] });
+// Função para popular formulário com dados já carregados
+function populateFormWithData(data) {
+    if (!quill) {
+        console.error('❌ Quill não inicializado!');
+        return;
+    }
+    
+    console.log('🔍 Dados recebidos para popular:', data);
+    
+    // Popular campos básicos
     $('#title').val(data.title || '');
     $('#department').val(data.department_id || '');
     $('#role').val(data.role || '');
     $('#type').val(data.type_id || '');
     $('#responsible').val(data.responsible_id || '');
     
+    // Popular Quill com conteúdo - USANDO FUNÇÃO ROBUSTA
+    console.log('🔍 Conteúdo a ser definido:', data.content);
+    setQuillContentSafely(data.content);
+    
+    // Popular tags
+    let tags = data.tags || [];
+    if (typeof tags === 'string') {
+        try { 
+            tags = JSON.parse(tags); 
+        } catch (e) { 
+            console.error('Erro ao parsear tags:', e); 
+            tags = []; 
+        }
+    }
+    $('#tags').val(Array.isArray(tags) ? tags.join(', ') : '');
+
+    // Popular anexos
+    let attachments = data.attachments || [];
+    if (typeof attachments === 'string') {
+        try { 
+            attachments = JSON.parse(attachments); 
+        } catch (e) { 
+            console.error('Erro ao parsear anexos:', e); 
+            attachments = []; 
+        }
+    }
+    
+    $('#attachments-container').empty();
+    if (Array.isArray(attachments) && attachments.length > 0) {
+        attachments.forEach(attachment => {
+            addAttachmentRow(attachment, false);
+        });
+    }
+    
+    console.log('✅ Formulário populado com sucesso');
+}
+
+// Função legacy mantida para compatibilidade (agora usa a nova estrutura)
+async function fetchProcedureData(id) {
+    console.log('⚠️ Usando função legacy fetchProcedureData, considere migrar para initializePage');
+    return await initializePage(id);
+}
+
+function populateForm(data, isPreview = false) {
+    console.log('📝 PopulateForm chamada, isPreview:', isPreview);
+    
+    // Verificar se Quill está inicializado
+    if (!quill) {
+        console.error('❌ Quill não inicializado em populateForm!');
+        return;
+    }
+
+    // Popular Quill usando função robusta
+    console.log('📝 Usando setQuillContentSafely para definir conteúdo...');
+    setQuillContentSafely(data.content);
+    
+    // Popular campos básicos
+    $('#title').val(data.title || '');
+    $('#department').val(data.department_id || '');
+    $('#role').val(data.role || '');
+    $('#type').val(data.type_id || '');
+    $('#responsible').val(data.responsible_id || '');
+    
+    // Popular tags
     let tags = data.tags || [];
     if (typeof tags === 'string') {
         try { tags = JSON.parse(tags); } catch (e) { console.error('Error parsing tags:', e); tags = []; }
     }
     $('#tags').val(Array.isArray(tags) ? tags.join(', ') : '');
 
+    // Popular anexos
     let attachments = data.attachments || [];
     if (typeof attachments === 'string') {
         try { attachments = JSON.parse(attachments); } catch (e) { console.error('Error parsing attachments:', e); attachments = []; }
@@ -387,12 +602,80 @@ function populateForm(data, isPreview = false) {
     // Gerenciar estado dos campos
     const disabled = isPreview;
     $('#form-edit-procedure :input:not(#btn-revert-version)').prop('disabled', disabled);
-    quill.enable(!disabled);
+    
+    // Habilitar/desabilitar Quill com verificação
+    try {
+        quill.enable(!disabled);
+        console.log('✅ Quill habilitado:', !disabled);
+    } catch (error) {
+        console.error('❌ Erro ao habilitar/desabilitar Quill:', error);
+    }
     
     // Gerenciar visibilidade dos botões
     $('#btn-update').toggle(!disabled);
     $('#btn-add-attachment').toggle(!disabled);
     $('#btn-revert-version').toggle(disabled);
+    
+    console.log('✅ PopulateForm concluído');
+}
+
+// Função auxiliar robusta para definir conteúdo no Quill
+function setQuillContentSafely(content, retryCount = 0) {
+    const maxRetries = 3;
+    
+    console.log(`🔄 setQuillContentSafely - Tentativa ${retryCount + 1}/${maxRetries + 1}`, content);
+    
+    if (!quill) {
+        console.error('❌ Quill não inicializado em setQuillContentSafely');
+        return false;
+    }
+    
+    if (!window.quillReady && retryCount < maxRetries) {
+        console.log('⏳ Aguardando Quill ficar pronto...');
+        setTimeout(() => setQuillContentSafely(content, retryCount + 1), 200);
+        return;
+    }
+    
+    try {
+        // Preparar conteúdo
+        let contentToSet;
+        if (content && content.ops && Array.isArray(content.ops) && content.ops.length > 0) {
+            contentToSet = content;
+        } else {
+            contentToSet = { ops: [{ insert: '\n' }] };
+            console.log('⚠️ Conteúdo vazio ou inválido, usando conteúdo padrão');
+        }
+        
+        console.log('🖊️ Definindo conteúdo no Quill:', contentToSet);
+        
+        // Definir conteúdo
+        quill.setContents(contentToSet);
+        
+        // Verificar se foi definido
+        setTimeout(() => {
+            const verification = quill.getContents();
+            console.log('🔍 Verificação pós-definição:', verification);
+            
+            if (verification.ops && verification.ops.length > 0) {
+                console.log('✅ Conteúdo definido com sucesso no Quill');
+                return true;
+            } else {
+                console.error('❌ Falha na verificação do conteúdo');
+                if (retryCount < maxRetries) {
+                    console.log('🔄 Tentando novamente...');
+                    setTimeout(() => setQuillContentSafely(content, retryCount + 1), 300);
+                }
+                return false;
+            }
+        }, 100);
+        
+    } catch (error) {
+        console.error('❌ Erro em setQuillContentSafely:', error);
+        if (retryCount < maxRetries) {
+            setTimeout(() => setQuillContentSafely(content, retryCount + 1), 300);
+        }
+        return false;
+    }
 }
 
 function displayVersionHistory(versions) {
@@ -569,17 +852,47 @@ $('#attachments-container').on('input', '.attachment-url', function() {
     }
 });
 
+// Função otimizada de carregamento com cache
 async function loadSelectOptions() {
-    const [departments, roles, types, responsibles] = await Promise.all([
-        makeRequest('/api/procedures-management/meta/departments'),
-        makeRequest('/api/procedures-management/meta/roles'),
-        makeRequest('/api/procedures-management/meta/types'),
-        makeRequest('/api/procedures-management/meta/responsibles')
-    ]);
+    try {
+        // Verificar cache primeiro
+        const now = Date.now();
+        if (metadataCache.departments && (now - metadataCache.timestamp) < METADATA_CACHE_TTL) {
+            console.log('Usando metadados do cache (edit)');
+            const { departments, roles, types, responsibles } = metadataCache;
+            populateSelects(departments, roles, types, responsibles);
+            return;
+        }
+        
+        console.log('Carregando metadados do servidor (edit)');
+        const [departments, roles, types, responsibles] = await Promise.all([
+            makeRequest('/api/procedures-management/meta/departments'),
+            makeRequest('/api/procedures-management/meta/roles'),
+            makeRequest('/api/procedures-management/meta/types'),
+            makeRequest('/api/procedures-management/meta/responsibles')
+        ]);
+        
+        // Atualizar cache
+        metadataCache = {
+            departments,
+            roles,
+            types,
+            responsibles,
+            timestamp: now
+        };
+
+        populateSelects(departments, roles, types, responsibles);
+    } catch (error) {
+        console.error('Falha ao carregar opções para os selects:', error);
+    }
+}
+
+// Função otimizada para popular todos os selects
+function populateSelects(departments, roles, types, responsibles) {
     populateSelect('#department', departments, 'id', 'name');
+    populateSelect('#type', types, 'id', 'name');
     const roleData = roles.map(role => ({ id: role, name: role }));
     populateSelect('#role', roleData, 'id', 'name');
-    populateSelect('#type', types, 'id', 'name');
     populateSelect('#responsible', responsibles, 'id', 'name');
 }
 
@@ -628,23 +941,99 @@ function showNotification(message, type = 'info') {
     toast.show();
 }
 
-function enterPreviewMode(version) {
-    // Tenta parsear conteúdo, tags e anexos, com fallback para arrays vazios
-    let content, tags, attachments;
-    try { content = typeof version.content === 'string' ? JSON.parse(version.content) : version.content; } catch (e) { content = { ops: [] }; }
-    try { tags = typeof version.tags === 'string' ? JSON.parse(version.tags) : version.tags; } catch (e) { tags = []; }
-    try { attachments = typeof version.attachments === 'string' ? JSON.parse(version.attachments) : version.attachments; } catch (e) { attachments = []; }
+async function enterPreviewMode(version) {
+    console.log('📋 Entrando em modo preview para versão:', version.version_number);
+    console.log('🔍 Dados da versão recebidos:', version);
+    
+    // Verificar se o conteúdo precisa ser carregado sob demanda
+    let content;
+    if (version.content === null) {
+        console.log('🔄 Carregando conteúdo da versão sob demanda...');
+        try {
+            // Mostrar loader
+            $('body').append('<div id="version-loading" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:10000;"><div class="d-flex align-items-center"><div class="spinner-border spinner-border-sm text-primary me-2"></div>Carregando versão...</div></div>');
+            
+            const versionData = await makeRequest(`/api/procedures-management/procedures/${procedureData.id}/versions/${version.version_number}/content`);
+            
+            // Atualizar a versão no cache local
+            const versionIndex = procedureData.versions.findIndex(v => v.version_number === version.version_number);
+            if (versionIndex !== -1) {
+                Object.assign(procedureData.versions[versionIndex], versionData);
+                version = procedureData.versions[versionIndex]; // Usar dados atualizados
+            }
+            
+            content = versionData.content;
+            console.log('✅ Conteúdo carregado sob demanda:', content);
+            
+        } catch (error) {
+            console.error('❌ Erro ao carregar conteúdo da versão:', error);
+            content = { ops: [{ insert: 'Erro ao carregar conteúdo desta versão.\n' }] };
+        } finally {
+            $('#version-loading').remove();
+        }
+    } else {
+        // Processar conteúdo existente
+        if (version.content) {
+            try {
+                if (typeof version.content === 'string') {
+                    content = JSON.parse(version.content);
+                    console.log('📝 Conteúdo parseado do JSON:', content);
+                } else if (typeof version.content === 'object') {
+                    content = version.content;
+                    console.log('📝 Conteúdo já é objeto:', content);
+                } else {
+                    console.log('⚠️ Conteúdo em formato inesperado, usando padrão');
+                    content = { ops: [{ insert: 'Conteúdo não disponível para esta versão.\n' }] };
+                }
+            } catch (e) {
+                console.error('❌ Erro ao parsear conteúdo da versão:', e);
+                content = { ops: [{ insert: 'Erro ao carregar conteúdo desta versão.\n' }] };
+            }
+        } else {
+            console.log('⚠️ Versão sem conteúdo, usando conteúdo padrão');
+            content = { ops: [{ insert: 'Conteúdo não disponível para esta versão.\n' }] };
+        }
+    }
+    
+    // Processar tags
+    let tags;
+    try {
+        if (version.tags) {
+            tags = typeof version.tags === 'string' ? JSON.parse(version.tags) : version.tags;
+        } else {
+            tags = [];
+        }
+    } catch (e) {
+        console.error('❌ Erro ao parsear tags:', e);
+        tags = [];
+    }
+    
+    // Processar anexos
+    let attachments;
+    try {
+        if (version.attachments) {
+            attachments = typeof version.attachments === 'string' ? JSON.parse(version.attachments) : version.attachments;
+        } else {
+            attachments = [];
+        }
+    } catch (e) {
+        console.error('❌ Erro ao parsear anexos:', e);
+        attachments = [];
+    }
     
     const versionSnapshot = {
-        title: version.title,
+        title: version.title || 'Título não disponível',
         content: content,
-        department_id: version.department_id,
-        role: version.role,
-        type_id: version.type_id,
-        responsible_id: version.responsible_id,
+        department_id: version.department_id || '',
+        role: version.role || '',
+        type_id: version.type_id || '',
+        responsible_id: version.responsible_id || '',
         tags: tags,
         attachments: attachments
     };
+    
+    console.log('📦 Snapshot da versão criado:', versionSnapshot);
+    console.log('🔍 Conteúdo final a ser enviado:', versionSnapshot.content);
     
     populateForm(versionSnapshot, true); // true para isPreview
     $('#btn-revert-version').show();

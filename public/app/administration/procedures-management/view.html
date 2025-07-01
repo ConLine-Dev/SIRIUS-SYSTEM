@@ -3,10 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Visualização de Procedimento - Sistema SIRIUS">
+    
+    <!-- Performance hints -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="format-detection" content="telephone=no">
+    
+    <!-- Preconnect para CDN -->
+    <link rel="preconnect" href="https://cdn.quilljs.com">
+    <link rel="preconnect" href="https://code.jquery.com">
+    
     <title>Visualizar Procedimento</title>
+    
+    <!-- Critical CSS -->
     <link href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../../assets/css/styles.min.css" rel="stylesheet">
     <link href="../../assets/css/icons.css" rel="stylesheet">
+    
     <!-- Quill.js - para renderização -->
     <link href="https://cdn.quilljs.com/2.0.0-dev.2/quill.snow.css" rel="stylesheet">
     <style>
@@ -73,29 +86,360 @@
         }
 
         @media print {
-            .sidebar, .card-header {
+            /* ===================================
+               LAYOUT DE IMPRESSÃO COMPATÍVEL
+               =================================== */
+            
+            /* Ocultar apenas elementos não essenciais */
+            .card-header .btn, .modal, script {
                 display: none !important;
             }
+            
+            /* Garantir que card-header apareça */
+            .card-header {
+                display: block !important;
+            }
+            
+            /* Body otimizado SEM página vazia */
+            body {
+                background-color: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+            
+            /* Container principal SEM margens excessivas */
+            .row.g-0 {
+                margin: 0 !important;
+                height: auto !important;
+            }
+            
+            /* Card principal limpo */
+            .card.custom-card {
+                background-color: #ffffff !important;
+                box-shadow: none !important;
+                border: none !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            /* Card body compacto */
+            .card-body {
+                overflow: visible !important;
+                height: auto !important;
+                padding: 15px !important; /* Reduzido para evitar página vazia */
+            }
+            
+            /* ===================================
+               REORGANIZAÇÃO LAYOUT LINEAR
+               =================================== */
+            
+            /* Layout linear sem espaços excessivos */
+            .card-body > .row {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+            
+            /* Conteúdo principal compacto */
             main.col-lg-8 {
                 width: 100% !important;
-                flex: 0 0 100%;
-                max-width: 100%;
+                max-width: 100% !important;
+                margin: 0 0 20px 0 !important; /* Reduzido */
+                padding: 0 !important;
+                display: block !important;
             }
-            body, .card {
-                background-color: #ffffff;
-                box-shadow: none;
-                margin: 0;
-                padding: 0;
+            
+            /* Sidebar após conteúdo */
+            aside.col-lg-4 {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                display: block !important;
+                page-break-inside: avoid;
             }
-            .card-body {
-                overflow-y: visible;
+            
+            /* ===================================
+               TÍTULO PRINCIPAL (MANTÉM VISUAL)
+               =================================== */
+            
+            /* Mostrar título do procedimento */
+            .card-header {
+                display: block !important;
+                background: transparent !important;
+                border: none !important;
+                padding: 0 0 15px 0 !important;
+                margin: 0 !important;
             }
-            /* Oculta a lista de anexos visual e mostra a lista de impressão */
+            
+            .card-header h4 {
+                color: #2c5aa0 !important; /* Cor azul original */
+                font-size: 24px !important;
+                font-weight: bold !important;
+                margin: 0 !important;
+                page-break-after: avoid;
+            }
+            
+            /* ===================================
+               CONTEÚDO QUILL (MÁXIMA COMPATIBILIDADE)
+               =================================== */
+            
+            .content-panel {
+                height: auto !important;
+                margin: 0 0 20px 0 !important; /* Compacto */
+            }
+            
+            /* Título da seção com cor original */
+            .content-panel h5.text-primary {
+                color: #2c5aa0 !important; /* Cor azul preservada */
+                font-size: 18px !important;
+                font-weight: 600 !important;
+                margin: 0 0 10px 0 !important;
+                page-break-after: avoid;
+            }
+            
+            /* HR preservado */
+            .content-panel hr {
+                border-color: #dee2e6 !important;
+                margin: 10px 0 15px 0 !important;
+            }
+            
+            /* Container Quill preservando formatação */
+            #procedure-content-quill {
+                page-break-inside: auto; /* Permite quebras naturais */
+            }
+            
+            /* Editor Quill MANTENDO formatação original */
+            .ql-editor {
+                padding: 0 !important;
+                line-height: 1.7 !important; /* Original */
+                font-size: 1.05rem !important; /* Original */
+                color: inherit !important; /* Preserva cores do conteúdo */
+                font-family: inherit !important; /* Preserva fonte original */
+            }
+            
+            /* Preservar formatação de texto do Quill */
+            .ql-editor h1, .ql-editor h2, .ql-editor h3, 
+            .ql-editor h4, .ql-editor h5, .ql-editor h6 {
+                color: inherit !important;
+                font-weight: inherit !important;
+                font-size: inherit !important;
+                margin: inherit !important;
+            }
+            
+            .ql-editor p {
+                color: inherit !important;
+                margin: inherit !important;
+            }
+            
+            .ql-editor strong, .ql-editor b {
+                font-weight: bold !important;
+            }
+            
+            .ql-editor em, .ql-editor i {
+                font-style: italic !important;
+            }
+            
+            .ql-editor ul, .ql-editor ol {
+                margin: inherit !important;
+                padding: inherit !important;
+            }
+            
+            /* ===================================
+               IMAGENS DE ALTA QUALIDADE
+               =================================== */
+            
+            /* Imagens com qualidade preservada */
+            .ql-editor img {
+                max-width: 100% !important;
+                height: auto !important;
+                page-break-inside: avoid;
+                image-rendering: -webkit-optimize-contrast !important;
+                image-rendering: crisp-edges !important;
+                image-rendering: pixelated !important;
+                print-color-adjust: exact !important;
+            }
+            
+            /* Outras imagens */
+            img {
+                max-width: 100% !important;
+                height: auto !important;
+                image-rendering: -webkit-optimize-contrast !important;
+                print-color-adjust: exact !important;
+            }
+            
+            /* ===================================
+               SIDEBAR COM CORES PRESERVADAS
+               =================================== */
+            
+            /* Cards da sidebar com visual original */
+            aside .card {
+                background-color: #ffffff !important;
+                border: 1px solid #e9ecef !important; /* Cor original */
+                border-radius: 0.5rem !important; /* Mantém arredondamento */
+                box-shadow: none !important;
+                margin-bottom: 20px !important;
+                page-break-inside: avoid;
+            }
+            
+            /* Headers com cores originais */
+            aside .card-body h5.text-primary {
+                color: #2c5aa0 !important; /* Azul original */
+                font-size: 16px !important;
+                font-weight: 600 !important;
+                margin: 0 0 8px 0 !important;
+                page-break-after: avoid;
+                border: none !important; /* Remove border extra */
+            }
+            
+            /* HR preservado */
+            aside .card-body hr {
+                border-color: #dee2e6 !important; /* Cor original */
+                margin: 8px 0 15px 0 !important;
+            }
+            
+            /* ===================================
+               ÍCONES PRESERVADOS
+               =================================== */
+            
+            /* Ícones Remix mantidos */
+            i[class^="ri-"], i[class*=" ri-"] {
+                display: inline !important;
+                font-style: normal !important;
+                font-variant: normal !important;
+                text-rendering: auto !important;
+                line-height: 1 !important;
+                color: inherit !important;
+            }
+            
+            /* Ícones nos detalhes */
+            #meta-info i[class^="ri-"] {
+                color: #2c5aa0 !important; /* Azul dos ícones */
+                margin-right: 8px !important;
+            }
+            
+            /* ===================================
+               DETALHES FORMATADOS
+               =================================== */
+            
+            #meta-info .meta-info-item {
+                margin-bottom: 8px !important;
+                font-size: 14px !important;
+                line-height: 1.5 !important;
+                color: #333 !important;
+            }
+            
+            /* Badges preservados */
+            #meta-info .badge {
+                background-color: #e7f3ff !important; /* Fundo azul claro */
+                color: #2c5aa0 !important; /* Texto azul */
+                border: 1px solid #b8daff !important;
+                padding: 4px 8px !important;
+                font-size: 12px !important;
+                border-radius: 4px !important;
+            }
+            
+            /* Tags preservadas */
+            #meta-info .badge.bg-light.text-primary {
+                background-color: #e7f3ff !important;
+                color: #2c5aa0 !important;
+                border: 1px solid #b8daff !important;
+            }
+            
+            /* ===================================
+               ANEXOS E HISTÓRICO
+               =================================== */
+            
+            /* Lista de anexos para impressão */
             #attachments-list {
-                display: none;
+                display: none !important;
             }
+            
             #attachments-list-print {
                 display: block !important;
+            }
+            
+            #attachments-list-print ul {
+                list-style-type: disc !important;
+                padding-left: 20px !important;
+                margin: 0 !important;
+            }
+            
+            #attachments-list-print li {
+                margin-bottom: 6px !important;
+                font-size: 14px !important;
+                line-height: 1.4 !important;
+                color: #333 !important;
+            }
+            
+            /* Histórico com formatação preservada */
+            #version-history-list {
+                border: none !important;
+                padding: 0 !important;
+            }
+            
+            #version-history-list .list-group-item {
+                border: none !important;
+                border-bottom: 1px solid #e9ecef !important;
+                background-color: transparent !important;
+                padding: 12px 0 !important;
+                font-size: 13px !important;
+                color: #333 !important;
+                page-break-inside: avoid;
+            }
+            
+            #version-history-list .list-group-item:last-child {
+                border-bottom: none !important;
+            }
+            
+            /* ===================================
+               CONFIGURAÇÃO DE PÁGINA OTIMIZADA
+               =================================== */
+            
+            @page {
+                margin: 1.5cm !important; /* Margens menores */
+                size: A4;
+            }
+            
+            /* Remover margem extra da primeira página */
+            @page :first {
+                margin: 1.5cm !important; /* Igual às outras */
+            }
+            
+            /* ===================================
+               PRESERVAÇÃO DE CORES E CONTEÚDO
+               =================================== */
+            
+            /* Preservar cores importantes */
+            .text-primary, .text-primary * {
+                color: #2c5aa0 !important;
+            }
+            
+            .text-success, .text-success * {
+                color: #198754 !important;
+            }
+            
+            .text-info, .text-info * {
+                color: #0dcaf0 !important;
+            }
+            
+            .text-muted, .text-muted * {
+                color: #6c757d !important;
+            }
+            
+            /* Links preservados */
+            a {
+                color: #2c5aa0 !important;
+                text-decoration: underline !important;
+            }
+            
+            /* Ajuste para impressão colorida */
+            * {
+                print-color-adjust: exact !important;
+                -webkit-print-color-adjust: exact !important;
             }
         }
     </style>
@@ -106,7 +450,7 @@
             <div class="card custom-card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 id="title" class="card-title mb-0">Carregando...</h4>
-                    <button class="btn btn-primary" onclick="window.print()" title="Imprimir">
+                    <button class="btn btn-primary" onclick="window.optimizedPrint ? window.optimizedPrint() : window.print()" title="Imprimir">
                         <i class="ri-printer-line me-1"></i> Imprimir
                     </button>
                 </div>
@@ -171,6 +515,7 @@
         </div>
     </div>
 
+    <!-- Scripts críticos -->
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/fetchAPI.js"></script>
@@ -178,6 +523,15 @@
     <!-- Quill.js - para renderização -->
     <script src="https://cdn.quilljs.com/2.0.0-dev.2/quill.js"></script>
     
+    <!-- View optimizado -->
     <script src="./assets/js/view.js"></script>
+    
+    <!-- Performance monitoring (Development only) -->
+    <script>
+        if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+            console.log('🚀 View Performance Mode: Development');
+            console.log('📦 Cache functions available: clearViewCache, getCacheStatus, forceReloadProcedure');
+        }
+    </script>
 </body>
 </html> 

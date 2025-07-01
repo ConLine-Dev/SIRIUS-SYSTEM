@@ -1,5 +1,22 @@
 let quill;
 
+// ===============================
+// SISTEMA DE DEBOUNCE PARA SALVAMENTO
+// ===============================
+let saveTimeout = null;
+let isSaving = false;
+const SAVE_DEBOUNCE_DELAY = 1000;
+
+// Cache para metadados
+let metadataCache = {
+    departments: null,
+    roles: null,
+    types: null,
+    responsibles: null,
+    timestamp: 0
+};
+const METADATA_CACHE_TTL = 300000; // 5 minutos
+
 $(document).ready(function() {
     // Carrega dados para os selects
     loadSelectOptions();
@@ -116,9 +133,17 @@ $(document).ready(function() {
         }
     });
 
-    // Ação do botão salvar
+    // Ação do botão salvar COM DEBOUNCE
     $('#form-create-procedure').submit(async function(e) {
         e.preventDefault();
+        
+        // Evitar múltiplos envios
+        if (isSaving) {
+            console.log('Salvamento já em progresso, ignorando...');
+            return;
+        }
+        
+        isSaving = true;
         toggleSaveButton(true);
 
         const contentData = quill.getContents();
@@ -163,6 +188,7 @@ $(document).ready(function() {
             console.error(error);
         } finally {
             toggleSaveButton(false);
+            isSaving = false; // Reset flag
         }
     });
 
@@ -275,48 +301,88 @@ async function getInfosLogin() {
     return StorageGoogle;
 }
 
+// Função otimizada de carregamento com cache
 async function loadSelectOptions() {
     try {
+        // Verificar cache primeiro
+        const now = Date.now();
+        if (metadataCache.departments && (now - metadataCache.timestamp) < METADATA_CACHE_TTL) {
+            console.log('Usando metadados do cache');
+            populateFromCache();
+            return;
+        }
+        
+        console.log('Carregando metadados do servidor');
         const [departments, roles, types, responsibles] = await Promise.all([
             makeRequest('/api/procedures-management/meta/departments'),
             makeRequest('/api/procedures-management/meta/roles'),
             makeRequest('/api/procedures-management/meta/types'),
             makeRequest('/api/procedures-management/meta/responsibles')
         ]);
+        
+        // Atualizar cache
+        metadataCache = {
+            departments,
+            roles,
+            types,
+            responsibles,
+            timestamp: now
+        };
 
-        populateSelect('#department', departments, 'id', 'name');
-        populateSelect('#type', types, 'id', 'name');
-        // Para cargos, o retorno é um array de strings
-        const roleData = roles.map(role => ({ id: role, name: role }));
-        populateSelect('#role', roleData, 'id', 'name');
-        // Responsáveis: lista de colaboradores
-        populateSelect('#responsible', responsibles, 'id', 'name');
+        // Popular selects e configurar usuário padrão
+        populateSelects(departments, roles, types, responsibles);
 
-        // Seleciona automaticamente o usuário logado usando StorageGoogle
-        const infos = await getInfosLogin();
-        if (infos) {
-            if (infos.system_collaborator_id) {
-                $('#responsible').val(infos.system_collaborator_id);
-            }
-            // Seleciona o primeiro departamento, se houver
-            if (infos.department_ids) {
-                let firstDept = null;
-                if (typeof infos.department_ids === 'string') {
-                    firstDept = infos.department_ids.split(',')[0].trim();
-                } else if (Array.isArray(infos.department_ids)) {
-                    firstDept = infos.department_ids[0];
-                }
-                if (firstDept) {
-                    $('#department').val(firstDept);
-                }
-            }
-            if (infos.job_position) {
-                $('#role').val(infos.job_position);
-            }
-        }
+        // Valores padrão do usuário já são definidos em populateSelects()
     } catch (error) {
         console.error('Falha ao carregar opções para os selects:', error);
         showNotification('Erro ao carregar dados do formulário. Tente novamente.', 'danger');
+    }
+}
+
+// Função para popular do cache
+function populateFromCache() {
+    const { departments, roles, types, responsibles } = metadataCache;
+    populateSelects(departments, roles, types, responsibles);
+    setDefaultUserValues();
+}
+
+// Função otimizada para popular todos os selects
+function populateSelects(departments, roles, types, responsibles) {
+    populateSelect('#department', departments, 'id', 'name');
+    populateSelect('#type', types, 'id', 'name');
+    
+    // Para cargos, o retorno é um array de strings
+    const roleData = roles.map(role => ({ id: role, name: role }));
+    populateSelect('#role', roleData, 'id', 'name');
+    
+    // Responsáveis: lista de colaboradores
+    populateSelect('#responsible', responsibles, 'id', 'name');
+    
+    setDefaultUserValues();
+}
+
+// Função para definir valores padrão do usuário
+async function setDefaultUserValues() {
+    const infos = await getInfosLogin();
+    if (infos) {
+        if (infos.system_collaborator_id) {
+            $('#responsible').val(infos.system_collaborator_id);
+        }
+        // Seleciona o primeiro departamento, se houver
+        if (infos.department_ids) {
+            let firstDept = null;
+            if (typeof infos.department_ids === 'string') {
+                firstDept = infos.department_ids.split(',')[0].trim();
+            } else if (Array.isArray(infos.department_ids)) {
+                firstDept = infos.department_ids[0];
+            }
+            if (firstDept) {
+                $('#department').val(firstDept);
+            }
+        }
+        if (infos.job_position) {
+            $('#role').val(infos.job_position);
+        }
     }
 }
 

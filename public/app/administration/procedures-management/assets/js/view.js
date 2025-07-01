@@ -1,9 +1,50 @@
+// ===============================
+// CONFIGURAÇÕES DE PERFORMANCE PARA VIEW
+// ===============================
+const PERFORMANCE_CONFIG = {
+    // Cache
+    CACHE_TTL: {
+        PROCEDURES: 300000,     // 5 minutos
+        USER_INFO: 600000,      // 10 minutos
+    },
+    
+    // Delays
+    DELAYS: {
+        DEBOUNCE_FILTER: 300,   // 300ms para filtros
+        RETRY_DELAY: 200,       // 200ms entre tentativas
+        DOM_READY_WAIT: 100,    // 100ms após DOM ready
+    },
+    
+    // Retry
+    MAX_RETRIES: 3,
+    
+    // DOM
+    USE_DOCUMENT_FRAGMENT: true,
+    BATCH_SIZE: 50,
+};
+
+// ===============================
+// SISTEMA DE CACHE E OTIMIZAÇÃO PARA VIEW
+// ===============================
+let procedureData = {};
+let quill = null;
+
+// Cache para dados carregados
+let viewCache = {
+    data: null,
+    timestamp: 0
+};
+const VIEW_CACHE_TTL = PERFORMANCE_CONFIG.CACHE_TTL.PROCEDURES;
+
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
     const procedureId = urlParams.get('id');
 
+    // Sequência otimizada de carregamento para visualização
     if (procedureId) {
-        fetchProcedureData(procedureId);
+        initializeViewPage(procedureId);
+    } else {
+        console.error('ID do procedimento não encontrado na URL');
     }
     
     // Configura o modal de imagem para limpar a imagem ao fechar, evitando cache
@@ -12,37 +53,199 @@ $(document).ready(function() {
     });
 });
 
-async function fetchProcedureData(id) {
+// ===============================
+// FUNÇÃO DE INICIALIZAÇÃO OTIMIZADA PARA VIEW
+// ===============================
+async function initializeViewPage(procedureId) {
     try {
-        const data = await makeRequest(`/api/procedures-management/procedures/${id}`);
+        console.log('🚀 Iniciando carregamento da página de visualização...');
         
-        // Popula o título
-        $('#title').text(data.title);
+        // Aguardar DOM estar totalmente carregado
+        if (document.readyState !== 'complete') {
+            await new Promise(resolve => {
+                if (document.readyState === 'complete') {
+                    resolve();
+                } else {
+                    window.addEventListener('load', resolve, { once: true });
+                }
+            });
+        }
+        
+        // Mostrar loader
+        $('body').append('<div id="loading-overlay" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Carregando...</span></div></div>');
+        
+        // 1. Carregar dados do procedimento
+        console.log('📡 Carregando dados do procedimento...');
+        const data = await loadProcedureDataOptimized(procedureId);
+        
+        // 2. Inicializar Quill apenas APÓS ter os dados
+        console.log('🖊️ Inicializando visualizador Quill...');
+        initializeQuillViewer();
+        
+        // 3. Aguardar um pouco para garantir que Quill foi totalmente inicializado
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // 4. Popular página com dados carregados
+        console.log('📝 Populando página de visualização...');
+        populateViewPage(data);
+        
+        console.log('✅ Página de visualização carregada com sucesso!');
+        
+    } catch (error) {
+        console.error('❌ Erro ao inicializar página de visualização:', error);
+        alert('Erro ao carregar o procedimento. Tente novamente.');
+    } finally {
+        // Remover loader
+        $('#loading-overlay').remove();
+    }
+}
 
-        // Renderiza o conteúdo com Quill em modo somente leitura
-        const quill = new Quill('#procedure-content-quill', {
+// Função otimizada para carregar dados (com cache)
+async function loadProcedureDataOptimized(id) {
+    // Verificar cache primeiro
+    const now = Date.now();
+    const cacheKey = `procedure_${id}`;
+    
+    if (viewCache.data && viewCache.data.id == id && (now - viewCache.timestamp) < VIEW_CACHE_TTL) {
+        console.log('📦 Usando dados do cache para visualização');
+        return viewCache.data;
+    }
+    
+    console.log('📡 Fazendo request para carregar procedimento (view):', id);
+    const data = await makeRequest(`/api/procedures-management/procedures/${id}`);
+    
+    console.log('📥 Dados recebidos do servidor (view):', data);
+    console.log('🔍 Conteúdo específico recebido (view):', data.content);
+    
+    // Armazenar dados globalmente
+    procedureData = data;
+    
+    // Atualizar cache
+    viewCache = {
+        data: data,
+        timestamp: now
+    };
+    
+    return data;
+}
+
+// Função separada para inicializar o Quill em modo visualização
+function initializeQuillViewer() {
+    if (quill) {
+        console.log('⚠️ Quill já inicializado para visualização, pulando...');
+        return;
+    }
+    
+    // Verificar se o container existe
+    const container = document.getElementById('procedure-content-quill');
+    if (!container) {
+        console.error('❌ Container #procedure-content-quill não encontrado!');
+        return;
+    }
+    
+    try {
+        quill = new Quill('#procedure-content-quill', {
             theme: 'snow',
             modules: { toolbar: false },
-            readOnly: true
+            readOnly: true,
+            // Configurações adicionais para visualização
+            bounds: '#procedure-content-quill',
+            placeholder: 'Conteúdo do procedimento...'
         });
-        quill.setContents(data.content);
-
-        // Renderiza os metadados
-        renderMetaInfo(data);
-
-        // Renderiza os anexos
-        renderAttachments(data.attachments);
         
-        // Renderiza os anexos para impressão
-        renderAttachmentsForPrint(data.attachments);
+        // Definir flag de pronto
+        window.quillViewerReady = true;
         
-        // Renderiza o histórico a partir dos dados principais
-        renderHistory(data.versions);
-
+        console.log('✅ Visualizador Quill inicializado com sucesso');
+        
     } catch (error) {
-        console.error('Erro ao buscar dados do procedimento:', error);
-        alert('Não foi possível carregar os detalhes do procedimento.');
+        console.error('❌ Erro ao inicializar Quill para visualização:', error);
+        throw error;
     }
+}
+
+// Função para popular a página com dados
+function populateViewPage(data) {
+    console.log('📝 Populando página de visualização com dados...');
+    
+    // Popular título
+    $('#title').text(data.title || 'Título não disponível');
+    
+    // Popular Quill com conteúdo usando função robusta
+    setQuillViewerContentSafely(data.content);
+    
+    // Renderizar outros componentes
+    renderMetaInfo(data);
+    renderAttachments(data.attachments);
+    renderAttachmentsForPrint(data.attachments);
+    renderHistory(data.versions);
+    
+    console.log('✅ Página de visualização populada com sucesso');
+}
+
+// Função auxiliar robusta para definir conteúdo no Quill visualizador
+function setQuillViewerContentSafely(content, retryCount = 0) {
+    const maxRetries = 3;
+    
+    console.log(`🔄 setQuillViewerContentSafely - Tentativa ${retryCount + 1}/${maxRetries + 1}`, content);
+    
+    if (!quill) {
+        console.error('❌ Quill não inicializado em setQuillViewerContentSafely');
+        return false;
+    }
+    
+    if (!window.quillViewerReady && retryCount < maxRetries) {
+        console.log('⏳ Aguardando Quill visualizador ficar pronto...');
+        setTimeout(() => setQuillViewerContentSafely(content, retryCount + 1), 200);
+        return;
+    }
+    
+    try {
+        // Preparar conteúdo
+        let contentToSet;
+        if (content && content.ops && Array.isArray(content.ops) && content.ops.length > 0) {
+            contentToSet = content;
+        } else {
+            contentToSet = { ops: [{ insert: 'Nenhum conteúdo disponível.\n' }] };
+            console.log('⚠️ Conteúdo vazio ou inválido, usando conteúdo padrão');
+        }
+        
+        console.log('🖊️ Definindo conteúdo no Quill visualizador:', contentToSet);
+        
+        // Definir conteúdo
+        quill.setContents(contentToSet);
+        
+        // Verificar se foi definido
+        setTimeout(() => {
+            const verification = quill.getContents();
+            console.log('🔍 Verificação pós-definição (view):', verification);
+            
+            if (verification.ops && verification.ops.length > 0) {
+                console.log('✅ Conteúdo definido com sucesso no Quill visualizador');
+                return true;
+            } else {
+                console.error('❌ Falha na verificação do conteúdo (view)');
+                if (retryCount < maxRetries) {
+                    console.log('🔄 Tentando novamente...');
+                    setTimeout(() => setQuillViewerContentSafely(content, retryCount + 1), 300);
+                }
+                return false;
+            }
+        }, 100);
+        
+    } catch (error) {
+        console.error('❌ Erro em setQuillViewerContentSafely:', error);
+        if (retryCount < maxRetries) {
+            setTimeout(() => setQuillViewerContentSafely(content, retryCount + 1), 300);
+        }
+        return false;
+    }
+}
+
+// Função legacy mantida para compatibilidade (agora usa a nova estrutura)
+async function fetchProcedureData(id) {
+    console.log('⚠️ Usando função legacy fetchProcedureData (view), considere migrar para initializeViewPage');
+    return await initializeViewPage(id);
 }
 
 function renderMetaInfo(data) {
@@ -77,14 +280,22 @@ function renderMetaInfo(data) {
     container.html(metaHtml);
 }
 
+// ===============================
+// FUNÇÕES DE RENDERIZAÇÃO OTIMIZADAS PARA VIEW
+// ===============================
+
 function renderAttachments(attachments) {
     const container = $('#attachments-list');
     container.empty();
+    
     if (!attachments || attachments.length === 0) {
         container.html('<p class="text-muted">Nenhum anexo encontrado.</p>');
         return;
     }
 
+    // Use DocumentFragment para performance
+    const fragment = document.createDocumentFragment();
+    
     attachments.forEach(att => {
         const type = att.type || 'file';
         const description = att.description || (type === 'file' ? att.url.split('/').pop() : att.url);
@@ -116,27 +327,34 @@ function renderAttachments(attachments) {
             buttonsHtml = `<a href="${url}" target="_blank" class="btn btn-light" title="Abrir Link"><i class="ri-external-link-line"></i></a>`;
         }
 
-        const cardHtml = `
-            <div class="attachment-card p-2 mb-2" data-type="${type}">
-                <div class="d-flex align-items-center">
-                    <div class="me-2">${iconHtml}</div>
-                    <div class="flex-grow-1 mx-2" style="min-width: 0;">
-                        <p class="m-0 text-truncate attachment-description">${description}</p>
-                        ${isFile ? `<small class="text-muted text-truncate d-block attachment-filename">${url.split('/').pop()}</small>` : ''}
-                        ${isVideo ? `<small class="text-muted text-truncate d-block attachment-filename">${url}</small>` : ''}
-                    </div>
-                    <div class="ms-auto">
-                        <div class="btn-group btn-group-sm">
-                            ${buttonsHtml}
-                        </div>
+        // Criar elemento DOM direto para melhor performance
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'attachment-card p-2 mb-2';
+        cardDiv.setAttribute('data-type', type);
+        
+        cardDiv.innerHTML = `
+            <div class="d-flex align-items-center">
+                <div class="me-2">${iconHtml}</div>
+                <div class="flex-grow-1 mx-2" style="min-width: 0;">
+                    <p class="m-0 text-truncate attachment-description">${description}</p>
+                    ${isFile ? `<small class="text-muted text-truncate d-block attachment-filename">${url.split('/').pop()}</small>` : ''}
+                    ${isVideo ? `<small class="text-muted text-truncate d-block attachment-filename">${url}</small>` : ''}
+                </div>
+                <div class="ms-auto">
+                    <div class="btn-group btn-group-sm">
+                        ${buttonsHtml}
                     </div>
                 </div>
             </div>`;
-        container.append(cardHtml);
+        
+        fragment.appendChild(cardDiv);
     });
 
-    // Event listener para o modal de imagem (agora aplicado na classe dos novos botões)
-    $('.image-attachment-view').on('click', function(e) {
+    // Adicionar tudo de uma vez usando fragment
+    container[0].appendChild(fragment);
+
+    // Event listener otimizado para o modal de imagem
+    $('.image-attachment-view').off('click.viewModal').on('click.viewModal', function(e) {
         e.preventDefault();
         const imageUrl = $(this).data('url');
         $('#modal-image').attr('src', imageUrl);
@@ -174,11 +392,19 @@ function renderAttachmentsForPrint(attachments) {
 function renderHistory(versions) {
     const list = $('#version-history-list');
     list.empty();
+    
     if (!versions || versions.length === 0) {
         list.html('<li class="list-group-item text-muted">Nenhum histórico de versão encontrado.</li>');
         return;
     }
-    versions.sort((a, b) => b.version_number - a.version_number).forEach(item => {
+    
+    // Usar DocumentFragment para performance
+    const fragment = document.createDocumentFragment();
+    
+    // Ordenar versões por número
+    const sortedVersions = [...versions].sort((a, b) => b.version_number - a.version_number);
+    
+    sortedVersions.forEach(item => {
         let dateStr = '-';
         if (item.created_at) {
             const date = new Date(item.created_at);
@@ -189,15 +415,126 @@ function renderHistory(versions) {
                 hour: '2-digit', minute: '2-digit', second: '2-digit'
             });
         }
-        const listItem = `
-            <li class="list-group-item">
-                <strong>Versão ${item.version_number}</strong>
-                <small class="d-block text-muted">
-                    por ${item.author_name || 'Desconhecido'} em ${dateStr}
-                </small>
-                <div class="text-secondary small mt-1"><i class='ri-chat-history-line me-1'></i> ${item.change_summary || 'Sem resumo.'}</div>
-            </li>
+        
+        // Criar elemento direto para melhor performance
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item';
+        listItem.innerHTML = `
+            <strong>Versão ${item.version_number}</strong>
+            <small class="d-block text-muted">
+                por ${item.author_name || 'Desconhecido'} em ${dateStr}
+            </small>
+            <div class="text-secondary small mt-1"><i class='ri-chat-history-line me-1'></i> ${item.change_summary || 'Sem resumo.'}</div>
         `;
-        list.append(listItem);
+        
+        fragment.appendChild(listItem);
     });
+    
+    // Adicionar tudo de uma vez
+    list[0].appendChild(fragment);
+}
+
+// ===============================
+// FUNÇÕES AUXILIARES PARA VIEW
+// ===============================
+
+// Função para impressão otimizada
+function optimizedPrint() {
+    console.log('🖨️ Iniciando impressão otimizada...');
+    
+    // Aguardar todas as imagens carregarem antes de imprimir
+    const images = document.querySelectorAll('img');
+    let loadedImages = 0;
+    const totalImages = images.length;
+    
+    // Função para verificar se todas as imagens carregaram
+    function checkAllImagesLoaded() {
+        loadedImages++;
+        console.log(`📸 Imagem carregada: ${loadedImages}/${totalImages}`);
+        
+        if (loadedImages === totalImages) {
+            console.log('✅ Todas as imagens carregadas, iniciando impressão...');
+            setTimeout(() => {
+                window.print();
+            }, 200); // Pequeno delay para garantir renderização
+        }
+    }
+    
+    if (totalImages === 0) {
+        console.log('📄 Nenhuma imagem encontrada, imprimindo diretamente...');
+        window.print();
+        return;
+    }
+    
+    console.log(`📸 Aguardando carregamento de ${totalImages} imagens...`);
+    
+    images.forEach((img, index) => {
+        if (img.complete && img.naturalHeight !== 0) {
+            console.log(`✅ Imagem ${index + 1} já carregada`);
+            checkAllImagesLoaded();
+        } else {
+            console.log(`⏳ Aguardando imagem ${index + 1}...`);
+            img.addEventListener('load', checkAllImagesLoaded, { once: true });
+            img.addEventListener('error', () => {
+                console.log(`❌ Erro ao carregar imagem ${index + 1}, continuando...`);
+                checkAllImagesLoaded();
+            }, { once: true });
+        }
+    });
+    
+    // Timeout de segurança para evitar travamento
+    setTimeout(() => {
+        if (loadedImages < totalImages) {
+            console.log('⚠️ Timeout de segurança atingido, imprimindo mesmo assim...');
+            window.print();
+        }
+    }, 5000); // 5 segundos de timeout
+}
+
+// Função para limpar cache (útil para desenvolvimento)
+function clearViewCache() {
+    viewCache = {
+        data: null,
+        timestamp: 0
+    };
+    console.log('🗑️ Cache de visualização limpo');
+}
+
+// Função para verificar status do cache
+function getCacheStatus() {
+    const now = Date.now();
+    const isValid = viewCache.data && (now - viewCache.timestamp) < VIEW_CACHE_TTL;
+    
+    return {
+        hasData: !!viewCache.data,
+        isValid: isValid,
+        age: now - viewCache.timestamp,
+        ttl: VIEW_CACHE_TTL,
+        data: viewCache.data
+    };
+}
+
+// Função para recarregar dados forçadamente
+async function forceReloadProcedure() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const procedureId = urlParams.get('id');
+    
+    if (!procedureId) {
+        console.error('ID do procedimento não encontrado para reload');
+        return;
+    }
+    
+    // Limpar cache
+    clearViewCache();
+    
+    // Recarregar
+    await initializeViewPage(procedureId);
+}
+
+// Expor funções úteis globalmente para debugging
+if (typeof window !== 'undefined') {
+    window.clearViewCache = clearViewCache;
+    window.getCacheStatus = getCacheStatus;
+    window.forceReloadProcedure = forceReloadProcedure;
+    window.optimizedPrint = optimizedPrint;
 } 

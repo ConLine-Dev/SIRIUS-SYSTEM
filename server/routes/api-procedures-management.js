@@ -46,18 +46,53 @@ module.exports = function(io) {
     // Rota para obter um procedimento por ID
     router.get('/procedures/:id', proceduresController.getProcedureById);
 
-    // Rotas para criar, atualizar e deletar
+    // Rota otimizada para carregar conteúdo de versão específica sob demanda
+    router.get('/procedures/:procedureId/versions/:versionNumber/content', proceduresController.getVersionContent);
+
+    // Rotas otimizadas para criar, atualizar e deletar
     router.post('/procedures', async (req, res) => {
         const result = await proceduresController.createProcedure(req, res);
-        if (io && result && result.id) io.emit('updateProcedures', { action: 'create', id: result.id });
+        if (io && result && result.id) {
+            // Emitir evento específico com título para notificação
+            io.emit('procedure_created', { 
+                id: result.id, 
+                title: req.body.title || 'Novo Procedimento',
+                action: 'create'
+            });
+        }
     });
+    
     router.put('/procedures/:id', async (req, res) => {
         const result = await proceduresController.updateProcedure(req, res);
-        if (io && result && result.success) io.emit('updateProcedures', { action: 'update', id: req.params.id });
+        if (io && result && result.success) {
+            // Emitir evento específico com título para notificação
+            io.emit('procedure_updated', { 
+                id: req.params.id, 
+                title: req.body.title || 'Procedimento',
+                action: 'update'
+            });
+        }
     });
+    
     router.delete('/procedures/:id', async (req, res) => {
+        // Buscar título antes de deletar para notificação
+        let procedureTitle = 'Procedimento';
+        try {
+            const procedure = await proceduresController.getProcedureTitle(req.params.id);
+            if (procedure) procedureTitle = procedure.title;
+        } catch (error) {
+            console.error('Erro ao buscar título do procedimento:', error);
+        }
+        
         const result = await proceduresController.deleteProcedure(req, res);
-        if (io && result && result.success) io.emit('updateProcedures', { action: 'delete', id: req.params.id });
+        if (io && result && result.success) {
+            // Emitir evento específico com título para notificação
+            io.emit('procedure_deleted', { 
+                id: req.params.id, 
+                title: procedureTitle,
+                action: 'delete'
+            });
+        }
     });
 
     // Novas rotas para obter metadados para os formulários
@@ -70,9 +105,24 @@ module.exports = function(io) {
 
     // Reverter um procedimento para uma versão específica
     router.post('/procedures/:id/revert', async (req, res) => {
+        // Buscar título para notificação
+        let procedureTitle = 'Procedimento';
+        try {
+            const procedure = await proceduresController.getProcedureTitle(req.params.id);
+            if (procedure) procedureTitle = procedure.title;
+        } catch (error) {
+            console.error('Erro ao buscar título do procedimento:', error);
+        }
+        
         const result = await proceduresController.revertToVersion(req, res);
         if (io && result && result.success) {
-            io.emit('updateProcedures', { action: 'update', id: req.params.id });
+            // Emitir evento específico para reversão
+            io.emit('procedure_updated', { 
+                id: req.params.id, 
+                title: procedureTitle,
+                action: 'revert',
+                version: req.body.version_number
+            });
         }
     });
 

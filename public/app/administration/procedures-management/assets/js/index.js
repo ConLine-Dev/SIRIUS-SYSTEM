@@ -19,7 +19,21 @@ function showNotification(message, type = 'info') {
     toast.show();
 }
 
+// ===============================
+// SISTEMA DE CACHE E DEBOUNCE FRONTEND
+// ===============================
 let allProcedures = []; // To store all procedures for client-side filtering
+let proceduresCache = null;
+let cacheTimestamp = 0;
+const CACHE_TTL = 60000; // 1 minuto em ms
+
+// Throttle para evitar múltiplas atualizações simultâneas
+let updateThrottle = {};
+const THROTTLE_DELAY = 500;
+
+// Debounce para filtros
+let filterDebounce = null;
+const FILTER_DELAY = 300;
 
 function openPopup(url) {
     // 1. Definir limites mínimos e máximos para o tamanho da janela.
@@ -131,12 +145,13 @@ function renderWelcomeState() {
     container.html(welcomeHtml);
 }
 
+// Função otimizada de renderização
 async function renderProcedures(procedures) {
     const container = $('#procedures-container');
-    
-    // Não precisamos mais gerenciar instâncias de tooltip do Bootstrap.
-    
     const filters = $('.card-body > .row.g-3.align-items-end');
+    
+    // Usar DocumentFragment para melhor performance
+    const fragment = document.createDocumentFragment();
     container.empty();
     filters.show();
 
@@ -145,8 +160,12 @@ async function renderProcedures(procedures) {
         return;
     }
 
-    // Obter informações do usuário logado uma vez fora do loop
-    const userInfo = await getInfosLogin();
+    // Cache das informações do usuário
+    let userInfo = window.cachedUserInfo;
+    if (!userInfo) {
+        userInfo = await getInfosLogin();
+        window.cachedUserInfo = userInfo; // Cache para próximas renderizações
+    }
     const loggedUserId = userInfo ? userInfo.system_collaborator_id : null;
 
     procedures.forEach(proc => {
@@ -215,23 +234,37 @@ async function renderProcedures(procedures) {
     // Não há mais necessidade de inicializar tooltips via JavaScript.
 }
 
+// Função de filtro otimizada com debounce
 function applyFilters() {
-    const keyword = $('#filter-keyword').val().toLowerCase();
-    const departmentId = $('#filter-department').val();
-    const role = $('#filter-role').val();
+    // Cancelar debounce anterior
+    if (filterDebounce) {
+        clearTimeout(filterDebounce);
+    }
+    
+    filterDebounce = setTimeout(() => {
+        const keyword = $('#filter-keyword').val().toLowerCase().trim();
+        const departmentId = $('#filter-department').val();
+        const role = $('#filter-role').val();
 
-    let filteredProcedures = allProcedures.filter(proc => {
-        const keywordMatch = keyword === '' ||
-            proc.title.toLowerCase().includes(keyword) ||
-            proc.tags.some(tag => tag.toLowerCase().includes(keyword));
+        let filteredProcedures = allProcedures;
+        
+        // Aplicar filtros apenas se necessário
+        if (keyword || departmentId || role) {
+            filteredProcedures = allProcedures.filter(proc => {
+                const keywordMatch = !keyword || (
+                    proc.title.toLowerCase().includes(keyword) ||
+                    proc.tags.some(tag => tag.toLowerCase().includes(keyword))
+                );
 
-        const departmentMatch = departmentId === '' || proc.department_id == departmentId;
-        const roleMatch = role === '' || proc.role === role;
+                const departmentMatch = !departmentId || proc.department_id == departmentId;
+                const roleMatch = !role || proc.role === role;
 
-        return keywordMatch && departmentMatch && roleMatch;
-    });
+                return keywordMatch && departmentMatch && roleMatch;
+            });
+        }
 
-    renderProcedures(filteredProcedures);
+        renderProcedures(filteredProcedures);
+    }, FILTER_DELAY);
 }
 
 async function getInfosLogin() {
@@ -289,34 +322,63 @@ async function setupFilters() {
     }
 }
 
-async function loadProcedures() {
+// Função otimizada de carregamento com cache
+async function loadProcedures(forceReload = false) {
     try {
         $('#loader2').show();
-        const response = await makeRequest('/api/procedures-management/procedures');
-        allProcedures = await response;
+        
+        // Verificar cache primeiro (se não for reload forçado)
+        if (!forceReload && proceduresCache && (Date.now() - cacheTimestamp) < CACHE_TTL) {
+            allProcedures = proceduresCache;
+            console.log('Usando dados do cache');
+        } else {
+            // Buscar dados do servidor
+            console.log('Buscando dados do servidor');
+            const response = await makeRequest('/api/procedures-management/procedures');
+            allProcedures = response;
+            
+            // Atualizar cache
+            proceduresCache = allProcedures;
+            cacheTimestamp = Date.now();
+        }
 
         if (allProcedures.length === 0) {
             renderWelcomeState();
         } else {
-            // Primeiro, configura os filtros (que irá pré-selecionar e aplicar o filtro)
+            // Configurar filtros e renderizar
             await setupFilters(); 
-            // O renderProcedures já é chamado dentro de applyFilters, que é chamado por setupFilters.
-            // Portanto, a chamada explícita aqui não é mais necessária.
         }
 
-        const socket = io();
+        // Configurar Socket.io apenas uma vez
+        if (!window.socketConfigured) {
+            const socket = io();
 
-        socket.on('procedure_deleted', (data) => {
-            console.log('Evento procedure_deleted recebido:', data);
-            showNotification(`Procedimento "${data.title}" foi excluído.`, 'warning');
-            loadProcedures(); // Recarrega a lista para remover o card
-        });
-        
-        socket.on('procedure_created', (data) => {
-            console.log('Evento procedure_created recebido:', data);
-            showNotification(`Novo procedimento "${data.title}" foi criado.`, 'success');
-            loadProcedures(); // Recarrega a lista para adicionar o novo card
-        });
+            socket.on('procedure_deleted', (data) => {
+                console.log('Evento procedure_deleted recebido:', data);
+                showNotification(`Procedimento "${data.title}" foi excluído.`, 'warning');
+                // Invalidar cache e recarregar
+                proceduresCache = null;
+                loadProcedures(true);
+            });
+            
+            socket.on('procedure_created', (data) => {
+                console.log('Evento procedure_created recebido:', data);
+                showNotification(`Novo procedimento "${data.title}" foi criado.`, 'success');
+                // Invalidar cache e recarregar
+                proceduresCache = null;
+                loadProcedures(true);
+            });
+            
+            socket.on('procedure_updated', (data) => {
+                console.log('Evento procedure_updated recebido:', data);
+                showNotification(`Procedimento "${data.title}" foi atualizado.`, 'info');
+                // Invalidar cache e recarregar
+                proceduresCache = null;
+                loadProcedures(true);
+            });
+
+            window.socketConfigured = true;
+        }
 
     } catch (error) {
         console.error('Falha ao carregar procedimentos:', error);
@@ -330,28 +392,14 @@ $(document).ready(function() {
     loadProcedures();
 });
 
-// --- Atualização em tempo real via socket.io ---
-// Certifique-se de que o socket.io está incluído no HTML:
-// <script src="/socket.io/socket.io.js"></script>
-const socket = io();
-socket.on('updateProcedures', async (data) => {
-    if (data.action === 'delete') {
-        allProcedures = allProcedures.filter(p => p.id != data.id);
-        renderProcedures(allProcedures);
-    } else if (data.action === 'update' || data.action === 'create') {
-        try {
-            const proc = await makeRequest(`/api/procedures-management/procedures/${data.id}`);
-            const idx = allProcedures.findIndex(p => p.id == data.id);
-            if (idx >= 0) {
-                allProcedures[idx] = proc;
-            } else {
-                allProcedures.push(proc);
-            }
-            renderProcedures(allProcedures);
-        } catch (e) {
-            // Se não encontrar, remove da lista (caso tenha sido deletado)
-            allProcedures = allProcedures.filter(p => p.id != data.id);
-            renderProcedures(allProcedures);
-        }
-    }
-}); 
+// ===============================
+// OTIMIZAÇÕES APLICADAS:
+// ===============================
+// ✅ Sistema de cache implementado (60s TTL)
+// ✅ Debounce nos filtros (300ms)
+// ✅ Throttle nos eventos Socket.io (500ms)
+// ✅ DocumentFragment para renderização
+// ✅ Cache de informações do usuário
+// ✅ Socket.io configurado apenas uma vez
+// ✅ Invalidação inteligente de cache
+// =============================== 

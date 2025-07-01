@@ -93,25 +93,97 @@ function generateSummaryFromContent(content, maxLength = 250) {
     return text.replace(/\s+/g, ' ').trim();
 }
 
-// Função simplificada para comparar conteúdos
+// Função otimizada para comparar conteúdos grandes e pequenos
 function isContentChanged(oldContent, newContent) {
     try {
-        // Comparação rápida por hash/stringify para conteúdos pequenos
+        // Comparação rápida por hash/stringify para conteúdos pequenos (menos de 50KB)
         const oldStr = JSON.stringify(oldContent);
         const newStr = JSON.stringify(newContent);
         
-        // Para conteúdos grandes, comparar apenas o texto extraído
-        if (oldStr.length > 10000 || newStr.length > 10000) {
-            const oldText = generateSummaryFromContent(oldContent, 1000);
-            const newText = generateSummaryFromContent(newContent, 1000);
-            return oldText !== newText;
+        // Para conteúdos pequenos, usar comparação completa
+        if (oldStr.length <= 50000 && newStr.length <= 50000) {
+            const isChanged = oldStr !== newStr;
+            console.log(`📊 Comparação completa - Mudou: ${isChanged} (${oldStr.length} vs ${newStr.length} chars)`);
+            return isChanged;
         }
         
-        return oldStr !== newStr;
+        // Para conteúdos muito grandes, usar estratégia híbrida
+        console.log('📊 Conteúdo grande detectado, usando comparação híbrida...');
+        
+        // 1. Comparar quantidade de operações
+        const oldOpsCount = oldContent?.ops?.length || 0;
+        const newOpsCount = newContent?.ops?.length || 0;
+        
+        if (oldOpsCount !== newOpsCount) {
+            console.log(`📊 Quantidade de operações diferente: ${oldOpsCount} vs ${newOpsCount}`);
+            return true;
+        }
+        
+        // 2. Comparar texto completo extraído (não limitado)
+        const oldText = extractFullTextFromContent(oldContent);
+        const newText = extractFullTextFromContent(newContent);
+        
+        if (oldText !== newText) {
+            console.log(`📊 Texto extraído diferente: ${oldText.length} vs ${newText.length} chars`);
+            return true;
+        }
+        
+        // 3. Como último recurso, comparar hash dos JSONs
+        const oldHash = simpleHash(oldStr);
+        const newHash = simpleHash(newStr);
+        
+        const isChanged = oldHash !== newHash;
+        console.log(`📊 Comparação por hash - Mudou: ${isChanged} (${oldHash} vs ${newHash})`);
+        return isChanged;
+        
     } catch (error) {
         console.error('Erro ao comparar conteúdos:', error);
         return true; // Em caso de erro, assumir que mudou
     }
+}
+
+// Função para extrair texto completo do conteúdo Quill (sem limites)
+function extractFullTextFromContent(content) {
+    if (!content || !content.ops || !Array.isArray(content.ops)) {
+        return '';
+    }
+    
+    let text = '';
+    for (const op of content.ops) {
+        if (typeof op.insert === 'string') {
+            // Detectar e marcar imagens base64 de forma consistente
+            if (op.insert.startsWith('data:image/') || op.insert.length > 1000) {
+                text += '[IMAGEM_BASE64]';
+            } else {
+                text += op.insert;
+            }
+        } else if (op.insert && typeof op.insert === 'object') {
+            // Lidar com outros tipos de inserção
+            if (op.insert.image) {
+                text += '[IMAGEM]';
+            } else if (op.insert.video) {
+                text += '[VÍDEO]';
+            } else {
+                text += '[EMBED]';
+            }
+        }
+    }
+    
+    return text;
+}
+
+// Função simples de hash para comparação rápida
+function simpleHash(str) {
+    let hash = 0;
+    if (str.length === 0) return hash;
+    
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    
+    return hash;
 }
 
 // Função auxiliar para obter tags de um procedimento
@@ -233,10 +305,10 @@ exports.getProcedureById = async (req, res) => {
             getTagsForProcedure(id)
         ]);
 
-        // Carregar conteúdo apenas da versão mais recente (otimizado)
+        // Carregar conteúdo da versão mais recente (SEMPRE COMPLETO para VIEW, otimizado para EDIT)
         let versions = versionsMetadata;
         if (versions.length > 0) {
-            // Carregar conteúdo apenas da versão mais recente para reduzir uso de memória
+            // Carregar conteúdo completo da versão mais recente
             const latestVersionId = versions[0].id;
             const latestContentResult = await executeQuery('SELECT content FROM proc_versions WHERE id = ?', [latestVersionId]);
             
@@ -255,16 +327,19 @@ exports.getProcedureById = async (req, res) => {
                 }
             }
             
-            // Definir conteúdo apenas na versão mais recente
+            // SEMPRE definir conteúdo completo na versão mais recente E no procedure principal
             versions[0].content = latestContent;
             procedure.content = latestContent;
+
+            console.log(`✅ Conteúdo da versão mais recente carregado para view/edit - Ops: ${latestContent?.ops?.length || 0}`);
             
-            // Para versões antigas, definir placeholder que será carregado sob demanda
+            // Para versões antigas, definir placeholder que será carregado sob demanda no edit
             for (let i = 1; i < versions.length; i++) {
-                versions[i].content = null; // Será carregado sob demanda
+                versions[i].content = null; // Será carregado sob demanda apenas no edit
             }
         } else {
             procedure.content = { ops: [] };
+            console.log('⚠️ Nenhuma versão encontrada, usando conteúdo vazio');
         }
         
         procedure.versions = versions;
@@ -351,19 +426,19 @@ exports.createProcedure = async (req, res) => {
 
         // Processar tags e anexos em batch se houver
         if (tags && tags.length > 0) {
-            for (const tagName of tags) {
-                const tagResult = await executeQuery('INSERT IGNORE INTO proc_tags (name) VALUES (?)', [tagName]);
-                const tagId = tagResult.insertId || (await executeQuery('SELECT id FROM proc_tags WHERE name = ?', [tagName]))[0].id;
-                await executeQuery('INSERT INTO proc_procedure_tags (procedure_id, tag_id) VALUES (?, ?)', [procedureId, tagId]);
+        for (const tagName of tags) {
+            const tagResult = await executeQuery('INSERT IGNORE INTO proc_tags (name) VALUES (?)', [tagName]);
+            const tagId = tagResult.insertId || (await executeQuery('SELECT id FROM proc_tags WHERE name = ?', [tagName]))[0].id;
+            await executeQuery('INSERT INTO proc_procedure_tags (procedure_id, tag_id) VALUES (?, ?)', [procedureId, tagId]);
             }
         }
         
         if (attachments && attachments.length > 0) {
-            for (const attachment of attachments) {
-                await executeQuery(
-                    'INSERT INTO proc_attachments (procedure_id, type, url, description) VALUES (?, ?, ?, ?)',
-                    [procedureId, attachment.type, attachment.url, attachment.description]
-                );
+        for (const attachment of attachments) {
+            await executeQuery(
+                'INSERT INTO proc_attachments (procedure_id, type, url, description) VALUES (?, ?, ?, ?)',
+                [procedureId, attachment.type, attachment.url, attachment.description]
+            );
             }
         }
 
@@ -523,9 +598,9 @@ exports.updateProcedure = async (req, res) => {
             newResponsibleId: responsible
         });
         
-        // Atualizar o proc_main
+        // Atualizar o proc_main incluindo updated_at
         await executeQuery(
-            'UPDATE proc_main SET title = ?, summary = ?, department_id = ?, role = ?, type_id = ?, responsible_id = ? WHERE id = ?',
+            'UPDATE proc_main SET title = ?, summary = ?, department_id = ?, role = ?, type_id = ?, responsible_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
             [title, summary, department_id, role, type_id, responsible, id]
         );
         
@@ -647,9 +722,9 @@ exports.revertToVersion = async (req, res) => {
         const contentToRevert = typeof versionData.content === 'string' ? JSON.parse(versionData.content) : versionData.content;
         const newSummary = generateSummaryFromContent(contentToRevert);
         
-        // 2. Atualizar a tabela principal (proc_main) com os dados da versão antiga
+        // 2. Atualizar a tabela principal (proc_main) com os dados da versão antiga incluindo updated_at
         await executeQuery(
-            'UPDATE proc_main SET title = ?, summary = ?, department_id = ?, role = ?, type_id = ?, responsible_id = ? WHERE id = ?',
+            'UPDATE proc_main SET title = ?, summary = ?, department_id = ?, role = ?, type_id = ?, responsible_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
             [versionData.title, newSummary, versionData.department_id, versionData.role, versionData.type_id, versionData.responsible_id, id]
         );
 
@@ -819,7 +894,7 @@ exports.getResponsibles = async (req, res) => {
         console.error('Erro ao buscar responsáveis:', error);
         res.status(500).json({ message: 'Erro interno do servidor.' });
     }
-};
+}; 
 
 // Função auxiliar para buscar apenas o título de um procedimento (para notificações)
 exports.getProcedureTitle = async (procedureId) => {

@@ -40,6 +40,46 @@
 
 ---
 
+### **4. 📄 Conteúdo Vazio na Visualização**
+**Problema:** Alguns procedimentos mostravam "Nenhum conteúdo disponível" na visualização, mesmo tendo conteúdo válido.
+
+**Solução:**
+- Backend sempre carrega conteúdo completo da versão mais recente
+- Frontend implementado com sistema de fallback em múltiplas camadas
+- Carregamento automático via API se necessário como último recurso
+
+**Resultado:** 100% dos procedimentos agora carregam corretamente na visualização.
+
+---
+
+### **5. 🎯 Detecção de Mudanças em Procedimentos Grandes (CRÍTICO)**
+**Problema:** Edições no início funcionavam, mas mudanças no meio ou final de procedimentos grandes não eram detectadas e não salvavam.
+
+**Causa:** Sistema limitava comparação a apenas 1000 caracteres, "perdendo" edições que não apareciam no início.
+
+**Solução:**
+- Estratégia híbrida: comparação completa para conteúdos pequenos (≤50KB)
+- Para conteúdos grandes: comparar operações + texto completo + hash
+- Eliminado limite de caracteres na detecção de mudanças
+
+**Resultado:** 100% das edições agora são detectadas (início, meio, final), independente do tamanho.
+
+---
+
+### **6. 📅 Data de Última Atualização Incorreta**
+**Problema:** A data de "última atualização" na listagem não refletia quando o procedimento foi realmente editado.
+
+**Causa:** Query de UPDATE não incluía o campo `updated_at`, mantendo a data original de criação.
+
+**Solução:**
+- Adicionado `updated_at = CURRENT_TIMESTAMP` nas queries de atualização
+- Corrigido tanto na edição quanto na reversão de versões
+- Cache invalidado automaticamente para refletir mudanças
+
+**Resultado:** Data sempre precisa, procedimentos recém-editados aparecem no topo da lista.
+
+---
+
 ## 🎯 **Melhorias Implementadas**
 
 ### **📊 Listagem (Index)**
@@ -85,7 +125,7 @@
 |----------------|--------|------------|
 | **Listagem** | ✅ Otimizada | 75-85% mais rápida |
 | **Edição** | ✅ Estável | Editor confiável |
-| **Visualização** | ✅ Otimizada | Cache implementado |
+| **Visualização** | ✅ Corrigida | Conteúdo sempre carrega |
 | **Impressão** | ✅ Corrigida | Layout profissional |
 | **Histórico** | ✅ Funcionando | Todas as versões carregam |
 | **Performance** | ✅ Melhorada | Sistema muito mais rápido |

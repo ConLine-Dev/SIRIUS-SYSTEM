@@ -87,7 +87,7 @@ async function initializeViewPage(procedureId) {
         
         // 4. Popular página com dados carregados
         console.log('📝 Populando página de visualização...');
-        populateViewPage(data);
+        await populateViewPage(data);
         
         console.log('✅ Página de visualização carregada com sucesso!');
         
@@ -165,14 +165,14 @@ function initializeQuillViewer() {
 }
 
 // Função para popular a página com dados
-function populateViewPage(data) {
+async function populateViewPage(data) {
     console.log('📝 Populando página de visualização com dados...');
     
     // Popular título
     $('#title').text(data.title || 'Título não disponível');
     
-    // Popular Quill com conteúdo usando função robusta
-    setQuillViewerContentSafely(data.content);
+    // Popular Quill com conteúdo usando função robusta (aguardar conclusão)
+    await setQuillViewerContentSafely(data.content);
     
     // Renderizar outros componentes
     renderMetaInfo(data);
@@ -184,7 +184,7 @@ function populateViewPage(data) {
 }
 
 // Função auxiliar robusta para definir conteúdo no Quill visualizador
-function setQuillViewerContentSafely(content, retryCount = 0) {
+async function setQuillViewerContentSafely(content, retryCount = 0) {
     const maxRetries = 3;
     
     console.log(`🔄 setQuillViewerContentSafely - Tentativa ${retryCount + 1}/${maxRetries + 1}`, content);
@@ -201,13 +201,41 @@ function setQuillViewerContentSafely(content, retryCount = 0) {
     }
     
     try {
-        // Preparar conteúdo
+        // Verificar se precisa carregar conteúdo da versão mais recente
+        if (!content || !content.ops || !Array.isArray(content.ops) || content.ops.length === 0) {
+            console.log('⚠️ Conteúdo vazio recebido, tentando carregar versão mais recente...');
+            
+            // Tentar carregar da versão mais recente se houver
+            if (procedureData && procedureData.versions && procedureData.versions.length > 0) {
+                const latestVersion = procedureData.versions[0];
+                
+                if (latestVersion.content && latestVersion.content.ops && latestVersion.content.ops.length > 0) {
+                    console.log('✅ Conteúdo encontrado na versão mais recente, usando...');
+                    content = latestVersion.content;
+                } else if (retryCount === 0) {
+                    // Tentar carregar conteúdo da versão via API como fallback
+                    console.log('🔄 Tentando carregar conteúdo via API...');
+                    try {
+                        const versionContent = await makeRequest(`/api/procedures-management/procedures/${procedureData.id}/versions/${latestVersion.version_number}/content`);
+                        if (versionContent && versionContent.content && versionContent.content.ops) {
+                            console.log('✅ Conteúdo carregado via API com sucesso');
+                            content = versionContent.content;
+                        }
+                    } catch (apiError) {
+                        console.error('❌ Erro ao carregar conteúdo via API:', apiError);
+                    }
+                }
+            }
+        }
+        
+        // Preparar conteúdo final
         let contentToSet;
         if (content && content.ops && Array.isArray(content.ops) && content.ops.length > 0) {
             contentToSet = content;
+            console.log(`✅ Usando conteúdo válido com ${content.ops.length} operações`);
         } else {
             contentToSet = { ops: [{ insert: 'Nenhum conteúdo disponível.\n' }] };
-            console.log('⚠️ Conteúdo vazio ou inválido, usando conteúdo padrão');
+            console.log('⚠️ Usando conteúdo padrão - nenhum conteúdo válido encontrado');
         }
         
         console.log('🖊️ Definindo conteúdo no Quill visualizador:', contentToSet);

@@ -53,7 +53,7 @@ function renderModules(modules) {
         cardBodyDiv.classList.add('card-body');
 
         modules[category].forEach(module => {
-            if(!module.module_id){
+            if (!module.module_id) {
                 return false
             }
             // Cria o elemento de check
@@ -122,7 +122,7 @@ async function handleModuleAccessChange(event) {
 }
 
 async function listAllUsers() {
-    const users = await makeRequest('/api/users/listAllUsers');
+    const users = await makeRequest('/api/users/listAllUsersActive');
     console.log(users);
     let userHTML = ``;
     for (let index = 0; index < users.length; index++) {
@@ -181,7 +181,6 @@ async function listAllUsers() {
     });
 }
 
-
 async function init() {
     currentUserId = null; // Inicialize a variável global
     await listAllUsers();
@@ -191,4 +190,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     await init();
     document.querySelector('#loader2').classList.add('d-none');
 });
-

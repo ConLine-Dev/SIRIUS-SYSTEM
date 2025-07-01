@@ -16,7 +16,7 @@ async function initializeDefaultValues() {
  * Busca e popula o select com os usuários envolvidos.
  */
 async function loadInvolvedUsers() {
-    const users = await makeRequest('/api/users/listAllUsers');
+    const users = await makeRequest('/api/users/listAllUsersActive');
 
     // Formatar dados para o Choices.js
     const options = users.map(user => ({
@@ -63,7 +63,7 @@ async function loadItUsers() {
  * Carrega os responsáveis e popula o select correspondente.
  */
 async function loadResponsibleUsers() {
-    const users = await makeRequest('/api/users/listAllUsers');
+    const users = await makeRequest('/api/users/listAllUsersActive');
 
     const selectElement = document.querySelector('select[name="responsible"]');
     selectElement.innerHTML = '';

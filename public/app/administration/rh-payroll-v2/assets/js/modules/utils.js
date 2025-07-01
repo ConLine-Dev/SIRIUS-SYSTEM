@@ -246,7 +246,7 @@ export function downloadFile(blob, filename) {
 export async function loadEmployees() {
     try {
         
-        const employees = await makeRequest(`/api/users/listAllUsers`);
+        const employees = await makeRequest(`/api/users/listAllUsersActive`);
         return employees;
         
        

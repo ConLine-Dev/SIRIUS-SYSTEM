@@ -6,7 +6,7 @@ let sAllResponsible, sAllDepartments;
 // Esta função busca todos os usuários responsáveis via uma requisição à API
 async function getAllResponsible() {
     // carrega os usuarios responsaveis
-    const Responsible = await makeRequest(`/api/users/listAllUsers`);
+    const Responsible = await makeRequest(`/api/users/listAllUsersActive`);
 
     // Formate o array para ser usado com o Choices.js
     const listaDeOpcoes = Responsible.map(function (element) {

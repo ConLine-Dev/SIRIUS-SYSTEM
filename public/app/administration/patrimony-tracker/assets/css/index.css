@@ -330,4 +330,41 @@ body {
 #grouped-view .table td {
     padding: 0.5rem 0.75rem;
     white-space: nowrap;
+}
+
+/* Estilos para ordenação */
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+    position: relative;
+}
+
+.sortable:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.sortable i {
+    font-size: 0.8rem;
+    vertical-align: middle;
+}
+
+/* Estilos para o dropdown de ordenação */
+#sort-dropdown .dropdown-toggle {
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+#sort-dropdown .dropdown-menu {
+    min-width: 180px;
+}
+
+/* Indicador visual para campo ordenado */
+.sortable.active {
+    background-color: rgba(var(--primary-rgb), 0.1);
+}
+
+/* Estilo para o gap entre elementos */
+.gap-2 {
+    gap: 0.5rem !important;
 } 

@@ -88,20 +88,37 @@
                             <span class="mx-2">|</span>
                             <strong id="items-total-value-display">Valor total: R$ 0,00</strong>
                         </div>
-                        <!-- View Options -->
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-outline-primary active" id="btn-view-table" data-bs-toggle="tooltip" title="Visualização em Tabela">
-                                <i class="ri-table-line"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-primary" id="btn-view-cards" data-bs-toggle="tooltip" title="Visualização em Cards">
-                                <i class="ri-layout-grid-line"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-primary" id="btn-view-grouped" data-bs-toggle="tooltip" title="Visualização Agrupada">
-                                <i class="ri-layout-column-line"></i>
-                            </button>
-                             <button type="button" class="btn btn-outline-success" id="btn-export-excel" data-bs-toggle="tooltip" title="Exportar para Excel">
-                                <i class="ri-file-excel-2-line"></i>
-                            </button>
+                        <div class="d-flex align-items-center gap-2">
+                            <!-- Ordenação para Cards e Agrupada -->
+                            <div class="dropdown" id="sort-dropdown" style="display: none;">
+                                <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="ri-sort-asc me-1"></i>Ordenar
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item sort-option" href="#" data-field="code">Código</a></li>
+                                    <li><a class="dropdown-item sort-option" href="#" data-field="description">Descrição</a></li>
+                                    <li><a class="dropdown-item sort-option" href="#" data-field="location">Localização</a></li>
+                                    <li><a class="dropdown-item sort-option" href="#" data-field="employee">Colaborador</a></li>
+                                    <li><a class="dropdown-item sort-option" href="#" data-field="acquisition_date">Data Aquisição</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" id="clear-sort">Limpar Ordenação</a></li>
+                                </ul>
+                            </div>
+                            <!-- View Options -->
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-primary active" id="btn-view-table" data-bs-toggle="tooltip" title="Visualização em Tabela">
+                                    <i class="ri-table-line"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" id="btn-view-cards" data-bs-toggle="tooltip" title="Visualização em Cards">
+                                    <i class="ri-layout-grid-line"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" id="btn-view-grouped" data-bs-toggle="tooltip" title="Visualização Agrupada">
+                                    <i class="ri-layout-column-line"></i>
+                                </button>
+                                 <button type="button" class="btn btn-outline-success" id="btn-export-excel" data-bs-toggle="tooltip" title="Exportar para Excel">
+                                    <i class="ri-file-excel-2-line"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     

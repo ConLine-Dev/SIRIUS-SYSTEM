@@ -43,7 +43,7 @@ async function createArrays(filters) {
     if (!results[`'${data[0].region}'`]) {
       results[`'${data[0].region}'`] = 0;
     }
-    results[`'${data[0].region}'`]++;
+    results[`'${data[0].region}'`]+= countries[index].Total;
   }
 
   createProcessesChart(results);
@@ -654,8 +654,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   let filters = {}
 
+  console.time('timer')
   await printProcesses(filters);
   await createArrays(filters);
+  console.timeEnd('timer')
 
   document.querySelector('#loader2').classList.add('d-none')
 });

@@ -201,49 +201,82 @@ async function setQuillViewerContentSafely(content, retryCount = 0) {
     }
     
     try {
-        // Verificar se precisa carregar conteúdo da versão mais recente
-        if (!content || !content.ops || !Array.isArray(content.ops) || content.ops.length === 0) {
-            console.log('⚠️ Conteúdo vazio recebido, tentando carregar versão mais recente...');
+        let contentToSet = null;
+        
+        // ===============================
+        // VERIFICAÇÃO E FALLBACK MELHORADOS
+        // ===============================
+        
+        // 1. Verificar se o conteúdo recebido é válido
+        if (content && content.ops && Array.isArray(content.ops) && content.ops.length > 0) {
+            console.log(`✅ Conteúdo válido recebido com ${content.ops.length} operações`);
+            contentToSet = content;
+        }
+        // 2. Se conteúdo vazio, tentar buscar da versão mais recente disponível nas versões locais
+        else if (procedureData && procedureData.versions && procedureData.versions.length > 0) {
+            console.log('⚠️ Conteúdo vazio recebido, verificando versões disponíveis...');
             
-            // Tentar carregar da versão mais recente se houver
-            if (procedureData && procedureData.versions && procedureData.versions.length > 0) {
-                const latestVersion = procedureData.versions[0];
+            // Ordenar versões por número decrescente
+            const sortedVersions = [...procedureData.versions].sort((a, b) => b.version_number - a.version_number);
+            
+            for (const version of sortedVersions) {
+                console.log(`🔍 Verificando versão ${version.version_number}...`);
                 
-                if (latestVersion.content && latestVersion.content.ops && latestVersion.content.ops.length > 0) {
-                    console.log('✅ Conteúdo encontrado na versão mais recente, usando...');
-                    content = latestVersion.content;
-                } else if (retryCount === 0) {
-                    // Tentar carregar conteúdo da versão via API como fallback
-                    console.log('🔄 Tentando carregar conteúdo via API...');
+                // Se a versão já tem conteúdo carregado e é válido
+                if (version.content && version.content.ops && Array.isArray(version.content.ops) && version.content.ops.length > 0) {
+                    console.log(`✅ Conteúdo encontrado na versão ${version.version_number} (${version.content.ops.length} operações)`);
+                    contentToSet = version.content;
+                    break;
+                }
+                // Se a versão não tem conteúdo carregado (null), tentar carregar via API apenas se for a primeira tentativa
+                else if (version.content === null && retryCount === 0) {
+                    console.log(`🔄 Tentando carregar conteúdo da versão ${version.version_number} via API...`);
+                    
                     try {
-                        const versionContent = await makeRequest(`/api/procedures-management/procedures/${procedureData.id}/versions/${latestVersion.version_number}/content`);
-                        if (versionContent && versionContent.content && versionContent.content.ops) {
-                            console.log('✅ Conteúdo carregado via API com sucesso');
-                            content = versionContent.content;
+                        const versionContent = await makeRequest(`/api/procedures-management/procedures/${procedureData.id}/versions/${version.version_number}/content`);
+                        
+                        if (versionContent && versionContent.content && versionContent.content.ops && versionContent.content.ops.length > 0) {
+                            console.log(`✅ Conteúdo carregado via API da versão ${version.version_number} (${versionContent.content.ops.length} operações)`);
+                            
+                            // Atualizar cache local
+                            version.content = versionContent.content;
+                            contentToSet = versionContent.content;
+                            break;
+                        } else {
+                            console.log(`⚠️ Versão ${version.version_number} via API também retornou conteúdo vazio`);
                         }
                     } catch (apiError) {
-                        console.error('❌ Erro ao carregar conteúdo via API:', apiError);
+                        console.log(`❌ Erro ao carregar versão ${version.version_number} via API:`, apiError.message);
+                        // Continuar tentando outras versões
+                        continue;
                     }
+                } else {
+                    console.log(`⚠️ Versão ${version.version_number} não tem conteúdo válido`);
                 }
             }
+            
+            // Se chegou até aqui e não encontrou conteúdo
+            if (!contentToSet) {
+                console.log('⚠️ Nenhuma versão com conteúdo válido encontrada');
+            }
+        } else {
+            console.log('⚠️ Nenhum dado de versão disponível');
         }
         
-        // Preparar conteúdo final
-        let contentToSet;
-        if (content && content.ops && Array.isArray(content.ops) && content.ops.length > 0) {
-            contentToSet = content;
-            console.log(`✅ Usando conteúdo válido com ${content.ops.length} operações`);
-        } else {
+        // 3. Fallback para conteúdo padrão se ainda não encontrou nada
+        if (!contentToSet) {
             contentToSet = { ops: [{ insert: 'Nenhum conteúdo disponível.\n' }] };
-            console.log('⚠️ Usando conteúdo padrão - nenhum conteúdo válido encontrado');
+            console.log('📝 Usando conteúdo padrão - nenhum conteúdo válido encontrado');
+        } else {
+            console.log('✅ Conteúdo válido será definido no Quill');
         }
         
         console.log('🖊️ Definindo conteúdo no Quill visualizador:', contentToSet);
         
-        // Definir conteúdo
+        // 4. Definir conteúdo no Quill
         quill.setContents(contentToSet);
         
-        // Verificar se foi definido
+        // 5. Verificar se foi definido corretamente
         setTimeout(() => {
             const verification = quill.getContents();
             console.log('🔍 Verificação pós-definição (view):', verification);

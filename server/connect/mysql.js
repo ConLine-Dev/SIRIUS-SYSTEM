@@ -13,7 +13,7 @@ let requestQueue = [];
 let activeConnectionsCount = 0;
 
 function createPool(connectionLimit) {
-  return mysql.createPool({
+  const poolConfig = {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     port: process.env.DB_PORT,
@@ -22,7 +22,55 @@ function createPool(connectionLimit) {
     charset: 'utf8mb4',
     waitForConnections: true,
     connectionLimit,
+    // ===============================
+    // CONFIGURAÇÕES PARA CONTEÚDOS GRANDES (OTIMIZADAS)
+    // ===============================
+    // Configurações suportadas pelo mysql2
+    supportBigNumbers: true,
+    bigNumberStrings: true,
+    dateStrings: false,
+    // SSL desabilitado se não necessário
+    ssl: false
+  };
+
+  const newPool = mysql.createPool(poolConfig);
+  
+  // Configurar sessão em cada conexão nova (apenas logs essenciais)
+  newPool.on('connection', function (connection) {
+    // ===============================
+    // CONFIGURAÇÕES DE SESSÃO ESSENCIAIS
+    // ===============================
+    
+    // Configurar timezone
+    connection.query('SET SESSION time_zone = "+00:00"', (err) => {
+      if (err) {
+        console.error('Erro ao configurar timezone:', err);
+      }
+    });
+    
+    // Configurar SQL mode compatível com MySQL 8.x
+    connection.query('SET SESSION sql_mode = "NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"', (err) => {
+      if (err) {
+        console.error('Erro ao configurar SQL mode:', err);
+      }
+    });
+    
+    // Configurar timeouts da sessão
+    connection.query('SET SESSION wait_timeout = 3600, interactive_timeout = 3600', (err) => {
+      if (err) {
+        console.error('Erro ao configurar timeouts:', err);
+      }
+    });
   });
+
+  // Logs de erro apenas (remover logs verbosos)
+  newPool.on('error', function(err) {
+    console.error('Erro no pool MySQL:', err);
+  });
+
+  console.log('Pool MySQL criado com limite de conexões:', connectionLimit);
+  
+  return newPool;
 }
 
 const getPoolStatus = () => {
@@ -149,6 +197,26 @@ const executeQuery = async (query, params = [], user = [], retries = 3) => {
     connection = await pool.getConnection();
     activeConnectionsCount++;
 
+    // ===============================
+    // LOG APENAS PARA QUERIES GRANDES (>5MB)
+    // ===============================
+    const queryStr = query.toString();
+    const paramsStr = JSON.stringify(params);
+    const totalSize = queryStr.length + paramsStr.length;
+    
+    if (totalSize > 5 * 1024 * 1024) { // > 5MB
+      const sizeMB = (totalSize / 1024 / 1024).toFixed(2);
+      console.log(`Executando query grande: ${sizeMB}MB`);
+      
+      // Verificar se é INSERT/UPDATE com conteúdo JSON grande
+      if (queryStr.includes('INSERT') || queryStr.includes('UPDATE')) {
+        const base64Count = (paramsStr.match(/data:image\/[^"]+/g) || []).length;
+        if (base64Count > 0) {
+          console.log(`Query contém ${base64Count} imagem(ns) base64`);
+        }
+      }
+    }
+
     const [results] = await connection.query(query, params);
 
     await logQuery(connection, user, query, params, true);
@@ -157,6 +225,16 @@ const executeQuery = async (query, params = [], user = [], retries = 3) => {
   } catch (error) {
     if (connection) {
       await logQuery(connection, user, query, params, false, error.message);
+    }
+
+    // ===============================
+    // TRATAMENTO ESPECÍFICO DE ERROS
+    // ===============================
+    if (error.message && error.message.includes('max_allowed_packet')) {
+      console.error('ERRO CRÍTICO: max_allowed_packet excedido!');
+      console.error('Tamanho da query:', query.length);
+      console.error('Tamanho dos parâmetros:', JSON.stringify(params).length);
+      throw new Error('Conteúdo muito grande para o banco de dados. Configure max_allowed_packet no MySQL.');
     }
 
     if (error.message.includes('Pool is closed') && retries > 0) {
@@ -173,6 +251,39 @@ const executeQuery = async (query, params = [], user = [], retries = 3) => {
     }
   }
 };
+
+// ===============================
+// FUNÇÃO DE VERIFICAÇÃO INICIAL (SIMPLIFICADA)
+// ===============================
+const verifyMySQLConfiguration = async () => {
+  try {
+    const connection = await pool.getConnection();
+    
+    // Verificar apenas max_allowed_packet (essencial para conteúdos grandes)
+    const [globalResult] = await connection.query('SHOW GLOBAL VARIABLES LIKE "max_allowed_packet"');
+    
+    if (globalResult && globalResult.length > 0) {
+      const globalMaxPacket = parseInt(globalResult[0].Value);
+      const globalMaxPacketMB = (globalMaxPacket / 1024 / 1024).toFixed(2);
+      
+      if (globalMaxPacket >= 134217728) {
+        console.log(`MySQL configurado adequadamente: ${globalMaxPacketMB}MB max_allowed_packet`);
+      } else {
+        console.warn(`MySQL max_allowed_packet pode ser insuficiente: ${globalMaxPacketMB}MB (recomendado: 128MB+)`);
+      }
+    } else {
+      console.warn('Não foi possível verificar max_allowed_packet');
+    }
+    
+    connection.release();
+    
+  } catch (error) {
+    console.error('Erro na verificação MySQL:', error);
+  }
+};
+
+// Executar verificação na inicialização
+setTimeout(verifyMySQLConfiguration, 2000);
 
 const getConnectionStatus = () => {
   return getPoolStatus();

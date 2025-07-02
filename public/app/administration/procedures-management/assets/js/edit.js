@@ -215,44 +215,101 @@ $(document).ready(function() {
         
         isSaving = true;
         toggleUpdateButton(true);
-        const contentData = quill.getContents();
         
-        const attachments = [];
-        $('.attachment-card').each(function() {
-            const $card = $(this);
-            const type = $card.data('type');
-            const url = $card.find('.attachment-url').val();
-            
-            let description = $card.find('.attachment-description-display').text();
-            if (description === 'Clique para adicionar uma descrição') {
-                description = '';
-            }
-    
-            if (url) {
-                attachments.push({ type, url, description });
-            }
-        });
-
-        const tagsValue = $('#tags').val() || '';
-        const dataToSave = {
-            title: $('#title').val(),
-            content: contentData,
-            department_id: $('#department').val(),
-            role: $('#role').val(),
-            type_id: $('#type').val(),
-            responsible: $('#responsible').val(),
-            tags: tagsValue.split(',').map(tag => tag.trim()).filter(tag => tag),
-            attachments: attachments
-        };
         try {
+            const contentData = quill.getContents();
+            
+            // ===============================
+            // VERIFICAÇÃO E OTIMIZAÇÃO DE CONTEÚDO
+            // ===============================
+            const contentStr = JSON.stringify(contentData);
+            const contentSizeMB = (contentStr.length / 1024 / 1024).toFixed(2);
+            
+            console.log(`📊 Tamanho do conteúdo: ${contentSizeMB}MB`);
+            
+            // Verificar se há imagens base64 e alertar usuário se muito grande
+            const base64Images = (contentStr.match(/data:image\/[^"]+/g) || []);
+            if (base64Images.length > 0) {
+                console.log(`🖼️ Imagens base64 detectadas: ${base64Images.length}`);
+                
+                // Calcular tamanho total das imagens
+                const totalImageSize = base64Images.reduce((acc, img) => acc + img.length, 0);
+                const imageSizeMB = (totalImageSize / 1024 / 1024).toFixed(2);
+                
+                if (totalImageSize > 10 * 1024 * 1024) { // 10MB
+                    const proceed = confirm(`⚠️ Atenção: O procedimento contém ${base64Images.length} imagem(ns) ocupando ${imageSizeMB}MB.\n\nIsso pode causar lentidão ou falhas no salvamento.\n\nDeseja continuar? (Recomenda-se reduzir o tamanho das imagens)`);
+                    
+                    if (!proceed) {
+                        toggleUpdateButton(false);
+                        isSaving = false;
+                        return;
+                    }
+                }
+            }
+            
+            // Verificar tamanho total do conteúdo
+            if (contentStr.length > 20 * 1024 * 1024) { // 20MB
+                alert('❌ Conteúdo muito grande (>20MB). Por favor, reduza o tamanho das imagens antes de salvar.');
+                toggleUpdateButton(false);
+                isSaving = false;
+                return;
+            }
+            
+            const attachments = [];
+            $('.attachment-card').each(function() {
+                const $card = $(this);
+                const type = $card.data('type');
+                const url = $card.find('.attachment-url').val();
+                
+                let description = $card.find('.attachment-description-display').text();
+                if (description === 'Clique para adicionar uma descrição') {
+                    description = '';
+                }
+        
+                if (url) {
+                    attachments.push({ type, url, description });
+                }
+            });
+
+            const tagsValue = $('#tags').val() || '';
+            const dataToSave = {
+                title: $('#title').val(),
+                content: contentData,
+                department_id: $('#department').val(),
+                role: $('#role').val(),
+                type_id: $('#type').val(),
+                responsible: $('#responsible').val(),
+                tags: tagsValue.split(',').map(tag => tag.trim()).filter(tag => tag),
+                attachments: attachments
+            };
+            
+            console.log('📤 Enviando dados para o servidor...');
+            
             const response = await makeRequest(`/api/procedures-management/procedures/${procedureData.id}`, 'PUT', dataToSave);
             showNotification(response.message || 'Procedimento atualizado com sucesso!', 'success');
             setTimeout(() => {
                 window.close();
             }, 1000);
+            
         } catch (error) {
-            showNotification('Erro ao atualizar o procedimento.', 'danger');
-            console.error(error);
+            console.error('❌ Erro ao atualizar procedimento:', error);
+            
+            let errorMessage = 'Erro ao atualizar o procedimento.';
+            
+            // Tratamento específico para diferentes tipos de erro
+            if (error.responseJSON) {
+                if (error.responseJSON.error === 'CONTENT_TOO_LARGE') {
+                    errorMessage = '📊 ' + error.responseJSON.message;
+                } else {
+                    errorMessage = error.responseJSON.message || errorMessage;
+                }
+            } else if (error.status === 413) {
+                errorMessage = '📊 Conteúdo muito grande. Reduza o tamanho das imagens e tente novamente.';
+            } else if (error.status === 0) {
+                errorMessage = '🌐 Erro de conexão. Verifique sua internet e tente novamente.';
+            }
+            
+            showNotification(errorMessage, 'danger');
         } finally {
             toggleUpdateButton(false);
             isSaving = false; // Reset flag

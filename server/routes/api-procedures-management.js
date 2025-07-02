@@ -25,8 +25,58 @@ const upload = multer({
     limits: { fileSize: 25 * 1024 * 1024 } // Limite de 25MB por arquivo
 });
 
+// ===============================
+// MIDDLEWARE DE LOGGING E VERIFICAÇÃO
+// ===============================
+function logRequestSize(req, res, next) {
+    const contentLength = req.get('Content-Length');
+    if (contentLength) {
+        const sizeMB = (parseInt(contentLength) / 1024 / 1024).toFixed(2);
+        console.log(`📡 Request recebido - Tamanho: ${sizeMB}MB`);
+        
+        if (parseInt(contentLength) > 50 * 1024 * 1024) { // 50MB
+            console.warn(`⚠️ REQUEST MUITO GRANDE: ${sizeMB}MB`);
+        }
+    }
+    
+    // Log da URL e método
+    console.log(`🔍 ${req.method} ${req.originalUrl} - User: ${req.headers['x-user'] ? 'Auth' : 'No-Auth'}`);
+    next();
+}
+
+// Middleware para verificar payload JSON
+function checkJSONPayload(req, res, next) {
+    if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+        // Verificar se o body foi parseado corretamente
+        if (req.body && typeof req.body === 'object') {
+            const bodyStr = JSON.stringify(req.body);
+            const bodySizeMB = (bodyStr.length / 1024 / 1024).toFixed(2);
+            
+            console.log(`📄 JSON payload size: ${bodySizeMB}MB`);
+            
+            // Verificar se há conteúdo do Quill
+            if (req.body.content && req.body.content.ops) {
+                const contentStr = JSON.stringify(req.body.content);
+                const contentSizeMB = (contentStr.length / 1024 / 1024).toFixed(2);
+                console.log(`🖊️ Quill content size: ${contentSizeMB}MB`);
+                
+                // Verificar imagens base64
+                const base64Count = (contentStr.match(/data:image\/[^"]+/g) || []).length;
+                if (base64Count > 0) {
+                    console.log(`🖼️ Base64 images detected: ${base64Count}`);
+                }
+            }
+        }
+    }
+    next();
+}
+
 module.exports = function(io) {
     const router = express.Router();
+
+    // Aplicar middlewares de logging
+    router.use(logRequestSize);
+    router.use(checkJSONPayload);
 
     // Rota para upload de anexo
     router.post('/procedures/upload', upload.single('attachment'), (req, res) => {
@@ -51,47 +101,70 @@ module.exports = function(io) {
 
     // Rotas otimizadas para criar, atualizar e deletar
     router.post('/procedures', async (req, res) => {
-        const result = await proceduresController.createProcedure(req, res);
-        if (io && result && result.id) {
-            // Emitir evento específico com título para notificação
-            io.emit('procedure_created', { 
-                id: result.id, 
-                title: req.body.title || 'Novo Procedimento',
-                action: 'create'
-            });
+        try {
+            console.log('📝 Criando novo procedimento...');
+            const result = await proceduresController.createProcedure(req, res);
+            if (io && result && result.id) {
+                // Emitir evento específico com título para notificação
+                io.emit('procedure_created', { 
+                    id: result.id, 
+                    title: req.body.title || 'Novo Procedimento',
+                    action: 'create'
+                });
+            }
+        } catch (error) {
+            console.error('❌ Erro na rota de criação:', error);
+            if (!res.headersSent) {
+                res.status(500).json({ message: 'Erro interno do servidor.' });
+            }
         }
     });
     
     router.put('/procedures/:id', async (req, res) => {
-        const result = await proceduresController.updateProcedure(req, res);
-        if (io && result && result.success) {
-            // Emitir evento específico com título para notificação
-            io.emit('procedure_updated', { 
-                id: req.params.id, 
-                title: req.body.title || 'Procedimento',
-                action: 'update'
-            });
+        try {
+            console.log(`📝 Atualizando procedimento ${req.params.id}...`);
+            const result = await proceduresController.updateProcedure(req, res);
+            if (io && result && result.success) {
+                // Emitir evento específico com título para notificação
+                io.emit('procedure_updated', { 
+                    id: req.params.id, 
+                    title: req.body.title || 'Procedimento',
+                    action: 'update'
+                });
+            }
+        } catch (error) {
+            console.error('❌ Erro na rota de atualização:', error);
+            if (!res.headersSent) {
+                res.status(500).json({ message: 'Erro interno do servidor.' });
+            }
         }
     });
     
     router.delete('/procedures/:id', async (req, res) => {
-        // Buscar título antes de deletar para notificação
-        let procedureTitle = 'Procedimento';
         try {
-            const procedure = await proceduresController.getProcedureTitle(req.params.id);
-            if (procedure) procedureTitle = procedure.title;
+            // Buscar título antes de deletar para notificação
+            let procedureTitle = 'Procedimento';
+            try {
+                const procedure = await proceduresController.getProcedureTitle(req.params.id);
+                if (procedure) procedureTitle = procedure.title;
+            } catch (error) {
+                console.error('Erro ao buscar título do procedimento:', error);
+            }
+            
+            const result = await proceduresController.deleteProcedure(req, res);
+            if (io && result && result.success) {
+                // Emitir evento específico com título para notificação
+                io.emit('procedure_deleted', { 
+                    id: req.params.id, 
+                    title: procedureTitle,
+                    action: 'delete'
+                });
+            }
         } catch (error) {
-            console.error('Erro ao buscar título do procedimento:', error);
-        }
-        
-        const result = await proceduresController.deleteProcedure(req, res);
-        if (io && result && result.success) {
-            // Emitir evento específico com título para notificação
-            io.emit('procedure_deleted', { 
-                id: req.params.id, 
-                title: procedureTitle,
-                action: 'delete'
-            });
+            console.error('❌ Erro na rota de exclusão:', error);
+            if (!res.headersSent) {
+                res.status(500).json({ message: 'Erro interno do servidor.' });
+            }
         }
     });
 
@@ -105,24 +178,31 @@ module.exports = function(io) {
 
     // Reverter um procedimento para uma versão específica
     router.post('/procedures/:id/revert', async (req, res) => {
-        // Buscar título para notificação
-        let procedureTitle = 'Procedimento';
         try {
-            const procedure = await proceduresController.getProcedureTitle(req.params.id);
-            if (procedure) procedureTitle = procedure.title;
+            // Buscar título para notificação
+            let procedureTitle = 'Procedimento';
+            try {
+                const procedure = await proceduresController.getProcedureTitle(req.params.id);
+                if (procedure) procedureTitle = procedure.title;
+            } catch (error) {
+                console.error('Erro ao buscar título do procedimento:', error);
+            }
+            
+            const result = await proceduresController.revertToVersion(req, res);
+            if (io && result && result.success) {
+                // Emitir evento específico para reversão
+                io.emit('procedure_updated', { 
+                    id: req.params.id, 
+                    title: procedureTitle,
+                    action: 'revert',
+                    version: req.body.version_number
+                });
+            }
         } catch (error) {
-            console.error('Erro ao buscar título do procedimento:', error);
-        }
-        
-        const result = await proceduresController.revertToVersion(req, res);
-        if (io && result && result.success) {
-            // Emitir evento específico para reversão
-            io.emit('procedure_updated', { 
-                id: req.params.id, 
-                title: procedureTitle,
-                action: 'revert',
-                version: req.body.version_number
-            });
+            console.error('❌ Erro na rota de reversão:', error);
+            if (!res.headersSent) {
+                res.status(500).json({ message: 'Erro interno do servidor.' });
+            }
         }
     });
 

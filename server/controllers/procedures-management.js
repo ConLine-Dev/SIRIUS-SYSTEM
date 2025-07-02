@@ -96,18 +96,20 @@ function generateSummaryFromContent(content, maxLength = 250) {
 // Função otimizada para comparar conteúdos grandes e pequenos
 function isContentChanged(oldContent, newContent) {
     try {
-        // Comparação rápida por hash/stringify para conteúdos pequenos (menos de 50KB)
+        // Log de debug para acompanhar tamanho dos conteúdos
         const oldStr = JSON.stringify(oldContent);
         const newStr = JSON.stringify(newContent);
         
-        // Para conteúdos pequenos, usar comparação completa
-        if (oldStr.length <= 50000 && newStr.length <= 50000) {
+        console.log(`📊 Comparação de conteúdo - Old: ${oldStr.length} chars, New: ${newStr.length} chars`);
+        
+        // Para conteúdos pequenos (menos de 100KB), usar comparação completa
+        if (oldStr.length <= 100000 && newStr.length <= 100000) {
             const isChanged = oldStr !== newStr;
-            console.log(`📊 Comparação completa - Mudou: ${isChanged} (${oldStr.length} vs ${newStr.length} chars)`);
+            console.log(`📊 Comparação completa (pequeno) - Mudou: ${isChanged}`);
             return isChanged;
         }
         
-        // Para conteúdos muito grandes, usar estratégia híbrida
+        // Para conteúdos grandes, usar estratégia híbrida mais robusta
         console.log('📊 Conteúdo grande detectado, usando comparação híbrida...');
         
         // 1. Comparar quantidade de operações
@@ -119,27 +121,101 @@ function isContentChanged(oldContent, newContent) {
             return true;
         }
         
-        // 2. Comparar texto completo extraído (não limitado)
-        const oldText = extractFullTextFromContent(oldContent);
-        const newText = extractFullTextFromContent(newContent);
+        // 2. Extrair e comparar texto sem imagens base64 para análise rápida
+        const oldTextClean = extractTextWithoutBase64(oldContent);
+        const newTextClean = extractTextWithoutBase64(newContent);
         
-        if (oldText !== newText) {
-            console.log(`📊 Texto extraído diferente: ${oldText.length} vs ${newText.length} chars`);
+        if (oldTextClean !== newTextClean) {
+            console.log(`📊 Texto limpo (sem base64) diferente: ${oldTextClean.length} vs ${newTextClean.length} chars`);
             return true;
         }
         
-        // 3. Como último recurso, comparar hash dos JSONs
-        const oldHash = simpleHash(oldStr);
-        const newHash = simpleHash(newStr);
+        // 3. Comparar operações não-texto (imagens, formatação)
+        const oldNonTextOps = extractNonTextOps(oldContent);
+        const newNonTextOps = extractNonTextOps(newContent);
         
-        const isChanged = oldHash !== newHash;
-        console.log(`📊 Comparação por hash - Mudou: ${isChanged} (${oldHash} vs ${newHash})`);
-        return isChanged;
+        if (oldNonTextOps.length !== newNonTextOps.length) {
+            console.log(`📊 Operações não-texto diferentes: ${oldNonTextOps.length} vs ${newNonTextOps.length}`);
+            return true;
+        }
+        
+        // 4. Comparar hash das operações não-texto para detectar mudanças em imagens
+        for (let i = 0; i < oldNonTextOps.length; i++) {
+            const oldOpHash = simpleHash(JSON.stringify(oldNonTextOps[i]));
+            const newOpHash = simpleHash(JSON.stringify(newNonTextOps[i]));
+            
+            if (oldOpHash !== newOpHash) {
+                console.log(`📊 Hash de operação não-texto diferente na posição ${i}: ${oldOpHash} vs ${newOpHash}`);
+                return true;
+            }
+        }
+        
+        console.log('📊 Conteúdos são idênticos após análise híbrida');
+        return false;
         
     } catch (error) {
-        console.error('Erro ao comparar conteúdos:', error);
-        return true; // Em caso de erro, assumir que mudou
+        console.error('❌ Erro ao comparar conteúdos (assumindo mudança):', error);
+        return true; // Em caso de erro, assumir que mudou para preservar dados
     }
+}
+
+// Função para extrair texto sem imagens base64
+function extractTextWithoutBase64(content) {
+    if (!content || !content.ops || !Array.isArray(content.ops)) {
+        return '';
+    }
+    
+    let text = '';
+    for (const op of content.ops) {
+        if (typeof op.insert === 'string') {
+            // Pular strings muito grandes que provavelmente são base64
+            if (op.insert.startsWith('data:image/') || op.insert.length > 1000) {
+                text += '[IMG_PLACEHOLDER]';
+            } else {
+                text += op.insert;
+            }
+        } else if (op.insert && typeof op.insert === 'object') {
+            // Lidar com outros tipos de inserção
+            if (op.insert.image) {
+                text += '[IMG_EMBED]';
+            } else if (op.insert.video) {
+                text += '[VIDEO_EMBED]';
+            } else {
+                text += '[OBJECT_EMBED]';
+            }
+        }
+    }
+    
+    return text;
+}
+
+// Função para extrair operações não-texto (imagens, formatação, etc.)
+function extractNonTextOps(content) {
+    if (!content || !content.ops || !Array.isArray(content.ops)) {
+        return [];
+    }
+    
+    const nonTextOps = [];
+    for (const op of content.ops) {
+        // Incluir operações que são objetos (imagens, vídeos, etc.)
+        if (op.insert && typeof op.insert === 'object') {
+            nonTextOps.push(op);
+        }
+        // Incluir strings base64 (imagens convertidas)
+        else if (typeof op.insert === 'string' && 
+                (op.insert.startsWith('data:image/') || op.insert.length > 1000)) {
+            nonTextOps.push(op);
+        }
+        // Incluir operações com formatação especial
+        else if (op.attributes && Object.keys(op.attributes).length > 0) {
+            nonTextOps.push({
+                insert: typeof op.insert === 'string' ? '[TEXT_WITH_FORMAT]' : op.insert,
+                attributes: op.attributes
+            });
+        }
+    }
+    
+    return nonTextOps;
 }
 
 // Função para extrair texto completo do conteúdo Quill (sem limites)
@@ -308,30 +384,99 @@ exports.getProcedureById = async (req, res) => {
         // Carregar conteúdo da versão mais recente (SEMPRE COMPLETO para VIEW, otimizado para EDIT)
         let versions = versionsMetadata;
         if (versions.length > 0) {
+            console.log(`🔍 Carregando conteúdo para procedimento ${id} - ${versions.length} versões encontradas`);
+            
             // Carregar conteúdo completo da versão mais recente
             const latestVersionId = versions[0].id;
+            const latestVersionNumber = versions[0].version_number;
+            
+            console.log(`📋 Carregando conteúdo da versão mais recente: ID ${latestVersionId}, Número ${latestVersionNumber}`);
+            
             const latestContentResult = await executeQuery('SELECT content FROM proc_versions WHERE id = ?', [latestVersionId]);
             
             let latestContent = { ops: [] };
+            let contentLoadedSuccessfully = false;
+            
             if (latestContentResult.length > 0) {
                 try {
                     const rawContent = latestContentResult[0].content;
+                    const rawContentSize = rawContent ? JSON.stringify(rawContent).length : 0;
+                    
+                    console.log(`📄 Conteúdo bruto da versão ${latestVersionNumber} - Tipo: ${typeof rawContent}, Tamanho: ${rawContentSize} chars`);
+                    
                     if (typeof rawContent === 'string') {
                         latestContent = JSON.parse(rawContent);
+                        contentLoadedSuccessfully = true;
+                        console.log(`✅ Conteúdo parseado com sucesso - ${latestContent?.ops?.length || 0} operações`);
                     } else if (typeof rawContent === 'object' && rawContent !== null) {
                         latestContent = rawContent;
+                        contentLoadedSuccessfully = true;
+                        console.log(`✅ Conteúdo objeto carregado - ${latestContent?.ops?.length || 0} operações`);
+                    } else {
+                        console.log(`⚠️ Conteúdo em formato inesperado: ${typeof rawContent}`);
                     }
+                    
+                    // Verificar se o conteúdo tem operações válidas
+                    if (latestContent && latestContent.ops && Array.isArray(latestContent.ops) && latestContent.ops.length > 0) {
+                        console.log(`✅ Conteúdo válido encontrado com ${latestContent.ops.length} operações`);
+                    } else {
+                        console.log(`⚠️ Conteúdo está vazio ou inválido, tentando outras versões...`);
+                        contentLoadedSuccessfully = false;
+                        
+                        // Tentar carregar de outras versões se a mais recente estiver vazia
+                        for (let i = 1; i < Math.min(versions.length, 5); i++) { // Tentar até 5 versões
+                            const alternativeVersionId = versions[i].id;
+                            const alternativeVersionNumber = versions[i].version_number;
+                            
+                            console.log(`🔄 Tentando versão alternativa: ID ${alternativeVersionId}, Número ${alternativeVersionNumber}`);
+                            
+                            const altContentResult = await executeQuery('SELECT content FROM proc_versions WHERE id = ?', [alternativeVersionId]);
+                            
+                            if (altContentResult.length > 0) {
+                                try {
+                                    const altRawContent = altContentResult[0].content;
+                                    let altContent;
+                                    
+                                    if (typeof altRawContent === 'string') {
+                                        altContent = JSON.parse(altRawContent);
+                                    } else if (typeof altRawContent === 'object' && altRawContent !== null) {
+                                        altContent = altRawContent;
+                                    } else {
+                                        continue; // Pular esta versão
+                                    }
+                                    
+                                    if (altContent && altContent.ops && Array.isArray(altContent.ops) && altContent.ops.length > 0) {
+                                        console.log(`✅ Conteúdo válido encontrado na versão ${alternativeVersionNumber} com ${altContent.ops.length} operações`);
+                                        latestContent = altContent;
+                                        contentLoadedSuccessfully = true;
+                                        break; // Parar de procurar
+                                    }
+                                } catch (altError) {
+                                    console.log(`❌ Erro ao processar versão ${alternativeVersionNumber}:`, altError);
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                    
                 } catch(e) {
-                    console.error(`Erro ao parsear conteúdo da versão mais recente ${latestVersionId}:`, e);
+                    console.error(`❌ Erro ao parsear conteúdo da versão mais recente ${latestVersionId}:`, e);
                     latestContent = { ops: [] };
+                    contentLoadedSuccessfully = false;
                 }
+            } else {
+                console.log(`⚠️ Nenhum conteúdo encontrado para a versão ${latestVersionNumber}`);
             }
             
-            // SEMPRE definir conteúdo completo na versão mais recente E no procedure principal
+            // Definir conteúdo na versão mais recente E no procedure principal
             versions[0].content = latestContent;
             procedure.content = latestContent;
 
-            console.log(`✅ Conteúdo da versão mais recente carregado para view/edit - Ops: ${latestContent?.ops?.length || 0}`);
+            if (contentLoadedSuccessfully) {
+                console.log(`✅ Conteúdo carregado com sucesso para procedimento ${id} - ${latestContent?.ops?.length || 0} operações`);
+            } else {
+                console.log(`⚠️ Nenhum conteúdo válido encontrado para procedimento ${id}, usando conteúdo vazio`);
+            }
             
             // Para versões antigas, definir placeholder que será carregado sob demanda no edit
             for (let i = 1; i < versions.length; i++) {
@@ -339,7 +484,7 @@ exports.getProcedureById = async (req, res) => {
             }
         } else {
             procedure.content = { ops: [] };
-            console.log('⚠️ Nenhuma versão encontrada, usando conteúdo vazio');
+            console.log(`⚠️ Nenhuma versão encontrada para procedimento ${id}, usando conteúdo vazio`);
         }
         
         procedure.versions = versions;
@@ -473,10 +618,33 @@ exports.updateProcedure = async (req, res) => {
 
     const authorId = getAuthorIdFromHeader(req);
     
+    // ===============================
+    // VERIFICAÇÃO DE TAMANHO CRÍTICA
+    // ===============================
+    const contentStr = JSON.stringify(content);
+    const contentSizeMB = (contentStr.length / 1024 / 1024).toFixed(2);
+    
+    console.log(`📊 TAMANHO DO CONTEÚDO: ${contentSizeMB}MB (${contentStr.length} chars)`);
+    
+    // Alertar para conteúdos grandes
+    if (contentStr.length > 5000000) { // 5MB
+        console.warn(`⚠️ CONTEÚDO MUITO GRANDE: ${contentSizeMB}MB - Risco de falha no MySQL`);
+    }
+    
+    // Verificar se contém imagens base64
+    const base64Images = (contentStr.match(/data:image\/[^"]+/g) || []);
+    if (base64Images.length > 0) {
+        console.log(`🖼️ IMAGENS BASE64 DETECTADAS: ${base64Images.length}`);
+        const avgImageSize = base64Images.reduce((acc, img) => acc + img.length, 0) / base64Images.length / 1024;
+        console.log(`📏 Tamanho médio das imagens: ${avgImageSize.toFixed(2)}KB`);
+    }
+    
     const summary = generateSummaryFromContent(content);
 
     try {
         await executeQuery('START TRANSACTION');
+        
+        console.log(`🔄 Iniciando atualização do procedimento ${id}...`);
         
         // Buscar dados antigos ANTES de atualizar
         const oldMainArr = await executeQuery(`
@@ -514,30 +682,34 @@ exports.updateProcedure = async (req, res) => {
         const lastVersionResult = await executeQuery('SELECT MAX(version_number) as max_version FROM proc_versions WHERE procedure_id = ?', [id]);
         const newVersionNumber = (lastVersionResult[0].max_version || 0) + 1;
         
+        console.log(`📚 Nova versão será: ${newVersionNumber}`);
+        
         if (lastVersionResult[0].max_version) {
             const lastVersion = await executeQuery('SELECT content FROM proc_versions WHERE procedure_id = ? AND version_number = ?', [id, lastVersionResult[0].max_version]);
             if (lastVersion.length > 0) {
                 try {
                     const rawContent = lastVersion[0].content;
-                    // console.log('Conteúdo bruto da última versão:', typeof rawContent, rawContent);
+                    
+                    // Log do tipo e tamanho do conteúdo antigo
+                    console.log(`📄 Conteúdo antigo - Tipo: ${typeof rawContent}, Tamanho: ${JSON.stringify(rawContent).length} chars`);
                     
                     // Se já é um objeto, usa diretamente
                     if (typeof rawContent === 'object' && rawContent !== null) {
                         lastContent = rawContent;
                         lastContentValid = true;
-                        console.log('Conteúdo da última versão carregado como objeto');
+                        console.log('✅ Conteúdo da última versão carregado como objeto');
                     } 
                     // Se é string, tenta parsear
                     else if (typeof rawContent === 'string') {
                         lastContent = JSON.parse(rawContent);
                         lastContentValid = true;
-                        console.log('Conteúdo da última versão parseado com sucesso');
+                        console.log('✅ Conteúdo da última versão parseado com sucesso');
                     }
                 } catch (e) { 
-                    console.error('Erro ao parsear conteúdo da última versão:', e);
+                    console.error('❌ Erro ao parsear conteúdo da última versão:', e);
                     lastContent = { ops: [] };
                     lastContentValid = false;
-                    console.log('Usando conteúdo vazio como fallback');
+                    console.log('🔄 Usando conteúdo vazio como fallback');
                 }
             }
         }
@@ -552,17 +724,14 @@ exports.updateProcedure = async (req, res) => {
                 // Caso contrário, tenta parsear
                 currentContent = JSON.parse(content);
             }
-            console.log('Conteúdo atual é válido');
+            console.log('✅ Conteúdo atual é válido');
         } catch (e) {
-            console.error('Erro ao processar conteúdo atual:', e);
+            console.error('❌ Erro ao processar conteúdo atual:', e);
             currentContent = { ops: [] };
         }
         
         // Verificar se o conteúdo realmente mudou comparando com a última versão
         console.log('=== VERIFICAÇÃO DE ALTERAÇÃO DE CONTEÚDO ===');
-        // console.log('lastContent:', JSON.stringify(lastContent));
-        // console.log('lastContentValid:', lastContentValid);
-        // console.log('currentContent:', JSON.stringify(currentContent));
         
         let contentReallyChanged = false;
         let contentForComparison = currentContent;
@@ -571,15 +740,14 @@ exports.updateProcedure = async (req, res) => {
         if (lastContentValid) {
             contentReallyChanged = isContentChanged(lastContent, currentContent);
             contentForComparison = contentReallyChanged ? lastContent : currentContent;
-            console.log('Comparação otimizada - Conteúdo mudou?', contentReallyChanged);
+            console.log('📊 Comparação otimizada - Conteúdo mudou?', contentReallyChanged);
         } else {
-            console.log('Conteúdo da última versão inválido - assumindo que mudou para preservar dados');
+            console.log('⚠️ Conteúdo da última versão inválido - assumindo que mudou para preservar dados');
             contentReallyChanged = true;
             contentForComparison = currentContent;
         }
         
-        console.log('Resultado final - Conteúdo realmente mudou?', contentReallyChanged);
-        console.log('Conteúdo que será usado para comparação:', contentReallyChanged ? 'ÚLTIMO SALVO' : 'ATUAL');
+        console.log('✅ Resultado final - Conteúdo realmente mudou?', contentReallyChanged);
         console.log('=== FIM VERIFICAÇÃO ===');
         
         // Buscar informações dos novos valores selecionados
@@ -589,7 +757,7 @@ exports.updateProcedure = async (req, res) => {
             executeQuery('SELECT name FROM collaborators WHERE id = ?', [responsible])
         ]);
         
-        console.log('Valores dos campos:', {
+        console.log('📝 Valores dos campos:', {
             oldDepartmentId: oldMain.department_id, 
             newDepartmentId: department_id,
             oldTypeId: oldMain.type_id, 
@@ -599,6 +767,7 @@ exports.updateProcedure = async (req, res) => {
         });
         
         // Atualizar o proc_main incluindo updated_at
+        console.log('📤 Atualizando tabela principal...');
         await executeQuery(
             'UPDATE proc_main SET title = ?, summary = ?, department_id = ?, role = ?, type_id = ?, responsible_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
             [title, summary, department_id, role, type_id, responsible, id]
@@ -639,9 +808,22 @@ exports.updateProcedure = async (req, res) => {
             JSON.stringify(oldAttachments) !== JSON.stringify(attachments)
         );
         
+        console.log('🔍 Verificação de mudanças:', {
+            titleChanged: oldMain.title !== title,
+            departmentChanged: oldMain.department_id !== department_id,
+            roleChanged: oldMain.role !== role,
+            typeChanged: oldMain.type_id !== type_id,
+            responsibleChanged: oldMain.responsible_id !== responsible,
+            contentChanged: contentReallyChanged,
+            tagsChanged: JSON.stringify(oldTags) !== JSON.stringify(tags),
+            attachmentsChanged: JSON.stringify(oldAttachments) !== JSON.stringify(attachments),
+            hasChanges
+        });
+        
         // Se não houver alterações, não criar uma nova versão
         if (!hasChanges) {
             await executeQuery('COMMIT');
+            console.log('ℹ️ Nenhuma alteração detectada, não criando nova versão');
             res.json({ message: 'Procedimento atualizado com sucesso! (Sem alterações detectadas)' });
             return { success: true };
         }
@@ -649,12 +831,28 @@ exports.updateProcedure = async (req, res) => {
         // Gerar resumo simplificado das alterações
         const changeSummary = `Procedimento atualizado - Versão ${newVersionNumber}`;
         
-        // Inserir nova versão com o snapshot completo
-        await executeQuery(
-            'INSERT INTO proc_versions (procedure_id, version_number, author_id, content, change_summary, title, department_id, role, type_id, responsible_id, tags, attachments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [id, newVersionNumber, authorId, JSON.stringify(currentContent), changeSummary, newData.title, newData.department_id, newData.role, newData.type_id, newData.responsible_id, JSON.stringify(newData.tags), JSON.stringify(newData.attachments)]
-        );
+        // ===============================
+        // INSERÇÃO CRÍTICA DA NOVA VERSÃO
+        // ===============================
+        console.log(`💾 Inserindo nova versão ${newVersionNumber} - Tamanho: ${contentSizeMB}MB`);
+        
+        try {
+            await executeQuery(
+                'INSERT INTO proc_versions (procedure_id, version_number, author_id, content, change_summary, title, department_id, role, type_id, responsible_id, tags, attachments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [id, newVersionNumber, authorId, JSON.stringify(currentContent), changeSummary, newData.title, newData.department_id, newData.role, newData.type_id, newData.responsible_id, JSON.stringify(newData.tags), JSON.stringify(newData.attachments)]
+            );
+            console.log('✅ Nova versão inserida com sucesso');
+        } catch (insertError) {
+            console.error('❌ ERRO CRÍTICO ao inserir nova versão:', insertError);
+            if (insertError.message && insertError.message.includes('max_allowed_packet')) {
+                console.error('🚨 ERRO DE MAX_ALLOWED_PACKET DETECTADO!');
+                throw new Error('Conteúdo muito grande para o banco de dados. Reduza o tamanho das imagens ou configure max_allowed_packet no MySQL.');
+            }
+            throw insertError;
+        }
 
+        // Atualizar tags
+        console.log('🏷️ Atualizando tags...');
         await executeQuery('DELETE FROM proc_procedure_tags WHERE procedure_id = ?', [id]);
         if (tags && tags.length > 0) {
         for (const tagName of tags) {
@@ -664,6 +862,8 @@ exports.updateProcedure = async (req, res) => {
             }
         }
 
+        // Atualizar anexos
+        console.log('📎 Atualizando anexos...');
         await executeQuery('DELETE FROM proc_attachments WHERE procedure_id = ?', [id]);
         if (attachments && attachments.length > 0) {
         for (const attachment of attachments) {
@@ -675,6 +875,7 @@ exports.updateProcedure = async (req, res) => {
         }
 
         await executeQuery('COMMIT');
+        console.log('✅ Transação commitada com sucesso');
         
         // Invalidar cache após sucesso
         invalidateCache(['procedures']);
@@ -683,8 +884,17 @@ exports.updateProcedure = async (req, res) => {
         return { success: true };
     } catch (error) {
         await executeQuery('ROLLBACK');
-        console.error(`Erro ao atualizar procedimento ${id}:`, error);
-        res.status(500).json({ message: 'Erro interno do servidor ao atualizar o procedimento.' });
+        console.error(`❌ Erro ao atualizar procedimento ${id}:`, error);
+        
+        // Tratamento específico para erro de tamanho
+        if (error.message && error.message.includes('max_allowed_packet')) {
+            res.status(413).json({ 
+                message: 'Conteúdo muito grande. Reduza o tamanho das imagens e tente novamente.',
+                error: 'CONTENT_TOO_LARGE'
+            });
+        } else {
+            res.status(500).json({ message: 'Erro interno do servidor ao atualizar o procedimento.' });
+        }
         return { success: false };
     }
 };

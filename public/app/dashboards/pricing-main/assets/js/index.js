@@ -4,6 +4,7 @@ let processesAgent;
 let processesCarrier;
 let processesTerminal;
 let processesCustomer;
+let processesCountry;
 
 async function printProcesses(filters) {
 
@@ -32,6 +33,20 @@ async function printProcesses(filters) {
 }
 
 async function createArrays(filters) {
+
+  const countries = await makeRequest(`/api/pricing-main/getProcessesCountries`, 'POST', filters);
+  let results = [];
+
+  for (let index = 0; index < countries.length; index++) {
+    let continent = await fetch(`https://restcountries.com/v3.1/name/${countries[index].Nome}`)
+    let data = await continent.json();
+    if (!results[`'${data[0].region}'`]) {
+      results[`'${data[0].region}'`] = 0;
+    }
+    results[`'${data[0].region}'`]++;
+  }
+
+  createProcessesChart(results);
 
   const details = await makeRequest(`/api/pricing-main/getProcessesMonth`, 'POST', filters);
 
@@ -546,6 +561,55 @@ function createProcessesCustomersChart(data, names) {
 
   processesCustomer = new ApexCharts(document.querySelector('#processesCustomersChart'), chartData);
   processesCustomer.render();
+}
+
+function createProcessesChart(results) {
+
+  let labels = Object.keys(results).map(label => label.replace(/^'+|'+$/g, ""));
+  let data = Object.values(results);
+
+  if (processesCountry) {
+    processesCountry.destroy();
+  }
+
+  var chartData = {
+    series: data,
+    chart: {
+      width: 500,
+      type: 'pie',
+      offsetX: 50,
+    },
+    plotOptions: {
+      pie: {
+        expandOnClick: false
+      }
+    },
+    labels: labels,
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
+    fill: {
+      type: 'gradient',
+      opacity: 0.85,
+    },
+    legend: {
+      show: true,
+      position: 'bottom',
+      labels: {
+        colors: '#333',
+        useSeriesColors: false
+      }
+    },
+    tooltip: {
+      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+        return '<div style="padding: 5px; background-color: rgba(24, 24, 24, 0.8); color: #ffffff; border-radius: 5px; font-weight: lighter;">'
+          + w.globals.labels[seriesIndex] + ': ' + series[seriesIndex]
+          + '</div>';
+      }
+    }
+  };
+
+  processesCountry = new ApexCharts(document.querySelector("#processesCountriesChart"), chartData);
+  processesCountry.render();
+
 }
 
 const selectedFilters = {

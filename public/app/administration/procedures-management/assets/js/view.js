@@ -43,6 +43,29 @@ $(document).ready(function() {
     // Sequência otimizada de carregamento para visualização
     if (procedureId) {
         initializeViewPage(procedureId);
+        
+        // Configurar listeners de websocket para invalidar cache
+        if (typeof io !== 'undefined') {
+            const socket = io();
+            
+            // Limpar cache quando procedimento for atualizado
+            socket.on('procedure_updated', (data) => {
+                if (data.id == procedureId) {
+                    console.log('🔄 Procedimento atualizado via websocket, limpando cache...');
+                    clearViewCache();
+                    // Recarregar dados automaticamente
+                    forceReloadProcedure();
+                }
+            });
+            
+            socket.on('procedure_deleted', (data) => {
+                if (data.id == procedureId) {
+                    console.log('🗑️ Procedimento deletado, redirecionando...');
+                    alert('Este procedimento foi desativado.');
+                    window.location.href = '/app/administration/procedures-management/';
+                }
+            });
+        }
     } else {
         console.error('ID do procedimento não encontrado na URL');
     }
@@ -106,13 +129,29 @@ async function loadProcedureDataOptimized(id) {
     const now = Date.now();
     const cacheKey = `procedure_${id}`;
     
-    if (viewCache.data && viewCache.data.id == id && (now - viewCache.timestamp) < VIEW_CACHE_TTL) {
+    // Verificar se deve forçar refresh (parâmetro refresh na URL ou se veio de uma edição recente)
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceRefresh = urlParams.get('refresh') === 'true' || 
+                        sessionStorage.getItem(`procedure_${id}_updated`) === 'true';
+    
+    if (forceRefresh) {
+        console.log('🔄 Forçando refresh dos dados (bypass de cache)');
+        // Limpar flag de atualização
+        sessionStorage.removeItem(`procedure_${id}_updated`);
+        clearViewCache();
+    }
+    
+    if (!forceRefresh && viewCache.data && viewCache.data.id == id && (now - viewCache.timestamp) < VIEW_CACHE_TTL) {
         console.log('📦 Usando dados do cache para visualização');
         return viewCache.data;
     }
     
     console.log('📡 Fazendo request para carregar procedimento (view):', id);
-    const data = await makeRequest(`/api/procedures-management/procedures/${id}`);
+    
+    // makeRequest não suporta headers customizados diretamente, 
+    // mas como é GET e queremos evitar cache, adicionar timestamp
+    const timestamp = forceRefresh ? `?t=${Date.now()}` : '';
+    const data = await makeRequest(`/api/procedures-management/procedures/${id}${timestamp}`);
     
     console.log('📥 Dados recebidos do servidor (view):', data);
     console.log('🔍 Conteúdo específico recebido (view):', data.content);

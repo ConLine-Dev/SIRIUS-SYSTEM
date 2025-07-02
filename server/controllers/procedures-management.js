@@ -11,7 +11,9 @@ const cache = {
     departments: { data: null, timestamp: 0 },
     roles: { data: null, timestamp: 0 },
     types: { data: null, timestamp: 0 },
-    responsibles: { data: null, timestamp: 0 }
+    responsibles: { data: null, timestamp: 0 },
+    // Cache individual de procedimentos (evita problema de versão desatualizada)
+    procedureById: {}
 };
 
 function getCachedData(key) {
@@ -26,13 +28,26 @@ function setCachedData(key, data) {
     cache[key] = { data, timestamp: Date.now() };
 }
 
-function invalidateCache(keys = null) {
+function invalidateCache(keys = null, procedureId = null) {
     if (keys) {
         keys.forEach(key => {
             if (cache[key]) cache[key].timestamp = 0;
         });
     } else {
-        Object.keys(cache).forEach(key => cache[key].timestamp = 0);
+        Object.keys(cache).forEach(key => {
+            if (key === 'procedureById') {
+                // Limpar todo o cache de procedimentos individuais
+                cache.procedureById = {};
+            } else {
+                cache[key].timestamp = 0;
+            }
+        });
+    }
+    
+    // Se um ID de procedimento específico foi fornecido, invalidar apenas esse
+    if (procedureId && cache.procedureById[procedureId]) {
+        delete cache.procedureById[procedureId];
+        console.log(`🗑️ Cache do procedimento ${procedureId} invalidado`);
     }
 }
 
@@ -345,6 +360,9 @@ exports.getProcedures = async (req, res) => {
 exports.getProcedureById = async (req, res) => {
     const { id } = req.params;
     try {
+        // IMPORTANTE: Não usar cache individual para procedimentos,
+        // pois pode causar problemas de sincronia após atualizações
+        
         // Query otimizada em uma única consulta
         const procedureResult = await executeQuery(`
             SELECT 
@@ -590,7 +608,7 @@ exports.createProcedure = async (req, res) => {
         await executeQuery('COMMIT');
         
         // Invalidar cache
-        invalidateCache(['procedures']);
+        invalidateCache(['procedures'], procedureId);
         
         res.status(201).json({ message: 'Procedimento criado com sucesso!', id: procedureId });
         return { id: procedureId };
@@ -877,8 +895,11 @@ exports.updateProcedure = async (req, res) => {
         await executeQuery('COMMIT');
         console.log('✅ Transação commitada com sucesso');
         
-        // Invalidar cache após sucesso
-        invalidateCache(['procedures']);
+        // Invalidar cache após sucesso - IMPORTANTE: invalidar também o cache específico do procedimento
+        invalidateCache(['procedures'], id);
+        
+        // Pequeno delay para garantir que a transação foi totalmente processada pelo MySQL
+        await new Promise(resolve => setTimeout(resolve, 100));
         
         res.json({ message: 'Procedimento atualizado com sucesso!' });
         return { success: true };
@@ -973,6 +994,10 @@ exports.revertToVersion = async (req, res) => {
         );
 
         await executeQuery('COMMIT');
+        
+        // Invalidar cache após reversão
+        invalidateCache(['procedures'], id);
+        
         res.json({ message: `Procedimento revertido com sucesso para a versão ${version_number}!` });
         return { success: true };
 
@@ -1006,7 +1031,7 @@ exports.deleteProcedure = async (req, res) => {
         await executeQuery('UPDATE proc_main SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
         
         // Invalidar cache
-        invalidateCache(['procedures']);
+        invalidateCache(['procedures'], id);
         
         console.log(`Procedimento ${id} marcado como excluído pelo usuário ${userId}.`);
         

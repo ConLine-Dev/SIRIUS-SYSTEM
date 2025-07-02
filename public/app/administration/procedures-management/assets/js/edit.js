@@ -287,6 +287,11 @@ $(document).ready(function() {
             
             const response = await makeRequest(`/api/procedures-management/procedures/${procedureData.id}`, 'PUT', dataToSave);
             showNotification(response.message || 'Procedimento atualizado com sucesso!', 'success');
+            
+            // Definir flag para forçar refresh na view
+            sessionStorage.setItem(`procedure_${procedureData.id}_updated`, 'true');
+            console.log('✅ Flag de atualização definida para forçar refresh na view');
+            
             setTimeout(() => {
                 window.close();
             }, 1000);

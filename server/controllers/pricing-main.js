@@ -36,6 +36,77 @@ const pricingMain = {
         return result;
     },
 
+    getProcessesCountries: async function (filters) {
+
+        let yearFilter = `AND DATEPART(YEAR, Lhs.Data_Abertura_Processo) = DATEPART(YEAR, GETDATE())`;
+        let monthFilter = ''
+        let modalFilter = ''
+
+        if (filters.ano) {
+            for (let index = 0; index < filters.ano.length; index++) {
+                if (index == 0) {
+                    yearFilter = `AND DATEPART(YEAR, Lhs.Data_Abertura_Processo) IN (${filters.ano[index]}`
+                }
+                else {
+                    yearFilter += `, ${filters.ano[index]}`
+                }
+                if (index == filters.ano.length - 1) {
+                    yearFilter += `)`
+                }
+            }
+        }
+
+        if (filters.mes) {
+            for (let index = 0; index < filters.mes.length; index++) {
+                if (index == 0) {
+                    monthFilter = `AND DATEPART(MONTH, Lhs.Data_Abertura_Processo) IN (${filters.mes[index]}`
+                }
+                else {
+                    monthFilter += `, ${filters.mes[index]}`
+                }
+                if (index == filters.mes.length - 1) {
+                    monthFilter += `)`
+                }
+            }
+        }
+
+        if (filters.modal) {
+            for (let index = 0; index < filters.modal.length; index++) {
+                if (index == 0) {
+                    modalFilter = `AND Lhs.Tipo_Carga IN (${filters.modal[index]}`
+                }
+                else {
+                    modalFilter += `, ${filters.modal[index]}`
+                }
+                if (index == filters.modal.length - 1) {
+                    modalFilter += `)`
+                }
+            }
+        }
+
+        const result = executeQuerySQL(`
+            SELECT
+                pais.Nome_Internacional AS Nome
+            FROM
+                mov_Logistica_House lhs
+            LEFT OUTER JOIN
+                mov_Logistica_Master lms ON lms.IdLogistica_Master = lhs.IdLogistica_Master
+            LEFT OUTER JOIN
+                cad_Origem_Destino ori ON ori.IdOrigem_Destino = lms.IdOrigem
+            LEFT OUTER JOIN
+                cad_Pais pais ON pais.IdPais = ori.IdPais
+            WHERE
+                lms.Tipo_Operacao = 2
+                ${yearFilter}
+                ${monthFilter}
+                ${modalFilter}
+                AND DATEPART(YEAR, lhs.Data_Abertura_Processo) = DATEPART(YEAR, GETDATE())
+                AND lhs.Numero_Processo NOT LIKE '%DEMU%'
+                AND lhs.Numero_Processo NOT LIKE '%test%'`);
+
+        return result;
+    },
+
     getProcessesTotal: async function (filters) {
 
         let yearFilter = `AND DATEPART(YEAR, Lhs.Data_Abertura_Processo) = DATEPART(YEAR, GETDATE())`;

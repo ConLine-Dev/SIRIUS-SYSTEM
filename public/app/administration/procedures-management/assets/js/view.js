@@ -24,17 +24,12 @@ const PERFORMANCE_CONFIG = {
 };
 
 // ===============================
-// SISTEMA DE CACHE E OTIMIZAÇÃO PARA VIEW
+// SISTEMA DE CACHE E OTIMIZAÇÃO PARA VIEW (REMOVIDO)
 // ===============================
 let procedureData = {};
 let quill = null;
 
-// Cache para dados carregados
-let viewCache = {
-    data: null,
-    timestamp: 0
-};
-const VIEW_CACHE_TTL = PERFORMANCE_CONFIG.CACHE_TTL.PROCEDURES;
+// O cache do lado do cliente foi removido para garantir que os dados mais recentes sejam sempre exibidos.
 
 $(document).ready(function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -43,29 +38,6 @@ $(document).ready(function() {
     // Sequência otimizada de carregamento para visualização
     if (procedureId) {
         initializeViewPage(procedureId);
-        
-        // Configurar listeners de websocket para invalidar cache
-        if (typeof io !== 'undefined') {
-            const socket = io();
-            
-            // Limpar cache quando procedimento for atualizado
-            socket.on('procedure_updated', (data) => {
-                if (data.id == procedureId) {
-                    console.log('🔄 Procedimento atualizado via websocket, limpando cache...');
-                    clearViewCache();
-                    // Recarregar dados automaticamente
-                    forceReloadProcedure();
-                }
-            });
-            
-            socket.on('procedure_deleted', (data) => {
-                if (data.id == procedureId) {
-                    console.log('🗑️ Procedimento deletado, redirecionando...');
-                    alert('Este procedimento foi desativado.');
-                    window.location.href = '/app/administration/procedures-management/';
-                }
-            });
-        }
     } else {
         console.error('ID do procedimento não encontrado na URL');
     }
@@ -83,6 +55,8 @@ async function initializeViewPage(procedureId) {
     try {
         console.log('🚀 Iniciando carregamento da página de visualização...');
         
+        // A verificação do parâmetro 'updated' foi removida, pois o cache do cliente não existe mais.
+
         // Aguardar DOM estar totalmente carregado
         if (document.readyState !== 'complete') {
             await new Promise(resolve => {
@@ -123,47 +97,17 @@ async function initializeViewPage(procedureId) {
     }
 }
 
-// Função otimizada para carregar dados (com cache)
+// Função otimizada para carregar dados (cache removido)
 async function loadProcedureDataOptimized(id) {
-    // Verificar cache primeiro
-    const now = Date.now();
-    const cacheKey = `procedure_${id}`;
-    
-    // Verificar se deve forçar refresh (parâmetro refresh na URL ou se veio de uma edição recente)
-    const urlParams = new URLSearchParams(window.location.search);
-    const forceRefresh = urlParams.get('refresh') === 'true' || 
-                        sessionStorage.getItem(`procedure_${id}_updated`) === 'true';
-    
-    if (forceRefresh) {
-        console.log('🔄 Forçando refresh dos dados (bypass de cache)');
-        // Limpar flag de atualização
-        sessionStorage.removeItem(`procedure_${id}_updated`);
-        clearViewCache();
-    }
-    
-    if (!forceRefresh && viewCache.data && viewCache.data.id == id && (now - viewCache.timestamp) < VIEW_CACHE_TTL) {
-        console.log('📦 Usando dados do cache para visualização');
-        return viewCache.data;
-    }
-    
+    // A lógica de cache do cliente foi removida para garantir que os dados sejam sempre buscados do servidor.
     console.log('📡 Fazendo request para carregar procedimento (view):', id);
-    
-    // makeRequest não suporta headers customizados diretamente, 
-    // mas como é GET e queremos evitar cache, adicionar timestamp
-    const timestamp = forceRefresh ? `?t=${Date.now()}` : '';
-    const data = await makeRequest(`/api/procedures-management/procedures/${id}${timestamp}`);
+    const data = await makeRequest(`/api/procedures-management/procedures/${id}`);
     
     console.log('📥 Dados recebidos do servidor (view):', data);
     console.log('🔍 Conteúdo específico recebido (view):', data.content);
     
     // Armazenar dados globalmente
     procedureData = data;
-    
-    // Atualizar cache
-    viewCache = {
-        data: data,
-        timestamp: now
-    };
     
     return data;
 }
@@ -591,26 +535,17 @@ function optimizedPrint() {
     }, 5000); // 5 segundos de timeout
 }
 
-// Função para limpar cache (útil para desenvolvimento)
-function clearViewCache() {
-    viewCache = {
-        data: null,
-        timestamp: 0
-    };
-    console.log('🗑️ Cache de visualização limpo');
-}
-
 // Função para verificar status do cache
 function getCacheStatus() {
     const now = Date.now();
-    const isValid = viewCache.data && (now - viewCache.timestamp) < VIEW_CACHE_TTL;
+    const isValid = procedureData && (now - procedureData.timestamp) < PERFORMANCE_CONFIG.CACHE_TTL.PROCEDURES;
     
     return {
-        hasData: !!viewCache.data,
+        hasData: !!procedureData,
         isValid: isValid,
-        age: now - viewCache.timestamp,
-        ttl: VIEW_CACHE_TTL,
-        data: viewCache.data
+        age: now - procedureData.timestamp,
+        ttl: PERFORMANCE_CONFIG.CACHE_TTL.PROCEDURES,
+        data: procedureData
     };
 }
 
@@ -624,16 +559,12 @@ async function forceReloadProcedure() {
         return;
     }
     
-    // Limpar cache
-    clearViewCache();
-    
     // Recarregar
     await initializeViewPage(procedureId);
 }
 
 // Expor funções úteis globalmente para debugging
 if (typeof window !== 'undefined') {
-    window.clearViewCache = clearViewCache;
     window.getCacheStatus = getCacheStatus;
     window.forceReloadProcedure = forceReloadProcedure;
     window.optimizedPrint = optimizedPrint;

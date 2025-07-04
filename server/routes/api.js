@@ -52,6 +52,7 @@ const apiOrganizationalChart = require('./api-organizational-chart');
 const api_air_import_main = require('./api-air-import-main');
 const api_air_import_adm = require('./api-air-import-adm');
 const api_speakup_portal = require('./api-speakup-portal');
+const api_refunds = require('./api-refunds');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -265,6 +266,9 @@ const setIO = (io) => {
   // Use as rotas do arquivo api-air-import-main.js oi
   router.use('/speakup-portal', api_speakup_portal(io));
 
+  // Use as rotas do arquivo api-air-import-main.js oi
+  router.use('/refunds', api_refunds(io));
+
   // Adicionar rotas do user-tracker - TEMPORARIAMENTE DESATIVADO
   if (USER_TRACKER_ENABLED) {
     router.use('/user-tracker', apiUserTracker(io));
@@ -282,7 +286,7 @@ const setIO = (io) => {
   
   // Use as rotas do Patrimony Tracker
   router.use('/patrimony-tracker', apiPatrimonyTracker(io));
-  
+
   return router;
 };
 

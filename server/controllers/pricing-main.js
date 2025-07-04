@@ -86,7 +86,8 @@ const pricingMain = {
 
         const result = executeQuerySQL(`
             SELECT
-                pais.Nome_Internacional AS Nome
+                pais.Nome_Internacional AS Nome,
+                COUNT(*) AS Total
             FROM
                 mov_Logistica_House lhs
             LEFT OUTER JOIN
@@ -100,9 +101,13 @@ const pricingMain = {
                 ${yearFilter}
                 ${monthFilter}
                 ${modalFilter}
-                AND DATEPART(YEAR, lhs.Data_Abertura_Processo) = DATEPART(YEAR, GETDATE())
                 AND lhs.Numero_Processo NOT LIKE '%DEMU%'
-                AND lhs.Numero_Processo NOT LIKE '%test%'`);
+                AND lhs.Numero_Processo NOT LIKE '%test%'
+                AND pais.Nome_Internacional IS NOT NULL
+            GROUP BY
+                pais.Nome_Internacional
+            ORDER BY
+                Total DESC`);
 
         return result;
     },

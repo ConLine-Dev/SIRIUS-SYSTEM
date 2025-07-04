@@ -751,8 +751,8 @@ const ceMerchant = {
         SELECT 
 Psa.Nome AS Responsavel,
 Lhs.Numero_Processo,
-Lhs.Data_Abertura_Processo,
-Lmm.Data_Desconsolidacao_Mercante
+FORMAT(Lhs.Data_Abertura_Processo, 'dd/MM/yyyy') AS Data_Abertura_Processo,
+FORMAT(Lmm.Data_Desconsolidacao_Mercante, 'dd/MM/yyyy') AS Data_Desconsolidacao_Mercante
     FROM 
     mov_Logistica_House Lhs
 LEFT OUTER JOIN

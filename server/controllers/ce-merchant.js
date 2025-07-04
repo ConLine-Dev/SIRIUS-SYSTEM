@@ -3,9 +3,9 @@ const { executeQuerySQL } = require('../connect/sqlServer'); // Importa a funç�
 const ceMerchant = {
     // Esta função busca todos os registros de CE-Mercante
     getAll: async function() {
-        const query = `
-            WITH ProcessData AS (
+        const query = `WITH ProcessData AS (
                 SELECT
+                Lmm.Data_Desconsolidacao_Mercante,
                     Lhs.Numero_Processo,
                     Lhs.Data_Abertura_Processo,
                     CASE
@@ -73,6 +73,7 @@ const ceMerchant = {
                         p1.Setor
                     ) AS Setor,
                     p1.Descricao,
+                    p1.Data_Desconsolidacao_Mercante,
                     p1.Data_CE,
                     p1.Responsavel,
                     p1.OriginalDesc,
@@ -85,11 +86,11 @@ const ceMerchant = {
             )
             SELECT 
                 Numero_Processo,
+                FORMAT(Data_Desconsolidacao_Mercante, 'dd/MM/yyyy') AS Data_Desconsolidacao_Mercante,
                 FORMAT(Data_Abertura_Processo, 'dd/MM/yyyy') AS Data_Abertura_Processo,
                 Tipo,
                 Setor,
                 Descricao,
-                FORMAT(Data_CE, 'dd/MM/yyyy') AS Data_CE,
                 Responsavel
             FROM 
                 ProcessedData
@@ -743,6 +744,35 @@ const ceMerchant = {
         });
 
         return formattedData;
+    },
+
+    getAllCE: async function() {
+        const query = `
+        SELECT 
+Psa.Nome AS Responsavel,
+Lhs.Numero_Processo,
+Lhs.Data_Abertura_Processo,
+Lmm.Data_Desconsolidacao_Mercante
+    FROM 
+    mov_Logistica_House Lhs
+LEFT OUTER JOIN
+    mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+    LEFT OUTER JOIN
+                    mov_Logistica_Maritima_Master Lmm ON Lmm.IdLogistica_Master = Lms.IdLogistica_Master
+LEFT OUTER JOIN
+                    mov_Projeto_Atividade_Responsavel Par ON Par.IdProjeto_Atividade = Lhs.IdProjeto_Atividade
+                LEFT OUTER JOIN
+                    cad_Pessoa Psa ON Psa.IdPessoa = Par.IdResponsavel
+    WHERE
+        Lhs.Numero_Processo NOT LIKE '%test%'
+        AND Lhs.Numero_Processo NOT LIKE '%demu%'
+        AND Lmm.Data_Desconsolidacao_Mercante IS NOT NULL
+        AND Par.IdPapel_Projeto = 7 /* DOCUMENTAL [CE] */
+        `;
+
+        const result = await executeQuerySQL(query);
+
+        return result;
     }
 };
 

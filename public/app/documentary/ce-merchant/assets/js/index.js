@@ -788,7 +788,7 @@ function setupDynamicTable(data, tableId) {
     data.forEach(item => {
         Object.keys(item).forEach(key => {
             // Excluir colunas padrão que não são dinâmicas
-            if (!['Numero_Processo', 'Data_Abertura_Processo', 'Tipo', 'Setor', 'Descricao', 'Data_CE', 'Responsavel', 'action'].includes(key)) {
+            if (!['Numero_Processo', 'Data_Abertura_Processo', 'Tipo', 'Setor', 'Descricao', 'Data_Desconsolidacao_Mercante', 'Responsavel', 'action'].includes(key)) {
                 dynamicColumns.add(key);
             }
         });
@@ -818,7 +818,7 @@ function setupDynamicTable(data, tableId) {
     });
     
     // Adicionar colunas finais
-    tableHeader.append('<th>Data CE</th>');
+    tableHeader.append('<th>Data Desconsolidacao</th>');
     tableHeader.append('<th>Responsável</th>');
     tableHeader.append('<th>Ação</th>');
     
@@ -864,7 +864,7 @@ function setupDynamicTable(data, tableId) {
     });
     
     // Adicionar colunas finais
-    columns.push({ data: 'Data_CE' });
+    columns.push({ data: 'Data_Desconsolidacao_Mercante' });
     columns.push({ data: 'Responsavel' });
     columns.push({ 
         data: 'action',
@@ -1051,9 +1051,9 @@ async function applyFilters() {
             }
             
             // Filtro por data CE
-            if (startDateCE && endDateCE && item.Data_CE) {
+            if (startDateCE && endDateCE && item.Data_Desconsolidacao_Mercante) {
                 // Converter data do formato DD/MM/YYYY para objeto Date
-                const parts = item.Data_CE.split('/');
+                const parts = item.Data_Desconsolidacao_Mercante.split('/');
                 const itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
                 const startDate = new Date(startDateCE);
                 const endDate = new Date(endDateCE);

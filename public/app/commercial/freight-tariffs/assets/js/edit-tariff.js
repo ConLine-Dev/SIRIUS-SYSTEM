@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
         populateSelect('destination_id', formData.locations.filter(l => l.type !== 'Origem'), 'Selecione o Destino');
         populateSelect('modality_id', formData.modalities, 'Selecione a Modalidade');
         populateSelect('agent_id', formData.agents, 'Selecione o Agente');
+        populateSelect('shipowner_id', formData.agents, 'Selecione o Armador');
         populateSelect('container_type_id', [], 'Selecione o Tipo de Container'); // Inicia vazio
         populateCurrencySelect('freight_currency');
         
@@ -96,6 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 100);
 
             $('#agent_id').val(tariff.agent_id).trigger('change');
+            $('#shipowner_id').val(tariff.shipowner_id).trigger('change');
             $('#route_type').val(tariff.route_type);
             $('#validity_start_date').val(tariff.validity_start_date.split('T')[0]);
             $('#validity_end_date').val(tariff.validity_end_date.split('T')[0]);
@@ -144,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
             modality_id: $('#modality_id').val(),
             container_type_id: $('#container_type_id').val(),
             agent_id: $('#agent_id').val(),
+            shipowner_id: $('#shipowner_id').val(),
             validity_start_date: $('#validity_start_date').val(),
             validity_end_date: $('#validity_end_date').val(),
             freight_cost: $('#freight_cost').val(),

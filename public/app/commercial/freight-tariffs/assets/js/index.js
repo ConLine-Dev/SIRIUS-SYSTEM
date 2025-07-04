@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#filter-destination').html(initialOption + formData.locations.filter(l => l.type !== 'Origem').map(createOption).join(''));
         $('#filter-modality').html(initialOption + formData.modalities.map(createOption).join(''));
         $('#filter-agent').html(initialOption + formData.agents.map(createOption).join(''));
+        $('#filter-shipowner').html(initialOption + formData.agents.map(createOption).join(''));
     }
 
     function initializeSearchableSelects() {
@@ -52,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
             theme: 'bootstrap-5',
             width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style'
         };
-        const $filters = $('#filter-origin, #filter-destination, #filter-modality, #filter-agent, #filter-status');
+        const $filters = $('#filter-origin, #filter-destination, #filter-modality, #filter-agent, #filter-shipowner, #filter-status');
         
         $filters.select2(select2Options);
 
@@ -68,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const tbody = $('#tariffs-table-body');
         tbody.empty();
         if (tariffs.length === 0) {
-            tbody.html('<tr><td colspan="11" class="text-center">Nenhuma tarifa encontrada.</td></tr>');
+            tbody.html('<tr><td colspan="12" class="text-center">Nenhuma tarifa encontrada.</td></tr>');
             return;
         }
         tariffs.forEach(t => {
@@ -100,7 +101,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td>${t.destination_name}</td>
                     <td>${t.modality_name} ${t.container_type_name ? `(${t.container_type_name})` : ''}</td>
                     <td>${new Date(t.validity_start_date).toLocaleDateString()} - ${new Date(t.validity_end_date).toLocaleDateString()}</td>
-                    <td>${t.agent_name}</td>
+                    <td>${t.agent_name || '-'}</td>
+                    <td>${t.shipowner_name || '-'}</td>
                 <td>${freightDisplay} ${surchargeIndicator}</td>
                     <td>${t.transit_time || 'N/A'}</td>
                 <td>${t.route_type || 'N/A'}</td>
@@ -171,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
         allTariffs = allTariffs.filter(t => t.id !== tariffId);
 
         if (allTariffs.length === 0) {
-            $('#tariffs-table-body').html('<tr><td colspan="11" class="text-center">Nenhuma tarifa encontrada.</td></tr>');
+            $('#tariffs-table-body').html('<tr><td colspan="12" class="text-center">Nenhuma tarifa encontrada.</td></tr>');
         }
     }
 
@@ -199,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Se não existe, crie-a
             const tariff = allTariffs.find(t => t.id === tariffId);
             if (tariff) {
-                let detailsHtml = `<td colspan="11" class="p-3" style="background-color: #f8f9fa;">`;
+                let detailsHtml = `<td colspan="12" class="p-3" style="background-color: #f8f9fa;">`;
 
                 if (tariff.notes) {
                     detailsHtml += `
@@ -440,6 +442,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td>${data.destination || '<span class="text-muted">-</span>'}</td>
                     <td>${data.modality || '<span class="text-muted">-</span>'}</td>
                     <td>${data.agent || '<span class="text-muted">-</span>'}</td>
+                    <td>${data.shipowner || '<span class="text-muted">-</span>'}</td>
                     <td><small>${validityPeriod}</small></td>
                     <td>${validityBadge}</td>
                     <td>
@@ -610,7 +613,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Se não existe, crie-a
             const data = importData[index];
             if (data) {
-                let detailsHtml = `<td colspan="14" class="p-3" style="background-color: #f8f9fa;">`;
+                let detailsHtml = `<td colspan="15" class="p-3" style="background-color: #f8f9fa;">`;
 
                 if (data.notes) {
                     detailsHtml += `
@@ -698,6 +701,13 @@ document.addEventListener('DOMContentLoaded', function () {
             if (agent) $('#edit-agent').val(agent.id);
         }
         
+        if (data.shipowner_id) {
+            $('#edit-shipowner').val(data.shipowner_id);
+        } else if (data.shipowner) {
+            const shipowner = formData.agents.find(a => a.name === data.shipowner);
+            if (shipowner) $('#edit-shipowner').val(shipowner.id);
+        }
+        
         if (data.container_type_id) {
             $('#edit-container-type').val(data.container_type_id);
         } else if (data.container_type) {
@@ -729,6 +739,7 @@ document.addEventListener('DOMContentLoaded', function () {
         populateSelect('#edit-destination', formData.locations.filter(l => l.type !== 'Origem'), 'Selecione...');
         populateSelect('#edit-modality', formData.modalities, 'Selecione...');
         populateSelect('#edit-agent', formData.agents, 'Selecione...');
+        populateSelect('#edit-shipowner', formData.agents, 'Selecione...');
         populateSelect('#edit-container-type', formData.container_types, 'Selecione...');
         populateSelect('#edit-currency', formData.currencies, 'Selecione...');
     }
@@ -762,16 +773,18 @@ document.addEventListener('DOMContentLoaded', function () {
         const destinationId = $('#edit-destination').val();
         const modalityId = $('#edit-modality').val();
         const agentId = $('#edit-agent').val();
+        const shipownerId = $('#edit-shipowner').val();
         const containerTypeId = $('#edit-container-type').val();
         const currency = $('#edit-currency').val();
 
-        console.log('Novos valores:', { originId, destinationId, modalityId, agentId, containerTypeId, currency });
+        console.log('Novos valores:', { originId, destinationId, modalityId, agentId, shipownerId, containerTypeId, currency });
 
         // Atualizar IDs
         data.origin_id = originId;
         data.destination_id = destinationId;
         data.modality_id = modalityId;
         data.agent_id = agentId;
+        data.shipowner_id = shipownerId;
         data.container_type_id = containerTypeId;
         data.freight_currency = currency;
 
@@ -819,6 +832,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if (agentId) {
             const agent = formData.agents.find(a => a.id == agentId);
             if (agent) data.agent = agent.name;
+        }
+        
+        if (shipownerId) {
+            const shipowner = formData.agents.find(a => a.id == shipownerId);
+            if (shipowner) data.shipowner = shipowner.name;
         }
         
         if (containerTypeId) {

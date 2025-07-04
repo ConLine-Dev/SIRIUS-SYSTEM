@@ -38,7 +38,8 @@ CREATE TABLE ft_tariffs (
     destination_id INT NOT NULL,
     modality_id INT NOT NULL,
     container_type_id INT,
-    agent_id INT NOT NULL,
+    agent_id INT NOT NULL COMMENT 'ID do agente responsável',
+    shipowner_id INT COMMENT 'ID do armador/operador',
     validity_start_date DATE NOT NULL,
     validity_end_date DATE NOT NULL,
     freight_cost DECIMAL(10, 2) NOT NULL,
@@ -52,7 +53,8 @@ CREATE TABLE ft_tariffs (
     FOREIGN KEY (destination_id) REFERENCES ft_locations(id),
     FOREIGN KEY (modality_id) REFERENCES ft_modalities(id),
     FOREIGN KEY (container_type_id) REFERENCES ft_container_types(id),
-    FOREIGN KEY (agent_id) REFERENCES ft_agents(id)
+    FOREIGN KEY (agent_id) REFERENCES ft_agents(id),
+    FOREIGN KEY (shipowner_id) REFERENCES ft_agents(id)
 );
 
 -- Tabela para Surcharges (Sobretaxas)

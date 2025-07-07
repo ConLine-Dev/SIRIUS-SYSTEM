@@ -55,14 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             // Adiciona um pequeno atraso antes de renderizar os gráficos
             // para garantir que o container esteja completamente visível
             setTimeout(() => {
-                // Redimensiona os gráficos para garantir que sejam exibidos corretamente
-                if (typeChart) typeChart.render();
-                if (sectorChart) sectorChart.render();
-                if (typeSectorChart) typeSectorChart.render();
-                if (monthlyChart) monthlyChart.render();
-                if (monthlyTypeChart) monthlyTypeChart.render();
-                if (ceLancadasChart) ceLancadasChart.render();
-                if (ceLiberadasChart) ceLiberadasChart.render();
+                renderAllCharts();
             }, 300);
         }
     });
@@ -107,6 +100,9 @@ async function loadData() {
         
         // Gera a tabela de dados
         await generateTable(allData);
+
+        // Renderiza os gráficos se o container estiver visível
+        renderAllCharts();
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
         Swal.fire({
@@ -165,6 +161,12 @@ function createTypeChart(typeData) {
         console.error('A biblioteca ApexCharts não foi carregada corretamente.');
         return;
     }
+
+    const chartContainer = document.querySelector("#type-chart");
+    if (typeChart) {
+        typeChart.destroy();
+    }
+    chartContainer.innerHTML = "";
 
     // Prepara os dados para o gráfico
     const series = [{
@@ -261,7 +263,6 @@ function createTypeChart(typeData) {
     
     // Cria o novo gráfico
     typeChart = new ApexCharts(document.querySelector("#type-chart"), options);
-    typeChart.render();
 }
 
 // Cria o gráfico por setor
@@ -271,6 +272,12 @@ function createSectorChart(sectorData) {
         console.error('A biblioteca ApexCharts não foi carregada corretamente.');
         return;
     }
+
+    const chartContainer = document.querySelector("#sector-chart");
+    if (sectorChart) {
+        sectorChart.destroy();
+    }
+    chartContainer.innerHTML = "";
 
     // Prepara os dados para o gráfico
     const series = [{
@@ -367,7 +374,6 @@ function createSectorChart(sectorData) {
     
     // Cria o novo gráfico
     sectorChart = new ApexCharts(document.querySelector("#sector-chart"), options);
-    sectorChart.render();
 }
 
 // Cria o gráfico por tipo e setor
@@ -377,6 +383,12 @@ function createTypeSectorChart(typeSectorData) {
         console.error('A biblioteca ApexCharts não foi carregada corretamente.');
         return;
     }
+
+    const chartContainer = document.querySelector("#type-sector-chart");
+    if (typeSectorChart) {
+        typeSectorChart.destroy();
+    }
+    chartContainer.innerHTML = "";
 
     // Agrupa os dados por tipo
     const groupedData = {};
@@ -504,7 +516,6 @@ function createTypeSectorChart(typeSectorData) {
     
     // Cria o novo gráfico
     typeSectorChart = new ApexCharts(document.querySelector("#type-sector-chart"), options);
-    typeSectorChart.render();
 }
 
 // Cria o gráfico de divergências por mês
@@ -514,6 +525,12 @@ function createMonthlyChart(monthlyData) {
         console.error('A biblioteca ApexCharts não foi carregada corretamente.');
         return;
     }
+
+    const chartContainer = document.querySelector("#monthly-chart");
+    if (monthlyChart) {
+        monthlyChart.destroy();
+    }
+    chartContainer.innerHTML = "";
 
     // Prepara os dados para o gráfico
     const series = [{
@@ -633,7 +650,6 @@ function createMonthlyChart(monthlyData) {
     
     // Cria o novo gráfico
     monthlyChart = new ApexCharts(document.querySelector("#monthly-chart"), options);
-    monthlyChart.render();
 }
 
 // Cria o gráfico de divergências por mês e tipo
@@ -643,6 +659,12 @@ function createMonthlyTypeChart(monthlyTypeData) {
         console.error('A biblioteca ApexCharts não foi carregada corretamente.');
         return;
     }
+
+    const chartContainer = document.querySelector("#monthly-type-chart");
+    if (monthlyTypeChart) {
+        monthlyTypeChart.destroy();
+    }
+    chartContainer.innerHTML = "";
 
     // Agrupa os dados por tipo
     const groupedData = {};
@@ -794,7 +816,6 @@ function createMonthlyTypeChart(monthlyTypeData) {
     
     // Cria o novo gráfico
     monthlyTypeChart = new ApexCharts(document.querySelector("#monthly-type-chart"), options);
-    monthlyTypeChart.render();
 }
 
 // Cria o gráfico de CEs Lançadas
@@ -803,6 +824,12 @@ function createCELancadasChart(data) {
         console.error('A biblioteca ApexCharts não foi carregada corretamente.');
         return;
     }
+
+    const chartContainer = document.querySelector("#ce-lancadas-chart");
+    if (ceLancadasChart) {
+        ceLancadasChart.destroy();
+    }
+    chartContainer.innerHTML = "";
 
     // Processa os dados para contar CEs por mês
     const monthlyCount = data.reduce((acc, item) => {
@@ -884,7 +911,6 @@ function createCELancadasChart(data) {
     }
 
     ceLancadasChart = new ApexCharts(document.querySelector("#ce-lancadas-chart"), options);
-    ceLancadasChart.render();
 }
 
 function createCELiberadasChart(data) {
@@ -892,6 +918,12 @@ function createCELiberadasChart(data) {
         console.error('A biblioteca ApexCharts não foi carregada corretamente.');
         return;
     }
+
+    const chartContainer = document.querySelector("#ce-liberadas-chart");
+    if (ceLiberadasChart) {
+        ceLiberadasChart.destroy();
+    }
+    chartContainer.innerHTML = "";
 
     // Processa os dados para contar CEs por mês
     const monthlyCount = data.reduce((acc, item) => {
@@ -973,7 +1005,20 @@ function createCELiberadasChart(data) {
     }
 
     ceLiberadasChart = new ApexCharts(document.querySelector("#ce-liberadas-chart"), options);
-    ceLiberadasChart.render();
+}
+
+// Função para renderizar todos os gráficos se o container estiver visível
+function renderAllCharts() {
+    const indicatorsContainer = document.querySelector('#indicators-container');
+    if (indicatorsContainer.style.display !== 'none') {
+        if (typeChart) typeChart.render();
+        if (sectorChart) sectorChart.render();
+        if (typeSectorChart) typeSectorChart.render();
+        if (monthlyChart) monthlyChart.render();
+        if (monthlyTypeChart) monthlyTypeChart.render();
+        if (ceLancadasChart) ceLancadasChart.render();
+        if (ceLiberadasChart) ceLiberadasChart.render();
+    }
 }
 
 // Função auxiliar para configurar a tabela com colunas dinâmicas
@@ -1332,7 +1377,9 @@ async function applyFilters() {
         createCELancadasChart(filteredCeLancadas);
         createCELiberadasChart(filteredCeLiberadas);
         
-        console.log(filteredData)
+        // Renderiza os gráficos atualizados
+        renderAllCharts();
+
         // Gerar tabela com dados filtrados
         await generateTable(filteredData);
         

@@ -1134,14 +1134,24 @@ async function applyFilters() {
             if (responsible && item.Responsavel !== responsible) {
                 return false;
             }
+
+             // Filtro por data CE
+             if (startDateCE && endDateCE && !item.Data_Desconsolidacao_Mercante) {
+                return false;
+            }
+
+          
             
             // Filtro por data de abertura
-            if (startDateAbertura && endDateAbertura) {
+            if (startDateAbertura && endDateAbertura && item.Data_Abertura_Processo) {
                 // Converter data do formato DD/MM/YYYY para objeto Date
                 const parts = item.Data_Abertura_Processo.split('/');
                 const itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                const startDate = new Date(startDateAbertura);
-                const endDate = new Date(endDateAbertura);
+                const startDateParts = startDateAbertura.split('-');
+                const startDate = new Date(startDateParts[0], startDateParts[1] - 1, startDateParts[2]);
+                const endDateParts = endDateAbertura.split('-');
+                const endDate = new Date(endDateParts[0], endDateParts[1] - 1, endDateParts[2]);
+                endDate.setHours(23, 59, 59, 999); // Garante que o dia final seja inclusivo
                 
                 if (itemDate < startDate || itemDate > endDate) {
                     return false;
@@ -1149,12 +1159,16 @@ async function applyFilters() {
             }
             
             // Filtro por data CE
-            if (startDateCE && endDateCE && item.Data_Desconsolidacao_Mercante) {
+            if (startDateCE && endDateCE && item.Data_Desconsolidacao_Mercante && item.Data_Desconsolidacao_Mercante !== '-'  && item.Data_Desconsolidacao_Mercante !== null) {
+             
                 // Converter data do formato DD/MM/YYYY para objeto Date
                 const parts = item.Data_Desconsolidacao_Mercante.split('/');
                 const itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                const startDate = new Date(startDateCE);
-                const endDate = new Date(endDateCE);
+                const startDateParts = startDateCE.split('-');
+                const startDate = new Date(startDateParts[0], startDateParts[1] - 1, startDateParts[2]);
+                const endDateParts = endDateCE.split('-');
+                const endDate = new Date(endDateParts[0], endDateParts[1] - 1, endDateParts[2]);
+                endDate.setHours(23, 59, 59, 999); // Garante que o dia final seja inclusivo
                 
                 if (itemDate < startDate || itemDate > endDate) {
                     return false;
@@ -1171,11 +1185,14 @@ async function applyFilters() {
                 return false;
             }
             // Filtro por data de abertura
-            if (startDateAbertura && endDateAbertura) {
+            if (startDateAbertura && endDateAbertura && item.Data_Abertura_Processo) {
                 const parts = item.Data_Abertura_Processo.split('/');
                 const itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                const startDate = new Date(startDateAbertura);
-                const endDate = new Date(endDateAbertura);
+                const startDateParts = startDateAbertura.split('-');
+                const startDate = new Date(startDateParts[0], startDateParts[1] - 1, startDateParts[2]);
+                const endDateParts = endDateAbertura.split('-');
+                const endDate = new Date(endDateParts[0], endDateParts[1] - 1, endDateParts[2]);
+                endDate.setHours(23, 59, 59, 999); // Garante que o dia final seja inclusivo
                 if (itemDate < startDate || itemDate > endDate) {
                     return false;
                 }
@@ -1184,8 +1201,11 @@ async function applyFilters() {
             if (startDateCE && endDateCE && item.Data_Desconsolidacao_Mercante) {
                 const parts = item.Data_Desconsolidacao_Mercante.split('/');
                 const itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                const startDate = new Date(startDateCE);
-                const endDate = new Date(endDateCE);
+                const startDateParts = startDateCE.split('-');
+                const startDate = new Date(startDateParts[0], startDateParts[1] - 1, startDateParts[2]);
+                const endDateParts = endDateCE.split('-');
+                const endDate = new Date(endDateParts[0], endDateParts[1] - 1, endDateParts[2]);
+                endDate.setHours(23, 59, 59, 999); // Garante que o dia final seja inclusivo
                 if (itemDate < startDate || itemDate > endDate) {
                     return false;
                 }
@@ -1197,6 +1217,7 @@ async function applyFilters() {
         updateChartsWithFilteredData(filteredData);
         createCELancadasChart(filteredCeLancadas);
         
+        console.log(filteredData)
         // Gerar tabela com dados filtrados
         await generateTable(filteredData);
         

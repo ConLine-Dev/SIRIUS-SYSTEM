@@ -55,6 +55,19 @@ module.exports = function(io) {
         }
     });
 
+    // Rota para buscar dados de liberações de CE
+    router.get('/getLiberacoesCE', async (req, res) => {
+        try {
+            const result = await ceMerchant.getLiberacoesCE();
+            res.json(result);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({
+                error: "Ocorreu um erro ao buscar os dados de liberações de CE."
+            });
+        }
+    });
+
     // Retorna o router configurado
     return router;
 }; 

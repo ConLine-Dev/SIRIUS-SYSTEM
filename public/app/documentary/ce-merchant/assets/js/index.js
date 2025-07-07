@@ -6,9 +6,11 @@ let typeSectorChart = null;
 let monthlyChart = null;
 let monthlyTypeChart = null;
 let ceLancadasChart = null;
+let ceLiberadasChart = null;
 let sectorTypes = [];
 let responsibleTypes = [];
 let ceLancadasData = [];
+let ceLiberadasData = [];
 
 // Esta função é executada quando o documento HTML é completamente carregado e analisado
 document.addEventListener("DOMContentLoaded", async () => {
@@ -34,6 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.querySelector('#btn-filter').addEventListener('click', applyFilters);
     document.querySelector('#btn-clear-filter').addEventListener('click', clearFilters);
     document.querySelector('#export-ce-lancadas').addEventListener('click', exportCELancadasToExcel);
+    document.querySelector('#export-ce-liberadas').addEventListener('click', exportCELiberadasToExcel);
     
     // Configura o evento do botão para mostrar/esconder indicadores
     const toggleButton = document.querySelector('#toggle-indicators');
@@ -59,6 +62,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (monthlyChart) monthlyChart.render();
                 if (monthlyTypeChart) monthlyTypeChart.render();
                 if (ceLancadasChart) ceLancadasChart.render();
+                if (ceLiberadasChart) ceLiberadasChart.render();
             }, 300);
         }
     });
@@ -86,6 +90,9 @@ async function loadData() {
         // Carrega os dados de CE Lançadas
         ceLancadasData = await makeRequest('/api/ce-merchant/getAllCE', 'GET');
         
+        // Carrega os dados de CE Liberadas
+        ceLiberadasData = await makeRequest('/api/ce-merchant/getLiberacoesCE', 'GET');
+        
         // Preenche os selects de filtros
         populateFilterSelects(allData);
         
@@ -96,6 +103,7 @@ async function loadData() {
         createMonthlyChart(indicators.monthlyCount);
         createMonthlyTypeChart(indicators.monthlyTypeCount);
         createCELancadasChart(ceLancadasData);
+        createCELiberadasChart(ceLiberadasData);
         
         // Gera a tabela de dados
         await generateTable(allData);
@@ -879,6 +887,95 @@ function createCELancadasChart(data) {
     ceLancadasChart.render();
 }
 
+function createCELiberadasChart(data) {
+    if (typeof ApexCharts === 'undefined') {
+        console.error('A biblioteca ApexCharts não foi carregada corretamente.');
+        return;
+    }
+
+    // Processa os dados para contar CEs por mês
+    const monthlyCount = data.reduce((acc, item) => {
+        if (item.Data_Desembarque) {
+            try {
+                const parts = item.Data_Desembarque.split('/');
+                const monthYear = `${parts[1]}/${parts[2]}`;
+                if (!acc[monthYear]) {
+                    acc[monthYear] = {
+                        count: 0,
+                        year: parseInt(parts[2]),
+                        month: parseInt(parts[1])
+                    };
+                }
+                acc[monthYear].count++;
+            } catch (e) {
+                console.warn("Invalid date format:", item.Data_Desembarque);
+            }
+        }
+        return acc;
+    }, {});
+
+    const sortedMonths = Object.keys(monthlyCount).sort((a, b) => {
+        const dataA = monthlyCount[a];
+        const dataB = monthlyCount[b];
+        if (dataA.year !== dataB.year) {
+            return dataA.year - dataB.year;
+        }
+        return dataA.month - dataB.month;
+    });
+
+    const seriesData = sortedMonths.map(month => monthlyCount[month].count);
+    const categories = sortedMonths;
+
+    const options = {
+        series: [{
+            name: 'CEs Liberadas',
+            data: seriesData
+        }],
+        chart: {
+            type: 'area',
+            height: 350,
+            toolbar: {
+                show: true
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth',
+            width: 3
+        },
+        xaxis: {
+            categories: categories,
+            title: {
+                text: 'Mês (Data de Desembarque)'
+            }
+        },
+        yaxis: {
+            title: {
+                text: 'Quantidade de CEs'
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function(val) {
+                    return val + " CEs";
+                }
+            }
+        },
+        markers: {
+            size: 5
+        }
+    };
+
+    if (ceLiberadasChart) {
+        ceLiberadasChart.destroy();
+    }
+
+    ceLiberadasChart = new ApexCharts(document.querySelector("#ce-liberadas-chart"), options);
+    ceLiberadasChart.render();
+}
+
 // Função auxiliar para configurar a tabela com colunas dinâmicas
 function setupDynamicTable(data, tableId) {
     // Identificar todas as colunas dinâmicas (tipos) presentes nos dados
@@ -1140,7 +1237,6 @@ async function applyFilters() {
                 return false;
             }
 
-          
             
             // Filtro por data de abertura
             if (startDateAbertura && endDateAbertura && item.Data_Abertura_Processo) {
@@ -1213,9 +1309,28 @@ async function applyFilters() {
             return true;
         });
         
+        // Filtra os dados de CE Liberadas
+        const filteredCeLiberadas = ceLiberadasData.filter(item => {
+            // Usaremos o filtro de Data Desconsolidação (Data CE) para filtrar por Data de Desembarque
+            if (startDateCE && endDateCE && item.Data_Desembarque) {
+                const parts = item.Data_Desembarque.split('/');
+                const itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                const startDateParts = startDateCE.split('-');
+                const startDate = new Date(startDateParts[0], startDateParts[1] - 1, startDateParts[2]);
+                const endDateParts = endDateCE.split('-');
+                const endDate = new Date(endDateParts[0], endDateParts[1] - 1, endDateParts[2]);
+                endDate.setHours(23, 59, 59, 999); // Garante que o dia final seja inclusivo
+                if (itemDate < startDate || itemDate > endDate) {
+                    return false;
+                }
+            }
+            return true;
+        });
+        
         // Atualizar gráficos com dados filtrados
         updateChartsWithFilteredData(filteredData);
         createCELancadasChart(filteredCeLancadas);
+        createCELiberadasChart(filteredCeLiberadas);
         
         console.log(filteredData)
         // Gerar tabela com dados filtrados
@@ -1484,6 +1599,50 @@ async function exportCELancadasToExcel() {
 
         // Fazer o download do arquivo
         XLSX.writeFile(workbook, "CEs_Lancadas.xlsx");
+
+        Swal.fire('Exportado!', 'Os dados foram exportados para Excel com sucesso.', 'success');
+    } catch (error) {
+        console.error('Erro ao exportar para Excel:', error);
+        Swal.fire('Erro', 'Ocorreu um erro ao exportar os dados para Excel.', 'error');
+    }
+}
+
+// Função para exportar dados do gráfico de CE Liberadas para Excel
+async function exportCELiberadasToExcel() {
+    // Obter os filtros atuais para aplicar aos dados de exportação
+    const startDateCE = document.querySelector('#start-date-ce').value;
+    const endDateCE = document.querySelector('#end-date-ce').value;
+
+    // Filtrar os dados globais de CE Liberadas
+    const filteredData = ceLiberadasData.filter(item => {
+        if (startDateCE && endDateCE && item.Data_Desembarque) {
+            const parts = item.Data_Desembarque.split('/');
+            const itemDate = new Date(parts[2], parts[1] - 1, parts[0]);
+            const startDateParts = startDateCE.split('-');
+            const startDate = new Date(startDateParts[0], startDateParts[1] - 1, startDateParts[2]);
+            const endDateParts = endDateCE.split('-');
+            const endDate = new Date(endDateParts[0], endDateParts[1] - 1, endDateParts[2]);
+            endDate.setHours(23, 59, 59, 999);
+            if (itemDate < startDate || itemDate > endDate) {
+                return false;
+            }
+        }
+        return true;
+    });
+
+    if (filteredData.length === 0) {
+        Swal.fire('Nenhum dado para exportar', 'Não há dados correspondentes aos filtros selecionados.', 'warning');
+        return;
+    }
+
+    // Usar a biblioteca SheetJS (xlsx) para criar o arquivo Excel
+    try {
+        const worksheet = XLSX.utils.json_to_sheet(filteredData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "CEs Liberadas");
+
+        // Fazer o download do arquivo
+        XLSX.writeFile(workbook, "CEs_Liberadas.xlsx");
 
         Swal.fire('Exportado!', 'Os dados foram exportados para Excel com sucesso.', 'success');
     } catch (error) {

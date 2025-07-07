@@ -773,6 +773,45 @@ LEFT OUTER JOIN
         const result = await executeQuerySQL(query);
 
         return result;
+    },
+
+    getLiberacoesCE: async function() {
+        const query = `
+            SELECT
+                Lhs.Numero_Processo AS Numero_Processo,
+                FORMAT(Lms.Data_Desembarque, 'dd/MM/yyyy', 'pt-BR') AS Data_Desembarque,
+                CASE Lms.Situacao_Embarque 
+                    WHEN 0 THEN 'Pré-processo'
+                    WHEN 1 THEN 'Aguardando embarque'
+                    WHEN 2 THEN 'Embarcado'
+                    WHEN 3 THEN 'Desembarcado'
+                    WHEN 4 THEN 'Cancelado'
+                    WHEN 5 THEN 'Pendente'
+                    WHEN 6 THEN 'Autorizado'
+                    WHEN 7 THEN 'Coletado'
+                    WHEN 8 THEN 'Entregue'
+                    WHEN 9 THEN 'Aguardando prontidão da mercadoria'
+                    WHEN 10 THEN 'Aguardando booking finalizado'
+                    WHEN 11 THEN 'Aguardando coleta'
+                    WHEN 12 THEN 'Aguardando entrega'
+                END AS Situacao_Embarque
+            FROM 
+                mov_Logistica_House Lhs
+            LEFT OUTER JOIN
+                mov_Logistica_Master Lms ON Lms.IdLogistica_Master = Lhs.IdLogistica_Master
+            WHERE
+                Lms.Modalidade_Processo IN (2) /*Marítimo*/
+                AND Lms.Tipo_Operacao IN (2) /*Importação*/
+                AND Lhs.Numero_Processo NOT LIKE '%test%'
+                AND Lms.Situacao_Embarque != 4 /*Cancelado*/
+                AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
+                AND Lms.Data_Desembarque IS NOT NULL
+            ORDER BY
+                Lms.Data_Desembarque ASC
+        `;
+
+        const result = await executeQuerySQL(query);
+        return result;
     }
 };
 

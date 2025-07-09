@@ -375,6 +375,7 @@ exports.getTariffs = async (req, res) => {
                 agent.name AS agent_name,
                 shipowner.name AS shipowner_name,
                 ct.name AS container_type_name,
+                t.free_time,
                 t.freight_cost,
                 CASE
                     WHEN t.validity_end_date < CURDATE() THEN 'Expirada'
@@ -453,6 +454,7 @@ exports.getCommercialTariffs = async (req, res) => {
                 agent.name AS agent_name,
                 shipowner.name AS shipowner_name,
                 ct.name AS container_type_name,
+                t.free_time,
                 t.freight_cost,
                 CASE
                     WHEN t.validity_end_date < CURDATE() THEN 'Expirada'
@@ -501,7 +503,8 @@ exports.getTariffById = async (req, res) => {
                 m.name AS modality_name,
                 ct.name AS container_type_name,
                 a.name AS agent_name,
-                s.name AS shipowner_name
+                s.name AS shipowner_name,
+                t.free_time
             FROM ft_tariffs t
             LEFT JOIN ft_locations orig ON t.origin_id = orig.id
             LEFT JOIN ft_locations dest ON t.destination_id = dest.id
@@ -532,7 +535,7 @@ exports.createTariff = async (req, res, io) => {
     const {
         origin_id, destination_id, modality_id, container_type_id, agent_id, shipowner_id,
         validity_start_date, validity_end_date, freight_cost, freight_currency,
-        transit_time, route_type, notes, surcharges
+        transit_time, route_type, notes, surcharges, free_time
     } = req.body;
 
     // Validação básica
@@ -542,13 +545,13 @@ exports.createTariff = async (req, res, io) => {
 
     try {
         const tariffSql = `
-            INSERT INTO ft_tariffs (origin_id, destination_id, modality_id, container_type_id, agent_id, shipowner_id, validity_start_date, validity_end_date, freight_cost, freight_currency, transit_time, route_type, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO ft_tariffs (origin_id, destination_id, modality_id, container_type_id, agent_id, shipowner_id, validity_start_date, validity_end_date, freight_cost, freight_currency, transit_time, route_type, notes, free_time)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const tariffParams = [
             origin_id, destination_id, modality_id, container_type_id || null, agent_id, shipowner_id || null,
             validity_start_date, validity_end_date, freight_cost, freight_currency,
-            transit_time || null, route_type || null, notes || null
+            transit_time || null, route_type || null, notes || null, free_time || null
         ];
 
         const result = await executeQuery(tariffSql, tariffParams);
@@ -579,7 +582,7 @@ exports.updateTariff = async (req, res, io) => {
     const {
         origin_id, destination_id, modality_id, container_type_id, agent_id, shipowner_id,
         validity_start_date, validity_end_date, freight_cost, freight_currency,
-        transit_time, route_type, notes, surcharges
+        transit_time, route_type, notes, surcharges, free_time
     } = req.body;
 
     if (!origin_id || !destination_id || !modality_id || !agent_id || !validity_start_date || !validity_end_date || !freight_cost || !freight_currency) {
@@ -591,13 +594,13 @@ exports.updateTariff = async (req, res, io) => {
             UPDATE ft_tariffs SET
                 origin_id = ?, destination_id = ?, modality_id = ?, container_type_id = ?, agent_id = ?, shipowner_id = ?,
                 validity_start_date = ?, validity_end_date = ?, freight_cost = ?, freight_currency = ?,
-                transit_time = ?, route_type = ?, notes = ?
+                transit_time = ?, route_type = ?, notes = ?, free_time = ?
             WHERE id = ?
         `;
         const tariffParams = [
             origin_id, destination_id, modality_id, container_type_id || null, agent_id, shipowner_id || null,
             validity_start_date, validity_end_date, freight_cost, freight_currency,
-            transit_time || null, route_type || null, notes || null,
+            transit_time || null, route_type || null, notes || null, free_time || null,
             id
         ];
 
@@ -661,6 +664,7 @@ async function getTariffDataForSocket(tariffId) {
                 agent.name AS agent_name,
                 shipowner.name AS shipowner_name,
                 ct.name AS container_type_name,
+                t.free_time,
                 t.freight_cost,
                 CASE
                     WHEN t.validity_end_date < CURDATE() THEN 'Expirada'
@@ -910,7 +914,7 @@ exports.downloadExcelTemplate = async (req, res) => {
             [
                 'Origem', 'Destino', 'Modal', 'Agente', 'Armador', 'Tipo Container', 
                 'Data Início (YYYY-MM-DD)', 'Data Fim (YYYY-MM-DD)', 'Custo Frete', 'Moeda', 
-                'Tempo Trânsito', 'Tipo Rota', 'Notas',
+                'Tempo Trânsito', 'Tipo Rota', 'Notas', 'Free Time',
                 'Sobretaxa 1 Nome', 'Sobretaxa 1 Valor', 'Sobretaxa 1 Moeda',
                 'Sobretaxa 2 Nome', 'Sobretaxa 2 Valor', 'Sobretaxa 2 Moeda',
                 'Sobretaxa 3 Nome', 'Sobretaxa 3 Valor', 'Sobretaxa 3 Moeda'
@@ -918,7 +922,7 @@ exports.downloadExcelTemplate = async (req, res) => {
             [
                 'Porto de Santos, Brasil', 'Porto de Shanghai, China', 'Marítimo', 'Agent Shipping Ltda', 'Maersk Line', '20\' Standard Dry Van (DV)', 
                 '2024-12-01', '2024-12-31', '1200.00', 'USD', 
-                '35 dias', 'Direto', 'Esta linha será importada como tarifa válida - substitua pelos seus dados',
+                '35 dias', 'Direto', 'Esta linha será importada como tarifa válida - substitua pelos seus dados', '14 dias',
                 'THC Origem', '950.00', 'BRL',
                 'THC Destino', '180.00', 'USD',
                 'BAF', '250.00', 'USD'
@@ -931,7 +935,7 @@ exports.downloadExcelTemplate = async (req, res) => {
         const colWidths = [
             { wch: 25 }, { wch: 25 }, { wch: 15 }, { wch: 20 }, { wch: 20 }, { wch: 25 },
             { wch: 18 }, { wch: 18 }, { wch: 12 }, { wch: 8 }, 
-            { wch: 15 }, { wch: 15 }, { wch: 30 },
+            { wch: 15 }, { wch: 15 }, { wch: 30 }, { wch: 15 },
             { wch: 18 }, { wch: 12 }, { wch: 8 },
             { wch: 18 }, { wch: 12 }, { wch: 8 },
             { wch: 18 }, { wch: 12 }, { wch: 8 }
@@ -1066,8 +1070,8 @@ exports.confirmExcelImport = async (req, res) => {
                 const tariffSql = `
                     INSERT INTO ft_tariffs (origin_id, destination_id, modality_id, container_type_id, agent_id, shipowner_id,
                                            validity_start_date, validity_end_date, freight_cost, freight_currency, 
-                                           transit_time, route_type, notes)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                           transit_time, route_type, notes, free_time)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 `;
 
                 const tariffParams = [
@@ -1075,7 +1079,7 @@ exports.confirmExcelImport = async (req, res) => {
                     item.container_type_id || null, item.agent_id, item.shipowner_id || null,
                     item.validity_start_date, item.validity_end_date, 
                     item.freight_cost, item.freight_currency,
-                    item.transit_time || null, item.route_type || null, item.notes || null
+                    item.transit_time || null, item.route_type || null, item.notes || null, item.free_time || null
                 ];
 
                 const result = await executeQuery(tariffSql, tariffParams);
@@ -1126,9 +1130,9 @@ function parseExcelRow(row) {
     
     // Parse sobretaxas (colunas 13, 14, 15 para primeira sobretaxa, etc.)
     for (let i = 0; i < 3; i++) {
-        const nameIdx = 13 + (i * 3);
-        const valueIdx = 14 + (i * 3);
-        const currencyIdx = 15 + (i * 3);
+        const nameIdx = 14 + (i * 3);
+        const valueIdx = 15 + (i * 3);
+        const currencyIdx = 16 + (i * 3);
         
         if (row[nameIdx] && row[valueIdx] && row[currencyIdx]) {
             surcharges.push({
@@ -1153,6 +1157,7 @@ function parseExcelRow(row) {
         transit_time: row[10] || '',
         route_type: row[11] || '',
         notes: row[12] || '',
+        free_time: row[13] || '',
         surcharges: surcharges
     };
 }
@@ -1242,14 +1247,17 @@ async function validateTariffData(data, formData) {
         }
     }
 
-    // Validar armador (opcional)
-    if (data.shipowner) {
+    // Validar armador (tornando obrigatório)
+    if (!data.shipowner) {
+        issues.push('Armador é obrigatório');
+        status = 'error';
+    } else {
         const shipowner = formData.agents.find(a => a.name === data.shipowner);
         if (shipowner) {
             data.shipowner_id = shipowner.id;
         } else {
             issues.push('Armador não encontrado');
-            status = status === 'error' ? 'error' : 'warning';
+            status = 'error';
         }
     }
 

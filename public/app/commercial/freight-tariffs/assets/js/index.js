@@ -105,6 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <td>${t.shipowner_name || '-'}</td>
                 <td>${freightDisplay} ${surchargeIndicator}</td>
                     <td>${t.transit_time || 'N/A'}</td>
+                    <td>${t.free_time || 'N/A'}</td>
                 <td>${t.route_type || 'N/A'}</td>
                 <td>
                     <div class="dropdown">
@@ -723,6 +724,7 @@ document.addEventListener('DOMContentLoaded', function () {
         $('#edit-freight-cost').val(data.freight_cost || '');
         $('#edit-transit-time').val(data.transit_time || '');
         $('#edit-route-type').val(data.route_type || '');
+        $('#edit-free-time').val(data.free_time || '');
         
         // Carregar sobretaxas
         loadSurchargesInEditModal(data.surcharges || []);
@@ -794,6 +796,7 @@ document.addEventListener('DOMContentLoaded', function () {
         data.freight_cost = parseFloat($('#edit-freight-cost').val()) || 0;
         data.transit_time = $('#edit-transit-time').val();
         data.route_type = $('#edit-route-type').val();
+        data.free_time = $('#edit-free-time').val();
 
         // Capturar sobretaxas
         const surcharges = [];
@@ -894,23 +897,43 @@ document.addEventListener('DOMContentLoaded', function () {
         let status = 'valid';
 
         // Validar campos obrigatórios
-        if (!data.origin_id) {
+        if (!data.origin) {
             issues.push('Origem é obrigatória');
             status = 'error';
+        } else if (!data.origin_id) {
+            issues.push('Origem não encontrada');
+            status = 'error';
         }
 
-        if (!data.destination_id) {
+        if (!data.destination) {
             issues.push('Destino é obrigatório');
             status = 'error';
-        }
-
-        if (!data.modality_id) {
-            issues.push('Modal é obrigatório');
+        } else if (!data.destination_id) {
+            issues.push('Destino não encontrado');
             status = 'error';
         }
 
-        if (!data.agent_id) {
+        if (!data.modality) {
+            issues.push('Modal é obrigatório');
+            status = 'error';
+        } else if (!data.modality_id) {
+            issues.push('Modal não encontrado');
+            status = 'error';
+        }
+
+        if (!data.agent) {
             issues.push('Agente é obrigatório');
+            status = 'error';
+        } else if (!data.agent_id) {
+            issues.push('Agente não encontrado');
+            status = 'error';
+        }
+
+        if (!data.shipowner) {
+            issues.push('Armador é obrigatório');
+            status = 'error';
+        } else if (!data.shipowner_id) {
+            issues.push('Armador não encontrado');
             status = 'error';
         }
 

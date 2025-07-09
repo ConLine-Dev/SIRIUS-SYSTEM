@@ -191,7 +191,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         const method = id ? 'PUT' : 'POST';
-        const url = `${API_URL}/${config.plural}` + (id ? `/${id}` : '');
+        // Correção: Usar o plural definido na configuração (substituindo `_` por `-`)
+        const entityUrlName = config.plural.replace('_', '-');
+        const url = `${API_URL}/${entityUrlName}` + (id ? `/${id}` : '');
 
         try {
             await makeRequest(url, method, data);

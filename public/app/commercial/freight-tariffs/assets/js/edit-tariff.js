@@ -102,6 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
             $('#validity_start_date').val(tariff.validity_start_date.split('T')[0]);
             $('#validity_end_date').val(tariff.validity_end_date.split('T')[0]);
             $('#transit_time').val(tariff.transit_time);
+            $('#free_time').val(tariff.free_time);
             $('#freight_cost').val(tariff.freight_cost);
             $('#freight_currency').val(tariff.freight_currency).trigger('change');
             $('#notes').val(tariff.notes);
@@ -152,6 +153,7 @@ document.addEventListener('DOMContentLoaded', function () {
             freight_cost: $('#freight_cost').val(),
             freight_currency: $('#freight_currency').val(),
             transit_time: $('#transit_time').val(),
+            free_time: $('#free_time').val(),
             route_type: $('#route_type').val(),
             notes: $('#notes').val(),
             surcharges: surcharges

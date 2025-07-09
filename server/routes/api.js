@@ -53,6 +53,7 @@ const api_air_import_main = require('./api-air-import-main');
 const api_air_import_adm = require('./api-air-import-adm');
 const api_speakup_portal = require('./api-speakup-portal');
 const api_refunds = require('./api-refunds');
+const api_active_clients_marketing = require('./api-active-clients-marketing'); // Nova rota para Clientes Ativos - Marketing
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -268,6 +269,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-air-import-main.js oi
   router.use('/refunds', api_refunds(io));
+
+  // Use as rotas do arquivo api-active-clients-marketing.js
+  router.use('/marketing/active-clients', api_active_clients_marketing(io));
 
   // Adicionar rotas do user-tracker - TEMPORARIAMENTE DESATIVADO
   if (USER_TRACKER_ENABLED) {

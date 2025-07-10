@@ -937,10 +937,13 @@ document.addEventListener('DOMContentLoaded', function () {
             status = 'error';
         }
 
-        // Validar tipo de container (opcional)
-        if (data.container_type && !data.container_type_id) {
+        // Validar tipo de container (obrigatório)
+        if (!data.container_type) {
+            issues.push('Tipo de container é obrigatório');
+            status = 'error';
+        } else if (!data.container_type_id) {
             issues.push('Tipo de container não encontrado');
-            status = status === 'error' ? 'error' : 'warning';
+            status = 'error';
         }
 
         // Validar datas

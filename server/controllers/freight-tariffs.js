@@ -414,7 +414,7 @@ exports.getTariffs = async (req, res) => {
 // Nova função específica para consulta comercial (apenas tarifas ativas)
 exports.getCommercialTariffs = async (req, res) => {
     try {
-        const { origin, destination, modality, agent, shipowner } = req.query;
+        const { origin, destination, modality, agent, shipowner, container_type } = req.query;
 
         const params = [];
         const whereClauses = [];
@@ -438,6 +438,10 @@ exports.getCommercialTariffs = async (req, res) => {
         if (shipowner) {
             whereClauses.push('t.shipowner_id = ?');
             params.push(shipowner);
+        }
+        if (container_type) {
+            whereClauses.push('t.container_type_id = ?');
+            params.push(container_type);
         }
 
         // Adicionar filtro para apenas tarifas ativas e que não expiraram
@@ -1261,14 +1265,17 @@ async function validateTariffData(data, formData) {
         }
     }
 
-    // Validar tipo de container (opcional)
-    if (data.container_type) {
+    // Validar tipo de container (obrigatório)
+    if (!data.container_type) {
+        issues.push('Tipo de container é obrigatório');
+        status = 'error';
+    } else {
         const containerType = formData.container_types.find(ct => ct.name === data.container_type);
         if (containerType) {
             data.container_type_id = containerType.id;
         } else {
             issues.push('Tipo de container não encontrado');
-            status = status === 'error' ? 'error' : 'warning';
+            status = 'error';
         }
     }
 

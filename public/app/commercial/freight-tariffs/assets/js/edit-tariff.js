@@ -131,6 +131,14 @@ document.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
         const id = $('#tariff-id').val();
 
+        // Validar campos obrigatórios
+        const container_type_id = $('#container_type_id').val();
+        if (!container_type_id) {
+            alert('O tipo de container é obrigatório.');
+            $('#container_type_id').focus();
+            return;
+        }
+
         const surcharges = [];
         $('#surcharges-tbody tr').each(function () {
             const row = $(this);
@@ -145,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function () {
             origin_id: $('#origin_id').val(),
             destination_id: $('#destination_id').val(),
             modality_id: $('#modality_id').val(),
-            container_type_id: $('#container_type_id').val(),
+            container_type_id: container_type_id,
             agent_id: $('#agent_id').val(),
             shipowner_id: $('#shipowner_id').val(),
             validity_start_date: $('#validity_start_date').val(),

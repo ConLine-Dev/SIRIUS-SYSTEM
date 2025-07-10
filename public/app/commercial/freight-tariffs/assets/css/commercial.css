@@ -1082,3 +1082,14 @@
     background-color: #8a63d2 !important;
     color: white !important;
 }
+
+/* Estilo para o badge de transbordo */
+.badge.bg-info {
+    background-color: #0dcaf0 !important;
+    color: #212529;
+}
+
+[data-theme-mode="dark"] .badge.bg-info {
+    background-color: #0dcaf0 !important;
+    color: #212529;
+}

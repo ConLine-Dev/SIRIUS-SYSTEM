@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Central de Reembolsos</title>
+    <title>Reembolso</title>
     <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
     <meta name="Author" content="Spruko Technologies Private Limited">
     <meta name="keywords"
@@ -39,7 +39,6 @@
 
     <link href="../../assets/libs/fullCalender/main.min.css" rel="stylesheet">
 
-
     <link rel="stylesheet" href="./assets/css/index.css">
     <meta http-equiv="imagetoolbar" content="no">
 </head>
@@ -54,47 +53,66 @@
     <div id="loader2">
         <img src="../../assets/images/media/loader.svg" alt="">
     </div>
-    <div class="row">
-        <div class="col-xl-12">
-            <div class="card custom-card">
-                <div class="card-header d-flex" style="justify-content: space-between;">
-                    <div class="card-title fw-semibold fs-14">Central de Reembolsos</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="container-fluid corpo-dashboard">
-        <div class="row">
-            <div class="row d-flex" style="justify-content: center;">
-                <div class="col-12">
-                    <div class="card custom-card" style="height: 89vh; padding: 1%;">
-                        <div class="card-header justify-content-between d-flex">
-                            <div class="card-title">Meus Reembolsos</div>
-                            <div>
-                                <a class="btn btn-primary" id="save" style="border-radius: 5px;"
-                                    onclick="openRegister()">Novo Lançamento</a>
+    <div class="container-fluid corpo-dashboard" style="height: 100vh; width: 100vw;">
+        <div class="row h-100">
+            <div class="col-12 d-flex justify-content-center align-items-center h-100">
+                <div class="card custom-card w-100 h-100">
+                    <div class="card-header justify-content-between d-flex">
+                        <div class="card-title">Detalhes do Pedido</div>
+                        <!-- <div>
+                            <a class="btn btn-primary" id="save" style="border-radius: 5px;"
+                                onclick="saveOccurrence()">Enviar</a>
+                        </div> -->
+                    </div>
+                    <div class="card-body overflow-auto">
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="input-label" class="form-label center-text">Solicitante</label>
+                                <input type="text" class="form-control me-2 intro-search-user-ticket"
+                                    id="refundResponsible" disabled>
+                            </div>
+                            <div class="col-4">
+                                <label for="input-label" class="form-label center-text">Status</label>
+                                <input type="text" class="form-control me-2 intro-search-user-ticket" id="refundStatus"
+                                    disabled>
+                            </div>
+                            <div class="col-4">
+                                <label for="input-label" class="form-label center-text">Chave Pix</label>
+                                <input type="text" class="form-control me-2 intro-search-user-ticket" id="refundPix"
+                                    disabled>
                             </div>
                         </div>
-                        <div class="col-xl-12 d-flex flex-column">
-                            <div class="card custom-card flex-fill mb-3">
-                                <div class="card-body d-flex flex-column p-0" style="height: 735px;">
-                                    <div class="table-responsive w-100 h-100" style="overflow-x: hidden;">
-                                        <table class="table text-nowrap table-bordered w-100" id="occurrenceTable">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col" class="col-2">Título</th>
-                                                    <th scope="col" class="col-1">Categoria</th>
-                                                    <th scope="col" class="col-1">Subcategoria</th>
-                                                    <th scope="col" class="col-6">Descrição</th>
-                                                    <th scope="col" class="col-1">Status</th>
-                                                    <th scope="col" class="col-1">Data de Criação</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-4">
+                                <label for="input-label" class="form-label center-text">Categoria</label>
+                                <input type="text" class="form-control me-2 intro-search-user-ticket"
+                                    id="refundCategory" disabled>
                             </div>
+                            <div class="col-4">
+                                <label for="input-label" class="form-label center-text">Subcategoria</label>
+                                <input type="text" class="form-control me-2 intro-search-user-ticket"
+                                    id="refundSubcategory" disabled>
+                            </div>
+                            <div class="col-4">
+                                <label for="input-label" class="form-label center-text">Valor</label>
+                                <input type="text" class="form-control me-2 intro-search-user-ticket" id="refundValue"
+                                    disabled>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="input-label" class="form-label center-text">Descrição</label>
+                                <textarea name="description" id="description" class="form-control form-input" cols="30"
+                                    rows="2" disabled ></textarea>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row overflow-scroll" id="attachments">
+                        </div>
+                        <br>
+                        <div class="row overflow-scroll" id="relatedRefunds">
                         </div>
                     </div>
                 </div>
@@ -103,6 +121,8 @@
     </div>
 
 </html>
+
+
 
 <!-- Scroll To Top -->
 <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
@@ -141,7 +161,7 @@
 <!-- SweetAlert JS -->
 <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
 
-<script src="./assets/js/index.js"></script>
+<script src="./assets/js/details.js"></script>
 
 </body>
 

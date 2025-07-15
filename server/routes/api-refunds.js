@@ -25,13 +25,91 @@ const upload = multer({ storage: storage });
 
 module.exports = function (io) {
 
-    router.get('/getStatus', async (req, res, next) => {
+    router.get('/getCategories', async (req, res, next) => {
 
         try {
-            const result = await refunds.getStatus();
+            const result = await refunds.getCategories();
             res.status(200).json(result)
         } catch (error) {
 
+            res.status(404).json('Erro')
+        }
+    });
+
+    router.post('/getSubcategories', async (req, res, next) => {
+
+        try {
+            const result = await refunds.getSubcategories(req.body.categoryId);
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    router.post('/getRefunds', async (req, res, next) => {
+
+        try {
+            const result = await refunds.getRefunds(req.body.collabId);
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    router.get('/getRefundsADM', async (req, res, next) => {
+
+        try {
+            const result = await refunds.getRefundsADM();
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    router.post('/getDetails', async (req, res, next) => {
+
+        try {
+            const result = await refunds.getDetails(req.body.refundId);
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    router.post('/getFromTitle', async (req, res, next) => {
+
+        try {
+            const result = await refunds.getFromTitle(req.body);
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    router.post('/getAttachments', async (req, res, next) => {
+
+        try {
+            const result = await refunds.getAttachments(req.body.titleId);
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    router.post('/upload', upload.array('files[]'), async (req, res, next) => {
+
+        try {
+            const result = await refunds.upload(req);
+            io.emit('updateRefunds', '')
+            res.status(200).json(result)
+        } catch (error) {
+            console.log(error);
             res.status(404).json('Erro')
         }
     });

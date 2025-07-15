@@ -29,20 +29,21 @@ async function createTable() {
   let collabId = userData.system_collaborator_id;
   const listTable = [];
 
-  const getVolumes = await makeRequest(`/api/speakup-portal/getOccurrences`, 'POST', { collabId });
+  const getRefunds = await makeRequest(`/api/refunds/getRefunds`, 'POST', { collabId });
 
-  for (let index = 0; index < getVolumes.length; index++) {
-    const item = getVolumes[index];
+  for (let index = 0; index < getRefunds.length; index++) {
+    const item = getRefunds[index];
 
-    let occurrenceDate = new Date(item.occurrence_date)
-    occurrenceDate = occurrenceDate.toLocaleDateString('pt-BR')
-    let createDate = new Date(item.create_date)
+    let formattedTitle = `${item.title} - #${item.title_id}`
+    let createDate = new Date(item.createDate)
     createDate = createDate.toLocaleDateString('pt-BR')
 
     listTable.push({
       id: item.id,
+      title: formattedTitle,
       description: item.description,
-      occurrenceDate: occurrenceDate,
+      category: item.category,
+      subcategory: item.subcategory,
       status: item.status,
       createDate: createDate,
     });
@@ -60,15 +61,17 @@ async function createTable() {
     pageInfo: false,
     "data": listTable,
     "columns": [
+      { "data": "title" },
+      { "data": "category" },
+      { "data": "subcategory" },
       { "data": "description" },
-      { "data": "occurrenceDate" },
       { "data": "status" },
       { "data": "createDate" },
     ],
     "language": {
       url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
     },
-    "order": [[3, 'desc']],
+    "order": [[0, 'desc']],
     "lengthMenu": [[13], [13]],
     "searching": true,
     "rowCallback": function (row, data, index) {
@@ -85,9 +88,9 @@ async function createTable() {
 
 async function openRegister() {
   const body = {
-    url: `/app/administration/speakup-portal/create`,
-    width: 800,
-    height: 475,
+    url: `/app/financial/refunds/create`,
+    width: 1300,
+    height: 675,
     resizable: false,
     max: false
   }
@@ -104,10 +107,9 @@ async function dblClickOnOccurrence(tableId) {
     const handleDoubleClick = async function (e) {
       e.preventDefault();
       const id = this.getAttribute('occurrence-id');
-      console.log(id);
       const body = {
-        url: `/app/administration/speakup-portal/details?id=${id}`,
-        width: 1600,
+        url: `/app/financial/refunds/details?id=${id}`,
+        width: 800,
         height: 475,
         resizable: true,
         max: false
@@ -127,7 +129,7 @@ window.addEventListener("load", async () => {
 
   const socket = io();
 
-  socket.on('updateOccurrences', (data) => {
+  socket.on('updateRefunds', (data) => {
     createTable()
   })
 

@@ -54,55 +54,93 @@
     <div id="loader2">
         <img src="../../assets/images/media/loader.svg" alt="">
     </div>
-    <div class="row">
-        <div class="col-xl-12">
-            <div class="card custom-card">
-                <div class="card-header d-flex" style="justify-content: space-between;">
-                    <div class="card-title fw-semibold fs-14">Central de Reembolsos</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="container-fluid corpo-dashboard">
-        <div class="row">
-            <div class="row d-flex" style="justify-content: center;">
-                <div class="col-12">
-                    <div class="card custom-card" style="height: 89vh; padding: 1%;">
-                        <div class="card-header justify-content-between d-flex">
-                            <div class="card-title">Meus Reembolsos</div>
-                            <div>
-                                <a class="btn btn-primary" id="save" style="border-radius: 5px;"
-                                    onclick="openRegister()">Novo Lançamento</a>
+    <div class="container-fluid corpo-dashboard" style="height: 100vh; width: 100vw;">
+        <div class="row h-100">
+            <div class="col-12 d-flex justify-content-center align-items-center h-100">
+                <div class="card custom-card w-100 h-100">
+                    <div class="card-header justify-content-between d-flex">
+                        <div class="card-title">Cadastro de Reembolso</div>
+                        <div>
+                            <a class="btn btn-primary" id="save" style="border-radius: 5px;"
+                                onclick="saveRefund()">Enviar</a>
+                        </div>
+                    </div>
+                    <div class="card-body overflow-auto">
+                        <div class="row" id="attach" style="align-items: flex-end; margin-bottom: 15px;">
+                            <div class="col-5">
+                                <label for="input-label" class="form-label center-text">Título</label>
+                                <input type="text" class="form-control me-2 intro-search-user-ticket newText" id="title">
+                            </div>
+                            <div class="col-3">
+                                <label for="input-label" class="form-label center-text">Chave Pix</label>
+                                <input type="text" class="form-control me-2 intro-search-user-ticket newText" id="pix">
+                            </div>
+                            <div class="col-2">
+                                <label for="input-label" class="form-label center-text">Anexos</label>
+                                <input type="file" class="form-control me-2 intro-search-user-ticket newFile" multiple>
+                            </div>
+                            <div class="col-2">
+                                <button class="btn btn-primary" id="save" style="border-radius: 5px;"
+                                    onclick="addRow()">Adicionar Linha</button>
                             </div>
                         </div>
-                        <div class="col-xl-12 d-flex flex-column">
-                            <div class="card custom-card flex-fill mb-3">
-                                <div class="card-body d-flex flex-column p-0" style="height: 735px;">
-                                    <div class="table-responsive w-100 h-100" style="overflow-x: hidden;">
-                                        <table class="table text-nowrap table-bordered w-100" id="occurrenceTable">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col" class="col-2">Título</th>
-                                                    <th scope="col" class="col-1">Categoria</th>
-                                                    <th scope="col" class="col-1">Subcategoria</th>
-                                                    <th scope="col" class="col-6">Descrição</th>
-                                                    <th scope="col" class="col-1">Status</th>
-                                                    <th scope="col" class="col-1">Data de Criação</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody></tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                        <table id="minhaTabela" class="table text-nowrap table-bordered w-100">
+                            <thead>
+                                <tr>
+                                    <th class="col-1">#</th>
+                                    <th class="col-2">Categoria</th>
+                                    <th class="col-2">Subcategoria</th>
+                                    <th class="col-6">Descrição</th>
+                                    <th class="col-1">Valor (R$)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Linhas adicionadas aparecerão aqui -->
+                            </tbody>
+                        </table>
+                        <!-- <div class="row">
+                            <div class="col-6">
+                                <label for="input-label" class="form-label center-text">Categoria</label>
+                                <select id="category" class="form-control me-2 intro-search-user-ticket">
+                                    <option value="0">Selecione</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="input-label" class="form-label center-text">Subcategoria</label>
+                                <select id="subcategory" class="form-control me-2 intro-search-user-ticket">
+                                </select>
                             </div>
                         </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="input-label" class="form-label center-text">Descrição</label>
+                                <textarea name="description" id="description" class="form-control form-input" cols="30"
+                                    rows="5"></textarea>
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row" id="attach">
+                            <div class="col-6">
+                                <label for="input-label" class="form-label center-text">Chave Pix</label>
+                                <input type="text" class="form-control me-2 intro-search-user-ticket newText">
+                            </div>
+                            <div class="col-6">
+                                <label for="input-label" class="form-label center-text">Anexos</label>
+                                <input type="file" class="form-control me-2 intro-search-user-ticket newFile" multiple>
+                            </div>
+                        </div> -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+
+
 </html>
+
+
 
 <!-- Scroll To Top -->
 <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
@@ -141,7 +179,7 @@
 <!-- SweetAlert JS -->
 <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
 
-<script src="./assets/js/index.js"></script>
+<script src="./assets/js/create.js"></script>
 
 </body>
 

@@ -29,12 +29,19 @@ module.exports = function(io) {
 
     // Rotas de Tarifas (precisam de socket para emitir eventos)
     router.get('/tariffs', freightTariffsController.getTariffs);
+    router.get('/tariffs/datatable', freightTariffsController.getTariffsDataTable);
     router.get('/tariffs/commercial', freightTariffsController.getCommercialTariffs);
-    router.get('/tariffs/:id', freightTariffsController.getTariffById);
+    
+    // Rotas de Administração (devem vir ANTES das rotas com parâmetros dinâmicos)
+    router.get('/tariffs/statistics', freightTariffsController.getTariffStatistics);
+    router.delete('/tariffs/clear-all', (req, res) => freightTariffsController.clearAllTariffs(req, res, io));
     
     // Rota para buscar rotas populares
     router.get('/popular-routes', freightTariffsController.getPopularRoutes);
-router.get('/market-analysis', freightTariffsController.getMarketAnalysis);
+    router.get('/market-analysis', freightTariffsController.getMarketAnalysis);
+    
+    // Rotas com parâmetros dinâmicos (devem vir DEPOIS das rotas específicas)
+    router.get('/tariffs/:id', freightTariffsController.getTariffById);
 
     // Rotas para Excel Import/Export
     router.get('/excel/template', freightTariffsController.downloadExcelTemplate);

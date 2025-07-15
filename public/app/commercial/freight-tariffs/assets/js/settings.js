@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const API_URL = '/api/freight-tariffs';
+    const socket = io();
     let allData = { agents: [], locations: [], modalities: [], container_types: [] };
     let settingsModal;
 
@@ -43,8 +44,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- Funções de Inicialização ---
     function initializePage() {
         settingsModal = new bootstrap.Modal(document.getElementById('settings-modal'));
+        setupSocketListeners();
         loadAllData();
         setupEventListeners();
+        loadTariffStatistics();
     }
 
     // --- Funções de Carregamento e Renderização ---
@@ -65,6 +68,94 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     window.refreshSettings = loadAllData;
+
+    // --- Funções de Socket.IO ---
+    function setupSocketListeners() {
+        socket.on('tariffs_cleared', (data) => {
+            console.log('Todas as tarifas foram removidas:', data);
+            // Atualizar estatísticas
+            loadTariffStatistics();
+            // Mostrar notificação
+            alert(`Todas as tarifas foram removidas (${data.deleted} tarifas)`);
+        });
+    }
+
+    // --- Funções de Administração ---
+    async function loadTariffStatistics() {
+        try {
+            const response = await makeRequest(`${API_URL}/tariffs/statistics`);
+            updateStatisticsDisplay(response);
+        } catch (error) {
+            console.error('Erro ao carregar estatísticas:', error);
+        }
+    }
+
+    function updateStatisticsDisplay(stats) {
+        $('#total-tariffs-count').text(stats.total || 0);
+        $('#active-tariffs-count').text(stats.active || 0);
+        $('#expired-tariffs-count').text(stats.expired || 0);
+    }
+
+    function setupClearTariffsModal() {
+        const clearModal = new bootstrap.Modal(document.getElementById('clear-tariffs-modal'));
+        const confirmBtn = document.getElementById('btn-confirm-clear');
+        const passwordInput = document.getElementById('clear-password');
+        const confirmationInput = document.getElementById('clear-confirmation');
+        const checkbox = document.getElementById('clear-confirm-checkbox');
+
+        function validateForm() {
+            const password = passwordInput.value;
+            const confirmation = confirmationInput.value;
+            const isChecked = checkbox.checked;
+            
+            const isValid = password === 'nobackup' && 
+                          confirmation === 'nobackup' && 
+                          isChecked;
+            
+            confirmBtn.disabled = !isValid;
+        }
+
+        // Event listeners para validação
+        passwordInput.addEventListener('input', validateForm);
+        confirmationInput.addEventListener('input', validateForm);
+        checkbox.addEventListener('change', validateForm);
+
+        // Botão de confirmação
+        confirmBtn.addEventListener('click', async () => {
+            if (confirmBtn.disabled) return;
+
+            try {
+                confirmBtn.innerHTML = '<i class="ri-loader-4-line me-2 spin"></i>Limpando...';
+                confirmBtn.disabled = true;
+
+                const response = await makeRequest(`${API_URL}/tariffs/clear-all`, 'DELETE');
+                
+                clearModal.hide();
+                alert(`Limpeza concluída! ${response.deleted} tarifas foram removidas.`);
+                
+                // Recarregar estatísticas
+                loadTariffStatistics();
+                
+                // Limpar formulário
+                passwordInput.value = '';
+                confirmationInput.value = '';
+                checkbox.checked = false;
+                validateForm();
+                
+            } catch (error) {
+                console.error('Erro ao limpar tarifas:', error);
+                alert('Erro ao limpar tarifas. Verifique a conexão e tente novamente.');
+            } finally {
+                confirmBtn.innerHTML = '<i class="ri-delete-bin-line me-2"></i>Limpar Todas as Tarifas';
+                confirmBtn.disabled = false;
+            }
+        });
+
+        // Botão para abrir modal
+        document.getElementById('btn-clear-all-tariffs').addEventListener('click', () => {
+            clearModal.show();
+        });
+    }
 
     function renderAllTables() {
         renderTable('agent', allData.agents);
@@ -249,6 +340,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 $(this).toggle(rowText.includes(searchTerm));
             });
         });
+
+        // Configurar modal de limpeza de tarifas
+        setupClearTariffsModal();
     }
 
     // --- Iniciar ---

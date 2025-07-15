@@ -39,6 +39,15 @@
             z-index: 1;
             border-bottom: 2px solid #dee2e6;
         }
+        
+        /* Spinner para botões */
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body style="display: flex; flex-direction: column; height: 100vh; margin: 0; overflow: hidden;">
@@ -62,6 +71,9 @@
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="container_types-tab" data-bs-toggle="tab" data-bs-target="#container_types-panel" type="button" role="tab">Tipos de Container</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="administration-tab" data-bs-toggle="tab" data-bs-target="#administration-panel" type="button" role="tab">Administração</button>
                 </li>
             </ul>
 
@@ -137,6 +149,73 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- Painel de Administração -->
+                <div class="tab-pane fade" id="administration-panel" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card border-danger">
+                                <div class="card-header bg-danger text-white">
+                                    <h6 class="mb-0"><i class="ri-delete-bin-line me-2"></i>Limpeza de Dados</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-warning">
+                                        <i class="ri-alert-line me-2"></i>
+                                        <strong>Atenção!</strong> Esta ação é irreversível e removerá permanentemente todas as tarifas do sistema.
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h6>O que será removido:</h6>
+                                        <ul class="list-unstyled">
+                                            <li><i class="ri-check-line text-danger me-2"></i>Todas as tarifas de frete</li>
+                                            <li><i class="ri-check-line text-danger me-2"></i>Todas as sobretaxas associadas</li>
+                                            <li><i class="ri-check-line text-danger me-2"></i>Histórico de importações</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h6>O que será preservado:</h6>
+                                        <ul class="list-unstyled">
+                                            <li><i class="ri-check-line text-success me-2"></i>Agentes e armadores</li>
+                                            <li><i class="ri-check-line text-success me-2"></i>Localizações</li>
+                                            <li><i class="ri-check-line text-success me-2"></i>Modalidades</li>
+                                            <li><i class="ri-check-line text-success me-2"></i>Tipos de container</li>
+                                            <li><i class="ri-check-line text-success me-2"></i>Configurações do sistema</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <button class="btn btn-danger btn-lg" id="btn-clear-all-tariffs">
+                                        <i class="ri-delete-bin-line me-2"></i>Limpar Todas as Tarifas
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-info">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="ri-information-line me-2"></i>Estatísticas</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center mb-3">
+                                        <div class="display-6 text-danger" id="total-tariffs-count">0</div>
+                                        <small class="text-muted">Tarifas no Sistema</small>
+                                    </div>
+                                    
+                                    <div class="text-center mb-3">
+                                        <div class="h4 text-warning" id="active-tariffs-count">0</div>
+                                        <small class="text-muted">Tarifas Ativas</small>
+                                    </div>
+                                    
+                                    <div class="text-center">
+                                        <div class="h4 text-success" id="expired-tariffs-count">0</div>
+                                        <small class="text-muted">Tarifas Expiradas</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -166,9 +245,53 @@
         </div>
     </div>
 
+    <!-- Modal de Confirmação para Limpeza de Tarifas -->
+    <div class="modal fade" id="clear-tariffs-modal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">
+                        <i class="ri-delete-bin-line me-2"></i>Confirmação de Limpeza
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger">
+                        <i class="ri-error-warning-line me-2"></i>
+                        <strong>ATENÇÃO!</strong> Esta ação é irreversível e removerá permanentemente todas as tarifas do sistema.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="clear-password" class="form-label">Digite a senha de confirmação:</label>
+                        <input type="password" class="form-control" id="clear-password" placeholder="Digite 'nobackup' para confirmar">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="clear-confirmation" class="form-label">Digite novamente para confirmar:</label>
+                        <input type="password" class="form-control" id="clear-confirmation" placeholder="Digite 'nobackup' novamente">
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="clear-confirm-checkbox">
+                        <label class="form-check-label" for="clear-confirm-checkbox">
+                            Entendo que esta ação é irreversível e não pode ser desfeita
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btn-confirm-clear" disabled>
+                        <i class="ri-delete-bin-line me-2"></i>Limpar Todas as Tarifas
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../../assets/js/makeRequest.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="./assets/js/settings.js"></script>
     <script>
     // Ajusta a altura da área de tabela para ocupar o espaço disponível

@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const API_URL = '/api/freight-tariffs';
     const params = new URLSearchParams(window.location.search);
     const tariffId = params.get('id');
-    const cloneId = params.get('cloneId');
+    const isClone = params.get('clone') === 'true';
     let formData = {}; // Para armazenar dados de selects
 
     // --- Funções de Inicialização ---
@@ -12,14 +12,14 @@ document.addEventListener('DOMContentLoaded', function () {
             formData = data;
             populateAllSelects();
 
-            if (tariffId) {
+            if (tariffId && isClone) {
+                document.title = "Clonar Tarifa";
+                $('#page-title').text('Clonar Tarifa');
+                loadTariff(tariffId, true);
+            } else if (tariffId) {
                 document.title = "Editar Tarifa";
                 $('#page-title').text('Editar Tarifa');
                 loadTariff(tariffId);
-            } else if (cloneId) {
-                document.title = "Clonar Tarifa";
-                $('#page-title').text('Clonar Tarifa');
-                loadTariff(cloneId, true);
             } else {
                 document.title = "Nova Tarifa";
                 $('#page-title').text('Adicionar Nova Tarifa');

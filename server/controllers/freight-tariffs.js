@@ -1323,3 +1323,272 @@ async function validateTariffData(data, formData) {
         issues: issues
     };
 } 
+
+// Nova função específica para DataTable server-side
+exports.getTariffsDataTable = async (req, res) => {
+    try {
+        const {
+            draw, start, length, search, order,
+            origin, destination, modality, agent, shipowner, status
+        } = req.query;
+
+        // Parâmetros de paginação
+        const pageStart = parseInt(start) || 0;
+        const pageLength = parseInt(length) || 10;
+        const searchValue = search?.value || '';
+
+        // Construir WHERE clauses para filtros
+        const params = [];
+        const whereClauses = [];
+
+        if (origin) {
+            whereClauses.push('t.origin_id = ?');
+            params.push(origin);
+        }
+        if (destination) {
+            whereClauses.push('t.destination_id = ?');
+            params.push(destination);
+        }
+        if (modality) {
+            whereClauses.push('t.modality_id = ?');
+            params.push(modality);
+        }
+        if (agent) {
+            whereClauses.push('t.agent_id = ?');
+            params.push(agent);
+        }
+        if (shipowner) {
+            whereClauses.push('t.shipowner_id = ?');
+            params.push(shipowner);
+        }
+
+        // Adicionar busca global se fornecida
+        if (searchValue) {
+            console.log('Pesquisando por:', searchValue);
+            whereClauses.push(`(
+                orig.name LIKE ? OR 
+                dest.name LIKE ? OR 
+                modality.name LIKE ? OR 
+                agent.name LIKE ? OR 
+                shipowner.name LIKE ? OR
+                ct.name LIKE ? OR
+                t.transit_time LIKE ? OR
+                t.free_time LIKE ? OR
+                t.route_type LIKE ? OR
+                CAST(t.freight_cost AS CHAR) LIKE ? OR
+                t.freight_currency LIKE ? OR
+                t.notes LIKE ? OR
+                CASE
+                    WHEN t.validity_end_date < CURDATE() THEN 'Expirada'
+                    WHEN t.validity_end_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 15 DAY) THEN 'Expira Breve'
+                    ELSE 'Ativa'
+                END LIKE ?
+            )`);
+            const searchPattern = `%${searchValue}%`;
+            params.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, 
+                       searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
+        }
+
+        // Construir WHERE para status
+        if (status && status !== 'Todos') {
+            const statusValues = status.split(',').map(s => s.trim()).filter(s => s);
+            if (statusValues.length > 0) {
+                const statusConditions = statusValues.map(statusValue => {
+                    switch(statusValue) {
+                        case 'Ativa':
+                            return 't.validity_end_date >= CURDATE()';
+                        case 'Expira Breve':
+                            return 't.validity_end_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 15 DAY)';
+                        case 'Expirada':
+                            return 't.validity_end_date < CURDATE()';
+                        default:
+                            return '1=1';
+                    }
+                });
+                whereClauses.push(`(${statusConditions.join(' OR ')})`);
+            }
+        }
+        
+        const whereString = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
+        // Construir ORDER BY
+        let orderString = 'ORDER BY t.validity_start_date DESC';
+        if (order && order.length > 0) {
+            const orderColumn = order[0].column;
+            const orderDir = order[0].dir;
+            
+            const columnMap = {
+                0: 'status', // Coluna de detalhes não é ordenável
+                1: 'status',
+                2: 'orig.name',
+                3: 'dest.name', 
+                4: 'modality.name',
+                5: 't.validity_start_date',
+                6: 'agent.name',
+                7: 'shipowner.name',
+                8: 't.freight_cost',
+                9: 't.transit_time',
+                10: 't.free_time',
+                11: 't.route_type',
+                12: null // Coluna de ações não é ordenável
+            };
+            
+            if (columnMap[orderColumn]) {
+                orderString = `ORDER BY ${columnMap[orderColumn]} ${orderDir}`;
+            }
+        }
+
+        // Query para contar total de registros
+        const countQuery = `
+            SELECT COUNT(DISTINCT t.id) as total
+            FROM ft_tariffs t
+            JOIN ft_locations orig ON t.origin_id = orig.id
+            JOIN ft_locations dest ON t.destination_id = dest.id
+            JOIN ft_modalities modality ON t.modality_id = modality.id
+            JOIN ft_agents agent ON t.agent_id = agent.id
+            LEFT JOIN ft_agents shipowner ON t.shipowner_id = shipowner.id
+            LEFT JOIN ft_container_types ct ON t.container_type_id = ct.id
+            ${whereString}
+        `;
+        
+        const totalResult = await executeQuery(countQuery, params);
+        const totalRecords = totalResult[0].total;
+
+        // Query principal com paginação
+        const dataQuery = `
+            SELECT 
+                t.*,
+                orig.name AS origin_name,
+                dest.name AS destination_name,
+                modality.name AS modality_name,
+                agent.name AS agent_name,
+                shipowner.name AS shipowner_name,
+                ct.name AS container_type_name,
+                t.free_time,
+                t.freight_cost,
+                CASE
+                    WHEN t.validity_end_date < CURDATE() THEN 'Expirada'
+                    WHEN t.validity_end_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 15 DAY) THEN 'Expira Breve'
+                    ELSE 'Ativa'
+                END AS status
+            FROM ft_tariffs t
+            JOIN ft_locations orig ON t.origin_id = orig.id
+            JOIN ft_locations dest ON t.destination_id = dest.id
+            JOIN ft_modalities modality ON t.modality_id = modality.id
+            JOIN ft_agents agent ON t.agent_id = agent.id
+            LEFT JOIN ft_agents shipowner ON t.shipowner_id = shipowner.id
+            LEFT JOIN ft_container_types ct ON t.container_type_id = ct.id
+            ${whereString}
+            GROUP BY t.id
+            ${orderString}
+            LIMIT ?, ?
+        `;
+
+        const queryParams = [...params, pageStart, pageLength];
+        let tariffs = await executeQuery(dataQuery, queryParams);
+        
+        // Para cada tarifa, buscar suas sobretaxas
+        for (let tariff of tariffs) {
+            const surcharges = await executeQuery('SELECT * FROM ft_tariffs_surcharges WHERE tariff_id = ?', [tariff.id]);
+            tariff.surcharges = surcharges.map(s => ({...s, cost: s.value}));
+        }
+
+        // Contar registros filtrados (sem paginação)
+        const filteredCountQuery = `
+            SELECT COUNT(DISTINCT t.id) as total
+            FROM ft_tariffs t
+            JOIN ft_locations orig ON t.origin_id = orig.id
+            JOIN ft_locations dest ON t.destination_id = dest.id
+            JOIN ft_modalities modality ON t.modality_id = modality.id
+            JOIN ft_agents agent ON t.agent_id = agent.id
+            LEFT JOIN ft_agents shipowner ON t.shipowner_id = shipowner.id
+            LEFT JOIN ft_container_types ct ON t.container_type_id = ct.id
+            ${whereString}
+        `;
+        
+        const filteredResult = await executeQuery(filteredCountQuery, params);
+        const filteredCount = filteredResult[0].total;
+
+        res.status(200).json({
+            draw: parseInt(draw),
+            recordsTotal: totalRecords,
+            recordsFiltered: filteredCount,
+            data: tariffs
+        });
+
+    } catch (error) {
+        console.error('Erro ao buscar tarifas para DataTable:', error);
+        res.status(500).json({ 
+            message: 'Erro interno do servidor ao buscar tarifas.',
+            error: error.message 
+        });
+    }
+}; 
+
+//================================================================================================
+// Administração - Estatísticas e Limpeza
+//================================================================================================
+
+// Buscar estatísticas das tarifas
+exports.getTariffStatistics = async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                COUNT(*) as total,
+                COUNT(CASE WHEN validity_end_date >= CURDATE() THEN 1 END) as active,
+                COUNT(CASE WHEN validity_end_date < CURDATE() THEN 1 END) as expired
+            FROM ft_tariffs
+        `;
+        
+        const result = await executeQuery(query);
+        const stats = result[0];
+        
+        res.status(200).json({
+            total: stats.total || 0,
+            active: stats.active || 0,
+            expired: stats.expired || 0
+        });
+    } catch (error) {
+        console.error('Erro ao buscar estatísticas das tarifas:', error);
+        res.status(500).json({ 
+            message: 'Erro interno do servidor ao buscar estatísticas.',
+            error: error.message 
+        });
+    }
+};
+
+// Limpar todas as tarifas
+exports.clearAllTariffs = async (req, res, io) => {
+    try {
+        // Primeiro, deletar sobretaxas (devido à chave estrangeira)
+        const deleteSurchargesQuery = 'DELETE FROM ft_tariffs_surcharges';
+        await executeQuery(deleteSurchargesQuery);
+        
+        // Depois, deletar todas as tarifas
+        const deleteTariffsQuery = 'DELETE FROM ft_tariffs';
+        const result = await executeQuery(deleteTariffsQuery);
+        
+        const deletedCount = result.affectedRows;
+        
+        // Emitir evento Socket.IO para atualizar todas as tabelas
+        if (io) {
+            io.emit('tariffs_cleared', {
+                message: 'Todas as tarifas foram removidas',
+                deleted: deletedCount,
+                timestamp: new Date().toISOString()
+            });
+        }
+        
+        res.status(200).json({
+            success: true,
+            message: `Todas as tarifas foram removidas com sucesso.`,
+            deleted: deletedCount
+        });
+    } catch (error) {
+        console.error('Erro ao limpar todas as tarifas:', error);
+        res.status(500).json({ 
+            message: 'Erro interno do servidor ao limpar tarifas.',
+            error: error.message 
+        });
+    }
+};

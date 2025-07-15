@@ -1,18 +1,105 @@
 document.addEventListener('DOMContentLoaded', function () {
     const API_URL = '/api/freight-tariffs';
     const socket = io();
-    let allTariffs = [];
+    let dataTable;
     let formData = {};
+    let filterTimeout; // Para debounce dos filtros
 
     // --- Funções de Inicialização ---
     async function initializePage() {
         setupSocketListeners();
         await loadFormData();
         initializeSearchableSelects();
-        await loadTariffs();
+        initializeDataTable();
     }
     
-    window.refreshTariffs = loadTariffs;
+    window.refreshTariffs = () => {
+        if (dataTable) {
+            dataTable.ajax.reload();
+        }
+    };
+
+    // Função para aplicar filtros com debounce
+    function applyFiltersWithDebounce() {
+        clearTimeout(filterTimeout);
+        
+        filterTimeout = setTimeout(() => {
+            if (dataTable) {
+                dataTable.ajax.reload(() => {
+                    // Mostrar filtros ativos
+                    showActiveFilters();
+                });
+            }
+        }, 300); // Aguarda 300ms após a última mudança
+    }
+    
+
+    
+    // Função para verificar se há filtros ativos
+    function hasActiveFilters() {
+        const formData = new FormData(document.getElementById('filter-form'));
+        return formData.get('origin') || formData.get('destination') || formData.get('modality') || 
+               formData.get('agent') || formData.get('shipowner') || formData.get('status');
+    }
+    
+    // Função para mostrar filtros ativos
+    function showActiveFilters() {
+        const filterForm = $('#filter-form');
+        const existingActiveFilters = filterForm.find('.active-filters');
+        
+        if (existingActiveFilters.length > 0) {
+            existingActiveFilters.remove();
+        }
+        
+        if (!hasActiveFilters()) {
+            return;
+        }
+        
+        const formData = new FormData(document.getElementById('filter-form'));
+        const activeFilters = [];
+        
+        if (formData.get('origin')) {
+            const originSelect = document.getElementById('filter-origin');
+            const originText = originSelect.options[originSelect.selectedIndex].text;
+            activeFilters.push(`Origem: ${originText}`);
+        }
+        if (formData.get('destination')) {
+            const destSelect = document.getElementById('filter-destination');
+            const destText = destSelect.options[destSelect.selectedIndex].text;
+            activeFilters.push(`Destino: ${destText}`);
+        }
+        if (formData.get('modality')) {
+            const modSelect = document.getElementById('filter-modality');
+            const modText = modSelect.options[modSelect.selectedIndex].text;
+            activeFilters.push(`Modal: ${modText}`);
+        }
+        if (formData.get('agent')) {
+            const agentSelect = document.getElementById('filter-agent');
+            const agentText = agentSelect.options[agentSelect.selectedIndex].text;
+            activeFilters.push(`Agente: ${agentText}`);
+        }
+        if (formData.get('shipowner')) {
+            const shipSelect = document.getElementById('filter-shipowner');
+            const shipText = shipSelect.options[shipSelect.selectedIndex].text;
+            activeFilters.push(`Armador: ${shipText}`);
+        }
+        if (formData.get('status')) {
+            const statusSelect = document.getElementById('filter-status');
+            const statusText = statusSelect.options[statusSelect.selectedIndex].text;
+            activeFilters.push(`Status: ${statusText}`);
+        }
+        
+        if (activeFilters.length > 0) {
+            const activeFiltersHtml = `
+                <div class="active-filters mt-2">
+                    <small class="text-muted">
+                        <i class="ri-filter-3-line me-1"></i>Filtros ativos: ${activeFilters.join(', ')}
+                    </small>
+                </div>
+            `;
+            filterForm.append(activeFiltersHtml);
+        }
+    }
 
     async function loadFormData() {
         try {
@@ -25,18 +112,212 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    async function loadTariffs() {
-        try {
-            const query = new URLSearchParams(new FormData(document.getElementById('filter-form'))).toString();
-            const tariffs = await makeRequest(`${API_URL}/tariffs?${query}`);
-            allTariffs = tariffs;
-            renderTariffsTable(allTariffs);
-        } catch (error) {
-            console.error('Erro ao carregar tarifas:', error);
-        }
+    function initializeDataTable() {
+        dataTable = $('#tariffs-datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: `${API_URL}/tariffs/datatable`,
+                type: 'GET',
+                data: function(d) {
+                    // Adicionar filtros do formulário
+                    const formData = new FormData(document.getElementById('filter-form'));
+                    d.origin = formData.get('origin');
+                    d.destination = formData.get('destination');
+                    d.modality = formData.get('modality');
+                    d.agent = formData.get('agent');
+                    d.shipowner = formData.get('shipowner');
+                    d.status = formData.get('status');
+                    
+                    // Garantir que a pesquisa seja enviada corretamente
+                    if (d.search && d.search.value) {
+                        console.log('Pesquisando por:', d.search.value);
+                    }
+                }
+            },
+            columns: [
+                { 
+                    data: null, 
+                    orderable: false, 
+                    searchable: false,
+                    render: function(data, type, row) {
+                        const detailsButton = (row.surcharges && row.surcharges.length > 0) || row.notes
+                            ? `<button class="btn btn-sm btn-outline-info btn-details" data-id="${row.id}" title="Ver Detalhes"><i class="ri-arrow-down-s-line"></i></button>`
+                            : `<span style="display: inline-block; width: 32px;"></span>`;
+                        return detailsButton;
+                    }
+                },
+                { 
+                    data: 'status',
+                    render: function(data, type, row) {
+                        const statusClass = row.status === 'Ativa' ? 'status-Ativa' : (row.status === 'Expira Breve' ? 'status-Expira' : 'status-Expirada');
+                        return `<span class="status-badge ${statusClass}"></span> ${row.status}`;
+                    }
+                },
+                { 
+                    data: 'origin_name',
+                    render: function(data, type, row) {
+                        const displayText = row.origin_name || '-';
+                        return `<span title="${displayText}">${displayText}</span>`;
+                    }
+                },
+                { 
+                    data: 'destination_name',
+                    render: function(data, type, row) {
+                        const displayText = row.destination_name || '-';
+                        return `<span title="${displayText}">${displayText}</span>`;
+                    }
+                },
+                { 
+                    data: 'modality_name',
+                    render: function(data, type, row) {
+                        const displayText = `${row.modality_name} ${row.container_type_name ? `(${row.container_type_name})` : ''}`;
+                        return `<span title="${displayText}">${displayText}</span>`;
+                    }
+                },
+                { 
+                    data: 'validity_start_date',
+                    render: function(data, type, row) {
+                        const displayText = `${new Date(row.validity_start_date).toLocaleDateString()} - ${new Date(row.validity_end_date).toLocaleDateString()}`;
+                        return `<span title="${displayText}">${displayText}</span>`;
+                    }
+                },
+                { 
+                    data: 'agent_name',
+                    render: function(data, type, row) {
+                        const displayText = row.agent_name || '-';
+                        return `<span title="${displayText}">${displayText}</span>`;
+                    }
+                },
+                { 
+                    data: 'shipowner_name',
+                    render: function(data, type, row) {
+                        const displayText = row.shipowner_name || '-';
+                        return `<span title="${displayText}">${displayText}</span>`;
+                    }
+                },
+                { 
+                    data: 'freight_cost',
+                    render: function(data, type, row) {
+                        const freightCost = row.freight_cost ? parseFloat(row.freight_cost).toFixed(2) : '0.00';
+                        const freightCurrency = row.freight_currency || '';
+                        const surchargeIndicator = (row.surcharges && row.surcharges.length > 0)
+                            ? `<i class="ri-add-circle-line ms-1 text-info" title="Contém sobretaxas" style="cursor: help;"></i>`
+                            : '';
+                        const displayText = `${freightCost} ${freightCurrency} ${row.surcharges && row.surcharges.length > 0 ? '(com sobretaxas)' : ''}`;
+                        return `<span title="${displayText}">${freightCost} <span class="badge bg-light text-dark">${freightCurrency}</span> ${surchargeIndicator}</span>`;
+                    }
+                },
+                { 
+                    data: 'transit_time',
+                    searchable: true,
+                    render: function(data, type, row) {
+                        const displayText = row.transit_time || 'N/A';
+                        return `<span title="${displayText}">${displayText}</span>`;
+                    }
+                },
+                { 
+                    data: 'free_time',
+                    searchable: true,
+                    render: function(data, type, row) {
+                        const displayText = row.free_time || 'N/A';
+                        return `<span title="${displayText}">${displayText}</span>`;
+                    }
+                },
+                { 
+                    data: 'route_type',
+                    searchable: true,
+                    render: function(data, type, row) {
+                        const displayText = row.route_type || 'N/A';
+                        return `<span title="${displayText}">${displayText}</span>`;
+                    }
+                },
+                { 
+                    data: null, 
+                    orderable: false, 
+                    searchable: false,
+                    render: function(data, type, row) {
+                        return `
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="true">
+                                    <i class="ri-more-2-fill"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item btn-clone" data-id="${row.id}" href="#"><i class="ri-file-copy-line me-2"></i>Clonar</a></li>
+                                    <li><a class="dropdown-item btn-edit" data-id="${row.id}" href="#"><i class="ri-pencil-line me-2"></i>Editar</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger btn-delete" data-id="${row.id}" href="#"><i class="ri-delete-bin-line me-2"></i>Excluir</a></li>
+                                </ul>
+                            </div>
+                        `;
+                    }
+                }
+            ],
+            order: [[5, 'desc']], // Ordenar por data de validade por padrão (coluna 5 = validity_start_date)
+            pageLength: 25,
+            responsive: true,
+            scrollX: false, // Desabilitar scroll horizontal
+            autoWidth: false, // Desabilitar auto-width para melhor controle
+            search: {
+                smart: false, // Desabilitar busca inteligente para busca exata
+                regex: false, // Desabilitar regex para busca simples
+                caseInsensitive: true // Busca case-insensitive
+            },
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+            },
+            drawCallback: function(settings) {
+                // Adicionar data-tariff-id para cada linha
+                this.api().rows().every(function() {
+                    const data = this.data();
+                    $(this.node()).attr('data-tariff-id', data.id);
+                });
+                
+                // Ajustar largura da tabela após renderização
+                $('#tariffs-datatable').css('width', '100%');
+                
+                // Inicializar dropdowns corretamente
+                initializeDropdowns();
+            }
+        });
     }
 
     // --- Funções de Renderização ---
+    
+    // Função para inicializar dropdowns corretamente
+    function initializeDropdowns() {
+        // Destruir dropdowns existentes para evitar conflitos
+        $('#tariffs-datatable .dropdown-toggle').each(function() {
+            const dropdown = bootstrap.Dropdown.getInstance(this);
+            if (dropdown) {
+                dropdown.dispose();
+            }
+        });
+        
+        // Inicializar novos dropdowns
+        $('#tariffs-datatable .dropdown-toggle').each(function() {
+            const dropdown = new bootstrap.Dropdown(this, {
+                boundary: 'viewport',
+                autoClose: true
+            });
+            
+            // Eventos para ajustar overflow quando dropdown abre/fecha
+            this.addEventListener('show.bs.dropdown', function() {
+                const tableResponsive = document.querySelector('.table-responsive');
+                if (tableResponsive) {
+                    tableResponsive.style.overflow = 'visible';
+                }
+            });
+            
+            this.addEventListener('hidden.bs.dropdown', function() {
+                const tableResponsive = document.querySelector('.table-responsive');
+                if (tableResponsive) {
+                    tableResponsive.style.overflow = 'auto';
+                }
+            });
+        });
+    }
+    
     function populateFilterSelects() {
         const createOption = (item) => `<option value="${item.id}">${item.name}</option>`;
         const initialOption = '<option value="">Todos</option>';
@@ -65,116 +346,51 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function renderTariffsTable(tariffs) {
-        const tbody = $('#tariffs-table-body');
-        tbody.empty();
-        if (tariffs.length === 0) {
-            tbody.html('<tr><td colspan="12" class="text-center">Nenhuma tarifa encontrada.</td></tr>');
-            return;
-        }
-        tariffs.forEach(t => {
-            const rowHtml = createTariffRowHtml(t);
-            tbody.append(rowHtml);
-        });
-    }
-
-    function createTariffRowHtml(t) {
-            const statusClass = t.status === 'Ativa' ? 'status-Ativa' : (t.status === 'Expira Breve' ? 'status-Expira' : 'status-Expirada');
-        const detailsButton = (t.surcharges && t.surcharges.length > 0) || t.notes
-            ? `<button class="btn btn-sm btn-outline-info btn-details" data-id="${t.id}" title="Ver Detalhes"><i class="ri-arrow-down-s-line"></i></button>`
-            : `<span style="display: inline-block; width: 32px;"></span>`;
-        
-        const surchargeIndicator = (t.surcharges && t.surcharges.length > 0)
-            ? `<i class="ri-add-circle-line ms-1 text-info" title="Contém sobretaxas" style="cursor: help;"></i>`
-            : '';
-
-        // Formatação do valor do frete com a moeda apropriada
-        const freightCost = t.freight_cost ? parseFloat(t.freight_cost).toFixed(2) : '0.00';
-        const freightCurrency = t.freight_currency || '';
-        const freightDisplay = `${freightCost} <span class="badge bg-light text-dark">${freightCurrency}</span>`;
-
-        return `
-            <tr data-tariff-id="${t.id}">
-                <td>${detailsButton}</td>
-                    <td><span class="status-badge ${statusClass}"></span> ${t.status}</td>
-                    <td>${t.origin_name}</td>
-                    <td>${t.destination_name}</td>
-                    <td>${t.modality_name} ${t.container_type_name ? `(${t.container_type_name})` : ''}</td>
-                    <td>${new Date(t.validity_start_date).toLocaleDateString()} - ${new Date(t.validity_end_date).toLocaleDateString()}</td>
-                    <td>${t.agent_name || '-'}</td>
-                    <td>${t.shipowner_name || '-'}</td>
-                <td>${freightDisplay} ${surchargeIndicator}</td>
-                    <td>${t.transit_time || 'N/A'}</td>
-                    <td>${t.free_time || 'N/A'}</td>
-                <td>${t.route_type || 'N/A'}</td>
-                <td>
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="viewport">
-                            <i class="ri-more-2-fill"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item btn-clone" data-id="${t.id}" href="#"><i class="ri-file-copy-line me-2"></i>Clonar</a></li>
-                            <li><a class="dropdown-item btn-edit" data-id="${t.id}" href="#"><i class="ri-pencil-line me-2"></i>Editar</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger btn-delete" data-id="${t.id}" href="#"><i class="ri-delete-bin-line me-2"></i>Excluir</a></li>
-                        </ul>
-                    </div>
-                    </td>
-                </tr>
-            `;
-    }
-
     // --- Lógica de Socket.IO ---
     function setupSocketListeners() {
         socket.on('tariff_created', (newTariff) => {
             console.log('Nova tarifa recebida:', newTariff);
-            addTariffRow(newTariff);
+            // Recarregar apenas a página atual para manter a paginação
+            if (dataTable) {
+                dataTable.ajax.reload(null, false); // false = manter página atual
+            }
         });
 
         socket.on('tariff_updated', (updatedTariff) => {
             console.log('Tarifa atualizada recebida:', updatedTariff);
-            updateTariffRow(updatedTariff);
+            updateTariffRowInDataTable(updatedTariff);
         });
 
         socket.on('tariff_deleted', (data) => {
             console.log('Tarifa excluída recebida:', data);
-            deleteTariffRow(data.id);
+            deleteTariffRowFromDataTable(data.id);
+        });
+
+        socket.on('tariffs_cleared', (data) => {
+            console.log('Todas as tarifas foram removidas:', data);
+            // Recarregar toda a tabela pois todas as tarifas foram removidas
+            if (dataTable) {
+                dataTable.ajax.reload();
+            }
+            // Mostrar notificação
+            showToast(`Todas as tarifas foram removidas (${data.deleted} tarifas)`, 'success');
         });
     }
 
-    function addTariffRow(tariff) {
-        // Remove a mensagem "Nenhuma tarifa encontrada" se ela existir
-        $('#tariffs-table-body .text-center').parent().remove();
-        
-        const rowHtml = createTariffRowHtml(tariff);
-        $('#tariffs-table-body').prepend(rowHtml);
-        allTariffs.unshift(tariff); // Adiciona ao array local
-    }
-
-    function updateTariffRow(tariff) {
-        const rowHtml = createTariffRowHtml(tariff);
-        $(`tr[data-tariff-id="${tariff.id}"]`).replaceWith(rowHtml);
-        
-        // Atualiza também a linha de detalhes se ela estiver aberta
-        const detailsRow = $(`#details-${tariff.id}`);
-        if (detailsRow.length) {
-            detailsRow.remove();
+    function updateTariffRowInDataTable(tariff) {
+        // Encontrar a linha na DataTable e atualizar apenas ela
+        const row = dataTable.row(`tr[data-tariff-id="${tariff.id}"]`);
+        if (row.length) {
+            // Atualizar os dados da linha
+            row.data(tariff).draw(false); // false = manter página atual
         }
-
-        // Atualiza o array local
-        const index = allTariffs.findIndex(t => t.id === tariff.id);
-        if (index !== -1) {
-            allTariffs[index] = tariff;
-    }
     }
 
-    function deleteTariffRow(tariffId) {
-        $(`tr[data-tariff-id="${tariffId}"]`).remove();
-        $(`#details-${tariffId}`).remove(); // Remove detalhes se estiverem abertos
-        allTariffs = allTariffs.filter(t => t.id !== tariffId);
-
-        if (allTariffs.length === 0) {
-            $('#tariffs-table-body').html('<tr><td colspan="12" class="text-center">Nenhuma tarifa encontrada.</td></tr>');
+    function deleteTariffRowFromDataTable(tariffId) {
+        // Encontrar e remover a linha da DataTable
+        const row = dataTable.row(`tr[data-tariff-id="${tariffId}"]`);
+        if (row.length) {
+            row.remove().draw(false); // false = manter página atual
         }
     }
 
@@ -183,10 +399,31 @@ document.addEventListener('DOMContentLoaded', function () {
         window.open('edit-tariff.html', 'edit-tariff', 'width=1000,height=800,scrollbars=yes');
     });
 
-    $('#filter-form').on('submit', (e) => { e.preventDefault(); loadTariffs(); });
-    $('#btn-clear-filters').on('click', () => { $('#filter-form')[0].reset(); loadTariffs(); });
+    // Aplicar filtros automaticamente quando qualquer campo for alterado
+    $('#filter-form select').on('change', function() {
+        applyFiltersWithDebounce();
+    });
+    
+    // Manter o submit do formulário para compatibilidade (mas não é mais necessário)
+    $('#filter-form').on('submit', (e) => { 
+        e.preventDefault(); 
+        if (dataTable) {
+            dataTable.ajax.reload();
+        }
+    });
+    
+    $('#btn-clear-filters').on('click', () => { 
+        $('#filter-form')[0].reset(); 
+        // Remover indicadores de filtros ativos
+        $('#filter-form .active-filters').remove();
+        
+        if (dataTable) {
+            dataTable.ajax.reload();
+        }
+    });
 
-    $('#tariffs-table-body').on('click', '.btn-details', function() {
+    // Delegar eventos para a DataTable
+    $('#tariffs-datatable').on('click', '.btn-details', function() {
         const button = $(this);
         const icon = button.find('i');
         const tariffId = button.data('id');
@@ -200,19 +437,19 @@ document.addEventListener('DOMContentLoaded', function () {
             icon.removeClass('ri-arrow-up-s-line').addClass('ri-arrow-down-s-line');
         } else {
             // Se não existe, crie-a
-            const tariff = allTariffs.find(t => t.id === tariffId);
-            if (tariff) {
+            const rowData = dataTable.row(tariffRow).data();
+            if (rowData) {
                 let detailsHtml = `<td colspan="12" class="p-3" style="background-color: #f8f9fa;">`;
 
-                if (tariff.notes) {
+                if (rowData.notes) {
                     detailsHtml += `
                         <h6 class="mb-2">Notas Adicionais</h6>
-                        <p class="text-muted" style="white-space: pre-wrap;">${tariff.notes}</p>
+                        <p class="text-muted" style="white-space: pre-wrap;">${rowData.notes}</p>
                     `;
                 }
 
-                if (tariff.surcharges && tariff.surcharges.length > 0) {
-                    if (tariff.notes) {
+                if (rowData.surcharges && rowData.surcharges.length > 0) {
+                    if (rowData.notes) {
                         detailsHtml += '<hr class="my-2">';
                     }
                     detailsHtml += `
@@ -227,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             </thead>
                             <tbody>
                     `;
-                    tariff.surcharges.forEach(s => {
+                    rowData.surcharges.forEach(s => {
                         detailsHtml += `
                             <tr>
                                 <td>${s.name}</td>
@@ -250,28 +487,46 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    $('#tariffs-table-body').on('click', '.btn-edit', function() {
-        const id = $(this).data('id');
-        window.open(`edit-tariff.html?id=${id}`, 'edit-tariff', 'width=1000,height=800,scrollbars=yes');
-    });
-    
-    $('#tariffs-table-body').on('click', '.btn-clone', function() {
-        const id = $(this).data('id');
-        window.open(`edit-tariff.html?cloneId=${id}`, 'edit-tariff', 'width=1000,height=800,scrollbars=yes');
+    // Eventos de edição e exclusão
+    $('#tariffs-datatable').on('click', '.btn-edit', function(e) {
+        e.preventDefault();
+        const tariffId = $(this).data('id');
+        window.open(`edit-tariff.html?id=${tariffId}`, 'edit-tariff', 'width=1000,height=800,scrollbars=yes');
     });
 
-    $('#tariffs-table-body').on('click', '.btn-delete', async function() {
-        const id = $(this).data('id');
+    $('#tariffs-datatable').on('click', '.btn-clone', function(e) {
+        e.preventDefault();
+        const tariffId = $(this).data('id');
+        window.open(`edit-tariff.html?id=${tariffId}&clone=true`, 'edit-tariff', 'width=1000,height=800,scrollbars=yes');
+    });
+
+    $('#tariffs-datatable').on('click', '.btn-delete', function(e) {
+        e.preventDefault();
+        const tariffId = $(this).data('id');
+        
         if (confirm('Tem certeza que deseja excluir esta tarifa?')) {
-            try {
-                await makeRequest(`${API_URL}/tariffs/${id}`, 'DELETE');
-                await loadTariffs();
-            } catch (error) {
-                console.error('Erro ao excluir tarifa:', error);
-                alert('Falha ao excluir a tarifa.');
-            }
+            deleteTariff(tariffId);
         }
     });
+
+    async function deleteTariff(tariffId) {
+        try {
+            const response = await fetch(`${API_URL}/tariffs/${tariffId}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                // A exclusão será tratada pelo Socket.IO
+                console.log('Tarifa excluída com sucesso');
+            } else {
+                const error = await response.json();
+                alert('Erro ao excluir tarifa: ' + error.message);
+            }
+            } catch (error) {
+                console.error('Erro ao excluir tarifa:', error);
+            alert('Erro ao excluir tarifa');
+            }
+        }
     
     $('#btn-manage-configs').on('click', () => {
        window.open('settings.html', 'settings', 'width=900,height=700,scrollbars=yes');
@@ -1013,7 +1268,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             alert(`Importação concluída! ${response.imported} tarifas foram importadas com sucesso.`);
             $('#import-modal').modal('hide');
-            await loadTariffs(); // Recarrega a lista
+            if (dataTable) {
+                dataTable.ajax.reload(); // Recarrega a lista usando DataTable
+            }
 
         } catch (error) {
             console.error('Erro na importação:', error);
@@ -1162,6 +1419,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // --- Iniciar ---
+    // Inicializar a página
     initializePage();
 }); 

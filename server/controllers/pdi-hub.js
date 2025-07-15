@@ -283,7 +283,16 @@ const pdiHub = {
             ]);
             
             const pdiId = pdiResult.insertId;
-            
+
+            // Inserir fatores padrão na tabela pdi_plan_factors
+            const defaultFactors = await executeQuery('SELECT id, default_weight FROM pdi_factors');
+            for (const factor of defaultFactors) {
+                await executeQuery(
+                    'INSERT INTO pdi_plan_factors (pdi_id, factor_id, weight) VALUES (?, ?, ?)',
+                    [pdiId, factor.id, factor.default_weight]
+                );
+            }
+
             // Inserir níveis de desempenho padrão para o novo PDI
             const defaultLevels = [
                 { name: 'Estacionado', min: 0, max: 39.99, icon: 'estacionado.png', color: 'red', order: 1 },
@@ -817,6 +826,20 @@ const pdiHub = {
     // Obter histórico de avaliações (dinâmico, com média e nível)
     getEvaluationHistory: async function(pdi_id) {
         try {
+            // Garantir que existam fatores associados ao PDI
+            const planFactors = await executeQuery('SELECT COUNT(*) as total FROM pdi_plan_factors WHERE pdi_id = ?', [pdi_id]);
+            // console.log('planFactors', planFactors);
+            if (planFactors[0].total == 0) {
+                console.log('Não existem fatores associados ao PDI. Inserindo fatores padrão...');
+                const defaultFactors = await executeQuery('SELECT id, default_weight FROM pdi_factors');
+                for (const factor of defaultFactors) {
+                    await executeQuery(
+                        'INSERT INTO pdi_plan_factors (pdi_id, factor_id, weight) VALUES (?, ?, ?)',
+                        [pdi_id, factor.id, factor.default_weight]
+                    );
+                }
+            }
+
             // Buscar avaliações mensais
             const result = await executeQuery(`
                 SELECT *
@@ -827,6 +850,7 @@ const pdiHub = {
 
             // Buscar fatores e pesos do PDI
             const factors = await this.getPdiFactors(pdi_id);
+
             const factorWeights = {};
             let totalWeight = 0;
             factors.forEach(f => {
@@ -852,6 +876,8 @@ const pdiHub = {
                 const scoreMap = { 'Ótimo': 5, 'Bom': 4, 'Regular': 3, 'Ruim': 2, 'Péssimo': 1 };
                 let weightedSum = 0;
                 let sumWeights = 0;
+
+
                 answers.forEach(ans => {
                     if (factorWeights[ans.factor_id] && scoreMap[ans.score]) {
                         weightedSum += scoreMap[ans.score] * factorWeights[ans.factor_id];
@@ -859,6 +885,7 @@ const pdiHub = {
                     }
                 });
                 let media = null;
+
                 if (sumWeights > 0) {
                     media = weightedSum / sumWeights;
                 }

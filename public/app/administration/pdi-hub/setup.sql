@@ -55,8 +55,22 @@ CREATE TABLE pdi_factors (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL, -- Nome do fator/pergunta
     description TEXT,
+    default_weight DECIMAL(5,2) NOT NULL DEFAULT 1.0, -- Peso padrão do fator
     created_at DATETIME NOT NULL
 );
+
+-- ===============================
+-- Dados de exemplo para fatores de avaliação
+-- ===============================
+INSERT INTO pdi_factors (name, description, default_weight, created_at) VALUES
+('Assiduidade', 'Frequência e pontualidade no trabalho', 1.5, NOW()),
+('Trabalho em Equipe', 'Colaboração e relacionamento com colegas', 1.2, NOW()),
+('Criatividade', 'Capacidade de inovação e resolução criativa de problemas', 1.0, NOW()),
+('Produtividade', 'Eficiência e qualidade na execução das tarefas', 1.8, NOW()),
+('Resolução de Problemas', 'Capacidade de identificar e resolver desafios', 1.3, NOW()),
+('Comunicação', 'Clareza e eficácia na comunicação verbal e escrita', 1.1, NOW()),
+('Liderança', 'Capacidade de influenciar e motivar outros', 1.0, NOW()),
+('Adaptabilidade', 'Flexibilidade para lidar com mudanças', 1.0, NOW());
 
 -- ===============================
 -- Associação de Fatores a cada PDI (com peso)

@@ -356,6 +356,7 @@ async function loadEvaluationHistory(pdiId) {
         if (result.success && result.data && result.data.length > 0) {
             noEvaluations.classList.add('d-none');
             // Renderizar cada avaliação no histórico (sem coluna de nível)
+            console.log('result.data', result.data);
             result.data.forEach(evaluation => {
                 const row = document.createElement('tr');
                 const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 

@@ -63,6 +63,7 @@ const api_procuration_control = require('./api-procuration-control');
 const api_procedures_management = require('./api-procedures-management');
 const api_tax_calculator = require('./api-tax-calculator');
 const api_freight_tariffs = require('./api-freight-tariffs');
+const api_headcargo_activity_management = require('../controllers/headcargo-activity-management');
 // const Posts = require('./apiPosts');
 
 // Importando as rotas da API user-tracker

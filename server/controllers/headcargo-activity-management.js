@@ -424,9 +424,9 @@ WHERE
             // Operacional - Exportação Marítima
             // 'OPERACIONAL_EM': 'petryck.leite@conlinebr.com.br',
             // Operacional - Importação Marítima
-            'OPERACIONAL_IM': 'marcus.rebelo@conlinebr.com.br',
-            'DOCUMENTAL_IM': 'dedeu@conlinebr.com.br',
-            'DOCUMENTAL_EM': 'dedeu@conlinebr.com.br',
+            'OPERACIONAL_IM': 'gestor.operacional.im@conlinebr.com.br',
+            'DOCUMENTAL_IM': 'gestor.documental.im@conlinebr.com.br',
+            'DOCUMENTAL_EM': 'gestor.documental.im@conlinebr.com.br',
             
             // // Administrativo - Exportação Aérea
             // 'ADMINISTRATIVO_EA': 'gestor.administrativo.ea@conlinebr.com.br',

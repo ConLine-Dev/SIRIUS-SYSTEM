@@ -7,8 +7,35 @@ let actionCounter = 0;
 let actionsToDelete = [];
 let profileChartInstance = null;
 let evaluationsChartInstance = null;
-let allGlobalActions = [];
+
+// Variáveis para filtros avançados
+let allPDIs = [];
+let activeFilters = {
+    collaborator: '',
+    supervisor: '',
+    profile: '',
+    dateRange: '',
+    actionsStatus: '',
+    search: ''
+};
+
+// Variáveis para filtros das avaliações
 let allRecentEvaluations = [];
+let evaluationFilters = {
+    collaborator: '',
+    period: '',
+    score: '',
+    date: ''
+};
+
+// Variáveis para filtros das ações
+let allGlobalActions = [];
+let actionFilters = {
+    collaborator: '',
+    status: '',
+    deadline: '',
+    search: ''
+};
 
 // Esperar o documento carregar
 document.addEventListener('DOMContentLoaded', function() {
@@ -73,10 +100,96 @@ function setupEventListeners() {
         btnToggleIndicators.addEventListener('click', toggleIndicators);
     }
     
-    // Seletor de filtro de status
-    const statusFilter = document.getElementById('statusFilter');
-    if (statusFilter) {
-        statusFilter.addEventListener('change', filterPDIsByStatus);
+
+    
+    // Filtros avançados
+    const btnToggleAdvancedFilters = document.getElementById('btnToggleAdvancedFilters');
+    if (btnToggleAdvancedFilters) {
+        btnToggleAdvancedFilters.addEventListener('click', toggleAdvancedFilters);
+    }
+    
+    const btnClearFilters = document.getElementById('btnClearFilters');
+    if (btnClearFilters) {
+        btnClearFilters.addEventListener('click', clearAdvancedFilters);
+    }
+    
+    // Event listeners para filtros individuais
+    const filterSearch = document.getElementById('filterSearch');
+    if (filterSearch) {
+        filterSearch.addEventListener('input', debounce(applyAdvancedFilters, 500));
+    }
+    
+    // Event listeners para selects dos filtros
+    const filterSelects = [
+        'filterCollaborator',
+        'filterSupervisor', 
+        'filterProfile',
+        'filterDateRange',
+        'filterActionsStatus'
+    ];
+    
+    filterSelects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (select) {
+            select.addEventListener('change', applyAdvancedFilters);
+        }
+    });
+    
+    // Event listeners para filtros das avaliações
+    const btnToggleEvaluationFilters = document.getElementById('btnToggleEvaluationFilters');
+    if (btnToggleEvaluationFilters) {
+        btnToggleEvaluationFilters.addEventListener('click', toggleEvaluationFilters);
+    }
+    
+    const btnClearEvaluationFilters = document.getElementById('btnClearEvaluationFilters');
+    if (btnClearEvaluationFilters) {
+        btnClearEvaluationFilters.addEventListener('click', clearEvaluationFilters);
+    }
+    
+    // Event listeners para filtros das ações
+    const btnToggleActionFilters = document.getElementById('btnToggleActionFilters');
+    if (btnToggleActionFilters) {
+        btnToggleActionFilters.addEventListener('click', toggleActionFilters);
+    }
+    
+    const btnClearActionFilters = document.getElementById('btnClearActionFilters');
+    if (btnClearActionFilters) {
+        btnClearActionFilters.addEventListener('click', clearActionFilters);
+    }
+    
+    // Event listeners para filtros individuais das avaliações
+    const evaluationFilterSelects = [
+        'filterEvaluationCollaborator',
+        'filterEvaluationPeriod',
+        'filterEvaluationScore',
+        'filterEvaluationDate'
+    ];
+    
+    evaluationFilterSelects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (select) {
+            select.addEventListener('change', applyEvaluationFilters);
+        }
+    });
+    
+    // Event listeners para filtros individuais das ações
+    const actionFilterSelects = [
+        'filterActionCollaborator',
+        'filterActionStatus',
+        'filterActionDeadline'
+    ];
+    
+    actionFilterSelects.forEach(selectId => {
+        const select = document.getElementById(selectId);
+        if (select) {
+            select.addEventListener('change', applyActionFilters);
+        }
+    });
+    
+    // Event listener para busca de texto das ações
+    const filterActionSearch = document.getElementById('filterActionSearch');
+    if (filterActionSearch) {
+        filterActionSearch.addEventListener('input', debounce(applyActionFilters, 500));
     }
 }
 
@@ -109,6 +222,544 @@ function toggleIndicators() {
     }
 }
 
+
+
+// Função debounce para otimizar busca
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// ==================== FILTROS DAS AVALIAÇÕES ====================
+
+// Mostrar/esconder filtros das avaliações
+function toggleEvaluationFilters() {
+    const filtersSection = document.getElementById('evaluationFiltersSection');
+    const isHidden = filtersSection.classList.contains('d-none');
+    
+    if (isHidden) {
+        filtersSection.classList.remove('d-none');
+        populateEvaluationFilterOptions();
+    } else {
+        filtersSection.classList.add('d-none');
+    }
+}
+
+// Popular opções dos filtros das avaliações
+function populateEvaluationFilterOptions() {
+    if (allRecentEvaluations.length === 0) return;
+    
+    // Popular filtro de colaboradores
+    const collaboratorFilter = document.getElementById('filterEvaluationCollaborator');
+    if (collaboratorFilter) {
+        const uniqueCollaborators = [...new Set(allRecentEvaluations.map(e => e.collaborator_name).filter(Boolean))];
+        const currentValue = collaboratorFilter.value;
+        collaboratorFilter.innerHTML = '<option value="">Todos os Colaboradores</option>' +
+            uniqueCollaborators.map(name => `<option value="${name}">${name}</option>`).join('');
+        collaboratorFilter.value = currentValue;
+    }
+    
+    // Popular filtro de períodos
+    const periodFilter = document.getElementById('filterEvaluationPeriod');
+    if (periodFilter) {
+        const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+        const uniquePeriods = [...new Set(allRecentEvaluations.map(e => {
+            const monthName = monthNames[e.month - 1];
+            return `${monthName}/${e.year}`;
+        }))];
+        const currentValue = periodFilter.value;
+        periodFilter.innerHTML = '<option value="">Todos os Períodos</option>' +
+            uniquePeriods.map(period => `<option value="${period}">${period}</option>`).join('');
+        periodFilter.value = currentValue;
+    }
+}
+
+// Aplicar filtros das avaliações
+function applyEvaluationFilters() {
+    // Coletar valores dos filtros
+    evaluationFilters = {
+        collaborator: document.getElementById('filterEvaluationCollaborator')?.value || '',
+        period: document.getElementById('filterEvaluationPeriod')?.value || '',
+        score: document.getElementById('filterEvaluationScore')?.value || '',
+        date: document.getElementById('filterEvaluationDate')?.value || ''
+    };
+    
+    // Filtrar avaliações
+    const filteredEvaluations = filterEvaluations(evaluationFilters);
+    
+    // Renderizar resultados
+    renderRecentEvaluations(filteredEvaluations);
+}
+
+// Filtrar avaliações baseado nos critérios
+function filterEvaluations(filters) {
+    return allRecentEvaluations.filter(evaluation => {
+        // Filtro por colaborador
+        if (filters.collaborator && evaluation.collaborator_name !== filters.collaborator) {
+            return false;
+        }
+        
+        // Filtro por período
+        if (filters.period) {
+            const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            const evaluationPeriod = `${monthNames[evaluation.month - 1]}/${evaluation.year}`;
+            if (evaluationPeriod !== filters.period) {
+                return false;
+            }
+        }
+        
+        // Filtro por média
+        if (filters.score) {
+            const average = (typeof evaluation.media === 'number') ? evaluation.media :
+                           (typeof evaluation.average_score === 'number') ? evaluation.average_score :
+                           (typeof evaluation.score === 'number') ? evaluation.score : 0;
+            
+            switch (filters.score) {
+                case 'excellent':
+                    if (average < 4.5) return false;
+                    break;
+                case 'good':
+                    if (average < 3.5 || average >= 4.5) return false;
+                    break;
+                case 'regular':
+                    if (average < 2.5 || average >= 3.5) return false;
+                    break;
+                case 'poor':
+                    if (average >= 2.5) return false;
+                    break;
+            }
+        }
+        
+        // Filtro por data da avaliação
+        if (filters.date) {
+            const evaluationDate = new Date(evaluation.created_at);
+            const today = new Date();
+            
+            switch (filters.date) {
+                case 'last7days':
+                    const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    if (evaluationDate < sevenDaysAgo) return false;
+                    break;
+                case 'last30days':
+                    const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    if (evaluationDate < thirtyDaysAgo) return false;
+                    break;
+                case 'last90days':
+                    const ninetyDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
+                    if (evaluationDate < ninetyDaysAgo) return false;
+                    break;
+            }
+        }
+        
+        return true;
+    });
+}
+
+// Limpar filtros das avaliações
+function clearEvaluationFilters() {
+    evaluationFilters = {
+        collaborator: '',
+        period: '',
+        score: '',
+        date: ''
+    };
+    
+    // Limpar valores dos campos
+    document.getElementById('filterEvaluationCollaborator').value = '';
+    document.getElementById('filterEvaluationPeriod').value = '';
+    document.getElementById('filterEvaluationScore').value = '';
+    document.getElementById('filterEvaluationDate').value = '';
+    
+    // Renderizar todas as avaliações
+    renderRecentEvaluations(allRecentEvaluations);
+}
+
+// Mostrar/esconder filtros avançados
+function toggleAdvancedFilters() {
+    const advancedFiltersSection = document.getElementById('advancedFiltersSection');
+    const btnToggleAdvancedFilters = document.getElementById('btnToggleAdvancedFilters');
+    
+    if (advancedFiltersSection.classList.contains('d-none')) {
+        advancedFiltersSection.classList.remove('d-none');
+        btnToggleAdvancedFilters.innerHTML = '<i class="ri-filter-3-fill me-1"></i>Filtros Avançados';
+        btnToggleAdvancedFilters.classList.remove('btn-outline-secondary');
+        btnToggleAdvancedFilters.classList.add('btn-secondary');
+        
+        // Carregar opções dos filtros se ainda não foram carregadas
+        populateFilterOptions();
+    } else {
+        advancedFiltersSection.classList.add('d-none');
+        btnToggleAdvancedFilters.innerHTML = '<i class="ri-filter-3-line me-1"></i>Filtros Avançados';
+        btnToggleAdvancedFilters.classList.remove('btn-secondary');
+        btnToggleAdvancedFilters.classList.add('btn-outline-secondary');
+    }
+}
+
+// Popular opções dos filtros
+function populateFilterOptions() {
+    if (allPDIs.length === 0) return;
+    
+    // Popular filtro de colaboradores
+    const collaboratorFilter = document.getElementById('filterCollaborator');
+    if (collaboratorFilter) {
+        const uniqueCollaborators = [...new Set(allPDIs.map(pdi => pdi.collaborator_name).filter(Boolean))];
+        const currentValue = collaboratorFilter.value;
+        collaboratorFilter.innerHTML = '<option value="">Todos os Colaboradores</option>' +
+            uniqueCollaborators.map(name => `<option value="${name}">${name}</option>`).join('');
+        collaboratorFilter.value = currentValue;
+    }
+    
+    // Popular filtro de supervisores
+    const supervisorFilter = document.getElementById('filterSupervisor');
+    if (supervisorFilter) {
+        const uniqueSupervisors = [...new Set(allPDIs.map(pdi => pdi.supervisor_name).filter(Boolean))];
+        const currentValue = supervisorFilter.value;
+        supervisorFilter.innerHTML = '<option value="">Todos os Supervisores</option>' +
+            uniqueSupervisors.map(name => `<option value="${name}">${name}</option>`).join('');
+        supervisorFilter.value = currentValue;
+    }
+    
+    // Popular filtro de perfis com os perfis reais do banco
+    const profileFilter = document.getElementById('filterProfile');
+    if (profileFilter) {
+        const uniqueProfiles = [...new Set(allPDIs.map(pdi => pdi.profile_type).filter(Boolean))];
+        const currentValue = profileFilter.value;
+        profileFilter.innerHTML = '<option value="">Todos os Perfis</option>' +
+            uniqueProfiles.map(profile => `<option value="${profile}">${profile}</option>`).join('');
+        profileFilter.value = currentValue;
+    }
+    
+    // Popular filtro de status com os status reais que aparecem na tabela
+    const actionsStatusFilter = document.getElementById('filterActionsStatus');
+    if (actionsStatusFilter) {
+        // Calcular os status reais que aparecem na tabela
+        const realStatuses = allPDIs.map(pdi => {
+            let displayStatus = pdi.status;
+            
+            // Se temos estatísticas de ações e o PDI está "Ativo", verificar as ações
+            if (pdi.actionStats && pdi.status === 'Ativo') {
+                if (pdi.actionStats.allActionsCompleted) {
+                    displayStatus = 'Concluído';
+                } else if (pdi.actionStats.hasLateActions) {
+                    displayStatus = 'Atrasado';
+                } else if (pdi.actionStats.hasActionsInProgress) {
+                    displayStatus = 'Em Andamento';
+                }
+            }
+            
+            return displayStatus;
+        });
+        
+        const uniqueStatuses = [...new Set(realStatuses)];
+        const currentValue = actionsStatusFilter.value;
+        actionsStatusFilter.innerHTML = '<option value="">Todos os Status</option>' +
+            uniqueStatuses.map(status => `<option value="${status}">${status}</option>`).join('');
+        actionsStatusFilter.value = currentValue;
+    }
+}
+
+// Aplicar filtros avançados
+function applyAdvancedFilters() {
+    // Coletar valores dos filtros
+    activeFilters = {
+        collaborator: document.getElementById('filterCollaborator')?.value || '',
+        supervisor: document.getElementById('filterSupervisor')?.value || '',
+        profile: document.getElementById('filterProfile')?.value || '',
+        dateRange: document.getElementById('filterDateRange')?.value || '',
+        actionsStatus: document.getElementById('filterActionsStatus')?.value || '',
+
+        search: document.getElementById('filterSearch')?.value || ''
+    };
+    
+    // Filtrar PDIs
+    const filteredPDIs = filterPDIs(activeFilters);
+    
+    // Renderizar resultados
+    renderPDIList(filteredPDIs);
+    
+    // Atualizar filtros ativos
+    updateActiveFilters();
+}
+
+// Filtrar PDIs baseado nos critérios
+function filterPDIs(filters) {
+    return allPDIs.filter(pdi => {
+        // Filtro por colaborador
+        if (filters.collaborator && pdi.collaborator_name !== filters.collaborator) {
+            return false;
+        }
+        
+        // Filtro por supervisor
+        if (filters.supervisor && pdi.supervisor_name !== filters.supervisor) {
+            return false;
+        }
+        
+        // Filtro por perfil
+        if (filters.profile && pdi.profile_type) {
+            if (pdi.profile_type !== filters.profile) {
+                return false;
+            }
+        }
+        
+        // Filtro por período de criação
+        if (filters.dateRange) {
+            const creationDate = new Date(pdi.created_at);
+            const today = new Date();
+            
+            switch (filters.dateRange) {
+                case 'last7days':
+                    const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    if (creationDate < sevenDaysAgo) return false;
+                    break;
+                case 'last30days':
+                    const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    if (creationDate < thirtyDaysAgo) return false;
+                    break;
+                case 'last90days':
+                    const ninetyDaysAgo = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
+                    if (creationDate < ninetyDaysAgo) return false;
+                    break;
+                case 'thisYear':
+                    if (creationDate.getFullYear() !== today.getFullYear()) return false;
+                    break;
+                case 'lastYear':
+                    if (creationDate.getFullYear() !== today.getFullYear() - 1) return false;
+                    break;
+            }
+        }
+        
+        // Filtro por status das ações
+        if (filters.actionsStatus) {
+            // Determinar o status visual do PDI (mesma lógica da renderização)
+            let displayStatus = pdi.status;
+            
+            // Se temos estatísticas de ações e o PDI está "Ativo", verificar as ações
+            if (pdi.actionStats && pdi.status === 'Ativo') {
+                if (pdi.actionStats.allActionsCompleted) {
+                    displayStatus = 'Concluído';
+                } else if (pdi.actionStats.hasLateActions) {
+                    displayStatus = 'Atrasado';
+                } else if (pdi.actionStats.hasActionsInProgress) {
+                    displayStatus = 'Em Andamento';
+                }
+            }
+            
+            // Verificar se o status do PDI corresponde ao filtro
+            if (displayStatus !== filters.actionsStatus) {
+                return false;
+            }
+        }
+        
+
+        
+        // Filtro por busca de texto
+        if (filters.search) {
+            const searchTerm = filters.search.toLowerCase();
+            const searchableText = [
+                pdi.collaborator_name,
+                pdi.job_position,
+                pdi.supervisor_name,
+                pdi.profile_type
+            ].join(' ').toLowerCase();
+            
+            if (!searchableText.includes(searchTerm)) {
+                return false;
+            }
+        }
+        
+        return true;
+    });
+}
+
+
+
+// Renderizar lista de PDIs
+function renderPDIList(pdis) {
+    const pdiList = document.getElementById('pdiList');
+    const emptyPDIs = document.getElementById('emptyPDIs');
+    const emptyFilterMessage = document.getElementById('emptyFilterMessage');
+    
+    if (!pdiList) return;
+    
+    pdiList.innerHTML = '';
+    
+    if (pdis.length === 0) {
+        // Verificar se há filtros ativos
+        const hasActiveFilters = Object.values(activeFilters).some(value => value !== '');
+        
+        if (hasActiveFilters) {
+            emptyFilterMessage.classList.remove('d-none');
+            emptyPDIs.classList.add('d-none');
+        } else {
+            emptyPDIs.classList.remove('d-none');
+            emptyFilterMessage.classList.add('d-none');
+        }
+        return;
+    }
+    
+    // Esconder mensagens de vazio
+    emptyPDIs.classList.add('d-none');
+    emptyFilterMessage.classList.add('d-none');
+    
+    pdis.forEach(pdi => {
+        const row = document.createElement('tr');
+        
+        // Determinar o status visual do PDI
+        let displayStatus = pdi.status;
+        let statusClass = getStatusClass(pdi.status);
+        let statusHtml = '';
+        
+        // Se temos estatísticas de ações e o PDI está "Ativo", verificar as ações
+        if (pdi.actionStats && pdi.status === 'Ativo') {
+            // Se todas as ações estão concluídas, mostrar como "Concluído" (com info)
+            if (pdi.actionStats.allActionsCompleted) {
+                statusHtml = `<span class="badge ${getStatusClass('Concluído')}">Concluído</span>
+                              <span class="badge bg-info small ms-1">Todas ações concluídas</span>`;
+            }
+            // Se há ações atrasadas, mostrar como "Atrasado"
+            else if (pdi.actionStats.hasLateActions) {
+                statusHtml = `<span class="badge ${getStatusClass('Atrasado')}">Atrasado</span>
+                              <span class="badge bg-warning small ms-1 text-dark">${pdi.actionStats.late} ${pdi.actionStats.late === 1 ? 'ação atrasada' : 'ações atrasadas'}</span>`;
+            }
+            // Se há ações em andamento, mostrar como "Em Andamento"
+            else if (pdi.actionStats.hasActionsInProgress) {
+                statusHtml = `<span class="badge bg-info">Em Andamento</span>`;
+            }
+            // Caso contrário, manter o status original
+            else {
+                statusHtml = `<span class="badge ${statusClass}">${displayStatus}</span>`;
+            }
+        } else {
+            // Se não temos estatísticas ou o status não é "Ativo", manter o status original
+            statusHtml = `<span class="badge ${statusClass}">${displayStatus}</span>`;
+        }
+        
+        row.innerHTML = `
+            <td>
+                <div class="d-flex align-items-center">
+                    <div class="me-2">
+                        <img src="https://cdn.conlinebr.com.br/colaboradores/${pdi.collaborator_avatar || 'default-avatar.jpg'}" class="rounded-circle" width="40" height="40" alt="Avatar">
+                    </div>
+                    <div>
+                        <h6 class="mb-0">${pdi.collaborator_name}</h6>
+                    </div>
+                </div>
+            </td>
+            <td>${pdi.job_position || '-'}</td>
+            <td>${pdi.supervisor_name || '-'}</td>
+            <td>
+                <span class="badge bg-info">${pdi.profile_type || '-'}</span>
+            </td>
+            <td>
+                ${statusHtml}
+            </td>
+            <td>${formatDate(pdi.created_at)}</td>
+            <td>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-primary" onclick="viewPDI(${pdi.id}, ${pdi.collaborator_id})">
+                        <i class="ri-eye-line"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-warning" onclick="openEditPDIWindow(${pdi.id})">
+                        <i class="ri-edit-line"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="deletePDI(${pdi.id})">
+                        <i class="ri-delete-bin-line"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        
+        pdiList.appendChild(row);
+    });
+}
+
+// Atualizar filtros ativos
+function updateActiveFilters() {
+    const activeFiltersSection = document.getElementById('activeFilters');
+    const activeFiltersTags = document.getElementById('activeFiltersTags');
+    
+    if (!activeFiltersSection || !activeFiltersTags) return;
+    
+    const activeFilterEntries = Object.entries(activeFilters).filter(([key, value]) => value !== '');
+    
+    if (activeFilterEntries.length === 0) {
+        activeFiltersSection.classList.add('d-none');
+        return;
+    }
+    
+    activeFiltersSection.classList.remove('d-none');
+    activeFiltersTags.innerHTML = '';
+    
+    activeFilterEntries.forEach(([key, value]) => {
+        const tag = document.createElement('span');
+        tag.className = 'badge bg-primary me-1';
+        tag.innerHTML = `${getFilterLabel(key)}: ${value} <i class="ri-close-line ms-1" onclick="removeFilter('${key}')"></i>`;
+        activeFiltersTags.appendChild(tag);
+    });
+}
+
+// Obter label do filtro
+function getFilterLabel(filterKey) {
+    const labels = {
+        collaborator: 'Colaborador',
+        supervisor: 'Supervisor',
+        profile: 'Perfil',
+        dateRange: 'Período',
+        actionsStatus: 'Status das Ações',
+        search: 'Busca'
+    };
+    return labels[filterKey] || filterKey;
+}
+
+// Remover filtro específico
+function removeFilter(filterKey) {
+    const filterElement = document.getElementById(`filter${filterKey.charAt(0).toUpperCase() + filterKey.slice(1)}`);
+    if (filterElement) {
+        filterElement.value = '';
+    }
+    applyAdvancedFilters();
+}
+
+// Limpar todos os filtros avançados
+function clearAdvancedFilters() {
+    // Limpar todos os campos de filtro
+    const filterFields = [
+        'filterCollaborator',
+        'filterSupervisor',
+        'filterProfile',
+        'filterDateRange',
+        'filterActionsStatus',
+        'filterSearch'
+    ];
+    
+    filterFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.value = '';
+        }
+    });
+    
+    // Resetar filtros ativos
+    activeFilters = {
+        collaborator: '',
+        supervisor: '',
+        profile: '',
+        dateRange: '',
+        actionsStatus: '',
+        search: ''
+    };
+    
+    // Aplicar filtros (que agora mostrará todos os PDIs)
+    applyAdvancedFilters();
+}
+
 // Carregar indicadores do dashboard
 async function loadDashboardIndicators() {
     try {
@@ -129,13 +780,23 @@ async function loadDashboardIndicators() {
         updateCounters(result.data.counters);
         
         // Atualizar gráfico de distribuição por perfil
-        renderProfileDistributionChart(result.data.profileDistribution);
+        const profileData = result.data.profileDistribution;
+        
+        if (profileData && profileData.labels && profileData.labels.length > 0 && profileData.series && profileData.series.length > 0) {
+            renderProfileDistributionChart(profileData);
+        } else {
+            renderProfileDistributionChart({
+                labels: ['Perfil A', 'Perfil B', 'Perfil C'],
+                series: [10, 5, 3]
+            });
+        }
         
         // Atualizar gráfico de avaliações mensais
         renderMonthlyEvaluationsChart(result.data.monthlyEvaluations);
         
-        // Atualizar tabela de avaliações recentes
-        renderRecentEvaluations(result.data.recentEvaluations);
+        // Armazenar avaliações na variável global e atualizar tabela
+        allRecentEvaluations = result.data.recentEvaluations || [];
+        renderRecentEvaluations(allRecentEvaluations);
         
     } catch (error) {
         console.error('Erro ao carregar dados do dashboard:', error);
@@ -168,18 +829,34 @@ function updateCounters(counters) {
 
 // Renderizar gráfico de distribuição por perfil
 function renderProfileDistributionChart(data) {
-    if (!data || !data.labels || !data.series || data.labels.length === 0) {
-        document.getElementById('profileDistributionChart').innerHTML = '<div class="text-center p-4 text-muted">Dados insuficientes para gerar o gráfico</div>';
+    // Verificar se os dados estão no formato correto
+    if (!data) {
+        document.getElementById('profileDistributionChart').innerHTML = '<div class="text-center p-4 text-muted">Dados não fornecidos</div>';
         return;
     }
     
+    // Verificar se temos labels e series
+    if (!data.labels || !data.series) {
+        document.getElementById('profileDistributionChart').innerHTML = '<div class="text-center p-4 text-muted">Estrutura de dados incorreta</div>';
+        return;
+    }
+    
+    if (data.labels.length === 0) {
+        document.getElementById('profileDistributionChart').innerHTML = '<div class="text-center p-4 text-muted">Nenhum perfil encontrado</div>';
+        return;
+    }
+    
+    // Garantir que os dados estão no formato correto
+    const series = Array.isArray(data.series) ? data.series : [];
+    const labels = Array.isArray(data.labels) ? data.labels : [];
+    
     const options = {
-        series: data.series,
+        series: series,
         chart: {
             type: 'donut',
             height: 300
         },
-        labels: data.labels,
+        labels: labels,
         colors: ['#4caf50', '#f44336', '#2196f3', '#ff9800', '#9c27b0', '#607d8b'],
         legend: {
             position: 'bottom'
@@ -208,8 +885,28 @@ function renderProfileDistributionChart(data) {
         profileChartInstance.destroy();
     }
     
-    profileChartInstance = new ApexCharts(document.getElementById('profileDistributionChart'), options);
-    profileChartInstance.render();
+    const chartElement = document.getElementById('profileDistributionChart');
+    
+    // Aguardar um pouco para garantir que o ApexCharts carregou
+    if (typeof ApexCharts === 'undefined') {
+        setTimeout(() => {
+            renderProfileDistributionChart(data);
+        }, 1000);
+        return;
+    }
+    
+    if (chartElement && typeof ApexCharts !== 'undefined') {
+        try {
+            profileChartInstance = new ApexCharts(chartElement, options);
+            profileChartInstance.render();
+        } catch (error) {
+            chartElement.innerHTML = '<div class="text-center p-4 text-danger">Erro ao renderizar gráfico</div>';
+        }
+    } else {
+        if (chartElement) {
+            chartElement.innerHTML = '<div class="text-center p-4 text-warning">ApexCharts não disponível</div>';
+        }
+    }
 }
 
 // Renderizar gráfico de avaliações mensais
@@ -271,45 +968,35 @@ function renderMonthlyEvaluationsChart(data) {
         evaluationsChartInstance.destroy();
     }
     
-    evaluationsChartInstance = new ApexCharts(document.getElementById('monthlyEvaluationsChart'), options);
-    evaluationsChartInstance.render();
+    const chartElement = document.getElementById('monthlyEvaluationsChart');
+    if (chartElement && typeof ApexCharts !== 'undefined') {
+        evaluationsChartInstance = new ApexCharts(chartElement, options);
+        evaluationsChartInstance.render();
+    } else {
+        console.error('ApexCharts não está disponível ou elemento do gráfico não encontrado');
+    }
 }
 
 // Renderizar avaliações recentes
 function renderRecentEvaluations(evaluations) {
-    allRecentEvaluations = evaluations || [];
+    // Se não foram passadas avaliações específicas, usar todas as avaliações
+    if (!evaluations) {
+        evaluations = allRecentEvaluations;
+    }
+    
     const tableBody = document.getElementById('recentEvaluationsList');
     const noEvaluations = document.getElementById('noRecentEvaluations');
-    const filterSelect = document.getElementById('filterColaborador');
-
-    // Preencher filtro de colaborador
-    if (filterSelect) {
-        const uniqueNames = [...new Set(allRecentEvaluations.map(e => e.collaborator_name))];
-        const currentValue = filterSelect.value;
-        filterSelect.innerHTML = '<option value="">Todos</option>' + uniqueNames.map(name => `<option value="${name}">${name}</option>`).join('');
-        filterSelect.value = currentValue || '';
-    }
-
-    function getFilteredEvaluations() {
-        if (!filterSelect || !filterSelect.value) return allRecentEvaluations;
-        return allRecentEvaluations.filter(e => e.collaborator_name === filterSelect.value);
-    }
-
-    if (filterSelect && !filterSelect._listenerAdded) {
-        filterSelect.addEventListener('change', () => {
-            renderRecentEvaluations(getFilteredEvaluations());
-        });
-        filterSelect._listenerAdded = true;
-    }
-
-    const evaluationsToShow = getFilteredEvaluations();
+    
+    if (!tableBody) return;
+    
     tableBody.innerHTML = '';
-    if (!evaluationsToShow || evaluationsToShow.length === 0) {
-        noEvaluations.classList.remove('d-none');
+    if (!evaluations || evaluations.length === 0) {
+        if (noEvaluations) noEvaluations.classList.remove('d-none');
         return;
     }
-    noEvaluations.classList.add('d-none');
-    evaluationsToShow.forEach(evaluation => {
+    if (noEvaluations) noEvaluations.classList.add('d-none');
+    
+    evaluations.forEach(evaluation => {
         const row = document.createElement('tr');
         
         // Usar a média pronta do backend
@@ -382,6 +1069,9 @@ async function loadPDIList() {
         const pdisArray = Array.isArray(pdis) ? pdis : 
                          (pdis.data && Array.isArray(pdis.data) ? pdis.data : []);
         
+        // Armazenar todos os PDIs na variável global para filtros
+        allPDIs = pdisArray;
+        
         if (pdisArray.length === 0) {
             document.getElementById('emptyPDIs').classList.remove('d-none');
             return;
@@ -389,76 +1079,11 @@ async function loadPDIList() {
         
         document.getElementById('emptyPDIs').classList.add('d-none');
         
-        // Renderizar a lista de PDIs
-        const pdiListElement = document.getElementById('pdiList');
-        pdiListElement.innerHTML = '';
+        // Popular opções dos filtros com os dados reais
+        populateFilterOptions();
         
-        pdisArray.forEach(pdi => {
-            // Determinar o status visual do PDI
-            let displayStatus = pdi.status;
-            let statusClass = getStatusClass(pdi.status);
-            let statusHtml = '';
-            
-            // Se temos estatísticas de ações e o PDI está "Ativo", verificar as ações
-            if (pdi.actionStats && pdi.status === 'Ativo') {
-                // Se todas as ações estão concluídas, mostrar como "Concluído" (com info)
-                if (pdi.actionStats.allActionsCompleted) {
-                    statusHtml = `<span class="badge ${getStatusClass('Concluído')}">Concluído</span>
-                                  <span class="badge bg-info small ms-1">Todas ações concluídas</span>`;
-                }
-                // Se há ações atrasadas, mostrar como "Atrasado"
-                else if (pdi.actionStats.hasLateActions) {
-                    statusHtml = `<span class="badge ${getStatusClass('Atrasado')}">Atrasado</span>
-                                  <span class="badge bg-warning small ms-1 text-dark">${pdi.actionStats.late} ${pdi.actionStats.late === 1 ? 'ação atrasada' : 'ações atrasadas'}</span>`;
-                }
-                // Se há ações em andamento, mostrar como "Em Andamento"
-                else if (pdi.actionStats.hasActionsInProgress) {
-                    statusHtml = `<span class="badge bg-info">Em Andamento</span>`;
-                }
-                // Caso contrário, manter o status original
-                else {
-                    statusHtml = `<span class="badge ${statusClass}">${displayStatus}</span>`;
-                }
-            } else {
-                // Se não temos estatísticas ou o status não é "Ativo", manter o status original
-                statusHtml = `<span class="badge ${statusClass}">${displayStatus}</span>`;
-            }
-            
-            const row = document.createElement('tr');
-            
-            row.innerHTML = `
-                <td>
-                    <div class="d-flex align-items-center">
-                        <div class="me-2">
-                            <img src="https://cdn.conlinebr.com.br/colaboradores/${pdi.collaborator_avatar || 'default-avatar.jpg'}" class="rounded-circle" width="40" height="40" alt="Avatar">
-                        </div>
-                        <div>
-                            <h6 class="mb-0">${pdi.collaborator_name}</h6>
-                        </div>
-                    </div>
-                </td>
-                <td>${pdi.job_position || '-'}</td>
-                <td>${pdi.supervisor_name || '-'}</td>
-                <td>${pdi.profile_type || '-'}</td>
-                <td>${statusHtml}</td>
-                <td>${formatDate(pdi.created_at)}</td>
-                <td>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-sm btn-primary" onclick="viewPDI(${pdi.id}, ${pdi.collaborator_id})">
-                            <i class="ri-eye-line"></i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-warning" onclick="openEditPDIWindow(${pdi.id})">
-                            <i class="ri-edit-line"></i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-danger" onclick="deletePDI(${pdi.id})">
-                            <i class="ri-delete-bin-line"></i>
-                        </button>
-                    </div>
-                </td>
-            `;
-            
-            pdiListElement.appendChild(row);
-        });
+        // Usar a nova função de renderização
+        renderPDIList(pdisArray);
     } catch (error) {
         console.error('Erro ao carregar a lista de PDIs:', error);
         hideLoader();
@@ -469,6 +1094,21 @@ async function loadPDIList() {
 // Abrir janela para criar novo PDI
 function openNewPDIWindow() {
     const url = '/app/administration/pdi-hub/create-pdi.html';
+    const windowFeatures = 'width=1000,height=800,resizable=yes,scrollbars=yes';
+    window.open(url, '_blank', windowFeatures);
+}
+
+// Abrir janela para editar PDI
+function openEditPDIWindow(id) {
+    const url = `/app/administration/pdi-hub/edit-pdi.html?id=${id}`;
+    const windowFeatures = 'width=1000,height=800,resizable=yes,scrollbars=yes';
+    window.open(url, '_blank', windowFeatures);
+}
+
+// Abrir janela de avaliação a partir do coordenador
+function openEvaluationWindowFromCoordinator(pdiId, month, year, collaboratorName) {
+    const decodedName = decodeURIComponent(collaboratorName);
+    const url = `/app/administration/pdi-hub/evaluation.html?pdi_id=${pdiId}&month=${month}&year=${year}&collaborator_name=${encodeURIComponent(decodedName)}`;
     const windowFeatures = 'width=1000,height=800,resizable=yes,scrollbars=yes';
     window.open(url, '_blank', windowFeatures);
 }
@@ -767,166 +1407,232 @@ function getActionsFromForm() {
     return actions;
 }
 
-// Resetar o formulário do PDI
-function resetPDIForm() {
-    document.getElementById('pdiId').value = '';
-    document.getElementById('newPDIForm').reset();
-    
-    // Limpar as ações
-    document.getElementById('actionsContainer').innerHTML = '';
-    actionCounter = 0;
-    actionsToDelete = [];
-    
-    // Resetar as seleções dos dropdowns
-    const collaboratorSelect = document.getElementById('collaborator_id');
-    const supervisorSelect = document.getElementById('supervisor_id');
-    
-    if (collaboratorSelect.choices) {
-        collaboratorSelect.choices.setChoiceByValue('');
-    }
-    
-    if (supervisorSelect.choices) {
-        supervisorSelect.choices.setChoiceByValue('');
-    }
-}
-
-// Formatar data para exibição
+// Função para formatar data
 function formatDate(dateString) {
     if (!dateString) return '-';
+    
     const date = new Date(dateString);
     if (isNaN(date.getTime())) return '-';
-    return new Intl.DateTimeFormat('pt-BR').format(date);
-}
-
-// Obter a classe CSS para o status do PDI
-function getStatusClass(status) {
-    switch(status) {
-        case 'Ativo': return 'badge-active';
-        case 'Em Andamento': return 'bg-info';
-        case 'Concluído': return 'badge-concluded';
-        case 'Cancelado': return 'badge-canceled';
-        case 'Atrasado': return 'bg-danger';
-        default: return 'badge-active';
-    }
-}
-
-// Obter a classe CSS para o status da ação
-function getStatusBadgeClass(status) {
-    switch(status) {
-        case 'Pendente': return 'bg-warning text-dark';
-        case 'Em Andamento': return 'bg-info';
-        case 'Concluído': return 'bg-success';
-        default: return 'bg-secondary';
-    }
-}
-
-// Mostrar o loader
-function showLoader() {
-    document.getElementById('loader').style.display = 'flex';
-}
-
-// Esconder o loader
-function hideLoader() {
-    document.getElementById('loader').style.display = 'none';
-}
-
-// Mostrar alerta de erro
-function showErrorAlert(message) {
-    if (typeof Swal === 'undefined') {
-        console.error('SweetAlert não está disponível:', message);
-        alert('Erro: ' + message);
-        return;
-    }
     
+    return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+}
+
+// Função para obter classe CSS do status
+function getStatusClass(status) {
+    switch (status) {
+        case 'Ativo':
+            return 'bg-success';
+        case 'Em Andamento':
+            return 'bg-info';
+        case 'Concluído':
+            return 'bg-success';
+        case 'Atrasado':
+            return 'bg-danger';
+        case 'Cancelado':
+            return 'bg-secondary';
+        default:
+            return 'bg-secondary';
+    }
+}
+
+// Função para obter classe CSS do badge de status
+function getStatusBadgeClass(status) {
+    switch (status) {
+        case 'Ativo':
+            return 'bg-success';
+        case 'Em Andamento':
+            return 'bg-info';
+        case 'Concluído':
+            return 'bg-success';
+        case 'Atrasado':
+            return 'bg-danger';
+        case 'Cancelado':
+            return 'bg-secondary';
+        default:
+            return 'bg-secondary';
+    }
+}
+
+// Função para mostrar loader
+function showLoader() {
+    const loader = document.getElementById('loader');
+    if (loader) {
+        loader.style.display = 'flex';
+    }
+}
+
+// Função para esconder loader
+function hideLoader() {
+    const loader = document.getElementById('loader');
+    if (loader) {
+        loader.style.display = 'none';
+    }
+}
+
+// Função para mostrar alerta de erro
+function showErrorAlert(message) {
     Swal.fire({
         icon: 'error',
         title: 'Erro',
         text: message,
-        confirmButtonColor: 'var(--primary-color)'
+        confirmButtonColor: '#dc3545'
     });
 }
 
-// Mostrar alerta de sucesso
+// Função para mostrar alerta de sucesso
 function showSuccessAlert(message) {
-    if (typeof Swal === 'undefined') {
-        console.log('Sucesso:', message);
-        alert('Sucesso: ' + message);
-        return;
-    }
-    
     Swal.fire({
         icon: 'success',
         title: 'Sucesso',
         text: message,
-        confirmButtonColor: 'var(--primary-color)'
+        confirmButtonColor: '#198754'
     });
 }
 
-// Filtrar PDIs por status
-function filterPDIsByStatus() {
-    const statusFilter = document.getElementById('statusFilter');
-    const selectedStatus = statusFilter.value;
+// ==================== FILTROS DAS AÇÕES ====================
+
+// Mostrar/esconder filtros das ações
+function toggleActionFilters() {
+    const filtersSection = document.getElementById('actionFiltersSection');
+    const isHidden = filtersSection.classList.contains('d-none');
     
-    console.log('Filtrando por status:', selectedStatus);
+    if (isHidden) {
+        filtersSection.classList.remove('d-none');
+        populateActionFilterOptions();
+    } else {
+        filtersSection.classList.add('d-none');
+    }
+}
+
+// Popular opções dos filtros das ações
+function populateActionFilterOptions() {
+    if (allGlobalActions.length === 0) return;
     
-    // Obter todas as linhas da tabela
-    const rows = document.querySelectorAll('#pdiList tr');
+    // Popular filtro de colaboradores
+    const collaboratorFilter = document.getElementById('filterActionCollaborator');
+    if (collaboratorFilter) {
+        const uniqueCollaborators = [...new Set(allGlobalActions.map(a => a.collaborator_name).filter(Boolean))];
+        const currentValue = collaboratorFilter.value;
+        collaboratorFilter.innerHTML = '<option value="">Todos os Colaboradores</option>' +
+            uniqueCollaborators.map(name => `<option value="${name}">${name}</option>`).join('');
+        collaboratorFilter.value = currentValue;
+    }
+}
+
+// Aplicar filtros das ações
+function applyActionFilters() {
+    // Coletar valores dos filtros
+    actionFilters = {
+        collaborator: document.getElementById('filterActionCollaborator')?.value || '',
+        status: document.getElementById('filterActionStatus')?.value || '',
+        deadline: document.getElementById('filterActionDeadline')?.value || '',
+        search: document.getElementById('filterActionSearch')?.value || ''
+    };
     
-    // Contador para verificar se todos os PDIs estão filtrados
-    let hiddenCount = 0;
-    let totalRows = 0;
+    // Filtrar ações
+    const filteredActions = filterActions(actionFilters);
     
-    rows.forEach(row => {
-        totalRows++;
-        
-        // Se for "Todos", mostrar todas as linhas
-        if (selectedStatus === 'Todos') {
-            row.style.display = '';
-            return;
+    // Renderizar resultados
+    renderGlobalActionsList(filteredActions);
+}
+
+// Filtrar ações baseado nos critérios
+function filterActions(filters) {
+    return allGlobalActions.filter(action => {
+        // Filtro por colaborador
+        if (filters.collaborator && action.collaborator_name !== filters.collaborator) {
+            return false;
         }
         
-        // Verificar se a célula do status contém o status selecionado
-        const statusCell = row.querySelector('td:nth-child(5)');
-        if (!statusCell) return;
-        
-        // Verificar tanto o status oficial quanto possíveis badges "Em Andamento"
-        if (selectedStatus === 'Em Andamento') {
-            // Se for filtro "Em Andamento", procurar por badges com essa informação
-            if (statusCell.innerHTML.includes('Em Andamento')) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-                hiddenCount++;
+        // Filtro por status
+        if (filters.status) {
+            let displayStatus = action.status;
+            
+            // Verificar se está atrasada
+            if (action.status !== 'Concluído' && action.status !== 'Cancelado') {
+                const deadlineDate = new Date(action.deadline);
+                if (deadlineDate < new Date()) {
+                    displayStatus = 'Atrasado';
+                }
             }
-        } else {
-            // Para outros status, procurar pelo texto exato do status
-            if (statusCell.textContent.includes(selectedStatus)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-                hiddenCount++;
+            
+            if (displayStatus !== filters.status) {
+                return false;
             }
         }
+        
+        // Filtro por prazo
+        if (filters.deadline) {
+            const deadlineDate = new Date(action.deadline);
+            const today = new Date();
+            const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+            const endOfWeek = new Date(today.getTime() + (7 - today.getDay()) * 24 * 60 * 60 * 1000);
+            const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            
+            switch (filters.deadline) {
+                case 'overdue':
+                    if (action.status === 'Concluído' || action.status === 'Cancelado' || deadlineDate >= today) {
+                        return false;
+                    }
+                    break;
+                case 'due_today':
+                    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                    if (deadlineDate < startOfDay || deadlineDate > endOfDay) {
+                        return false;
+                    }
+                    break;
+                case 'due_week':
+                    if (deadlineDate < today || deadlineDate > endOfWeek) {
+                        return false;
+                    }
+                    break;
+                case 'due_month':
+                    if (deadlineDate < today || deadlineDate > endOfMonth) {
+                        return false;
+                    }
+                    break;
+                case 'completed':
+                    if (action.status !== 'Concluído') {
+                        return false;
+                    }
+                    break;
+            }
+        }
+        
+        // Filtro por busca de texto
+        if (filters.search) {
+            const searchTerm = filters.search.toLowerCase();
+            const searchableText = action.description.toLowerCase();
+            if (!searchableText.includes(searchTerm)) {
+                return false;
+            }
+        }
+        
+        return true;
     });
+}
+
+// Limpar filtros das ações
+function clearActionFilters() {
+    actionFilters = {
+        collaborator: '',
+        status: '',
+        deadline: '',
+        search: ''
+    };
     
-    // Mostrar mensagem se nenhum PDI corresponder ao filtro
-    const emptyMessage = document.getElementById('emptyFilterMessage');
-    const emptyPDIs = document.getElementById('emptyPDIs');
+    // Limpar valores dos campos
+    document.getElementById('filterActionCollaborator').value = '';
+    document.getElementById('filterActionStatus').value = '';
+    document.getElementById('filterActionDeadline').value = '';
+    document.getElementById('filterActionSearch').value = '';
     
-    // Esconder sempre a mensagem de "nenhum PDI" quando filtrando
-    if (emptyPDIs) {
-        emptyPDIs.classList.add('d-none');
-    }
-    
-    // Mostrar mensagem de filtro vazio se necessário
-    if (emptyMessage) {
-        if (totalRows > 0 && hiddenCount === totalRows) {
-            emptyMessage.classList.remove('d-none');
-            emptyMessage.textContent = `Nenhum PDI com status "${selectedStatus}" encontrado.`;
-        } else {
-            emptyMessage.classList.add('d-none');
-        }
-    }
+    // Renderizar todas as ações
+    renderGlobalActionsList(allGlobalActions);
 }
 
 // ==================== AÇÕES DOS PDIs (GLOBAL) ====================
@@ -939,60 +1645,28 @@ async function loadGlobalActionsList(status = '', collaborator = '') {
         const result = await response.json();
         hideLoader();
         allGlobalActions = result.success ? result.data : [];
-        populateCollaboratorFilterIndex(allGlobalActions);
-        renderGlobalActionsList(filterGlobalActions(allGlobalActions, status, collaborator));
+        populateActionFilterOptions();
+        renderGlobalActionsList(filterActions(actionFilters));
     } catch (error) {
         hideLoader();
         renderGlobalActionsList([]);
     }
 }
 
-function populateCollaboratorFilterIndex(actions) {
-    const collaboratorFilter = document.getElementById('collaboratorFilterIndex');
-    if (!collaboratorFilter) return;
-    const uniqueNames = [...new Set(actions.map(a => a.collaborator_name).filter(Boolean))];
-    const currentValue = collaboratorFilter.value;
-    collaboratorFilter.innerHTML = '<option value="">Todos</option>' +
-        uniqueNames.map(name => `<option value="${name}">${name}</option>`).join('');
-    collaboratorFilter.value = currentValue;
-}
 
-function filterGlobalActions(actions, status, collaborator) {
-    return actions.filter(action => {
-        let matchStatus = true;
-        let matchCollaborator = true;
-        if (status && status !== '' && status !== 'Todos') {
-            if (status === 'Atrasado') {
-                // Atrasado: prazo passou e não está concluído/cancelado
-                const deadlineDate = new Date(action.deadline);
-                matchStatus = (action.status !== 'Concluído' && action.status !== 'Cancelado' && deadlineDate < new Date());
-            } else {
-                let displayStatus = action.status;
-                if (displayStatus !== 'Concluído' && displayStatus !== 'Cancelado') {
-                    const deadlineDate = new Date(action.deadline);
-                    if (deadlineDate < new Date()) {
-                        displayStatus = 'Atrasado';
-                    }
-                }
-                matchStatus = displayStatus === status;
-            }
-        }
-        if (collaborator && collaborator !== '') {
-            matchCollaborator = action.collaborator_name === collaborator;
-        }
-        return matchStatus && matchCollaborator;
-    });
-}
 
 function renderGlobalActionsList(actions) {
     const actionsListElement = document.getElementById('actionsListIndex');
     const noActions = document.getElementById('noActionsIndex');
+    if (!actionsListElement) return;
+    
     actionsListElement.innerHTML = '';
     if (!actions || actions.length === 0) {
-        noActions.classList.remove('d-none');
+        if (noActions) noActions.classList.remove('d-none');
         return;
     }
-    noActions.classList.add('d-none');
+    if (noActions) noActions.classList.add('d-none');
+    
     const today = new Date();
     actions.forEach(action => {
         const row = document.createElement('tr');
@@ -1029,6 +1703,7 @@ async function openViewActionModal(actionId) {
             return;
         }
         const action = result.data;
+        
         // Buscar nome do colaborador (se não vier na ação, buscar na lista já carregada)
         let collaboratorName = action.collaborator_name;
         if (!collaboratorName) {
@@ -1036,26 +1711,14 @@ async function openViewActionModal(actionId) {
             const found = allGlobalActions.find(a => a.id == actionId);
             collaboratorName = found ? found.collaborator_name : '-';
         }
-        // Adicionar campo do colaborador no modal (se não existir)
-        let collaboratorField = document.getElementById('viewActionCollaborator');
-        if (!collaboratorField) {
-            const descField = document.getElementById('viewActionDescription');
-            const dt = document.createElement('dt');
-            dt.className = 'col-sm-4';
-            dt.textContent = 'Colaborador';
-            const dd = document.createElement('dd');
-            dd.className = 'col-sm-8';
-            dd.id = 'viewActionCollaborator';
-            dd.textContent = collaboratorName;
-            descField.parentNode.insertBefore(dt, descField);
-            descField.parentNode.insertBefore(dd, descField);
-        } else {
-            collaboratorField.textContent = collaboratorName;
-        }
+        
+        // Preencher dados no modal
         document.getElementById('viewActionDescription').textContent = action.description || '-';
+        document.getElementById('viewActionCollaborator').textContent = collaboratorName;
         document.getElementById('viewActionDeadline').textContent = formatDate(action.deadline);
         document.getElementById('viewActionStatus').textContent = action.status || '-';
         document.getElementById('viewActionCompletionDate').textContent = action.completion_date ? formatDate(action.completion_date) : '-';
+        
         // Anexos
         const attachmentsContainer = document.getElementById('viewActionAttachments');
         let attachments = action.attachment || [];
@@ -1063,62 +1726,26 @@ async function openViewActionModal(actionId) {
             try {
                 attachments = JSON.parse(attachments);
             } catch (e) {
-                attachments = attachments ? [attachments] : [];
+                attachments = [];
             }
         }
+        
         if (attachments && attachments.length > 0) {
-            attachmentsContainer.innerHTML = `
-                <ul class="list-group list-group-flush">
-                    ${attachments.map(filename => `
-                        <li class="list-group-item d-flex align-items-center justify-content-between px-2 py-2">
-                            <div class="d-flex align-items-center flex-grow-1">
-                                <i class="ri-attachment-2 text-primary me-2 fs-5"></i>
-                                <span class="text-break text-truncate" style="max-width: 220px;" title="${filename}">${filename}</span>
-                            </div>
-                            <div class="d-flex align-items-center ms-2">
-                                <a href="/uploads/pdi-hub/attachment_actions/${filename}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary me-1" title="Abrir em nova aba">
-                                    <i class="ri-eye-line"></i>
-                                </a>
-                                <a href="/uploads/pdi-hub/attachment_actions/${filename}" download class="btn btn-sm btn-outline-success" title="Baixar">
-                                    <i class="ri-download-2-line"></i>
-                                </a>
-                            </div>
-                        </li>
-                    `).join('')}
-                </ul>
-            `;
+            attachmentsContainer.innerHTML = attachments.map(attachment => 
+                `<a href="${attachment.url}" target="_blank" class="btn btn-sm btn-outline-primary me-2 mb-2">
+                    <i class="ri-attachment-2 me-1"></i>${attachment.name}
+                </a>`
+            ).join('');
         } else {
-            attachmentsContainer.textContent = 'Nenhum anexo';
+            attachmentsContainer.innerHTML = '<span class="text-muted">Nenhum anexo</span>';
         }
+        
         // Abrir modal
         const modal = new bootstrap.Modal(document.getElementById('viewActionModal'));
         modal.show();
+        
     } catch (error) {
-        Swal.fire('Erro', 'Erro ao carregar detalhes da ação.', 'error');
+        console.error('Erro ao abrir modal de ação:', error);
+        Swal.fire('Erro', 'Não foi possível carregar os detalhes da ação.', 'error');
     }
-}
-
-// Listeners dos filtros de ações globais
-const actionStatusFilterIndex = document.getElementById('actionStatusFilterIndex');
-const collaboratorFilterIndex = document.getElementById('collaboratorFilterIndex');
-if (actionStatusFilterIndex && collaboratorFilterIndex) {
-    actionStatusFilterIndex.addEventListener('change', function() {
-        loadGlobalActionsList(this.value, collaboratorFilterIndex.value);
-    });
-    collaboratorFilterIndex.addEventListener('change', function() {
-        loadGlobalActionsList(actionStatusFilterIndex.value, this.value);
-    });
-}
-
-// Adicionar função global para abrir a edição em nova janela
-function openEditPDIWindow(id) {
-    const url = 'edit-pdi.html?id=' + id;
-    const windowFeatures = 'width=1000,height=800,resizable=yes,scrollbars=yes';
-    window.open(url, '_blank', windowFeatures);
-}
-
-// Função global para abrir avaliação em nova janela/aba
-function openEvaluationWindowFromCoordinator(pdiId, month, year, collaboratorName) {
-    const url = `evaluation.html?pdi_id=${pdiId}&collaborator_name=${collaboratorName}&month=${month}&year=${year}`;
-    window.open(url, '_blank', 'width=800,height=800,resizable=yes,scrollbars=yes');
 }

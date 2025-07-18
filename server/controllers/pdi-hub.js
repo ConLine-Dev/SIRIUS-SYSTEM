@@ -1161,7 +1161,7 @@ const pdiHub = {
             `;
             
             const countersResult = await executeQuery(countersQuery, supervisorId ? [supervisorId] : []);
-            console.log('Resultados da contagem PDIs (incluindo Em Andamento):', countersResult);
+            // console.log('Resultados da contagem PDIs (incluindo Em Andamento):', countersResult);
             
             // 2. Distribuição por perfil
             const profileQuery = `
@@ -1252,9 +1252,16 @@ const pdiHub = {
                 late: countersResult[0]?.late || 0
             };
             
+            // Garantir que temos dados válidos
+            if (!profileResults || profileResults.length === 0) {
+                profileResults = [
+                    { profile_type: 'Não definido', count: 1 }
+                ];
+            }
+            
             const profileDistribution = {
-                labels: profileResults.map(p => p.profile_type),
-                series: profileResults.map(p => p.count)
+                labels: profileResults.map(p => p.profile_type || 'Não definido'),
+                series: profileResults.map(p => parseInt(p.count) || 0)
             };
             
             const monthNames = [

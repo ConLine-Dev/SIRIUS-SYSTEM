@@ -1826,6 +1826,6 @@ WHERE
 
 
 headcargoActivityManagement.startEmailScheduler();
-headcargoActivityManagement.showEmailConfig();
+// headcargoActivityManagement.showEmailConfig();
 
 module.exports = headcargoActivityManagement;

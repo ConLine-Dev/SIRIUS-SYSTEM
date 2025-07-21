@@ -1,5 +1,6 @@
 /* CSS para Consulta Comercial - Seguindo padrões do sistema SIRIUS */
 
+  
 /* ===== VARIÁVEIS PARA COMPATIBILIDADE COM THEMES ===== */
 :root {
     /* Cores que se adaptam ao tema */
@@ -82,10 +83,10 @@
 
 /* Card Header - Badges compactos */
 .card-top-badges {
-    background: var(--bs-light);
+    background: transparent !important;
     padding: 0.5rem;
     text-align: center;
-    border-bottom: 1px solid var(--tariff-border);
+    border-bottom: none !important;
     min-height: 35px;
     display: flex;
     align-items: center;
@@ -93,8 +94,8 @@
 }
 
 [data-theme-mode="dark"] .card-top-badges {
-    background: var(--bs-gray-800);
-    border-color: var(--bs-gray-600);
+    background: transparent !important;
+    border-color: transparent !important;
 }
 
 .card-top-badges .badge {

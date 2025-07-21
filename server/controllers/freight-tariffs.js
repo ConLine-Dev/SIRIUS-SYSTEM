@@ -398,10 +398,24 @@ exports.getTariffs = async (req, res) => {
 
         let tariffs = await executeQuery(baseQuery, params);
         
-        // Para cada tarifa, buscar suas sobretaxas
-        for (let tariff of tariffs) {
-            const surcharges = await executeQuery('SELECT * FROM ft_tariffs_surcharges WHERE tariff_id = ?', [tariff.id]);
-            tariff.surcharges = surcharges.map(s => ({...s, cost: s.value}));
+        // Buscar todas as sobretaxas em lote para as tarifas retornadas
+        if (tariffs.length > 0) {
+            const tariffIds = tariffs.map(t => t.id);
+            const placeholders = tariffIds.map(() => '?').join(',');
+            const surchargesAll = await executeQuery(
+                `SELECT * FROM ft_tariffs_surcharges WHERE tariff_id IN (${placeholders})`,
+                tariffIds
+            );
+            // Agrupar por tariff_id
+            const surchargesByTariff = {};
+            for (const s of surchargesAll) {
+                if (!surchargesByTariff[s.tariff_id]) surchargesByTariff[s.tariff_id] = [];
+                surchargesByTariff[s.tariff_id].push({...s, cost: s.value});
+            }
+            // Atribuir para cada tarifa
+            for (const tariff of tariffs) {
+                tariff.surcharges = surchargesByTariff[tariff.id] || [];
+            }
         }
 
         res.status(200).json(tariffs);

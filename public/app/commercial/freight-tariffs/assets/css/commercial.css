@@ -1094,3 +1094,37 @@
     background-color: #0dcaf0 !important;
     color: #212529;
 }
+
+.skeleton-card {
+  background: #f3f3f3;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  min-height: 180px;
+  box-shadow: none;
+  position: relative;
+  overflow: hidden;
+}
+.skeleton-title {
+  height: 22px;
+  width: 70%;
+  background: linear-gradient(90deg, #ececec 25%, #e0e0e0 50%, #ececec 75%);
+  border-radius: 6px;
+  animation: skeleton-shimmer 1.2s infinite linear;
+}
+.skeleton-line {
+  height: 14px;
+  background: linear-gradient(90deg, #ececec 25%, #e0e0e0 50%, #ececec 75%);
+  border-radius: 4px;
+  animation: skeleton-shimmer 1.2s infinite linear;
+}
+.skeleton-badge {
+  width: 80px;
+  height: 22px;
+  background: linear-gradient(90deg, #ececec 25%, #e0e0e0 50%, #ececec 75%);
+  border-radius: 12px;
+  animation: skeleton-shimmer 1.2s infinite linear;
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: 200px 0; }
+}

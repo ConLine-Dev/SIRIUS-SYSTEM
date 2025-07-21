@@ -474,11 +474,9 @@ exports.getCommercialTariffs = async (req, res) => {
                 ct.name AS container_type_name,
                 t.free_time,
                 t.freight_cost,
-                CASE
-                    WHEN t.validity_end_date < CURDATE() THEN 'Expirada'
-                    WHEN t.validity_end_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 15 DAY) THEN 'Expira Breve'
-                    ELSE 'Ativa'
-                END AS status
+                (
+                  SELECT COUNT(*) FROM ft_tariffs_surcharges s WHERE s.tariff_id = t.id
+                ) AS surcharge_count
             FROM ft_tariffs t
             JOIN ft_locations orig ON t.origin_id = orig.id
             JOIN ft_locations dest ON t.destination_id = dest.id
@@ -496,12 +494,7 @@ exports.getCommercialTariffs = async (req, res) => {
         `;
 
         let tariffs = await executeQuery(baseQuery, params);
-        
-        // Para cada tarifa, buscar suas sobretaxas
-        for (let tariff of tariffs) {
-            const surcharges = await executeQuery('SELECT * FROM ft_tariffs_surcharges WHERE tariff_id = ?', [tariff.id]);
-            tariff.surcharges = surcharges.map(s => ({...s, cost: s.value}));
-        }
+        // Removido: busca detalhada de sobretaxas
 
         res.status(200).json(tariffs);
     } catch (error) {

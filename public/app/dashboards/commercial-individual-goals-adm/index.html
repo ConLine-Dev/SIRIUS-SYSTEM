@@ -59,6 +59,51 @@
             <div class="card custom-card">
                 <div class="card-header d-flex" style="justify-content: space-between;">
                     <div class="card-title fw-semibold fs-14">Meta Individual Comercial</div>
+                    <div>
+                        <button class="bottom-new-ticket btn btn-primary me-2" onclick="newGoal()">
+                            <i class="ri-add-line me-1 fw-semibold align-middle"></i>
+                            Adicionar Meta
+                        </button>
+                    </div>
+                </div>
+                <div class="card-header flex-fill justify-content-center">
+                    <div>
+                        <select class="form-control" id="salesSelect" style="margin-right: 35px;">
+                            <option value="">Vendedor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select class="form-control" id="monthSelect" style="margin-right: 35px;">
+                            <option value="">Mês</option>
+                            <option value="1">Janeiro</option>
+                            <option value="2">Fevereiro</option>
+                            <option value="3">Março</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Maio</option>
+                            <option value="6">Junho</option>
+                            <option value="7">Julho</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select class="form-control" id="quarterSelect" style="margin-right: 35px;">
+                            <option value="">Trimestre</option>
+                            <option value="1, 2, 3">Jan/Fev/Mar</option>
+                            <option value="4, 5, 6">Abr/Mai/Jun</option>
+                            <option value="7, 8, 9">Jul/Ago/Set</option>
+                            <option value="10, 11, 12">Out/Nov/Dez</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button class="bottom-new-ticket btn btn-primary me-2" onclick="updateTable()">
+                            <i class="ri-add-line me-1 fw-semibold align-middle"></i>
+                            Atualizar Dados
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -114,7 +159,7 @@
             <div class="row d-flex" style="justify-content: center;">
                 <div class="col-xl-12 d-flex flex-column">
                     <div class="card custom-card flex-fill mb-3">
-                        <div class="card-body d-flex" style="height: 560px;">
+                        <div class="card-body d-flex" style="height: 470px;">
                             <div class="table-responsive w-100">
                                 <table class="table text-nowrap table-bordered w-100" id="clientsTable">
                                     <thead>

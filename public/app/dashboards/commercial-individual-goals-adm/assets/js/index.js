@@ -13,36 +13,36 @@ async function getInfosLogin() {
     return StorageGoogle;
 }
 
-// async function createSelects() {
+async function createSelects() {
 
-//     const userData = await getInfosLogin();
-//     const collabId = userData.system_collaborator_id;
-//     const salesSelect = document.getElementById("salesSelect");
-//     const getCommercial = await makeRequest(`/api/commercial-individual-goal/getCommercial`, 'POST', { collabId });
+    const userData = await getInfosLogin();
+    const collabId = userData.system_collaborator_id;
+    const salesSelect = document.getElementById("salesSelect");
+    const getCommercial = await makeRequest(`/api/commercial-individual-goal/getCommercial`, 'POST', { collabId });
 
-//     for (let index = 0; index < getCommercial.length; index++) {
-//         let option = document.createElement("option");
-//         option.value = getCommercial[index].userId;
-//         option.textContent = `${getCommercial[index].name} ${getCommercial[index].family_name}`;
-//         salesSelect.appendChild(option);
-//     }
-// }
+    for (let index = 0; index < getCommercial.length; index++) {
+        let option = document.createElement("option");
+        option.value = getCommercial[index].userId;
+        option.textContent = `${getCommercial[index].name} ${getCommercial[index].family_name}`;
+        salesSelect.appendChild(option);
+    }
+}
 
-// async function updateTable() {
-//     const salesSelect = document.getElementById("salesSelect");
-//     const monthSelect = document.getElementById("monthSelect");
-//     const quarterSelect = document.getElementById("quarterSelect");
+async function updateTable() {
+    const salesSelect = document.getElementById("salesSelect");
+    const monthSelect = document.getElementById("monthSelect");
+    const quarterSelect = document.getElementById("quarterSelect");
 
-//     let sales = salesSelect.value;
-//     let month = monthSelect.value;
-//     let quarter = quarterSelect.value;
+    let sales = salesSelect.value;
+    let month = monthSelect.value;
+    let quarter = quarterSelect.value;
 
-//     const getClients = await makeRequest(`/api/commercial-individual-goal/getClients`, 'POST', { sales, month, quarter });
-//     document.querySelector('#loader2').classList.remove('d-none')
-//     await printData(sales, month, quarter);
-//     await createTable(getClients);
-//     document.querySelector('#loader2').classList.add('d-none')
-// }
+    const getClients = await makeRequest(`/api/commercial-individual-goal/getClients`, 'POST', { sales, month, quarter });
+    document.querySelector('#loader2').classList.remove('d-none')
+    await printData(sales, month, quarter);
+    await createTable(getClients);
+    document.querySelector('#loader2').classList.add('d-none')
+}
 
 async function printData(sales, month, quarter) {
 
@@ -120,7 +120,7 @@ async function createTable(getVolumes) {
             url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
         },
         "order": [[0, 'desc']],
-        "lengthMenu": [[8], [8]],
+        "lengthMenu": [[6], [6]],
         "searching": true,
     });
 
@@ -279,7 +279,7 @@ async function newGoal() {
     const body = {
         url: `/app/dashboards/commercial-individual-goals-adm/create`,
         width: 800,
-        height: 475,
+        height: 300,
         resizable: false,
         max: false
     }
@@ -299,6 +299,7 @@ window.addEventListener("load", async () => {
     const getClients = await makeRequest(`/api/commercial-individual-goal/getClients`, 'POST', { sales: userId, month: null, quarter: null });
     await createTable(getClients);
     await printData(userId, null, null);
+    await createSelects();
 
     document.querySelector('#loader2').classList.add('d-none')
 })

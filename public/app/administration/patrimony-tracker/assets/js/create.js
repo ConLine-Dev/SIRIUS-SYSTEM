@@ -146,7 +146,47 @@ async function createItem() {
         
     } catch (error) {
         console.error('Erro ao criar item:', error);
-        showErrorToast('Não foi possível cadastrar o item. Tente novamente mais tarde.');
+        
+        // Extrair mensagem específica do erro
+        let errorMessage = 'Não foi possível cadastrar o item. Tente novamente mais tarde.';
+        
+        // Verificar se o erro tem uma mensagem específica do backend
+        if (error.message) {
+            // Se a mensagem contém informações sobre duplicidade
+            if (error.message.includes('Já existe um item com este código') || 
+                error.message.includes('Duplicate entry') ||
+                error.message.includes('código')) {
+                errorMessage = error.message;
+            }
+            // Se a mensagem contém informações sobre campos obrigatórios
+            else if (error.message.includes('obrigatórios') || 
+                     error.message.includes('obrigatório')) {
+                errorMessage = error.message;
+            }
+            // Se a mensagem contém informações sobre formato de data
+            else if (error.message.includes('data') || 
+                     error.message.includes('Data')) {
+                errorMessage = error.message;
+            }
+            // Se a mensagem contém informações sobre categoria/localização
+            else if (error.message.includes('categoria') || 
+                     error.message.includes('localização') ||
+                     error.message.includes('Categoria') ||
+                     error.message.includes('Localização')) {
+                errorMessage = error.message;
+            }
+            // Se a mensagem contém informações sobre estrutura da tabela
+            else if (error.message.includes('estrutura') || 
+                     error.message.includes('banco de dados')) {
+                errorMessage = error.message;
+            }
+            // Para outros erros específicos do backend
+            else if (!error.message.includes('Erro na solicitação ao servidor')) {
+                errorMessage = error.message;
+            }
+        }
+        
+        showErrorToast(errorMessage);
         
         // Restaurar botão
         submitBtn.prop('disabled', false);

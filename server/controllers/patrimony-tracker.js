@@ -6,8 +6,16 @@ module.exports = (io) => {
 
     // Função auxiliar para notificar clientes sobre a atualização de um item
     const notifyItemUpdate = async (itemId) => {
-        if (!io) return;
+        if (!io || !itemId) return;
+        
         try {
+            // Verificar se o item existe antes de fazer a consulta completa
+            const itemExists = await executeQuery('SELECT id FROM pat_items WHERE id = ?', [itemId]);
+            if (itemExists.length === 0) {
+                console.warn(`Tentativa de notificar atualização para item inexistente: ${itemId}`);
+                return;
+            }
+
             // Lógica reutilizada de getItemById para garantir consistência de dados
             const itemQuery = `
                 SELECT 
@@ -26,38 +34,57 @@ module.exports = (io) => {
             if (itemResult.length === 0) return;
             const item = itemResult[0];
 
-            const historyQuery = `
-                SELECT 
-                    a.id, a.item_id, a.user_id,
-                    DATE_FORMAT(a.start_date, '%d/%m/%Y %H:%i') as assignment_date,
-                    DATE_FORMAT(a.end_date, '%d/%m/%Y %H:%i') as return_date,
-                    a.notes, a.status,
-                    CONCAT(c.name, ' ', c.family_name) as employee_name,
-                    c.job_position as employee_job_position
-                FROM pat_assignments a
-                JOIN collaborators c ON a.user_id = c.id
-                WHERE a.item_id = ? 
-                ORDER BY a.start_date DESC
-            `;
-            item.assignment_history = await executeQuery(historyQuery, [itemId]);
-            item.current_assignment = item.assignment_history.find(a => a.status === 'active') || null;
+            // Buscar histórico de atribuições apenas se necessário
+            try {
+                const historyQuery = `
+                    SELECT 
+                        a.id, a.item_id, a.user_id,
+                        DATE_FORMAT(a.start_date, '%d/%m/%Y %H:%i') as assignment_date,
+                        DATE_FORMAT(a.end_date, '%d/%m/%Y %H:%i') as return_date,
+                        a.notes, a.status,
+                        CONCAT(c.name, ' ', c.family_name) as employee_name,
+                        c.job_position as employee_job_position
+                    FROM pat_assignments a
+                    JOIN collaborators c ON a.user_id = c.id
+                    WHERE a.item_id = ? 
+                    ORDER BY a.start_date DESC
+                    LIMIT 10
+                `;
+                item.assignment_history = await executeQuery(historyQuery, [itemId]);
+                item.current_assignment = item.assignment_history.find(a => a.status === 'active') || null;
+            } catch (historyError) {
+                console.error(`Erro ao buscar histórico de atribuições para item ${itemId}:`, historyError);
+                item.assignment_history = [];
+                item.current_assignment = null;
+            }
 
-            const eventsQuery = `
-                SELECT 
-                    e.id, e.item_id, e.event_type,
-                    DATE_FORMAT(e.event_date, '%d/%m/%Y %H:%i:%s') as event_date,
-                    e.user_id, e.description as details, e.metadata,
-                    CONCAT(u.name, ' ', u.family_name) as user_name 
-                FROM pat_events e
-                LEFT JOIN collaborators u ON e.user_id = u.id
-                WHERE e.item_id = ? 
-                ORDER BY e.event_date DESC
-            `;
-            item.event_log = await executeQuery(eventsQuery, [itemId]);
+            // Buscar eventos apenas se necessário
+            try {
+                const eventsQuery = `
+                    SELECT 
+                        e.id, e.item_id, e.event_type,
+                        DATE_FORMAT(e.event_date, '%d/%m/%Y %H:%i:%s') as event_date,
+                        e.user_id, e.description as details, e.metadata,
+                        CONCAT(u.name, ' ', u.family_name) as user_name 
+                    FROM pat_events e
+                    LEFT JOIN collaborators u ON e.user_id = u.id
+                    WHERE e.item_id = ? 
+                    ORDER BY e.event_date DESC
+                    LIMIT 20
+                `;
+                item.event_log = await executeQuery(eventsQuery, [itemId]);
+            } catch (eventsError) {
+                console.error(`Erro ao buscar eventos para item ${itemId}:`, eventsError);
+                item.event_log = [];
+            }
             
-            io.emit('patrimony:item_updated', item);
+            // Emitir evento apenas se houver dados válidos
+            if (item && item.id) {
+                io.emit('patrimony:item_updated', item);
+            }
         } catch (error) {
             console.error(`Falha ao emitir atualização via socket para o item ${itemId}:`, error);
+            // Não re-throw para evitar quebrar outras operações
         }
     };
 
@@ -196,27 +223,156 @@ module.exports = (io) => {
         const { code, description, category_id, acquisition_date, acquisition_value, location_id, notes } = req.body;
         // const userId = req.user.id; // Adicionar quando o middleware de autenticação for confirmado
 
+        // Validações mais robustas
         if (!code || !description || !acquisition_date) {
-            return res.status(400).json({ message: 'Código, descrição e data de aquisição são obrigatórios.' });
+            return res.status(400).json({ 
+                message: 'Código, descrição e data de aquisição são obrigatórios.',
+                required_fields: ['code', 'description', 'acquisition_date'],
+                received_data: { code, description, acquisition_date }
+            });
+        }
+
+        // Validar formato da data
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (!dateRegex.test(acquisition_date)) {
+            return res.status(400).json({ 
+                message: 'Formato de data inválido. Use YYYY-MM-DD.',
+                received_date: acquisition_date
+            });
+        }
+
+        // Validar se a data não é futura
+        const today = new Date().toISOString().split('T')[0];
+        if (acquisition_date > today) {
+            return res.status(400).json({ 
+                message: 'Data de aquisição não pode ser futura.',
+                received_date: acquisition_date,
+                today: today
+            });
         }
 
         try {
+            // Verificar se o código já existe
+            const existingItem = await executeQuery('SELECT id FROM pat_items WHERE code = ?', [code]);
+            if (existingItem.length > 0) {
+                return res.status(409).json({ 
+                    message: 'Já existe um item com este código.',
+                    existing_code: code
+                });
+            }
+
+            // Verificar se category_id existe (se fornecido)
+            if (category_id) {
+                const categoryExists = await executeQuery('SELECT id FROM pat_categories WHERE id = ?', [category_id]);
+                if (categoryExists.length === 0) {
+                    return res.status(400).json({ 
+                        message: 'Categoria não encontrada.',
+                        invalid_category_id: category_id
+                    });
+                }
+            }
+
+            // Verificar se location_id existe (se fornecido)
+            if (location_id) {
+                const locationExists = await executeQuery('SELECT id FROM pat_locations WHERE id = ?', [location_id]);
+                if (locationExists.length === 0) {
+                    return res.status(400).json({ 
+                        message: 'Localização não encontrada.',
+                        invalid_location_id: location_id
+                    });
+                }
+            }
+
+            // Preparar query com campos opcionais
             const query = `
-                INSERT INTO pat_items (code, description, category_id, acquisition_date, acquisition_value, location_id, notes, current_status) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'available')
+                INSERT INTO pat_items (
+                    code, 
+                    description, 
+                    category_id, 
+                    acquisition_date, 
+                    acquisition_value, 
+                    location_id, 
+                    notes, 
+                    current_status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, 'available')
             `;
-            const result = await executeQuery(query, [code, description, category_id, acquisition_date, acquisition_value, location_id, notes]);
+            
+            const params = [
+                code, 
+                description, 
+                category_id || null, 
+                acquisition_date, 
+                acquisition_value || null, 
+                location_id || null, 
+                notes || null
+            ];
+
+            const result = await executeQuery(query, params);
             const newItemId = result.insertId;
 
-            // await logActivity('pat_events', newItemId, 'created', userId, 'Item criado no sistema', {});
-            io.emit('patrimony:list_changed'); // Notifica os clientes para atualizarem a lista
-            res.status(201).json({ id: newItemId, message: 'Item criado com sucesso!' });
+            // Log do evento de criação (sem notificar para evitar loop)
+            try {
+                const userId = getUserIdFromHeader(req);
+                await logEvent(newItemId, 'created', userId, 'Item criado no sistema', { 
+                    code, 
+                    description, 
+                    category_id, 
+                    location_id 
+                });
+            } catch (logError) {
+                console.error('Erro ao registrar evento de criação:', logError);
+                // Não falhar a criação por erro no log
+            }
+
+            // Notificar clientes sobre mudança na lista (sem notificar item específico para evitar loop)
+            if (io) {
+                io.emit('patrimony:list_changed');
+            }
+
+            res.status(201).json({ 
+                id: newItemId, 
+                message: 'Item criado com sucesso!',
+                item: {
+                    id: newItemId,
+                    code,
+                    description,
+                    category_id,
+                    acquisition_date,
+                    acquisition_value,
+                    location_id,
+                    notes,
+                    current_status: 'available'
+                }
+            });
         } catch (error) {
             console.error('Erro ao criar item:', error);
+            
+            // Tratamento específico de erros
             if (error.code === 'ER_DUP_ENTRY') {
-                return res.status(409).json({ message: 'Já existe um item com este código.' });
+                return res.status(409).json({ 
+                    message: 'Já existe um item com este código.',
+                    existing_code: code
+                });
             }
-            res.status(500).json({ message: 'Erro interno do servidor ao criar o item.' });
+            
+            if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+                return res.status(400).json({ 
+                    message: 'Erro de referência. Verifique se a categoria e localização existem.',
+                    error_details: error.message
+                });
+            }
+            
+            if (error.code === 'ER_BAD_FIELD_ERROR') {
+                return res.status(500).json({ 
+                    message: 'Erro na estrutura da tabela. Execute o script de correção do banco de dados.',
+                    error_details: error.message
+                });
+            }
+            
+            res.status(500).json({ 
+                message: 'Erro interno do servidor ao criar o item.',
+                error_details: error.message
+            });
         }
     };
 
@@ -287,9 +443,35 @@ module.exports = (io) => {
     }
 
     async function logEvent(itemId, eventType, userId, description, metadata = {}) {
-        const metaString = Object.keys(metadata).length > 0 ? JSON.stringify(metadata) : null;
-        const query = 'INSERT INTO pat_events (item_id, event_type, user_id, description, metadata) VALUES (?, ?, ?, ?, ?)';
-        await executeQuery(query, [itemId, eventType, userId, description || null, metaString]);
+        if (!itemId || !eventType || !userId) {
+            console.warn('logEvent: Parâmetros inválidos', { itemId, eventType, userId });
+            return;
+        }
+
+        try {
+            // Verificar se o item existe
+            const itemExists = await executeQuery('SELECT id FROM pat_items WHERE id = ?', [itemId]);
+            if (itemExists.length === 0) {
+                console.warn(`logEvent: Item ${itemId} não encontrado`);
+                return;
+            }
+
+            // Verificar se o usuário existe
+            const userExists = await executeQuery('SELECT id FROM collaborators WHERE id = ?', [userId]);
+            if (userExists.length === 0) {
+                console.warn(`logEvent: Usuário ${userId} não encontrado`);
+                return;
+            }
+
+            const metaString = Object.keys(metadata).length > 0 ? JSON.stringify(metadata) : null;
+            const query = 'INSERT INTO pat_events (item_id, event_type, user_id, description, metadata) VALUES (?, ?, ?, ?, ?)';
+            await executeQuery(query, [itemId, eventType, userId, description || null, metaString]);
+            
+            console.log(`Evento registrado: ${eventType} para item ${itemId} por usuário ${userId}`);
+        } catch (error) {
+            console.error(`Erro ao registrar evento ${eventType} para item ${itemId}:`, error);
+            // Não re-throw para evitar quebrar outras operações
+        }
     }
 
     controller.assignItem = async (req, res) => {

@@ -1,4 +1,4 @@
-let clientsTable, TEUsChart, profitChart;
+let clientsTable, TEUsChart, LCLChart, AirChart, profitChart;
 const socket = io();
 
 socket.on('att-non-compliance', async (msg) => {
@@ -13,75 +13,37 @@ async function getInfosLogin() {
     return StorageGoogle;
 }
 
-// async function createSelects() {
-
-//     const userData = await getInfosLogin();
-//     const collabId = userData.system_collaborator_id;
-//     const salesSelect = document.getElementById("salesSelect");
-//     const getCommercial = await makeRequest(`/api/commercial-individual-goal/getCommercial`, 'POST', { collabId });
-
-//     for (let index = 0; index < getCommercial.length; index++) {
-//         let option = document.createElement("option");
-//         option.value = getCommercial[index].userId;
-//         option.textContent = `${getCommercial[index].name} ${getCommercial[index].family_name}`;
-//         salesSelect.appendChild(option);
-//     }
-// }
-
-// async function updateTable() {
-//     const salesSelect = document.getElementById("salesSelect");
-//     const monthSelect = document.getElementById("monthSelect");
-//     const quarterSelect = document.getElementById("quarterSelect");
-
-//     let sales = salesSelect.value;
-//     let month = monthSelect.value;
-//     let quarter = quarterSelect.value;
-
-//     const getClients = await makeRequest(`/api/commercial-individual-goal/getClients`, 'POST', { sales, month, quarter });
-//     document.querySelector('#loader2').classList.remove('d-none')
-//     await printData(sales, month, quarter);
-//     await createTable(getClients);
-//     document.querySelector('#loader2').classList.add('d-none')
-// }
-
 async function printData(sales, month, quarter) {
 
     const getTEUsAndProfit = await makeRequest(`/api/commercial-individual-goal/getTEUsAndProfit`, 'POST', { sales, month, quarter });
+
     let TEUsActual = 0;
+    let LCLActual = 0;
+    let AirActual = 0;
     let profitActual = 0;
     if (getTEUsAndProfit[0]) {
         TEUsActual = getTEUsAndProfit[0].Total_TEUS;
         profitActual = getTEUsAndProfit[0].Lucro_Estimado;
     }
 
+    for (let index = 0; index < getTEUsAndProfit.length; index++) {
+        if (getTEUsAndProfit[index].Tipo_Carga == 'LCL') {
+            LCLActual = getTEUsAndProfit[index].Quantidade_Processos;
+        }
+        if (getTEUsAndProfit[index].Tipo_Carga == 'Aéreo') {
+            AirActual = getTEUsAndProfit[index].Quantidade_Processos;
+        }
+    }
+
     const getGoals = await makeRequest(`/api/commercial-individual-goal/getGoals`, 'POST', { sales, month, quarter });
     let TEUsGoal = getGoals[0];
     let profitGoal = getGoals[1];
-
-    const divTEUsQuantity = document.getElementById('TEUsQuantity');
-    let printTEUsQuantity = `<div class="card-body d-flex flex-column p-0 col-6">
-                              <h2 class="fw-bold display-5 m-0">${TEUsActual}</h2>
-                              <h6 class="text-muted">Obtido</h6>
-                          </div>
-                          <div class="card-body d-flex flex-column p-0 col-6">
-                              <h2 class="fw-bold display-5 m-0">${TEUsGoal}</h2>
-                              <h6 class="text-muted">Esperado</h6>
-                          </div>`
-    divTEUsQuantity.innerHTML = printTEUsQuantity;
+    let LCLGoal = getGoals[2];
+    let airGoal = getGoals[3];
 
     await createTEUsChart(TEUsActual, TEUsGoal);
-
-    const divProfitQuantity = document.getElementById('profitQuantity');
-    let printProfitQuantity = `<div class="card-body d-flex flex-column p-0 col-6">
-                              <h3 class="fw-bold display-5 m-0">${profitActual.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</h3>
-                              <h6 class="text-muted">Obtido</h6>
-                          </div>
-                          <div class="card-body d-flex flex-column p-0 col-6">
-                              <h3 class="fw-bold display-5 m-0">${profitGoal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</h3>
-                              <h6 class="text-muted">Esperado</h6>
-                          </div>`
-    divProfitQuantity.innerHTML = printProfitQuantity;
-
+    await createLCLChart(LCLActual, LCLGoal);
+    await createAirChart(AirActual, airGoal);
     await createProfitsChart(profitActual, profitGoal);
 }
 
@@ -120,7 +82,7 @@ async function createTable(getVolumes) {
             url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
         },
         "order": [[0, 'desc']],
-        "lengthMenu": [[8], [8]],
+        "lengthMenu": [[6], [6]],
         "searching": true,
     });
 
@@ -133,6 +95,7 @@ async function createTEUsChart(TEUsActual, TEUsGoal) {
 
     let color = '#0d8ade'
     let percent = (TEUsActual / TEUsGoal) * 100
+    percent = parseFloat(percent.toFixed(2));
 
     if (percent >= 100) {
         color = '#7fcf11'
@@ -143,12 +106,23 @@ async function createTEUsChart(TEUsActual, TEUsGoal) {
     }
 
     var options = {
-        series: [percent.toFixed(2)],
+        series: [percent],
         chart: {
             type: 'radialBar',
             offsetY: -20,
             sparkline: {
                 enabled: true
+            }
+        },
+        tooltip: {
+            enabled: true,
+            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                return `
+                <div style="padding: 8px; font-size: 13px;">
+                    <strong>Atual:</strong> ${TEUsActual} TEUs <br>
+                    <strong>Meta:</strong> ${TEUsGoal} TEUs
+                </div>
+            `;
             }
         },
         plotOptions: {
@@ -202,10 +176,181 @@ async function createTEUsChart(TEUsActual, TEUsGoal) {
     TEUsChart.render();
 }
 
+async function createLCLChart(LCLActual, LCLGoal) {
+
+    let color = '#0d8ade'
+    let percent = (LCLActual / LCLGoal) * 100
+    percent = parseFloat(percent.toFixed(2));
+
+    if (percent >= 100) {
+        color = '#7fcf11'
+    }
+
+    if (LCLChart) {
+        LCLChart.destroy();
+    }
+
+    var options = {
+        series: [percent],
+        chart: {
+            type: 'radialBar',
+            offsetY: -20,
+            sparkline: {
+                enabled: true
+            }
+        },
+        tooltip: {
+            enabled: true,
+            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                return `
+                <div style="padding: 8px; font-size: 13px;">
+                    <strong>Atual:</strong> ${LCLActual} processos <br>
+                    <strong>Meta:</strong> ${LCLGoal} processos
+                </div>
+            `;
+            }
+        },
+        plotOptions: {
+            radialBar: {
+                startAngle: -90,
+                endAngle: 90,
+                track: {
+                    background: "#e7e7e7",
+                    strokeWidth: '97%',
+                    margin: 5, // margin is in pixels
+                    dropShadow: {
+                        enabled: true,
+                        top: 2,
+                        left: 0,
+                        color: '#444',
+                        opacity: 1,
+                        blur: 2
+                    }
+                },
+                dataLabels: {
+                    name: {
+                        show: false
+                    },
+                    value: {
+                        offsetY: -2,
+                        fontSize: '22px'
+                    }
+                }
+            }
+        },
+        grid: {
+            padding: {
+                top: -10
+            }
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shade: 'light',
+                shadeIntensity: 0.4,
+                inverseColors: false,
+                opacityFrom: 1,
+                opacityTo: 1,
+                stops: [0, 50, 53, 91]
+            },
+            colors: [`${color}`]
+        },
+    };
+
+    LCLChart = new ApexCharts(document.querySelector("#LCLChart"), options);
+    LCLChart.render();
+}
+
+async function createAirChart(AirActual, AirGoal) {
+
+    let color = '#0d8ade'
+    let percent = (AirActual / AirGoal) * 100
+    percent = parseFloat(percent.toFixed(2));
+
+    if (percent >= 100) {
+        color = '#7fcf11'
+    }
+
+    if (AirChart) {
+        AirChart.destroy();
+    }
+
+    var options = {
+        series: [percent],
+        chart: {
+            type: 'radialBar',
+            offsetY: -20,
+            sparkline: {
+                enabled: true
+            }
+        },
+        tooltip: {
+            enabled: true,
+            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                return `
+                <div style="padding: 8px; font-size: 13px;">
+                    <strong>Atual:</strong> ${AirActual} processos <br>
+                    <strong>Meta:</strong> ${AirGoal} processos
+                </div>
+            `;
+            }
+        },
+        plotOptions: {
+            radialBar: {
+                startAngle: -90,
+                endAngle: 90,
+                track: {
+                    background: "#e7e7e7",
+                    strokeWidth: '97%',
+                    margin: 5, // margin is in pixels
+                    dropShadow: {
+                        enabled: true,
+                        top: 2,
+                        left: 0,
+                        color: '#444',
+                        opacity: 1,
+                        blur: 2
+                    }
+                },
+                dataLabels: {
+                    name: {
+                        show: false
+                    },
+                    value: {
+                        offsetY: -2,
+                        fontSize: '22px'
+                    }
+                }
+            }
+        },
+        grid: {
+            padding: {
+                top: -10
+            }
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shade: 'light',
+                shadeIntensity: 0.4,
+                inverseColors: false,
+                opacityFrom: 1,
+                opacityTo: 1,
+                stops: [0, 50, 53, 91]
+            },
+            colors: [`${color}`]
+        },
+    };
+
+    AirChart = new ApexCharts(document.querySelector("#AirChart"), options);
+    AirChart.render();
+}
+
 async function createProfitsChart(profitActual, profitGoal) {
 
     let color = '#0d8ade'
     let percent = (profitActual / profitGoal) * 100
+    percent = parseFloat(percent.toFixed(2));
 
     if (percent >= 100) {
         color = '#7fcf11'
@@ -216,12 +361,23 @@ async function createProfitsChart(profitActual, profitGoal) {
     }
 
     var options = {
-        series: [percent.toFixed(2)],
+        series: [percent],
         chart: {
             type: 'radialBar',
             offsetY: -20,
             sparkline: {
                 enabled: true
+            }
+        },
+        tooltip: {
+            enabled: true,
+            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                return `
+                <div style="padding: 8px; font-size: 13px;">
+                    <strong>Atual:</strong> R$ ${profitActual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<br>
+                    <strong>Meta:</strong> R$ ${profitGoal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </div>
+            `;
             }
         },
         plotOptions: {
@@ -279,7 +435,7 @@ async function newGoal() {
     const body = {
         url: `/app/dashboards/commercial-individual-goals-adm/create`,
         width: 800,
-        height: 475,
+        height: 300,
         resizable: false,
         max: false
     }

@@ -99,6 +99,13 @@
                         </select>
                     </div>
                     <div>
+                        <select class="form-control" id="operationSelect" style="margin-right: 35px;">
+                            <option value="">Tipo de Operação</option>
+                            <option value="1">Exportação</option>
+                            <option value="2">Importação</option>
+                        </select>
+                    </div>
+                    <div>
                         <button class="bottom-new-ticket btn btn-primary me-2" onclick="updateTable()">
                             <i class="ri-add-line me-1 fw-semibold align-middle"></i>
                             Atualizar Dados
@@ -111,42 +118,46 @@
     <div class="container-fluid corpo-dashboard">
         <div class="row">
             <div class="row d-flex" style="justify-content: center;">
-                <div class="col-6">
+                <div class="col-3">
                     <div class="card custom-card">
                         <div class="card-header justify-content-between d-flex">
                             <div class="card-title">TEUs movimentados</div>
                         </div>
-                        <div class="row">
-                            <div class="col-xl-6 d-flex flex-column"
-                                style="display: flex; text-align: center; justify-content: center;">
-                                <div class="row d-flex" id="TEUsQuantity" style="flex-direction: column; width: 200%;">
-                                </div>
-                            </div>
-                            <div class="col-xl-6 d-flex flex-column">
-                                <div class="card custom-card flex-fill mb-3">
-                                    <div class="card-body d-flex flex-column p-0" id="TEUsChart">
-                                    </div>
-                                </div>
+                        <div class="card custom-card flex-fill mb-3">
+                            <div class="card-body d-flex flex-column p-0" id="TEUsChart">
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-6">
+                <div class="col-3">
+                    <div class="card custom-card">
+                        <div class="card-header justify-content-between d-flex">
+                            <div class="card-title">LCLs fechados</div>
+                        </div>
+                        <div class="card custom-card flex-fill mb-3">
+                            <div class="card-body d-flex flex-column p-0" id="LCLChart">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="card custom-card">
+                        <div class="card-header justify-content-between d-flex">
+                            <div class="card-title">Aéreos fechados</div>
+                        </div>
+                        <div class="card custom-card flex-fill mb-3">
+                            <div class="card-body d-flex flex-column p-0" id="AirChart">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
                     <div class="card custom-card">
                         <div class="card-header justify-content-between d-flex">
                             <div class="card-title">Rentabilidade acumulada</div>
                         </div>
-                        <div class="row">
-                            <div class="col-xl-6 d-flex flex-column"
-                                style="display: flex; text-align: center; justify-content: center;">
-                                <div class="row d-flex" id="profitQuantity"
-                                    style="flex-direction: column; width: 200%;"></div>
-                            </div>
-                            <div class="col-xl-6 d-flex flex-column">
-                                <div class="card custom-card flex-fill mb-3">
-                                    <div class="card-body d-flex flex-column p-0" id="profitChart">
-                                    </div>
-                                </div>
+                        <div class="card custom-card flex-fill mb-3">
+                            <div class="card-body d-flex flex-column p-0" id="profitChart">
                             </div>
                         </div>
                     </div>

@@ -91,7 +91,8 @@ async function createTable(getVolumes) {
             client: item.Nome,
             openingProfit: item.Lucro_Abertura.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
             estimatedProfit: item.Lucro_Estimado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            teus: item.Total_TEUS
+            teus: item.Total_TEUS,
+            operation: item.Tipo_Carga
         });
     }
 
@@ -110,6 +111,7 @@ async function createTable(getVolumes) {
             { "data": "openingProfit" },
             { "data": "estimatedProfit" },
             { "data": "teus" },
+            { "data": "operation" },
         ],
         "language": {
             url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'

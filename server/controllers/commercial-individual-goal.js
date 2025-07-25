@@ -17,6 +17,7 @@ const commercial_individual_goal = {
 
         let monthFilter = `AND DATEPART(month, lhs.Data_Abertura_Processo) = DATEPART(month, GETDATE())`;
         let quarterFilter = '';
+        let operationFilter = '';
 
         if (data.month) {
             monthFilter = `AND DATEPART(month, lhs.Data_Abertura_Processo) = ${data.month}`
@@ -27,11 +28,22 @@ const commercial_individual_goal = {
             quarterFilter = `AND DATEPART(month, lhs.Data_Abertura_Processo) IN (${data.quarter})`
         }
 
+        if (data.operation) {
+            operationFilter = `AND lms.Tipo_Operacao = ${data.operation}`
+        }
+
         const result = await executeQuerySQL(`
             SELECT
                 DATEPART(MONTH, lhs.Data_Abertura_Processo) AS Mes,
                 SUM(COALESCE(lmh.Total_TEUS, 0)) AS Total_TEUS,
-                SUM(COALESCE(lma.Lucro_Estimado, 0)) AS Lucro_Estimado
+                SUM(COALESCE(lma.Lucro_Estimado, 0)) AS Lucro_Estimado,
+                COUNT(*) AS Quantidade_Processos,
+                CASE Lhs.Tipo_Carga
+                WHEN 1 THEN 'Aéreo'
+                WHEN 3 THEN 'FCL'
+                WHEN 4 THEN 'LCL'
+                ELSE 'Outro'
+                END AS Tipo_Carga
             FROM
                 mov_logistica_house lhs
                 LEFT JOIN
@@ -59,8 +71,9 @@ const commercial_individual_goal = {
                 AND (Iss.IdResponsavel = '${data.sales}' OR Sls.IdResponsavel = '${data.sales}')
                 ${monthFilter}
                 ${quarterFilter}
+                ${operationFilter}
             GROUP BY
-                DATEPART(MONTH, lhs.Data_Abertura_Processo)
+                DATEPART(MONTH, lhs.Data_Abertura_Processo), lhs.Tipo_Carga
             ORDER BY
                 Mes;`);
         return result;
@@ -70,6 +83,7 @@ const commercial_individual_goal = {
 
         let monthFilter = `AND DATEPART(month, lhs.Data_Abertura_Processo) = DATEPART(month, GETDATE())`;
         let quarterFilter = '';
+        let operationFilter = '';
 
         if (data.month) {
             monthFilter = `AND DATEPART(month, lhs.Data_Abertura_Processo) = ${data.month}`
@@ -80,12 +94,24 @@ const commercial_individual_goal = {
             quarterFilter = `AND DATEPART(month, lhs.Data_Abertura_Processo) IN (${data.quarter})`
         }
 
+        if (data.operation) {
+            operationFilter = `AND lms.Tipo_Operacao = ${data.operation}`
+        }
+
         const result = await executeQuerySQL(`
             SELECT
                 cli.nome AS Nome,
                 COALESCE(SUM(lmh.Total_TEUS), 0) AS Total_TEUS,
                 SUM(DISTINCT lma.Lucro_Abertura) AS Lucro_Abertura,
-                SUM(DISTINCT lma.Lucro_Estimado) AS Lucro_Estimado
+                SUM(DISTINCT lma.Lucro_Estimado) AS Lucro_Estimado,
+                CASE WHEN (lhs.Tipo_Carga = 1 AND  lmr.Tipo_Operacao = 1) THEN 'EA'
+                    WHEN (lhs.Tipo_Carga = 1 AND  lmr.Tipo_Operacao = 2) THEN 'IA'
+                    WHEN (lhs.Tipo_Carga = 3 AND  lmr.Tipo_Operacao = 1) THEN 'EM FCL'
+                    WHEN (lhs.Tipo_Carga = 4 AND  lmr.Tipo_Operacao = 1) THEN 'EM LCL'
+                    WHEN (lhs.Tipo_Carga = 3 AND  lmr.Tipo_Operacao = 2) THEN 'IM FCL'
+                    WHEN (lhs.Tipo_Carga = 4 AND  lmr.Tipo_Operacao = 2) THEN 'IM LCL'
+                    ELSE 'Outro'
+                END AS Tipo_Carga
             FROM
                 mov_logistica_house lhs
                 LEFT OUTER JOIN
@@ -103,12 +129,21 @@ const commercial_individual_goal = {
             WHERE
                 DATEPART(year, lhs.Data_Abertura_Processo) = 2025
                 AND lma.idmoeda IN (110)
-                AND (Iss.IdResponsavel = '${data.sales}' OR Sls.IdResponsavel = '${data.sales}')
+                AND (Iss.IdResponsavel = ${data.sales} OR Sls.IdResponsavel = ${data.sales})
                 ${monthFilter}
                 ${quarterFilter}
+                ${operationFilter}
                 AND lhs.Situacao_Agenciamento != 7
             GROUP BY
-                cli.nome`);
+                cli.nome,
+                CASE WHEN (lhs.Tipo_Carga = 1 AND  lmr.Tipo_Operacao = 1) THEN 'EA'
+                    WHEN (lhs.Tipo_Carga = 1 AND  lmr.Tipo_Operacao = 2) THEN 'IA'
+                    WHEN (lhs.Tipo_Carga = 3 AND  lmr.Tipo_Operacao = 1) THEN 'EM FCL'
+                    WHEN (lhs.Tipo_Carga = 4 AND  lmr.Tipo_Operacao = 1) THEN 'EM LCL'
+                    WHEN (lhs.Tipo_Carga = 3 AND  lmr.Tipo_Operacao = 2) THEN 'IM FCL'
+                    WHEN (lhs.Tipo_Carga = 4 AND  lmr.Tipo_Operacao = 2) THEN 'IM LCL'
+                    ELSE 'Outro'
+                END`);
         return result;
     },
 
@@ -135,12 +170,16 @@ const commercial_individual_goal = {
 
         let teuGoal = 0;
         let profitGoal = 0;
+        let lclGoal = 0;
+        let airGoal = 0;
         for (let index = 0; index < result.length; index++) {
             teuGoal += result[index].teus_goal;
             profitGoal += result[index].profit_goal;
+            lclGoal += result[index].lcl_goal;
+            airGoal += result[index].air_goal;
         }
 
-        return [teuGoal, profitGoal];
+        return [teuGoal, profitGoal, lclGoal, airGoal];
     },
 
     getCommercial: async function (collabId) {

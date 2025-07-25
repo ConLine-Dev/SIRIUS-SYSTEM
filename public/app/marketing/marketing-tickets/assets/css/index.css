@@ -306,6 +306,235 @@ html, body {
   font-size: 1.1em;
 }
 
+/* ===== DARK MODE SUPPORT ===== */
+[data-theme-mode="dark"] {
+  background: #1a1a1a !important;
+}
+
+[data-theme-mode="dark"] html, 
+[data-theme-mode="dark"] body {
+  background: #1a1a1a !important;
+}
+
+[data-theme-mode="dark"] .kanban-board {
+  background: #1a1a1a !important;
+}
+
+[data-theme-mode="dark"] .kanban-col {
+  background: #2d2d2d !important;
+  border: 1px solid #404040 !important;
+}
+
+[data-theme-mode="dark"] .kanban-col-header {
+  background: #2d2d2d !important;
+  border-bottom: 2px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .kanban-col-header h5 {
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .kanban-col-header .badge {
+  background: #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .card.custom-card.task-card {
+  background: #2d2d2d !important;
+  border: 1px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .card.custom-card.task-card:hover {
+  border-color: #666666 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme-mode="dark"] .card.custom-card.task-card .card-body {
+  background: #2d2d2d !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .kanban-card {
+  background: #2d2d2d !important;
+  border: 1px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .kanban-card:hover {
+  border-color: #666666 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme-mode="dark"] .kanban-card .card-body {
+  background: #2d2d2d !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .kanban-card .card-title {
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .kanban-card .card-meta {
+  color: #cccccc !important;
+}
+
+[data-theme-mode="dark"] .kanban-card .card-desc {
+  color: #cccccc !important;
+}
+
+[data-theme-mode="dark"] .kanban-card .card-footer {
+  border-top: 1px solid #404040 !important;
+  color: #cccccc !important;
+}
+
+[data-theme-mode="dark"] .kanban-card .card-date {
+  color: #cccccc !important;
+}
+
+[data-theme-mode="dark"] .kanban-card .card-date i {
+  color: #666666 !important;
+}
+
+[data-theme-mode="dark"] .kanban-card .icon-attachment {
+  color: #cccccc !important;
+}
+
+/* Dark mode badges */
+[data-theme-mode="dark"] .kanban-card .badge-status.bg-secondary { 
+  background: #404040 !important; 
+  color: #ffffff !important; 
+}
+
+[data-theme-mode="dark"] .kanban-card .badge-status.bg-info { 
+  background: #1e3a8a !important; 
+  color: #ffffff !important; 
+}
+
+[data-theme-mode="dark"] .kanban-card .badge-status.bg-primary { 
+  background: #3730a3 !important; 
+  color: #ffffff !important; 
+}
+
+[data-theme-mode="dark"] .kanban-card .badge-status.bg-warning { 
+  background: #92400e !important; 
+  color: #ffffff !important; 
+}
+
+[data-theme-mode="dark"] .kanban-card .badge-status.bg-danger { 
+  background: #991b1b !important; 
+  color: #ffffff !important; 
+}
+
+[data-theme-mode="dark"] .kanban-card .badge-status.bg-success { 
+  background: #166534 !important; 
+  color: #ffffff !important; 
+}
+
+[data-theme-mode="dark"] .kanban-card .badge-type {
+  background: #404040 !important;
+  color: #cccccc !important;
+}
+
+[data-theme-mode="dark"] .kanban-card .badge-category {
+  background: #3730a3 !important;
+  color: #ffffff !important;
+}
+
+/* Dark mode scrollbar */
+[data-theme-mode="dark"] .kanban-cards::-webkit-scrollbar {
+  width: 6px;
+}
+
+[data-theme-mode="dark"] .kanban-cards::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
+
+[data-theme-mode="dark"] .kanban-cards::-webkit-scrollbar-thumb {
+  background: #666666;
+  border-radius: 3px;
+}
+
+[data-theme-mode="dark"] .kanban-cards::-webkit-scrollbar-thumb:hover {
+  background: #888888;
+}
+
+/* Dark mode for other elements */
+[data-theme-mode="dark"] .card-header {
+  background: #2d2d2d !important;
+  border-bottom: 1px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .card-header h5 {
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .card-header p {
+  color: #cccccc !important;
+}
+
+[data-theme-mode="dark"] .form-control {
+  background: #2d2d2d !important;
+  border: 1px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .form-control:focus {
+  background: #2d2d2d !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .form-select {
+  background: #2d2d2d !important;
+  border: 1px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .form-select:focus {
+  background: #2d2d2d !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .input-group-text {
+  background: #404040 !important;
+  border: 1px solid #404040 !important;
+  color: #cccccc !important;
+}
+
+[data-theme-mode="dark"] .form-label {
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .text-muted {
+  color: #cccccc !important;
+}
+
+[data-theme-mode="dark"] .btn-light {
+  background: #404040 !important;
+  border: 1px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .btn-light:hover {
+  background: #666666 !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .btn-outline-success {
+  color: #10b981 !important;
+  border-color: #10b981 !important;
+}
+
+[data-theme-mode="dark"] .btn-outline-success:hover {
+  background: #10b981 !important;
+  color: #ffffff !important;
+}
+
 @media (max-width: 1400px) {
   .kanban-col {
     min-width: 260px;

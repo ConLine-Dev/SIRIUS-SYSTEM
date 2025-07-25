@@ -30,18 +30,7 @@
                         <p class="text-muted mb-0 mt-1 fs-12">Gerencie todos os chamados, defina responsáveis, prazos e status</p>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-outline-danger" onclick="window.open('documentacao/', '_blank')">
-                            <i class="ri-file-text-line me-1 align-middle"></i>
-                            Documentação
-                        </button>
-                        <button class="btn btn-outline-info" onclick="window.open('email-monitor.html', '_blank')">
-                            <i class="ri-mail-line me-1 align-middle"></i>
-                            Monitor de E-mails
-                        </button>
-                        <button class="btn btn-outline-secondary" onclick="window.open('collaborator.html', '_blank')">
-                            <i class="ri-user-line me-1 align-middle"></i>
-                            Visualização Colaborador
-                        </button>
+                    
                         <button class="btn btn-primary" onclick="window.open('create.html', '_blank')">
                             <i class="ri-add-line me-1 align-middle"></i>
                             Novo Chamado
@@ -106,5 +95,37 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <script src="./assets/js/index.js"></script>
+    <script>
+        // Função para alternar entre temas
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme-mode');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme-mode', newTheme);
+            localStorage.setItem('theme-mode', newTheme);
+            
+            // Atualizar ícone
+            const themeIcon = document.getElementById('theme-icon');
+            if (newTheme === 'dark') {
+                themeIcon.className = 'ri-moon-line';
+            } else {
+                themeIcon.className = 'ri-sun-line';
+            }
+        }
+        
+        // Carregar tema salvo
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme-mode') || 'light';
+            document.documentElement.setAttribute('data-theme-mode', savedTheme);
+            
+            const themeIcon = document.getElementById('theme-icon');
+            if (savedTheme === 'dark') {
+                themeIcon.className = 'ri-moon-line';
+            } else {
+                themeIcon.className = 'ri-sun-line';
+            }
+        });
+    </script>
 </body>
 </html> 

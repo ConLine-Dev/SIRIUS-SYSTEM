@@ -394,7 +394,7 @@ const MarketingTicketsController = {
             }
             
             // Enviar e-mail de notificação para o time de marketing (sem await)
-            const marketingEmail = 'petryck.leite@conlinebr.com.br'; // E-mail do time de marketing
+            const marketingEmail = 'marketing@conlinebr.com.br'; // E-mail do time de marketing
             const { ticket: ticketMkt, comments: commentsMkt } = await getTicketFullInfo(ticketId);
             const contentMkt = marketingTicketInfoBlock(ticketMkt) + marketingTicketChatBlock(commentsMkt);
             const marketingHtmlContent = marketingTicketTemplate({

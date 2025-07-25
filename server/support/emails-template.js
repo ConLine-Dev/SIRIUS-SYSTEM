@@ -800,7 +800,170 @@ const emailCustom = {
     },
 }
 
+function formatDateBR(dateStr) {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '-';
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+function marketingTicketInfoBlock(ticket) {
+    return `
+    <div style="background: #f4f4f9; border-radius: 8px; padding: 18px 22px; margin-bottom: 24px;">
+        <h2 style="color: #f9423a; margin-top: 0;">Informações do Chamado</h2>
+        <p><strong>Título:</strong> ${ticket.title}</p>
+        <p><strong>Tipo:</strong> ${ticket.type}${ticket.other_type ? ` - ${ticket.other_type}` : ''}</p>
+        <p><strong>Categoria:</strong> ${ticket.category}</p>
+        <p><strong>Status:</strong> ${ticket.status}</p>
+        <p><strong>Descrição:</strong> ${ticket.description}</p>
+        <p><strong>Data de Abertura:</strong> ${formatDateBR(ticket.created_at)}</p>
+        <p><strong>Previsão de Início:</strong> ${formatDateBR(ticket.start_date)}</p>
+        <p><strong>Previsão de Entrega:</strong> ${formatDateBR(ticket.end_date)}</p>
+        <p><strong>Solicitante:</strong> ${ticket.requester_name || '-'}</p>
+        <p><strong>Responsável:</strong> ${ticket.responsible_name || '-'}</p>
+        <p><strong>Envolvidos:</strong> ${(ticket.involved_names && ticket.involved_names.length > 0) ? ticket.involved_names.join(', ') : '-'}</p>
+    </div>
+    `;
+}
+
+// Gera bloco HTML com histórico do chat
+function marketingTicketChatBlock(comments) {
+    let commentsHtml = '';
+    comments.forEach(comment => {
+        const time = new Date(comment.created_at).toLocaleString('pt-BR');
+        commentsHtml += `
+            <div style="margin-bottom: 18px;">
+              <div style="font-weight: bold; color: #f9423a;">${comment.author_name} <span style="color: #888; font-weight: normal;">(${time})</span></div>
+              <div style="background: #f4f4f9; border-radius: 6px; padding: 10px 14px; margin-top: 4px;">${comment.message}</div>
+            </div>
+        `;
+    });
+    return `
+    <div style="margin-top: 32px;">
+        <h2 style="color: #f9423a;">Histórico de Mensagens</h2>
+        ${commentsHtml}
+    </div>
+    `;
+}
+
+// Função para gerar mensagens específicas baseadas no status
+function getStatusUpdateMessage(status, ticketTitle) {
+    const statusMessages = {
+        'Em triagem': {
+            title: 'Chamado em Análise',
+            subtitle: `Seu chamado "${ticketTitle}" está sendo analisado`,
+            message: `
+                <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 16px; margin: 20px 0; border-radius: 4px;">
+                    <h3 style="color: #e65100; margin-top: 0;">🔍 Chamado em Triagem</h3>
+                    <p>Nossa equipe está analisando os detalhes do seu chamado para entender melhor suas necessidades.</p>
+                    <p><strong>Próximo passo:</strong> Após a análise, definiremos as próximas ações e prazos.</p>
+                </div>
+            `
+        },
+        'Em andamento': {
+            title: 'Chamado Iniciado',
+            subtitle: `Seu chamado "${ticketTitle}" foi iniciado`,
+            message: `
+                <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 16px; margin: 20px 0; border-radius: 4px;">
+                    <h3 style="color: #1565c0; margin-top: 0;">🚀 Chamado em Andamento</h3>
+                    <p>Ótimo! Seu chamado foi iniciado e nossa equipe está trabalhando nele.</p>
+                    <p><strong>Próximo passo:</strong> Acompanhe o progresso pelo sistema e aguarde atualizações.</p>
+                </div>
+            `
+        },
+        'Aguardando validação': {
+            title: 'Aguardando Sua Validação',
+            subtitle: `Seu chamado "${ticketTitle}" precisa da sua aprovação`,
+            message: `
+                <div style="background: #fff8e1; border-left: 4px solid #ffc107; padding: 16px; margin: 20px 0; border-radius: 4px;">
+                    <h3 style="color: #f57f17; margin-top: 0;">⏳ Aguardando Validação</h3>
+                    <p>Precisamos da sua validação para continuar com o chamado.</p>
+                    <p><strong>Próximo passo:</strong> Acesse o sistema para revisar e aprovar o que foi desenvolvido.</p>
+                </div>
+            `
+        },
+        'Aguardando retorno do solicitante': {
+            title: 'Aguardando Seus Testes e Aprovação',
+            subtitle: `Seu chamado "${ticketTitle}" está aguardando sua validação`,
+            message: `
+                <div style="background: #ffebee; border-left: 4px solid #f44336; padding: 16px; margin: 20px 0; border-radius: 4px;">
+                    <h3 style="color: #c62828; margin-top: 0;">⏳ Aguardando Testes e Aprovação</h3>
+                    <p>Seu chamado está pronto para testes e aprovação final.</p>
+                    <p><strong>Próximo passo:</strong> Teste o que foi desenvolvido e aprove para finalizar o chamado.</p>
+                </div>
+            `
+        },
+        'Concluído': {
+            title: 'Chamado Concluído',
+            subtitle: `Seu chamado "${ticketTitle}" foi finalizado`,
+            message: `
+                <div style="background: #e8f5e8; border-left: 4px solid #4caf50; padding: 16px; margin: 20px 0; border-radius: 4px;">
+                    <h3 style="color: #2e7d32; margin-top: 0;">✅ Chamado Finalizado</h3>
+                    <p>Parabéns! Seu chamado foi concluído com sucesso.</p>
+                    <p><strong>Próximo passo:</strong> Avalie nosso trabalho e entre em contato se precisar de ajustes.</p>
+                </div>
+            `
+        },
+        'Cancelado': {
+            title: 'Chamado Cancelado',
+            subtitle: `Seu chamado "${ticketTitle}" foi cancelado`,
+            message: `
+                <div style="background: #fafafa; border-left: 4px solid #9e9e9e; padding: 16px; margin: 20px 0; border-radius: 4px;">
+                    <h3 style="color: #616161; margin-top: 0;">❌ Chamado Cancelado</h3>
+                    <p>Seu chamado foi cancelado conforme solicitado.</p>
+                    <p><strong>Próximo passo:</strong> Entre em contato se precisar reativar o chamado.</p>
+                </div>
+            `
+        }
+    };
+    
+    return statusMessages[status] || {
+        title: 'Atualização de Status',
+        subtitle: `Status do chamado "${ticketTitle}" foi alterado`,
+        message: `
+            <div style="background: #f4f4f9; border-left: 4px solid #9e9e9e; padding: 16px; margin: 20px 0; border-radius: 4px;">
+                <h3 style="color: #616161; margin-top: 0;">📝 Status Atualizado</h3>
+                <p>O status do seu chamado foi alterado para: <strong>${status}</strong></p>
+                <p><strong>Próximo passo:</strong> Acompanhe o progresso pelo sistema.</p>
+            </div>
+        `
+    };
+}
+
+// Adicionar/garantir a função marketingTicketTemplate antes do export final
+function marketingTicketTemplate({ title, subtitle, content, footer }) {
+    return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f9;">
+  <div style="max-width: 600px; margin: 30px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #0001;">
+    <div style="background: #f9423a; color: #fff; border-radius: 10px 10px 0 0; padding: 24px 32px; text-align: center;">
+      <img src="https://conlinebr.com.br/assets/img/icon-redondo.png" alt="Logo" style="height: 48px; margin-bottom: 8px;">
+      <h1 style="margin: 0; font-size: 1.7rem;">${title || ''}</h1>
+      <p style="margin: 0; font-size: 1.1rem;">${subtitle || ''}</p>
+    </div>
+    <div style="padding: 32px;">
+      ${content || ''}
+    </div>
+    <div style="background: #f4f4f9; color: #888; border-radius: 0 0 10px 10px; text-align: center; font-size: 0.95rem; padding: 18px;">
+      ${footer || ''}
+      <br>Esta é uma mensagem automática do sistema Sirius. Não responda este e-mail.
+    </div>
+  </div>
+</body>
+</html>`;
+}
 
 module.exports = {
-    emailCustom: emailCustom
-  };
+    emailCustom: emailCustom,
+    marketingTicketTemplate: marketingTicketTemplate,
+    marketingTicketInfoBlock: marketingTicketInfoBlock,
+    marketingTicketChatBlock: marketingTicketChatBlock,
+    getStatusUpdateMessage: getStatusUpdateMessage
+};

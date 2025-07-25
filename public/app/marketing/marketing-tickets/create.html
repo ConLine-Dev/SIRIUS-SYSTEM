@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abrir Chamado de Marketing</title>
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
+    <link rel="stylesheet" href="./assets/css/create.css">
+</head>
+<body>
+    <div class="">
+        <div class="card custom-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Abrir Chamado de Marketing</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Informação:</strong> As datas de início e entrega serão definidas pelo time de marketing após análise da solicitação.
+                </div>
+                <form id="create-ticket-form" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="ticket-title" class="form-label">Título *</label>
+                        <input type="text" class="form-control" id="ticket-title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ticket-type" class="form-label">Tipo de Solicitação *</label>
+                        <select class="form-select" id="ticket-type" name="type" required>
+                            <option value="">Selecione...</option>
+                            <option value="arte">Criação de arte</option>
+                            <option value="postagem">Sugestão de postagem</option>
+                            <option value="brinde">Solicitação de brinde</option>
+                            <option value="campanha">Ação de campanha</option>
+                            <option value="revisao">Revisão de conteúdo</option>
+                            <option value="evento">Apoio a evento</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="other-type-text" style="display:none;">
+                        <label for="ticket-other-type" class="form-label">Descreva o tipo de solicitação</label>
+                        <input type="text" class="form-control" id="ticket-other-type" name="other_type">
+                    </div>
+                    <div class="mb-3">
+                        <label for="ticket-category" class="form-label">Categoria *</label>
+                        <select class="form-select" id="ticket-category" name="category" required>
+                            <option value="projeto">Projeto</option>
+                            <option value="referencia">Referência</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ticket-description" class="form-label">Descrição detalhada *</label>
+                        <textarea class="form-control" id="ticket-description" name="description" rows="4" required></textarea>
+                    </div>
+                    <div class="mb-3" id="dimensions-group" style="display:none;">
+                        <label for="ticket-dimensions" class="form-label">Dimensões / Formato *</label>
+                        <input type="text" class="form-control" id="ticket-dimensions" name="dimensions">
+                    </div>
+                    <div class="mb-3">
+                        <label for="ticket-attachments" class="form-label">Anexos</label>
+                        <input type="file" class="multiple-filepond-Attachments" id="ticket-attachments" multiple />
+                        <small class="form-text text-muted">Arraste e solte arquivos aqui ou clique para selecionar. Tipos aceitos: PDF, JPG, PNG, DOC, DOCX, XLS, XLSX</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="ticket-links" class="form-label">Links de referência</label>
+                        <input type="url" class="form-control" id="ticket-links" name="links">
+                    </div>
+                    <div class="mb-3">
+                        <label style="margin-bottom: 0px !important;" for="ticket-involved" class="form-label">Envolvidos</label> <br>
+                        <small class="form-text text-muted">Selecione os usuários que devem ser notificados sobre este chamado</small>
+                        <select class="form-control" id="ticket-involved" name="involved" multiple>
+                            <option value="">Carregando usuários...</option>
+                        </select>
+                        
+                    </div>
+                    <button type="submit" class="btn btn-primary">Abrir Chamado</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- FilePond Plugins -->
+    <script src="../../assets/libs/filepond/filepond.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-exif-orientation/filepond-plugin-image-exif-orientation.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-file-encode/filepond-plugin-file-encode.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-crop/filepond-plugin-image-crop.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-resize/filepond-plugin-image-resize.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-transform/filepond-plugin-image-transform.min.js"></script>
+    
+    <script src="./assets/js/create.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Carregar usuários iniciais
+            loadInitialUsers();
+
+            $('#ticket-type').on('change', function() {
+                if ($(this).val() === 'outro') {
+                    $('#other-type-text').show();
+                } else {
+                    $('#other-type-text').hide();
+                }
+                if ($(this).val() === 'arte') {
+                    $('#dimensions-group').show();
+                    $('#ticket-dimensions').prop('required', true);
+                } else {
+                    $('#dimensions-group').hide();
+                    $('#ticket-dimensions').prop('required', false);
+                }
+            });
+        });
+
+        // Variável global para o Choices.js
+        let involvedChoices;
+
+        // Função para carregar usuários iniciais
+        async function loadInitialUsers() {
+            try {
+                const response = await makeRequest('/api/marketing/tickets/users', 'GET');
+                
+                // Formatar dados para o Choices.js
+                const options = response.map(user => ({
+                    value: user.id,
+                    label: user.full_name
+                }));
+
+                // Inicializar Choices.js
+                involvedChoices = new Choices('#ticket-involved', {
+                    choices: options,
+                    shouldSort: false,
+                    removeItemButton: true,
+                    noChoicesText: 'Não há opções disponíveis',
+                    placeholder: true,
+                    placeholderValue: 'Selecione os usuários...'
+                });
+            } catch (err) {
+                console.error('Erro ao carregar usuários:', err);
+            }
+        }
+    </script>
+</body>
+</html> 

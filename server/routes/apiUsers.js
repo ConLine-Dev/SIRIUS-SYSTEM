@@ -4,8 +4,6 @@ const path = require("path");
 const fs = require('fs');
 const { Users } = require('../controllers/users');
 
-
-
 router.get('/ListUserByDep/:id', async (req, res, next) => {
     try {
         const result = await Users.getUsersByDep(req.params.id);
@@ -91,7 +89,6 @@ router.get('/getAllDept', async (req, res, next) => {
         res.status(404).json('Erro')   
     }
 });
-
 
 
 

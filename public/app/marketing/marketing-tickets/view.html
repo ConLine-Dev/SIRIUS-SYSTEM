@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Chamado de Marketing</title>
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
+    <link rel="stylesheet" href="./assets/css/view.css">
+</head>
+<body>
+    <div class="h-100">
+        <div class="card custom-card h-100 border-0 rounded-0">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title mb-0">Detalhes do Chamado</h5>
+                    <p class="text-muted mb-0 mt-1 fs-12">Visualização para colaboradores</p>
+                </div>
+                <div id="status-action-buttons" class="d-none">
+                    <!-- Removido: Botões para "Aguardando Validação" (Aprovar, Solicitar Ajustes) -->
+                    <!-- Botões para "Aguardando Retorno do Solicitante" -->
+                    <div id="solicitant-buttons" class="d-none">
+                        <button type="button" class="btn btn-success btn-sm" id="btn-accept">
+                            <i class="ri-check-line me-1"></i>Aceitar
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" id="btn-reject">
+                            <i class="ri-close-line me-1"></i>Recusar
+                        </button>
+                        <button type="button" class="btn btn-warning btn-sm" id="btn-request-more-info">
+                            <i class="ri-question-line me-1"></i>Solicitar Mais Info
+                        </button>
+                    </div>
+                </div>
+            </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <!-- Informações principais -->
+                                <div class="ticket-info-section mb-4">
+                                    <h4 id="ticket-title" class="text-primary mb-3">Título do chamado</h4>
+                                    <div class="ticket-description mb-4">
+                                        <h6 class="text-muted mb-2">Descrição</h6>
+                                        <p id="ticket-description" class="border rounded p-3 bg-light">Descrição detalhada do chamado...</p>
+                                    </div>
+                                    
+                                    <!-- Informações em cards -->
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <div class="info-card">
+                                                <h6 class="text-muted mb-2">Informações Básicas</h6>
+                                                <div class="info-item">
+                                                    <strong>Status:</strong> <span id="ticket-status-badge" class="badge bg-secondary fs-14">Status</span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <strong>Tipo:</strong> <span id="ticket-type" class="badge bg-info"></span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <strong>Categoria:</strong> <span id="ticket-category"></span>
+                                                </div>
+                                                <div class="info-item" id="dimensions-row" style="display:none;">
+                                                    <strong>Dimensões:</strong> <span id="ticket-dimensions"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="info-card">
+                                                <h6 class="text-muted mb-2">Pessoas Envolvidas</h6>
+                                                <div class="info-item">
+                                                    <strong>Solicitante:</strong> <span id="ticket-requester"></span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <strong>Responsável:</strong> <span id="ticket-responsible"></span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <strong>Envolvidos:</strong> <span id="ticket-involved"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Prazos -->
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <div class="info-card">
+                                                <h6 class="text-muted mb-2">Prazos</h6>
+                                                <div class="info-item">
+                                                    <strong>Início Previsto:</strong> <span id="ticket-start-date"></span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <strong>Entrega Prevista:</strong> <span id="ticket-end-date"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="info-card">
+                                                <h6 class="text-muted mb-2">Recursos</h6>
+                                                <div class="info-item">
+                                                    <strong>Links:</strong> <span id="ticket-links"></span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <strong>Anexos:</strong> <span id="ticket-attachments"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Anexos -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Anexos</label>
+                                        <div class="attachments-container">
+                                            <div class="current-attachments-section mb-3">
+                                                <h6 class="text-muted mb-2">Anexos Atuais</h6>
+                                                <div id="current-attachments" class="attachments-list">
+                                                    <!-- Anexos atuais serão listados aqui -->
+                                                </div>
+                                            </div>
+                                            <div class="new-attachments-section">
+                                                <h6 class="text-muted mb-2">Adicionar Novos Anexos</h6>
+                                                <input type="file" class="multiple-filepond-Attachments" id="view-attachments" multiple />
+                                                <button type="button" class="btn btn-primary mt-2 d-none" id="btn-save-attachments">Salvar Anexos</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-4">
+                                <!-- Chat/Comentários -->
+                                <div class="chat-section">
+                                    <h6 class="text-muted mb-3">Comentários e Acompanhamento</h6>
+                                    <div id="chat-container" class="chat-messages mb-3"></div>
+                                    <form id="chat-form">
+                                        <div class="d-flex gap-2">
+                                            <input type="text" class="form-control" id="chat-message" placeholder="Digite um comentário...">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="ri-send-plane-line"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- FilePond Plugins -->
+    <script src="../../assets/libs/filepond/filepond.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-exif-orientation/filepond-plugin-image-exif-orientation.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-file-encode/filepond-plugin-file-encode.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-crop/filepond-plugin-image-crop.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-resize/filepond-plugin-image-resize.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-transform/filepond-plugin-image-transform.min.js"></script>
+    
+    <script src="./assets/js/view.js"></script>
+    
+    <!-- Modal para ações de status -->
+    <div class="modal fade" id="statusActionModal" tabindex="-1" aria-labelledby="statusActionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="statusActionModalLabel">Confirmar Ação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="modal-content">
+                        <!-- Conteúdo dinâmico será inserido aqui -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="modal-confirm-btn">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

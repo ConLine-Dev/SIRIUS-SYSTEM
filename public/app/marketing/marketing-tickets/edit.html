@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Chamado de Marketing</title>
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
+    <link rel="stylesheet" href="./assets/css/edit.css">
+</head>
+<body>
+    <div class="h-100">
+        <div class="card custom-card h-100 border-0 rounded-0">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title mb-0">Gerenciar Chamado de Marketing</h5>
+                    <p class="text-muted mb-0 mt-1 fs-12">Administração completa do chamado</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" form="edit-form" class="btn btn-primary">
+                        <i class="ri-save-line me-1"></i>
+                        Salvar Alterações
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" id="btn-delete-ticket">
+                        <i class="ri-delete-bin-line me-1"></i>
+                        Excluir Chamado
+                    </button>
+                </div>
+            </div>
+                    <div class="card-body">
+                        <form id="edit-form">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <!-- Informações principais -->
+                                    <div class="ticket-info-section mb-4">
+                                        <div class="row g-3 mb-4">
+                                            <div class="col-md-8">
+                                                <label for="edit-title" class="form-label">Título do Chamado</label>
+                                                <input type="text" class="form-control" id="edit-title" required>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="edit-status" class="form-label">Status</label>
+                                                <select class="form-select" id="edit-status" required>
+                                                    <option value="Novo">Novo</option>
+                                                    <option value="Em triagem">Em triagem</option>
+                                                    <option value="Em andamento">Em andamento</option>
+                                                    <option value="Aguardando validação">Aguardando validação</option>
+                                                    <option value="Aguardando retorno do solicitante">Aguardando retorno do solicitante</option>
+                                                    <option value="Finalizado">Finalizado</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row g-3 mb-4">
+                                            <div class="col-md-6">
+                                                <label for="edit-type" class="form-label">Tipo</label>
+                                                <select class="form-select" id="edit-type" required>
+                                                    <option value="">Selecione...</option>
+                                                    <option value="arte">Criação de arte</option>
+                                                    <option value="postagem">Sugestão de postagem</option>
+                                                    <option value="brinde">Solicitação de brinde</option>
+                                                    <option value="campanha">Ação de campanha</option>
+                                                    <option value="revisao">Revisão de conteúdo</option>
+                                                    <option value="evento">Apoio a evento</option>
+                                                    <option value="outro">Outro</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="edit-category" class="form-label">Categoria</label>
+                                                <select class="form-select" id="edit-category" required>
+                                                    <option value="projeto">Projeto</option>
+                                                    <option value="referencia">Referência</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row g-3 mb-4">
+                                            <div class="col-md-6">
+                                                <label for="edit-start-date" class="form-label">Data de Início Prevista</label>
+                                                <input type="date" class="form-control" id="edit-start-date">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="edit-end-date" class="form-label">Data de Entrega Prevista</label>
+                                                <input type="date" class="form-control" id="edit-end-date">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row g-3 mb-4">
+                                            <div class="col-md-6">
+                                                <label for="edit-responsible" class="form-label">Responsável</label>
+                                                <select class="form-select" id="edit-responsible">
+                                                    <option value="">Selecione o responsável</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="edit-involved" class="form-label">Envolvidos</label>
+                                                <select class="form-select" id="edit-involved" multiple>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-4">
+                                            <label for="edit-description" class="form-label">Descrição</label>
+                                            <textarea class="form-control" id="edit-description" rows="4" required></textarea>
+                                        </div>
+                                        
+                                        <div class="row g-3 mb-4">
+                                            <div class="col-md-6">
+                                                <label for="edit-other-type" class="form-label">Descreva o tipo de solicitação</label>
+                                                <input type="text" class="form-control" id="edit-other-type" placeholder="Descreva o tipo de solicitação">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="edit-links" class="form-label">Links de Referência</label>
+                                                <input type="text" class="form-control" id="edit-links" placeholder="URLs separadas por vírgula">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row g-3 mb-4">
+                                            <div class="col-md-6">
+                                                <label for="edit-dimensions" class="form-label">Dimensões/Formato</label>
+                                                <input type="text" class="form-control" id="edit-dimensions" placeholder="Ex: 1920x1080px, A4, etc.">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <!-- Espaço reservado para futuras funcionalidades -->
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-4">
+                                            <label class="form-label">Anexos</label>
+                                            <div class="attachments-container">
+                                                <div class="current-attachments-section mb-3">
+                                                    <h6 class="text-muted mb-2">Anexos Atuais</h6>
+                                                    <div id="current-attachments" class="attachments-list">
+                                                        <!-- Anexos atuais serão listados aqui -->
+                                                    </div>
+                                                </div>
+                                                <div class="new-attachments-section">
+                                                    <h6 class="text-muted mb-2">Adicionar Novos Anexos</h6>
+                                                    <input type="file" class="multiple-filepond-Attachments" id="edit-attachments" multiple />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-4">
+                                    <!-- Botões de ação para o time de marketing -->
+                                    <div id="admin-action-buttons" class="mb-4 d-none">
+                                        <button type="button" class="btn btn-success btn-sm mb-2 w-100" id="btn-admin-approve">
+                                            <i class="ri-check-line me-1"></i>Aprovar
+                                        </button>
+                                        <button type="button" class="btn btn-warning btn-sm w-100" id="btn-admin-request-changes">
+                                            <i class="ri-edit-line me-1"></i>Solicitar Ajustes
+                                        </button>
+                                    </div>
+                                    <!-- Chat/Comentários -->
+                                    <div class="chat-section mb-4">
+                                        <h6 class="text-muted mb-3">Comentários e Acompanhamento</h6>
+                                        <div id="chat-container" class="chat-messages mb-3"></div>
+                                        
+                                        <!-- Formulário de comentário -->
+                                        <form id="chat-form">
+                                            <div class="d-flex gap-2">
+                                                <input type="text" class="form-control" id="chat-message" placeholder="Digite um comentário...">
+                                                <button type="button" class="btn btn-primary" id="btn-send-chat">
+                                                    <i class="ri-send-plane-line"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    
+    <!-- FilePond Plugins -->
+    <script src="../../assets/libs/filepond/filepond.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-exif-orientation/filepond-plugin-image-exif-orientation.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-file-encode/filepond-plugin-file-encode.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-crop/filepond-plugin-image-crop.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-resize/filepond-plugin-image-resize.min.js"></script>
+    <script src="../../assets/libs/filepond-plugin-image-transform/filepond-plugin-image-transform.min.js"></script>
+    
+    <script src="./assets/js/edit.js"></script>
+</body>
+</html> 

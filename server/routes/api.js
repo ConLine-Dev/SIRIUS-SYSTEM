@@ -55,6 +55,7 @@ const api_speakup_portal = require('./api-speakup-portal');
 const api_refunds = require('./api-refunds');
 const api_commercial_individual_goal = require('./api-commercial_individual_goal');
 const api_active_clients_marketing = require('./api-active-clients-marketing'); // Nova rota para Clientes Ativos - Marketing
+const apiMarketingTickets = require('./api-marketing-tickets');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -277,6 +278,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-active-clients-marketing.js
   router.use('/marketing/active-clients', api_active_clients_marketing(io));
+
+  // Use as rotas do arquivo api-marketing-tickets.js
+  router.use('/marketing/tickets', apiMarketingTickets(io));
 
   // Adicionar rotas do user-tracker - TEMPORARIAMENTE DESATIVADO
   if (USER_TRACKER_ENABLED) {

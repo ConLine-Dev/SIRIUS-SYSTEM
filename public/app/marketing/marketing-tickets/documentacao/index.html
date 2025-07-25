@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentação - Módulo de Marketing Tickets</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f9423a 0%, #d63384 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #f9423a 0%, #d63384 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .doc-section {
+            margin-bottom: 30px;
+        }
+        
+        .doc-section h2 {
+            color: #f9423a;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f9423a;
+            padding-bottom: 10px;
+        }
+        
+        .doc-link {
+            display: block;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 15px 0;
+            text-decoration: none;
+            color: #333;
+            border-left: 5px solid #f9423a;
+            transition: all 0.3s ease;
+        }
+        
+        .doc-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            background: #e9ecef;
+        }
+        
+        .doc-link h3 {
+            color: #f9423a;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .doc-link p {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+        
+        .doc-link .btn {
+            display: inline-block;
+            background: #f9423a;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .doc-link .btn:hover {
+            background: #e03a32;
+            transform: translateY(-2px);
+        }
+        
+        .back-link {
+            display: inline-block;
+            background: #6c757d;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .feature-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+        }
+        
+        .feature-item .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .feature-item h4 {
+            color: #f9423a;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .feature-item p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Documentação</h1>
+            <p>Módulo de Marketing Tickets - SIRIUS SYSTEM</p>
+        </div>
+        
+        <div class="content">
+            <a href="../index.html" class="back-link">← Voltar ao Módulo</a>
+            
+            <div class="doc-section">
+                <h2>📋 Documentação Disponível</h2>
+                
+                <a href="apresentacao-modulo.html" class="doc-link">
+                    <h3>🎯 Apresentação do Módulo</h3>
+                    <p>
+                        Apresentação completa e moderna do módulo, focada no valor e funcionalidades. 
+                        Ideal para apresentações executivas e demonstrações do sistema.
+                    </p>
+                    <span class="btn">Ver Apresentação</span>
+                </a>
+                
+                <a href="README.md" class="doc-link">
+                    <h3>📖 Guia da Documentação</h3>
+                    <p>
+                        Documentação técnica e guia de uso da documentação. 
+                        Inclui informações sobre estrutura, conteúdo e como usar.
+                    </p>
+                    <span class="btn">Ver Guia</span>
+                </a>
+            </div>
+            
+            <div class="doc-section">
+                <h2>🚀 Características da Documentação</h2>
+                
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="icon">🎨</div>
+                        <h4>Design Moderno</h4>
+                        <p>Layout responsivo e profissional com cores consistentes</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="icon">🖨️</div>
+                        <h4>Otimizada para Impressão</h4>
+                        <p>Cores e layout preservados na impressão</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="icon">📱</div>
+                        <h4>Totalmente Responsiva</h4>
+                        <p>Adaptável a todos os dispositivos e telas</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="icon">⚡</div>
+                        <h4>Animações Suaves</h4>
+                        <p>Efeitos visuais modernos e interativos</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="doc-section">
+                <h2>📊 Conteúdo da Apresentação</h2>
+                
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="icon">📋</div>
+                        <h4>Visão Geral</h4>
+                        <p>Objetivo e contexto do módulo</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="icon">🚀</div>
+                        <h4>Funcionalidades</h4>
+                        <p>Principais recursos e capacidades</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="icon">🔄</div>
+                        <h4>Fluxo de Trabalho</h4>
+                        <p>Processo completo em 5 etapas</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="icon">🎯</div>
+                        <h4>Status dos Chamados</h4>
+                        <p>6 status diferentes disponíveis</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="icon">💡</div>
+                        <h4>Benefícios</h4>
+                        <p>Vantagens e valor agregado</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="icon">🛠️</div>
+                        <h4>Tecnologias</h4>
+                        <p>Stack tecnológico utilizado</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="doc-section">
+                <h2>🎯 Público-Alvo</h2>
+                
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="icon">👔</div>
+                        <h4>Executivos</h4>
+                        <p>Foco em benefícios e ROI</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="icon">👥</div>
+                        <h4>Usuários Finais</h4>
+                        <p>Funcionalidades práticas</p>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="icon">📈</div>
+                        <h4>Equipe Marketing</h4>
+                        <p>Processos específicos do setor</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Adicionar animações de entrada
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.doc-link, .feature-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html> 

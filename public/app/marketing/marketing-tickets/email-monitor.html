@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor de E-mails - Marketing Tickets</title>
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="./assets/css/index.css">
+</head>
+<body>
+    <div class="row" style="height: 100%;">
+        <div class="col-xl-12">
+            <div class="card custom-card" style="height: 100%;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title mb-0">Monitor de E-mails - Marketing Tickets</h5>
+                        <p class="text-muted mb-0 mt-1 fs-12">Monitoramento dos lotes de e-mails de comentários</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary" onclick="refreshStats()">
+                            <i class="ri-refresh-line me-1"></i>
+                            Atualizar
+                        </button>
+                        <button class="btn btn-warning" onclick="forceProcessBatches()">
+                            <i class="ri-send-plane-line me-1"></i>
+                            Forçar Envio
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <h6 class="card-title">Tickets com E-mails Pendentes</h6>
+                                    <h3 id="total-tickets">0</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body">
+                                    <h6 class="card-title">Total de E-mails Pendentes</h6>
+                                    <h3 id="total-emails">0</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <h6 class="card-title">Última Atualização</h6>
+                                    <h6 id="last-update">-</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6>Detalhes por Ticket</h6>
+                        <div id="tickets-details" class="table-responsive">
+                            <!-- Detalhes serão carregados aqui -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Função para carregar estatísticas
+        async function loadStats() {
+            try {
+                const response = await makeRequest('/api/marketing/tickets/email-batches/status');
+                
+                if (response.success) {
+                    const stats = response.stats;
+                    
+                    // Atualizar contadores
+                    $('#total-tickets').text(stats.totalTickets);
+                    $('#total-emails').text(stats.totalEmails);
+                    $('#last-update').text(new Date().toLocaleString('pt-BR'));
+                    
+                    // Atualizar detalhes
+                    let detailsHtml = '';
+                    if (stats.tickets.length > 0) {
+                        detailsHtml = '<table class="table table-sm"><thead><tr><th>Ticket ID</th><th>E-mails Pendentes</th></tr></thead><tbody>';
+                        stats.tickets.forEach(ticket => {
+                            detailsHtml += `<tr><td>#${ticket.ticketId}</td><td>${ticket.emailCount}</td></tr>`;
+                        });
+                        detailsHtml += '</tbody></table>';
+                    } else {
+                        detailsHtml = '<div class="alert alert-info">Nenhum e-mail pendente no momento.</div>';
+                    }
+                    
+                    $('#tickets-details').html(detailsHtml);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+                $('#tickets-details').html('<div class="alert alert-danger">Erro ao carregar estatísticas.</div>');
+            }
+        }
+        
+        // Função para atualizar estatísticas
+        function refreshStats() {
+            loadStats();
+        }
+        
+        // Função para forçar processamento de lotes
+        async function forceProcessBatches() {
+            if (!confirm('Tem certeza que deseja forçar o envio de todos os e-mails pendentes?')) {
+                return;
+            }
+            
+            try {
+                const response = await makeRequest('/api/marketing/tickets/email-batches/process', 'POST');
+                
+                if (response.success) {
+                    alert('E-mails enviados com sucesso!');
+                    loadStats(); // Recarregar estatísticas
+                } else {
+                    alert('Erro ao enviar e-mails: ' + response.message);
+                }
+            } catch (error) {
+                console.error('Erro ao forçar processamento:', error);
+                alert('Erro ao forçar processamento de e-mails.');
+            }
+        }
+        
+        // Carregar estatísticas ao iniciar
+        $(document).ready(function() {
+            loadStats();
+            
+            // Atualizar a cada 30 segundos
+            setInterval(loadStats, 30000);
+        });
+    </script>
+</body>
+</html> 

@@ -942,6 +942,26 @@ const MarketingTicketsController = {
         try {
             const ticketId = req.params.id;
             
+            // Buscar todos os anexos do chamado antes de excluir
+            const attachments = await executeQuery(
+                `SELECT filepath FROM marketing_ticket_attachments WHERE ticket_id = ?`,
+                [ticketId]
+            );
+            
+            // Remover arquivos físicos dos anexos
+            const fs = require('fs');
+            for (const attachment of attachments) {
+                if (attachment.filepath && fs.existsSync(attachment.filepath)) {
+                    try {
+                        fs.unlinkSync(attachment.filepath);
+                        console.log(`Arquivo removido com sucesso: ${attachment.filepath}`);
+                    } catch (err) {
+                        console.error(`Erro ao remover arquivo ${attachment.filepath}:`, err);
+                        // Continuar mesmo se um arquivo falhar
+                    }
+                }
+            }
+            
             // Excluir envolvidos
             await executeQuery('DELETE FROM marketing_ticket_involved WHERE ticket_id = ?', [ticketId]);
             

@@ -96,9 +96,45 @@ function generateSummaryFromContent(content, maxLength = 250) {
 // Função otimizada para comparar conteúdos grandes e pequenos
 function isContentChanged(oldContent, newContent) {
     try {
+        console.log('🔍 isContentChanged - Iniciando comparação...');
+        console.log('🔍 oldContent type:', typeof oldContent);
+        console.log('🔍 newContent type:', typeof newContent);
+        
+        // Verificar se os conteúdos são válidos
+        if (!oldContent || !newContent) {
+            console.log('📊 Conteúdo inválido detectado - Old:', !!oldContent, 'New:', !!newContent);
+            const hasChanged = oldContent !== newContent;
+            console.log('📊 Resultado da comparação (conteúdo inválido):', hasChanged);
+            return hasChanged;
+        }
+
+        // Se oldContent for uma string JSON, tentar fazer parse
+        let oldContentObj = oldContent;
+        if (typeof oldContent === 'string') {
+            try {
+                oldContentObj = JSON.parse(oldContent);
+                console.log('📊 oldContent parseado com sucesso');
+            } catch (e) {
+                console.log('📊 Erro ao fazer parse do oldContent:', e.message);
+                oldContentObj = oldContent;
+            }
+        }
+
+        // Se newContent for uma string JSON, tentar fazer parse
+        let newContentObj = newContent;
+        if (typeof newContent === 'string') {
+            try {
+                newContentObj = JSON.parse(newContent);
+                console.log('📊 newContent parseado com sucesso');
+            } catch (e) {
+                console.log('📊 Erro ao fazer parse do newContent:', e.message);
+                newContentObj = newContent;
+            }
+        }
+
         // Log de debug para acompanhar tamanho dos conteúdos
-        const oldStr = JSON.stringify(oldContent);
-        const newStr = JSON.stringify(newContent);
+        const oldStr = JSON.stringify(oldContentObj);
+        const newStr = JSON.stringify(newContentObj);
         
         console.log(`📊 Comparação de conteúdo - Old: ${oldStr.length} chars, New: ${newStr.length} chars`);
         
@@ -113,8 +149,8 @@ function isContentChanged(oldContent, newContent) {
         console.log('📊 Conteúdo grande detectado, usando comparação híbrida...');
         
         // 1. Comparar quantidade de operações
-        const oldOpsCount = oldContent?.ops?.length || 0;
-        const newOpsCount = newContent?.ops?.length || 0;
+        const oldOpsCount = oldContentObj?.ops?.length || 0;
+        const newOpsCount = newContentObj?.ops?.length || 0;
         
         if (oldOpsCount !== newOpsCount) {
             console.log(`📊 Quantidade de operações diferente: ${oldOpsCount} vs ${newOpsCount}`);
@@ -122,8 +158,8 @@ function isContentChanged(oldContent, newContent) {
         }
         
         // 2. Extrair e comparar texto sem imagens base64 para análise rápida
-        const oldTextClean = extractTextWithoutBase64(oldContent);
-        const newTextClean = extractTextWithoutBase64(newContent);
+        const oldTextClean = extractTextWithoutBase64(oldContentObj);
+        const newTextClean = extractTextWithoutBase64(newContentObj);
         
         if (oldTextClean !== newTextClean) {
             console.log(`📊 Texto limpo (sem base64) diferente: ${oldTextClean.length} vs ${newTextClean.length} chars`);
@@ -131,8 +167,8 @@ function isContentChanged(oldContent, newContent) {
         }
         
         // 3. Comparar operações não-texto (imagens, formatação)
-        const oldNonTextOps = extractNonTextOps(oldContent);
-        const newNonTextOps = extractNonTextOps(newContent);
+        const oldNonTextOps = extractNonTextOps(oldContentObj);
+        const newNonTextOps = extractNonTextOps(newContentObj);
         
         if (oldNonTextOps.length !== newNonTextOps.length) {
             console.log(`📊 Operações não-texto diferentes: ${oldNonTextOps.length} vs ${newNonTextOps.length}`);
@@ -558,33 +594,33 @@ exports.createProcedure = async (req, res) => {
     try {
         const result = await executeTransaction(async (connection) => {
             const mainResult = await connection.query(
-                'INSERT INTO proc_main (title, summary, department_id, role, type_id, responsible_id) VALUES (?, ?, ?, ?, ?, ?)',
-                [title, summary, department_id, role, type_id, responsible]
-            );
+            'INSERT INTO proc_main (title, summary, department_id, role, type_id, responsible_id) VALUES (?, ?, ?, ?, ?, ?)',
+            [title, summary, department_id, role, type_id, responsible]
+        );
             const procedureId = mainResult[0].insertId;
 
             await connection.query(
-                'INSERT INTO proc_versions (procedure_id, version_number, author_id, content, change_summary, title, department_id, role, type_id, responsible_id, tags, attachments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                [procedureId, 1, authorId, JSON.stringify(content), 'Criação do procedimento.', title, department_id, role, type_id, responsible, JSON.stringify(tags), JSON.stringify(attachments)]
-            );
+            'INSERT INTO proc_versions (procedure_id, version_number, author_id, content, change_summary, title, department_id, role, type_id, responsible_id, tags, attachments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [procedureId, 1, authorId, JSON.stringify(content), 'Criação do procedimento.', title, department_id, role, type_id, responsible, JSON.stringify(tags), JSON.stringify(attachments)]
+        );
 
-            // Processar tags e anexos em batch se houver
-            if (tags && tags.length > 0) {
-                for (const tagName of tags) {
+        // Processar tags e anexos em batch se houver
+        if (tags && tags.length > 0) {
+        for (const tagName of tags) {
                     const tagResult = await connection.query('INSERT IGNORE INTO proc_tags (name) VALUES (?)', [tagName]);
                     const tagId = tagResult[0].insertId || (await connection.query('SELECT id FROM proc_tags WHERE name = ?', [tagName]))[0].id;
                     await connection.query('INSERT INTO proc_procedure_tags (procedure_id, tag_id) VALUES (?, ?)', [procedureId, tagId]);
-                }
             }
-            
-            if (attachments && attachments.length > 0) {
-                for (const attachment of attachments) {
+        }
+        
+        if (attachments && attachments.length > 0) {
+        for (const attachment of attachments) {
                     await connection.query(
-                        'INSERT INTO proc_attachments (procedure_id, type, url, description) VALUES (?, ?, ?, ?)',
-                        [procedureId, attachment.type, attachment.url, attachment.description]
-                    );
-                }
+                'INSERT INTO proc_attachments (procedure_id, type, url, description) VALUES (?, ?, ?, ?)',
+                [procedureId, attachment.type, attachment.url, attachment.description]
+            );
             }
+        }
 
             return { id: procedureId };
         }, 60000); // 60 segundos timeout para criação
@@ -642,32 +678,51 @@ exports.updateProcedure = async (req, res) => {
 
     try {
         const result = await executeTransaction(async (connection) => {
-            console.log(`🔄 Iniciando atualização do procedimento ${id}...`);
+        console.log(`🔄 Iniciando atualização do procedimento ${id}...`);
+        
+        // Buscar dados antigos ANTES de atualizar
+            const oldMainResult = await connection.query('SELECT * FROM proc_main WHERE id = ?', [id]);
+            const oldMain = oldMainResult[0][0]; // Acessar o primeiro elemento do array aninhado
             
-            // Buscar dados antigos ANTES de atualizar
-            const [oldMain] = await connection.query('SELECT * FROM proc_main WHERE id = ?', [id]);
             if (!oldMain) {
                 throw new Error('Procedimento não encontrado');
             }
 
+            console.log('🔍 DEBUG - oldMain:', oldMain);
+
             // Buscar versão atual
-            const [currentVersion] = await connection.query(
+            const currentVersionResult = await connection.query(
                 'SELECT * FROM proc_versions WHERE procedure_id = ? ORDER BY version_number DESC LIMIT 1',
                 [id]
             );
+            const currentVersion = currentVersionResult[0][0]; // Acessar o primeiro elemento do array aninhado
+
+            console.log('🔍 DEBUG - currentVersion:', currentVersion);
+            console.log('🔍 DEBUG - currentVersion.content:', currentVersion?.content);
+            console.log('🔍 DEBUG - currentVersion.content type:', typeof currentVersion?.content);
 
             if (!currentVersion) {
                 throw new Error('Versão atual não encontrada');
             }
 
+            // Garantir que temos acesso ao conteúdo da versão atual
+            const currentVersionContent = currentVersion.content;
+            console.log('🔍 DEBUG - currentVersionContent:', currentVersionContent);
+            console.log('🔍 DEBUG - currentVersionContent type:', typeof currentVersionContent);
+
             // Buscar dados relacionados
-            const [oldTags] = await connection.query('SELECT pt.name FROM proc_procedure_tags ppt JOIN proc_tags pt ON ppt.tag_id = pt.id WHERE ppt.procedure_id = ?', [id]);
-            const [oldAttachments] = await connection.query('SELECT * FROM proc_attachments WHERE procedure_id = ?', [id]);
+            const oldTagsResult = await connection.query('SELECT pt.name FROM proc_procedure_tags ppt JOIN proc_tags pt ON ppt.tag_id = pt.id WHERE ppt.procedure_id = ?', [id]);
+            const oldTags = oldTagsResult[0];
+            const oldAttachmentsResult = await connection.query('SELECT * FROM proc_attachments WHERE procedure_id = ?', [id]);
+            const oldAttachments = oldAttachmentsResult[0];
 
             // Buscar informações dos novos relacionamentos
-            const [newDepartment] = await connection.query('SELECT name FROM departments WHERE id = ?', [department_id]);
-            const [newType] = await connection.query('SELECT name FROM proc_types WHERE id = ?', [type_id]);
-            const [newResponsible] = await connection.query('SELECT name FROM collaborators WHERE id = ?', [responsible]);
+            const newDepartmentResult = await connection.query('SELECT name FROM departments WHERE id = ?', [department_id]);
+            const newDepartment = newDepartmentResult[0];
+            const newTypeResult = await connection.query('SELECT name FROM proc_types WHERE id = ?', [type_id]);
+            const newType = newTypeResult[0];
+            const newResponsibleResult = await connection.query('SELECT name FROM collaborators WHERE id = ?', [responsible]);
+            const newResponsible = newResponsibleResult[0];
             
             console.log('📝 Valores dos campos:', {
                 oldDepartmentId: oldMain.department_id, 
@@ -685,23 +740,32 @@ exports.updateProcedure = async (req, res) => {
                 [title, summary, department_id, role, type_id, responsible, id]
             );
             
+            // Definir conteúdo para comparação (conteúdo da versão atual)
+            const contentForComparison = currentVersionContent;
+            
+            // Definir conteúdo atual (novo conteúdo) - Converter para string se necessário
+            const currentContent = typeof content === 'object' ? JSON.stringify(content) : content;
+            
+            // Processar tags antigas para extrair apenas os nomes
+            const oldTagNames = oldTags ? oldTags.map(tag => tag.name) : [];
+            
             // Montar objeto oldData e newData
             const oldData = { 
                 ...oldMain,
-                tags: oldTags, 
-                attachments: oldAttachments, 
+                tags: oldTagNames, 
+                attachments: oldAttachments || [], 
                 content: contentForComparison // Usar conteúdo apropriado para comparação
             };
             
             const newData = { 
                 title, 
                 department_id, 
-                department_name: newDepartment.length > 0 ? newDepartment[0].name : '',
+                department_name: newDepartment && newDepartment.length > 0 ? newDepartment[0].name : '',
                 role, 
                 type_id, 
-                type_name: newType.length > 0 ? newType[0].name : '',
+                type_name: newType && newType.length > 0 ? newType[0].name : '',
                 responsible_id: responsible, // Usar o mesmo nome de campo que no oldData
-                responsible_name: newResponsible.length > 0 ? newResponsible[0].name : '',
+                responsible_name: newResponsible && newResponsible.length > 0 ? newResponsible[0].name : '',
                 responsible, // Manter para compatibilidade
                 tags, 
                 attachments, 
@@ -717,19 +781,26 @@ exports.updateProcedure = async (req, res) => {
                 oldMain.responsible_id !== responsible;
 
             // Verificar se o conteúdo mudou usando a função otimizada
-            const contentChanged = isContentChanged(currentVersion.content, contentStr);
+            const contentChanged = isContentChanged(currentVersionContent, content);
             
             console.log('📊 Análise de mudanças:', {
                 hasImportantChanges,
                 contentChanged,
-                oldContentSize: currentVersion.content.length,
-                newContentSize: contentStr.length
+                oldContentSize: currentVersionContent?.length || 0,
+                newContentSize: currentContent?.length || 0
             });
 
             // Se houve mudanças importantes ou de conteúdo, criar nova versão
             if (hasImportantChanges || contentChanged) {
-                const nextVersion = currentVersion.version_number + 1;
-                console.log(`📚 Nova versão será: ${nextVersion}`);
+                // Buscar a versão mais alta para calcular a próxima
+                const maxVersionResult = await connection.query(
+                    'SELECT MAX(version_number) as max_version FROM proc_versions WHERE procedure_id = ?',
+                    [id]
+                );
+                const maxVersion = maxVersionResult[0][0]?.max_version || 0;
+                const nextVersion = maxVersion + 1;
+                
+                console.log(`📚 Versão atual: ${currentVersion.version_number}, Versão máxima: ${maxVersion}, Nova versão será: ${nextVersion}`);
                 
                 // Gerar resumo de mudanças
                 const changeSummary = hasImportantChanges ? 
@@ -739,7 +810,7 @@ exports.updateProcedure = async (req, res) => {
                 // Inserir nova versão
                 await connection.query(
                     'INSERT INTO proc_versions (procedure_id, version_number, author_id, content, change_summary, title, department_id, role, type_id, responsible_id, tags, attachments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    [id, nextVersion, authorId, contentStr, changeSummary, title, department_id, role, type_id, responsible, JSON.stringify(tags), JSON.stringify(attachments)]
+                    [id, nextVersion, authorId, currentContent, changeSummary, title, department_id, role, type_id, responsible, JSON.stringify(tags), JSON.stringify(attachments)]
                 );
                 
                 console.log('✅ Nova versão inserida com sucesso');
@@ -752,25 +823,57 @@ exports.updateProcedure = async (req, res) => {
                 
                 // Inserir novas tags em batch
                 for (const tagName of tags) {
+                    console.log(`🔍 Processando tag: ${tagName}`);
+                    
+                    // Tentar inserir a tag (IGNORE evita duplicatas)
                     const tagResult = await connection.query('INSERT IGNORE INTO proc_tags (name) VALUES (?)', [tagName]);
-                    const tagId = tagResult[0].insertId || (await connection.query('SELECT id FROM proc_tags WHERE name = ?', [tagName]))[0].id;
+                    console.log(`🔍 Resultado INSERT IGNORE:`, tagResult);
+                    
+                    let tagId;
+                    if (tagResult[0].insertId) {
+                        // Tag foi inserida, usar o ID gerado
+                        tagId = tagResult[0].insertId;
+                        console.log(`🔍 Tag inserida com ID: ${tagId}`);
+                    } else {
+                        // Tag já existe, buscar o ID
+                        const existingTagResult = await connection.query('SELECT id FROM proc_tags WHERE name = ?', [tagName]);
+                        console.log(`🔍 Buscando tag existente:`, existingTagResult);
+                        
+                        if (existingTagResult[0] && existingTagResult[0].length > 0 && existingTagResult[0][0] && existingTagResult[0][0].id) {
+                            tagId = existingTagResult[0][0].id;
+                            console.log(`🔍 Tag encontrada com ID: ${tagId}`);
+                        } else {
+                            console.error(`❌ ERRO: Não foi possível encontrar ou criar tag: ${tagName}`);
+                            console.error(`❌ ERRO: Estrutura do resultado:`, JSON.stringify(existingTagResult, null, 2));
+                            throw new Error(`Tag '${tagName}' não pôde ser processada`);
+                        }
+                    }
+                    
+                    // Validar tagId antes de inserir
+                    if (!tagId) {
+                        console.error(`❌ ERRO: tagId é null/undefined para tag: ${tagName}`);
+                        throw new Error(`ID da tag '${tagName}' é inválido`);
+                    }
+                    
+                    // Inserir relação procedure-tag
                     await connection.query('INSERT INTO proc_procedure_tags (procedure_id, tag_id) VALUES (?, ?)', [id, tagId]);
+                    console.log(`✅ Relação procedure-tag criada: procedure_id=${id}, tag_id=${tagId}`);
                 }
             }
             
             // Atualizar anexos em batch
-            if (attachments && attachments.length > 0) {
+        if (attachments && attachments.length > 0) {
                 // Remover anexos antigos
                 await connection.query('DELETE FROM proc_attachments WHERE procedure_id = ?', [id]);
                 
                 // Inserir novos anexos em batch
-                for (const attachment of attachments) {
+        for (const attachment of attachments) {
                     await connection.query(
-                        'INSERT INTO proc_attachments (procedure_id, type, url, description) VALUES (?, ?, ?, ?)',
-                        [id, attachment.type, attachment.url, attachment.description]
-                    );
-                }
+                'INSERT INTO proc_attachments (procedure_id, type, url, description) VALUES (?, ?, ?, ?)',
+                [id, attachment.type, attachment.url, attachment.description]
+            );
             }
+        }
 
             return { id: id, versionCreated: hasImportantChanges || contentChanged };
         }, 90000); // 90 segundos timeout para atualização
@@ -789,7 +892,7 @@ exports.updateProcedure = async (req, res) => {
         return result;
     } catch (error) {
         console.error('Erro ao atualizar procedimento:', error);
-        res.status(500).json({ message: 'Erro interno do servidor ao atualizar o procedimento.' });
+            res.status(500).json({ message: 'Erro interno do servidor ao atualizar o procedimento.' });
         return { id: null };
     }
 };

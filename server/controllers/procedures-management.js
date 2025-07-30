@@ -1,4 +1,4 @@
-const { executeQuery } = require('../connect/mysql');
+const { executeQuery, executeTransaction } = require('../connect/mysql');
 const fs = require('fs');
 const path = require('path');
 
@@ -556,46 +556,45 @@ exports.createProcedure = async (req, res) => {
     const summary = generateSummaryFromContent(content);
 
     try {
-        await executeQuery('START TRANSACTION');
-
-        const mainResult = await executeQuery(
-            'INSERT INTO proc_main (title, summary, department_id, role, type_id, responsible_id) VALUES (?, ?, ?, ?, ?, ?)',
-            [title, summary, department_id, role, type_id, responsible]
-        );
-        const procedureId = mainResult.insertId;
-
-        await executeQuery(
-            'INSERT INTO proc_versions (procedure_id, version_number, author_id, content, change_summary, title, department_id, role, type_id, responsible_id, tags, attachments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [procedureId, 1, authorId, JSON.stringify(content), 'Criação do procedimento.', title, department_id, role, type_id, responsible, JSON.stringify(tags), JSON.stringify(attachments)]
-        );
-
-        // Processar tags e anexos em batch se houver
-        if (tags && tags.length > 0) {
-        for (const tagName of tags) {
-            const tagResult = await executeQuery('INSERT IGNORE INTO proc_tags (name) VALUES (?)', [tagName]);
-            const tagId = tagResult.insertId || (await executeQuery('SELECT id FROM proc_tags WHERE name = ?', [tagName]))[0].id;
-            await executeQuery('INSERT INTO proc_procedure_tags (procedure_id, tag_id) VALUES (?, ?)', [procedureId, tagId]);
-            }
-        }
-        
-        if (attachments && attachments.length > 0) {
-        for (const attachment of attachments) {
-            await executeQuery(
-                'INSERT INTO proc_attachments (procedure_id, type, url, description) VALUES (?, ?, ?, ?)',
-                [procedureId, attachment.type, attachment.url, attachment.description]
+        const result = await executeTransaction(async (connection) => {
+            const mainResult = await connection.query(
+                'INSERT INTO proc_main (title, summary, department_id, role, type_id, responsible_id) VALUES (?, ?, ?, ?, ?, ?)',
+                [title, summary, department_id, role, type_id, responsible]
             );
-            }
-        }
+            const procedureId = mainResult[0].insertId;
 
-        await executeQuery('COMMIT');
+            await connection.query(
+                'INSERT INTO proc_versions (procedure_id, version_number, author_id, content, change_summary, title, department_id, role, type_id, responsible_id, tags, attachments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [procedureId, 1, authorId, JSON.stringify(content), 'Criação do procedimento.', title, department_id, role, type_id, responsible, JSON.stringify(tags), JSON.stringify(attachments)]
+            );
+
+            // Processar tags e anexos em batch se houver
+            if (tags && tags.length > 0) {
+                for (const tagName of tags) {
+                    const tagResult = await connection.query('INSERT IGNORE INTO proc_tags (name) VALUES (?)', [tagName]);
+                    const tagId = tagResult[0].insertId || (await connection.query('SELECT id FROM proc_tags WHERE name = ?', [tagName]))[0].id;
+                    await connection.query('INSERT INTO proc_procedure_tags (procedure_id, tag_id) VALUES (?, ?)', [procedureId, tagId]);
+                }
+            }
+            
+            if (attachments && attachments.length > 0) {
+                for (const attachment of attachments) {
+                    await connection.query(
+                        'INSERT INTO proc_attachments (procedure_id, type, url, description) VALUES (?, ?, ?, ?)',
+                        [procedureId, attachment.type, attachment.url, attachment.description]
+                    );
+                }
+            }
+
+            return { id: procedureId };
+        }, 60000); // 60 segundos timeout para criação
         
         // Invalidar cache
         invalidateCache(['procedures']);
         
-        res.status(201).json({ message: 'Procedimento criado com sucesso!', id: procedureId });
-        return { id: procedureId };
+        res.status(201).json({ message: 'Procedimento criado com sucesso!', id: result.id });
+        return result;
     } catch (error) {
-        await executeQuery('ROLLBACK');
         console.error('Erro ao criar procedimento:', error);
         res.status(500).json({ message: 'Erro interno do servidor ao criar o procedimento.' });
         return { id: null };
@@ -642,260 +641,156 @@ exports.updateProcedure = async (req, res) => {
     const summary = generateSummaryFromContent(content);
 
     try {
-        await executeQuery('START TRANSACTION');
-        
-        console.log(`🔄 Iniciando atualização do procedimento ${id}...`);
-        
-        // Buscar dados antigos ANTES de atualizar
-        const oldMainArr = await executeQuery(`
-            SELECT 
-                p.title, 
-                p.department_id, 
-                p.role, 
-                p.type_id, 
-                p.responsible_id,
-                d.name AS department_name,
-                pt.name AS type_name,
-                c.name AS responsible_name
-            FROM proc_main p
-            LEFT JOIN departments d ON p.department_id = d.id
-            LEFT JOIN proc_types pt ON p.type_id = pt.id
-            LEFT JOIN collaborators c ON p.responsible_id = c.id
-            WHERE p.id = ?
-        `, [id]);
-        const oldMain = oldMainArr[0] || {};
-        
-        // Converter IDs para números para garantir comparação correta
-        if (oldMain.department_id) oldMain.department_id = Number(oldMain.department_id);
-        if (oldMain.type_id) oldMain.type_id = Number(oldMain.type_id);
-        if (oldMain.responsible_id) oldMain.responsible_id = Number(oldMain.responsible_id);
-        
-        // Buscar tags antigas
-        const oldTags = await getTagsForProcedure(id);
-        
-        // Buscar anexos antigos
-        const oldAttachments = await executeQuery('SELECT type, url, description FROM proc_attachments WHERE procedure_id = ?', [id]);
-        
-        // Buscar conteúdo da última versão
-        let lastContent = { ops: [] };
-        let lastContentValid = false;
-        const lastVersionResult = await executeQuery('SELECT MAX(version_number) as max_version FROM proc_versions WHERE procedure_id = ?', [id]);
-        const newVersionNumber = (lastVersionResult[0].max_version || 0) + 1;
-        
-        console.log(`📚 Nova versão será: ${newVersionNumber}`);
-        
-        if (lastVersionResult[0].max_version) {
-            const lastVersion = await executeQuery('SELECT content FROM proc_versions WHERE procedure_id = ? AND version_number = ?', [id, lastVersionResult[0].max_version]);
-            if (lastVersion.length > 0) {
-                try {
-                    const rawContent = lastVersion[0].content;
-                    
-                    // Log do tipo e tamanho do conteúdo antigo
-                    console.log(`📄 Conteúdo antigo - Tipo: ${typeof rawContent}, Tamanho: ${JSON.stringify(rawContent).length} chars`);
-                    
-                    // Se já é um objeto, usa diretamente
-                    if (typeof rawContent === 'object' && rawContent !== null) {
-                        lastContent = rawContent;
-                        lastContentValid = true;
-                        console.log('✅ Conteúdo da última versão carregado como objeto');
-                    } 
-                    // Se é string, tenta parsear
-                    else if (typeof rawContent === 'string') {
-                        lastContent = JSON.parse(rawContent);
-                        lastContentValid = true;
-                        console.log('✅ Conteúdo da última versão parseado com sucesso');
-                    }
-                } catch (e) { 
-                    console.error('❌ Erro ao parsear conteúdo da última versão:', e);
-                    lastContent = { ops: [] };
-                    lastContentValid = false;
-                    console.log('🔄 Usando conteúdo vazio como fallback');
+        const result = await executeTransaction(async (connection) => {
+            console.log(`🔄 Iniciando atualização do procedimento ${id}...`);
+            
+            // Buscar dados antigos ANTES de atualizar
+            const [oldMain] = await connection.query('SELECT * FROM proc_main WHERE id = ?', [id]);
+            if (!oldMain) {
+                throw new Error('Procedimento não encontrado');
+            }
+
+            // Buscar versão atual
+            const [currentVersion] = await connection.query(
+                'SELECT * FROM proc_versions WHERE procedure_id = ? ORDER BY version_number DESC LIMIT 1',
+                [id]
+            );
+
+            if (!currentVersion) {
+                throw new Error('Versão atual não encontrada');
+            }
+
+            // Buscar dados relacionados
+            const [oldTags] = await connection.query('SELECT pt.name FROM proc_procedure_tags ppt JOIN proc_tags pt ON ppt.tag_id = pt.id WHERE ppt.procedure_id = ?', [id]);
+            const [oldAttachments] = await connection.query('SELECT * FROM proc_attachments WHERE procedure_id = ?', [id]);
+
+            // Buscar informações dos novos relacionamentos
+            const [newDepartment] = await connection.query('SELECT name FROM departments WHERE id = ?', [department_id]);
+            const [newType] = await connection.query('SELECT name FROM proc_types WHERE id = ?', [type_id]);
+            const [newResponsible] = await connection.query('SELECT name FROM collaborators WHERE id = ?', [responsible]);
+            
+            console.log('📝 Valores dos campos:', {
+                oldDepartmentId: oldMain.department_id, 
+                newDepartmentId: department_id,
+                oldTypeId: oldMain.type_id, 
+                newTypeId: type_id,
+                oldResponsibleId: oldMain.responsible_id, 
+                newResponsibleId: responsible
+            });
+            
+            // Atualizar o proc_main incluindo updated_at
+            console.log('📤 Atualizando tabela principal...');
+            await connection.query(
+                'UPDATE proc_main SET title = ?, summary = ?, department_id = ?, role = ?, type_id = ?, responsible_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                [title, summary, department_id, role, type_id, responsible, id]
+            );
+            
+            // Montar objeto oldData e newData
+            const oldData = { 
+                ...oldMain,
+                tags: oldTags, 
+                attachments: oldAttachments, 
+                content: contentForComparison // Usar conteúdo apropriado para comparação
+            };
+            
+            const newData = { 
+                title, 
+                department_id, 
+                department_name: newDepartment.length > 0 ? newDepartment[0].name : '',
+                role, 
+                type_id, 
+                type_name: newType.length > 0 ? newType[0].name : '',
+                responsible_id: responsible, // Usar o mesmo nome de campo que no oldData
+                responsible_name: newResponsible.length > 0 ? newResponsible[0].name : '',
+                responsible, // Manter para compatibilidade
+                tags, 
+                attachments, 
+                content: currentContent // Usar o conteúdo processado
+            };
+            
+            // Verificação rápida de mudanças importantes
+            const hasImportantChanges = 
+                oldMain.title !== title ||
+                oldMain.department_id !== department_id ||
+                oldMain.role !== role ||
+                oldMain.type_id !== type_id ||
+                oldMain.responsible_id !== responsible;
+
+            // Verificar se o conteúdo mudou usando a função otimizada
+            const contentChanged = isContentChanged(currentVersion.content, contentStr);
+            
+            console.log('📊 Análise de mudanças:', {
+                hasImportantChanges,
+                contentChanged,
+                oldContentSize: currentVersion.content.length,
+                newContentSize: contentStr.length
+            });
+
+            // Se houve mudanças importantes ou de conteúdo, criar nova versão
+            if (hasImportantChanges || contentChanged) {
+                const nextVersion = currentVersion.version_number + 1;
+                console.log(`📚 Nova versão será: ${nextVersion}`);
+                
+                // Gerar resumo de mudanças
+                const changeSummary = hasImportantChanges ? 
+                    generateDetailedChangeSummary(oldData, newData, nextVersion) : 
+                    'Atualização de conteúdo.';
+
+                // Inserir nova versão
+                await connection.query(
+                    'INSERT INTO proc_versions (procedure_id, version_number, author_id, content, change_summary, title, department_id, role, type_id, responsible_id, tags, attachments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    [id, nextVersion, authorId, contentStr, changeSummary, title, department_id, role, type_id, responsible, JSON.stringify(tags), JSON.stringify(attachments)]
+                );
+                
+                console.log('✅ Nova versão inserida com sucesso');
+            }
+
+            // Atualizar tags em batch
+            if (tags && tags.length > 0) {
+                // Remover tags antigas
+                await connection.query('DELETE FROM proc_procedure_tags WHERE procedure_id = ?', [id]);
+                
+                // Inserir novas tags em batch
+                for (const tagName of tags) {
+                    const tagResult = await connection.query('INSERT IGNORE INTO proc_tags (name) VALUES (?)', [tagName]);
+                    const tagId = tagResult[0].insertId || (await connection.query('SELECT id FROM proc_tags WHERE name = ?', [tagName]))[0].id;
+                    await connection.query('INSERT INTO proc_procedure_tags (procedure_id, tag_id) VALUES (?, ?)', [id, tagId]);
                 }
             }
-        }
-        
-        // Garantir que o conteúdo atual é um objeto válido
-        let currentContent;
-        try {
-            // Se content já for um objeto, usa como está
-            if (typeof content === 'object' && content !== null) {
-                currentContent = content;
-            } else {
-                // Caso contrário, tenta parsear
-                currentContent = JSON.parse(content);
+            
+            // Atualizar anexos em batch
+            if (attachments && attachments.length > 0) {
+                // Remover anexos antigos
+                await connection.query('DELETE FROM proc_attachments WHERE procedure_id = ?', [id]);
+                
+                // Inserir novos anexos em batch
+                for (const attachment of attachments) {
+                    await connection.query(
+                        'INSERT INTO proc_attachments (procedure_id, type, url, description) VALUES (?, ?, ?, ?)',
+                        [id, attachment.type, attachment.url, attachment.description]
+                    );
+                }
             }
-            console.log('✅ Conteúdo atual é válido');
-        } catch (e) {
-            console.error('❌ Erro ao processar conteúdo atual:', e);
-            currentContent = { ops: [] };
-        }
-        
-        // Verificar se o conteúdo realmente mudou comparando com a última versão
-        console.log('=== VERIFICAÇÃO DE ALTERAÇÃO DE CONTEÚDO ===');
-        
-        let contentReallyChanged = false;
-        let contentForComparison = currentContent;
-        
-        // Usar função otimizada para comparação
-        if (lastContentValid) {
-            contentReallyChanged = isContentChanged(lastContent, currentContent);
-            contentForComparison = contentReallyChanged ? lastContent : currentContent;
-            console.log('📊 Comparação otimizada - Conteúdo mudou?', contentReallyChanged);
-        } else {
-            console.log('⚠️ Conteúdo da última versão inválido - assumindo que mudou para preservar dados');
-            contentReallyChanged = true;
-            contentForComparison = currentContent;
-        }
-        
-        console.log('✅ Resultado final - Conteúdo realmente mudou?', contentReallyChanged);
-        console.log('=== FIM VERIFICAÇÃO ===');
-        
-        // Buscar informações dos novos valores selecionados
-        const [newDepartment, newType, newResponsible] = await Promise.all([
-            executeQuery('SELECT name FROM departments WHERE id = ?', [department_id]),
-            executeQuery('SELECT name FROM proc_types WHERE id = ?', [type_id]),
-            executeQuery('SELECT name FROM collaborators WHERE id = ?', [responsible])
-        ]);
-        
-        console.log('📝 Valores dos campos:', {
-            oldDepartmentId: oldMain.department_id, 
-            newDepartmentId: department_id,
-            oldTypeId: oldMain.type_id, 
-            newTypeId: type_id,
-            oldResponsibleId: oldMain.responsible_id, 
-            newResponsibleId: responsible
-        });
-        
-        // Atualizar o proc_main incluindo updated_at
-        console.log('📤 Atualizando tabela principal...');
-        await executeQuery(
-            'UPDATE proc_main SET title = ?, summary = ?, department_id = ?, role = ?, type_id = ?, responsible_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-            [title, summary, department_id, role, type_id, responsible, id]
-        );
-        
-        // Montar objeto oldData e newData
-        const oldData = { 
-            ...oldMain,
-            tags: oldTags, 
-            attachments: oldAttachments, 
-            content: contentForComparison // Usar conteúdo apropriado para comparação
-        };
-        
-        const newData = { 
-            title, 
-            department_id, 
-            department_name: newDepartment.length > 0 ? newDepartment[0].name : '',
-            role, 
-            type_id, 
-            type_name: newType.length > 0 ? newType[0].name : '',
-            responsible_id: responsible, // Usar o mesmo nome de campo que no oldData
-            responsible_name: newResponsible.length > 0 ? newResponsible[0].name : '',
-            responsible, // Manter para compatibilidade
-            tags, 
-            attachments, 
-            content: currentContent // Usar o conteúdo processado
-        };
-        
-        // Verificação rápida de mudanças importantes
-        const hasChanges = (
-            oldMain.title !== title ||
-            oldMain.department_id !== department_id ||
-            oldMain.role !== role ||
-            oldMain.type_id !== type_id ||
-            oldMain.responsible_id !== responsible ||
-            contentReallyChanged ||
-            JSON.stringify(oldTags) !== JSON.stringify(tags) ||
-            JSON.stringify(oldAttachments) !== JSON.stringify(attachments)
-        );
-        
-        console.log('🔍 Verificação de mudanças:', {
-            titleChanged: oldMain.title !== title,
-            departmentChanged: oldMain.department_id !== department_id,
-            roleChanged: oldMain.role !== role,
-            typeChanged: oldMain.type_id !== type_id,
-            responsibleChanged: oldMain.responsible_id !== responsible,
-            contentChanged: contentReallyChanged,
-            tagsChanged: JSON.stringify(oldTags) !== JSON.stringify(tags),
-            attachmentsChanged: JSON.stringify(oldAttachments) !== JSON.stringify(attachments),
-            hasChanges
-        });
-        
-        // Se não houver alterações, não criar uma nova versão
-        if (!hasChanges) {
-            await executeQuery('COMMIT');
-            console.log('ℹ️ Nenhuma alteração detectada, não criando nova versão');
-            res.json({ message: 'Procedimento atualizado com sucesso! (Sem alterações detectadas)' });
-            return { success: true };
-        }
-        
-        // Gerar resumo simplificado das alterações
-        const changeSummary = `Procedimento atualizado - Versão ${newVersionNumber}`;
-        
-        // ===============================
-        // INSERÇÃO CRÍTICA DA NOVA VERSÃO
-        // ===============================
-        console.log(`💾 Inserindo nova versão ${newVersionNumber} - Tamanho: ${contentSizeMB}MB`);
-        
-        try {
-            await executeQuery(
-                'INSERT INTO proc_versions (procedure_id, version_number, author_id, content, change_summary, title, department_id, role, type_id, responsible_id, tags, attachments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                [id, newVersionNumber, authorId, JSON.stringify(currentContent), changeSummary, newData.title, newData.department_id, newData.role, newData.type_id, newData.responsible_id, JSON.stringify(newData.tags), JSON.stringify(newData.attachments)]
-            );
-            console.log('✅ Nova versão inserida com sucesso');
-        } catch (insertError) {
-            console.error('❌ ERRO CRÍTICO ao inserir nova versão:', insertError);
-            if (insertError.message && insertError.message.includes('max_allowed_packet')) {
-                console.error('🚨 ERRO DE MAX_ALLOWED_PACKET DETECTADO!');
-                throw new Error('Conteúdo muito grande para o banco de dados. Reduza o tamanho das imagens ou configure max_allowed_packet no MySQL.');
-            }
-            throw insertError;
-        }
 
-        // Atualizar tags
-        console.log('🏷️ Atualizando tags...');
-        await executeQuery('DELETE FROM proc_procedure_tags WHERE procedure_id = ?', [id]);
-        if (tags && tags.length > 0) {
-        for (const tagName of tags) {
-            const tagResult = await executeQuery('INSERT IGNORE INTO proc_tags (name) VALUES (?)', [tagName]);
-            const tagId = tagResult.insertId || (await executeQuery('SELECT id FROM proc_tags WHERE name = ?', [tagName]))[0].id;
-            await executeQuery('INSERT INTO proc_procedure_tags (procedure_id, tag_id) VALUES (?, ?)', [id, tagId]);
-            }
-        }
-
-        // Atualizar anexos
-        console.log('📎 Atualizando anexos...');
-        await executeQuery('DELETE FROM proc_attachments WHERE procedure_id = ?', [id]);
-        if (attachments && attachments.length > 0) {
-        for (const attachment of attachments) {
-            await executeQuery(
-                'INSERT INTO proc_attachments (procedure_id, type, url, description) VALUES (?, ?, ?, ?)',
-                [id, attachment.type, attachment.url, attachment.description]
-            );
-            }
-        }
-
-        await executeQuery('COMMIT');
-        console.log('✅ Transação commitada com sucesso');
+            return { id: id, versionCreated: hasImportantChanges || contentChanged };
+        }, 90000); // 90 segundos timeout para atualização
         
-        // Invalidar cache após sucesso
+        // Invalidar cache
         invalidateCache(['procedures']);
         
-        res.json({ message: 'Procedimento atualizado com sucesso!' });
-        return { success: true };
-    } catch (error) {
-        await executeQuery('ROLLBACK');
-        console.error(`❌ Erro ao atualizar procedimento ${id}:`, error);
+        console.log('✅ Transação commitada com sucesso');
         
-        // Tratamento específico para erro de tamanho
-        if (error.message && error.message.includes('max_allowed_packet')) {
-            res.status(413).json({ 
-                message: 'Conteúdo muito grande. Reduza o tamanho das imagens e tente novamente.',
-                error: 'CONTENT_TOO_LARGE'
-            });
-        } else {
-            res.status(500).json({ message: 'Erro interno do servidor ao atualizar o procedimento.' });
-        }
-        return { success: false };
+        res.status(200).json({ 
+            message: 'Procedimento atualizado com sucesso!', 
+            id: result.id,
+            versionCreated: result.versionCreated
+        });
+        
+        return result;
+    } catch (error) {
+        console.error('Erro ao atualizar procedimento:', error);
+        res.status(500).json({ message: 'Erro interno do servidor ao atualizar o procedimento.' });
+        return { id: null };
     }
 };
 

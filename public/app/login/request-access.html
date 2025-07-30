@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-vertical-style="overlay" data-theme-mode="light" 
+data-header-styles="light" data-menu-styles="light" data-toggled="close" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Solicitar Acesso - Sirius-System</title>
+    <meta name="Description" content="Solicitação de acesso ao sistema Sirius">
+    <meta name="Author" content="Spruko Technologies Private Limited">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    
+    <!-- Bootstrap Css -->
+    <link id="style" href="../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../assets/libs/swiper/swiper-bundle.min.css">
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body class="bg-white">
+    <!-- Loader -->
+    <div id="loader" class="d-none">
+        <img src="../assets/images/media/loader.svg" alt="">
+    </div>
+    
+    <div class="row authentication mx-0">
+        <div class="col-6">
+            <div class="row justify-content-center align-items-center h-100">
+                <div class="col-xxl-6 col-xl-7 col-lg-7 col-md-7 col-sm-8 col-12">
+                    <div class="p-5">
+                        <div class="mb-4">
+                            <a href="index.html" class="text-decoration-none">
+                                <i class="ri-arrow-left-line me-2"></i>Voltar ao Login
+                            </a>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h4 class="fw-semibold mb-2">Solicitar Acesso</h4>
+                            <p class="text-muted">Preencha os dados abaixo para solicitar acesso ao sistema Sirius</p>
+                        </div>
+
+                        <form id="request-access-form">
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="full_name" class="form-label">Nome Completo <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="full_name" name="full_name" required>
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <label for="email" class="form-label">Email Corporativo <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <label for="phone" class="form-label">Telefone <span class="text-danger">*</span></label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" required>
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <label for="company_name" class="form-label">Nome da Empresa <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="company_name" name="company_name" required>
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <label for="cnpj" class="form-label">CNPJ <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="cnpj" name="cnpj" placeholder="XX.XXX.XXX/XXXX-XX" required>
+                                </div>
+                                
+                                <div class="col-12 mb-4">
+                                    <label for="message" class="form-label">Mensagem (Opcional)</label>
+                                    <textarea class="form-control" id="message" name="message" rows="4" 
+                                              placeholder="Ex: Sou responsável pelo embarque na XYZ Ltda"></textarea>
+                                </div>
+                                
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary w-100" id="submit-btn">
+                                        <span class="spinner-border spinner-border-sm d-none me-2" id="loading-spinner"></span>
+                                        Enviar Solicitação
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <div class="mt-4 text-center">
+                            <p class="text-muted fs-12">
+                                Sua solicitação será analisada pela nossa equipe. 
+                                Você receberá um retorno em até 24 horas úteis.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-6 px-0">
+            <div class="authentication-cover">
+                <div class="aunthentication-cover-content rounded">
+                    <div class="text-fixed-white text-center p-5 d-flex align-items-center justify-content-center">
+                        <div>
+                            <div class="mb-5">
+                                <img src="../assets/images/authentication/3.png" class="authentication-image" alt="">
+                            </div>
+                            <h6 class="fw-semibold text-fixed-white">Solicite seu Acesso</h6>
+                            <p class="fw-normal fs-14 op-7">
+                                Preencha o formulário ao lado para solicitar acesso ao sistema Sirius. 
+                                Nossa equipe analisará sua solicitação e entrará em contato em breve.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+    
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <script src="../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/libs/node-waves/waves.min.js"></script>
+    <script src="../assets/libs/swiper/swiper-bundle.min.js"></script>
+    <script src="../assets/js/fetchAPI.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Máscara para CNPJ
+            $('#cnpj').on('input', function() {
+                let value = $(this).val().replace(/\D/g, '');
+                if (value.length <= 14) {
+                    value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+                    $(this).val(value);
+                }
+            });
+
+            // Máscara para telefone
+            $('#phone').on('input', function() {
+                let value = $(this).val().replace(/\D/g, '');
+                if (value.length <= 11) {
+                    if (value.length === 11) {
+                        value = value.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+                    } else {
+                        value = value.replace(/^(\d{2})(\d{4})(\d{4})$/, '($1) $2-$3');
+                    }
+                    $(this).val(value);
+                }
+            });
+
+            // Submissão do formulário
+            $('#request-access-form').on('submit', async function(e) {
+                e.preventDefault();
+                
+                const submitBtn = $('#submit-btn');
+                const spinner = $('#loading-spinner');
+                
+                // Desabilitar botão e mostrar loading
+                submitBtn.prop('disabled', true);
+                spinner.removeClass('d-none');
+                
+                try {
+                    const formData = {
+                        full_name: $('#full_name').val().trim(),
+                        email: $('#email').val().trim(),
+                        phone: $('#phone').val().trim(),
+                        company_name: $('#company_name').val().trim(),
+                        cnpj: $('#cnpj').val().trim(),
+                        message: $('#message').val().trim()
+                    };
+
+                    const response = await fetch('/api/access-requests', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Mostrar sucesso
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Solicitação Enviada!',
+                            text: result.message,
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            // Redirecionar para login
+                            window.location.href = 'index.html';
+                        });
+                    } else {
+                        throw new Error(result.message);
+                    }
+
+                } catch (error) {
+                    console.error('Erro ao enviar solicitação:', error);
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: error.message || 'Erro ao enviar solicitação. Tente novamente.',
+                        confirmButtonText: 'OK'
+                    });
+                } finally {
+                    // Reabilitar botão e esconder loading
+                    submitBtn.prop('disabled', false);
+                    spinner.addClass('d-none');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

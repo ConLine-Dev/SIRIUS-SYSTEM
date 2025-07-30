@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-vertical-style="overlay" data-theme-mode="light" 
+data-header-styles="light" data-menu-styles="light" data-toggled="close" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Gerenciar Solicitações de Acesso - Sirius-System</title>
+    <meta name="Description" content="Gerenciamento de solicitações de acesso ao sistema">
+    <meta name="Author" content="Spruko Technologies Private Limited">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Node Waves Css -->
+    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+    <!-- Simplebar Css -->
+    <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+    
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="./assets/css/index.css">
+</head>
+
+<body>
+    <!-- Loader -->
+    <div id="loader" class="d-none">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <!-- Start Switcher -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="switcher-canvas" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title text-default" id="offcanvasRightLabel">Switcher</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <nav class="border-bottom border-block-end-dashed">
+                <div class="nav nav-tabs nav-justified" id="switcher-main-tab" role="tablist">
+                    <button class="nav-link active" id="switcher-home-tab" data-bs-toggle="tab"
+                        data-bs-target="#switcher-home" type="button" role="tab" aria-controls="switcher-home"
+                        aria-selected="true">Theme Styles</button>
+                    <button class="nav-link" id="switcher-profile-tab" data-bs-toggle="tab"
+                        data-bs-target="#switcher-profile" type="button" role="tab" aria-controls="switcher-profile"
+                        aria-selected="false" tabindex="-1">Theme Colors</button>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane fade show active border-0" id="switcher-home" role="tabpanel"
+                    aria-labelledby="switcher-home-tab" tabindex="0">
+                    <div class="">
+                        <p class="switcher-style-head">Theme Color Mode:</p>
+                        <div class="row switcher-style gx-0">
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-light-theme"> Light </label>
+                                    <input class="form-check-input" type="radio" name="theme-style"
+                                        id="switcher-light-theme" checked="">
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="form-check switch-select">
+                                    <label class="form-check-label" for="switcher-dark-theme"> Dark </label>
+                                    <input class="form-check-input" type="radio" name="theme-style"
+                                        id="switcher-dark-theme">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Switcher -->
+
+    <!-- Page -->
+    <div class="page">
+        <!-- Header -->
+        <header class="header">
+            <nav class="navbar navbar-expand-xl navbar-light sticky-top">
+                <div class="navbar-collapse">
+                    <div class="navbar-collapse">
+                        <div class="navbar-nav navbar-nav-right flex-row ms-auto align-items-center justify-content-end">
+                            <div class="nav-item dropdown">
+                                <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="avatar avatar-md avatar-rounded">
+                                        <img src="../../assets/images/faces/9.jpg" alt="">
+                                    </span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="javascript:void(0);"><i class="ri-user-line me-2 align-middle"></i>Profile</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0);"><i class="ri-settings-3-line me-2 align-middle"></i>Settings</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0);"><i class="ri-lock-line me-2 align-middle"></i>Lock Screen</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0);"><i class="ri-logout-box-line me-2 align-middle"></i>Logout</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <!-- /Header -->
+
+        <!-- Content -->
+        <div class="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card custom-card">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <h3 class="card-title">Gerenciar Solicitações de Acesso</h3>
+                                    <p class="card-subtitle">Analise e gerencie solicitações de acesso ao sistema</p>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <!-- Filtros -->
+                                <div class="row mb-4">
+                                    <div class="col-md-3">
+                                        <label for="status-filter" class="form-label">Status</label>
+                                        <select class="form-select" id="status-filter">
+                                            <option value="all">Todos</option>
+                                            <option value="pending">Pendentes</option>
+                                            <option value="approved">Aprovadas</option>
+                                            <option value="rejected">Rejeitadas</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="search-filter" class="form-label">Buscar</label>
+                                        <input type="text" class="form-control" id="search-filter" placeholder="Nome, email ou empresa...">
+                                    </div>
+                                    <div class="col-md-3 d-flex align-items-end">
+                                        <button class="btn btn-primary" id="btn-filter">
+                                            <i class="ri-search-line me-1"></i>Filtrar
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3 d-flex align-items-end justify-content-end">
+                                        <button class="btn btn-outline-secondary" id="btn-refresh">
+                                            <i class="ri-refresh-line me-1"></i>Atualizar
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Estatísticas -->
+                                <div class="row mb-4">
+                                    <div class="col-md-3">
+                                        <div class="card bg-primary text-white">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1">
+                                                        <h4 class="mb-0" id="total-count">0</h4>
+                                                        <p class="mb-0">Total</p>
+                                                    </div>
+                                                    <div class="flex-shrink-0">
+                                                        <i class="ri-file-list-3-line fs-2"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card bg-warning text-white">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1">
+                                                        <h4 class="mb-0" id="pending-count">0</h4>
+                                                        <p class="mb-0">Pendentes</p>
+                                                    </div>
+                                                    <div class="flex-shrink-0">
+                                                        <i class="ri-time-line fs-2"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card bg-success text-white">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1">
+                                                        <h4 class="mb-0" id="approved-count">0</h4>
+                                                        <p class="mb-0">Aprovadas</p>
+                                                    </div>
+                                                    <div class="flex-shrink-0">
+                                                        <i class="ri-check-line fs-2"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="card bg-danger text-white">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-grow-1">
+                                                        <h4 class="mb-0" id="rejected-count">0</h4>
+                                                        <p class="mb-0">Rejeitadas</p>
+                                                    </div>
+                                                    <div class="flex-shrink-0">
+                                                        <i class="ri-close-line fs-2"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tabela de Solicitações -->
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="requests-table">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nome</th>
+                                                <th>Email</th>
+                                                <th>Empresa</th>
+                                                <th>CNPJ</th>
+                                                <th>Status</th>
+                                                <th>Data</th>
+                                                <th>Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="requests-tbody">
+                                            <!-- Dados serão carregados via JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- Paginação -->
+                                <div class="d-flex justify-content-between align-items-center mt-4">
+                                    <div>
+                                        <span class="text-muted">Mostrando <span id="showing-start">0</span> a <span id="showing-end">0</span> de <span id="showing-total">0</span> solicitações</span>
+                                    </div>
+                                    <nav aria-label="Navegação de páginas">
+                                        <ul class="pagination mb-0" id="pagination">
+                                            <!-- Paginação será gerada via JavaScript -->
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /Content -->
+    </div>
+    <!-- /Page -->
+
+    <!-- Modal de Detalhes -->
+    <div class="modal fade" id="request-details-modal" tabindex="-1" aria-labelledby="request-details-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="request-details-modal-label">Detalhes da Solicitação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="request-details-content">
+                    <!-- Conteúdo será carregado via JavaScript -->
+                </div>
+                <div class="modal-footer" id="request-details-actions">
+                    <!-- Ações serão carregadas via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Aprovação -->
+    <div class="modal fade" id="approve-modal" tabindex="-1" aria-labelledby="approve-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="approve-modal-label">Aprovar Solicitação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Aprovação</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="approval-type" id="link-client" value="link" checked>
+                            <label class="form-check-label" for="link-client">
+                                Vincular a cliente existente
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="approval-type" id="create-client" value="create">
+                            <label class="form-check-label" for="create-client">
+                                Criar novo cliente
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div id="client-selection" class="mb-3">
+                        <label for="client-select" class="form-label">Selecionar Cliente</label>
+                        <select class="form-select" id="client-select">
+                            <option value="">Carregando clientes...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="admin-notes" class="form-label">Observações (Opcional)</label>
+                        <textarea class="form-control" id="admin-notes" rows="3" placeholder="Observações sobre a aprovação..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="btn-confirm-approve">Aprovar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Rejeição -->
+    <div class="modal fade" id="reject-modal" tabindex="-1" aria-labelledby="reject-modal-label" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reject-modal-label">Rejeitar Solicitação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="reject-reason" class="form-label">Motivo da Rejeição <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="reject-reason" rows="4" placeholder="Descreva o motivo da rejeição..." required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="btn-confirm-reject">Rejeitar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/libs/node-waves/waves.min.js"></script>
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="./assets/js/index.js"></script>
+</body>
+</html> 

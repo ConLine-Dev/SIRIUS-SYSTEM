@@ -198,6 +198,12 @@ const executeQuery = async (query, params = [], user = [], retries = 3) => {
     activeConnectionsCount++;
 
     // ===============================
+    // CONFIGURAÇÕES DE TIMEOUT PARA EVITAR LOCKS
+    // ===============================
+    await connection.query('SET SESSION innodb_lock_wait_timeout = 30');
+    await connection.query('SET SESSION lock_wait_timeout = 30');
+
+    // ===============================
     // LOG APENAS PARA QUERIES GRANDES (>5MB)
     // ===============================
     const queryStr = query.toString();
@@ -217,7 +223,16 @@ const executeQuery = async (query, params = [], user = [], retries = 3) => {
       }
     }
 
-    const [results] = await connection.query(query, params);
+    // ===============================
+    // TIMEOUT PARA QUERIES INDIVIDUAIS
+    // ===============================
+    const queryTimeout = 30000; // 30 segundos
+    const [results] = await Promise.race([
+      connection.query(query, params),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Query timeout exceeded')), queryTimeout)
+      )
+    ]);
 
     await logQuery(connection, user, query, params, true);
 
@@ -228,8 +243,26 @@ const executeQuery = async (query, params = [], user = [], retries = 3) => {
     }
 
     // ===============================
-    // TRATAMENTO ESPECÍFICO DE ERROS
+    // TRATAMENTO ESPECÍFICO DE ERROS DE LOCK
     // ===============================
+    if (error.message && error.message.includes('Lock wait timeout exceeded')) {
+      console.error('🚨 ERRO DE LOCK TIMEOUT DETECTADO!');
+      console.error('Query:', query);
+      console.error('Parâmetros:', JSON.stringify(params));
+      
+      // Se for uma transação, forçar rollback
+      if (query.includes('START TRANSACTION') || query.includes('COMMIT') || query.includes('ROLLBACK')) {
+        console.error('🔄 Forçando rollback de transação...');
+        try {
+          await connection.query('ROLLBACK');
+        } catch (rollbackError) {
+          console.error('Erro no rollback:', rollbackError);
+        }
+      }
+      
+      throw new Error('Lock wait timeout exceeded. Tente novamente em alguns segundos.');
+    }
+
     if (error.message && error.message.includes('max_allowed_packet')) {
       console.error('ERRO CRÍTICO: max_allowed_packet excedido!');
       console.error('Tamanho da query:', query.length);
@@ -244,6 +277,49 @@ const executeQuery = async (query, params = [], user = [], retries = 3) => {
 
     console.error('Erro ao executar a query:', error);
     throw new Error(error);
+  } finally {
+    if (connection) {
+      connection.release();
+      activeConnectionsCount--;
+    }
+  }
+};
+
+// ===============================
+// FUNÇÃO PARA EXECUTAR TRANSAÇÕES COM TIMEOUT
+// ===============================
+const executeTransaction = async (operations, timeoutMs = 30000) => {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    activeConnectionsCount++;
+
+    // Configurar timeouts para transação
+    await connection.query('SET SESSION innodb_lock_wait_timeout = 30');
+    await connection.query('SET SESSION lock_wait_timeout = 30');
+
+    return await Promise.race([
+      (async () => {
+        await connection.query('START TRANSACTION');
+        
+        const result = await operations(connection);
+        
+        await connection.query('COMMIT');
+        return result;
+      })(),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Transaction timeout exceeded')), timeoutMs)
+      )
+    ]);
+  } catch (error) {
+    if (connection) {
+      try {
+        await connection.query('ROLLBACK');
+      } catch (rollbackError) {
+        console.error('Erro no rollback:', rollbackError);
+      }
+    }
+    throw error;
   } finally {
     if (connection) {
       connection.release();
@@ -291,5 +367,8 @@ const getConnectionStatus = () => {
 
 module.exports = {
   executeQuery,
-  getConnectionStatus
+  executeTransaction,
+  getPoolStatus,
+  getConnectionStatus,
+  recreatePool
 };

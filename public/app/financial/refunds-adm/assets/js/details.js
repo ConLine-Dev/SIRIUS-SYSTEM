@@ -21,13 +21,17 @@ async function printOcurrenceDetails() {
   if (getDetails[0].status == 'Aprovado') {
     document.getElementById('save').classList.add('d-none');
   }
+  if (getDetails[0].status == 'Pago') {
+    document.getElementById('pay').classList.add('d-none');
+    document.getElementById('save').classList.add('d-none');
+  }
 
   // let createDate = new Date(getDetails[0].createDate)
   // createDate = createDate.toLocaleDateString('pt-BR')
   let collabName = `${getDetails[0].name} ${getDetails[0].family_name}`
   let value = getDetails[0].value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   document.getElementById('refundResponsible').value = collabName;
-  document.getElementById('refundStatus').value = getDetails[0].status;
+  document.getElementById('refundStatus').value = getDetails[0].status_id;
   document.getElementById('refundPix').value = getDetails[0].pix;
   document.getElementById('refundCategory').value = getDetails[0].category;
   document.getElementById('refundSubcategory').value = getDetails[0].subcategory;
@@ -149,14 +153,19 @@ async function update() {
 }
 
 async function pay() {
+  const refundId = getLinkParams();
+  const getDetails = await makeRequest(`/api/refunds/getDetails`, 'POST', { refundId });
+  let titleId = getDetails[0].title_id;
+
   const body = {
-    url: `/app/financial/refunds/create`,
+    url: `/app/financial/refunds-adm/payment?id=${titleId}`,
     width: 1300,
     height: 675,
     resizable: false,
     max: false
   }
   window.ipcRenderer.invoke('open-exWindow', body);
+  window.close();
 }
 
 document.addEventListener('DOMContentLoaded', async function () {

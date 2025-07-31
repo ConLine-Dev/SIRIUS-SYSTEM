@@ -60,10 +60,8 @@
                     <div class="card-header justify-content-between d-flex">
                         <div class="card-title">Detalhes do Pedido</div>
                         <div>
-                            <a class="btn btn-primary" id="save" style="border-radius: 5px;"
-                                onclick="update()">Aprovar</a>
                             <a class="btn btn-primary" id="pay" style="border-radius: 5px;"
-                                onclick="pay()">Pagar</a>
+                                onclick="confirmPayment()">Pagar</a>
                         </div>
                     </div>
                     <div class="card-body overflow-auto">
@@ -74,8 +72,8 @@
                                     id="refundResponsible" disabled>
                             </div>
                             <div class="col-4">
-                                <label for="input-label" class="form-label center-text">Status</label>
-                                <input type="text" class="form-control me-2 intro-search-user-ticket" id="refundStatus"
+                                <label for="input-label" class="form-label center-text">Título</label>
+                                <input type="text" class="form-control me-2 intro-search-user-ticket" id="refundTitle"
                                     disabled>
                             </div>
                             <div class="col-4">
@@ -85,36 +83,10 @@
                             </div>
                         </div>
                         <br>
-                        <div class="row">
-                            <div class="col-4">
-                                <label for="input-label" class="form-label center-text">Categoria</label>
-                                <input type="text" class="form-control me-2 intro-search-user-ticket"
-                                    id="refundCategory" disabled>
-                            </div>
-                            <div class="col-4">
-                                <label for="input-label" class="form-label center-text">Subcategoria</label>
-                                <input type="text" class="form-control me-2 intro-search-user-ticket"
-                                    id="refundSubcategory" disabled>
-                            </div>
-                            <div class="col-4">
-                                <label for="input-label" class="form-label center-text">Valor</label>
-                                <input type="text" class="form-control me-2 intro-search-user-ticket" id="refundValue"
-                                    disabled>
-                            </div>
-                        </div>
-                        <br>
-                        <div class="row">
-                            <div class="col-12">
-                                <label for="input-label" class="form-label center-text">Descrição</label>
-                                <textarea name="description" id="description" class="form-control form-input" cols="30"
-                                    rows="2" disabled ></textarea>
-                            </div>
+                        <div class="row overflow-scroll" id="relatedRefunds">
                         </div>
                         <br>
                         <div class="row overflow-scroll" id="attachments">
-                        </div>
-                        <br>
-                        <div class="row overflow-scroll" id="relatedRefunds">
                         </div>
                     </div>
                 </div>
@@ -163,7 +135,7 @@
 <!-- SweetAlert JS -->
 <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
 
-<script src="./assets/js/details.js"></script>
+<script src="./assets/js/payment.js"></script>
 
 </body>
 

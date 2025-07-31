@@ -90,6 +90,7 @@ const refunds = {
                 rf.value,
                 cl.name,
                 cl.family_name,
+                rf.status AS status_id,
                 CASE rf.status
                     WHEN 1 THEN 'Em aberto'
                     WHEN 2 THEN 'Aprovado'
@@ -129,6 +130,30 @@ const refunds = {
             WHERE
                 rf.title_id = ${filter.titleId}
                 AND rf.id NOT IN (${filter.id})`);
+        return result;
+    },
+
+    getToPay: async function (titleId) {
+
+        const result = await executeQuery(`
+            SELECT
+                rf.id,
+                rt.title,
+                rt.pix,
+                cl.name,
+                cl.family_name,
+                rc.description AS category,
+                rs.description AS subcategory,
+                rf.description,
+                rf.value
+            FROM refunds rf
+            LEFT OUTER JOIN refunds_title rt ON rt.id = rf.title_id
+            LEFT OUTER JOIN refunds_categories rc ON rc.id = rf.category_id
+            LEFT OUTER JOIN refunds_subcategories rs ON rs.id = rf.subcategory_id
+            LEFT OUTER JOIN collaborators cl ON cl.id = rf.collaborator_id
+            WHERE
+                rf.title_id = ${titleId}
+                AND rf.status = 2`);
         return result;
     },
 
@@ -192,11 +217,11 @@ const refunds = {
         let tableBody = '';
         let totalValue = 0;
 
-            for (let index = 0; index < data.length; index++) {
-                if (!data[index].subcategory) {
-                    data[index].subcategory = 'Não informada';
-                }
-                tableBody += `
+        for (let index = 0; index < data.length; index++) {
+            if (!data[index].subcategory) {
+                data[index].subcategory = 'Não informada';
+            }
+            tableBody += `
                     <tr>
                         <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
                             <h5 style="margin: 0px; font-weight: bold">Categoria:</h5>
@@ -214,14 +239,14 @@ const refunds = {
                     <tr>
                         <td colspan="3" style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">Descrição: ${data[index].description}</td>
                     </tr>`
-                    totalValue += data[index].value;
-                if (index == data.length-1) {
-                    tableBody += `
+            totalValue += data[index].value;
+            if (index == data.length - 1) {
+                tableBody += `
                         <tr>
                             <td colspan="3" style="text-align: center; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Valor Total: ${totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                         </tr>`
-                    }
             }
+        }
 
         let mailBody = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
@@ -365,6 +390,124 @@ const refunds = {
 
         return true;
     },
+
+    savePayment: async function (req) {
+
+        let formData = req.body;
+
+        const selectedLines = JSON.parse(req.body.selectedLines);
+
+        if (req.file) {
+            await executeQuery(`
+                INSERT INTO refunds_attachments (title_id, file, attach_date) VALUES (?, ?, NOW())`,
+                [formData.titleId, req.file.filename]);
+        }
+
+        for (let index = 0; index < selectedLines.length; index++) {
+            await executeQuery(`
+                UPDATE refunds SET status = '3', payment_date = NOW() WHERE (id = ${selectedLines[index]})`)
+        }
+
+        this.confirmPayment(formData.titleId);
+
+        return true;
+    },
+
+    confirmPayment: async function (titleId) {
+        const data = await executeQuery(`
+            SELECT
+                rt.id,
+                rt.title,
+                rt.pix,
+                rc.description AS category,
+                rs.description AS subcategory,
+                rf.description,
+                rf.value,
+                cl.name,
+                cl.family_name,
+                cl.email_business,
+                rf.payment_date
+            FROM refunds rf
+            LEFT OUTER JOIN refunds_title rt ON rt.id = rf.title_id
+            LEFT OUTER JOIN refunds_categories rc ON rc.id = rf.category_id
+            LEFT OUTER JOIN refunds_subcategories rs ON rs.id = rf.subcategory_id
+            LEFT OUTER JOIN collaborators cl ON cl.id = rf.collaborator_id
+            WHERE
+                rf.title_id = ${titleId}
+            AND rf.status = 3`);
+
+        let tableBody = '';
+        let totalValue = 0;
+
+        for (let index = 0; index < data.length; index++) {
+            if (!data[index].subcategory) {
+                data[index].subcategory = 'Não informada';
+            }
+            tableBody += `
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                            <h5 style="margin: 0px; font-weight: bold">Categoria:</h5>
+                            <h4 style="margin: 0px; font-weight: normal">${data[index].category}</h4>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                            <h5 style="margin: 0px; font-weight: bold">Subcategoria:</h5>
+                            <h4 style="margin: 0px; font-weight: normal">${data[index].subcategory}</h4>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                            <h5 style="margin: 0px; font-weight: bold">Valor:</h5>
+                            <h4 style="margin: 0px; font-weight: normal">${data[index].value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</h4>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                            <h5 style="margin: 0px; font-weight: bold">Pagamento:</h5>
+                            <h4 style="margin: 0px; font-weight: normal">${data[index].payment_date.toLocaleDateString('pt-BR')}</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">Descrição: ${data[index].description}</td>
+                    </tr>`
+            totalValue += data[index].value;
+            if (index == data.length - 1) {
+                tableBody += `
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Valor Total: ${totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                        </tr>`
+            }
+        }
+
+        let mailBody = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+                    <h1 style="margin: 0; font-size: 24px;">Pagamento realizado!</h1>
+                </div>
+                <div style="padding: 20px; background-color: #f9f9f9;">
+                    <p style="color: #333; font-size: 16px;">Olá,</p>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Os reembolsos solicitados abaixo foram pagos.</p>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Caso ainda tenha algum valor em aberto ele se manterá na tela de reembolsos.</p>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <tr>
+                            <td colspan="2" style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                                <h5 style="margin: 0px; font-weight: bold">Título:</h5>
+                                <h4 style="margin: 0px; font-weight: normal">${data[0].title} - #${titleId}</h4>
+                            </td>
+                            <td colspan="2" style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                                <h5 style="margin: 0px; font-weight: bold">Pix:</h5>
+                                <h4 style="margin: 0px; font-weight: normal">${data[0].pix}</h4>
+                            </td>
+                        </tr>
+                    </table>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        ${tableBody}
+                    </table>
+                </div>
+                <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+                    <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+                </div>
+            </div>`
+
+        await sendEmail(data[0].email_business, '[Sirius System] Seu pedido foi concluído!', mailBody);
+        return true;
+    },
+
 };
 
 module.exports = {

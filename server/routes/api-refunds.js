@@ -91,6 +91,17 @@ module.exports = function (io) {
         }
     });
 
+    router.post('/getToPay', async (req, res, next) => {
+
+        try {
+            const result = await refunds.getToPay(req.body.titleId);
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
     router.post('/getAttachments', async (req, res, next) => {
 
         try {
@@ -118,6 +129,18 @@ module.exports = function (io) {
 
         try {
             const result = await refunds.upload(req);
+            io.emit('updateRefunds', '')
+            res.status(200).json(result)
+        } catch (error) {
+            console.log(error);
+            res.status(404).json('Erro')
+        }
+    });
+
+    router.post('/savePayment', upload.single('file'), async (req, res, next) => {
+
+        try {
+            const result = await refunds.savePayment(req);
             io.emit('updateRefunds', '')
             res.status(200).json(result)
         } catch (error) {

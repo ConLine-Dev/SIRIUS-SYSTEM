@@ -130,6 +130,15 @@ async function events() {
     }
     window.ipcRenderer.invoke('open-exWindow', body);
   });
+
+    // Adiciona um event listener ao novo elemento da lista
+    document.querySelector('#btnExtrato_processo').addEventListener('click', function() {
+        const body = {
+            url: `/app/financial/commission_extract_process`,
+            max:true
+        }
+        window.ipcRenderer.invoke('open-exWindow', body);
+      });
     
 }
 

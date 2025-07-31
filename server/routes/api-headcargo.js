@@ -128,6 +128,18 @@ router.post('/listRegister', async (req, res, next) => {
     }
 });
 
+router.post('/listRegisterProcess', async (req, res, next) => {
+    try {
+        const result = await headcargo.listRegisterProcess();
+
+        res.status(200).json(result)
+    } catch (error) {
+        console.log(error)
+
+        res.status(404).json('Erro')   
+    }
+});
+
 router.post('/filterComission', async (req, res, next) => {
     const {filters} = req.body;
 

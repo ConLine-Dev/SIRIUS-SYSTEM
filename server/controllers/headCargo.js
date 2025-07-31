@@ -699,6 +699,27 @@ LEFT OUTER JOIN
    const registers = await executeQuery(sql)
    return registers;
    },
+   listRegisterProcess: async function(){
+   const sql = `SELECT ch.*, 
+   CASE 
+       WHEN cr.commissioned_type = 1 THEN seller.name 
+       WHEN cr.commissioned_type = 2 THEN inside.name 
+   END as name,
+   CASE 
+       WHEN cr.commissioned_type = 1 THEN seller.family_name 
+       WHEN cr.commissioned_type = 2 THEN inside.family_name 
+   END as family_name,
+   cr.reference as commission_reference, 
+   cr.commissioned_type 
+   FROM commission_history ch
+   JOIN commission_reference cr ON cr.id = ch.reference
+   LEFT JOIN collaborators seller ON seller.id_headcargo = ch.id_seller 
+   LEFT JOIN collaborators inside ON inside.id_headcargo = ch.id_inside
+   WHERE ch.payment_date >= DATE_FORMAT(NOW(), '%Y-%m-01') AND ch.payment_date <= LAST_DAY(NOW())
+   ORDER BY ch.id desc`;
+   const registers = await executeQuery(sql)
+   return registers;
+   },
    sendEmailRegisters: async function(data){
 
    const resultHistory = await executeQuery(`SELECT * FROM commission_history WHERE reference = ${data.registerCommissionID}`);

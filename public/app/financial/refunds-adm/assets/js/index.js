@@ -25,7 +25,6 @@ async function getInfosLogin() {
 }
 
 async function createTable() {
-
   const listTable = [];
   const getRefunds = await makeRequest(`/api/refunds/getRefundsADM`);
 
@@ -48,40 +47,75 @@ async function createTable() {
   }
 
   if ($.fn.DataTable.isDataTable("#occurrenceTable")) {
-    $('#occurrenceTable').DataTable().clear().destroy(); // Limpa e destrói a DataTable
+    $('#occurrenceTable').DataTable().clear().destroy();
   }
 
-  $('#occurrenceTable tbody').empty(); // Remove apenas as linhas, mantendo os cabeçalhos
+  $('#occurrenceTable tbody').empty();
 
-  // Recria a DataTable
   occurrenceTable = $('#occurrenceTable').DataTable({
     dom: 'frtip',
     pageInfo: false,
-    "data": listTable,
-    "columns": [
-      { "data": "title" },
-      { "data": "category" },
-      { "data": "subcategory" },
-      { "data": "description" },
-      { "data": "status" },
-      { "data": "createDate" },
+    data: listTable,
+    columns: [
+      { data: "title" },
+      { data: "category" },
+      { data: "subcategory" },
+      { data: "description" },
+      { data: "status" },
+      { data: "createDate" },
     ],
-    "language": {
+    language: {
       url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
     },
-    "order": [[0, 'desc']],
-    "lengthMenu": [[13], [13]],
-    "searching": true,
-    "rowCallback": function (row, data, index) {
-      // Adiciona um atributo id a cada linha
+    order: [[0, 'desc']],
+    lengthMenu: [[13], [13]],
+    searching: true,
+    rowCallback: function (row, data) {
       $(row).attr('occurrence-id', data.id);
     },
-    initComplete: function () {
-      requestAnimationFrame(async () => {
-        await dblClickOnOccurrence('#occurrenceTable')
+    drawCallback: function () {
+      // Remove o antigo e adiciona novamente o duplo clique
+      $('#occurrenceTable tbody tr').off('dblclick').on('dblclick', async function (e) {
+        e.preventDefault();
+        const id = $(this).attr('occurrence-id');
+        if (id) {
+          const body = {
+            url: `/app/financial/refunds-adm/details?id=${id}`,
+            width: 800,
+            height: 475,
+            resizable: true,
+            max: false
+          };
+          window.ipcRenderer.invoke('open-exWindow', body);
+        }
       });
-    },
+    }
   });
+}
+
+async function updateTableData() {
+  const listTable = [];
+  const getRefunds = await makeRequest(`/api/refunds/getRefundsADM`);
+
+  for (let item of getRefunds) {
+    let formattedTitle = `${item.title} - #${item.title_id}`
+    let createDate = new Date(item.createDate).toLocaleDateString('pt-BR');
+
+    listTable.push({
+      id: item.id,
+      title: formattedTitle,
+      description: item.description,
+      category: item.category,
+      subcategory: item.subcategory,
+      status: item.status,
+      createDate: createDate,
+    });
+  }
+
+  const table = $('#occurrenceTable').DataTable();
+  table.clear();
+  table.rows.add(listTable);
+  table.draw(false); // importante: false = mantém página e busca
 }
 
 async function openRegister() {
@@ -128,7 +162,7 @@ window.addEventListener("load", async () => {
   const socket = io();
 
   socket.on('updateRefunds', (data) => {
-    createTable()
+    updateTableData()
   })
 
   await createTable();
@@ -136,4 +170,3 @@ window.addEventListener("load", async () => {
 
   document.querySelector('#loader2').classList.add('d-none')
 })
-

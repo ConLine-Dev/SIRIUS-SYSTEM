@@ -608,7 +608,7 @@ exports.createProcedure = async (req, res) => {
         if (tags && tags.length > 0) {
         for (const tagName of tags) {
                     const tagResult = await connection.query('INSERT IGNORE INTO proc_tags (name) VALUES (?)', [tagName]);
-                    const tagId = tagResult[0].insertId || (await connection.query('SELECT id FROM proc_tags WHERE name = ?', [tagName]))[0].id;
+                    const tagId = tagResult[0].insertId || (await connection.query('SELECT id FROM proc_tags WHERE name = ?', [tagName]))[0][0].id;
                     await connection.query('INSERT INTO proc_procedure_tags (procedure_id, tag_id) VALUES (?, ?)', [procedureId, tagId]);
             }
         }

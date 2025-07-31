@@ -282,7 +282,7 @@ const refunds = {
                 </div>
             </div>`
 
-        await sendEmail('lucas@conlinebr.com.br', '[Sirius System] Novo conjunto disponível para pagamento!', mailBody);
+        await sendEmail('financeiro-adm@conlinebr.com.br', '[Sirius System] Novo conjunto disponível para pagamento!', mailBody);
         return true;
     },
 

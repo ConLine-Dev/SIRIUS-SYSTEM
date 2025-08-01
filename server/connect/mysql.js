@@ -202,6 +202,11 @@ const executeQuery = async (query, params = [], user = [], retries = 3) => {
     // ===============================
     await connection.query('SET SESSION innodb_lock_wait_timeout = 30');
     await connection.query('SET SESSION lock_wait_timeout = 30');
+    await connection.query('SET SESSION sort_buffer_size = 2097152'); // 2MB
+    await connection.query('SET SESSION read_buffer_size = 2097152'); // 2MB
+    await connection.query('SET SESSION join_buffer_size = 2097152'); // 2MB
+    await connection.query('SET SESSION tmp_table_size = 67108864'); // 64MB
+    await connection.query('SET SESSION max_heap_table_size = 67108864'); // 64MB
 
     // ===============================
     // LOG APENAS PARA QUERIES GRANDES (>5MB)

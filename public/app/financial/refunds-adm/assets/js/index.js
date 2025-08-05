@@ -24,6 +24,43 @@ async function getInfosLogin() {
   return StorageGoogle;
 }
 
+async function updateKM() {
+
+  let KMvalue = await makeRequest(`/api/refunds/getKMValue`);
+  let value = KMvalue[0].value;
+
+  const resposta = await Swal.fire({
+    title: `Valor atual: R$ ${value}/KM`,
+    text: `Deseja alterá-lo?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Sim, alterar',
+    cancelButtonText: 'Não, manter'
+  });
+
+  if (resposta.isConfirmed) {
+    const novoValor = await Swal.fire({
+      title: 'Alterar valor',
+      input: 'text',
+      inputLabel: 'Digite o novo valor',
+      inputValue: value,
+      showCancelButton: true,
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar',
+      inputValidator: (value) => {
+        if (!value) {
+          return 'O valor não pode estar vazio!';
+        }
+      }
+    });
+    if (novoValor.isConfirmed) {
+      value = novoValor.value;
+      makeRequest(`/api/refunds/updateKMValue`, 'POST', {value});
+    }
+  }
+
+}
+
 async function createTable() {
   const listTable = [];
   const getRefunds = await makeRequest(`/api/refunds/getRefundsADM`);
@@ -31,16 +68,15 @@ async function createTable() {
   for (let index = 0; index < getRefunds.length; index++) {
     const item = getRefunds[index];
 
-    let formattedTitle = `${item.title} - #${item.title_id}`
-    let createDate = new Date(item.createDate)
-    createDate = createDate.toLocaleDateString('pt-BR')
+    let formattedTitle = `${item.title} - #${item.id}`
+    let createDate = new Date(item.createDate).toLocaleDateString('pt-BR');
+    let totalValue = item.total_value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
     listTable.push({
       id: item.id,
       title: formattedTitle,
-      description: item.description,
-      category: item.category,
-      subcategory: item.subcategory,
+      collaborator: item.collaborator_name,
+      value: totalValue,
       status: item.status,
       createDate: createDate,
     });
@@ -58,9 +94,8 @@ async function createTable() {
     data: listTable,
     columns: [
       { data: "title" },
-      { data: "category" },
-      { data: "subcategory" },
-      { data: "description" },
+      { data: "collaborator" },
+      { data: "value" },
       { data: "status" },
       { data: "createDate" },
     ],
@@ -98,15 +133,15 @@ async function updateTableData() {
   const getRefunds = await makeRequest(`/api/refunds/getRefundsADM`);
 
   for (let item of getRefunds) {
-    let formattedTitle = `${item.title} - #${item.title_id}`
+    let formattedTitle = `${item.title} - #${item.id}`
     let createDate = new Date(item.createDate).toLocaleDateString('pt-BR');
+    let totalValue = item.total_value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
     listTable.push({
       id: item.id,
       title: formattedTitle,
-      description: item.description,
-      category: item.category,
-      subcategory: item.subcategory,
+      collaborator: item.collaborator_name,
+      value: totalValue,
       status: item.status,
       createDate: createDate,
     });

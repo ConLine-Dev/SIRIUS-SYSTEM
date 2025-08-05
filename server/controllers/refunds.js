@@ -25,52 +25,44 @@ const refunds = {
     getRefunds: async function (collabId) {
         const result = await executeQuery(`
             SELECT
-                rf.id,
-                rf.title_id,
+                rt.id,
                 rt.title,
                 rt.pix,
-                rf.category_id,
-                rc.description AS category,
-                rf.subcategory_id,
-                rs.description AS subcategory,
-                rf.description,
-                CASE rf.status
+                CASE rt.status
                     WHEN 1 THEN 'Em aberto'
                     WHEN 2 THEN 'Aprovado'
                     WHEN 3 THEN 'Pago'
-                    END AS status,
-                rf.create_date AS createDate
-            FROM refunds rf
-            LEFT OUTER JOIN refunds_title rt ON rt.id = rf.title_id
-            LEFT OUTER JOIN refunds_categories rc ON rc.id = rf.category_id
-            LEFT OUTER JOIN refunds_subcategories rs ON rs.id = rf.subcategory_id
+                END AS status,
+                rt.create_date AS createDate,
+                GROUP_CONCAT(DISTINCT CONCAT(cl.name, ' ', cl.family_name) SEPARATOR ', ') AS collaborator_name,
+                ROUND(SUM(rf.value), 2) AS total_value
+            FROM refunds_title rt
+            LEFT JOIN refunds rf ON rt.id = rf.title_id
+            LEFT JOIN collaborators cl ON cl.id = rf.collaborator_id
             WHERE
-                rf.collaborator_id = '${collabId}'`);
+            rf.collaborator_id = '${collabId}'
+            GROUP BY rt.id, rt.title, rt.pix, rt.status, rt.create_date;`);
         return result;
     },
 
     getRefundsADM: async function () {
         const result = await executeQuery(`
             SELECT
-                rf.id,
-                rf.title_id,
+                rt.id,
                 rt.title,
                 rt.pix,
-                rf.category_id,
-                rc.description AS category,
-                rf.subcategory_id,
-                rs.description AS subcategory,
-                rf.description,
-                CASE rf.status
+                CASE rt.status
                     WHEN 1 THEN 'Em aberto'
                     WHEN 2 THEN 'Aprovado'
                     WHEN 3 THEN 'Pago'
-                    END AS status,
-                rf.create_date AS createDate
-            FROM refunds rf
-            LEFT OUTER JOIN refunds_title rt ON rt.id = rf.title_id
-            LEFT OUTER JOIN refunds_categories rc ON rc.id = rf.category_id
-            LEFT OUTER JOIN refunds_subcategories rs ON rs.id = rf.subcategory_id`);
+                END AS status,
+                rt.create_date AS createDate,
+                GROUP_CONCAT(DISTINCT CONCAT(cl.name, ' ', cl.family_name) SEPARATOR ', ') AS collaborator_name,
+                ROUND(SUM(rf.value), 2) AS total_value
+            FROM refunds_title rt
+            LEFT JOIN refunds rf ON rt.id = rf.title_id
+            LEFT JOIN collaborators cl ON cl.id = rf.collaborator_id
+            GROUP BY rt.id, rt.title, rt.pix, rt.status, rt.create_date;`);
         return result;
     },
 
@@ -79,23 +71,24 @@ const refunds = {
         const result = await executeQuery(`
             SELECT
                 rf.id,
-                rf.title_id,
                 rt.title,
                 rt.pix,
-                rf.category_id,
                 rc.description AS category,
-                rf.subcategory_id,
                 rs.description AS subcategory,
                 rf.description,
                 rf.value,
                 cl.name,
                 cl.family_name,
-                rf.status AS status_id,
                 CASE rf.status
                     WHEN 1 THEN 'Em aberto'
                     WHEN 2 THEN 'Aprovado'
                     WHEN 3 THEN 'Pago'
                     END AS status,
+                CASE rt.status
+                    WHEN 1 THEN 'Em aberto'
+                    WHEN 2 THEN 'Aprovado'
+                    WHEN 3 THEN 'Pago'
+                    END AS statusTitle,
                 rf.create_date AS createDate
             FROM refunds rf
             LEFT OUTER JOIN refunds_title rt ON rt.id = rf.title_id
@@ -103,11 +96,11 @@ const refunds = {
             LEFT OUTER JOIN refunds_subcategories rs ON rs.id = rf.subcategory_id
             LEFT OUTER JOIN collaborators cl ON cl.id = rf.collaborator_id
             WHERE
-                rf.id = '${refundId}'`);
+                rt.id = '${refundId}'`);
         return result;
     },
 
-    getFromTitle: async function (filter) {
+    getFromTitle: async function (id) {
 
         const result = await executeQuery(`
             SELECT
@@ -128,8 +121,7 @@ const refunds = {
             LEFT OUTER JOIN refunds_categories rc ON rc.id = rf.category_id
             LEFT OUTER JOIN refunds_subcategories rs ON rs.id = rf.subcategory_id
             WHERE
-                rf.title_id = ${filter.titleId}
-                AND rf.id NOT IN (${filter.id})`);
+                rf.title_id = ${id}`);
         return result;
     },
 
@@ -170,17 +162,17 @@ const refunds = {
     approveRefund: async function (data) {
 
         if (data.input1) {
-            await executeQuery(`UPDATE refunds SET status = '2', value = '${data.input1}' WHERE (id = '${data.refundId}');`)
+            await executeQuery(`UPDATE refunds SET status = '2', value = '${data.input1}' WHERE (id = '${data.id}');`)
             this.updateNotification(data);
         }
         else {
-            await executeQuery(`UPDATE refunds SET status = '2' WHERE (id = '${data.refundId}');`)
+            await executeQuery(`UPDATE refunds SET status = '2' WHERE (id = '${data.id}');`)
         }
 
         const titleId = await executeQuery(`
             SELECT title_id AS titleId
             FROM refunds
-            WHERE id = ${data.refundId}`);
+            WHERE id = ${data.id}`);
 
         const total = await executeQuery(`
             SELECT *
@@ -190,6 +182,7 @@ const refunds = {
 
         if (total == 0) {
             this.releaseToPay(titleId[0].titleId);
+            await executeQuery(`UPDATE refunds_title SET status = '2' WHERE (id = '${titleId[0].titleId}')`)
         }
 
     },
@@ -373,7 +366,15 @@ const refunds = {
             [formData.title, formData.pix]
         );
 
+        let kmValue = await executeQuery(`
+            SELECT * FROM refunds_km
+            ORDER BY create_date DESC`);
+
         for (let index = 0; index < formData.category.length; index++) {
+            if (formData.subcategory[index] == 5) {
+                formData.value[index] = formData.value[index] * kmValue[0].value;
+            }
+
             const refund = await executeQuery(`
                 INSERT INTO refunds (title_id, category_id, subcategory_id, description, collaborator_id, value) VALUES (?, ?, ?, ?, ?, ?)`,
                 [refundTitle.insertId, formData.category[index], formData.subcategory[index], formData.description[index], formData.collabId, formData.value[index]]
@@ -387,6 +388,117 @@ const refunds = {
                     [refundTitle.insertId, file.filename]);
             }
         }
+
+        this.newRefund(refundTitle.insertId)
+
+        return true;
+    },
+
+    newRefund: async function (titleId) {
+
+        const data = await executeQuery(`
+            SELECT
+                rt.id,
+                rt.title,
+                rt.pix,
+                rc.description AS category,
+                rs.description AS subcategory,
+                rf.description,
+                rf.value,
+                cl.name,
+                cl.family_name
+            FROM refunds rf
+            LEFT OUTER JOIN refunds_title rt ON rt.id = rf.title_id
+            LEFT OUTER JOIN refunds_categories rc ON rc.id = rf.category_id
+            LEFT OUTER JOIN refunds_subcategories rs ON rs.id = rf.subcategory_id
+            LEFT OUTER JOIN collaborators cl ON cl.id = rf.collaborator_id
+            WHERE
+                rf.title_id = ${titleId}`);
+
+        let tableBody = '';
+        let totalValue = 0;
+
+        for (let index = 0; index < data.length; index++) {
+            if (!data[index].subcategory) {
+                data[index].subcategory = 'Não informada';
+            }
+            tableBody += `
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                            <h5 style="margin: 0px; font-weight: bold">Categoria:</h5>
+                            <h4 style="margin: 0px; font-weight: normal">${data[index].category}</h4>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                            <h5 style="margin: 0px; font-weight: bold">Subcategoria:</h5>
+                            <h4 style="margin: 0px; font-weight: normal">${data[index].subcategory}</h4>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                            <h5 style="margin: 0px; font-weight: bold">Valor:</h5>
+                            <h4 style="margin: 0px; font-weight: normal">${data[index].value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</h4>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">Descrição: ${data[index].description}</td>
+                    </tr>`
+            totalValue += data[index].value;
+            if (index == data.length - 1) {
+                tableBody += `
+                        <tr>
+                            <td colspan="3" style="text-align: center; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5; font-weight: bold;">Valor Total: ${totalValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                        </tr>`
+            }
+        }
+
+        let mailBody = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
+                    <h1 style="margin: 0; font-size: 24px;">Valores já disponíveis para aprovação!</h1>
+                </div>
+                <div style="padding: 20px; background-color: #f9f9f9;">
+                    <p style="color: #333; font-size: 16px;">Olá,</p>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Um novo pedido foi aberto no módulo de reembolsos.</p>
+                    <p style="color: #333; font-size: 16px; line-height: 1.6;">Os dados estão disponíveis para aprovação/edição na tela de ADM.</p>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                                <h5 style="margin: 0px; font-weight: bold">Título:</h5>
+                                <h4 style="margin: 0px; font-weight: normal">${data[0].title} - #${titleId}</h4>
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                                <h5 style="margin: 0px; font-weight: bold">Solicitante:</h5>
+                                <h4 style="margin: 0px; font-weight: normal">${data[0].name} ${data[0].family_name}</h4>
+                            </td>
+                            <td style="padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                                <h5 style="margin: 0px; font-weight: bold">Pix:</h5>
+                                <h4 style="margin: 0px; font-weight: normal">${data[0].pix}</h4>
+                            </td>
+                        </tr>
+                    </table>
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        ${tableBody}
+                    </table>
+                </div>
+                <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">
+                    <p style="margin: 0; font-size: 14px;">Sirius System - Do nosso jeito</p>
+                </div>
+            </div>`
+
+        await sendEmail('financeiro.adm@conlinebr.com.br', '[Sirius System] Novo pedido de reembolso recebido!', mailBody);
+        return true;
+    },
+
+    getKMValue: async function () {
+
+        let result = await executeQuery(`
+            SELECT * FROM refunds_km
+            ORDER BY create_date DESC`);
+
+        return result;
+    },
+
+    updateKMValue: async function (value) {
+
+        await executeQuery(`INSERT INTO refunds_km (value) VALUES ('${value}');`);
 
         return true;
     },

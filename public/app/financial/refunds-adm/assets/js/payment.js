@@ -23,7 +23,7 @@ async function printOcurrenceDetails() {
         checkbox.addEventListener('change', updateTotal);
     });
 
-    const attachments = await makeRequest(`/api/refunds/getAttachments`, 'POST', { titleId });
+    const attachments = await makeRequest(`/api/refunds/getAttachments`, 'POST', { refundId: titleId });
     const divAttachments = document.getElementById('attachments');
     let printAttachments = '';
 
@@ -65,7 +65,6 @@ async function printTable(getToPay) {
                             </tr>`
     }
 
-    // Rodapé com valor total
     printRelatedRefunds += `<tr>
                             <td colspan="4" style="text-align: right; font-weight: bold;">Valor Total:</td>
                             <td id="valorTotalSelecionado">R$ 0,00</td>

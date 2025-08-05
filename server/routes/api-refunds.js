@@ -83,7 +83,7 @@ module.exports = function (io) {
     router.post('/getFromTitle', async (req, res, next) => {
 
         try {
-            const result = await refunds.getFromTitle(req.body);
+            const result = await refunds.getFromTitle(req.body.refundId);
             res.status(200).json(result)
         } catch (error) {
 
@@ -105,7 +105,7 @@ module.exports = function (io) {
     router.post('/getAttachments', async (req, res, next) => {
 
         try {
-            const result = await refunds.getAttachments(req.body.titleId);
+            const result = await refunds.getAttachments(req.body.refundId);
             res.status(200).json(result)
         } catch (error) {
 
@@ -118,6 +118,28 @@ module.exports = function (io) {
         try {
             const result = await refunds.approveRefund(req.body);
             io.emit('updateRefunds', '')
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    router.get('/getKMValue', async (req, res, next) => {
+
+        try {
+            const result = await refunds.getKMValue();
+            res.status(200).json(result)
+        } catch (error) {
+
+            res.status(404).json('Erro')
+        }
+    });
+
+    router.post('/updateKMValue', async (req, res, next) => {
+
+        try {
+            const result = await refunds.updateKMValue(req.body.value);
             res.status(200).json(result)
         } catch (error) {
 

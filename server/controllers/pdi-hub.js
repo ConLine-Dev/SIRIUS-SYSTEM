@@ -1510,22 +1510,38 @@ const pdiHub = {
                 }
             }
             
+            // Verificar se o usuário pode alterar a descrição
+            let descriptionValue = action.description; // Manter a descrição atual por padrão
+            
+            if (req.body.description && req.body.logged_user_id) {
+                // Buscar o PDI para verificar se o usuário é o supervisor (se ainda não buscou)
+                const [pdi] = await executeQuery('SELECT supervisor_id FROM pdi_plans WHERE id = ?', [pdiId]);
+                if (pdi && parseInt(pdi.supervisor_id) === parseInt(req.body.logged_user_id)) {
+                    descriptionValue = req.body.description;
+                    console.log('Usuário é supervisor do PDI, atualizando descrição');
+                } else {
+                    console.log('Usuário não é supervisor do PDI, mantendo descrição atual');
+                }
+            }
+            
             console.log(`Status final a ser salvo: ${statusToSet}`);
             console.log(`Data de conclusão: ${completionDateToSet}`);
             console.log(`Prazo a ser salvo: ${deadlineValue}`);
+            console.log(`Descrição a ser salva: ${descriptionValue.substring(0, 50)}...`);
             
             // Iniciar uma transação para garantir consistência
             await executeQuery('START TRANSACTION');
             
             try {
-                // Atualizar o campo attachment, status, completion_date e deadline no banco
+                // Atualizar o campo attachment, status, completion_date, deadline e description no banco
                 await executeQuery(
-                    'UPDATE pdi_actions SET attachment = ?, status = ?, completion_date = ?, deadline = ? WHERE id = ?',
+                    'UPDATE pdi_actions SET attachment = ?, status = ?, completion_date = ?, deadline = ?, description = ? WHERE id = ?',
                     [
                         finalAttachments.length > 0 ? JSON.stringify(finalAttachments) : null,
                         statusToSet,
                         completionDateToSet,
                         deadlineValue,
+                        descriptionValue,
                         actionId
                     ]
                 );

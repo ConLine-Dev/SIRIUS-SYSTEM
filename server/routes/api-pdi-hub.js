@@ -592,9 +592,28 @@ module.exports = function(io) {
     
     // Remover uma ação do banco de dados e seus arquivos físicos
     router.post('/deleteAction', async (req, res) => {
-        const { actionId } = req.body;
+        const { actionId, pdiId, logged_user_id } = req.body;
+        
         if (!actionId) return res.json({ success: false, message: 'ID da ação não informado.' });
+        
         try {
+            // Verificar se o usuário é supervisor do PDI antes de permitir exclusão
+            if (pdiId && logged_user_id) {
+                const [pdi] = await require('../connect/mysql').executeQuery(
+                    'SELECT supervisor_id FROM pdi_plans WHERE id = ?', 
+                    [pdiId]
+                );
+                
+                if (!pdi || parseInt(pdi.supervisor_id) !== parseInt(logged_user_id)) {
+                    console.log('Tentativa de exclusão negada - usuário não é supervisor do PDI');
+                    return res.status(403).json({ 
+                        success: false, 
+                        message: 'Apenas o supervisor do PDI pode excluir ações.' 
+                    });
+                }
+                console.log('Usuário verificado como supervisor, permitindo exclusão');
+            }
+            
             // Buscar anexos da ação
             const [action] = await require('../connect/mysql').executeQuery('SELECT attachment FROM pdi_actions WHERE id = ?', [actionId]);
             let attachments = [];
@@ -624,8 +643,10 @@ module.exports = function(io) {
             }
             // Deletar a ação do banco
             await require('../connect/mysql').executeQuery('DELETE FROM pdi_actions WHERE id = ?', [actionId]);
-            res.json({ success: true });
+            console.log(`Ação ${actionId} removida com sucesso pelo supervisor`);
+            res.json({ success: true, message: 'Ação removida com sucesso!' });
         } catch (error) {
+            console.error('Erro ao remover ação:', error);
             res.status(500).json({ success: false, message: 'Erro ao remover ação', error: error.message });
         }
     });

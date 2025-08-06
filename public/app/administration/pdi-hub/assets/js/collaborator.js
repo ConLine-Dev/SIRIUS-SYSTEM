@@ -810,7 +810,7 @@ function openUpdateActionModal(actionId, pdiId, description, deadline, status, a
     // Limpar campos do modal
     document.getElementById('actionId').value = '';
     document.getElementById('pdiId').value = '';
-    document.getElementById('actionDescription').textContent = '';
+    document.getElementById('actionDescriptionInput').value = '';
     document.getElementById('actionDeadlineInput').value = '';
     document.getElementById('actionStatus').value = 'Pendente';
 
@@ -860,7 +860,7 @@ function openUpdateActionModal(actionId, pdiId, description, deadline, status, a
     // Preencher os dados do formulário
     document.getElementById('actionId').value = actionId;
     document.getElementById('pdiId').value = pdiId;
-    document.getElementById('actionDescription').textContent = description;
+    document.getElementById('actionDescriptionInput').value = description;
     
     // Configurar o campo de prazo
     const deadlineInput = document.getElementById('actionDeadlineInput');
@@ -877,14 +877,30 @@ function openUpdateActionModal(actionId, pdiId, description, deadline, status, a
         }
     }
     
-    // Configurar permissão de edição do prazo
+    // Configurar o campo de descrição
+    const descriptionInput = document.getElementById('actionDescriptionInput');
+    const descriptionHelp = document.getElementById('descriptionHelp');
+    
+    // Configurar permissões de edição para supervisor
     if (window.isSupervisorPDI) {
+        // Supervisor pode editar a descrição
+        descriptionInput.disabled = false;
+        descriptionInput.classList.remove('form-control-plaintext');
+        descriptionInput.classList.add('form-control');
+        descriptionHelp.classList.add('d-none');
+        
         // Supervisor pode editar o prazo
         deadlineInput.disabled = false;
         deadlineInput.classList.remove('form-control-plaintext');
         deadlineInput.classList.add('form-control');
         deadlineHelp.classList.add('d-none');
     } else {
+        // Outros usuários não podem editar a descrição
+        descriptionInput.disabled = true;
+        descriptionInput.classList.add('form-control-plaintext');
+        descriptionInput.classList.remove('form-control');
+        descriptionHelp.classList.remove('d-none');
+        
         // Outros usuários não podem editar o prazo
         deadlineInput.disabled = true;
         deadlineInput.classList.add('form-control-plaintext');
@@ -1013,6 +1029,15 @@ async function saveActionStatus() {
             formData.append('is_supervisor', window.isSupervisorPDI ? 'true' : 'false');
         }
         
+        // Adicionar descrição se o usuário for supervisor e o campo foi alterado
+        if (window.isSupervisorPDI) {
+            const descriptionInput = document.getElementById('actionDescriptionInput');
+            if (descriptionInput && descriptionInput.value) {
+                formData.append('description', descriptionInput.value);
+                console.log('Descrição atualizada pelo supervisor:', descriptionInput.value);
+            }
+        }
+        
         // Adicionar prazo se o usuário for supervisor e o campo foi alterado
         if (window.isSupervisorPDI) {
             const deadlineInput = document.getElementById('actionDeadlineInput');
@@ -1073,9 +1098,20 @@ async function saveActionStatus() {
             // Verificar se o prazo foi atualizado
             let successMessage = 'Status da ação e anexos atualizados com sucesso!';
             if (window.isSupervisorPDI) {
+                let updatedFields = [];
+                
+                const descriptionInput = document.getElementById('actionDescriptionInput');
+                if (descriptionInput && descriptionInput.value && formData.get('description')) {
+                    updatedFields.push('descrição');
+                }
+                
                 const deadlineInput = document.getElementById('actionDeadlineInput');
                 if (deadlineInput && deadlineInput.value && formData.get('deadline')) {
-                    successMessage = 'Status da ação, prazo e anexos atualizados com sucesso!';
+                    updatedFields.push('prazo');
+                }
+                
+                if (updatedFields.length > 0) {
+                    successMessage = `Ação atualizada com sucesso! (${updatedFields.join(', ')}, status e anexos)`;
                 }
             }
             
@@ -1383,13 +1419,27 @@ async function openUpdateActionModalWithFetch(actionId, pdiId, description, dead
 }
 
 async function confirmRemoveAction(actionId, pdiId) {
+    // Verificar se o usuário é supervisor antes de permitir exclusão
+    if (!window.isSupervisorPDI) {
+        showErrorAlert('Apenas o supervisor do PDI pode excluir ações.');
+        return;
+    }
+    
     if (confirm('Tem certeza que deseja remover esta ação? Esta operação não pode ser desfeita.')) {
         try {
             showLoader();
+            
+            // Obter informações do usuário logado
+            const userLogged = await getInfosLogin();
+            
             const response = await fetch('/api/pdi-hub/deleteAction', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ actionId })
+                body: JSON.stringify({ 
+                    actionId,
+                    pdiId,
+                    logged_user_id: userLogged ? userLogged.system_collaborator_id : null
+                })
             });
             const result = await response.json();
             hideLoader();

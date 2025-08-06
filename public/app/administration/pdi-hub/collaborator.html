@@ -477,8 +477,11 @@
                         <input type="hidden" id="pdiId" name="pdi_id">
                         
                         <div class="mb-3">
-                            <label class="form-label">Descrição da Ação</label>
-                            <p id="actionDescription" class="form-control-plaintext"></p>
+                            <label for="actionDescriptionInput" class="form-label">Descrição da Ação</label>
+                            <textarea class="form-control" id="actionDescriptionInput" name="description" rows="3"></textarea>
+                            <small id="descriptionHelp" class="form-text text-muted d-none">
+                                <i class="ri-information-line"></i> Apenas o supervisor do PDI pode alterar a descrição
+                            </small>
                         </div>
                         
                         <div class="mb-3">

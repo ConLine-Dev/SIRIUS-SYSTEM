@@ -533,35 +533,69 @@ function setupPerformanceLevel(level) {
     progressBar.style.backgroundColor = progressColor;
 }
 
-// Renderizar a lista de ações do PDI
+// Função auxiliar para escapar strings HTML
+function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// Renderizar lista de ações na tabela
 function renderActionsList(actions, pdiId) {
     const actionsListElement = document.getElementById('actionsList');
+    if (!actionsListElement) return;
+    
     actionsListElement.innerHTML = '';
     
     if (!actions || actions.length === 0) {
-        document.getElementById('noActions').classList.remove('d-none');
+        const noActionsElement = document.getElementById('noActions');
+        if (noActionsElement) {
+            noActionsElement.classList.remove('d-none');
+        }
         return;
     }
     
-    document.getElementById('noActions').classList.add('d-none');
+    const noActionsElement = document.getElementById('noActions');
+    if (noActionsElement) {
+        noActionsElement.classList.add('d-none');
+    }
     
     actions.forEach(action => {
         const statusClass = getStatusClass(action.status);
         const row = document.createElement('tr');
         
         row.innerHTML = `
-            <td>${action.description}</td>
+            <td>${escapeHtml(action.description)}</td>
             <td>${formatDate(action.deadline)}</td>
-            <td><span class="badge ${statusClass}">${action.status}</span></td>
+            <td><span class="badge ${statusClass}">${escapeHtml(action.status)}</span></td>
             <td>${action.completion_date ? formatDate(action.completion_date) : '-'}</td>
             <td>
-                <button type="button" class="btn btn-primary btn-icon btn-sm" onclick='openUpdateActionModalWithFetch(${action.id}, ${pdiId}, "${action.description.replace(/'/g, "&#39;").replace(/\"/g, "&quot;")}", "${action.deadline}", "${action.status}")'>
+                <button type="button" 
+                        class="btn btn-primary btn-icon btn-sm btn-edit-action" 
+                        data-action-id="${action.id}"
+                        data-pdi-id="${pdiId}"
+                        data-description="${escapeHtml(action.description)}"
+                        data-deadline="${action.deadline || ''}"
+                        data-status="${action.status || 'Pendente'}">
                     <i class="ri-edit-line"></i>
                 </button>
                 ${window.isSupervisorPDI ? `<button type="button" class="btn btn-danger btn-icon btn-sm" onclick="confirmRemoveAction(${action.id}, ${pdiId})"><i class="ri-delete-bin-5-line"></i></button>` : ''}
             </td>
         `;
         actionsListElement.appendChild(row);
+    });
+    
+    // Adicionar event listeners para os botões de edição
+    document.querySelectorAll('.btn-edit-action').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const actionId = this.getAttribute('data-action-id');
+            const pdiId = this.getAttribute('data-pdi-id');
+            const description = this.getAttribute('data-description');
+            const deadline = this.getAttribute('data-deadline');
+            const status = this.getAttribute('data-status');
+            openUpdateActionModalWithFetch(actionId, pdiId, description, deadline, status);
+        });
     });
 }
 
@@ -777,7 +811,7 @@ function openUpdateActionModal(actionId, pdiId, description, deadline, status, a
     document.getElementById('actionId').value = '';
     document.getElementById('pdiId').value = '';
     document.getElementById('actionDescription').textContent = '';
-    document.getElementById('actionDeadline').textContent = '';
+    document.getElementById('actionDeadlineInput').value = '';
     document.getElementById('actionStatus').value = 'Pendente';
 
     // Remover todos os arquivos e destruir FilePond da forma mais robusta possível
@@ -827,7 +861,37 @@ function openUpdateActionModal(actionId, pdiId, description, deadline, status, a
     document.getElementById('actionId').value = actionId;
     document.getElementById('pdiId').value = pdiId;
     document.getElementById('actionDescription').textContent = description;
-    document.getElementById('actionDeadline').textContent = formatDate(deadline);
+    
+    // Configurar o campo de prazo
+    const deadlineInput = document.getElementById('actionDeadlineInput');
+    const deadlineHelp = document.getElementById('deadlineHelp');
+    
+    // Formatar a data para o formato correto do input date (YYYY-MM-DD)
+    if (deadline) {
+        let dateObj = new Date(deadline);
+        if (!isNaN(dateObj)) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            deadlineInput.value = `${year}-${month}-${day}`;
+        }
+    }
+    
+    // Configurar permissão de edição do prazo
+    if (window.isSupervisorPDI) {
+        // Supervisor pode editar o prazo
+        deadlineInput.disabled = false;
+        deadlineInput.classList.remove('form-control-plaintext');
+        deadlineInput.classList.add('form-control');
+        deadlineHelp.classList.add('d-none');
+    } else {
+        // Outros usuários não podem editar o prazo
+        deadlineInput.disabled = true;
+        deadlineInput.classList.add('form-control-plaintext');
+        deadlineInput.classList.remove('form-control');
+        deadlineHelp.classList.remove('d-none');
+    }
+    
     document.getElementById('actionStatus').value = status;
     
     // Inicializar FilePond antes de qualquer outra coisa para garantir que os anexos sejam carregados corretamente
@@ -942,6 +1006,22 @@ async function saveActionStatus() {
         formData.append('pdiId', pdiId);
         formData.append('status', status);
         
+        // Adicionar informações do usuário logado para validação no backend
+        const userLogged = await getInfosLogin();
+        if (userLogged && userLogged.system_collaborator_id) {
+            formData.append('logged_user_id', userLogged.system_collaborator_id);
+            formData.append('is_supervisor', window.isSupervisorPDI ? 'true' : 'false');
+        }
+        
+        // Adicionar prazo se o usuário for supervisor e o campo foi alterado
+        if (window.isSupervisorPDI) {
+            const deadlineInput = document.getElementById('actionDeadlineInput');
+            if (deadlineInput && deadlineInput.value) {
+                formData.append('deadline', deadlineInput.value);
+                console.log('Prazo atualizado pelo supervisor:', deadlineInput.value);
+            }
+        }
+        
         // Adicionar data de conclusão se status for Concluído
         if (status === 'Concluído') {
             formData.append('completion_date', document.getElementById('completionDate').value);
@@ -989,7 +1069,17 @@ async function saveActionStatus() {
         if (result.success) {
             const modal = bootstrap.Modal.getInstance(document.getElementById('updateActionModal'));
             modal.hide();
-            showSuccessAlert('Status da ação e anexos atualizados com sucesso!');
+            
+            // Verificar se o prazo foi atualizado
+            let successMessage = 'Status da ação e anexos atualizados com sucesso!';
+            if (window.isSupervisorPDI) {
+                const deadlineInput = document.getElementById('actionDeadlineInput');
+                if (deadlineInput && deadlineInput.value && formData.get('deadline')) {
+                    successMessage = 'Status da ação, prazo e anexos atualizados com sucesso!';
+                }
+            }
+            
+            showSuccessAlert(successMessage);
             
             // Registrar os anexos mantidos/adicionados para validação
             console.log('Anexos retornados pelo servidor:', result.attachments);
@@ -1261,19 +1351,35 @@ async function getInfosLogin() {
 } 
 
 async function openUpdateActionModalWithFetch(actionId, pdiId, description, deadline, status) {
-    // Buscar dados atualizados da ação
-    const response = await fetch(`/api/pdi-hub/getActionById?actionId=${actionId}`);
-    const result = await response.json();
-    let attachments = [];
-    let completion_date = '';
-    if (result.success && result.data) {
-        attachments = result.data.attachment || [];
-        description = result.data.description;
-        deadline = result.data.deadline;
-        status = result.data.status;
-        completion_date = result.data.completion_date;
+    try {
+        // Converter strings para números se necessário
+        actionId = parseInt(actionId);
+        pdiId = parseInt(pdiId);
+        
+        // Decodificar HTML entities se necessário
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = description;
+        description = tempDiv.textContent || tempDiv.innerText || '';
+        
+        // Buscar dados atualizados da ação
+        const response = await fetch(`/api/pdi-hub/getActionById?actionId=${actionId}`);
+        const result = await response.json();
+        let attachments = [];
+        let completion_date = '';
+        
+        if (result.success && result.data) {
+            attachments = result.data.attachment || [];
+            description = result.data.description;
+            deadline = result.data.deadline;
+            status = result.data.status;
+            completion_date = result.data.completion_date;
+        }
+        
+        openUpdateActionModal(actionId, pdiId, description, deadline, status, attachments, completion_date);
+    } catch (error) {
+        console.error('Erro ao abrir modal de edição:', error);
+        showErrorAlert('Erro ao carregar dados da ação. Por favor, tente novamente.');
     }
-    openUpdateActionModal(actionId, pdiId, description, deadline, status, attachments, completion_date);
 }
 
 async function confirmRemoveAction(actionId, pdiId) {

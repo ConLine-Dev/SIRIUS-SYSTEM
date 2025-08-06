@@ -505,20 +505,44 @@ const pdiHub = {
             const previousStatus = beforeUpdate?.status;
             console.log(`Status da ação ${actionId} ANTES da atualização:`, previousStatus);
             
+            // Buscar detalhes completos da ação antes de atualizar (para usar no email)
+            const [action] = await executeQuery('SELECT * FROM pdi_actions WHERE id = ?', [actionId]);
+            
+            // Verificar se o usuário pode alterar o prazo
+            let canUpdateDeadline = false;
+            if (form.deadline && form.logged_user_id) {
+                // Buscar o PDI para verificar se o usuário é o supervisor
+                const [pdi] = await executeQuery('SELECT supervisor_id FROM pdi_plans WHERE id = ?', [pdiId]);
+                if (pdi && parseInt(pdi.supervisor_id) === parseInt(form.logged_user_id)) {
+                    canUpdateDeadline = true;
+                    console.log('Usuário é supervisor do PDI, pode alterar o prazo');
+                } else {
+                    console.log('Usuário não é supervisor do PDI, não pode alterar o prazo');
+                }
+            }
+            
+            // Preparar campos para atualização
+            let updateFields = ['status = ?', 'completion_date = ?', 'updated_at = ?'];
+            let updateValues = [form.status, completion_date, formattedDate];
+            
+            // Se o prazo (deadline) foi enviado E o usuário tem permissão, adicionar à atualização
+            if (form.deadline && canUpdateDeadline) {
+                updateFields.push('deadline = ?');
+                updateValues.push(form.deadline);
+                console.log('Atualizando prazo da ação para:', form.deadline);
+            } else if (form.deadline && !canUpdateDeadline) {
+                console.log('Tentativa de alterar prazo negada - usuário não é supervisor');
+            }
+            
+            // Adicionar o ID da ação ao final dos valores
+            updateValues.push(actionId);
+            
             // Atualizar a ação
             await executeQuery(`
                 UPDATE pdi_actions 
-                SET 
-                    status = ?, 
-                    completion_date = ?,
-                    updated_at = ? 
+                SET ${updateFields.join(', ')}
                 WHERE id = ?
-            `, [
-                form.status,
-                completion_date,
-                formattedDate,
-                actionId
-            ]);
+            `, updateValues);
             
             // Enviar e-mails se a ação foi concluída e o status anterior não era 'Concluído'
             if (form.status === 'Concluído' && previousStatus !== 'Concluído') {
@@ -1449,31 +1473,59 @@ const pdiHub = {
             console.log(`Status solicitado pelo cliente: ${statusToSet}`);
             console.log(`Total de anexos finais: ${finalAttachments.length}`);
             
-            // NOVA REGRA: Se houver anexos, status = 'Concluído'; se não houver, status = 'Em Andamento'
-            if (finalAttachments.length > 0) {
-                statusToSet = 'Concluído';
-                completionDateToSet = new Date();
-                console.log(`Status definido como 'Concluído' pois há anexos.`);
+            // REGRA ATUALIZADA: Respeitar o status enviado pelo cliente
+            // Só aplicar a regra de anexos se o status não foi explicitamente definido
+            if (!req.body.status) {
+                // Se não foi enviado status, aplicar regra baseada em anexos
+                if (finalAttachments.length > 0) {
+                    statusToSet = 'Concluído';
+                    completionDateToSet = new Date();
+                    console.log(`Status definido como 'Concluído' pois há anexos e nenhum status foi especificado.`);
+                } else {
+                    statusToSet = 'Em Andamento';
+                    completionDateToSet = null;
+                    console.log(`Status definido como 'Em Andamento' pois não há anexos e nenhum status foi especificado.`);
+                }
             } else {
-                statusToSet = 'Em Andamento';
-                completionDateToSet = null;
-                console.log(`Status definido como 'Em Andamento' pois não há anexos.`);
+                // Respeitar o status enviado pelo cliente
+                if (statusToSet === 'Concluído') {
+                    completionDateToSet = req.body.completion_date || new Date();
+                }
+                console.log(`Mantendo status enviado pelo cliente: ${statusToSet}`);
+            }
+            
+            // Verificar se o usuário pode alterar o prazo (deadline)
+            let updateDeadline = false;
+            let deadlineValue = action.deadline; // Manter o deadline atual por padrão
+            
+            if (req.body.deadline && req.body.logged_user_id) {
+                // Buscar o PDI para verificar se o usuário é o supervisor
+                const [pdi] = await executeQuery('SELECT supervisor_id FROM pdi_plans WHERE id = ?', [pdiId]);
+                if (pdi && parseInt(pdi.supervisor_id) === parseInt(req.body.logged_user_id)) {
+                    updateDeadline = true;
+                    deadlineValue = req.body.deadline;
+                    console.log('Usuário é supervisor do PDI, atualizando prazo para:', deadlineValue);
+                } else {
+                    console.log('Usuário não é supervisor do PDI, mantendo prazo atual');
+                }
             }
             
             console.log(`Status final a ser salvo: ${statusToSet}`);
             console.log(`Data de conclusão: ${completionDateToSet}`);
+            console.log(`Prazo a ser salvo: ${deadlineValue}`);
             
             // Iniciar uma transação para garantir consistência
             await executeQuery('START TRANSACTION');
             
             try {
-                // Atualizar o campo attachment, status e completion_date no banco
+                // Atualizar o campo attachment, status, completion_date e deadline no banco
                 await executeQuery(
-                    'UPDATE pdi_actions SET attachment = ?, status = ?, completion_date = ? WHERE id = ?',
+                    'UPDATE pdi_actions SET attachment = ?, status = ?, completion_date = ?, deadline = ? WHERE id = ?',
                     [
                         finalAttachments.length > 0 ? JSON.stringify(finalAttachments) : null,
                         statusToSet,
                         completionDateToSet,
+                        deadlineValue,
                         actionId
                     ]
                 );

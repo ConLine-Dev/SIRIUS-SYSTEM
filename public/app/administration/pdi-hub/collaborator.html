@@ -482,8 +482,11 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label">Prazo</label>
-                            <p id="actionDeadline" class="form-control-plaintext"></p>
+                            <label for="actionDeadlineInput" class="form-label">Prazo</label>
+                            <input type="date" class="form-control" id="actionDeadlineInput" name="deadline">
+                            <small id="deadlineHelp" class="form-text text-muted d-none">
+                                <i class="ri-information-line"></i> Apenas o supervisor do PDI pode alterar o prazo
+                            </small>
                         </div>
                         
                         

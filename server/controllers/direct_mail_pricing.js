@@ -354,7 +354,122 @@ const direct_mail_pricing = {
 
      return result
     },
-    sendMail: async function(html, EmailTO, subject, bccAddress,ccOAddress, userID, io, proposalRef, files, revisaoPricing, changeStatusActivity) {
+    // Função para agrupar emails por domínio
+    groupEmailsByDomain: function(EmailTO) {
+        const domainGroups = {};
+        
+        EmailTO.forEach(recipient => {
+            const emails = recipient.email.split(',').map(email => email.trim());
+            
+            emails.forEach(email => {
+                // Extrair domínio do email
+                const emailParts = email.split('@');
+                if (emailParts.length === 2) {
+                    const domain = emailParts[1].toLowerCase();
+                    
+                    // Extrair apenas a parte principal do domínio (ex: MSC.com -> MSC)
+                    const domainParts = domain.split('.');
+                    let mainDomain = domainParts[0];
+                    
+                    // Se for um domínio brasileiro (.com.br) ou governamental (.gov), manter mais partes
+                    if (domain.includes('.com.br') || domain.includes('.org.br') || domain.includes('.gov.br') || domain.includes('.edu.br')) {
+                        mainDomain = domainParts.slice(0, -2).join('.');
+                    } else if (domain.includes('.gov')) {
+                        mainDomain = domainParts.slice(0, -1).join('.');
+                    }
+                    
+                    if (!domainGroups[mainDomain]) {
+                        domainGroups[mainDomain] = [];
+                    }
+                    
+                    domainGroups[mainDomain].push(email);
+                }
+            });
+        });
+        
+        return domainGroups;
+    },
+    // Função para buscar dados da proposta
+    getProposalActivityData: async function(proposalRef) {
+        const query = `
+            SELECT
+                Pfr.IdProposta_Frete,
+                Ofr.IdOferta_Frete,
+                Pfr.Numero_Proposta,
+                Atv.Complemento,
+                Atv.IdTarefa,
+                Atv.IdProjeto_Atividade
+            FROM
+                mov_Atividade Atv
+            LEFT OUTER JOIN
+                mov_Proposta_Frete Pfr ON Pfr.IdProjeto_Atividade = Atv.IdProjeto_Atividade
+            LEFT OUTER JOIN
+                mov_Oferta_Frete Ofr ON Ofr.IdProposta_Frete = Pfr.IdProposta_Frete
+            WHERE
+                Pfr.Numero_Proposta = '${proposalRef}'
+        `;
+        
+        const result = await executeQuerySQL(query);
+        return result;
+    },
+    // Função para buscar o último ID da atividade
+    getLastActivityId: async function() {
+        const query = `
+            SELECT TOP 1 IdAtividade
+            FROM mov_Atividade Atv 
+            ORDER BY IdAtividade DESC
+        `;
+        
+        const result = await executeQuerySQL(query);
+        return result.length > 0 ? result[0].IdAtividade : 0;
+    },
+    // Função para inserir nova atividade com retry robusto até conseguir
+    insertActivity: async function(idAtividade, idProjetoAtividade, domain) {
+        let attempts = 0;
+        const maxAttempts = 50; // Máximo de tentativas aumentado
+        let currentId = idAtividade;
+        
+        while (attempts < maxAttempts) {
+            try {
+                const query = `
+                    INSERT INTO mov_Atividade
+                    (IdAtividade, IdProjeto_Atividade, IdTarefa, Situacao, Prioridade, Mensagem_Automatica, Acompanhamento_Automatico, Complemento) 
+                    VALUES (${currentId}, ${idProjetoAtividade}, 1790, 2, 0, '', '', '${domain.toUpperCase()}')
+                `;
+                
+                const result = await executeQuerySQL(query);
+                console.log(`✅ Atividade inserida com sucesso - ID: ${currentId}, Domínio: ${domain.toUpperCase()}`);
+                return { success: true, idAtividade: currentId, result };
+                
+            } catch (error) {
+                attempts++;
+                
+                // Se o erro for de violação de chave primária (ID já existe)
+                if (error.message.includes('PRIMARY KEY') || error.message.includes('duplicate') || error.message.includes('UNIQUE') || error.number === 2627) {
+                    // Incrementar ID sequencialmente até encontrar um disponível
+                    currentId = currentId + 1;
+                    console.log(`🔄 Tentativa ${attempts} - ID ${currentId - 1} já existe. Tentando com ID: ${currentId}`);
+                    
+                    // Se chegou a 10 tentativas consecutivas, buscar o último ID novamente para "pular" uma faixa
+                    if (attempts % 10 === 0) {
+                        console.log(`🔍 Após ${attempts} tentativas, consultando último ID novamente...`);
+                        const lastId = await this.getLastActivityId();
+                        currentId = lastId + 1;
+                        console.log(`📊 Novo ID base: ${currentId}`);
+                    }
+                } else {
+                    // Se for outro tipo de erro, não tentar novamente
+                    console.error(`❌ Erro não relacionado a chave primária:`, error.message);
+                    throw error;
+                }
+                
+                if (attempts >= maxAttempts) {
+                    throw new Error(`💥 Falha ao inserir atividade para domínio ${domain.toUpperCase()} após ${maxAttempts} tentativas. Último ID tentado: ${currentId}. Último erro: ${error.message}`);
+                }
+            }
+        }
+    },
+    sendMail: async function(html, EmailTO, subject, bccAddress,ccOAddress, userID, io, proposalRef, files, revisaoPricing, changeStatusActivity, adicionarAtividadeCotando) {
         const allFiles = await this.getAllFilesProposalById(files)
         
         // Configurações para o serviço SMTP (exemplo usando Gmail)
@@ -470,14 +585,87 @@ const direct_mail_pricing = {
 
 
                             if(changeStatusActivity){
-                                await executeQuerySQL(`UPDATE Atv
-                                SET Atv.Situacao = 2
-                                FROM mov_Atividade Atv
-                                LEFT JOIN mov_Proposta_Frete Pfr ON Pfr.IdProjeto_Atividade = Atv.IdProjeto_Atividade
-                                WHERE Atv.IdTarefa = 1105
-                                  AND Pfr.Numero_Proposta = '${trimmedProposalRef}'`);
+
+
+                                const proposalData = await direct_mail_pricing.getProposalActivityData(trimmedProposalRef);
+                                tipoProposal = null;
+                                for(const data of proposalData){
+                                    const idTarefa = data.IdTarefa;
+                                    if(idTarefa == 1789){
+                                        tipoProposal = 'EM';
+                                    }else if(idTarefa == 1105){
+                                        tipoProposal = 'IM';
+                                    }
+                                }
+
+                                if(tipoProposal == 'EM'){
+                                    await executeQuerySQL(`UPDATE Atv
+                                        SET Atv.Situacao = 4
+                                        FROM mov_Atividade Atv
+                                        LEFT JOIN mov_Proposta_Frete Pfr ON Pfr.IdProjeto_Atividade = Atv.IdProjeto_Atividade
+                                        WHERE Atv.IdTarefa = 1789
+                                          AND Pfr.Numero_Proposta = '${trimmedProposalRef}'`);
+                                }else if(tipoProposal == 'IM'){
+                                    await executeQuerySQL(`UPDATE Atv
+                                        SET Atv.Situacao = 2
+                                        FROM mov_Atividade Atv
+                                        LEFT JOIN mov_Proposta_Frete Pfr ON Pfr.IdProjeto_Atividade = Atv.IdProjeto_Atividade
+                                        WHERE Atv.IdTarefa = 1105
+                                          AND Pfr.Numero_Proposta = '${trimmedProposalRef}'`);
+                                }
+
+
+
+                                
                             }
 
+                            // Nova funcionalidade: Adicionar atividade cotando com fornecedor agrupada por domínio
+                            if(adicionarAtividadeCotando){
+                                try {
+                                    // 1. Agrupar emails por domínio
+                                    const domainGroups = direct_mail_pricing.groupEmailsByDomain(EmailTO);
+                                    
+                                    // 2. Buscar dados da proposta
+                                    const proposalData = await direct_mail_pricing.getProposalActivityData(trimmedProposalRef);
+                                    
+                                    if (proposalData.length > 0) {
+                                        const idProjetoAtividade = proposalData[0].IdProjeto_Atividade;
+                                        
+                                        // 3. Buscar último ID da atividade
+                                        let lastActivityId = await direct_mail_pricing.getLastActivityId();
+                                        
+                                        // 4. Inserir uma atividade para cada domínio
+                                        const domainList = Object.keys(domainGroups);
+                                        console.log(`Iniciando criação de ${domainList.length} atividades para os domínios: ${domainList.map(d => d.toUpperCase()).join(', ')}`);
+                                        console.log(`📊 Último ID encontrado: ${lastActivityId}`);
+                                        
+                                        for (let i = 0; i < domainList.length; i++) {
+                                            const domain = domainList[i];
+                                            // Adicionar um buffer maior para evitar conflitos + usar timestamp para mais unicidade
+                                            const buffer = 10; // Buffer de segurança
+                                            const nextId = lastActivityId + buffer + i + 1;
+                                            
+                                            try {
+                                                console.log(`🎯 Tentando criar atividade para domínio ${domain.toUpperCase()} com ID inicial: ${nextId}`);
+                                                const insertResult = await direct_mail_pricing.insertActivity(nextId, idProjetoAtividade, domain);
+                                                
+                                                if (insertResult.success) {
+                                                    console.log(`✅ Atividade criada para domínio: ${domain.toUpperCase()} - ID: ${insertResult.idAtividade}`);
+                                                }
+                                            } catch (error) {
+                                                console.error(`❌ Erro ao criar atividade para domínio ${domain.toUpperCase()}:`, error.message);
+                                                // Continuar com os próximos domínios mesmo se um falhar
+                                            }
+                                        }
+                                        
+                                        console.log('🎉 Processo de criação de atividades de cotação finalizado');
+                                    } else {
+                                        console.log('Não foi possível encontrar dados da proposta para criar as atividades');
+                                    }
+                                } catch (error) {
+                                    console.error('Erro ao criar atividades de cotação:', error);
+                                }
+                            }
 
 
                           

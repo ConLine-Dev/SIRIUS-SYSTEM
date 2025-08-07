@@ -356,7 +356,8 @@ async function createClicks(){
             proposalRef:inputSelectProposal.getValue(true),
             files:opcoesSelecionadasFiles,
             revisaoPricing:document.getElementById('revisaoPricing').checked,
-            changeStatusActivity:document.getElementById('changeStatusActivity').checked
+            changeStatusActivity:document.getElementById('changeStatusActivity').checked,
+            adicionarAtividadeCotando:document.getElementById('adicionarAtividadeCotando').checked
         }
 
         const result = await makeRequest('/api/direct_mail_pricing/sendMail', 'POST', formBody)

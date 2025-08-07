@@ -162,10 +162,10 @@ router.get('/downloadPDF', async (req, res, next) => {
 });
 
 router.post('/sendMail', async (req, res, next) => {
-    const {body, EmailTO, subject, ccAddress,ccOAddress, system_userID, proposalRef, files, revisaoPricing, changeStatusActivity} = req.body;
+    const {body, EmailTO, subject, ccAddress,ccOAddress, system_userID, proposalRef, files, revisaoPricing, changeStatusActivity, adicionarAtividadeCotando} = req.body;
     try {
 
-        const result = await direct_mail_pricing.sendMail(body, EmailTO, subject, ccAddress,ccOAddress, system_userID, io, proposalRef, files, revisaoPricing, changeStatusActivity);
+        const result = await direct_mail_pricing.sendMail(body, EmailTO, subject, ccAddress,ccOAddress, system_userID, io, proposalRef, files, revisaoPricing, changeStatusActivity, adicionarAtividadeCotando);
 
         
         res.status(200).json(result)

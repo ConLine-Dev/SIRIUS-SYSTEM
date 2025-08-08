@@ -48,41 +48,50 @@
         <div class="row">
             <div class="col-xl-12">
                 <div class="card custom-card bodyWindows">
-
                     <!-- BOTAO SALVAR -->
                     <div class=" justify-content-between headerButtons">
                         <ul class="nav nav-tabs border-0" role="tablist">
-                            <li class="nav-item " role="presentation"> 
+                            <li class="nav-item " role="presentation">
                                 <a class="nav-link label-btn" id="btn-save" onclick="saveEvent()">
                                     <i class="ri-save-3-line label-btn-icon me-2"></i>
                                     Salvar
-                                </a> 
+                                </a>
                             </li>
-                           
-                            
                         </ul>
                     </div>
-
                     <div class="card-body">
                         <div class="row">
                             <div class="col-12">
                                 <div class="row d-flex" style="justify-content: space-between;">
-                                    <div class="col-6">
-                                        <label for="input-label" class="form-label center-text">Atualizar Validade</label> 
-                                        <input type="date" class="form-control me-2 intro-search-user-ticket" id="newDeadline">
+                                    <div class="col-4">
+                                        <label for="input-label" class="form-label center-text">Atualizar
+                                            Validade</label>
+                                        <input type="date" class="form-control me-2 intro-search-user-ticket"
+                                            id="newDeadline">
                                     </div>
-                                    <div class="col-6">
-                                        <label for="input-label" class="form-label center-text">Atualizar Anexo</label> 
-                                        <input type="file" class="form-control me-2 intro-search-user-ticket" id="newFile">
+                                    <div class="col-4">
+                                        <label for="input-label" class="form-label center-text">Atualizar Anexo</label>
+                                        <input type="file" class="form-control me-2 intro-search-user-ticket"
+                                            id="newFile">
+                                    </div>
+                                    <div class="col-4">
+                                        <label class="form-label">Funcionários envolvidos</label>
+                                        <select class="form-control" multiple name="responsibles">
+                                            <option value="" disabled>Insira os envolvidos</option>
+                                        </select>
                                     </div>
                                 </div>
+                                <br>
                                 <div class="row d-flex" style="justify-content: space-between;">
                                     <div class="col-10">
-                                        <label for="input-label" class="form-label center-text">Adicionar Descrição</label> 
-                                        <input type="text" class="form-control me-2 intro-search-user-ticket" id="newDescription">
+                                        <label for="input-label" class="form-label center-text">Adicionar
+                                            Descrição</label>
+                                        <input type="text" class="form-control me-2 intro-search-user-ticket"
+                                            id="newDescription">
                                     </div>
                                     <div class="col-2">
-                                        <button style="margin-top: 25px;width: 100%;" onclick="addProcurationAttachment()" class="btn btn-primary me-2 ">
+                                        <button style="margin-top: 25px;width: 100%;"
+                                            onclick="addProcurationAttachment()" class="btn btn-primary me-2 ">
                                             Adicionar
                                         </button>
                                     </div>
@@ -108,7 +117,8 @@
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
     <div id="responsive-overlay"></div>
     <!-- Scroll To Top -->
-    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"
+        integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
     <!-- Popper JS -->
     <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
     <!-- Bootstrap JS -->
@@ -131,7 +141,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <!-- SweetAlert JS -->
-   <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
 
     <!-- Flat Picker JS -->
     <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>

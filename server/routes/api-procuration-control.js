@@ -25,9 +25,9 @@ const upload = multer({ storage: storage });
 
 module.exports = function(io) {
 
-    router.get('/procurationData', async (req, res, next) => {
+    router.post('/procurationData', async (req, res, next) => {
         try {
-            const result = await procurationControl.procurationData();
+            const result = await procurationControl.procurationData(req.body.collabId);
             res.status(200).json(result);
         } catch (error) {
             res.status(404).json(error);
@@ -46,8 +46,15 @@ module.exports = function(io) {
     router.post('/saveEvent', async (req, res, next) => {
         try {
             const result = await procurationControl.saveEvent(req.body);
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json(error);
+        }
+    });
 
-            io.emit('updateDocuments', '')
+    router.post('/getInvolved', async (req, res, next) => {
+        try {
+            const result = await procurationControl.getInvolved(req.body.documentId);
             res.status(200).json(result)
         } catch (error) {
             res.status(500).json(error);
@@ -63,7 +70,7 @@ module.exports = function(io) {
                 return res.status(400).json({ success: false, message: 'Arquivo não enviado.' });
             }
             // Salva evento no banco
-            await procurationControl.saveEvent({
+            await procurationControl.upload({
                 documentId,
                 userId,
                 newDeadline,

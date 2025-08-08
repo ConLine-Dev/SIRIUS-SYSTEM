@@ -1,3 +1,5 @@
+let sAllResponsibles2;
+
 function getLinkParams() {
     const params = new URLSearchParams(window.location.search);
     const documentId = params.get('documentId');
@@ -6,10 +8,10 @@ function getLinkParams() {
 
 async function createHistory() {
     const documentId = getLinkParams();
-    const documentHistory = await makeRequest(`/api/procuration-control/documentHistory`, 'POST', {documentId});
+    const documentHistory = await makeRequest(`/api/procuration-control/documentHistory`, 'POST', { documentId });
     const divDocumentHistory = document.getElementById('documentHistory');
     let printDocumentHistory = '<ul class="timeline list-unstyled">';
-    for (let index = documentHistory.length-1; index >= 0; index--) {
+    for (let index = documentHistory.length - 1; index >= 0; index--) {
         let createdDate = new Date(documentHistory[index].created_time);
         let dia = String(createdDate.getDate()).padStart(2, '0');
         let mes = String(createdDate.getMonth() + 1).padStart(2, '0');
@@ -82,23 +84,11 @@ async function getInfosLogin() {
 
 async function saveEvent() {
 
-    let loggedData = await getInfosLogin();
-    let userId = loggedData.system_collaborator_id;
     let documentId = getLinkParams();
-    let deadline = document.getElementById('newDeadline');
-    let newDeadline = deadline.value;
-    let newFile = document.getElementById('newFile');
-    let fileName = formatFileName(newFile.files[0].name);
 
-    if (!fileName) {
-        alert('Favor adicionar um arquivo como anexo');
-    }
+    let involved = sAllResponsibles2.getValue().map(item => item.value);
 
-    if (!newDeadline) {
-        alert('Favor adicionar a próxima data de validade do documento');
-    }
-
-    let sendData = await makeRequest(`/api/procuration-control/saveEvent`, 'POST', {documentId, userId, newDeadline, fileName})
+    let sendData = await makeRequest(`/api/procuration-control/saveEvent`, 'POST', { documentId, involved })
 
     window.close();
 }
@@ -172,7 +162,36 @@ async function addProcurationAttachment() {
     }
 }
 
-window.removeAttachmentJS = async function(historyId, fileName) {
+async function getAllResponsible() {
+
+    let documentId = getLinkParams();
+    const Responsible = await makeRequest(`/api/users/listAllUsersActive`);
+    const involved = await makeRequest(`/api/procuration-control/getInvolved`, 'POST', { documentId });
+
+    const listaDeOpcoes2 = Responsible.map(function (element) {
+        return {
+            value: `${element.id_colab}`,
+            label: `${element.username + ' ' + element.familyName}`
+        };
+    });
+
+    if (sAllResponsibles2) {
+        sAllResponsibles2.destroy();
+    }
+
+    sAllResponsibles2 = new Choices('select[name="responsibles"]', {
+        choices: listaDeOpcoes2,
+        shouldSort: false,
+        removeItemButton: true,
+        noChoicesText: 'Não há opções disponíveis',
+    });
+
+    for (let index = 0; index < involved.length; index++) {
+        sAllResponsibles2.setChoiceByValue(`${involved[index].collaborator_id}`)
+    }
+}
+
+window.removeAttachmentJS = async function (historyId, fileName) {
     Swal.fire({
         title: 'Tem certeza?',
         text: 'Deseja remover este anexo e o registro do histórico? Esta ação não poderá ser desfeita.',
@@ -205,5 +224,6 @@ window.removeAttachmentJS = async function(historyId, fileName) {
 document.addEventListener('DOMContentLoaded', async function () {
 
     await createHistory();
-  
-  });
+    await getAllResponsible();
+
+});

@@ -53,30 +53,43 @@
                             <div class="col-12">
                                 <div class="row d-flex" style="justify-content: center; margin: 25px;">
                                     <div class="col-8">
-                                        <label for="input-label" class="form-label center-text">Título</label> 
-                                        <input type="text" class="form-control me-2 intro-search-user-ticket" id="newTitle">
+                                        <label for="input-label" class="form-label center-text">Título</label>
+                                        <input type="text" class="form-control me-2 intro-search-user-ticket"
+                                            id="newTitle">
                                     </div>
                                 </div>
                                 <div class="row d-flex" style="justify-content: center; margin: 25px;">
                                     <div class="col-8">
-                                        <label for="input-label" class="form-label center-text">Data de Validade</label> 
-                                        <input type="date" class="form-control me-2 intro-search-user-ticket" id="newDeadline">
-                                    </div>
-                                </div>
-                                <div class="row d-flex" style="justify-content: center; margin: 25px;">
-                                    <div class="col-8"> 
-                                        <label for="input-label" class="form-label center-text">Observações</label> 
-                                        <textarea id="newDetails" class="form-control form-input"cols="30" rows="5"></textarea>
+                                        <label for="input-label" class="form-label center-text">Data de Validade</label>
+                                        <input type="date" class="form-control me-2 intro-search-user-ticket"
+                                            id="newDeadline">
                                     </div>
                                 </div>
                                 <div class="row d-flex" style="justify-content: center; margin: 25px;">
                                     <div class="col-8">
-                                        <button style="margin-top: 25px;width: 100%;" onclick="createDocument(0)" class="btn btn-primary me-2 ">
+                                        <label class="form-label">Funcionários envolvidos</label>
+                                        <select class="form-control" multiple name="responsibles">
+                                            <option value="">Insira os envolvidos</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row d-flex" style="justify-content: center; margin: 25px;">
+                                    <div class="col-8">
+                                        <label for="input-label" class="form-label center-text">Observações</label>
+                                        <textarea id="newDetails" class="form-control form-input" cols="30"
+                                            rows="5"></textarea>
+                                    </div>
+                                </div>
+                                <div class="row d-flex" style="justify-content: center; margin: 25px;">
+                                    <div class="col-8">
+                                        <button style="margin-top: 25px;width: 100%;" onclick="createDocument(0)"
+                                            class="btn btn-primary me-2 ">
                                             Criar Controle
                                         </button>
                                     </div>
                                     <div class="col-8" style="margin-top: -15px;">
-                                        <button style="margin-top: 25px;width: 100%;" onclick="createDocument(1)" class="btn btn-primary me-2 ">
+                                        <button style="margin-top: 25px;width: 100%;" onclick="createDocument(1)"
+                                            class="btn btn-primary me-2 ">
                                             Criar e Adicionar Anexo
                                         </button>
                                     </div>
@@ -93,7 +106,8 @@
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
     <div id="responsive-overlay"></div>
     <!-- Scroll To Top -->
-    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"
+        integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
     <!-- Popper JS -->
     <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
     <!-- Bootstrap JS -->
@@ -116,7 +130,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <!-- SweetAlert JS -->
-   <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
 
     <!-- Flat Picker JS -->
     <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>

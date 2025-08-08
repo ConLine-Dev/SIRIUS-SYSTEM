@@ -1,3 +1,4 @@
+const { ExecutableCodeLanguage } = require('@google/generative-ai');
 const { executeQuery } = require('../connect/mysql');
 const { executeQuerySQL } = require('../connect/sqlServer');
 const { sendEmail } = require('../support/send-email');
@@ -6,7 +7,7 @@ const path = require('path');
 
 const procurationControl = {
 
-    procurationData: async function () {
+    procurationData: async function (collabId) {
 
         const result = await executeQuery(`
             WITH latest_history AS (
@@ -24,10 +25,14 @@ const procurationControl = {
                     ph.description,
                     cl.name,
                     cl.family_name,
-                    cl.email_business
+                    cl.email_business,
+                    pc.active
                 FROM procuration_control pc
                 LEFT JOIN latest_history ph ON ph.id_procuration = pc.id AND ph.rn = 1
-                LEFT JOIN collaborators cl ON cl.id = ph.id_responsible;`);
+                LEFT JOIN collaborators cl ON cl.id = ph.id_responsible
+                LEFT OUTER JOIN procuration_control_relations pr ON pc.id = pr.procuration_id
+                WHERE pc.active = 1
+                AND (pr.collaborator_id IN (${collabId}) OR ph.id_responsible = ${collabId})`);
 
         return result;
     },
@@ -124,7 +129,7 @@ const procurationControl = {
         return result;
     },
 
-    saveEvent: async function (eventData) {
+    upload: async function (eventData) {
 
         const now = new Date();
 
@@ -157,6 +162,30 @@ const procurationControl = {
         );
 
         return true;
+    },
+
+    saveEvent: async function (eventData) {
+
+        const deleter = await executeQuery(`
+            DELETE FROM procuration_control_relations WHERE (procuration_id = '${eventData.documentId}')`);
+
+        for (let index = 0; index < eventData.involved.length; index++) {
+            const involved = await executeQuery(`
+                INSERT INTO procuration_control_relations (procuration_id, collaborator_id) VALUES ('${eventData.documentId}', '${eventData.involved[index]}')`
+            );
+        }
+
+        return true;
+    },
+
+    getInvolved: async function (documentId) {
+
+        const result = await executeQuery(`
+            SELECT *
+            FROM procuration_control_relations
+            WHERE procuration_id = ${documentId}`)
+
+        return result;
     },
 
     removeAttachment: async function ({ historyId, fileName }) {
@@ -204,6 +233,12 @@ const procurationControl = {
             'INSERT INTO procuration_control (name, deadline, description) VALUES (?, ?, ?)',
             [details.newTitle, details.newDeadline, details.newDetails]
         );
+        
+        for (let index = 0; index < details.involved.length; index++) {
+            const involved = await executeQuery(
+                `INSERT INTO procuration_control_relations (procuration_id, collaborator_id) VALUES ('${result.insertId}', '${details.involved[index]}')`
+            );
+        }
 
         return result.insertId;
     },
@@ -218,10 +253,9 @@ let dailySend = setInterval(async () => {
 
     for (let index = 0; index < data.length; index++) {
         let element = data[index];
-        console.log(element);
-        if (actualDate >= element.deadline) {
+        if (actualDate >= element.deadline && element.active == 1) {
             procurationControl.expired(element);
-        } else if (futureDate >= element.deadline) {
+        } else if (futureDate >= element.deadline && element.active == 1) {
             procurationControl.futureExpired(element);
         }
     }

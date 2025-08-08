@@ -16,7 +16,7 @@ const procurationControl = {
                     ROW_NUMBER() OVER (PARTITION BY ph.id_procuration ORDER BY ph.created_time DESC) AS rn
                 FROM procuration_history ph
             )
-                SELECT
+                SELECT DISTINCT
                     pc.id,
                     pc.name AS title,
                     pc.deadline,

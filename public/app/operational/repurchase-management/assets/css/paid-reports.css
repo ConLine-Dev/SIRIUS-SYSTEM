@@ -1,0 +1,21 @@
+#charts-row .card {
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+#indicators-container .border {
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+#table-paid-reports td, #table-paid-reports th {
+  vertical-align: middle;
+}
+
+/* Ajuste DataTables botões */
+.dt-buttons .btn {
+  margin-right: 6px;
+}
+
+/* Fix responsividade de selects com Choices */
+.choices__inner {
+  min-height: 38px;
+} 

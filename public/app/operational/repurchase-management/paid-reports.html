@@ -1,0 +1,217 @@
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Relatórios - Recompras Pagas</title>
+    <meta name="Description" content="Relatórios de Recompras Pagas">
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+
+    <!-- DataTables CSS (usar bootstrap5 estilo) -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.bootstrap5.min.css">
+
+    <!-- Página CSS -->
+    <link rel="stylesheet" href="./assets/css/paid-reports.css">
+</head>
+
+<body>
+    <!-- Loader -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+
+    <div class="container-fluid">
+        <div class="row g-2 mt-1">
+            <div class="col-12">
+                <div class="card custom-card">
+                    <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div>
+                            <h6 class="fw-semibold mb-0">Relatórios de Recompras Pagas</h6>
+                            <small class="text-muted">Análises, filtros e exportação</small>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button id="btn-export-excel" class="btn btn-success btn-sm">
+                                <i class="ri-file-excel-2-line me-1"></i>Exportar Excel
+                            </button>
+                            <button id="btn-export-pdf" class="btn btn-danger btn-sm">
+                                <i class="ri-file-pdf-2-line me-1"></i>Exportar PDF
+                            </button>
+                            <button id="btn-export-detailed" class="btn btn-warning btn-sm">
+                                <i class="ri-file-excel-2-line me-1"></i>Exportar Comissão Detalhada
+                            </button>
+                            <button id="btn-toggle-indicators" class="btn btn-primary btn-sm">
+                                <i class="ri-bar-chart-2-line me-1"></i>Mostrar/Ocultar Indicadores
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Filtros -->
+                        <div class="row g-2 mb-3 align-items-end">
+                            <div class="col-lg-2 col-md-4 col-sm-6">
+                                <label class="form-label">Data pagamento início</label>
+                                <input type="date" id="filter-start" class="form-control">
+                            </div>
+                            <div class="col-lg-2 col-md-4 col-sm-6">
+                                <label class="form-label">Data pagamento fim</label>
+                                <input type="date" id="filter-end" class="form-control">
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-12">
+                                <label class="form-label">Comissionado</label>
+                                <select id="filter-responsible" class="form-control"></select>
+                            </div>
+                            <div class="col-lg-3 col-md-4 col-sm-12">
+                                <label class="form-label">Modal</label>
+                                <select id="filter-modal" class="form-control"></select>
+                            </div>
+                            <div class="col-lg-1 col-md-4 col-sm-6">
+                                <button id="btn-apply-filters" class="btn btn-primary btn-sm w-100">Aplicar</button>
+                            </div>
+                            <div class="col-lg-1 col-md-4 col-sm-6">
+                                <button id="btn-clear-filters" class="btn btn-secondary btn-sm w-100">Limpar</button>
+                            </div>
+                        </div>
+
+                        <!-- KPIs -->
+                        <div id="indicators-container" class="row g-2 mb-3">
+                            <div class="col-xl-2 col-md-4 col-sm-6">
+                                <div class="p-3 rounded-3 border bg-light h-100">
+                                    <div class="text-muted">Total Recomprado</div>
+                                    <div id="kpi-total-pago" class="fs-5 fw-semibold">R$ 0,00</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-md-4 col-sm-6">
+                                <div class="p-3 rounded-3 border bg-light h-100">
+                                    <div class="text-muted">Total de Comissão Paga</div>
+                                    <div id="kpi-total-comissao" class="fs-5 fw-semibold">R$ 0,00</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-md-4 col-sm-6">
+                                <div class="p-3 rounded-3 border bg-light h-100">
+                                    <div class="text-muted">Média Comissão/Pagto</div>
+                                    <div id="kpi-media-comissao" class="fs-5 fw-semibold">R$ 0,00</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-md-4 col-sm-6">
+                                <div class="p-3 rounded-3 border bg-light h-100">
+                                    <div class="text-muted">Qtd. Pagamentos</div>
+                                    <div id="kpi-qtd" class="fs-5 fw-semibold">0</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-md-4 col-sm-6">
+                                <div class="p-3 rounded-3 border bg-light h-100">
+                                    <div class="text-muted">Último Pagamento</div>
+                                    <div id="kpi-ultimo" class="fs-6 fw-semibold">-</div>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-md-4 col-sm-6">
+                                <div class="p-3 rounded-3 border bg-light h-100">
+                                    <div class="text-muted">Qtd. Recompras</div>
+                                    <div id="kpi-qtd-recompras" class="fs-5 fw-semibold">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gráficos -->
+                        <div id="charts-row" class="row g-2 mb-3">
+                            <div class="col-12 col-lg-6">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Pagamentos por Mês - Recompra x Comissão</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="chart-monthly" style="min-height: 280px"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Top Comissionados - Recompra x Comissão</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="chart-top-responsible" style="min-height: 280px"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabela -->
+                        <div class="table-responsive border border-bottom-0">
+                            <table id="table-paid-reports" class="table table-bordered table-hover text-nowrap w-100">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Comissionado</th>
+                                        <th>Quantidade</th>
+                                        <th>Aprovado por</th>
+                                        <th>Data Pagamento</th>
+                                        <th>Valor Recompras</th>
+                                        <th>Comissão</th>
+                                        <th>Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll To Top -->
+    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+    <div id="responsive-overlay"></div>
+
+    <!-- Libs -->
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" crossorigin="anonymous"></script>
+    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+    <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/js/fetchAPI.js"></script>
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+
+    <!-- ApexCharts -->
+    <script src="../../assets/libs/apexCharts/apexCharts.js"></script>
+    <script>if(typeof ApexCharts === 'undefined'){document.write('<script src="https://cdn.jsdelivr.net/npm/apexcharts"><\\/script>')}</script>
+
+    <!-- DataTables + Buttons -->
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- Choices JS -->
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <!-- SheetJS (XLSX) -->
+    <script src="../../assets/libs/xlsx/xlsx.full.min.js"></script>
+
+    <!-- Página JS -->
+    <script src="./assets/js/paid-reports.js"></script>
+</body>
+
+</html> 

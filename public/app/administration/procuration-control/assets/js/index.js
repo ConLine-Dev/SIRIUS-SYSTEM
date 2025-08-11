@@ -1,6 +1,15 @@
+async function getInfosLogin() {
+  const StorageGoogleData = localStorage.getItem('StorageGoogle');
+  const StorageGoogle = JSON.parse(StorageGoogleData);
+  return StorageGoogle;
+}
+
 async function printAll() {
 
-  var procurationData = await makeRequest(`/api/procuration-control/procurationData`);
+  let loggedData = await getInfosLogin();
+  collabId = loggedData.system_collaborator_id;
+
+  var procurationData = await makeRequest(`/api/procuration-control/procurationData`, 'POST', { collabId });
   var docsList = document.getElementById('docsList');
 
   let printDocsList = '';
@@ -92,7 +101,7 @@ async function openCreate() {
   const body = {
     url: `/app/administration/procuration-control/create`,
     width: 700,
-    height: 590,
+    height: 710,
     resizable: false,
     max: false
   }

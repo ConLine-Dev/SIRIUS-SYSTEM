@@ -121,7 +121,21 @@ const commercialMain = {
         return result;
     },
 
-    clientsDetails: async function (userId) {
+    clientsDetails: async function (data) {
+
+        let operationFilter = '';
+        let initFilter = '';
+        let finishFilter = '';
+
+        if (data.operationType) {
+            operationFilter = `AND lmr.Tipo_Operacao = ${data.operationType}`;
+        }
+        if (data.firstDate) {
+            initFilter = `AND lhs.Data_Abertura_Processo >= '${data.firstDate}'`
+        }
+        if (data.lastDate) {
+            finishFilter = `AND lhs.Data_Abertura_Processo <= '${data.lastDate}'`
+        }
 
         let result = await executeQuerySQL(`
             SELECT
@@ -147,7 +161,10 @@ const commercialMain = {
             WHERE
                 DATEPART(year, lhs.Data_Abertura_Processo) = 2025
                 AND lma.idmoeda IN (110)
-                AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
+                ${operationFilter}
+                ${initFilter}
+                ${finishFilter}
+                AND (Iss.IdResponsavel = ${data.userId} OR Sls.IdResponsavel = ${data.userId})
                 AND lhs.Situacao_Agenciamento != 7
             GROUP BY
                 cli.nome`);
@@ -155,7 +172,21 @@ const commercialMain = {
         return result;
     },
 
-    clientsLCLDetails: async function (userId) {
+    clientsLCLDetails: async function (data) {
+
+        let operationFilter = '';
+        let initFilter = '';
+        let finishFilter = '';
+
+        if (data.operationType) {
+            operationFilter = `AND lmr.Tipo_Operacao = ${data.operationType}`;
+        }
+        if (data.firstDate) {
+            initFilter = `AND lhs.Data_Abertura_Processo >= '${data.firstDate}'`
+        }
+        if (data.lastDate) {
+            finishFilter = `AND lhs.Data_Abertura_Processo <= '${data.lastDate}'`
+        }
 
         let result = await executeQuerySQL(`
             SELECT
@@ -184,14 +215,31 @@ const commercialMain = {
                 YEAR(lvm.Data_Embarque) = 2025
                 AND lma.idmoeda IN (110)
                 AND lhs.Tipo_Carga = 4
-                AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
+                ${operationFilter}
+                ${initFilter}
+                ${finishFilter}
+                AND (Iss.IdResponsavel = ${data.userId} OR Sls.IdResponsavel = ${data.userId})
             GROUP BY
                 cli.nome`);
 
         return result;
     },
 
-    clientsAirDetails: async function (userId) {
+    clientsAirDetails: async function (data) {
+
+        let operationFilter = '';
+        let initFilter = '';
+        let finishFilter = '';
+
+        if (data.operationType) {
+            operationFilter = `AND lmr.Tipo_Operacao = ${data.operationType}`;
+        }
+        if (data.firstDate) {
+            initFilter = `AND lhs.Data_Abertura_Processo >= '${data.firstDate}'`
+        }
+        if (data.lastDate) {
+            finishFilter = `AND lhs.Data_Abertura_Processo <= '${data.lastDate}'`
+        }
 
         let result = await executeQuerySQL(`
             SELECT
@@ -220,14 +268,31 @@ const commercialMain = {
                 YEAR(lvm.Data_Embarque) = 2025
                 AND lma.idmoeda IN (110)
                 AND lhs.Tipo_Carga = 1
-                AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
+                ${operationFilter}
+                ${initFilter}
+                ${finishFilter}
+                AND (Iss.IdResponsavel = ${data.userId} OR Sls.IdResponsavel = ${data.userId})
             GROUP BY
                 cli.nome`);
 
         return result;
     },
 
-    activeClients: async function (userId) {
+    activeClients: async function (data) {
+
+        let operationFilter = '';
+        let initFilter = '';
+        let finishFilter = '';
+
+        if (data.operationType) {
+            operationFilter = `AND lms.Tipo_Operacao = ${data.operationType}`;
+        }
+        if (data.firstDate) {
+            initFilter = `AND lhs.Data_Abertura_Processo >= '${data.firstDate}'`
+        }
+        if (data.lastDate) {
+            finishFilter = `AND lhs.Data_Abertura_Processo <= '${data.lastDate}'`
+        }
 
         let result = await executeQuerySQL(`
             WITH ProcessosOrdenados AS (
@@ -252,7 +317,10 @@ const commercialMain = {
                     mov_Projeto_Atividade_Responsavel Sls on Sls.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Sls.IdPapel_Projeto = 3)
                 WHERE
                     YEAR(lhs.Data_Abertura_Processo) = YEAR(GETDATE())
-                    AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
+                    ${operationFilter}
+                    ${initFilter}
+                    ${finishFilter}
+                    AND (Iss.IdResponsavel = ${data.userId} OR Sls.IdResponsavel = ${data.userId})
             )
             SELECT
                 Nome,
@@ -279,7 +347,21 @@ const commercialMain = {
         return result;
     },
 
-    newClients: async function (userId) {
+    newClients: async function (data) {
+
+        let operationFilter = '';
+        let initFilter = '';
+        let finishFilter = '';
+
+        if (data.operationType) {
+            operationFilter = `AND lms.Tipo_Operacao = ${data.operationType}`;
+        }
+        if (data.firstDate) {
+            initFilter = `AND lhs.Data_Abertura_Processo >= '${data.firstDate}'`
+        }
+        if (data.lastDate) {
+            finishFilter = `AND lhs.Data_Abertura_Processo <= '${data.lastDate}'`
+        }
 
         let result = await executeQuerySQL(`
             WITH PrimeirosProcessos AS (
@@ -307,7 +389,10 @@ const commercialMain = {
                         mov_Projeto_Atividade_Responsavel Iss on Iss.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Iss.IdPapel_Projeto = 12)
                     LEFT OUTER JOIN
                         mov_Projeto_Atividade_Responsavel Sls on Sls.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Sls.IdPapel_Projeto = 3)
-                    WHERE (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
+                    WHERE (Iss.IdResponsavel = ${data.userId} OR Sls.IdResponsavel = ${data.userId})
+                    ${operationFilter}
+                    ${initFilter}
+                    ${finishFilter}
             )
             SELECT
                 Nome,
@@ -392,7 +477,21 @@ const commercialMain = {
         return result;
     },
 
-    teusAndProfitByUser: async function (userId) {
+    teusAndProfitByUser: async function (data) {
+
+        let operationFilter = '';
+        let initFilter = '';
+        let finishFilter = '';
+
+        if (data.operationType) {
+            operationFilter = `AND lms.Tipo_Operacao = ${data.operationType}`;
+        }
+        if (data.firstDate) {
+            initFilter = `AND lhs.Data_Abertura_Processo >= '${data.firstDate}'`
+        }
+        if (data.lastDate) {
+            finishFilter = `AND lhs.Data_Abertura_Processo <= '${data.lastDate}'`
+        }
 
         let result = await executeQuerySQL(`
             SELECT
@@ -439,7 +538,10 @@ const commercialMain = {
                 AND lhs.Numero_Processo NOT LIKE '%test%'
                 AND lhs.Numero_Processo NOT LIKE '%demu%'
                 AND lma.idmoeda IN (110)
-                AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
+                ${operationFilter}
+                ${initFilter}
+                ${finishFilter}
+                AND (Iss.IdResponsavel = ${data.userId} OR Sls.IdResponsavel = ${data.userId})
             GROUP BY
                 lhs.Numero_Processo,
                 CASE
@@ -464,7 +566,21 @@ const commercialMain = {
         return result;
     },
 
-    LCLProcessesByUser: async function (userId) {
+    LCLProcessesByUser: async function (data) {
+
+        let operationFilter = '';
+        let initFilter = '';
+        let finishFilter = '';
+
+        if (data.operationType) {
+            operationFilter = `AND lms.Tipo_Operacao = ${data.operationType}`;
+        }
+        if (data.firstDate) {
+            initFilter = `AND lhs.Data_Abertura_Processo >= '${data.firstDate}'`
+        }
+        if (data.lastDate) {
+            finishFilter = `AND lhs.Data_Abertura_Processo <= '${data.lastDate}'`
+        }
 
         let result = await executeQuerySQL(`
             SELECT
@@ -499,7 +615,10 @@ const commercialMain = {
                 AND Lhs.Situacao_Agenciamento NOT IN (7 /* CANCELADO */)
                 AND Lhs.Numero_Processo NOT LIKE '%test%'
                 AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
-                AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
+                ${operationFilter}
+                ${initFilter}
+                ${finishFilter}
+                AND (Iss.IdResponsavel = ${data.userId} OR Sls.IdResponsavel = ${data.userId})
                 AND Lhs.Tipo_Carga = 4
             GROUP BY
                 DATEPART(MONTH, Lhs.Data_Abertura_Processo),
@@ -523,7 +642,21 @@ const commercialMain = {
         return result;
     },
 
-    AirProcessesByUser: async function (userId) {
+    AirProcessesByUser: async function (data) {
+
+        let operationFilter = '';
+        let initFilter = '';
+        let finishFilter = '';
+
+        if (data.operationType) {
+            operationFilter = `AND lms.Tipo_Operacao = ${data.operationType}`;
+        }
+        if (data.firstDate) {
+            initFilter = `AND lhs.Data_Abertura_Processo >= '${data.firstDate}'`
+        }
+        if (data.lastDate) {
+            finishFilter = `AND lhs.Data_Abertura_Processo <= '${data.lastDate}'`
+        }
 
         let result = await executeQuerySQL(`
             SELECT
@@ -558,7 +691,10 @@ const commercialMain = {
                 AND Lhs.Situacao_Agenciamento NOT IN (7 /* CANCELADO */)
                 AND Lhs.Numero_Processo NOT LIKE '%test%'
                 AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
-                AND (Iss.IdResponsavel = ${userId} OR Sls.IdResponsavel = ${userId})
+                ${operationFilter}
+                ${initFilter}
+                ${finishFilter}
+                AND (Iss.IdResponsavel = ${data.userId} OR Sls.IdResponsavel = ${data.userId})
                 AND Lhs.Tipo_Carga = 1
             GROUP BY
                 DATEPART(MONTH, Lhs.Data_Abertura_Processo),

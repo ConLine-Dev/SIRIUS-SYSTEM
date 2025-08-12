@@ -69,7 +69,9 @@
                 <div class="card-header d-flex" style="justify-content: space-between;">
                     <div class="card-title fw-semibold fs-14">Metas - Comercial</div>
                     <div class="dropdown">
-                        <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon btn-sm btn-light" data-bs-toggle="dropdown"> <i class="fe fe-more-vertical" onclick="openSalesList()"></i> </a>
+                        <a aria-label="anchor" href="javascript:void(0);" class="btn btn-icon btn-sm btn-light"
+                            data-bs-toggle="dropdown"> <i class="fe fe-more-vertical" onclick="openSalesList()"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -78,6 +80,29 @@
     <div class="container-fluid corpo-dashboard">
         <div class="row">
             <div class="row d-flex align-items-stretch">
+                <div class="col-xxl-12 col-xl-12">
+                    <div class="card custom-card flex-fill">
+                        <div class="card-header">
+                            <div>
+                                <select class="form-control" id="operationType" style="margin-right: 35px;">
+                                    <option value="">Tipo de Operação</option>
+                                    <option value="1">Exportação</option>
+                                    <option value="2">Importação</option>
+                                    <option value="3">Nacional</option>
+                                </select>
+                            </div>
+                            <div>
+                                <input type="date" class="form-control me-2 intro-search-user-ticket" id="firstDate">
+                            </div>
+                            <div>
+                                <input type="date" class="form-control me-2 intro-search-user-ticket" id="lastDate">
+                            </div>
+                            <div id="updateButton">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-xxl-6 col-xl-6">
                     <div class="row d-flex align-items-stretch">
                         <div class="col-xl-12 d-flex">
@@ -352,6 +377,7 @@
             </div>
         </div>
     </div>
+
 </html>
 
 

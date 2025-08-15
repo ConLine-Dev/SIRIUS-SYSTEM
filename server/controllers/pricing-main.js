@@ -84,6 +84,22 @@ const pricingMain = {
             }
         }
 
+        let clientFilter = '';
+        let originFilter = '';
+        let destinationFilter = '';
+        
+        if (filters.cliente) {
+            clientFilter = `AND Lhs.IdCliente = ${filters.cliente}`;
+        }
+
+        if (filters.origem) {
+            originFilter = `AND Lms.IdOrigem = ${filters.origem}`
+        }
+
+        if (filters.destino) {
+            destinationFilter = `AND Lms.IdDestino = ${filters.destino}`
+        }
+
         const result = executeQuerySQL(`
             SELECT
                 pais.Nome_Internacional AS Nome,
@@ -101,6 +117,9 @@ const pricingMain = {
                 ${yearFilter}
                 ${monthFilter}
                 ${modalFilter}
+                ${clientFilter}
+                ${originFilter}
+                ${destinationFilter}
                 AND lhs.Numero_Processo NOT LIKE '%DEMU%'
                 AND lhs.Numero_Processo NOT LIKE '%test%'
                 AND pais.Nome_Internacional IS NOT NULL
@@ -117,7 +136,7 @@ const pricingMain = {
         let yearFilter = `AND DATEPART(YEAR, Lhs.Data_Abertura_Processo) = DATEPART(YEAR, GETDATE())`;
         let monthFilter = ''
         let modalFilter = ''
-
+        
         if (filters.ano) {
             for (let index = 0; index < filters.ano.length; index++) {
                 if (index == 0) {
@@ -131,7 +150,7 @@ const pricingMain = {
                 }
             }
         }
-
+        
         if (filters.mes) {
             for (let index = 0; index < filters.mes.length; index++) {
                 if (index == 0) {
@@ -145,7 +164,7 @@ const pricingMain = {
                 }
             }
         }
-
+        
         if (filters.modal) {
             for (let index = 0; index < filters.modal.length; index++) {
                 if (index == 0) {
@@ -158,6 +177,22 @@ const pricingMain = {
                     modalFilter += `)`
                 }
             }
+        }
+
+        let clientFilter = '';
+        let originFilter = '';
+        let destinationFilter = '';
+        
+        if (filters.cliente) {
+            clientFilter = `AND Lhs.IdCliente = ${filters.cliente}`;
+        }
+
+        if (filters.origem) {
+            originFilter = `AND Lms.IdOrigem = ${filters.origem}`
+        }
+
+        if (filters.destino) {
+            destinationFilter = `AND Lms.IdDestino = ${filters.destino}`
         }
 
         const result = executeQuerySQL(`
@@ -180,6 +215,9 @@ const pricingMain = {
                 ${yearFilter}
                 ${monthFilter}
                 ${modalFilter}
+                ${clientFilter}
+                ${originFilter}
+                ${destinationFilter}
                 AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
                 AND Lhs.Numero_Processo NOT LIKE '%test%'`);
 
@@ -234,6 +272,22 @@ const pricingMain = {
             }
         }
 
+        let clientFilter = '';
+        let originFilter = '';
+        let destinationFilter = '';
+        
+        if (filters.cliente) {
+            clientFilter = `AND Lhs.IdCliente = ${filters.cliente}`;
+        }
+
+        if (filters.origem) {
+            originFilter = `AND Lms.IdOrigem = ${filters.origem}`
+        }
+
+        if (filters.destino) {
+            destinationFilter = `AND Lms.IdDestino = ${filters.destino}`
+        }
+
         const result = executeQuerySQL(`
             SELECT
                 DATEPART(MONTH, Lhs.Data_Abertura_Processo) AS Mes,
@@ -251,6 +305,9 @@ const pricingMain = {
                 ${yearFilter}
                 ${monthFilter}
                 ${modalFilter}
+                ${clientFilter}
+                ${originFilter}
+                ${destinationFilter}
                 AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
                 AND Lhs.Numero_Processo NOT LIKE '%test%'
             GROUP BY
@@ -309,6 +366,22 @@ const pricingMain = {
             }
         }
 
+        let clientFilter = '';
+        let originFilter = '';
+        let destinationFilter = '';
+        
+        if (filters.cliente) {
+            clientFilter = `AND Lhs.IdCliente = ${filters.cliente}`;
+        }
+
+        if (filters.origem) {
+            originFilter = `AND Lms.IdOrigem = ${filters.origem}`
+        }
+
+        if (filters.destino) {
+            destinationFilter = `AND Lms.IdDestino = ${filters.destino}`
+        }
+
         const result = executeQuerySQL(`
             SELECT
                 Agt.Nome AS Agente_Origem,
@@ -329,6 +402,9 @@ const pricingMain = {
                 ${yearFilter}
                 ${monthFilter}
                 ${modalFilter}
+                ${clientFilter}
+                ${originFilter}
+                ${destinationFilter}
                 AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
                 AND Lhs.Numero_Processo NOT LIKE '%test%'
                 AND Agt.Nome IS NOT NULL
@@ -388,6 +464,22 @@ const pricingMain = {
             }
         }
 
+        let clientFilter = '';
+        let originFilter = '';
+        let destinationFilter = '';
+        
+        if (filters.cliente) {
+            clientFilter = `AND Lhs.IdCliente = ${filters.cliente}`;
+        }
+
+        if (filters.origem) {
+            originFilter = `AND Lms.IdOrigem = ${filters.origem}`
+        }
+
+        if (filters.destino) {
+            destinationFilter = `AND Lms.IdDestino = ${filters.destino}`
+        }
+
         const result = executeQuerySQL(`
             SELECT
                 Cia.Nome AS Companhia_Transporte,
@@ -406,6 +498,9 @@ const pricingMain = {
                 ${yearFilter}
                 ${monthFilter}
                 ${modalFilter}
+                ${clientFilter}
+                ${originFilter}
+                ${destinationFilter}
                 AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
                 AND Lhs.Numero_Processo NOT LIKE '%test%'
             GROUP BY
@@ -464,6 +559,22 @@ const pricingMain = {
             }
         }
 
+        let clientFilter = '';
+        let originFilter = '';
+        let destinationFilter = '';
+        
+        if (filters.cliente) {
+            clientFilter = `AND Lhs.IdCliente = ${filters.cliente}`;
+        }
+
+        if (filters.origem) {
+            originFilter = `AND Lms.IdOrigem = ${filters.origem}`
+        }
+
+        if (filters.destino) {
+            destinationFilter = `AND Lms.IdDestino = ${filters.destino}`
+        }
+
         const result = executeQuerySQL(`
             SELECT
                 Ter.Nome AS Terminal_Redestinacao,
@@ -484,6 +595,9 @@ const pricingMain = {
                 ${yearFilter}
                 ${monthFilter}
                 ${modalFilter}
+                ${clientFilter}
+                ${originFilter}
+                ${destinationFilter}
                 AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
                 AND Lhs.Numero_Processo NOT LIKE '%test%'
                 AND Ter.Nome IS NOT NULL
@@ -543,6 +657,22 @@ const pricingMain = {
             }
         }
 
+        let clientFilter = '';
+        let originFilter = '';
+        let destinationFilter = '';
+        
+        if (filters.cliente) {
+            clientFilter = `AND Lhs.IdCliente = ${filters.cliente}`;
+        }
+
+        if (filters.origem) {
+            originFilter = `AND Lms.IdOrigem = ${filters.origem}`
+        }
+
+        if (filters.destino) {
+            destinationFilter = `AND Lms.IdDestino = ${filters.destino}`
+        }
+
         const result = executeQuerySQL(`
             SELECT
                 Cli.Nome AS Cliente,
@@ -563,6 +693,9 @@ const pricingMain = {
                 ${yearFilter}
                 ${monthFilter}
                 ${modalFilter}
+                ${clientFilter}
+                ${originFilter}
+                ${destinationFilter}
                 AND Lhs.Numero_Processo NOT LIKE '%DEMU%'
                 AND Lhs.Numero_Processo NOT LIKE '%test%'
             GROUP BY
@@ -582,6 +715,57 @@ const pricingMain = {
            LEFT OUTER JOIN modules md on md.id = ic.module_id
            WHERE module_id = ${moduleId}
            ORDER BY ic.comment_date DESC`)
+
+        return result;
+    },
+    getClients: async function (search) {
+
+        let result = await executeQuerySQL(`
+           SELECT DISTINCT
+                cli.IdPessoa AS id,
+                cli.Nome
+            FROM mov_Logistica_House lhs
+            LEFT JOIN mov_Logistica_Master lms 
+                ON lms.IdLogistica_Master = lhs.IdLogistica_Master
+            LEFT JOIN cad_Pessoa cli 
+                ON cli.IdPessoa = lhs.IdCliente
+            WHERE cli.Nome IS NOT NULL
+                AND lms.Tipo_Operacao = 2
+                AND cli.Nome like '%${search}%'`)
+
+        return result;
+    },
+    getOrigins: async function (search) {
+
+        let result = await executeQuerySQL(`
+           SELECT DISTINCT 
+                ori.IdOrigem_Destino AS id,
+                ori.Nome AS origem
+            FROM mov_Logistica_House lhs
+            LEFT JOIN mov_Logistica_Master lms 
+                ON lms.IdLogistica_Master = lhs.IdLogistica_Master
+            LEFT JOIN cad_Origem_Destino ori 
+                ON ori.IdOrigem_Destino = lms.IdOrigem
+            WHERE ori.Nome IS NOT NULL
+                AND lms.Tipo_Operacao = 2
+                AND ori.Nome like '%${search}%'`)
+
+        return result;
+    },
+    getDestinations: async function (search) {
+
+        let result = await executeQuerySQL(`
+           SELECT DISTINCT
+                des.IdOrigem_Destino AS id,
+                des.Nome AS destino
+            FROM mov_Logistica_House lhs
+            LEFT JOIN mov_Logistica_Master lms 
+                ON lms.IdLogistica_Master = lhs.IdLogistica_Master
+            LEFT JOIN cad_Origem_Destino des 
+                ON des.IdOrigem_Destino = lms.IdDestino
+            WHERE des.Nome IS NOT NULL
+                AND lms.Tipo_Operacao = 2
+                AND des.Nome like '%${search}%'`)
 
         return result;
     },

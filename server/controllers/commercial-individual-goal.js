@@ -52,12 +52,6 @@ const commercial_individual_goal = {
                     mov_Logistica_Maritima_House lmh ON lmh.IdLogistica_House = lhs.IdLogistica_House
                 LEFT JOIN
                     mov_Logistica_Moeda lma ON lma.IdLogistica_House = lhs.IdLogistica_House
-                LEFT JOIN
-                    mov_Logistica_Viagem lvm ON lvm.IdLogistica_House = lhs.IdLogistica_House
-                LEFT JOIN
-                    mov_logistica_maritima_equipamento lme ON lme.idlogistica_house = lhs.idlogistica_house
-                LEFT JOIN
-                    cad_equipamento_maritimo emo ON emo.idequipamento_maritimo = lme.idequipamento_maritimo
                 LEFT OUTER JOIN
                     mov_Projeto_Atividade_Responsavel Iss on Iss.IdProjeto_Atividade = lhs.IdProjeto_Atividade and (Iss.IdPapel_Projeto = 12)
                 LEFT OUTER JOIN

@@ -117,7 +117,7 @@ async function createTable(getVolumes) {
         "language": {
             url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
         },
-        "order": [[0, 'desc']],
+        "order": [[2, 'desc']],
         "lengthMenu": [[6], [6]],
         "searching": true,
     });

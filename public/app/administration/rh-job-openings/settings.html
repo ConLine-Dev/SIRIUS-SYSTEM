@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light" data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RH - Configurações</title>
+  <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+  <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+  <script src="../../assets/js/main.js"></script>
+  <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../assets/css/styles.min.css" rel="stylesheet">
+  <link href="../../assets/css/icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+  <style>
+    .settings-tabs {
+      border-bottom: 1px solid #dee2e6;
+      margin-bottom: 1.5rem;
+    }
+    .settings-tab {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: none;
+      color: #6c757d;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+    .settings-tab:hover {
+      color: #495057;
+      background-color: #f8f9fa;
+    }
+    .settings-tab.active {
+      color: rgb(249, 66, 58);
+      border-bottom-color: rgb(249, 66, 58);
+      background-color: rgba(249, 66, 58, 0.05);
+    }
+    .settings-content {
+      display: none;
+    }
+    .settings-content.active {
+      display: block;
+    }
+    .item-card {
+      border: 1px solid #dee2e6;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .item-card:hover {
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .item-name {
+      font-weight: 500;
+      color: #212529;
+    }
+    .item-status {
+      font-size: 0.875rem;
+    }
+    .btn-group-sm .btn {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+    }
+    
+    /* Estilos para templates */
+    .template-section {
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      background: #fff;
+    }
+    .template-section h6 {
+      color: #495057;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e9ecef;
+      padding-bottom: 10px;
+    }
+    .template-item {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background: #f8f9fa;
+    }
+    .template-item:hover {
+      background: #e9ecef;
+    }
+    .template-item .drag-handle {
+      cursor: move;
+      color: #6c757d;
+      margin-right: 10px;
+    }
+    .template-item .text {
+      flex: 1;
+      margin-right: 10px;
+    }
+    .template-item .actions {
+      display: flex;
+      gap: 5px;
+    }
+    .template-preview {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+    .template-preview h6 {
+      color: #495057;
+      margin-bottom: 10px;
+    }
+    .template-preview ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .template-preview li {
+      margin-bottom: 5px;
+      color: #6c757d;
+    }
+    
+    [data-theme-mode="dark"] .item-card {
+      background: #2b3035;
+      border-color: #495057;
+      color: #e9ecef;
+    }
+    [data-theme-mode="dark"] .item-name {
+      color: #e9ecef;
+    }
+    [data-theme-mode="dark"] .settings-tab {
+      color: #adb5bd;
+    }
+    [data-theme-mode="dark"] .settings-tab:hover {
+      color: #e9ecef;
+      background-color: #495057;
+    }
+    [data-theme-mode="dark"] .settings-tab.active {
+      color: rgb(249, 66, 58);
+      background-color: rgba(249, 66, 58, 0.15);
+    }
+    [data-theme-mode="dark"] .template-section {
+      background: #2b3035;
+      border-color: #495057;
+    }
+    [data-theme-mode="dark"] .template-item {
+      background: #495057;
+      border-color: #6c757d;
+    }
+    [data-theme-mode="dark"] .template-preview {
+      background: #495057;
+      border-color: #6c757d;
+    }
+  </style>
+</head>
+<body class="p-3">
+  <div class="row">
+    <div class="col-12">
+      <div class="card custom-card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="card-title mb-0">Configurações do Sistema</h5>
+            <p class="text-muted mb-0 mt-1 fs-12">Gerencie departamentos, modalidades, níveis e outras configurações</p>
+          </div>
+          <button class="btn btn-light btn-sm" onclick="window.close()">
+            <i class="ri-close-line"></i> Fechar
+          </button>
+        </div>
+        <div class="card-body">
+          <!-- Abas de Navegação -->
+          <div class="settings-tabs">
+            <button class="settings-tab active" data-tab="departments">
+              <i class="ri-building-line me-2"></i>Departamentos
+            </button>
+            <button class="settings-tab" data-tab="locations">
+              <i class="ri-map-pin-line me-2"></i>Localidades
+            </button>
+            <button class="settings-tab" data-tab="modalities">
+              <i class="ri-computer-line me-2"></i>Modalidades
+            </button>
+            <button class="settings-tab" data-tab="levels">
+              <i class="ri-bar-chart-line me-2"></i>Níveis
+            </button>
+            <button class="settings-tab" data-tab="contracts">
+              <i class="ri-file-text-line me-2"></i>Tipos de Contrato
+            </button>
+            <button class="settings-tab" data-tab="templates">
+              <i class="ri-file-list-3-line me-2"></i>Templates Predefinidos
+            </button>
+          </div>
+
+          <!-- Conteúdo das Abas -->
+          
+          <!-- Departamentos -->
+          <div class="settings-content active" id="departments">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="mb-0">Departamentos</h6>
+              <button class="btn btn-primary btn-sm" onclick="openAddModal('departments', 'Departamento')">
+                <i class="ri-add-line me-1"></i>Novo Departamento
+              </button>
+            </div>
+            <div id="departments-list"></div>
+          </div>
+
+          <!-- Localidades -->
+          <div class="settings-content" id="locations">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="mb-0">Localidades</h6>
+              <button class="btn btn-primary btn-sm" onclick="openAddModal('locations', 'Localidade')">
+                <i class="ri-add-line me-1"></i>Nova Localidade
+              </button>
+            </div>
+            <div id="locations-list"></div>
+          </div>
+
+          <!-- Modalidades -->
+          <div class="settings-content" id="modalities">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="mb-0">Modalidades</h6>
+              <button class="btn btn-primary btn-sm" onclick="openAddModal('modalities', 'Modalidade')">
+                <i class="ri-add-line me-1"></i>Nova Modalidade
+              </button>
+            </div>
+            <div id="modalities-list"></div>
+          </div>
+
+          <!-- Níveis -->
+          <div class="settings-content" id="levels">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="mb-0">Níveis</h6>
+              <button class="btn btn-primary btn-sm" onclick="openAddModal('levels', 'Nível')">
+                <i class="ri-add-line me-1"></i>Novo Nível
+              </button>
+            </div>
+            <div id="levels-list"></div>
+          </div>
+
+          <!-- Tipos de Contrato -->
+          <div class="settings-content" id="contracts">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="mb-0">Tipos de Contrato</h6>
+              <button class="btn btn-primary btn-sm" onclick="openAddModal('contracts', 'Tipo de Contrato')">
+                <i class="ri-add-line me-1"></i>Novo Tipo de Contrato
+              </button>
+            </div>
+            <div id="contracts-list"></div>
+          </div>
+
+          <!-- Templates Predefinidos -->
+          <div class="settings-content" id="templates">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="mb-0">Templates Predefinidos</h6>
+              <div class="btn-group" role="group">
+                <button class="btn btn-outline-primary btn-sm" onclick="switchTemplateMode('global')" id="btnGlobalMode">
+                  <i class="ri-global-line me-1"></i>Template Global
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="switchTemplateMode('department')" id="btnDepartmentMode">
+                  <i class="ri-building-line me-1"></i>Por Departamento
+                </button>
+              </div>
+            </div>
+            
+            <!-- Seletor de Departamento (aparece apenas no modo departamento) -->
+            <div class="mb-4" id="departmentSelector" style="display: none;">
+              <label class="form-label fw-semibold">Selecione o Departamento:</label>
+              <select class="form-select" id="departmentSelect" style="max-width: 300px;">
+                <option value="">Escolha um departamento...</option>
+              </select>
+            </div>
+
+            <!-- Conteúdo dos Templates -->
+            <div id="templatesContent" style="display: none;">
+              <!-- Responsabilidades -->
+              <div class="template-section">
+                <h6>
+                  <i class="ri-task-line me-2 text-primary"></i>
+                  Responsabilidades
+                </h6>
+                <div id="responsibilitiesContainer">
+                  <!-- Items serão inseridos aqui -->
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addTemplateItem('responsibilities')">
+                  <i class="ri-add-line"></i>
+                </button>
+              </div>
+
+              <!-- Requisitos -->
+              <div class="template-section">
+                <h6>
+                  <i class="ri-check-line me-2 text-success"></i>
+                  Requisitos
+                </h6>
+                <div id="requirementsContainer">
+                  <!-- Items serão inseridos aqui -->
+                </div>
+                <button type="button" class="btn btn-outline-success btn-sm" onclick="addTemplateItem('requirements')">
+                  <i class="ri-add-line"></i>
+                </button>
+              </div>
+
+              <!-- Benefícios -->
+              <div class="template-section">
+                <h6>
+                  <i class="ri-gift-line me-2 text-warning"></i>
+                  Benefícios
+                </h6>
+                <div id="benefitsContainer">
+                  <!-- Items serão inseridos aqui -->
+                </div>
+                <button type="button" class="btn btn-outline-warning btn-sm" onclick="addTemplateItem('benefits')">
+                  <i class="ri-add-line"></i>
+                </button>
+              </div>
+
+              <!-- Diferenciais -->
+              <div class="template-section">
+                <h6>
+                  <i class="ri-star-line me-2 text-info"></i>
+                  Diferenciais 
+                </h6>
+                <div id="niceToHaveContainer">
+                  <!-- Items serão inseridos aqui -->
+                </div>
+                <button type="button" class="btn btn-outline-info btn-sm" onclick="addTemplateItem('niceToHave')">
+                  <i class="ri-add-line"></i>
+                </button>
+              </div>
+
+              <!-- Botões de Ação -->
+              <div class="d-flex gap-2 mt-4">
+                <button type="button" class="btn btn-primary" onclick="saveAllTemplates()">
+                  <i class="ri-save-line me-1"></i>Salvar Templates
+                </button>
+                <button type="button" class="btn btn-outline-secondary" onclick="loadTemplates()">
+                  <i class="ri-refresh-line me-1"></i>Recarregar
+                </button>
+                <button type="button" class="btn btn-outline-info" onclick="previewTemplates()">
+                  <i class="ri-eye-line me-1"></i>Visualizar
+                </button>
+              </div>
+
+              <!-- Preview dos Templates -->
+              <div id="templatePreview" class="template-preview" style="display: none;">
+                <h6>Preview dos Templates:</h6>
+                <div id="previewContent"></div>
+              </div>
+            </div>
+
+            <!-- Informações quando nenhum modo está selecionado -->
+            <div id="templatesInfo" class="alert alert-info">
+              <i class="ri-information-line me-2"></i>
+              <strong>Funcionalidade de Templates:</strong> Configure responsabilidades, requisitos, benefícios e diferenciais padrão. Escolha entre template global (para todos os departamentos) ou por departamento específico.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Adicionar/Editar -->
+  <div class="modal fade" id="itemModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title" id="modalTitle">Adicionar Item</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="itemForm">
+            <input type="hidden" id="itemId">
+            <input type="hidden" id="itemType">
+            <div class="mb-3">
+              <label for="itemName" class="form-label">Nome <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="itemName" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="saveItem()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div id="loadingSpinner" class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,0.5); z-index: 9999;">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.1.min.js" crossorigin="anonymous"></script>
+  <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <script src="../../assets/js/fetchAPI.js"></script>
+  <script src="./assets/js/settings.js"></script>
+</body>
+</html> 

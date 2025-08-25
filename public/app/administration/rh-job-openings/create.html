@@ -1,0 +1,182 @@
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light" data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Nova Vaga</title>
+  <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+  <script src="../../assets/js/main.js"></script>
+  <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../assets/css/styles.min.css" rel="stylesheet">
+  <link href="../../assets/css/icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+  <link rel="stylesheet" href="./assets/css/create.css">
+</head>
+<body>
+  <div class="row">
+    <div class="col-xl-12">
+      <div class="card custom-card bodyWindows">
+        <div class="justify-content-between headerButtons">
+          <ul class="nav nav-tabs border-0" role="tablist">
+            <li class="nav-item" role="presentation">
+              <a class="nav-link label-btn" id="btn-save">
+                <i class="ri-save-3-line label-btn-icon me-2"></i>
+                Salvar
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="card-body">
+          <form id="jobForm" class="vstack gap-3">
+            <div class="row">
+              <div class="col-12">
+                <label class="form-label">Título</label>
+                <input type="text" name="title" class="form-control form-input" placeholder="Insira o título da vaga" required>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Departamento</label>
+                <select class="form-control" name="department_id" data-choices required>
+                  <option value="">Selecione</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Localização</label>
+                <select class="form-control" name="location_id" data-choices required>
+                  <option value="">Selecione</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Modalidade</label>
+                <select class="form-control" name="modality_id" data-choices required>
+                  <option value="">Selecione</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Nível</label>
+                <select class="form-control" name="level_id" data-choices required>
+                  <option value="">Selecione</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Tipo de Contrato</label>
+                <select class="form-control" name="contract_type_id" data-choices required>
+                  <option value="">Selecione</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Vagas</label>
+                <input class="form-control" name="openings" type="number" min="1" value="1" required>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Postada em</label>
+                <input class="form-control" name="posted_at" type="date" required>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-12">
+                <label class="form-label">Descrição</label>
+                <textarea class="form-control form-input" name="description" rows="5" placeholder="Descreva a vaga"></textarea>
+              </div>
+            </div>
+
+            <!-- Responsabilidades -->
+            <div class="row">
+              <div class="col-12">
+                <label class="form-label">Responsabilidades</label>
+                <div id="responsibilities-container">
+                  <div class="responsibility-item mb-2">
+                    <div class="input-group">
+                      <input type="text" class="form-control responsibility-input" placeholder="Adicione uma responsabilidade">
+                      <button type="button" class="btn btn-outline-danger remove-item" onclick="removeItem(this)">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addResponsibility()">
+                  <i class="ri-add-line"></i> Adicionar Responsabilidade
+                </button>
+              </div>
+            </div>
+
+            <!-- Requisitos -->
+            <div class="row">
+              <div class="col-12">
+                <label class="form-label">Requisitos</label>
+                <div id="requirements-container">
+                  <div class="requirement-item mb-2">
+                    <div class="input-group">
+                      <input type="text" class="form-control requirement-input" placeholder="Adicione um requisito">
+                      <button type="button" class="btn btn-outline-danger remove-item" onclick="removeItem(this)">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addRequirement()">
+                  <i class="ri-add-line"></i> Adicionar Requisito
+                </button>
+              </div>
+            </div>
+
+            <!-- Benefícios -->
+            <div class="row">
+              <div class="col-12">
+                <label class="form-label">Benefícios</label>
+                <div id="benefits-container">
+                  <div class="benefit-item mb-2">
+                    <div class="input-group">
+                      <input type="text" class="form-control benefit-input" placeholder="Adicione um benefício">
+                      <button type="button" class="btn btn-outline-danger remove-item" onclick="removeItem(this)">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addBenefit()">
+                  <i class="ri-add-line"></i> Adicionar Benefício
+                </button>
+              </div>
+            </div>
+
+            <!-- Diferenciais  -->
+            <div class="row">
+              <div class="col-12">
+                <label class="form-label">Diferenciais </label>
+                <div id="nice-to-have-container">
+                  <div class="nice-to-have-item mb-2">
+                    <div class="input-group">
+                      <input type="text" class="form-control nice-to-have-input" placeholder="Adicione um diferencial">
+                      <button type="button" class="btn btn-outline-danger remove-item" onclick="removeItem(this)">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addNiceToHave()">
+                  <i class="ri-add-line"></i> Adicionar Diferencial
+                </button>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.1.min.js" crossorigin="anonymous"></script>
+  <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+  <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+  <script src="../../assets/js/fetchAPI.js"></script>
+  <script src="./assets/js/create.js"></script>
+</body>
+</html> 

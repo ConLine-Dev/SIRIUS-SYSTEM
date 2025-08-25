@@ -66,165 +66,312 @@
                     </div>
                 </div>
 
-                <div class="">  
-                    <div class="row">
-                        <!--Cards de Projetos e o Grafico-->
-                        <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">   
-                            <div class="row">
-                                <!--Projetos Novos-->
-                                <div class="col-sm-4">
-                                    <div class="card custom-card cardsProjects" id="intro_card_new">
-                                        <div class="card-body d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <p class="mb-2">Projetos Novos</p>
-                                                <h4 id="newProjects" class="mb-0 fw-semibold mb-2 ">109</h4> 
-                                                <span class="badge bg-success-transparent"><span id="newProjectsPercentage"></span>
-                                                
-                                                </span>
-                                                <span class="text-muted fs-11 ms-1">este mês</span> </div>
-                                            <div> <span class="avatar avatar-md bg-primary p-2"> <i class="bi bi-code-slash fs-20 op-8"></i> </span> </div>
-                                        </div>
-                                    </div>
+                <!-- Seção 1: Cards de Métricas (6 cards em linha única) -->
+                <div class="row mb-4">
+                    <!--Projetos Novos-->
+                    <div class="col-xxl-2 col-xl-2 col-lg-4 col-md-6 col-sm-6">
+                        <div class="card custom-card cardsProjects" id="intro_card_new">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="mb-2">Projetos Novos</p>
+                                    <h4 id="newProjects" class="mb-0 fw-semibold mb-2">109</h4> 
+                                    <span class="badge bg-success-transparent"><span id="newProjectsPercentage"></span></span>
+                                    <span class="text-muted fs-11 ms-1">este mês</span>
                                 </div>
-                                <!--Projetos Análise-->
-                                <div class="col-sm-4">
-                                    <div class="card custom-card cardsProjects" id="intro_card_analise">
-                                        <div class="card-body d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <p class="mb-2">Projetos Análise</p>
-                                                <h4 id="analiseProjects" class="mb-0 fw-semibold mb-2">18</h4> 
-                                                <span class="badge bg-danger-transparent"><span id="analiseProjectsPercentage"></span>
-                                                    </span><span class="text-muted fs-11 ms-1">este mês</span> </div>
-                                            <div> <span class="avatar avatar-md bg-secondary p-2"> <i class="bi bi-clock fs-20 op-8"></i> </span> </div>
-                                        </div>
-                                    </div>
+                                <div>
+                                    <span class="avatar avatar-md bg-primary p-2">
+                                        <i class="bi bi-code-slash fs-20 op-8"></i>
+                                    </span>
                                 </div>
-                                <!--Projetos Andamento-->
-                                <div class="col-sm-4">
-                                    <div class="card custom-card cardsProjects" id="intro_card_andamento">
-                                        <div class="card-body d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <p class="mb-2">Projetos Andamento</p>
-                                                <h4 id="inProgressProjects" class="mb-0 fw-semibold mb-2">389</h4> <span class="badge bg-success-transparent">
-                                                    <span id="inProgressProjectsPercentage"></span> 
-                                                    </span><span class="text-muted fs-11 ms-1">este mês</span> </div>
-                                            <div> <span class="avatar avatar-md bg-success p-2"> <i class="bi bi-hourglass-top fs-20 op-8"></i> </span> </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--Projetos Revisão-->
-                                <div class="col-sm-4">
-                                    <div class="card custom-card cardsProjects" id="intro_card_revisao">
-                                        <div class="card-body d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <p class="mb-2">Projetos Revisão</p>
-                                                <h4 id="inReviewProjects" class="mb-0 fw-semibold mb-2">227</h4> <span class="badge bg-success-transparent">
-                                                    <span id="inReviewProjectsPercentage"></span>
-                                                </span><span class="text-muted fs-11 ms-1">este mês</span> </div>
-                                            <div> <span class="avatar avatar-md bg-warning p-2"> <i class="bi bi-arrow-repeat fs-20 op-8"></i> </span> </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--Projetos Concluídos-->
-                                <div class="col-sm-4">
-                                    <div class="card custom-card cardsProjects" id="intro_card_concluido">
-                                        <div class="card-body d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <p class="mb-2">Projetos Concluídos</p>
-                                                <h4 id="completedProjects" class="mb-0 fw-semibold mb-2">227</h4> 
-                                                <span class="badge bg-success-transparent">
-                                                    <span id="completedProjectsPercentage"></span> </span><span class="text-muted fs-11 ms-1">este mês</span> </div>
-                                            <div> <span class="avatar avatar-md bg-warning p-2"> <i class="bi bi-check2-circle fs-20 op-8"></i> </span> </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--Total Projetos-->
-                                <div class="col-sm-4">
-                                    <div class="card custom-card cardsProjects" id="intro_card_totalProjects">
-                                        <div class="card-body d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <p class="mb-2">Total Projetos</p>
-                                                <h4 id="totalProjects" class="mb-0 fw-semibold mb-2">227</h4> 
-                                                    <!-- <span id="newProjectsPercentage"></span>  -->
-                                                
-                                                    <span class="text-muted fs-11 ms-1">este mês</span> </div>
-                                            <div> <span class="avatar avatar-md bg-warning p-2"> <i class="bi bi-list-check fs-20 op-8"></i> </span> </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!--Grafico de Analise de projetos-->
-                                <div class="col-xl-12" style="margin-top: -5px;">
-                                    <div class="card custom-card intro_graphic_projects">
-                                        <div class="card-header justify-content-between">
-                                            <div class="card-title"> Analise de Projetos </div>
-                                        </div>
-                                        <div class="card-body" style="min-height: 371px;">
-                                            <div id="chart-container" style="min-height: 300px;">
-                                            <!--INFOS ADD NO JS-->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
                             </div>
                         </div>
+                    </div>
+                    
+                    <!--Projetos Análise-->
+                    <div class="col-xxl-2 col-xl-2 col-lg-4 col-md-6 col-sm-6">
+                        <div class="card custom-card cardsProjects" id="intro_card_analise">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="mb-2">Projetos Análise</p>
+                                    <h4 id="analiseProjects" class="mb-0 fw-semibold mb-2">18</h4> 
+                                    <span class="badge bg-danger-transparent"><span id="analiseProjectsPercentage"></span></span>
+                                    <span class="text-muted fs-11 ms-1">este mês</span>
+                                </div>
+                                <div>
+                                    <span class="avatar avatar-md bg-secondary p-2">
+                                        <i class="bi bi-clock fs-20 op-8"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!--Projetos Andamento-->
+                    <div class="col-xxl-2 col-xl-2 col-lg-4 col-md-6 col-sm-6">
+                        <div class="card custom-card cardsProjects" id="intro_card_andamento">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="mb-2">Projetos Andamento</p>
+                                    <h4 id="inProgressProjects" class="mb-0 fw-semibold mb-2">389</h4> 
+                                    <span class="badge bg-success-transparent"><span id="inProgressProjectsPercentage"></span></span>
+                                    <span class="text-muted fs-11 ms-1">este mês</span>
+                                </div>
+                                <div>
+                                    <span class="avatar avatar-md bg-success p-2">
+                                        <i class="bi bi-hourglass-top fs-20 op-8"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!--Projetos Revisão-->
+                    <div class="col-xxl-2 col-xl-2 col-lg-4 col-md-6 col-sm-6">
+                        <div class="card custom-card cardsProjects" id="intro_card_revisao">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="mb-2">Projetos Revisão</p>
+                                    <h4 id="inReviewProjects" class="mb-0 fw-semibold mb-2">227</h4> 
+                                    <span class="badge bg-success-transparent"><span id="inReviewProjectsPercentage"></span></span>
+                                    <span class="text-muted fs-11 ms-1">este mês</span>
+                                </div>
+                                <div>
+                                    <span class="avatar avatar-md bg-warning p-2">
+                                        <i class="bi bi-arrow-repeat fs-20 op-8"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!--Projetos Concluídos-->
+                    <div class="col-xxl-2 col-xl-2 col-lg-4 col-md-6 col-sm-6">
+                        <div class="card custom-card cardsProjects" id="intro_card_concluido">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="mb-2">Projetos Concluídos</p>
+                                    <h4 id="completedProjects" class="mb-0 fw-semibold mb-2">227</h4> 
+                                    <span class="badge bg-success-transparent"><span id="completedProjectsPercentage"></span></span>
+                                    <span class="text-muted fs-11 ms-1">este mês</span>
+                                </div>
+                                <div>
+                                    <span class="avatar avatar-md bg-warning p-2">
+                                        <i class="bi bi-check2-circle fs-20 op-8"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!--Total Projetos-->
+                    <div class="col-xxl-2 col-xl-2 col-lg-4 col-md-6 col-sm-6">
+                        <div class="card custom-card cardsProjects" id="intro_card_totalProjects">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="mb-2">Total Projetos</p>
+                                    <h4 id="totalProjects" class="mb-0 fw-semibold mb-2">227</h4> 
+                                    <span class="badge bg-primary-transparent">100%</span>
+                                    <span class="text-muted fs-11 ms-1">total</span>
+                                </div>
+                                <div>
+                                    <span class="avatar avatar-md bg-warning p-2">
+                                        <i class="bi bi-list-check fs-20 op-8"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
 
-                        <!-- Cards Membros da equipe, Iniciar projeto, Tarefas e Últimas mensagens -->
-                        <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
-                            <div class="row">
-                                <!-- Membros da equipe -->
-                                <div class="col-lg-6">
-                                    <div class="card custom-card intro_membersEquip">
-                                        <div class="card-header justify-content-between align-items-center">
-                                            <div class="card-title listCards1"> Membros da Equipe </div>
-                                        </div>
-                                        <div class="card-body cardsOne" id="members-equip">
-                                            <ul class="list-unstyled team-members-card mb-0"></ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Iniciar novo projeto -->
-                                <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
-                                    <div class="card custom-card shadow-none projects-tracking-card overflow-hidden text-center mt-3 mt-lg-0">
-                                        <div class="card-body cardsTwo"> 
-                                            <img src="../../assets/images/media/media-86.svg" alt="" class="mb-1">
-                                            <div> 
-                                                <span class="fs-15 fw-semibold d-block mt-4 mb-3">Iniciar um novo projeto</span>
-                                                <button type="button" class="btn btn-primary btn-sm btn-wave waves-effect waves-light">Cadastrar agora</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Tarefas a vencer -->
-                                <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
-                                    <div class="card custom-card intro_task_pending">
-                                        <div class="card-header justify-content-between align-items-center">
-                                            <div class="card-title">Tarefas a vencer</div>
-                                        </div>
-                                        <div class="card-body listCards2" id="tasksLate">
-                                            <ul class="list-unstyled projects-maintask-card">
-                                                <!-- Conteúdo das tarefas -->
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Últimas mensagens -->
-                                <div class="col-xxl col-sm-12 col-md-6 col-xxl-6 col-xl-8">
-                                    <div class="card custom-card intro_last_messenger">
-                                        <div class="card-header justify-content-between align-items-center">
-                                            <div class="card-title">Últimas mensagens</div>
-                                        </div>
-                                        <div class="card-body listCards2" id="latestMessages">
-                                            <ul class="list-unstyled project-transactions-card">
-                                                <!-- Conteúdo das mensagens -->
-                                            </ul>
-                                        </div>
+                </div>
+
+                <!-- Seção 2: Cards de Informações Detalhadas (4 cards em linha) -->
+                <div class="row mb-4">
+                    <!-- Membros da equipe -->
+                    <div class="col-xxl-3 col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                        <div class="card custom-card intro_membersEquip">
+                            <div class="card-header justify-content-between align-items-center">
+                                <div class="card-title listCards1">Membros da Equipe</div>
+                            </div>
+                            <div class="card-body" id="members-equip">
+                                <ul class="list-unstyled team-members-card mb-0"></ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tempo Médio de Finalização por Categoria -->
+                    <div class="col-xxl-3 col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                        <div class="card custom-card intro_average_completion_time">
+                            <div class="card-header justify-content-between align-items-center">
+                                <div class="card-title">Tempo Médio de Finalização</div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="export-details-btn">
+                                    <i class="bi bi-download me-1"></i>Exportar Detalhes
+                                </button>
+                            </div>
+                            <div class="card-body" id="average-completion-time">
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Carregando...</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        
+                    </div>
+                    
+                    <!-- Tarefas a vencer -->
+                    <div class="col-xxl-3 col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                        <div class="card custom-card intro_task_pending">
+                            <div class="card-header justify-content-between align-items-center">
+                                <div class="card-title">Tarefas a vencer</div>
+                            </div>
+                            <div class="card-body" id="tasksLate">
+                                <ul class="list-unstyled projects-maintask-card mb-0">
+                                    <!-- Conteúdo das tarefas -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Últimas mensagens -->
+                    <div class="col-xxl-3 col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                        <div class="card custom-card intro_last_messenger">
+                            <div class="card-header justify-content-between align-items-center">
+                                <div class="card-title">Últimas mensagens</div>
+                            </div>
+                            <div class="card-body" id="latestMessages">
+                                <ul class="list-unstyled project-transactions-card mb-0">
+                                    <!-- Conteúdo das mensagens -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Seção 3: Gráficos (2 gráficos lado a lado) -->
+                <div class="row mb-4">
+                    <!-- Gráfico de Análise de Projetos -->
+                    <div class="col-xxl-6 col-xl-6 col-lg-12 col-md-12 col-sm-12">
+                        <div class="card custom-card intro_graphic_projects">
+                            <div class="card-header justify-content-between">
+                                <div class="card-title">Chamados Abertos por Mês</div>
+                                <div class="d-flex align-items-center">
+                                    <select class="form-select form-select-sm me-2" id="projects-year-selector" style="width: auto;" title="Selecione o ano para visualizar os dados">
+                                        <!-- Anos disponíveis carregados dinamicamente da base de dados -->
+                                    </select>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="export-projects-data-btn">
+                                        <i class="bi bi-download me-1"></i>Exportar Dados
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body" style="min-height: 400px;">
+                                <div id="chart-container" style="min-height: 350px;">
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Carregando gráfico...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Gráfico de Tempo Médio de Conclusão por Mês e Categoria -->
+                    <div class="col-xxl-6 col-xl-6 col-lg-12 col-md-12 col-sm-12">
+                        <div class="card custom-card intro_completion_time_chart">
+                            <div class="card-header justify-content-between">
+                                <div class="card-title">Tempo Médio de Conclusão por Mês e Categoria</div>
+                                <div class="d-flex align-items-center">
+                                    <select class="form-select form-select-sm me-2" id="chart-year-selector" style="width: auto;" title="Selecione o ano para visualizar os dados">
+                                        <!-- Anos disponíveis carregados dinamicamente da base de dados -->
+                                    </select>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="export-chart-data-btn">
+                                        <i class="bi bi-download me-1"></i>Exportar Dados
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body" style="min-height: 400px;">
+                                <div id="completion-time-chart-container" style="min-height: 350px;">
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Carregando gráfico...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <!-- Seção 4: Gráficos de Performance (2 gráficos lado a lado) -->
+            <div class="row mb-4">
+                <!-- Grafico de Meta vs Realizado por Categoria -->
+                <div class="col-xxl-6 col-xl-6 col-lg-12 col-md-12 col-sm-12">
+                    <div class="card custom-card intro_target_vs_actual_chart">
+                        <div class="card-header justify-content-between">
+                            <div class="card-title">Meta vs Realizado - Tempo Médio Geral</div>
+                            <div class="d-flex align-items-center">
+                                <select class="form-select form-select-sm me-2" id="target-year-selector" style="width: auto;" title="Selecione o ano para visualizar os dados">
+                                    <!-- Anos disponíveis carregados dinamicamente da base de dados -->
+                                </select>
+                                <button type="button" class="btn btn-sm btn-outline-info me-2" id="meta-details-btn" data-bs-toggle="modal" data-bs-target="#metaDetailsModal">
+                                    <i class="bi bi-info-circle me-1"></i>Como Funciona
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="export-target-data-btn">
+                                    <i class="bi bi-download me-1"></i>Exportar Dados
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body" style="min-height: 400px;">
+                            <div id="target-vs-actual-chart-container" style="min-height: 350px;">
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Carregando gráfico...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Grafico de Chamados Dentro do Prazo -->
+                <div class="col-xxl-6 col-xl-6 col-lg-12 col-md-12 col-sm-12">
+                    <div class="card custom-card intro_on_time_chart">
+                        <div class="card-header justify-content-between">
+                            <div class="card-title">Chamados Dentro do Prazo</div>
+                            <div class="d-flex align-items-center">
+                                <select class="form-select form-select-sm me-2" id="on-time-year-selector" style="width: auto;" title="Selecione o ano para visualizar os dados">
+                                    <!-- Anos disponíveis carregados dinamicamente da base de dados -->
+                                </select>
+                                <select class="form-select form-select-sm me-2" id="on-time-month-selector" style="width: auto;" title="Selecione o mês para visualizar os dados">
+                                    <option value="1">Janeiro</option>
+                                    <option value="2">Fevereiro</option>
+                                    <option value="3">Março</option>
+                                    <option value="4">Abril</option>
+                                    <option value="5">Maio</option>
+                                    <option value="6">Junho</option>
+                                    <option value="7">Julho</option>
+                                    <option value="8">Agosto</option>
+                                    <option value="9">Setembro</option>
+                                    <option value="10">Outubro</option>
+                                    <option value="11">Novembro</option>
+                                    <option value="12">Dezembro</option>
+                                </select>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="export-on-time-data-btn">
+                                    <i class="bi bi-download me-1"></i>Exportar Dados
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body" style="min-height: 400px;">
+                            <div id="on-time-chart-container" style="min-height: 350px;">
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Carregando gráfico...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -485,6 +632,192 @@
         </div>
    
 
+    <!-- Modal de Detalhes da Meta Adaptativa -->
+    <div class="modal fade" id="metaDetailsModal" tabindex="-1" aria-labelledby="metaDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="metaDetailsModalLabel">
+                        <i class="bi bi-calculator me-2"></i>Como Funciona a Meta Adaptativa
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-lightbulb me-2"></i>Conceito da Meta Adaptativa
+                            </h6>
+                            <p class="text-muted mb-4">
+                                A <strong>Meta Adaptativa</strong> é um sistema inteligente que ajusta automaticamente as metas de tempo de conclusão 
+                                baseado no volume de trabalho e histórico de performance. Diferente de metas fixas, ela se adapta às 
+                                condições reais do mercado e da equipe.
+                            </p>
+
+                            <h6 class="text-success mb-3">
+                                <i class="bi bi-gear me-2"></i>Como é Calculada
+                            </h6>
+                            <div class="card bg-light border-0 mb-4">
+                                <div class="card-body">
+                                    <h6 class="card-title text-dark">Fórmula Principal:</h6>
+                                    <div class="text-center mb-3">
+                                        <code class="fs-5 text-primary">Meta = Média Histórica × (1 + Fator de Crescimento)</code>
+                                    </div>
+                                    <p class="card-text text-muted">
+                                        Onde o <strong>Fator de Crescimento</strong> é calculado baseado na variação do volume de tickets.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <h6 class="text-info mb-3">
+                                <i class="bi bi-list-check me-2"></i>Componentes da Cálculo
+                            </h6>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="card border-primary mb-3">
+                                        <div class="card-header bg-primary text-white">
+                                            <i class="bi bi-clock-history me-2"></i>Média Histórica
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="card-text">
+                                                <strong>O que é:</strong> Tempo médio de conclusão dos meses anteriores do ano atual.<br>
+                                                <strong>Período:</strong> Janeiro até o mês anterior ao analisado.<br>
+                                                <strong>Base:</strong> Apenas tickets concluídos com previsão de início e fim.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-success mb-3">
+                                        <div class="card-header bg-success text-white">
+                                            <i class="bi bi-graph-up me-2"></i>Fator de Crescimento
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="card-text">
+                                                <strong>O que é:</strong> Ajuste baseado na variação do volume de tickets.<br>
+                                                <strong>Cálculo:</strong> (Tickets Atuais - Média Anterior) / Média Anterior<br>
+                                                <strong>Limite:</strong> Entre -20% e +50% para evitar metas irrealistas.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h6 class="text-warning mb-3">
+                                <i class="bi bi-exclamation-triangle me-2"></i>Regras Especiais
+                            </h6>
+                            <ul class="list-group list-group-flush mb-4">
+                                <li class="list-group-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <strong>Meta resetada anualmente:</strong> Cada ano começa do zero, sem influência de anos anteriores
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <strong>Primeiro mês do ano:</strong> Meta baseada apenas na média histórica (sem fator de crescimento)
+                                </li>
+                                <li class="list-group-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>
+                                    <strong>Limitação de outliers:</strong> Fator de crescimento limitado para evitar metas irrealistas
+                                </li>
+                            </ul>
+
+
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-calculator me-2"></i>Exemplo Prático
+                            </h6>
+                            <div class="card bg-light border-0 mb-4">
+                                <div class="card-body">
+                                    <h6 class="card-title">Cenário: Março 2025</h6>
+                                    <div class="mb-3">
+                                        <strong>Dados Históricos (Jan-Fev):</strong>
+                                        <ul class="mt-2">
+                                            <li>Média de tempo: 45 horas</li>
+                                            <li>Total de tickets: 80</li>
+                                            <li>Média por mês: 40 tickets</li>
+                                        </ul>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Março Atual:</strong>
+                                        <ul class="mt-2">
+                                            <li>Tickets do mês: 35</li>
+                                            <li>Variação: -12.5% (35 vs 40)</li>
+                                        </ul>
+                                    </div>
+                                    <div class="alert alert-info">
+                                        <strong>Cálculo:</strong><br>
+                                        Fator = -12.5% × 0.3 = -3.75%<br>
+                                        Meta = 45h × (1 - 0.0375) = <strong>43.3 horas</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h6 class="text-success mb-3">
+                                <i class="bi bi-eye me-2"></i>Como Interpretar
+                            </h6>
+                            <div class="card border-info mb-3">
+                                <div class="card-header bg-info text-white">
+                                    <i class="bi bi-lightbulb me-2"></i>Indicadores Visuais
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-success me-2">✅</span>
+                                        <span><strong>BOM:</strong> Dentro do tempo esperado</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-danger me-2">❌</span>
+                                        <span><strong>MELHORAR:</strong> Acima do tempo esperado</span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="text-success">+X%</span>
+                                        <span class="ms-2">Crescimento no volume</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="text-danger">-X%</span>
+                                        <span class="ms-2">Redução no volume</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h6 class="text-warning mb-3">
+                                <i class="bi bi-question-circle me-2"></i>Por que Adaptativa?
+                            </h6>
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <i class="bi bi-star me-2"></i>Vantagens
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">
+                                            <i class="bi bi-check text-success me-2"></i>
+                                            <strong>Justiça:</strong> Metas se ajustam ao volume de trabalho
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="bi bi-check text-success me-2"></i>
+                                            <strong>Realismo:</strong> Baseada em dados reais da equipe
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="bi bi-check text-success me-2"></i>
+                                            <strong>Motivação:</strong> Metas alcançáveis e desafiadoras
+                                        </li>
+                                        <li>
+                                            <i class="bi bi-check text-success me-2"></i>
+                                            <strong>Flexibilidade:</strong> Adapta-se às mudanças do mercado
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scroll To Top -->
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
     <div id="responsive-overlay"></div>
@@ -502,6 +835,9 @@
     <!-- <script src="../../assets/libs/apexcharts/apexCharts.js"></script> -->
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    
+    <!-- ExcelJS para exportação -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 
 
     <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>

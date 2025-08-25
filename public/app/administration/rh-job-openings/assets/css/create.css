@@ -1,0 +1,52 @@
+/* Estilos para campos dinâmicos */
+.input-group {
+  margin-bottom: 0.5rem;
+}
+
+.input-group .form-control {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.input-group .btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.remove-item {
+  border-left: none;
+}
+
+.remove-item:hover {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+/* Espaçamento entre seções */
+.row {
+  margin-bottom: 1.5rem;
+}
+
+/* Estilo para botões de adicionar */
+.btn-outline-primary.btn-sm {
+  margin-top: 0.5rem;
+}
+
+/* Container dos itens dinâmicos */
+#responsibilities-container,
+#requirements-container,
+#benefits-container,
+#nice-to-have-container {
+  margin-bottom: 0.5rem;
+}
+
+/* Estilo para inputs vazios */
+.form-control:placeholder-shown {
+  border-color: #dee2e6;
+}
+
+.form-control:focus {
+  border-color: #f9623a;
+  box-shadow: 0 0 0 0.2rem rgba(249, 98, 58, 0.25);
+} 

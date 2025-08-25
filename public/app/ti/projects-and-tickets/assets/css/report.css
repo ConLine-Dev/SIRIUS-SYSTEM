@@ -2,6 +2,135 @@ body{
     user-select: none;
 }
 
+/* Regras específicas para o modal de detalhes da meta adaptativa */
+#metaDetailsModal .card-header {
+    background-color: inherit !important;
+    color: inherit !important;
+}
+
+#metaDetailsModal .card.border-primary .card-header {
+    background-color: #0d6efd !important;
+    color: white !important;
+}
+
+#metaDetailsModal .card.border-success .card-header {
+    background-color: #198754 !important;
+    color: white !important;
+}
+
+#metaDetailsModal .card.border-info .card-header {
+    background-color: #0dcaf0 !important;
+    color: white !important;
+}
+
+#metaDetailsModal .card.border-warning .card-header {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+#metaDetailsModal .card.border-danger .card-header {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+/* Garantir que os cards do modal mantenham suas cores */
+#metaDetailsModal .card.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+#metaDetailsModal .card.border-0 {
+    border: none !important;
+}
+
+/* Estilos específicos para o modal */
+#metaDetailsModal .modal-content {
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+#metaDetailsModal .modal-header {
+    border-bottom: 2px solid #e9ecef;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+#metaDetailsModal .modal-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+#metaDetailsModal .modal-body {
+    padding: 2rem;
+}
+
+#metaDetailsModal .list-group-item {
+    border-left: none;
+    border-right: none;
+    padding: 0.75rem 1rem;
+}
+
+#metaDetailsModal .alert {
+    border-radius: 8px;
+    border: none;
+}
+
+#metaDetailsModal code {
+    background-color: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Estilos para tooltip de colaboradores */
+.tooltip-collaborators {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e9ecef;
+}
+
+.tooltip-collaborator {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 11px;
+}
+
+.tooltip-collaborator-name {
+    flex: 1;
+    margin-left: 4px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.tooltip-collaborator-stats {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    font-size: 10px;
+}
+
+.tooltip-collaborator-on-time {
+    font-weight: 600;
+}
+
+.tooltip-collaborator-late {
+    font-weight: 600;
+}
+
+.tooltip-collaborator-performance {
+    font-weight: 600;
+    margin-left: 2px;
+}
+
+.tooltip-collaborator .avatar {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+}
+
 .ynex-kanban-board #completed-tasks, .ynex-kanban-board #inprogress-tasks, .ynex-kanban-board #inreview-tasks, .ynex-kanban-board #new-tasks, .ynex-kanban-board #todo-tasks {
     position: relative;
     max-height: calc(100% - 51px) !important;
@@ -113,9 +242,29 @@ textarea {
  }
 
 .cardsOne {
-    max-height: 242px;
+    max-height: 309px;
     position: relative;
-    min-height: 242px;
+    min-height: 309px;
+    overflow-y: auto;
+}
+
+/* Estiliza a barra de rolagem do card de membros */
+.cardsOne::-webkit-scrollbar {
+    width: 8px;
+}
+
+.cardsOne::-webkit-scrollbar-track {
+    background: var(--header-bg);
+    border-radius: 4px;
+}
+
+.cardsOne::-webkit-scrollbar-thumb {
+    background-color: var(--header-border-color);
+    border-radius: 4px;
+}
+
+.cardsOne::-webkit-scrollbar-thumb:hover {
+    background-color: #999;
 }
 
 .cardsTwo {
@@ -175,6 +324,673 @@ textarea {
 
 .cardsProjects {
     padding: 0.30rem;
+}
+
+/* Estilos para o card de tempo médio de finalização */
+.intro_average_completion_time {
+    max-height: 368px;
+    overflow: hidden;
+}
+
+#average-completion-time {
+    overflow-x: hidden;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 0;
+}
+
+#average-completion-time::-webkit-scrollbar {
+    width: 8px;
+}
+
+#average-completion-time::-webkit-scrollbar-track {
+    background: var(--header-bg);
+    border-radius: 4px;
+}
+
+#average-completion-time::-webkit-scrollbar-thumb {
+    background-color: var(--header-border-color);
+    border-radius: 4px;
+}
+
+#average-completion-time::-webkit-scrollbar-thumb:hover {
+    background-color: #999;
+}
+
+/* Estilo para os itens de categoria */
+#average-completion-time .d-flex {
+    transition: all 0.2s ease;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 0 8px;
+}
+
+#average-completion-time .d-flex:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+    transform: translateX(2px);
+}
+
+/* Estilo para o ícone de categoria */
+#average-completion-time .avatar-sm {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Estilo para os badges de tempo */
+#average-completion-time .badge {
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+/* Estilo para o texto de taxa de conclusão */
+#average-completion-time .small {
+    font-size: 10px;
+    margin-top: 2px;
+}
+
+/* Estilos para o card de membros da equipe */
+.member-item {
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s ease;
+    padding: 4px 0;
+}
+
+/* Estilos de scrollbar para todos os cards */
+.intro_membersEquip .card-body::-webkit-scrollbar,
+.intro_average_completion_time .card-body::-webkit-scrollbar,
+.intro_task_pending .card-body::-webkit-scrollbar,
+.intro_last_messenger .card-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.intro_membersEquip .card-body::-webkit-scrollbar-track,
+.intro_average_completion_time .card-body::-webkit-scrollbar-track,
+.intro_task_pending .card-body::-webkit-scrollbar-track,
+.intro_last_messenger .card-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.intro_membersEquip .card-body::-webkit-scrollbar-thumb,
+.intro_average_completion_time .card-body::-webkit-scrollbar-thumb,
+.intro_task_pending .card-body::-webkit-scrollbar-thumb,
+.intro_last_messenger .card-body::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.intro_membersEquip .card-body::-webkit-scrollbar-thumb:hover,
+.intro_average_completion_time .card-body::-webkit-scrollbar-thumb:hover,
+.intro_task_pending .card-body::-webkit-scrollbar-thumb:hover,
+.intro_last_messenger .card-body::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Garantir que o conteúdo dos cards seja exibido de forma consistente */
+.intro_membersEquip .card-body,
+.intro_average_completion_time .card-body,
+.intro_task_pending .card-body,
+.intro_last_messenger .card-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    max-height: 380px; /* Aumentei para 330px para acompanhar o card maior */
+    padding: 1rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.intro_membersEquip .card-body > ul,
+.intro_average_completion_time .card-body > div,
+.intro_task_pending .card-body > ul,
+.intro_last_messenger .card-body > ul {
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Estilos específicos para itens das listas */
+.intro_membersEquip .card-body li,
+.intro_task_pending .card-body li,
+.intro_last_messenger .card-body li {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.intro_membersEquip .card-body li:last-child,
+.intro_task_pending .card-body li:last-child,
+.intro_last_messenger .card-body li:last-child {
+    border-bottom: none;
+}
+
+/* Garantir que textos longos quebrem adequadamente */
+.intro_membersEquip .card-body span,
+.intro_task_pending .card-body span,
+.intro_last_messenger .card-body span {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    display: inline-block;
+}
+
+/* Estilos específicos para o card de tempo médio de finalização */
+.intro_average_completion_time .card-body .d-flex {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.intro_average_completion_time .card-body .d-flex:last-child {
+    border-bottom: none;
+}
+
+.intro_average_completion_time .card-body .d-flex .small {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Garantir que badges não saiam dos limites */
+.intro_membersEquip .badge,
+.intro_average_completion_time .badge,
+.intro_task_pending .badge,
+.intro_last_messenger .badge {
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+/* Garantir que todos os cards tenham exatamente a mesma altura */
+.intro_membersEquip,
+.intro_average_completion_time,
+.intro_task_pending,
+.intro_last_messenger {
+    display: flex;
+    flex-direction: column;
+    min-height: 400px; /* Aumentei para 400px - você pode alterar este valor */
+    max-height: 400px; /* Aumentei para 400px - você pode alterar este valor */
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Garantir que os cards não quebrem o layout */
+.intro_membersEquip .card,
+.intro_average_completion_time .card,
+.intro_task_pending .card,
+.intro_last_messenger .card {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.intro_membersEquip .card-header,
+.intro_average_completion_time .card-header,
+.intro_task_pending .card-header,
+.intro_last_messenger .card-header {
+    flex-shrink: 0;
+}
+
+.intro_membersEquip .card-body,
+.intro_average_completion_time .card-body,
+.intro_task_pending .card-body,
+.intro_last_messenger .card-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.member-item:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.member-item:last-child {
+    border-bottom: none;
+}
+
+.member-item .avatar {
+    flex-shrink: 0;
+}
+
+.member-item .fw-semibold {
+    font-size: 13px !important;
+    line-height: 1.2;
+}
+
+.member-item .text-muted {
+    font-size: 10px !important;
+    line-height: 1.2;
+}
+
+.categories-details {
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    padding: 6px;
+    margin-top: 6px;
+    border-left: 3px solid #007bff;
+    font-size: 10px;
+}
+
+.categories-details .d-flex {
+    margin-bottom: 4px;
+}
+
+.categories-details .d-flex:last-child {
+    margin-bottom: 0;
+}
+
+.btn-toggle-details {
+    padding: 2px 4px;
+    font-size: 10px;
+    border-radius: 3px;
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-toggle-details:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.fs-10 {
+    font-size: 10px !important;
+}
+
+.fs-13 {
+    font-size: 13px !important;
+}
+
+.bg-secondary-transparent {
+    background-color: rgba(108, 117, 125, 0.1) !important;
+    color: #6c757d !important;
+}
+
+.gap-1 {
+    gap: 0.25rem !important;
+}
+
+/* Estilos para o novo layout reorganizado */
+
+/* Seção 1: Cards de Métricas */
+.cardsProjects {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.cardsProjects:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.cardsProjects .card-body {
+    padding: 1.25rem;
+}
+
+.cardsProjects h4 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.cardsProjects p {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.cardsProjects .badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.cardsProjects .avatar {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Seção 2: Cards de Informações Detalhadas */
+.intro_membersEquip,
+.intro_average_completion_time,
+.intro_task_pending,
+.intro_last_messenger {
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.intro_membersEquip .card-body,
+.intro_average_completion_time .card-body,
+.intro_task_pending .card-body,
+.intro_last_messenger .card-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.intro_membersEquip:hover,
+.intro_average_completion_time:hover,
+.intro_task_pending:hover,
+.intro_last_messenger:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Seção 3: Gráficos */
+.intro_graphic_projects,
+.intro_completion_time_chart {
+    height: 500px;
+    transition: all 0.3s ease;
+}
+
+.intro_graphic_projects:hover,
+.intro_completion_time_chart:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Responsividade melhorada */
+@media (max-width: 1200px) {
+    .cardsProjects h4 {
+        font-size: 1.5rem;
+    }
+    
+    .intro_membersEquip,
+    .intro_average_completion_time,
+    .intro_task_pending,
+    .intro_last_messenger {
+        min-height: 320px;
+        max-height: 320px;
+    }
+    
+    .intro_graphic_projects,
+    .intro_completion_time_chart {
+        height: 450px;
+    }
+}
+
+@media (max-width: 768px) {
+    .cardsProjects h4 {
+        font-size: 1.25rem;
+    }
+    
+    .intro_membersEquip,
+    .intro_average_completion_time,
+    .intro_task_pending,
+    .intro_last_messenger {
+        min-height: 280px;
+        max-height: 280px;
+    }
+    
+    .intro_graphic_projects,
+    .intro_completion_time_chart {
+        height: 400px;
+    }
+}
+
+/* Espaçamento entre seções */
+.mb-4 {
+    margin-bottom: 2rem !important;
+}
+
+/* Estilos para os gráficos */
+.intro_completion_time_chart .card-header,
+.intro_graphic_projects .card-header,
+.intro_target_vs_actual_chart .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.intro_completion_time_chart .form-select,
+.intro_graphic_projects .form-select,
+.intro_target_vs_actual_chart .form-select {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    font-size: 14px;
+    padding: 4px 8px;
+}
+
+.intro_completion_time_chart .btn-outline-primary,
+.intro_graphic_projects .btn-outline-primary,
+.intro_target_vs_actual_chart .btn-outline-primary {
+    border-radius: 6px;
+    font-size: 14px;
+    padding: 4px 12px;
+}
+
+.intro_completion_time_chart .form-select,
+.intro_graphic_projects .form-select {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    font-size: 14px;
+    padding: 4px 8px;
+}
+
+.intro_completion_time_chart .btn-outline-primary,
+.intro_graphic_projects .btn-outline-primary {
+    border-radius: 6px;
+    font-size: 14px;
+    padding: 4px 12px;
+}
+
+/* Estilos para tooltips customizados */
+.custom-tooltip {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    max-width: 500px;
+    min-width: 400px;
+    overflow: visible;
+    max-height: none;
+    z-index: 9999;
+}
+
+.tooltip-header {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    color: #2c3e50;
+}
+
+.tooltip-content {
+    color: #6c757d;
+}
+
+.tooltip-summary {
+    margin-bottom: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.tooltip-summary-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.tooltip-summary .tooltip-actual {
+    flex: 1;
+    margin-right: 6px;
+}
+
+.tooltip-summary .tooltip-target {
+    margin-right: 6px;
+    font-size: 11px;
+    color: #FF4560;
+}
+
+.tooltip-summary .tooltip-tickets {
+    margin-right: 6px;
+    font-size: 11px;
+}
+
+.tooltip-summary .tooltip-performance {
+    font-size: 14px;
+}
+
+.tooltip-summary .tooltip-growth {
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.tooltip-summary .tooltip-total-calls {
+    margin-top: 3px;
+    color: #666;
+}
+
+.tooltip-breakdown {
+    margin: 8px 0;
+    padding: 6px 0;
+    border-top: 1px solid #e9ecef;
+}
+
+.tooltip-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 11px;
+}
+
+.tooltip-label {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.tooltip-value {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.tooltip-formula {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px solid #e9ecef;
+    color: #495057;
+    font-style: italic;
+}
+
+.tooltip-category-breakdown {
+    margin-top: 2px;
+    color: #6c757d;
+    font-size: 9px;
+}
+
+.tooltip-total {
+    margin-bottom: 8px;
+    color: #2c3e50;
+}
+
+.tooltip-categories {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.tooltip-categories div {
+    margin-bottom: 2px;
+    padding: 2px 0;
+}
+
+.tooltip-category-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 3px;
+    padding: 2px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.tooltip-category-name {
+    font-weight: 500;
+    color: #2c3e50;
+    margin-bottom: 2px;
+    font-size: 11px;
+}
+
+.tooltip-category-details {
+    font-size: 10px;
+    color: #6c757d;
+    margin-bottom: 1px;
+}
+
+.tooltip-category-target {
+    font-size: 9px;
+    color: #495057;
+    font-weight: 500;
+}
+
+.tooltip-categories {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e9ecef;
+    overflow: visible;
+    max-height: none;
+}
+
+
+
+.tooltip-category-more {
+    text-align: center;
+    padding: 4px 0;
+    margin-top: 4px;
+    border-top: 1px solid #e9ecef;
+    color: #6c757d;
+    font-style: italic;
+    font-size: 10px;
+}
+
+.intro_completion_time_chart .form-select {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    font-size: 14px;
+    padding: 4px 8px;
+}
+
+.intro_completion_time_chart .btn-outline-primary {
+    border-radius: 6px;
+    font-size: 14px;
+    padding: 4px 12px;
+}
+
+#completion-time-chart-container {
+    position: relative;
+}
+
+#completion-time-chart-container .apexcharts-tooltip {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid #e9ecef !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+#completion-time-chart-container .apexcharts-legend {
+    padding: 10px 0 !important;
+}
+
+#completion-time-chart-container .apexcharts-legend-text {
+    font-size: 13px !important;
+    font-weight: 500 !important;
 }
 
 

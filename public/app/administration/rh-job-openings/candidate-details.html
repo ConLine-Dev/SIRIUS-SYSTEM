@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light" data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes do Candidato - RH Job Openings</title>
+  <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+  <script src="../../assets/js/main.js"></script>
+  <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../assets/css/styles.min.css" rel="stylesheet">
+  <link href="../../assets/css/icons.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+  <link href="../../assets/libs/sweetalert2/sweetalert2.min.css" rel="stylesheet">
+  <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+  <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
+  <link href="./assets/css/candidate-details.css" rel="stylesheet">
+</head>
+<body style="overflow: auto !important;">
+  <div class="row" style="height: 100%;">
+    <div class="col-xl-12">
+      <div class="card custom-card" style="height: 100%;">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="card-title mb-0">
+              <i class="ri-user-line me-2"></i>
+              Detalhes do Candidato
+            </h5>
+            <p class="text-muted mb-0 mt-1 fs-12">Visualize e gerencie todas as informações do candidato</p>
+          </div>
+          <div class="d-flex gap-2">
+            <!-- Botões removidos conforme solicitado -->
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="row">
+            <!-- Informações do Candidato -->
+            <div class="col-lg-4">
+              <div class="card candidate-profile-card">
+                <div class="card-body text-center">
+                  <div class="candidate-avatar-large mb-3" id="candidateAvatar">
+                    <!-- Avatar será preenchido via JavaScript -->
+                  </div>
+                  <h4 class="mb-2" id="candidateName">Nome do Candidato</h4>
+                  <p class="text-muted mb-3" id="candidateEmail">email@exemplo.com</p>
+                  
+                  <div class="row text-center mb-3">
+                    <div class="col-4">
+                      <div class="fw-bold text-primary" id="totalApplications">0</div>
+                      <small class="text-muted">Candidaturas</small>
+                    </div>
+                    <div class="col-4">
+                      <div class="fw-bold text-success" id="totalAttachments">0</div>
+                      <small class="text-muted">Anexos</small>
+                    </div>
+                    <div class="col-4">
+                      <div class="fw-bold text-info" id="totalNotes">0</div>
+                      <small class="text-muted">Observações</small>
+                    </div>
+                  </div>
+                  
+                  <div class="d-grid gap-2">
+                    <button class="btn btn-primary" onclick="editCandidate()">
+                      <i class="ri-edit-line me-1"></i>Editar Dados
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Informações de Contato -->
+              <div class="card mt-3">
+                <div class="card-header">
+                  <h6 class="mb-0"><i class="ri-contacts-line me-2"></i>Informações de Contato</h6>
+                </div>
+                <div class="card-body">
+                  <div class="mb-2">
+                    <small class="text-muted">Telefone</small>
+                    <div id="candidatePhone">Não informado</div>
+                  </div>
+                  <div class="mb-2">
+                    <small class="text-muted">LinkedIn</small>
+                    <div id="candidateLinkedIn">Não informado</div>
+                  </div>
+                  <div class="mb-2">
+                    <small class="text-muted">Data de Cadastro</small>
+                    <div id="candidateCreatedAt">-</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+      
+      <!-- Conteúdo Principal -->
+      <div class="col-lg-8">
+        <!-- Tabs de Navegação -->
+        <ul class="nav nav-tabs" id="candidateTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="applications-tab" data-bs-toggle="tab" data-bs-target="#applications" type="button" role="tab">
+              <i class="ri-briefcase-line me-1"></i>Candidaturas
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="attachments-tab" data-bs-toggle="tab" data-bs-target="#attachments" type="button" role="tab">
+              <i class="ri-attachment-line me-1"></i>Anexos
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="notes-tab" data-bs-toggle="tab" data-bs-target="#notes" type="button" role="tab">
+              <i class="ri-chat-1-line me-1"></i>Observações
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline" type="button" role="tab">
+              <i class="ri-time-line me-1"></i>Timeline
+            </button>
+          </li>
+        </ul>
+        
+        <!-- Conteúdo das Tabs -->
+        <div class="tab-content" id="candidateTabContent">
+          <!-- Tab Candidaturas -->
+          <div class="tab-pane fade show active" id="applications" role="tabpanel">
+            <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Candidaturas Realizadas</h6>
+            <!-- Botões de ação -->
+            <div class="d-flex gap-2 mt-3">
+              <button type="button" class="btn btn-primary" onclick="openReassignModal()">
+                <i class="ri-exchange-line me-1"></i>Remanejar
+              </button>
+            </div>
+          </div>
+              <div class="card-body">
+                <div id="applicationsList">
+                  <!-- Lista de candidaturas será carregada aqui -->
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tab Anexos -->
+          <div class="tab-pane fade" id="attachments" role="tabpanel">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Anexos do Candidato</h6>
+              </div>
+              <div class="card-body">
+                <!-- FilePond Upload -->
+                <div class="mb-3">
+                  <label class="form-label">Adicionar Novo Anexo</label>
+                  <input type="file" class="filepond" id="attachmentUpload" multiple>
+                </div>
+                
+                <div id="attachmentsList">
+                  <!-- Lista de anexos será carregada aqui -->
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tab Observações -->
+          <div class="tab-pane fade" id="notes" role="tabpanel">
+            <div class="card">
+              <div class="card-header">
+                <h6 class="mb-0">Observações Internas</h6>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <div class="input-group">
+                    <input type="text" id="newNoteText" class="form-control" placeholder="Adicionar nova observação...">
+                    <button class="btn btn-primary" onclick="addNewNote()">
+                      <i class="ri-send-plane-2-line"></i>
+                    </button>
+                  </div>
+                </div>
+                <div id="notesList">
+                  <!-- Lista de observações será carregada aqui -->
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Tab Timeline -->
+          <div class="tab-pane fade" id="timeline" role="tabpanel">
+            <div class="card">
+              <div class="card-header">
+                <h6 class="mb-0">Timeline de Atividades</h6>
+              </div>
+              <div class="card-body">
+                <div id="timelineList">
+                  <!-- Timeline será carregada aqui -->
+                </div>
+              </div>
+            </div>
+          </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Edição -->
+  <div class="modal fade" id="editCandidateModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Dados do Candidato</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editCandidateForm">
+            <div class="mb-3">
+              <label class="form-label">Nome *</label>
+              <input type="text" class="form-control" id="editName" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email *</label>
+              <input type="email" class="form-control" id="editEmail" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Telefone</label>
+              <input type="text" class="form-control" id="editPhone">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">LinkedIn</label>
+              <input type="url" class="form-control" id="editLinkedIn">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="saveCandidateEdit()">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Remanejar -->
+  <div class="modal fade" id="reassignModal" tabindex="-1" aria-labelledby="reassignModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="reassignModalLabel">
+            <i class="ri-exchange-line me-2"></i>Remanejar Candidato
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="reassignJobSelect" class="form-label">Selecionar Vaga</label>
+            <select class="form-select" id="reassignJobSelect" required>
+              <option value="">Selecione uma vaga...</option>
+            </select>
+          </div>
+          <div class="alert alert-info">
+            <i class="ri-information-line me-2"></i>
+            O candidato será vinculado à vaga selecionada com status "Em Triagem".
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="confirmReassign()">
+            <i class="ri-check-line me-1"></i>Confirmar Remanejamento
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Email de Rejeição -->
+  <div class="modal fade" id="rejectionEmailModal" tabindex="-1" aria-labelledby="rejectionEmailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="rejectionEmailModalLabel">
+            <i class="ri-mail-send-line me-2"></i>Enviar Email de Rejeição
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="rejectionJobSelect" class="form-label">Selecionar Vaga</label>
+            <select class="form-select" id="rejectionJobSelect" required>
+              <option value="">Selecione uma vaga...</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="rejectionEmailSubject" class="form-label">Assunto do Email</label>
+            <input type="text" class="form-control" id="rejectionEmailSubject" value="Resposta à sua candidatura" required>
+          </div>
+          
+          <div class="mb-3">
+            <label for="rejectionEmailContent" class="form-label">Conteúdo do Email</label>
+            <textarea class="form-control" id="rejectionEmailContent" rows="8" required>Prezado(a) candidato(a),
+
+Agradecemos seu interesse em fazer parte da nossa equipe e pelo tempo dedicado ao processo seletivo.
+
+Após uma cuidadosa análise de seu perfil e experiência, informamos que, infelizmente, não poderemos prosseguir com sua candidatura para esta posição.
+
+Gostaríamos de destacar que seu currículo foi muito bem avaliado e será mantido em nosso banco de dados para futuras oportunidades que possam surgir.
+
+Desejamos sucesso em sua carreira profissional.
+
+Atenciosamente,
+Equipe de Recursos Humanos</textarea>
+          </div>
+          
+          <div class="alert alert-warning">
+            <i class="ri-alert-line me-2"></i>
+            <strong>Atenção:</strong> Este email será enviado ao candidato e ficará registrado no sistema. Certifique-se de que o conteúdo está adequado antes de enviar.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-warning" onclick="sendRejectionEmail()">
+            <i class="ri-send-plane-line me-1"></i>Enviar Email
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+  <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+  <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+  <script src="../../assets/js/fetchAPI.js"></script>
+  <script src="./assets/js/candidate-details.js"></script>
+</body>
+</html> 

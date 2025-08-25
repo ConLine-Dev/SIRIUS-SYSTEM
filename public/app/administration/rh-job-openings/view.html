@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhe da Vaga</title>
+  <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../assets/css/styles.min.css" rel="stylesheet">
+  <link href="../../assets/css/icons.css" rel="stylesheet">
+  <link href="./assets/css/view.css" rel="stylesheet">
+  <!-- Main Theme Js -->
+  <script src="../../assets/js/main.js"></script>
+  <!-- FilePond CSS -->
+  <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+  <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
+  <!-- SweetAlert2 CSS -->
+  <link rel="stylesheet" href="../../assets/libs/sweetalert2/sweetalert2.min.css">
+</head>
+<body>
+  <!-- Loading Spinner -->
+  <div id="loading-spinner" class="loading-spinner d-none">
+    <div class="d-flex flex-column align-items-center justify-content-center h-100">
+      <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+      <h6 class="text-primary mb-2">Carregando candidatos...</h6>
+      <p class="text-muted mb-0 small">Buscando informações dos candidatos</p>
+    </div>
+  </div>
+
+  <div class="main-content">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h5 id="jobTitle" class="mb-0">Vaga</h5>
+      <div class="text-muted small" id="jobMeta"></div>
+    </div>
+    <div class="hstack gap-2">
+      <button class="btn btn-success" id="btnNewCandidate">
+        <i class="ri-user-add-line"></i> Novo Candidato
+      </button>
+      <button class="btn btn-info" id="btnTestEmail" title="Enviar email de alerta de entrevistas">
+        <i class="ri-mail-send-line"></i> Enviar Email de Entrevistas
+      </button>
+      <button class="btn btn-outline-primary" id="btnRefresh"><i class="ri-refresh-line"></i> Atualizar</button>
+      <button class="btn btn-secondary" onclick="window.close()">Fechar</button>
+    </div>
+  </div>
+
+  <div id="board" class="apps-board"></div>
+
+  <div id="candidateModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title">Candidato</h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3" style="height: 100%;">
+            <div class="col-lg-7 col-md-7">
+              <div id="candidateDetails" class="vstack gap-1"></div>
+            </div>
+            <div class="col-lg-5 col-md-5 d-flex flex-column notes-panel">
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label class="form-label">Data da Entrevista</label>
+                  <input type="datetime-local" id="f_interview_date" class="form-control" disabled>
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Data da Oferta</label>
+                  <input type="datetime-local" id="f_offer_date" class="form-control" disabled>
+                </div>
+              </div>
+              <label class="form-label">Observações internas</label>
+              <ul id="notesList" class="list-group mb-2 flex-grow-1 overflow-auto"></ul>
+              <div class="input-group">
+                <input type="text" id="noteText" class="form-control" placeholder="Adicionar observação interna e pressionar Enter...">
+                <button class="btn btn-primary" id="btnSaveNote" title="Adicionar"><i class="ri-send-plane-2-line"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="me-auto">
+            <button class="btn btn-warning" id="btnRejectionEmail" style="display: none;" title="Enviar email de rejeição">
+              <i class="ri-mail-close-line"></i> Enviar Email de Rejeição
+            </button>
+          </div>
+          <div class="ms-auto">
+            <button class="btn btn-danger" id="btnRemoveCandidate" style="display: none;">
+              <i class="ri-delete-bin-line"></i> Remover Candidato
+            </button>
+            <button class="btn btn-success" id="btnSaveApp">Salvar Dados</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para definir data de entrevista -->
+  <div id="interviewDateModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title">
+            <i class="ri-calendar-event-line text-primary me-2"></i>
+            Definir Data da Entrevista
+          </h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">Data e Hora da Entrevista *</label>
+              <input type="datetime-local" id="modal_interview_date" class="form-control form-control-lg" required>
+              <div class="form-text">Selecione a data e hora para a entrevista com o candidato</div>
+            </div>
+            <div class="col-12">
+              <div class="alert alert-info">
+                <i class="ri-information-line me-2"></i>
+                <strong>Dica:</strong> A data da entrevista é obrigatória para mover o candidato para este status.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnConfirmInterviewDate">
+            <i class="ri-check-line me-1"></i>
+            Confirmar Data
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para definir data de oferta -->
+  <div id="offerDateModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title">
+            <i class="ri-hand-coin-line text-success me-2"></i>
+            Definir Data da Oferta
+          </h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">Data e Hora da Oferta *</label>
+              <input type="datetime-local" id="modal_offer_date" class="form-control form-control-lg" required>
+              <div class="form-text">Selecione a data e hora em que a oferta foi enviada ao candidato</div>
+            </div>
+            <div class="col-12">
+              <div class="alert alert-success">
+                <i class="ri-check-double-line me-2"></i>
+                <strong>Dica:</strong> A data da oferta é obrigatória para mover o candidato para este status.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-success" id="btnConfirmOfferDate">
+            <i class="ri-check-line me-1"></i>
+            Confirmar Data
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para envio de email de rejeição -->
+  <div id="rejectionEmailModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h6 class="modal-title">
+            <i class="ri-mail-close-line text-warning me-2"></i>
+            Enviar Email de Rejeição
+          </h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">Vaga</label>
+              <div class="form-control-plaintext" id="currentJobInfo" style="background-color: #f8f9fa; padding: 0.375rem 0.75rem; border: 1px solid #dee2e6; border-radius: 0.375rem;">
+                Carregando...
+              </div>
+              <div class="form-text">Email será enviado para esta vaga específica</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Assunto do Email</label>
+              <input type="text" id="rejectionEmailSubject" class="form-control" placeholder="Assunto do email (opcional)">
+              <div class="form-text">Deixe em branco para usar o assunto padrão</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Conteúdo do Email</label>
+              <textarea id="rejectionEmailContent" class="form-control" rows="8" placeholder="Conteúdo personalizado do email (opcional)"></textarea>
+              <div class="form-text">Deixe em branco para usar o template padrão de rejeição</div>
+            </div>
+            <div class="col-12">
+              <div class="alert alert-warning">
+                <i class="ri-alert-line me-2"></i>
+                <strong>Atenção:</strong> Este email será enviado ao candidato informando que ele não foi selecionado para a vaga escolhida. 
+                O candidato ainda poderá concorrer a outras vagas.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-warning" id="btnSendRejectionEmail">
+            <i class="ri-send-plane-line me-1"></i>
+            Enviar Email
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <!-- FilePond JS -->
+  <script src="../../assets/libs/filepond/filepond.min.js"></script>
+  <script src="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.js"></script>
+  <script src="../../assets/libs/filepond-plugin-file-validate-size/filepond-plugin-file-validate-size.min.js"></script>
+  <script src="../../assets/libs/filepond-plugin-file-validate-type/filepond-plugin-file-validate-type.min.js"></script>
+  <script>
+  // Configuração da API
+  const apiBase = '/api/hr-job-openings';
+  
+  // Pegar ID da URL
+  const url = new URL(window.location);
+  const id = url.searchParams.get('id');
+  
+  // Variáveis globais
+  let currentJobId = id; // Definir currentJobId com o id da URL
+  let currentJobTitle = ''; // Título da vaga atual
+  let currentApplicationId = null;
+  let currentApplication = null; // Adicionar esta variável
+  let currentUser = null;
+  let filePondInstance = null;
+  let uploadsInProgress = 0;
+  let socket = null;
+
+  // Inicializar Socket.IO
+  function initializeSocket() {
+    socket = io();
+    
+    console.log('Socket.IO inicializado para RH Job Openings View');
+    
+    // Event listeners do Socket.IO
+    socket.on('hr:application_created', (data) => {
+      console.log('Novo candidato criado:', data);
+      if (data.job_id == currentJobId) {
+        showNotification(`Novo candidato: ${data.candidate_name}`, 'success');
+        loadAppsBoardSilent(); // Recarregar board silenciosamente
+      }
+    });
+    
+    socket.on('hr:public_application_created', (data) => {
+      console.log('Nova candidatura pública:', data);
+      if (data.job_id == currentJobId) {
+        showNotification(`Nova candidatura via site: ${data.candidate_name}`, 'success');
+        loadAppsBoardSilent(); // Recarregar board silenciosamente
+      }
+    });
+    
+    socket.on('hr:application_deleted', (data) => {
+      console.log('Candidato removido:', data);
+      if (data.job_id == currentJobId) {
+        showNotification(`Candidato removido: ${data.candidate_name}`, 'warning');
+        loadAppsBoardSilent(); // Recarregar board silenciosamente
+      }
+    });
+    
+    socket.on('hr:internal_note_added', (data) => {
+      console.log('Nova nota interna:', data);
+      if (data.application_id == currentApplicationId) {
+        showNotification(`Nova observação interna adicionada`, 'info');
+        // Recarregar notas se estiver no modal do candidato
+        if (currentApplicationId) {
+          loadApplicationDetails(currentApplicationId);
+        }
+      }
+    });
+    
+    socket.on('hr:internal_note_removed', (data) => {
+      console.log('Nota interna removida:', data);
+      showNotification(`Observação interna removida`, 'warning');
+      // Recarregar notas se estiver no modal do candidato
+      if (currentApplicationId) {
+        loadApplicationDetails(currentApplicationId);
+      }
+    });
+    
+    socket.on('hr:attachment_added', (data) => {
+      console.log('Novo anexo adicionado:', data);
+      if (data.applicant_id == currentApplication?.applicant_id) {
+        showNotification(`Novo anexo: ${data.file_name}`, 'success');
+        // Recarregar anexos se estiver no modal do candidato
+        if (currentApplicationId) {
+          loadApplicationDetails(currentApplicationId);
+        }
+      }
+    });
+    
+    socket.on('hr:attachment_removed', (data) => {
+      console.log('Anexo removido:', data);
+      showNotification(`Anexo removido: ${data.file_name}`, 'warning');
+      // Recarregar anexos se estiver no modal do candidato
+      if (currentApplicationId) {
+        loadApplicationDetails(currentApplicationId);
+      }
+    });
+    
+    socket.on('disconnect', () => {
+      console.log('Socket.IO desconectado');
+    });
+  }
+
+  // Função para mostrar notificações
+  function showNotification(message, type = 'info') {
+    const toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true
+    });
+    
+    toast.fire({
+      icon: type,
+      title: message
+    });
+  }
+
+  // Funções de loading
+  function showLoading(message = 'Carregando...') {
+    const spinner = document.getElementById('loading-spinner');
+    if (spinner) {
+      const title = spinner.querySelector('h6');
+      const subtitle = spinner.querySelector('p');
+      
+      if (title) title.textContent = message;
+      if (subtitle) subtitle.textContent = 'Aguarde enquanto processamos sua solicitação';
+      
+      spinner.classList.remove('d-none');
+    }
+  }
+
+  function hideLoading() {
+    const spinner = document.getElementById('loading-spinner');
+    if (spinner) {
+      spinner.classList.add('d-none');
+    }
+  }
+
+  function showButtonLoading(button, text = 'Carregando...') {
+    if (!button) return;
+    
+    const originalText = button.innerHTML;
+    button.setAttribute('data-original-text', originalText);
+    button.classList.add('btn-loading');
+    button.innerHTML = `
+      <span class="btn-spinner"></span>
+      <span class="btn-text">${text}</span>
+    `;
+  }
+
+  function hideButtonLoading(button) {
+    if (!button) return;
+    
+    const originalText = button.getAttribute('data-original-text');
+    if (originalText) {
+      button.innerHTML = originalText;
+    }
+    button.classList.remove('btn-loading');
+  }
+
+  function showCardLoading(card) {
+    if (!card) return;
+    card.classList.add('card-loading');
+  }
+
+  function hideCardLoading(card) {
+    if (!card) return;
+    card.classList.remove('card-loading');
+  }
+
+  function showModalLoading(modal) {
+    if (!modal) return;
+    modal.classList.add('modal-loading');
+  }
+
+  function hideModalLoading(modal) {
+    if (!modal) return;
+    modal.classList.remove('modal-loading');
+  }
+
+  // Função para formatar data
+  function toBr(dateStr) {
+    if (!dateStr || dateStr === 'null' || dateStr === 'undefined') return 'Data não informada';
+    
+    try {
+      // Se já é uma data no formato brasileiro, retorna como está
+      if (typeof dateStr === 'string' && dateStr.includes('/')) return dateStr;
+      
+      // Se é uma data ISO (YYYY-MM-DD ou YYYY-MM-DD HH:MM:SS)
+      if (typeof dateStr === 'string' && dateStr.includes('-')) {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return 'Data inválida'; // Se não é uma data válida
+        
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      }
+      
+      // Tentar converter para Date se for outro tipo
+      const date = new Date(dateStr);
+      if (!isNaN(date.getTime())) {
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      }
+      
+      return String(dateStr); // Retorna como string se não conseguir converter
+    } catch (error) {
+      console.error('Erro ao formatar data:', error, 'Data recebida:', dateStr);
+      return 'Data inválida';
+    }
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  // Variáveis para controlar o drag & drop
+  let dragData = null;
+
+  // Função para mostrar notificações toast
+  function showNotification(message, type = 'info') {
+    // Verificar se existe um container de notificações
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+      toastContainer = document.createElement('div');
+      toastContainer.id = 'toast-container';
+      toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+      toastContainer.style.zIndex = '9999';
+      document.body.appendChild(toastContainer);
+    }
+    
+    // Criar toast
+    const toastId = 'toast-' + Date.now();
+    const toastHtml = `
+      <div id="${toastId}" class="toast align-items-center text-white bg-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'primary'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            ${message}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+    
+    // Mostrar toast
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, {
+      autohide: true,
+      delay: 3000
+    });
+    toast.show();
+    
+    // Remover elemento após esconder
+    toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.remove();
+    });
+  }
+
+  function bindDropZone(zone) {
+    zone.addEventListener('dragover', (ev) => {
+      ev.preventDefault();
+      zone.classList.add('dropping');
+    });
+    
+    zone.addEventListener('dragleave', (ev) => {
+      ev.preventDefault();
+      zone.classList.remove('dropping');
+    });
+    
+    zone.addEventListener('drop', async (ev) => {
+      ev.preventDefault();
+      zone.classList.remove('dropping');
+      
+      const data = ev.dataTransfer.getData('text/plain');
+      let cardId;
+      
+      try {
+        // Tentar parsear como JSON (formato antigo)
+        const jsonData = JSON.parse(data);
+        cardId = jsonData.appId;
+      } catch (e) {
+        // Se não for JSON, usar diretamente (formato novo)
+        cardId = data;
+      }
+      
+      const cardEl = document.querySelector(`[data-app-id="${cardId}"]`);
+      if (!cardEl) return;
+      
+      const toStatusId = zone.getAttribute('data-status-id');
+      const toPosition = Array.from(zone.children).length;
+      
+      // Capturar o status de origem
+      const fromStatusId = cardEl.closest('.dropzone').getAttribute('data-status-id');
+      
+      // Buscar o nome do status de forma mais robusta
+      const statusNameElement = zone.parentElement.querySelector('.status-name');
+      let statusName = statusNameElement ? statusNameElement.textContent.toLowerCase() : '';
+      
+      // Se não encontrou o nome via DOM, tentar buscar via API
+      if (!statusName && toStatusId) {
+        try {
+          const metaResponse = await fetch(`${apiBase}/meta`);
+          const meta = await metaResponse.json();
+          const statuses = meta.statuses || [];
+          const currentStatus = statuses.find(s => s.id == toStatusId);
+          if (currentStatus) {
+            statusName = currentStatus.name.toLowerCase();
+          }
+        } catch (error) {
+          console.error('Erro ao buscar status via API:', error);
+        }
+      }
+      
+      console.log('Status encontrado:', statusName, 'Status ID:', toStatusId);
+      
+      // Armazenar dados do drag para usar nos modais
+      dragData = {
+        cardId,
+        toStatusId,
+        fromStatusId,
+        toPosition,
+        statusName
+      };
+      
+      // Verificar se precisa de data de entrevista
+      if (statusName.includes('entrevista')) {
+        console.log('Movendo para status de entrevista - abrindo modal');
+        showInterviewDateModal();
+        return;
+      }
+      
+      // Verificar se precisa de data de oferta
+      if (statusName.includes('oferta')) {
+        console.log('Movendo para status de oferta - abrindo modal');
+        showOfferDateModal();
+        return;
+      }
+      
+      // Se não precisa de data, executar movimento diretamente
+      await executeMoveOptimistic(null, null);
+    });
+    
+    // Adicionar bindCardClick para duplo clique
+    bindCardClick(zone);
+  }
+
+  function bindCardClick(zone){
+    zone.addEventListener('dblclick', async (ev) => {
+      const card = ev.target.closest('.app-card');
+      if(!card) return;
+      await openCandidate(card);
+    });
+  }
+
+  // Função para obter informações do usuário logado
+  async function getCurrentUser() {
+    try {
+      // Primeiro tenta obter do localStorage
+      const storageData = localStorage.getItem('StorageGoogle');
+      if (storageData) {
+        const userData = JSON.parse(storageData);
+        return {
+          id: userData.system_collaborator_id,
+          name: userData.given_name || userData.name
+        };
+      }
+      
+      // Se não encontrar no localStorage, tenta obter da sessão
+      const response = await fetch('/api/session/getSession');
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        return {
+          id: result.data.system_collaborator_id,
+          name: result.data.given_name || result.data.name
+        };
+      }
+      
+      return { id: 0, name: 'Sistema' };
+    } catch (error) {
+      console.error('Erro ao obter informações do usuário:', error);
+      return { id: 0, name: 'Sistema' };
+    }
+  }
+
+  async function loadJob() {
+    try {
+      showLoading('Carregando informações da vaga...');
+      
+      const response = await fetch(`${apiBase}/${currentJobId}`);
+      
+      if (!response.ok) {
+        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+      }
+      
+      const job = await response.json();
+      console.log('Dados da vaga carregados:', job);
+      
+      // Verificar se o job tem as propriedades necessárias
+      if (!job) {
+        throw new Error('Dados da vaga não encontrados');
+      }
+      
+      // Atualizar título
+      const titleElement = document.getElementById('jobTitle');
+      if (titleElement) {
+        titleElement.textContent = job.title || 'Título não disponível';
+      }
+      
+      // Armazenar título da vaga para uso no modal de rejeição
+      currentJobTitle = job.title || 'Título não disponível';
+      
+      // Atualizar meta informações com valores padrão se estiverem ausentes
+      const metaElement = document.getElementById('jobMeta');
+      if (metaElement) {
+        const department = job.department_name || 'Departamento não informado';
+        const location = job.location_name || 'Local não informado';
+        const postedDate = job.posted_at_ymd || job.posted_at;
+        const formattedDate = postedDate ? toBr(postedDate) : 'Data não informada';
+        
+        metaElement.textContent = `${department} • ${location} • Publicada em ${formattedDate}`;
+      }
+      
+      hideLoading();
+    } catch (error) {
+      console.error('Erro ao carregar vaga:', error);
+      hideLoading();
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao carregar informações da vaga',
+        text: error.message
+      });
+    }
+  }
+
+  function renderAppsBoard(board){
+    if (!board || !Array.isArray(board)) {
+      console.warn('Board inválido ou não é um array:', board);
+      return;
+    }
+    
+    const wrap = document.getElementById('board');
+    if (!wrap) {
+      console.error('Elemento board não encontrado');
+      return;
+    }
+    
+    wrap.innerHTML = '';
+
+    board.forEach(col => {
+      const colEl = document.createElement('div');
+      colEl.className = 'apps-col';
+      colEl.innerHTML = `<div class=\"col-header d-flex justify-content-between align-items-center\"><span class=\"status-name\">${col.status_name}</span><span class=\"badge bg-secondary\">${(col.applications||[]).length}</span></div><div class=\"dropzone\" data-status-id=\"${col.status_id}\"></div>`;
+      const zone = colEl.querySelector('.dropzone');
+
+      (col.applications||[]).forEach(app => {
+        const card = document.createElement('div');
+        card.className = 'app-card';
+        card.draggable = true;
+        card.setAttribute('data-app-id', app.id);
+        card.innerHTML = `
+          <div class=\"fw-semibold text-truncate\">${app.name}</div>
+          <div class=\"text-muted small\">${app.email || ''}</div>
+          <div class=\"d-flex gap-2 mt-2\">
+            ${app.attachments && app.attachments.length > 0 ? 
+              `<span class=\"badge bg-light text-dark\">${app.attachments.length} anexo${app.attachments.length > 1 ? 's' : ''}</span>` : 
+              ''
+            }
+          </div>
+        `;
+        card.addEventListener('dragstart', ev => { ev.dataTransfer.setData('text/plain', JSON.stringify({ appId: app.id })); });
+        zone.appendChild(card);
+      });
+
+      bindDropZone(zone);
+      wrap.appendChild(colEl);
+    });
+  }
+
+  async function loadAppsBoard() {
+    try {
+      showLoading('Carregando candidatos...');
+      
+      const response = await fetch(`${apiBase}/${currentJobId}/applications/board`);
+      const data = await response.json();
+      
+      renderAppsBoard(data.board || []);
+      hideLoading();
+    } catch (error) {
+      console.error('Erro ao carregar board:', error);
+      hideLoading();
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao carregar candidatos',
+        text: error.message
+      });
+    }
+  }
+
+  async function loadAppsBoardSilent() {
+    try {
+      const response = await fetch(`${apiBase}/${currentJobId}/applications/board`);
+      const data = await response.json();
+      
+      renderAppsBoard(data.board || []);
+    } catch (error) {
+      console.error('Erro ao carregar board silenciosamente:', error);
+    }
+  }
+
+  async function loadApplicationDetails(applicationId) {
+    try {
+      const response = await fetch(`${apiBase}/applications/${applicationId}`);
+      const app = await response.json();
+      
+      currentApplication = app;
+      
+      // Atualizar apenas os dados, sem re-renderizar o formulário completo
+      updateCandidateData(app);
+    } catch (error) {
+      console.error('Erro ao carregar detalhes:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao carregar detalhes do candidato',
+        text: error.message
+      });
+    }
+  }
+
+  function updateCandidateData(app) {
+    // Atualizar apenas os campos de dados, sem re-renderizar o FilePond
+    document.getElementById('f_name').value = app.name || '';
+    document.getElementById('f_email').value = app.email || '';
+    document.getElementById('f_phone').value = app.phone || '';
+    document.getElementById('f_linkedin').value = app.linkedin_url || '';
+    document.getElementById('f_cover').value = (app.cover_letter || '').replace(/</g,'&lt;');
+
+    // Preencher campos de data
+    const interviewDateInput = document.getElementById('f_interview_date');
+    const offerDateInput = document.getElementById('f_offer_date');
+    
+    if (app.interview_date) {
+      interviewDateInput.value = app.interview_date.replace(' ', 'T');
+    } else {
+      interviewDateInput.value = '';
+    }
+    
+    if (app.offer_date) {
+      offerDateInput.value = app.offer_date.replace(' ', 'T');
+    } else {
+      offerDateInput.value = '';
+    }
+    
+    // Habilitar/desabilitar campos conforme status
+    updateDateFieldsStatus(app.status_id);
+
+    // Atualizar apenas anexos e notas
+    renderAttachments(app.attachments || []);
+    renderNotes(app.notes || []);
+    
+    // Ajustar altura do painel de observações
+    setTimeout(adjustNotesPanelHeight, 100);
+  }
+
+  document.getElementById('btnRefresh').addEventListener('click', async () => { await loadAppsBoard(); });
+
+  let bsModal = null;
+
+  function renderNewCandidate(){
+    const d = document.getElementById('candidateDetails');
+    d.innerHTML = `
+      <div class=\"row g-2\">
+        <div class=\"col-md-6\"><label class=\"form-label\">Nome *</label><input id=\"f_name\" class=\"form-control\" placeholder=\"Nome completo do candidato\" required></div>
+        <div class=\"col-md-6\"><label class=\"form-label\">Email *</label><input id=\"f_email\" class=\"form-control\" placeholder=\"email@exemplo.com\" required></div>
+        <div class=\"col-md-6\"><label class=\"form-label\">Telefone</label><input id=\"f_phone\" class=\"form-control\" placeholder=\"(11) 99999-9999\"></div>
+        <div class=\"col-md-6\"><label class=\"form-label\">LinkedIn</label><input id=\"f_linkedin\" class=\"form-control\" placeholder=\"https://linkedin.com/in/perfil\"></div>
+      </div>
+      <div class=\"mt-2\"><label class=\"form-label\">Carta de Apresentação</label><textarea id=\"f_cover\" class=\"form-control\" rows=\"6\" placeholder=\"Carta de apresentação do candidato...\"></textarea></div>
+      <div class=\"mt-3\">
+        <label class=\"form-label\">Anexos</label>
+        <div id=\"attachmentsList\" class=\"mb-2 attachments-container\">
+          <div class=\"alert alert-info\">
+            <i class=\"ri-information-line me-2\"></i>
+            <strong>Atenção:</strong> Os anexos só poderão ser enviados após cadastrar o candidato.
+          </div>
+        </div>
+        <input type=\"file\" class=\"filepond-attachments\" id=\"filepond-attachments\" multiple />
+      </div>
+    `;
+
+    // Limpar e desabilitar campos de data
+    const interviewDateInput = document.getElementById('f_interview_date');
+    const offerDateInput = document.getElementById('f_offer_date');
+    
+    interviewDateInput.value = '';
+    offerDateInput.value = '';
+    interviewDateInput.disabled = true;
+    offerDateInput.disabled = true;
+
+    // Desabilitar painel de observações
+    const notesList = document.getElementById('notesList');
+    const noteText = document.getElementById('noteText');
+    const btnSaveNote = document.getElementById('btnSaveNote');
+    
+    notesList.innerHTML = `
+      <li class="list-group-item text-muted">
+        <i class="ri-information-line me-2"></i>
+        As observações internas só poderão ser adicionadas após cadastrar o candidato.
+      </li>
+    `;
+    
+    noteText.disabled = true;
+    noteText.placeholder = 'Observações desabilitadas até cadastrar o candidato...';
+    btnSaveNote.disabled = true;
+
+    // Não inicializar FilePond para novo candidato
+    currentApplicationId = null;
+    currentApplication = null;
+    
+    // Ocultar botão de email de rejeição para novo candidato
+    document.getElementById('btnRejectionEmail').style.display = 'none';
+    
+    // Inicializar FilePond com configuração especial para novo candidato
+    setTimeout(() => {
+      initializeFilePondForNewCandidate();
+    }, 100);
+    
+    // Ajustar altura do painel de observações
+    setTimeout(adjustNotesPanelHeight, 100);
+  }
+
+  function renderCandidate(app){
+    const d = document.getElementById('candidateDetails');
+    d.innerHTML = `
+      <div class=\"row g-2\">
+        <div class=\"col-md-6\"><label class=\"form-label\">Nome</label><input id=\"f_name\" class=\"form-control\" value=\"${app.name||''}\"></div>
+        <div class=\"col-md-6\"><label class=\"form-label\">Email</label><input id=\"f_email\" class=\"form-control\" value=\"${app.email||''}\"></div>
+        <div class=\"col-md-6\"><label class=\"form-label\">Telefone</label><input id=\"f_phone\" class=\"form-control\" value=\"${app.phone||''}\"></div>
+        <div class=\"col-md-6\"><label class=\"form-label\">LinkedIn</label><input id=\"f_linkedin\" class=\"form-control\" value=\"${app.linkedin_url||''}\"></div>
+      </div>
+      <div class=\"mt-2\"><label class=\"form-label\">Carta de Apresentação</label><textarea id=\"f_cover\" class=\"form-control\" rows=\"6\">${(app.cover_letter||'').replace(/</g,'&lt;')}</textarea></div>
+      <div class=\"mt-3\">
+        <label class=\"form-label\">Anexos</label>
+        <div id=\"attachmentsList\" class=\"mb-2 attachments-container\"></div>
+        <input type=\"file\" class=\"filepond-attachments\" id=\"filepond-attachments\" multiple />
+      </div>
+    `;
+
+    // Preencher campos de data
+    const interviewDateInput = document.getElementById('f_interview_date');
+    const offerDateInput = document.getElementById('f_offer_date');
+    
+    if (app.interview_date) {
+      interviewDateInput.value = app.interview_date.replace(' ', 'T');
+    } else {
+      interviewDateInput.value = '';
+    }
+    
+    if (app.offer_date) {
+      offerDateInput.value = app.offer_date.replace(' ', 'T');
+    } else {
+      offerDateInput.value = '';
+    }
+    
+    // Habilitar/desabilitar campos conforme status
+    updateDateFieldsStatus(app.status_id);
+
+    renderAttachments(app.attachments || []);
+    renderNotes(app.notes || []);
+    
+    // Inicializar FilePond
+    initializeFilePond();
+    
+    // Mostrar botão de remover para candidatos existentes
+    document.getElementById('btnRemoveCandidate').style.display = 'inline-block';
+    
+    // Verificar se email de rejeição já foi enviado para esta vaga
+    checkRejectionEmailStatus(app);
+    
+    // Ajustar altura do painel de observações após renderizar o formulário
+    setTimeout(adjustNotesPanelHeight, 100);
+  }
+
+  function enableCandidateFields(applicationId) {
+    console.log('Habilitando campos para candidato ID:', applicationId);
+    
+    // Definir currentApplicationId primeiro
+    currentApplicationId = applicationId;
+    
+    // Buscar dados do candidato para obter applicant_id
+    fetch(`${apiBase}/applications/${applicationId}`)
+      .then(response => response.json())
+      .then(app => {
+        console.log('Dados do candidato carregados:', app);
+        currentApplication = app; // Armazenar dados completos
+        
+        // Limpar mensagem de anexos
+        const attachmentsList = document.getElementById('attachmentsList');
+        if (attachmentsList) {
+          attachmentsList.innerHTML = '<p class="text-muted small">Nenhum anexo encontrado</p>';
+          console.log('Lista de anexos limpa');
+        }
+        
+        // Habilitar painel de observações
+        const notesList = document.getElementById('notesList');
+        const noteText = document.getElementById('noteText');
+        const btnSaveNote = document.getElementById('btnSaveNote');
+        
+        if (notesList) {
+          notesList.innerHTML = '<li class="list-group-item text-muted">Sem notas</li>';
+          console.log('Lista de notas limpa');
+        }
+        
+        if (noteText) {
+          noteText.disabled = false;
+          noteText.placeholder = 'Adicionar observação interna e pressionar Enter...';
+          console.log('Campo de notas habilitado');
+        }
+        
+        if (btnSaveNote) {
+          btnSaveNote.disabled = false;
+          console.log('Botão de salvar nota habilitado');
+        }
+        
+        // Reconfigurar FilePond para funcionar normalmente
+        if (filePondInstance) {
+          filePondInstance.destroy();
+          filePondInstance = null;
+        }
+        
+        setTimeout(() => {
+          initializeFilePond();
+          console.log('FilePond reconfigurado para funcionamento normal');
+        }, 100);
+        
+        // Ajustar altura do painel
+        setTimeout(adjustNotesPanelHeight, 200);
+        
+        console.log('Campos habilitados com sucesso para candidato ID:', applicationId);
+      })
+      .catch(error => {
+        console.error('Erro ao carregar dados do candidato:', error);
+      });
+  }
+
+  // Função para remover observação interna
+  async function removeNote(noteId) {
+    const result = await Swal.fire({
+      title: 'Remover Observação',
+      text: 'Tem certeza que deseja remover esta observação?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sim, remover',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${apiBase}/applications/notes/${noteId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        // Recarregar dados do candidato para atualizar a lista de notas
+        if (currentApplicationId) {
+          await loadApplicationDetails(currentApplicationId);
+        }
+      } else {
+        const errorData = await response.json();
+        console.error('Erro na resposta:', errorData);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao remover observação',
+          text: errorData.message || 'Erro desconhecido'
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao remover observação:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao remover observação',
+        text: error.message
+      });
+    }
+  }
+
+  // Função para remover candidato
+  async function removeCandidate() {
+    if (!currentApplicationId) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Nenhum candidato selecionado',
+        text: 'Selecione um candidato para remover'
+      });
+      return;
+    }
+    
+    const result = await Swal.fire({
+      title: 'Remover Candidato',
+      html: `
+        <div class="text-start">
+          <p>Tem certeza que deseja remover este candidato?</p>
+          <div class="alert alert-warning">
+            <i class="ri-error-warning-line me-2"></i>
+            <strong>Atenção:</strong> Esta ação não pode ser desfeita e removerá:
+            <ul class="mb-0 mt-2">
+              <li>Todos os anexos do candidato</li>
+              <li>Todas as observações internas</li>
+              <li>A inscrição na vaga</li>
+            </ul>
+          </div>
+        </div>
+      `,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sim, remover candidato',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true,
+      width: '500px'
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`${apiBase}/applications/${currentApplicationId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        // Fechar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('candidateModal'));
+        modal.hide();
+        
+        // Atualizar board
+        await loadAppsBoardSilent();
+      } else {
+        const errorData = await response.json();
+        console.error('Erro na resposta:', errorData);
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao remover candidato',
+          text: errorData.message || 'Erro desconhecido'
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao remover candidato:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao remover candidato',
+        text: error.message
+      });
+    }
+  }
+
+  function renderNotes(notes) {
+    const notesList = document.getElementById('notesList');
+    if (notes.length === 0) {
+      notesList.innerHTML = '<li class="list-group-item text-muted">Sem notas</li>';
+      return;
+    }
+    
+    notesList.innerHTML = notes.map(n => `
+      <li class='list-group-item'>
+        <div class='d-flex justify-content-between align-items-start mb-1'>
+          <div class='d-flex align-items-center'>
+            <span class='fw-semibold text-primary'>${n.author_name || 'Sistema'}</span>
+            <small class='text-muted ms-2'>${new Date(n.created_at).toLocaleString()}</small>
+          </div>
+          <button class='btn btn-outline-danger btn-sm' onclick='removeNote(${n.id})' title='Remover observação'>
+            <i class='ri-delete-bin-line'></i>
+          </button>
+        </div>
+        <div>${n.note}</div>
+      </li>
+    `).join('');
+    
+    // Scroll para o final da lista
+    const notesContainer = document.querySelector('.notes-container');
+    if (notesContainer) {
+      notesContainer.scrollTop = notesContainer.scrollHeight;
+    }
+  }
+
+  function renderAttachments(attachments) {
+    const container = document.getElementById('attachmentsList');
+    if (!attachments || attachments.length === 0) {
+      container.innerHTML = '<p class="text-muted small">Nenhum anexo encontrado</p>';
+      return;
+    }
+    
+    container.innerHTML = attachments.map(att => `
+      <div class="d-flex align-items-center justify-content-between p-2 border rounded mb-2">
+        <div class="d-flex align-items-center">
+          <i class="ri-file-text-line me-2 text-primary"></i>
+          <div>
+            <div class="fw-semibold small">${att.file_name}</div>
+            <div class="text-muted small">${formatFileSize(att.file_size)}</div>
+          </div>
+        </div>
+        <div class="btn-group btn-group-sm">
+          <a href="${att.file_url}" target="_blank" class="btn btn-outline-primary btn-sm" title="Visualizar">
+            <i class="ri-eye-line"></i>
+          </a>
+          <a href="${att.file_url}" download="${att.file_name}" class="btn btn-outline-success btn-sm" title="Download">
+            <i class="ri-download-line"></i>
+          </a>
+          <button class="btn btn-outline-danger btn-sm" onclick="removeAttachment(${att.id})" title="Remover">
+            <i class="ri-delete-bin-line"></i>
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function initializeFilePondForNewCandidate() {
+    const inputElement = document.querySelector('.filepond-attachments');
+    if (inputElement && !filePondInstance) {
+      filePondInstance = FilePond.create(inputElement, {
+        allowMultiple: true,
+        maxFiles: 10,
+        maxFileSize: '10MB',
+        acceptedFileTypes: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png', 'text/plain'],
+        labelIdle: 'Arraste e solte seus arquivos aqui ou <span class="filepond--label-action">Procure</span><br><small class="text-muted">(Desabilitado até cadastrar o candidato)</small>',
+        labelFileProcessing: 'Preparando...',
+        labelFileProcessingComplete: 'Arquivo pronto',
+        labelTapToCancel: 'Clique para cancelar',
+        labelTapToRetry: 'Clique para tentar novamente',
+        labelTapToUndo: 'Clique para desfazer',
+        disabled: true, // Desabilitar FilePond para novo candidato
+        instantUpload: false, // Não fazer upload automático
+        server: {
+          process: {
+            url: '/dummy', // URL dummy para não fazer upload real
+            method: 'POST',
+            onload: (response) => {
+              console.log('FilePond onload response (novo candidato):', response);
+              // Para novo candidato, apenas simular sucesso
+              return 'temp_' + Date.now();
+            },
+            onerror: (response) => {
+              console.error('FilePond onerror response (novo candidato):', response);
+              return 'Arquivo preparado (será enviado após cadastrar candidato)';
+            },
+            ondata: (formData) => {
+              console.log('FilePond ondata (novo candidato) - arquivo preparado');
+              // Para novo candidato, não enviar ainda
+              return formData;
+            }
+          }
+        }
+      });
+
+      filePondInstance.on('addfile', (error, file) => {
+        if (error) {
+          console.error('Erro ao adicionar arquivo (novo candidato):', error);
+        } else {
+          console.log('Arquivo adicionado ao FilePond (novo candidato):', file.filename);
+        }
+      });
+
+      filePondInstance.on('processfile', (error, file) => {
+        if (error) {
+          console.error('Erro ao processar arquivo (novo candidato):', error);
+        } else {
+          console.log('Arquivo processado (novo candidato):', file.filename);
+        }
+      });
+
+      filePondInstance.on('error', (error, file, status) => {
+        console.error('Erro no FilePond (novo candidato):', error, file, status);
+      });
+
+      filePondInstance.on('removefile', (error, file) => {
+        if (error) {
+          console.error('Erro ao remover arquivo (novo candidato):', error);
+        } else {
+          console.log('Arquivo removido do FilePond (novo candidato):', file.filename);
+        }
+      });
+    }
+  }
+
+  function initializeFilePond() {
+    const inputElement = document.querySelector('.filepond-attachments');
+    if (inputElement && !filePondInstance) {
+      filePondInstance = FilePond.create(inputElement, {
+        allowMultiple: true,
+        maxFiles: 10,
+        maxFileSize: '10MB',
+        acceptedFileTypes: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png', 'text/plain'],
+        labelIdle: 'Arraste e solte seus arquivos aqui ou <span class="filepond--label-action">Procure</span>',
+        labelFileProcessing: 'Enviando',
+        labelFileProcessingComplete: 'Enviado com sucesso',
+        labelTapToCancel: 'Clique para cancelar',
+        labelTapToRetry: 'Clique para tentar novamente',
+        labelTapToUndo: 'Clique para desfazer',
+        disabled: false, // Garantir que está habilitado
+        server: {
+          process: {
+            url: `${apiBase}/applications/attachments/upload`,
+            method: 'POST',
+            onload: (response) => {
+              console.log('FilePond onload response:', response);
+              try {
+                const result = JSON.parse(response);
+                if (result.id) {
+                  // Recarregar dados do candidato após upload
+                  setTimeout(async () => {
+                    if (currentApplicationId) {
+                      const rr = await fetch(`${apiBase}/applications/${currentApplicationId}`);
+                      const app = await rr.json();
+                      renderAttachments(app.attachments || []);
+                    }
+                  }, 500);
+                  
+                  // Não limpar automaticamente aqui - será feito no evento processfile
+                }
+                return result.id || response;
+              } catch (e) {
+                console.error('Erro ao parsear resposta:', e);
+                return response;
+              }
+            },
+            onerror: (response) => {
+              console.error('FilePond onerror response:', response);
+              try {
+                const error = JSON.parse(response);
+                
+                // Verificar se é erro de duplicata
+                if (error.message && error.message.includes('já foi enviado')) {
+                  return 'Arquivo duplicado: ' + error.message;
+                }
+                
+                return error.message || 'Erro ao enviar arquivo';
+              } catch (e) {
+                return 'Erro ao enviar arquivo';
+              }
+            },
+            ondata: (formData) => {
+              console.log('FilePond ondata - currentApplicationId:', currentApplicationId);
+              console.log('FilePond ondata - currentApplication:', currentApplication);
+              
+              // Usar applicant_id do currentApplication se disponível
+              if (currentApplication && currentApplication.applicant_id) {
+                console.log('FilePond - usando applicant_id:', currentApplication.applicant_id);
+                formData.append('applicant_id', currentApplication.applicant_id);
+              } else if (currentApplicationId) {
+                console.log('FilePond - currentApplication não disponível, buscando applicant_id...');
+                // Fallback: buscar applicant_id
+                fetch(`${apiBase}/applications/${currentApplicationId}`)
+                  .then(response => response.json())
+                  .then(app => {
+                    console.log('FilePond - applicant_id encontrado:', app.applicant_id);
+                    formData.append('applicant_id', app.applicant_id);
+                  })
+                  .catch(error => {
+                    console.error('Erro ao buscar applicant_id:', error);
+                  });
+              }
+              return formData;
+            }
+          }
+        }
+      });
+
+      filePondInstance.on('addfile', (error, file) => {
+        if (error) {
+          console.error('Erro ao adicionar arquivo:', error);
+        } else {
+          console.log('Arquivo adicionado ao FilePond:', file.filename);
+          uploadsInProgress++;
+          console.log('Uploads em progresso:', uploadsInProgress);
+        }
+      });
+
+      filePondInstance.on('processfile', (error, file) => {
+        if (error) {
+          console.error('Erro ao processar arquivo:', error);
+          uploadsInProgress--;
+        } else {
+          console.log('Arquivo processado com sucesso:', file.filename);
+          uploadsInProgress--;
+          console.log('Uploads restantes:', uploadsInProgress);
+          
+          // Verificar se todos os uploads foram concluídos
+          if (uploadsInProgress <= 0) {
+            console.log('Todos os uploads concluídos, limpando FilePond');
+            setTimeout(() => {
+              if (filePondInstance) {
+                filePondInstance.removeFiles();
+              }
+            }, 1000);
+          }
+        }
+      });
+
+      filePondInstance.on('error', (error, file, status) => {
+        console.error('Erro no FilePond:', error, file, status);
+      });
+
+      filePondInstance.on('removefile', (error, file) => {
+        if (error) {
+          console.error('Erro ao remover arquivo:', error);
+        } else {
+          console.log('Arquivo removido do FilePond:', file.filename);
+          // Se o arquivo estava sendo processado, decrementar o contador
+          if (file.status === FilePond.FileStatus.PROCESSING) {
+            uploadsInProgress--;
+            console.log('Upload cancelado, uploads restantes:', uploadsInProgress);
+          }
+        }
+      });
+    }
+  }
+
+  // Função para limpar FilePond manualmente
+  function clearFilePond() {
+    if (filePondInstance) {
+      filePondInstance.removeFiles();
+    }
+    uploadsInProgress = 0; // Resetar contador
+  }
+
+  // Função para atualizar status dos campos de data conforme status_id
+  function updateDateFieldsStatus(statusId) {
+    const interviewDateInput = document.getElementById('f_interview_date');
+    const offerDateInput = document.getElementById('f_offer_date');
+    
+    // Buscar informações do status
+    fetch(`${apiBase}/meta`)
+      .then(r => r.json())
+      .then(meta => {
+        const statuses = meta.statuses || [];
+        const currentStatus = statuses.find(s => s.id == statusId);
+        
+        if (currentStatus) {
+          const statusName = currentStatus.name.toLowerCase();
+          
+          // Habilitar campo de entrevista se status contém "entrevista"
+          if (statusName.includes('entrevista')) {
+            interviewDateInput.disabled = false;
+            interviewDateInput.classList.remove('bg-light');
+          } else {
+            interviewDateInput.disabled = true;
+            interviewDateInput.classList.add('bg-light');
+          }
+          
+          // Habilitar campo de oferta se status contém "oferta"
+          if (statusName.includes('oferta')) {
+            offerDateInput.disabled = false;
+            offerDateInput.classList.remove('bg-light');
+          } else {
+            offerDateInput.disabled = true;
+            offerDateInput.classList.add('bg-light');
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao buscar status:', error);
+      });
+  }
+
+  // Função para mostrar modal de data de entrevista
+  function showInterviewDateModal() {
+    const modal = new bootstrap.Modal(document.getElementById('interviewDateModal'));
+    const dateInput = document.getElementById('modal_interview_date');
+    
+    // Definir data mínima como hoje
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 16);
+    dateInput.min = todayStr;
+    
+    // Definir valor padrão como agora + 1 hora
+    const defaultDate = new Date(today.getTime() + 60 * 60 * 1000);
+    const defaultStr = defaultDate.toISOString().slice(0, 16);
+    dateInput.value = defaultStr;
+    
+    modal.show();
+  }
+
+  // Função para mostrar modal de data de oferta
+  function showOfferDateModal() {
+    const modal = new bootstrap.Modal(document.getElementById('offerDateModal'));
+    const dateInput = document.getElementById('modal_offer_date');
+    
+    // Definir data mínima como hoje
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 16);
+    dateInput.min = todayStr;
+    
+    // Definir valor padrão como agora
+    const defaultStr = today.toISOString().slice(0, 16);
+    dateInput.value = defaultStr;
+    
+    modal.show();
+  }
+
+  // Função para executar o movimento com otimistic update
+  async function executeMoveOptimistic(interviewDate, offerDate) {
+    if (!dragData) return;
+    
+    try {
+      const { cardId, toStatusId, toPosition, statusName } = dragData;
+      
+      // Encontrar o card que está sendo movido
+      const card = document.querySelector(`[data-app-id="${cardId}"]`);
+      if (!card) return;
+      
+      // Encontrar a zona de destino
+      const targetZone = document.querySelector(`[data-status-id="${toStatusId}"]`);
+      if (!targetZone) return;
+      
+      // OTIMISTIC UPDATE: Mover o card imediatamente
+      const originalParent = card.parentElement;
+      targetZone.appendChild(card);
+      
+      // Fazer a requisição para o backend
+      const body = {
+        application_id: cardId,
+        to_status_id: toStatusId,
+        to_position: toPosition,
+        interview_date: interviewDate,
+        offer_date: offerDate
+      };
+      
+      const r = await fetch(`${apiBase}/applications/move`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      
+      if (r.ok) {
+        // Sucesso - mostrar notificação sutil
+        showNotification('Candidato movido com sucesso', 'success');
+        // Limpar dados do drag
+        dragData = null;
+      } else {
+        // Se falhou, reverter o movimento
+        originalParent.appendChild(card);
+        
+        const errorData = await r.json();
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'error',
+            title: 'Erro ao mover candidato',
+            text: errorData.message || 'Erro desconhecido'
+          });
+        } else {
+          alert('Erro ao mover candidato');
+        }
+      }
+    } catch (error) {
+      // Se houve erro de rede, reverter o movimento
+      if (dragData && dragData.cardId) {
+        const card = document.querySelector(`[data-app-id="${dragData.cardId}"]`);
+        if (card) {
+          // Tentar encontrar a zona original baseada no status anterior
+          const originalZone = document.querySelector(`[data-status-id="${dragData.fromStatusId}"]`);
+          if (originalZone) {
+            originalZone.appendChild(card);
+          }
+        }
+      }
+      
+      console.error('Erro ao mover candidato:', error);
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao mover candidato',
+          text: error.message
+        });
+      } else {
+        alert('Erro ao mover candidato');
+      }
+    }
+  }
+
+  // Função para remover nota com otimistic update
+  async function removeNoteOptimistic(button) {
+    const noteElement = button.closest('.note-item');
+    if (!noteElement) return;
+    
+    const noteId = noteElement.getAttribute('data-note-id');
+    if (!noteId) {
+      // Se não tem ID, apenas remover da interface
+      noteElement.remove();
+      return;
+    }
+    
+    // OTIMISTIC UPDATE: Remover imediatamente da interface
+    noteElement.remove();
+    
+    try {
+      const response = await fetch(`${apiBase}/applications/notes/${noteId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) {
+        // Se falhou, recarregar as notas para restaurar
+        await loadApplicationDetails(currentApplicationId);
+        
+        const errorData = await response.json();
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'error',
+            title: 'Erro ao remover nota',
+            text: errorData.message || 'Erro desconhecido'
+          });
+        } else {
+          alert('Erro ao remover nota');
+        }
+      } else {
+        // Sucesso - mostrar notificação sutil
+        showNotification('Observação removida com sucesso', 'success');
+      }
+    } catch (error) {
+      // Se houve erro de rede, recarregar as notas para restaurar
+      await loadApplicationDetails(currentApplicationId);
+      
+      console.error('Erro ao remover nota:', error);
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao remover nota',
+          text: error.message
+        });
+      } else {
+        alert('Erro ao remover nota');
+      }
+    }
+  }
+
+  // Função para executar o movimento (mantida para compatibilidade)
+  async function executeMove(interviewDate, offerDate) {
+    if (!dragData) return;
+    
+    try {
+      const { cardId, toStatusId, toPosition, statusName } = dragData;
+      
+      const body = {
+        application_id: cardId,
+        to_status_id: toStatusId,
+        to_position: toPosition,
+        interview_date: interviewDate,
+        offer_date: offerDate
+      };
+      
+      const r = await fetch(`${apiBase}/applications/move`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      
+      if (r.ok) {
+        await loadAppsBoardSilent();
+        // Limpar dados do drag
+        dragData = null;
+      } else {
+        const errorData = await r.json();
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao mover candidato',
+          text: errorData.message || 'Erro desconhecido'
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao mover candidato:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao mover candidato',
+        text: error.message
+      });
+    }
+  }
+
+  // Função para abrir modal de novo candidato
+  function openNewCandidate() {
+    currentApplicationId = null;
+    currentApplication = null;
+    
+    // Destruir FilePond anterior se existir
+    if (filePondInstance) {
+      filePondInstance.destroy();
+      filePondInstance = null;
+    }
+    
+    // Atualizar título do modal
+    document.querySelector('#candidateModal .modal-title').textContent = 'Novo Candidato';
+    
+    // Atualizar texto do botão
+    document.getElementById('btnSaveApp').textContent = 'Cadastrar Candidato';
+    document.getElementById('btnSaveApp').className = 'btn btn-primary';
+    document.getElementById('btnRemoveCandidate').style.display = 'none'; // Esconder botão de remover
+    
+    // Renderizar formulário vazio
+    renderNewCandidate();
+    
+    if(!bsModal) bsModal = new bootstrap.Modal(document.getElementById('candidateModal'));
+    bsModal.show();
+  }
+
+  async function removeAttachment(attachmentId) {
+    const result = await Swal.fire({
+      title: 'Remover Anexo',
+      text: 'Tem certeza que deseja remover este anexo?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc3545',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Sim, remover',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+    
+    try {
+      showLoading('Removendo anexo...');
+      
+      const response = await fetch(`${apiBase}/applications/attachments/${attachmentId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        // Recarregar anexos
+        if (currentApplicationId) {
+          await loadApplicationDetails(currentApplicationId);
+        }
+        // Remoção silenciosa - sem alert de confirmação
+      } else {
+        const errorData = await response.json();
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao remover anexo',
+          text: errorData.message || 'Erro desconhecido'
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao remover anexo:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao remover anexo',
+        text: error.message
+      });
+    } finally {
+      hideLoading();
+    }
+  }
+
+  function adjustNotesPanelHeight() {
+    const candidateDetails = document.getElementById('candidateDetails');
+    const notesContainer = document.querySelector('.notes-container');
+    
+    if (candidateDetails && notesContainer) {
+      const formHeight = candidateDetails.offsetHeight;
+      const availableHeight = Math.max(formHeight - 80, 200); // 80px para label e input
+      notesContainer.style.maxHeight = `${availableHeight}px`;
+    }
+  }
+
+  async function openCandidate(card){
+    currentApplicationId = card.getAttribute('data-app-id');
+    const r = await fetch(`${apiBase}/applications/${currentApplicationId}`);
+    if(!r.ok) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao carregar candidato',
+        text: 'Falha ao carregar dados do candidato'
+      });
+      return;
+    }
+    const app = await r.json();
+    currentApplication = app; // Armazenar dados do candidato atual
+    
+    // Destruir FilePond anterior se existir
+    if (filePondInstance) {
+      filePondInstance.destroy();
+      filePondInstance = null;
+    }
+    
+    // Atualizar título do modal
+    document.querySelector('#candidateModal .modal-title').textContent = 'Editar Candidato';
+    
+    // Atualizar texto do botão
+    document.getElementById('btnSaveApp').textContent = 'Salvar Dados';
+    document.getElementById('btnRemoveCandidate').style.display = 'none'; // Esconder botão de remover
+    
+    renderCandidate(app);
+    if(!bsModal) bsModal = new bootstrap.Modal(document.getElementById('candidateModal'));
+    bsModal.show();
+  }
+
+  // Limpar FilePond quando modal for fechado
+  document.getElementById('candidateModal').addEventListener('hidden.bs.modal', function () {
+    if (filePondInstance) {
+      filePondInstance.removeFiles();
+    }
+    uploadsInProgress = 0; // Resetar contador de uploads
+  });
+
+  document.getElementById('btnSaveNote').addEventListener('click', async () => {
+    const button = document.getElementById('btnSaveNote');
+    const noteText = document.getElementById('noteText').value.trim();
+    
+    console.log('Tentando adicionar nota - currentApplicationId:', currentApplicationId);
+    console.log('Texto da nota:', noteText);
+    
+    if (!noteText) return;
+    
+    if (!currentApplicationId) {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'ID do candidato não encontrado. Tente recarregar a página.'
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'ID do candidato não encontrado. Tente recarregar a página.'
+        });
+      }
+      return;
+    }
+    
+    try {
+      // Obter informações do usuário logado se não estiver disponível
+      if (!currentUser) {
+        currentUser = await getCurrentUser();
+      }
+      
+      // OTIMISTIC UPDATE: Adicionar nota imediatamente na interface
+      const notesContainer = document.getElementById('internalNotesContainer');
+      if (notesContainer) {
+        const noteElement = document.createElement('div');
+        noteElement.className = 'note-item border-start border-primary ps-3 mb-2';
+        noteElement.innerHTML = `
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <div class="fw-bold text-primary">${currentUser ? currentUser.name : 'Usuário'}</div>
+              <div class="text-muted small">${new Date().toLocaleString('pt-BR')}</div>
+              <div class="mt-1">${noteText}</div>
+            </div>
+            <button class="btn btn-sm btn-outline-danger ms-2" onclick="removeNoteOptimistic(this)" title="Remover">
+              <i class="ri-delete-bin-line"></i>
+            </button>
+          </div>
+        `;
+        notesContainer.appendChild(noteElement);
+      }
+      
+      // Limpar o campo de texto imediatamente
+      document.getElementById('noteText').value = '';
+      
+      // Fazer a requisição para o backend
+      const response = await fetch(`${apiBase}/applications/${currentApplicationId}/notes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          note: noteText,
+          author_id: currentUser ? currentUser.id : 0
+        })
+      });
+      
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log('Nota adicionada com sucesso');
+        
+        // Atualizar o elemento com o ID real da nota
+        if (responseData.data && responseData.data.note_id) {
+          const noteElement = notesContainer.lastElementChild;
+          if (noteElement) {
+            noteElement.setAttribute('data-note-id', responseData.data.note_id);
+          }
+        }
+        
+        // Mostrar notificação sutil
+        showNotification('Observação adicionada com sucesso', 'success');
+      } else {
+        // Se falhou, remover a nota da interface
+        if (notesContainer && notesContainer.lastElementChild) {
+          notesContainer.removeChild(notesContainer.lastElementChild);
+        }
+        
+        const errorData = await response.json();
+        console.error('Erro na resposta:', errorData);
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'error',
+            title: 'Erro ao adicionar nota',
+            text: errorData.message || 'Erro desconhecido'
+          });
+        } else {
+          alert('Erro ao adicionar nota');
+        }
+      }
+    } catch (error) {
+      // Se houve erro de rede, remover a nota da interface
+      const notesContainer = document.getElementById('internalNotesContainer');
+      if (notesContainer && notesContainer.lastElementChild) {
+        notesContainer.removeChild(notesContainer.lastElementChild);
+      }
+      
+      console.error('Erro ao adicionar nota:', error);
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao adicionar nota',
+          text: error.message
+        });
+      } else {
+        alert('Erro ao adicionar nota');
+      }
+    }
+  });
+
+  document.getElementById('noteText').addEventListener('keydown', (ev) => {
+    if(ev.key === 'Enter'){
+      ev.preventDefault();
+      document.getElementById('btnSaveNote').click();
+    }
+  });
+
+  document.getElementById('btnSaveApp').addEventListener('click', async () => {
+    const button = document.getElementById('btnSaveApp');
+    try {
+      showButtonLoading(button, 'Salvando...');
+      
+      const formData = {
+        name: document.getElementById('f_name').value,
+        email: document.getElementById('f_email').value,
+        phone: document.getElementById('f_phone').value,
+        linkedin_url: document.getElementById('f_linkedin').value,
+        cover_letter: document.getElementById('f_cover').value,
+        interview_date: document.getElementById('f_interview_date').value,
+        offer_date: document.getElementById('f_offer_date').value
+      };
+
+      if (!formData.name || !formData.email) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Campos obrigatórios',
+          text: 'Nome e email são obrigatórios'
+        });
+        return;
+      }
+
+      let response;
+      let isNewCandidate = !currentApplicationId;
+      
+      if (currentApplicationId) {
+        // Atualizar candidato existente
+        response = await fetch(`${apiBase}/applications/${currentApplicationId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+      } else {
+        // Criar novo candidato
+        formData.job_id = currentJobId;
+        response = await fetch(`${apiBase}/applications`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+      }
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        if (isNewCandidate) {
+          // Novo candidato - não fechar modal, apenas liberar campos
+          currentApplicationId = result.id;
+          enableCandidateFields(result.id);
+          
+          // Atualizar botão
+          button.textContent = 'Salvar Dados';
+          button.className = 'btn btn-success';
+          document.getElementById('btnRemoveCandidate').style.display = 'none'; // Esconder botão de remover
+          
+          // Atualizar título do modal
+          document.querySelector('#candidateModal .modal-title').textContent = 'Editar Candidato';
+          
+          // Atualizar board sem loading da página
+          await loadAppsBoardSilent();
+        } else {
+          // Candidato existente - fechar modal
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              icon: 'success',
+              title: 'Candidato atualizado!',
+              timer: 1500,
+              showConfirmButton: false
+            });
+          } else {
+            Swal.fire({
+              icon: 'success',
+              title: 'Candidato atualizado!',
+              timer: 1500,
+              showConfirmButton: false
+            });
+          }
+          
+          await loadAppsBoardSilent();
+          const modal = bootstrap.Modal.getInstance(document.getElementById('candidateModal'));
+          modal.hide();
+        }
+      } else {
+        const errorData = await response.json();
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'error',
+            title: 'Erro ao salvar candidato',
+            text: errorData.message || 'Erro desconhecido'
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Erro ao salvar candidato',
+            text: errorData.message || 'Erro desconhecido'
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao salvar candidato:', error);
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao salvar candidato',
+          text: error.message
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao salvar candidato',
+          text: error.message
+        });
+      }
+    } finally {
+      hideButtonLoading(button);
+    }
+  });
+
+  document.getElementById('btnNewCandidate').addEventListener('click', openNewCandidate);
+
+  // Event listener para remover candidato
+  document.getElementById('btnRemoveCandidate').addEventListener('click', removeCandidate);
+
+  // Event listener para testar email de alerta
+  document.getElementById('btnTestEmail').addEventListener('click', async () => {
+    const button = document.getElementById('btnTestEmail');
+    try {
+      showButtonLoading(button, 'Enviando...');
+      
+      const response = await fetch(`${apiBase}/send-interview-alert`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Email enviado!',
+          text: 'Email de alerta de entrevistas enviado com sucesso!',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } else {
+        const errorData = await response.json();
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao enviar email',
+          text: errorData.message || 'Erro desconhecido'
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao testar email:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao enviar email',
+        text: error.message
+      });
+    } finally {
+      hideButtonLoading(button);
+    }
+  });
+
+  // Event listeners para modais de data
+  document.getElementById('btnConfirmInterviewDate').addEventListener('click', async () => {
+    const button = document.getElementById('btnConfirmInterviewDate');
+    try {
+      showButtonLoading(button, 'Confirmando...');
+      
+      const dateInput = document.getElementById('modal_interview_date');
+      const interviewDate = dateInput.value;
+      
+      if (!interviewDate) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Data obrigatória',
+          text: 'Por favor, selecione uma data para a entrevista'
+        });
+        return;
+      }
+      
+      // Converter para formato YYYY-MM-DD HH:MM
+      const date = new Date(interviewDate);
+      const formattedDate = date.getFullYear() + '-' + 
+                           String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                           String(date.getDate()).padStart(2, '0') + ' ' + 
+                           String(date.getHours()).padStart(2, '0') + ':' + 
+                           String(date.getMinutes()).padStart(2, '0');
+      
+      // Fechar modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('interviewDateModal'));
+      modal.hide();
+      
+      // Executar movimento
+      await executeMove(formattedDate, null);
+    } catch (error) {
+      console.error('Erro ao confirmar data de entrevista:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao confirmar data',
+        text: 'Erro ao confirmar data de entrevista'
+      });
+    } finally {
+      hideButtonLoading(button);
+    }
+  });
+
+  document.getElementById('btnConfirmOfferDate').addEventListener('click', async () => {
+    const button = document.getElementById('btnConfirmOfferDate');
+    try {
+      showButtonLoading(button, 'Confirmando...');
+      
+      const dateInput = document.getElementById('modal_offer_date');
+      const offerDate = dateInput.value;
+      
+      if (!offerDate) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Data obrigatória',
+          text: 'Por favor, selecione uma data para a oferta'
+        });
+        return;
+      }
+      
+      // Converter para formato YYYY-MM-DD HH:MM
+      const date = new Date(offerDate);
+      const formattedDate = date.getFullYear() + '-' + 
+                           String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                           String(date.getDate()).padStart(2, '0') + ' ' + 
+                           String(date.getHours()).padStart(2, '0') + ':' + 
+                           String(date.getMinutes()).padStart(2, '0');
+      
+      // Fechar modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('offerDateModal'));
+      modal.hide();
+      
+      // Executar movimento
+      await executeMove(null, formattedDate);
+    } catch (error) {
+      console.error('Erro ao confirmar data de oferta:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao confirmar data',
+        text: 'Erro ao confirmar data de oferta'
+      });
+    } finally {
+      hideButtonLoading(button);
+    }
+  });
+
+  // Funções para email de rejeição
+  function openRejectionEmailModal() {
+    if (!currentApplication || !currentApplication.applicant_id) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro',
+        text: 'Nenhum candidato selecionado'
+      });
+      return;
+    }
+
+    // Preencher informações da vaga atual
+    document.getElementById('currentJobInfo').textContent = currentJobTitle || 'Vaga atual';
+
+    // Preencher campos com informações padrão
+    const subject = document.getElementById('rejectionEmailSubject');
+    const content = document.getElementById('rejectionEmailContent');
+    
+    // Assunto padrão
+    subject.value = `Resposta à sua candidatura - ${currentJobTitle}`;
+    
+    // Conteúdo padrão personalizado
+    const candidateName = currentApplication.name || 'Candidato';
+    const currentDate = new Date().toLocaleDateString('pt-BR');
+    
+    content.value = `Prezado(a) ${candidateName},
+
+Agradecemos seu interesse em fazer parte da nossa equipe e o tempo dedicado ao processo seletivo para a vaga de ${currentJobTitle}.
+
+Após uma cuidadosa análise do seu perfil e experiência, informamos que, infelizmente, não foi possível avançar com sua candidatura para esta posição no momento.
+
+Esta decisão foi baseada em critérios específicos da vaga e na comparação com outros candidatos que participaram do processo seletivo.
+
+Boa notícia! Seu currículo foi adicionado ao nosso banco de talentos e será considerado para futuras oportunidades que sejam compatíveis com seu perfil.
+
+Continuaremos acompanhando seu desenvolvimento profissional e entraremos em contato caso surjam vagas adequadas ao seu perfil.
+
+Agradecemos novamente seu interesse em nossa empresa.
+
+Atenciosamente,
+Equipe de Recursos Humanos
+Sirius System
+
+Data: ${currentDate}`;
+
+    // Abrir modal
+    const modal = new bootstrap.Modal(document.getElementById('rejectionEmailModal'));
+    modal.show();
+  }
+
+  async function sendRejectionEmail() {
+    const button = document.getElementById('btnSendRejectionEmail');
+    try {
+      showButtonLoading(button, 'Enviando...');
+
+      const subject = document.getElementById('rejectionEmailSubject').value;
+      const content = document.getElementById('rejectionEmailContent').value;
+
+      // Usar o ID da vaga atual
+      const jobId = currentJobId;
+
+      const response = await fetch(`${apiBase}/applicants/${currentApplication.applicant_id}/rejection-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          job_posting_id: jobId,
+          subject: subject || null,
+          content: content || null
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Fechar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('rejectionEmailModal'));
+        modal.hide();
+
+        // Mostrar sucesso
+        Swal.fire({
+          icon: 'success',
+          title: 'Email enviado!',
+          text: 'Email de rejeição enviado com sucesso',
+          timer: 2000,
+          showConfirmButton: false
+        });
+
+        // Desabilitar botão permanentemente para esta vaga
+        disableRejectionButtonForJob(jobId);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro ao enviar email',
+          text: data.message || 'Erro desconhecido'
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao enviar email de rejeição:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao enviar email',
+        text: error.message
+      });
+    } finally {
+      hideButtonLoading(button);
+    }
+  }
+
+  function disableRejectionButtonForJob(jobId) {
+    const button = document.getElementById('btnRejectionEmail');
+    button.disabled = true;
+    button.innerHTML = '<i class="ri-mail-close-line"></i> Email de Rejeição Enviado';
+    button.title = 'Email de rejeição já foi enviado para esta vaga';
+    button.classList.remove('btn-warning');
+    button.classList.add('btn-secondary');
+  }
+
+  async function checkRejectionEmailStatus(app) {
+    try {
+      // Buscar aplicações do candidato para verificar status de rejeição
+      const response = await fetch(`${apiBase}/applicants/${app.applicant_id}/applications`);
+      const data = await response.json();
+      
+      if (data.success && data.applications) {
+        // Verificar se há email de rejeição enviado para a vaga atual
+        const currentJobApplication = data.applications.find(application => 
+          application.job_posting_id == currentJobId
+        );
+        
+        if (currentJobApplication && currentJobApplication.rejection_email_sent) {
+          // Email já foi enviado - desabilitar botão
+          disableRejectionButtonForJob(currentJobId);
+        } else {
+          // Email não foi enviado - habilitar botão
+          const button = document.getElementById('btnRejectionEmail');
+          button.style.display = 'inline-block';
+          button.disabled = false;
+          button.innerHTML = '<i class="ri-mail-close-line"></i> Enviar Email de Rejeição';
+          button.title = 'Enviar email de rejeição';
+          button.classList.remove('btn-secondary');
+          button.classList.add('btn-warning');
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao verificar status do email de rejeição:', error);
+      // Em caso de erro, mostrar botão habilitado
+      const button = document.getElementById('btnRejectionEmail');
+      button.style.display = 'inline-block';
+      button.disabled = false;
+    }
+  }
+
+  // Event listeners para email de rejeição
+  document.getElementById('btnRejectionEmail').addEventListener('click', openRejectionEmailModal);
+  document.getElementById('btnSendRejectionEmail').addEventListener('click', sendRejectionEmail);
+
+  (async function init(){ 
+    // Inicializar Socket.IO
+    initializeSocket();
+    
+    currentUser = await getCurrentUser();
+    await loadJob(); 
+    await loadAppsBoard(); 
+  })();
+  </script>
+</body>
+</html>

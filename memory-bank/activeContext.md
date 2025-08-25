@@ -2,17 +2,20 @@
 
 ## Current Work Focus
 
-*   Análise inicial do módulo `patrimony-tracker`.
+*   Modelagem e criação do módulo `RH - Vagas` (job openings), incluindo schema SQL e documentação.
 
 ## Recent Changes
 
-*   Criação da estrutura do `memory-bank`.
-*   Documentação inicial do módulo `patrimony-tracker` em `memory-bank/patrimony-tracker-module.md`.
+*   Criação do arquivo `server/sql/schema_hr_job_openings.sql` com tabelas, FKs, índices e seeds baseados em exemplos reais.
+*   Documentação inicial do módulo em `memory-bank/hr-job-openings-module.md`.
 
 ## Next Steps
 
-*   Aguardando novas instruções do usuário.
+*   Implementar backend: controllers e rotas para CRUD e listagem pública.
+*   Implementar frontend administrativo em `public/app/administration/rh-job-openings/` seguindo o tema atual.
+*   Planejar API pública para site corporativo consumir as vagas publicadas.
 
 ## Active Decisions and Considerations
 
-*   Utilizar o `memory-bank` para reter conhecimento sobre o projeto entre as sessões. 
+*   Normalização de domínio (departamento, localização, modalidade, nível, contrato) para consistência e filtros futuros.
+*   Uso de `public_id` como slug estável para consumo público via API. 

@@ -1,0 +1,89 @@
+<html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light" data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RH - Vagas</title>
+  <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+  <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+  <script src="../../assets/js/main.js"></script>
+  <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="../../assets/css/styles.min.css" rel="stylesheet">
+  <link href="../../assets/css/icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+  <link href="./assets/css/index.css" rel="stylesheet">
+</head>
+<body>
+  <div class="row" style="height: 100%;">
+    <div class="col-xl-12">
+      <div class="card custom-card full-viewport" style="display: flex; flex-direction: column;">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="card-title mb-0">Administração de Vagas</h5>
+            <p class="text-muted mb-0 mt-1 fs-12">Gerencie vagas, status e candidatos</p>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary" id="btnNewJob">
+              <i class="ri-add-line me-1 align-middle"></i>
+              Nova Vaga
+            </button>
+            <button class="btn btn-outline-secondary" id="btnSettings">
+              <i class="ri-settings-3-line me-1 align-middle"></i>
+              Configurações
+            </button>
+            <button class="btn btn-outline-primary" id="btnTalentBank">
+              <i class="ri-user-star-line me-1 align-middle"></i>
+              Banco de Talentos
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row g-3 mb-4 filter-row">
+            <div class="col-md-3">
+              <label for="filter-keyword" class="form-label">Buscar</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light"><i class="ri-search-line"></i></span>
+                <input type="text" class="form-control" id="filter-keyword" placeholder="Título, departamento, local...">
+              </div>
+            </div>
+            <div class="col-md-2">
+              <label for="filter-department" class="form-label">Departamento</label>
+              <select id="filter-department" class="form-select" data-choices></select>
+            </div>
+            <div class="col-md-2">
+              <label for="filter-location" class="form-label">Local</label>
+              <select id="filter-location" class="form-select" data-choices></select>
+            </div>
+            <div class="col-md-2">
+              <label for="filter-modality" class="form-label">Modalidade</label>
+              <select id="filter-modality" class="form-select" data-choices></select>
+            </div>
+            <div class="col-md-2">
+              <label for="filter-status" class="form-label">Status</label>
+              <select id="filter-status" class="form-select" data-choices></select>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+              <button class="btn btn-light w-100" id="btn-clear-filters">
+                <i class="ri-refresh-line"></i> Limpar
+              </button>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="fs-14 text-muted">
+              <span id="jobs-count-display">0 vagas encontradas</span>
+              <span id="jobs-status-counts" class="ms-3"></span>
+            </div>
+          </div>
+          <div id="jobsBoard" class="jobs-board"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.1.min.js" crossorigin="anonymous"></script>
+  <script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <script src="../../assets/js/fetchAPI.js"></script>
+  <script src="./assets/js/index.js"></script>
+</body>
+</html> 

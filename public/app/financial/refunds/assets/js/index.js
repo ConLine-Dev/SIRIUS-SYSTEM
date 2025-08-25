@@ -95,8 +95,10 @@ async function createTable() {
 }
 
 async function updateTableData() {
+  let userData = await getInfosLogin();
+  let collabId = userData.system_collaborator_id;
   const listTable = [];
-  const getRefunds = await makeRequest(`/api/refunds/getRefundsADM`);
+  const getRefunds = await makeRequest(`/api/refunds/getRefunds`, 'POST', { collabId });
 
   for (let item of getRefunds) {
     let formattedTitle = `${item.title} - #${item.id}`

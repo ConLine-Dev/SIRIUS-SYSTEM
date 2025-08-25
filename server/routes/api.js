@@ -68,6 +68,8 @@ const api_procedures_management = require('./api-procedures-management');
 const api_tax_calculator = require('./api-tax-calculator');
 const api_freight_tariffs = require('./api-freight-tariffs');
 const api_headcargo_activity_management = require('../controllers/headcargo-activity-management');
+const apiHrJobOpenings = require('./api-hr-job-openings');
+const apiPublicHrJobOpenings = require('./api-public-hr-job-openings');
 // const Posts = require('./apiPosts');
 
 // Importando as rotas da API user-tracker
@@ -307,6 +309,13 @@ const setIO = (io) => {
   
   // Use as rotas do Patrimony Tracker
   router.use('/patrimony-tracker', apiPatrimonyTracker(io));
+
+
+    // NOVO: montar rotas do RH - Vagas
+    router.use('/hr-job-openings', apiHrJobOpenings(io));
+  
+    // API Pública para vagas de emprego (site da empresa)
+    router.use('/public/hr-job-openings', apiPublicHrJobOpenings(io));
 
   return router;
 };

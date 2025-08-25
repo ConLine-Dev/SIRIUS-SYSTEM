@@ -1,0 +1,355 @@
+<html lang="en" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
+    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+
+<head>
+    <!-- Meta Data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Centro de Controle Estratégico</title>
+    <meta name="Description" content="Bootstrap Responsive Admin Web Dashboard HTML5 Template">
+    <meta name="Author" content="Spruko Technologies Private Limited">
+    <meta name="keywords"
+        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+    <!-- Favicon -->
+    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+    <!-- Choices JS -->
+    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+    <!-- Main Theme Js -->
+    <script src="../../assets/js/main.js"></script>
+    <!-- Bootstrap Css -->
+    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intro Css -->
+    <!-- <link id="style" href="../../assets/libs/intro.js/intro.min.css" rel="stylesheet"> -->
+    <!-- Style Css -->
+    <link href="../../assets/css/styles.min.css" rel="stylesheet">
+    <!-- Icons Css -->
+    <link href="../../assets/css/icons.css" rel="stylesheet">
+    <!-- Flatpickr Css -->
+    <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
+    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+    <!-- Choices Css -->
+    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-preview/filepond-plugin-image-preview.min.css">
+    <link rel="stylesheet" href="../../assets/libs/filepond-plugin-image-edit/filepond-plugin-image-edit.min.css">
+    <link rel="stylesheet" href="../../assets/libs/dragula/dragula.min.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+
+    <link href="../../assets/libs/fullCalender/main.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="./assets/css/index.css">
+    <meta http-equiv="imagetoolbar" content="no">
+</head>
+
+<body>
+    <!-- Tutorial -->
+    <!-- <span class="avatar avatar-md p-2 bg-warning" id="btn-tutorial" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Visualizar Tutorial" style="position: fixed; display: flex; top: 50%; right: 0px; z-index: 100;"> 
+        <img src="../../assets/images/brand-logos/mycon.svg" alt="mycon">
+     </span> -->
+
+    <!-- Loader -->
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
+    <div class="row" style="margin-bottom: 100px;">
+        <div class="col-xl-12">
+            <div class="card card-title">
+                <div class="card-header d-flex" style="justify-content: space-between;">
+                    <div class="card-title fw-semibold fs-14">.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="checkbox" class="openSidebarMenu" id="openSidebarMenu">
+    <label for="openSidebarMenu" class="sidebarIconToggle">
+        <div class="spinner diagonal part-1"></div>
+        <div class="spinner horizontal"></div>
+        <div class="spinner diagonal part-2"></div>
+    </label>
+    <div id="sidebarMenu" style="z-index: 1;">
+        <ul class="sidebarMenuInner">
+            <li>Filtros</li>
+            <li>
+                <span>Ano</span>
+                <button class="filter-btn" data-type="ano" data-value="2023">2023</button>
+                <button class="filter-btn" data-type="ano" data-value="2024">2024</button>
+                <button class="filter-btn" data-type="ano" data-value="2025">2025</button>
+            </li>
+            <li>
+                <span>Modal</span>
+                <button class="filter-btn" data-type="modal" data-value="1">AIR</button>
+                <button class="filter-btn" data-type="modal" data-value="3">FCL</button>
+                <button class="filter-btn" data-type="modal" data-value="4">LCL</button>
+            </li>
+            <li>
+                <span>Mês</span>
+                <button class="filter-btn" data-type="mes" data-value="1">Jan</button>
+                <button class="filter-btn" data-type="mes" data-value="2">Fev</button>
+                <button class="filter-btn" data-type="mes" data-value="3">Mar</button>
+                <button class="filter-btn" data-type="mes" data-value="4">Abr</button>
+                <button class="filter-btn" data-type="mes" data-value="5">Mai</button>
+                <button class="filter-btn" data-type="mes" data-value="6">Jun</button>
+                <button class="filter-btn" data-type="mes" data-value="7">Jul</button>
+                <button class="filter-btn" data-type="mes" data-value="8">Ago</button>
+                <button class="filter-btn" data-type="mes" data-value="9">Set</button>
+                <button class="filter-btn" data-type="mes" data-value="10">Out</button>
+                <button class="filter-btn" data-type="mes" data-value="11">Nov</button>
+                <button class="filter-btn" data-type="mes" data-value="12">Dez</button>
+            </li>
+            <li>
+                <button class="btn btn-primary me-2 btn-sm" style="width: 100%; font-size: 14px; margin-top: -5px;"
+                    onclick="printFilteredData()">Atualizar</button>
+            </li>
+        </ul>
+
+    </div>
+    <div class="container-fluid corpo-dashboard">
+        <div class="row">
+            <div class="row d-flex align-items-stretch">
+                <div class="col-xxl-12 col-xl-12">
+                    <div class="row d-flex align-items-stretch">
+                        <div class="col-xl-4 d-flex flex-column">
+                            <div class="card custom-card left flex-fill mb-3">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">RH</div>
+                                </div>
+                                <div class="card-body d-flex">
+                                    1. Avaliação de Onboarding
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 d-flex flex-column">
+                            <div class="card custom-card flex-fill mb-3">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Financeiro</div>
+                                </div>
+                                <div class="card-body d-flex">
+                                    1. Controle Orçamentário até o 5º dia útil do mês (Meta compartilhada com a
+                                    controladoria)
+                                    Cálculo: Dias corridos desde o 1º dia útil até o dia do fechamento financeiro.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 d-flex flex-column">
+                            <div class="card custom-card right flex-fill mb-3">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Controladoria</div>
+                                </div>
+                                <div class="card-body d-flex">
+                                    1. Controle Orçamentário até o 5º dia útil do mês (Meta compartilhada com o
+                                    financeiro)
+                                    Cálculo: Dias corridos desde o 1º dia útil até o dia do fechamento financeiro.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-12 col-xl-12">
+                    <div class="row d-flex align-items-stretch">
+                        <div class="col-xl-4 d-flex flex-column">
+                            <div class="card custom-card left flex-fill mb-3">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Operacional</div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <h6 class="d-flex" style="justify-content: center; margin-bottom: 30px;">
+                                                Nota NPS</h6>
+                                        </div>
+                                        <div class="col-4">
+                                            <h6 class="d-flex" style="text-align: center; margin-bottom: 30px;">
+                                                Conclusão de Atividades</h6>
+                                        </div>
+                                        <div class="col-4">
+                                            <h6 class="d-flex" style="text-align: center; margin-bottom: 30px;">
+                                                Correções/Não Conformidades</h6>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4 d-flex" style="justify-content: center;">
+                                            <div class="row">
+                                                <h1 class="d-flex" style="justify-content: center;">8.7</h1>
+                                                <h5 class="d-flex" style="justify-content: center;">Trimestral</h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 d-flex" style="justify-content: center;">
+                                            <div class="row">
+                                                <h1 class="d-flex" style="justify-content: center;">93%</h1>
+                                                <h5 class="d-flex" style="justify-content: center;">Mensal</h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-4 d-flex" style="justify-content: center;">
+                                            <div class="row">
+                                                <h1 class="d-flex" style="justify-content: center;">0.6%</h1>
+                                                <h5 class="d-flex" style="justify-content: center;">Melsa</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 d-flex flex-column">
+                            <div class="card custom-card flex-fill mb-3">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Pricing</div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <h6 style="margin-bottom: 30px;">Tempo de Resposta</h6>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 d-flex" style="justify-content: center;">
+                                            <div class="row">
+                                                <h1 class="d-flex" style="justify-content: center;">04:25:04</h1>
+                                                <h5 class="d-flex" style="justify-content: center;">FOB</h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 d-flex" style="justify-content: center;">
+                                            <div class="row">
+                                                <h1 class="d-flex" style="justify-content: center;">11:53:56</h1>
+                                                <h5 class="d-flex" style="justify-content: center;">EXW</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 d-flex flex-column">
+                            <div class="card custom-card right flex-fill mb-3">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Comercial</div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <h6 class="d-flex" style="justify-content: center; margin-bottom: 30px;">
+                                                Rentabilidade</h6>
+                                        </div>
+                                        <div class="col-6">
+                                            <h6 class="d-flex" style="justify-content: center; margin-bottom: 30px;">
+                                                Volume</h6>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-6 d-flex" style="justify-content: center;">
+                                            <div class="row">
+                                                <h1 class="d-flex" style="justify-content: center;">77%</h1>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 d-flex" style="justify-content: center;">
+                                            <div class="row">
+                                                <h1 class="d-flex" style="justify-content: center;">95%</h1>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 d-flex flex-column">
+                            <div class="card custom-card left flex-fill mb-3">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">TI</div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <h6 class="d-flex" style="margin-bottom: 30px;">
+                                                Chamados concluídos dentro do prazo</h6>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-3 d-flex" style="justify-content: center;">
+                                            <div class="row">
+                                                <h1 class="d-flex" style="justify-content: center;">100%</h1>
+                                                <h5 class="d-flex" style="text-align: center;">Prioridade Baixa</h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 d-flex" style="justify-content: center;">
+                                            <div class="row">
+                                                <h1 class="d-flex" style="justify-content: center;">91%</h1>
+                                                <h5 class="d-flex" style="text-align: center;">Prioridade Média</h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 d-flex" style="justify-content: center;">
+                                            <div class="row">
+                                                <h1 class="d-flex" style="justify-content: center;">93%</h1>
+                                                <h5 class="d-flex" style="text-align: center;">Prioridade Alta</h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 d-flex" style="justify-content: center;">
+                                            <div class="row">
+                                                <h1 class="d-flex" style="justify-content: center;">96%</h1>
+                                                <h5 class="d-flex" style="text-align: center;">Prioridade Crítica</h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-4 d-flex flex-column">
+                            <div class="card custom-card flex-fill mb-3">
+                                <div class="card-header justify-content-between">
+                                    <div class="card-title">Marketing</div>
+                                </div>
+                                <div class="card-body d-flex">
+                                    1. Pendente.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</html>
+
+
+
+<!-- Scroll To Top -->
+<div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
+<div id="responsive-overlay"></div>
+<!-- Scroll To Top -->
+<script src="https://code.jquery.com/jquery-3.6.1.min.js"
+    integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+<!-- Popper JS -->
+<script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="../../assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<script src="../../assets/js/fetchAPI.js"></script>
+<!-- <script src="../../assets/libs/intro.js/intro.min.js"></script> -->
+<!-- <script src="../../assets/libs/intro.js/intro.js"></script> -->
+
+<!-- Flat Picker JS -->
+<script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>
+<script src="../../assets/libs/flatpickr/pt.js"></script>
+
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.3.0/js/dataTables.responsive.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.print.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.6/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.3/js/buttons.html5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<!-- ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<!-- SweetAlert JS -->
+<script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+
+<script src="./assets/js/index.js"></script>
+
+</body>
+
+</html>

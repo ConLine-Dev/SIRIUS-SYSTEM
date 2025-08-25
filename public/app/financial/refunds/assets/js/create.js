@@ -106,22 +106,30 @@ function addRow() {
     const celula3 = novaLinha.insertCell(2);
     const celula4 = novaLinha.insertCell(3);
     const celula5 = novaLinha.insertCell(4);
+    const celula6 = novaLinha.insertCell(5); // célula do botão X
 
     celula1.textContent = contador;
     celula2.innerHTML = `<select class="category form-control me-2 intro-search-user-ticket">
-                                    <option value="0">Selecione</option>
-                                    <option value="1">Alimentação</option>
-                                    <option value="2">Hospedagem</option>
-                                    <option value="3">Deslocamento</option>
-                                    <option value="4">Extras Clientes</option>
-                                    <option value="5">Administrativo</option>
-                                </select>`;
-    celula3.innerHTML = `<select class="subcategory form-control me-2 intro-search-user-ticket">
-                                </select>`;
+                            <option value="0">Selecione</option>
+                            <option value="1">Alimentação</option>
+                            <option value="2">Hospedagem</option>
+                            <option value="3">Deslocamento</option>
+                            <option value="4">Extras Clientes</option>
+                            <option value="5">Administrativo</option>
+                        </select>`;
+    celula3.innerHTML = `<select class="subcategory form-control me-2 intro-search-user-ticket"></select>`;
     celula4.innerHTML = `<input type="text" class="description form-control me-2 intro-search-user-ticket">`;
     celula5.innerHTML = `<input type="text" class="value form-control me-2 intro-search-user-ticket">`;
 
+    // botão de excluir
+    celula6.innerHTML = `<button class="btn btn-danger btn-sm" onclick="deleteRow(this)">X</button>`;
+
     contador++;
+}
+
+function deleteRow(botao) {
+    const linha = botao.closest("tr"); // pega a linha do botão
+    linha.remove(); // remove a linha
 }
 
 function formatFileName(name) {

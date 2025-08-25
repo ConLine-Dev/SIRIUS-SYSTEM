@@ -57,6 +57,7 @@ const api_commercial_individual_goal = require('./api-commercial_individual_goal
 const api_active_clients_marketing = require('./api-active-clients-marketing'); // Nova rota para Clientes Ativos - Marketing
 const apiMarketingTickets = require('./api-marketing-tickets');
 const apiAccessRequests = require('./api-access-requests');
+const apiStrategyHub = require('./api-strategy-hub');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -285,6 +286,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-access-requests.js
   router.use('/access-requests', apiAccessRequests);
+
+  // Use as rotas do arquivo api-strategy-hub.js
+  router.use('/strategy-hub', apiStrategyHub(io));
 
   // Adicionar rotas do user-tracker - TEMPORARIAMENTE DESATIVADO
   if (USER_TRACKER_ENABLED) {

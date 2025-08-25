@@ -89,5 +89,32 @@ module.exports = function (io) {
         }
     });
 
+    router.post('/getClients', async (req, res, next) => {
+        try {
+            const result = await pricingMain.getClients(req.body.search);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    });
+
+    router.post('/getOrigins', async (req, res, next) => {
+        try {
+            const result = await pricingMain.getOrigins(req.body.search);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    });
+
+    router.post('/getDestinations', async (req, res, next) => {
+        try {
+            const result = await pricingMain.getDestinations(req.body.search);
+            res.status(200).json(result);
+        } catch (error) {
+            res.status(404).json(error);
+        }
+    });
+
     return router;
 };

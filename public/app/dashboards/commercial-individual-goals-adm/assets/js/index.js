@@ -50,14 +50,11 @@ async function printData(sales, month, quarter, operation) {
 
     const getTEUsAndProfit = await makeRequest(`/api/commercial-individual-goal/getTEUsAndProfit`, 'POST', { sales, month, quarter, operation });
 
+    console.log(getTEUsAndProfit);
     let TEUsActual = 0;
     let LCLActual = 0;
     let AirActual = 0;
     let profitActual = 0;
-    if (getTEUsAndProfit[0]) {
-        TEUsActual = getTEUsAndProfit[0].Total_TEUS;
-        profitActual = getTEUsAndProfit[0].Lucro_Estimado;
-    }
 
     for (let index = 0; index < getTEUsAndProfit.length; index++) {
         if (getTEUsAndProfit[index].Tipo_Carga == 'LCL') {
@@ -66,6 +63,10 @@ async function printData(sales, month, quarter, operation) {
         if (getTEUsAndProfit[index].Tipo_Carga == 'Aéreo') {
             AirActual = getTEUsAndProfit[index].Quantidade_Processos;
         }
+        if (getTEUsAndProfit[index].Tipo_Carga == 'FCL') {
+            TEUsActual = getTEUsAndProfit[index].Total_TEUS;
+        }
+        profitActual += getTEUsAndProfit[index].Lucro_Estimado;
     }
 
     const getGoals = await makeRequest(`/api/commercial-individual-goal/getGoals`, 'POST', { sales, month, quarter });
@@ -116,7 +117,7 @@ async function createTable(getVolumes) {
         "language": {
             url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
         },
-        "order": [[0, 'desc']],
+        "order": [[2, 'desc']],
         "lengthMenu": [[6], [6]],
         "searching": true,
     });

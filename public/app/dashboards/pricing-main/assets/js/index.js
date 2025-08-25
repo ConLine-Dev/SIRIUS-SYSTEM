@@ -5,6 +5,9 @@ let processesCarrier;
 let processesTerminal;
 let processesCustomer;
 let processesCountry;
+let clientSelect, clientsChoices;
+let originSelect, originsChoices;
+let destinationSelect, destinationChoices;
 
 async function printProcesses(filters) {
 
@@ -32,6 +35,81 @@ async function printProcesses(filters) {
   divProfitProcess.innerHTML = printProfitProcess;
 }
 
+async function createSelects() {
+
+  clientSelect = document.getElementById('client');
+  clientsChoices = new Choices(clientSelect, {
+    searchEnabled: true,
+    itemSelectText: '',
+    placeholderValue: 'Cliente',
+    searchPlaceholderValue: 'Buscar cliente...'
+  });
+
+  clientSelect.addEventListener('search', function (event) {
+    const searchTerm = event.detail.value;
+
+    if (searchTerm.length > 2) {
+      fetchClients(searchTerm);
+    }
+  });
+
+  originSelect = document.getElementById('origin');
+  originsChoices = new Choices(originSelect, {
+    searchEnabled: true,
+    itemSelectText: '',
+    placeholderValue: 'Origem',
+    searchPlaceholderValue: 'Buscar origem...'
+  });
+
+  originSelect.addEventListener('search', function (event) {
+    const searchTerm = event.detail.value;
+
+    if (searchTerm.length > 2) {
+      fetchOrigins(searchTerm);
+    }
+  });
+
+  destinationSelect = document.getElementById('destination');
+  destinationChoices = new Choices(destinationSelect, {
+    searchEnabled: true,
+    itemSelectText: '',
+    placeholderValue: 'Destino',
+    searchPlaceholderValue: 'Buscar destino...'
+  });
+
+  destinationSelect.addEventListener('search', function (event) {
+    const searchTerm = event.detail.value;
+
+    if (searchTerm.length > 2) {
+      fetchDestinations(searchTerm);
+    }
+  });
+}
+
+async function fetchClients(search) {
+  let clients = await makeRequest(`/api/pricing-main/getClients`, 'POST', { search })
+
+  for (let index = 0; index < clients.length; index++) {
+    clientsChoices.setChoices([{ value: clients[index].id, label: clients[index].Nome }], 'value', 'label', false);
+  }
+}
+
+async function fetchOrigins(search) {
+  let origins = await makeRequest(`/api/pricing-main/getOrigins`, 'POST', { search })
+
+  for (let index = 0; index < origins.length; index++) {
+    originsChoices.setChoices([{ value: origins[index].id, label: origins[index].origem }], 'value', 'label', false);
+  }
+}
+
+async function fetchDestinations(search) {
+  let destinations = await makeRequest(`/api/pricing-main/getDestinations`, 'POST', { search })
+
+  for (let index = 0; index < destinations.length; index++) {
+    destinationChoices.setChoices([{ value: destinations[index].id, label: destinations[index].destino }], 'value', 'label', false);
+  }
+}
+
 async function createArrays(filters) {
 
   const countries = await makeRequest(`/api/pricing-main/getProcessesCountries`, 'POST', filters);
@@ -43,7 +121,7 @@ async function createArrays(filters) {
     if (!results[`'${data[0].region}'`]) {
       results[`'${data[0].region}'`] = 0;
     }
-    results[`'${data[0].region}'`]+= countries[index].Total;
+    results[`'${data[0].region}'`] += countries[index].Total;
   }
 
   createProcessesChart(results);
@@ -612,12 +690,6 @@ function createProcessesChart(results) {
 
 }
 
-const selectedFilters = {
-  ano: [],
-  modal: [],
-  mes: []
-};
-
 // Primeiro: lógica para selecionar/deselecionar os botões
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -629,7 +701,10 @@ async function printFilteredData() {
   const selected = {
     ano: [],
     modal: [],
-    mes: []
+    mes: [],
+    cliente: 0,
+    origem: 0,
+    destino: 0
   };
 
   document.querySelectorAll('.filter-btn.selected').forEach(btn => {
@@ -640,6 +715,11 @@ async function printFilteredData() {
       selected[type].push(value);
     }
   });
+  
+  selected.cliente = document.getElementById('client').value;
+  selected.origem = document.getElementById('origin').value;
+  selected.destino = document.getElementById('destination').value;
+  
   document.querySelector('#loader2').classList.remove('d-none')
   await printProcesses(selected);
   await createArrays(selected);
@@ -654,10 +734,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   let filters = {}
 
-  console.time('timer')
   await printProcesses(filters);
   await createArrays(filters);
-  console.timeEnd('timer')
+  await createSelects();
 
   document.querySelector('#loader2').classList.add('d-none')
 });

@@ -1,22 +1,49 @@
-let clientsTable;
-let profitTable;
-let teusTable;
-let processesTable;
-let airProcessesTable;
+let clientsTable, profitTable, teusTable, processesTable, airProcessesTable;
+let teusPercentChart, profitPercentChart, profitChart, teusChart, airProcessesPercentChart, processesPercentChart;
+let airProcessesChart, processesChart, newModalChart, activeModalChart, newClientsChart, activeChart; 
 
 async function reloadCharts(id_headcargo) {
+
+  const operationType = document.getElementById("operationType").value;
+  const firstDate = document.getElementById("firstDate").value;
+  const lastDate = document.getElementById("lastDate").value;
+
+  const updateButton = document.getElementById("updateButton");
+  let printUpdateButton = `<button class="bottom-new-ticket btn btn-primary me-2" onclick="updateTables(${id_headcargo})">
+                                    <i class="ri-add-line me-1 fw-semibold align-middle"></i>
+                                    Atualizar Dados
+                                </button>`
+
+  updateButton.innerHTML = printUpdateButton;
+
   document.querySelector('#loader2').classList.remove('d-none');
   document.querySelector('#salesMenu').classList.add('d-none');
   document.querySelector('#salesMenu').classList.remove('d-flex');
-  await createTables(id_headcargo);
-  await createActivityArray(id_headcargo);
-  await createNewClientsArray(id_headcargo);
-  await createProcessesArray(id_headcargo);
-  await createTeusProfitArray(id_headcargo);
+  await createTables(id_headcargo, operationType, firstDate, lastDate);
+  await createActivityArray(id_headcargo, operationType, firstDate, lastDate);
+  await createNewClientsArray(id_headcargo, operationType, firstDate, lastDate);
+  await createProcessesArray(id_headcargo, operationType, firstDate, lastDate);
+  await createTeusProfitArray(id_headcargo, operationType, firstDate, lastDate);
+  document.querySelector('#loader2').classList.add('d-none');
+}
+
+async function updateTables(id_headcargo) {
+  const operationType = document.getElementById("operationType").value;
+  const firstDate = document.getElementById("firstDate").value;
+  const lastDate = document.getElementById("lastDate").value;
+
+  document.querySelector('#loader2').classList.remove('d-none');
+  document.querySelector('#salesMenu').classList.add('d-none');
+  document.querySelector('#salesMenu').classList.remove('d-flex');
+  await createTables(id_headcargo, operationType, firstDate, lastDate);
+  await createActivityArray(id_headcargo, operationType, firstDate, lastDate);
+  await createNewClientsArray(id_headcargo, operationType, firstDate, lastDate);
+  await createProcessesArray(id_headcargo, operationType, firstDate, lastDate);
+  await createTeusProfitArray(id_headcargo, operationType, firstDate, lastDate);
   document.querySelector('#loader2').classList.add('d-none');
 }
 function openSalesList() {
-  
+
   document.querySelector('#salesMenu').classList.add('d-flex');
   document.querySelector('#salesMenu').classList.remove('d-none');
 }
@@ -24,7 +51,7 @@ async function createFilters() {
 
   let userId = getInfosLogin()
   userId = userId.system_id_headcargo;
-  let userCompany = await makeRequest(`/api/commercial-adm/getUserCompany`, 'POST', {userId});
+  let userCompany = await makeRequest(`/api/commercial-adm/getUserCompany`, 'POST', { userId });
 
   let divCommercialList = document.getElementById('commercialList');
   let getCommercials;
@@ -40,7 +67,7 @@ async function createFilters() {
   for (let index = 0; index < getCommercials.length; index++) {
 
     let userId = getCommercials[index].id_headcargo;
-    let getByCommercial = await makeRequest(`/api/commercial-adm/getByCommercial`, 'POST', {userId});
+    let getByCommercial = await makeRequest(`/api/commercial-adm/getByCommercial`, 'POST', { userId });
 
     let assertiveness = 0;
     if ((getByCommercial[0].Total_Aprovada + getByCommercial[0].Total_Reprovada + getByCommercial[0].Total_Pendente) > 0) {
@@ -88,9 +115,9 @@ function getInfosLogin() {
 
   return StorageGoogle;
 }
-async function createClientTable(userId) {
+async function createClientTable(userId, operationType, firstDate, lastDate) {
 
-  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`, 'POST', {userId});
+  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`, 'POST', { userId, operationType, firstDate, lastDate });
 
   const listTable = [];
 
@@ -154,9 +181,9 @@ async function createClientTable(userId) {
     clientsTable.search(this.value).draw();
   });
 }
-async function createProfitTable(userId) {
+async function createProfitTable(userId, operationType, firstDate, lastDate) {
 
-  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`, 'POST', {userId});
+  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`, 'POST', { userId, operationType, firstDate, lastDate });
 
   const listTable = [];
 
@@ -202,9 +229,9 @@ async function createProfitTable(userId) {
     profitTable.search(this.value).draw();
   });
 }
-async function createTeusTable(userId) {
+async function createTeusTable(userId, operationType, firstDate, lastDate) {
 
-  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`, 'POST', {userId});
+  let clientsDetails = await makeRequest(`/api/commercial-main/clientsDetails`, 'POST', { userId, operationType, firstDate, lastDate });
 
   const listTable = [];
 
@@ -247,9 +274,9 @@ async function createTeusTable(userId) {
     teusTable.search(this.value).draw();
   });
 }
-async function createLCLProcessesTable(userId) {
+async function createLCLProcessesTable(userId, operationType, firstDate, lastDate) {
 
-  let clientsLCLDetails = await makeRequest(`/api/commercial-main/clientsLCLDetails`, 'POST', {userId});
+  let clientsLCLDetails = await makeRequest(`/api/commercial-main/clientsLCLDetails`, 'POST', { userId, operationType, firstDate, lastDate });
 
   const listTable = [];
 
@@ -292,9 +319,9 @@ async function createLCLProcessesTable(userId) {
     processesTable.search(this.value).draw();
   });
 }
-async function createAirProcessesTable(userId) {
+async function createAirProcessesTable(userId, operationType, firstDate, lastDate) {
 
-  let clientsAirDetails = await makeRequest(`/api/commercial-main/clientsAirDetails`, 'POST', {userId});
+  let clientsAirDetails = await makeRequest(`/api/commercial-main/clientsAirDetails`, 'POST', { userId, operationType, firstDate, lastDate });
 
   const listTable = [];
 
@@ -337,14 +364,14 @@ async function createAirProcessesTable(userId) {
     airProcessesTable.search(this.value).draw();
   });
 }
-async function createTables(id_headcargo) {
-  await createClientTable(id_headcargo);
-  await createProfitTable(id_headcargo);
-  await createTeusTable(id_headcargo);
-  await createLCLProcessesTable(id_headcargo);
-  await createAirProcessesTable(id_headcargo);
+async function createTables(userId, operationType, firstDate, lastDate) {
+  await createClientTable(userId, operationType, firstDate, lastDate);
+  await createProfitTable(userId, operationType, firstDate, lastDate);
+  await createTeusTable(userId, operationType, firstDate, lastDate);
+  await createLCLProcessesTable(userId, operationType, firstDate, lastDate);
+  await createAirProcessesTable(userId, operationType, firstDate, lastDate);
 }
-async function createActivityArray(userId) {
+async function createActivityArray(userId, operationType, firstDate, lastDate) {
 
   let activityArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   let IACourierCount = 0;
@@ -355,7 +382,7 @@ async function createActivityArray(userId) {
   let EANormalCount = 0;
   let EMFCLCount = 0;
   let EMLCLCount = 0;
-  let activeClients = await makeRequest(`/api/commercial-main/activeClients`, 'POST', {userId});
+  let activeClients = await makeRequest(`/api/commercial-main/activeClients`, 'POST', { userId, operationType, firstDate, lastDate });
 
   for (let index = 0; index < activeClients.length; index++) {
     activityArray[activeClients[index].Mes - 1]++;
@@ -390,9 +417,192 @@ async function createActivityArray(userId) {
   createActivityChart(activityArray);
   createActiveModalChart(modalData, modalLabel);
 }
-function createActivityChart(activityArray) {
+async function createNewClientsArray(userId, operationType, firstDate, lastDate) {
 
+  let newClientsArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let IACourierCount = 0;
+  let IANormalCount = 0;
+  let IMFCLCount = 0;
+  let IMLCLCount = 0;
+  let EACourierCount = 0;
+  let EANormalCount = 0;
+  let EMFCLCount = 0;
+  let EMLCLCount = 0;
+  let newClients = await makeRequest(`/api/commercial-main/newClients`, 'POST', { userId, operationType, firstDate, lastDate });
+
+  for (let index = 0; index < newClients.length; index++) {
+    newClientsArray[newClients[index].Mes - 1]++;
+    if (newClients[index].Tipo_Processo == 'IA-COURIER') {
+      IACourierCount++;
+    }
+    if (newClients[index].Tipo_Processo == 'IA-NORMAL') {
+      IANormalCount++;
+    }
+    if (newClients[index].Tipo_Processo == 'IM-FCL') {
+      IMFCLCount++;
+    }
+    if (newClients[index].Tipo_Processo == 'IM-LCL') {
+      IMLCLCount++;
+    }
+    if (newClients[index].Tipo_Processo == 'EA-COURIER') {
+      EACourierCount++;
+    }
+    if (newClients[index].Tipo_Processo == 'EA-NORMAL') {
+      EANormalCount++;
+    }
+    if (newClients[index].Tipo_Processo == 'EM-FCL') {
+      EMFCLCount++;
+    }
+    if (newClients[index].Tipo_Processo == 'EM-LCL') {
+      EMLCLCount++;
+    }
+  }
+
+  modalData = [IACourierCount, IANormalCount, IMFCLCount, IMLCLCount, EACourierCount, EANormalCount, EMFCLCount, EMLCLCount]
+  modalLabel = ['IA-Courier', 'IA-Normal', 'IM-FCL', 'IM-LCL', 'EA-Courier', 'EA-Normal', 'EM-FCL', 'EM-LCL']
+  createNewClientsChart(newClientsArray);
+  createNewModalChart(modalData, modalLabel)
+}
+async function createProcessesArray(userId, operationType, firstDate, lastDate) {
+  let processesArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let processesUserArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let AirprocessesArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let AirprocessesUserArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let IACourierCount = 0;
+  let IANormalCount = 0;
+  let IMLCLCount = 0;
+  let EACourierCount = 0;
+  let EANormalCount = 0;
+  let EMLCLCount = 0;
+  let LCLProcesses = await makeRequest(`/api/commercial-main/totalLCLProcesses`);
+  let AirProcesses = await makeRequest(`/api/commercial-main/totalAirProcesses`);
+  let LCLprocessesByUser = await makeRequest(`/api/commercial-main/LCLProcessesByUser`, 'POST', { userId, operationType, firstDate, lastDate })
+  let AirprocessesByUser = await makeRequest(`/api/commercial-main/AirProcessesByUser`, 'POST', { userId, operationType, firstDate, lastDate })
+
+  for (let index = 0; index < LCLProcesses.length; index++) {
+    processesArray[LCLProcesses[index].Mes - 1] += LCLProcesses[index].Quantidade;
+  }
+
+  for (let index = 0; index < AirProcesses.length; index++) {
+    AirprocessesArray[AirProcesses[index].Mes - 1] += AirProcesses[index].Quantidade;
+  }
+
+  for (let index = 0; index < LCLprocessesByUser.length; index++) {
+    processesUserArray[LCLprocessesByUser[index].Mes - 1] += LCLprocessesByUser[index].Quantidade;
+    if (LCLprocessesByUser[index].Tipo_Processo == 'IM-LCL') {
+      IMLCLCount += LCLprocessesByUser[index].Quantidade;
+    }
+    if (LCLprocessesByUser[index].Tipo_Processo == 'EM-LCL') {
+      EMLCLCount += LCLprocessesByUser[index].Quantidade;
+    }
+  }
+
+  for (let index = 0; index < AirprocessesByUser.length; index++) {
+    AirprocessesUserArray[AirprocessesByUser[index].Mes - 1] += AirprocessesByUser[index].Quantidade;
+    if (AirprocessesByUser[index].Tipo_Processo == 'IA-COURIER') {
+      IACourierCount += AirprocessesByUser[index].Quantidade;
+    }
+    if (AirprocessesByUser[index].Tipo_Processo == 'IA-NORMAL') {
+      IANormalCount += AirprocessesByUser[index].Quantidade;
+    }
+    if (AirprocessesByUser[index].Tipo_Processo == 'EA-COURIER') {
+      EACourierCount += AirprocessesByUser[index].Quantidade;
+    }
+    if (AirprocessesByUser[index].Tipo_Processo == 'EA-NORMAL') {
+      EANormalCount += AirprocessesByUser[index].Quantidade;
+    }
+  }
+  LCLModalData = [IMLCLCount, EMLCLCount]
+  LCLModalLabel = ['IM-LCL', 'EM-LCL']
+  AirModalData = [IACourierCount, IANormalCount, EACourierCount, EANormalCount]
+  AirModalLabel = ['IA-Courier', 'IA-Normal', 'EA-Courier', 'EA-Normal']
+  createLCLProcessesChart(processesArray, processesUserArray);
+  createAirProcessesChart(AirprocessesArray, AirprocessesUserArray);
+  createLCLProcessesPercentChart(LCLModalData, LCLModalLabel);
+  createAirProcessesPercentChart(AirModalData, AirModalLabel);
+}
+async function createTeusProfitArray(userId, operationType, firstDate, lastDate) {
+  let teusArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let teusUserArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let profitArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let profitUserArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  let totalEACourier = 0;
+  let totalIACourier = 0;
+  let totalEANormal = 0;
+  let totalIANormal = 0;
+  let totalIMFCL = 0;
+  let totalIMLCL = 0;
+  let totalEMFCL = 0;
+  let totalEMLCL = 0;
+  let IM20 = 0;
+  let IM40 = 0;
+  let EM20 = 0;
+  let EM40 = 0;
+  let teusAndProfit = await makeRequest(`/api/commercial-main/teusAndProfit`);
+  let teusAndProfitByUser = await makeRequest(`/api/commercial-main/teusAndProfitByUser`, 'POST', { userId, operationType, firstDate, lastDate })
+
+  for (let index = 0; index < teusAndProfit.length; index++) {
+    teusArray[teusAndProfit[index].Mes - 1] += teusAndProfit[index].Total_TEUS;
+    profitArray[teusAndProfit[index].Mes - 1] += teusAndProfit[index].Lucro_Estimado;
+  }
+  for (let index = 0; index < teusAndProfitByUser.length; index++) {
+    teusUserArray[teusAndProfitByUser[index].Mes - 1] += teusAndProfitByUser[index].Total_TEUS;
+    profitUserArray[teusAndProfitByUser[index].Mes - 1] += teusAndProfitByUser[index].Lucro_Estimado;
+    if (teusAndProfitByUser[index].Tipo_Processo == 'IA-COURIER') {
+      totalIACourier += teusAndProfitByUser[index].Lucro_Estimado;
+    }
+    if (teusAndProfitByUser[index].Tipo_Processo == 'IA-NORMAL') {
+      totalIANormal += teusAndProfitByUser[index].Lucro_Estimado;
+    }
+    if (teusAndProfitByUser[index].Tipo_Processo == 'IM-FCL') {
+      totalIMFCL += teusAndProfitByUser[index].Lucro_Estimado;
+      IM20 += teusAndProfitByUser[index].Total_Container_20;
+      IM40 += teusAndProfitByUser[index].Total_Container_40;
+    }
+    if (teusAndProfitByUser[index].Tipo_Processo == 'IM-LCL') {
+      totalIMLCL += teusAndProfitByUser[index].Lucro_Estimado;
+    }
+    if (teusAndProfitByUser[index].Tipo_Processo == 'EA-COURIER') {
+      totalEACourier += teusAndProfitByUser[index].Lucro_Estimado;
+    }
+    if (teusAndProfitByUser[index].Tipo_Processo == 'EA-NORMAL') {
+      totalEANormal += teusAndProfitByUser[index].Lucro_Estimado;
+    }
+    if (teusAndProfitByUser[index].Tipo_Processo == 'EM-FCL') {
+      totalEMFCL += teusAndProfitByUser[index].Lucro_Estimado;
+      EM20 += teusAndProfitByUser[index].Total_Container_20;
+      EM40 += teusAndProfitByUser[index].Total_Container_40;
+    }
+    if (teusAndProfitByUser[index].Tipo_Processo == 'EM-LCL') {
+      totalEMLCL += teusAndProfitByUser[index].Lucro_Estimado;
+    }
+  }
+
+  totalEACourier = totalEACourier.toFixed(2);
+  totalIACourier = totalIACourier.toFixed(2);
+  totalEANormal = totalEANormal.toFixed(2);
+  totalIANormal = totalIANormal.toFixed(2);
+  totalIMFCL = totalIMFCL.toFixed(2);
+  totalIMLCL = totalIMLCL.toFixed(2);
+  totalEMFCL = totalEMFCL.toFixed(2);
+  totalEMLCL = totalEMLCL.toFixed(2);
+
+  modalData = [totalIACourier, totalIANormal, totalIMFCL, totalIMLCL, totalEACourier, totalEANormal, totalEMFCL, totalEMLCL]
+  modalData = modalData.map(s => parseFloat(s.replace(",", ".")));
+  modalLabel = ['IA-Courier', 'IA-Normal', 'IM-FCL', 'IM-LCL', 'EA-Courier', 'EA-Normal', 'EM-FCL', 'EM-LCL']
+  containerData = [IM20, EM20, IM40, EM40];
+  containerLabel = [`20' - IM`, `20' - EM`, `40' - IM`, `40' - EM`];
+  createTEUsChart(teusArray, teusUserArray);
+  createProfitChart(profitArray, profitUserArray);
+  createProfitPercentChart(modalData, modalLabel);
+  createContainerPercentChart(containerData, containerLabel);
+}
+function createActivityChart(activityArray) {
   let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  if (activeChart) {
+    activeChart.destroy();
+  }
 
   var chartData = {
 
@@ -455,58 +665,15 @@ function createActivityChart(activityArray) {
     },
   };
 
-  var activeChart = new ApexCharts(document.querySelector('#activeClients-chart'), chartData);
+  activeChart = new ApexCharts(document.querySelector('#activeClients-chart'), chartData);
   activeChart.render();
 }
-async function createNewClientsArray(userId) {
-
-  let newClientsArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  let IACourierCount = 0;
-  let IANormalCount = 0;
-  let IMFCLCount = 0;
-  let IMLCLCount = 0;
-  let EACourierCount = 0;
-  let EANormalCount = 0;
-  let EMFCLCount = 0;
-  let EMLCLCount = 0;
-  let newClients = await makeRequest(`/api/commercial-main/newClients`, 'POST', {userId});
-
-  for (let index = 0; index < newClients.length; index++) {
-    newClientsArray[newClients[index].Mes - 1]++;
-    if (newClients[index].Tipo_Processo == 'IA-COURIER') {
-      IACourierCount++;
-    }
-    if (newClients[index].Tipo_Processo == 'IA-NORMAL') {
-      IANormalCount++;
-    }
-    if (newClients[index].Tipo_Processo == 'IM-FCL') {
-      IMFCLCount++;
-    }
-    if (newClients[index].Tipo_Processo == 'IM-LCL') {
-      IMLCLCount++;
-    }
-    if (newClients[index].Tipo_Processo == 'EA-COURIER') {
-      EACourierCount++;
-    }
-    if (newClients[index].Tipo_Processo == 'EA-NORMAL') {
-      EANormalCount++;
-    }
-    if (newClients[index].Tipo_Processo == 'EM-FCL') {
-      EMFCLCount++;
-    }
-    if (newClients[index].Tipo_Processo == 'EM-LCL') {
-      EMLCLCount++;
-    }
-  }
-
-  modalData = [IACourierCount, IANormalCount, IMFCLCount, IMLCLCount, EACourierCount, EANormalCount, EMFCLCount, EMLCLCount]
-  modalLabel = ['IA-Courier', 'IA-Normal', 'IM-FCL', 'IM-LCL', 'EA-Courier', 'EA-Normal', 'EM-FCL', 'EM-LCL']
-  createNewClientsChart(newClientsArray);
-  createNewModalChart(modalData, modalLabel)
-}
 function createNewClientsChart(newClientsArray) {
-
   let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  if (newClientsChart) {
+    newClientsChart.destroy();
+  }
 
   var chartData = {
 
@@ -569,11 +736,14 @@ function createNewClientsChart(newClientsArray) {
     },
   };
 
-  var newClientsChart = new ApexCharts(document.querySelector('#newClients-chart'), chartData);
+  newClientsChart = new ApexCharts(document.querySelector('#newClients-chart'), chartData);
   newClientsChart.render();
 }
 function createActiveModalChart(modalData, modalLabel) {
 
+  if (activeModalChart) {
+    activeModalChart.destroy();
+  }
   var options = {
     series: modalData,
     chart: {
@@ -608,11 +778,14 @@ function createActiveModalChart(modalData, modalLabel) {
     }],
   };
 
-  let activeModalChart = new ApexCharts(document.querySelector("#activeModal-chart"), options);
+  activeModalChart = new ApexCharts(document.querySelector("#activeModal-chart"), options);
   activeModalChart.render();
 }
 function createNewModalChart(modalData, modalLabel) {
 
+  if (newModalChart) {
+    newModalChart.destroy();
+  }
   var options = {
     series: modalData,
     chart: {
@@ -647,69 +820,15 @@ function createNewModalChart(modalData, modalLabel) {
     }],
   };
 
-  let newModalChart = new ApexCharts(document.querySelector("#newModal-chart"), options);
+  newModalChart = new ApexCharts(document.querySelector("#newModal-chart"), options);
   newModalChart.render();
-}
-async function createProcessesArray(userId) {
-  let processesArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  let processesUserArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  let AirprocessesArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  let AirprocessesUserArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  let IACourierCount = 0;
-  let IANormalCount = 0;
-  let IMLCLCount = 0;
-  let EACourierCount = 0;
-  let EANormalCount = 0;
-  let EMLCLCount = 0;
-  let LCLProcesses = await makeRequest(`/api/commercial-main/totalLCLProcesses`);
-  let AirProcesses = await makeRequest(`/api/commercial-main/totalAirProcesses`);
-  let LCLprocessesByUser = await makeRequest(`/api/commercial-main/LCLProcessesByUser`, 'POST', {userId})
-  let AirprocessesByUser = await makeRequest(`/api/commercial-main/AirProcessesByUser`, 'POST', {userId})
-
-  for (let index = 0; index < LCLProcesses.length; index++) {
-    processesArray[LCLProcesses[index].Mes-1] += LCLProcesses[index].Quantidade;
-  }
-
-  for (let index = 0; index < AirProcesses.length; index++) {
-    AirprocessesArray[AirProcesses[index].Mes-1] += AirProcesses[index].Quantidade;
-  }
-
-  for (let index = 0; index < LCLprocessesByUser.length; index++) {
-    processesUserArray[LCLprocessesByUser[index].Mes - 1] += LCLprocessesByUser[index].Quantidade;
-    if (LCLprocessesByUser[index].Tipo_Processo == 'IM-LCL') {
-      IMLCLCount += LCLprocessesByUser[index].Quantidade;
-    }
-    if (LCLprocessesByUser[index].Tipo_Processo == 'EM-LCL') {
-      EMLCLCount += LCLprocessesByUser[index].Quantidade;
-    }
-  }
-
-  for (let index = 0; index < AirprocessesByUser.length; index++) {
-    AirprocessesUserArray[AirprocessesByUser[index].Mes - 1] += AirprocessesByUser[index].Quantidade;
-    if (AirprocessesByUser[index].Tipo_Processo == 'IA-COURIER') {
-      IACourierCount += AirprocessesByUser[index].Quantidade;
-    }
-    if (AirprocessesByUser[index].Tipo_Processo == 'IA-NORMAL') {
-      IANormalCount += AirprocessesByUser[index].Quantidade;
-    }
-    if (AirprocessesByUser[index].Tipo_Processo == 'EA-COURIER') {
-      EACourierCount += AirprocessesByUser[index].Quantidade;
-    }
-    if (AirprocessesByUser[index].Tipo_Processo == 'EA-NORMAL') {
-      EANormalCount += AirprocessesByUser[index].Quantidade;
-    }
-  }
-  LCLModalData = [IMLCLCount, EMLCLCount]
-  LCLModalLabel = ['IM-LCL', 'EM-LCL']
-  AirModalData = [IACourierCount, IANormalCount, EACourierCount, EANormalCount]
-  AirModalLabel = ['IA-Courier', 'IA-Normal', 'EA-Courier', 'EA-Normal']
-  createLCLProcessesChart(processesArray, processesUserArray);
-  createAirProcessesChart(AirprocessesArray, AirprocessesUserArray);
-  createLCLProcessesPercentChart(LCLModalData, LCLModalLabel);
-  createAirProcessesPercentChart(AirModalData, AirModalLabel);
 }
 function createLCLProcessesChart(processesArray, processesUserArray) {
   let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  if (processesChart) {
+    processesChart.destroy();
+  }
 
   var chartData = {
 
@@ -791,12 +910,15 @@ function createLCLProcessesChart(processesArray, processesUserArray) {
     }
   };
 
-  var processesChart = new ApexCharts(document.querySelector('#processes-chart'), chartData);
+  processesChart = new ApexCharts(document.querySelector('#processes-chart'), chartData);
   processesChart.render();
 }
 function createAirProcessesChart(processesArray, processesUserArray) {
   let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
+  if (airProcessesChart) {
+    airProcessesChart.destroy();
+  }
   var chartData = {
 
     series: [{
@@ -877,11 +999,15 @@ function createAirProcessesChart(processesArray, processesUserArray) {
     }
   };
 
-  var airProcessesChart = new ApexCharts(document.querySelector('#airProcesses-chart'), chartData);
+  airProcessesChart = new ApexCharts(document.querySelector('#airProcesses-chart'), chartData);
   airProcessesChart.render();
 }
 function createLCLProcessesPercentChart(modalData, modalLabel) {
 
+  if (processesPercentChart) {
+    processesPercentChart.destroy();
+  }
+
   var options = {
     series: modalData,
     chart: {
@@ -916,11 +1042,15 @@ function createLCLProcessesPercentChart(modalData, modalLabel) {
     }],
   };
 
-  let processesPercentChart = new ApexCharts(document.querySelector("#processesPercent-chart"), options);
+  processesPercentChart = new ApexCharts(document.querySelector("#processesPercent-chart"), options);
   processesPercentChart.render();
 }
 function createAirProcessesPercentChart(modalData, modalLabel) {
 
+  if (airProcessesPercentChart) {
+    airProcessesPercentChart.destroy()
+  }
+
   var options = {
     series: modalData,
     chart: {
@@ -955,87 +1085,15 @@ function createAirProcessesPercentChart(modalData, modalLabel) {
     }],
   };
 
-  let airProcessesPercentChart = new ApexCharts(document.querySelector("#airProcessesPercent-chart"), options);
+  airProcessesPercentChart = new ApexCharts(document.querySelector("#airProcessesPercent-chart"), options);
   airProcessesPercentChart.render();
-}
-async function createTeusProfitArray(userId) {
-  let teusArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  let teusUserArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  let profitArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  let profitUserArray = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  let totalEACourier = 0;
-  let totalIACourier = 0;
-  let totalEANormal = 0;
-  let totalIANormal = 0;
-  let totalIMFCL = 0;
-  let totalIMLCL = 0;
-  let totalEMFCL = 0;
-  let totalEMLCL = 0;
-  let IM20 = 0;
-  let IM40 = 0;
-  let EM20 = 0;
-  let EM40 = 0;
-  let teusAndProfit = await makeRequest(`/api/commercial-main/teusAndProfit`);
-  let teusAndProfitByUser = await makeRequest(`/api/commercial-main/teusAndProfitByUser`, 'POST', {userId})
-
-  for (let index = 0; index < teusAndProfit.length; index++) {
-    teusArray[teusAndProfit[index].Mes-1] += teusAndProfit[index].Total_TEUS;
-    profitArray[teusAndProfit[index].Mes-1] += teusAndProfit[index].Lucro_Estimado;
-  }
-  for (let index = 0; index < teusAndProfitByUser.length; index++) {
-    teusUserArray[teusAndProfitByUser[index].Mes-1] += teusAndProfitByUser[index].Total_TEUS;
-    profitUserArray[teusAndProfitByUser[index].Mes-1] += teusAndProfitByUser[index].Lucro_Estimado;
-    if (teusAndProfitByUser[index].Tipo_Processo == 'IA-COURIER') {
-      totalIACourier += teusAndProfitByUser[index].Lucro_Estimado;
-    }
-    if (teusAndProfitByUser[index].Tipo_Processo == 'IA-NORMAL') {
-      totalIANormal += teusAndProfitByUser[index].Lucro_Estimado;
-    }
-    if (teusAndProfitByUser[index].Tipo_Processo == 'IM-FCL') {
-      totalIMFCL += teusAndProfitByUser[index].Lucro_Estimado;
-      IM20 += teusAndProfitByUser[index].Total_Container_20;
-      IM40 += teusAndProfitByUser[index].Total_Container_40;
-    }
-    if (teusAndProfitByUser[index].Tipo_Processo == 'IM-LCL') {
-      totalIMLCL += teusAndProfitByUser[index].Lucro_Estimado;
-    }
-    if (teusAndProfitByUser[index].Tipo_Processo == 'EA-COURIER') {
-      totalEACourier += teusAndProfitByUser[index].Lucro_Estimado;
-    }
-    if (teusAndProfitByUser[index].Tipo_Processo == 'EA-NORMAL') {
-      totalEANormal += teusAndProfitByUser[index].Lucro_Estimado;
-    }
-    if (teusAndProfitByUser[index].Tipo_Processo == 'EM-FCL') {
-      totalEMFCL += teusAndProfitByUser[index].Lucro_Estimado;
-      EM20 += teusAndProfitByUser[index].Total_Container_20;
-      EM40 += teusAndProfitByUser[index].Total_Container_40;
-    }
-    if (teusAndProfitByUser[index].Tipo_Processo == 'EM-LCL') {
-      totalEMLCL += teusAndProfitByUser[index].Lucro_Estimado;
-    }
-  }
-
-  totalEACourier = totalEACourier.toFixed(2);
-  totalIACourier = totalIACourier.toFixed(2);
-  totalEANormal = totalEANormal.toFixed(2);
-  totalIANormal = totalIANormal.toFixed(2);
-  totalIMFCL = totalIMFCL.toFixed(2);
-  totalIMLCL = totalIMLCL.toFixed(2);
-  totalEMFCL = totalEMFCL.toFixed(2);
-  totalEMLCL = totalEMLCL.toFixed(2);
-
-  modalData = [totalIACourier, totalIANormal, totalIMFCL, totalIMLCL, totalEACourier, totalEANormal, totalEMFCL, totalEMLCL]
-  modalData = modalData.map(s => parseFloat(s.replace(",", ".")));
-  modalLabel = ['IA-Courier', 'IA-Normal', 'IM-FCL', 'IM-LCL', 'EA-Courier', 'EA-Normal', 'EM-FCL', 'EM-LCL']
-  containerData = [IM20, EM20, IM40, EM40];
-  containerLabel = [`20' - IM`, `20' - EM`, `40' - IM`, `40' - EM`];
-  createTEUsChart(teusArray, teusUserArray);
-  createProfitChart(profitArray, profitUserArray);
-  createProfitPercentChart(modalData, modalLabel);
-  createContainerPercentChart(containerData, containerLabel);
 }
 function createTEUsChart(teusArray, teusUserArray) {
   let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  if (teusChart) {
+    teusChart.destroy();
+  }
 
   var chartData = {
 
@@ -1117,11 +1175,15 @@ function createTEUsChart(teusArray, teusUserArray) {
     }
   };
 
-  var teusChart = new ApexCharts(document.querySelector('#teus-chart'), chartData);
+  teusChart = new ApexCharts(document.querySelector('#teus-chart'), chartData);
   teusChart.render();
 }
 function createProfitChart(profitArray, profitUserArray) {
   let months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+  if (profitChart) {
+    profitChart.destroy();
+  }
 
   var chartData = {
 
@@ -1201,10 +1263,14 @@ function createProfitChart(profitArray, profitUserArray) {
     }
   };
 
-  var profitChart = new ApexCharts(document.querySelector('#profit-chart'), chartData);
+  profitChart = new ApexCharts(document.querySelector('#profit-chart'), chartData);
   profitChart.render();
 }
 function createProfitPercentChart(modalData, modalLabel) {
+
+  if (profitPercentChart) {
+    profitPercentChart.destroy();
+  }
 
   var options = {
     series: modalData,
@@ -1224,7 +1290,7 @@ function createProfitPercentChart(modalData, modalLabel) {
       //   }
       // }
       enabled: false,
-    },    
+    },
     fill: {
       type: 'gradient',
       opacity: 0.85,
@@ -1244,10 +1310,14 @@ function createProfitPercentChart(modalData, modalLabel) {
     }],
   };
 
-  let profitPercentChart = new ApexCharts(document.querySelector("#profitPercent-chart"), options);
+  profitPercentChart = new ApexCharts(document.querySelector("#profitPercent-chart"), options);
   profitPercentChart.render();
 }
 function createContainerPercentChart(containerData, containerLabel) {
+
+  if (teusPercentChart) {
+    teusPercentChart.destroy();
+  }
 
   var options = {
     series: containerData,
@@ -1263,7 +1333,7 @@ function createContainerPercentChart(containerData, containerLabel) {
           return val + " containers"
         }
       }
-    },    
+    },
     fill: {
       type: 'gradient',
       opacity: 0.85,
@@ -1283,7 +1353,7 @@ function createContainerPercentChart(containerData, containerLabel) {
     }],
   };
 
-  let teusPercentChart = new ApexCharts(document.querySelector("#teusPercent-chart"), options);
+  teusPercentChart = new ApexCharts(document.querySelector("#teusPercent-chart"), options);
   teusPercentChart.render();
 }
 

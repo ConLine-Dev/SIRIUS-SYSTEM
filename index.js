@@ -68,6 +68,10 @@ app.use('/uploads', express.static('uploads'));
 // Inicializar controlador de Socket.io
 ControllerSocket(io);
 
+// Inicializar cron jobs
+const { initializeCronJobs } = require('./server/config/cron-jobs');
+initializeCronJobs();
+
 // Tratamento de erros não capturados
 process.on('uncaughtException', (err) => {
   console.error('Erro não capturado:', err);

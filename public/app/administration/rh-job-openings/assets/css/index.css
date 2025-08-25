@@ -1,0 +1,142 @@
+/* Layout inspirado no marketing-tickets */
+html, body { height: 100vh; min-height: 100vh; margin: 0; padding: 0; background: #fafbfc; overflow: hidden !important; }
+.custom-card { box-shadow: none; border: none; background: transparent; }
+/* Card precisa ocupar toda a altura da viewport para evitar scroll da página */
+.full-viewport { height: 100vh !important; min-height: 100vh !important; display: flex; flex-direction: column; }
+/* Card-body flex e min-height:0 para permitir que o conteúdo interno controle o scroll */
+.full-viewport > .card-body { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; padding-bottom: 0; }
+
+/* Board horizontal ocupa o espaço restante do card-body, sem scroll vertical externo */
+.jobs-board { flex: 1 1 auto; display: flex; gap: 1rem; overflow-x: auto; overflow-y: hidden; padding-bottom: 0.5rem; width: 100%; height: 100%; align-items: stretch; min-height: 0; }
+
+.jobs-col { min-width: 320px; flex: 1 1 0; background: #f8f9fa; border-radius: 8px; padding: 0 0.5rem 0.75rem 0.5rem; display: flex; flex-direction: column; height: 100%; overflow: hidden; border: 1px solid #e3e6f0; }
+.jobs-col .col-header { position: sticky; top: 0; z-index: 2; background: #f8f9fa; border-bottom: 2px solid #e9ecef; padding: 0.6rem; font-weight: 600; flex-shrink: 0; }
+/* Área de cartões com scroll interno próprio */
+.droptarget { flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; padding: 0.4rem; min-height: 0; }
+
+.job-card { border-radius: 14px; border: 1px solid #e3e6f0; background: #fff; box-shadow: 0 2px 8px rgba(30,60,120,0.06); transition: box-shadow .18s, border-color .18s, transform .18s; margin-bottom: 0.9rem; padding: 0.85rem; }
+.job-card:hover { box-shadow: 0 8px 24px rgba(30,60,120,0.13); border-color: #b6c2e4; transform: translateY(-2px) scale(1.012); }
+.job-meta { font-size: 0.93rem; color: #7b8191; }
+.job-actions .btn { padding: 0.18rem 0.6rem; font-size: 0.97rem; border-radius: 6px; }
+
+/* Header fixo */
+.headerButtons { z-index: 1030; }
+.headerButtons .container-fluid { max-width: 100%; }
+
+@media (max-width: 1400px){ .jobs-col { min-width: 260px; } }
+@media (max-width: 900px){ .jobs-col { min-width: 200px; } .jobs-board { min-width: 900px; } }
+
+/* ===== DARK MODE SUPPORT ===== */
+[data-theme-mode="dark"] {
+  background: #1a1a1a !important;
+}
+
+[data-theme-mode="dark"] html, 
+[data-theme-mode="dark"] body {
+  background: #1a1a1a !important;
+}
+
+[data-theme-mode="dark"] .custom-card {
+  background: #1a1a1a !important;
+}
+
+[data-theme-mode="dark"] .card-header {
+  background: #2d2d2d !important;
+  border-bottom: 1px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .card-title {
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .text-muted {
+  color: #cccccc !important;
+}
+
+[data-theme-mode="dark"] .card-body {
+  background: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .jobs-board {
+  background: #1a1a1a !important;
+}
+
+[data-theme-mode="dark"] .jobs-col {
+  background: #2d2d2d !important;
+  border: 1px solid #404040 !important;
+}
+
+[data-theme-mode="dark"] .jobs-col .col-header {
+  background: #2d2d2d !important;
+  border-bottom: 2px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .job-card {
+  background: #2d2d2d !important;
+  border: 1px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .job-card:hover {
+  border-color: #666666 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme-mode="dark"] .job-meta {
+  color: #cccccc !important;
+}
+
+[data-theme-mode="dark"] .form-control {
+  background: #404040 !important;
+  border: 1px solid #666666 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .form-control:focus {
+  background: #404040 !important;
+  border-color: var(--primary-color) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 0.2rem rgba(249, 66, 58, 0.25) !important;
+}
+
+[data-theme-mode="dark"] .form-select {
+  background: #404040 !important;
+  border: 1px solid #666666 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .form-select:focus {
+  background: #404040 !important;
+  border-color: var(--primary-color) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 0.2rem rgba(249, 66, 58, 0.25) !important;
+}
+
+[data-theme-mode="dark"] .form-label {
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .input-group-text {
+  background: #404040 !important;
+  border: 1px solid #666666 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .btn-light {
+  background: #404040 !important;
+  border: 1px solid #666666 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .btn-light:hover {
+  background: #666666 !important;
+  border: 1px solid #888888 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .fs-14 {
+  color: #cccccc !important;
+} 

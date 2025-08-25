@@ -1,0 +1,410 @@
+/* Layout inspirado no padrão do sistema */
+html, body { 
+  height: 100vh; 
+  min-height: 100vh; 
+  margin: 0; 
+  padding: 0; 
+  background: #fafbfc; 
+  overflow: hidden !important; 
+}
+
+.custom-card { 
+  box-shadow: none; 
+  border: none; 
+  background: transparent; 
+}
+
+/* Card precisa ocupar toda a altura da viewport para evitar scroll da página */
+.full-viewport { 
+  height: 100vh !important; 
+  min-height: 100vh !important; 
+  display: flex; 
+  flex-direction: column; 
+}
+
+/* Card-body flex e min-height:0 para permitir que o conteúdo interno controle o scroll */
+.full-viewport > .card-body { 
+  flex: 1 1 auto; 
+  display: flex; 
+  flex-direction: column; 
+  min-height: 0; 
+  padding-bottom: 0; 
+}
+
+/* Estilos para estatísticas */
+.stats-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 1.5rem;
+  text-align: center;
+  border: 1px solid #e3e6f0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.stats-number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--primary-color, #667eea);
+}
+
+.stats-label {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* Estilos para cards de candidatos */
+.candidate-card {
+  background: white;
+  border-radius: 14px;
+  border: 1px solid #e3e6f0;
+  box-shadow: 0 2px 8px rgba(30,60,120,0.06);
+  margin-bottom: 1rem;
+  padding: 1rem;
+  transition: box-shadow .18s, border-color .18s, transform .18s;
+}
+
+.candidate-card:hover {
+  box-shadow: 0 8px 24px rgba(30,60,120,0.13);
+  border-color: #b6c2e4;
+  transform: translateY(-2px) scale(1.012);
+}
+
+/* Avatar do candidato */
+.candidate-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* Badges de status */
+.status-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  display: none;
+}
+
+.loading-spinner.show {
+  display: block;
+}
+
+/* Filtros */
+.filter-row {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border: 1px solid #e3e6f0;
+}
+
+/* Paginação */
+.pagination {
+  margin-top: 2rem;
+}
+
+.pagination .page-link {
+  border-radius: 6px;
+  margin: 0 2px;
+  border: 1px solid #e3e6f0;
+  color: #6c757d;
+}
+
+.pagination .page-link:hover {
+  background-color: var(--primary-color, #667eea);
+  border-color: var(--primary-color, #667eea);
+  color: white;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: var(--primary-color, #667eea);
+  border-color: var(--primary-color, #667eea);
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+[data-theme-mode="dark"] {
+  background: #1a1a1a !important;
+}
+
+[data-theme-mode="dark"] html, 
+[data-theme-mode="dark"] body {
+  background: #1a1a1a !important;
+}
+
+[data-theme-mode="dark"] .custom-card {
+  background: #1a1a1a !important;
+}
+
+[data-theme-mode="dark"] .card-header {
+  background: #2d2d2d !important;
+  border-bottom: 1px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .card-title {
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .text-muted {
+  color: #cccccc !important;
+}
+
+[data-theme-mode="dark"] .card-body {
+  background: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .stats-card {
+  background: #2d2d2d !important;
+  border: 1px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .stats-card:hover {
+  border-color: #666666 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme-mode="dark"] .candidate-card {
+  background: #2d2d2d !important;
+  border: 1px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .candidate-card:hover {
+  border-color: #666666 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme-mode="dark"] .filter-row {
+  background: #2d2d2d !important;
+  border: 1px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .form-control,
+[data-theme-mode="dark"] .form-select {
+  background: #404040 !important;
+  border: 1px solid #666666 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .form-control:focus,
+[data-theme-mode="dark"] .form-select:focus {
+  background: #404040 !important;
+  border-color: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .input-group-text {
+  background: #404040 !important;
+  border: 1px solid #666666 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .pagination .page-link {
+  background: #2d2d2d !important;
+  border: 1px solid #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .pagination .page-link:hover {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+  color: #ffffff !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .stats-card {
+    margin-bottom: 1rem;
+  }
+  
+  .candidate-card .row {
+    flex-direction: column;
+  }
+  
+  .candidate-card .col-md-1 {
+    margin-top: 1rem;
+    text-align: center;
+  }
+}
+
+/* Animações */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.candidate-card {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Toast notifications */
+.toast-container {
+  z-index: 9999;
+}
+
+.toast {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Modals */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Modal de detalhes do candidato */
+#candidateDetailsModal .modal-dialog {
+  max-width: 1200px;
+}
+
+#candidateDetailsModal .notes-panel {
+  border-left: 1px solid #e3e6f0;
+  padding-left: 1.5rem;
+}
+
+#candidateDetailsModal .list-group-item {
+  border: none;
+  border-bottom: 1px solid #e3e6f0;
+  padding: 0.75rem 0;
+}
+
+#candidateDetailsModal .list-group-item:last-child {
+  border-bottom: none;
+}
+
+#candidateDetailsModal .card {
+  border: none;
+  box-shadow: none;
+}
+
+/* Lista de anexos */
+#attachmentsList .list-group-item {
+  border: 1px solid #e3e6f0;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  padding: 0.75rem;
+}
+
+#attachmentsList .list-group-item:hover {
+  background-color: #f8f9fa;
+}
+
+#attachmentsList .btn-group {
+  white-space: nowrap;
+}
+
+.modal-header {
+  border-bottom: 1px solid #e3e6f0;
+  background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-header .btn-close {
+  filter: invert(1);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #e3e6f0;
+  padding: 1rem 1.5rem;
+}
+
+/* Dark mode para modal */
+[data-theme-mode="dark"] .modal-content {
+  background: #2d2d2d !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] #candidateDetailsModal .notes-panel {
+  border-left-color: #404040 !important;
+}
+
+[data-theme-mode="dark"] #candidateDetailsModal .list-group-item {
+  background: transparent !important;
+  border-bottom-color: #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] #candidateDetailsModal .card {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] #candidateDetailsModal .bg-light {
+  background: #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] #attachmentsList .list-group-item {
+  background: #2d2d2d !important;
+  border-color: #404040 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] #attachmentsList .list-group-item:hover {
+  background: #3d3d3d !important;
+}
+
+[data-theme-mode="dark"] .modal-header {
+  background: linear-gradient(135deg, var(--primary-color, #667eea) 0%, #764ba2 100%) !important;
+  border-bottom: 1px solid #404040 !important;
+}
+
+[data-theme-mode="dark"] .modal-body {
+  background: #2d2d2d !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .modal-footer {
+  background: #2d2d2d !important;
+  border-top: 1px solid #404040 !important;
+}
+
+[data-theme-mode="dark"] .form-control,
+[data-theme-mode="dark"] .form-select,
+[data-theme-mode="dark"] textarea.form-control {
+  background: #404040 !important;
+  border: 1px solid #666666 !important;
+  color: #ffffff !important;
+}
+
+[data-theme-mode="dark"] .form-control:focus,
+[data-theme-mode="dark"] .form-select:focus,
+[data-theme-mode="dark"] textarea.form-control:focus {
+  background: #404040 !important;
+  border-color: var(--primary-color) !important;
+  color: #ffffff !important;
+} 

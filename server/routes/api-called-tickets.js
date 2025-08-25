@@ -68,6 +68,87 @@ module.exports = function(io) {
             res.status(500).json({ error: error.message });
         }
     });
+
+    router.get('/average-completion-time', async (req, res, next) => {
+        try {
+            const result = await tickets.getAverageCompletionTimeByCategory();
+    
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+    router.get('/export-average-completion-details', async (req, res, next) => {
+        try {
+            const result = await tickets.exportAverageCompletionTimeDetails();
+    
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+    router.get('/available-years', async (req, res, next) => {
+        try {
+            const result = await tickets.getAvailableYears();
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+    router.get('/on-time-completion-rate', async (req, res, next) => {
+        try {
+            const year = parseInt(req.query.year) || new Date().getFullYear();
+            const month = parseInt(req.query.month) || new Date().getMonth() + 1;
+            
+            const result = await tickets.getOnTimeCompletionRate(year, month);
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+    router.get('/projects-analysis-by-year', async (req, res, next) => {
+        try {
+            const year = req.query.year || 2024;
+            const result = await tickets.getProjectsAnalysisByYear(year);
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+    router.get('/completion-time-target-by-category', async (req, res, next) => {
+        try {
+            const year = req.query.year || 2024;
+            const result = await tickets.getCompletionTimeTargetByCategory(year);
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+    router.get('/completion-time-by-month-category', async (req, res, next) => {
+        try {
+            const year = req.query.year || 2024;
+            const result = await tickets.getCompletionTimeByMonthAndCategory(year);
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+    router.get('/export-completion-time-chart-data', async (req, res, next) => {
+        try {
+            const year = req.query.year || 2024;
+            const result = await tickets.exportCompletionTimeChartData(year);
+            res.status(200).json(result)
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
     
     router.post('/getById', async (req, res, next) => {
         const { id } = req.body

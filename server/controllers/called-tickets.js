@@ -1473,6 +1473,718 @@ const tickets = {
         
         return palavrasFormatadas.join(" ");
     },
+    getAverageCompletionTimeByCategory: async function(){
+        try {
+            const result = await executeQuery(`
+                SELECT 
+                    cc.name as category_name,
+                    cc.id as category_id,
+                    COUNT(ct.id) as total_tickets,
+                    COUNT(CASE WHEN ct.status = 'completed-tasks-draggable' THEN 1 END) as completed_tickets,
+                    AVG(CASE 
+                        WHEN ct.status = 'completed-tasks-draggable' THEN
+                            CASE 
+                                WHEN ct.start_forecast IS NOT NULL AND ct.end_forecast IS NOT NULL THEN
+                                    TIMESTAMPDIFF(HOUR, ct.start_forecast, ct.end_forecast)
+                                WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 0.167 -- 10 minutos em horas
+                                ELSE NULL 
+                            END
+                        ELSE NULL 
+                    END) as avg_completion_hours,
+                    AVG(CASE 
+                        WHEN ct.status = 'completed-tasks-draggable' THEN
+                            CASE 
+                                WHEN ct.start_forecast IS NOT NULL AND ct.end_forecast IS NOT NULL THEN
+                                    TIMESTAMPDIFF(DAY, ct.start_forecast, ct.end_forecast)
+                                WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 0.007 -- 10 minutos em dias
+                                ELSE NULL 
+                            END
+                        ELSE NULL 
+                    END) as avg_completion_days
+                FROM called_tickets ct
+                JOIN called_ticket_categories ctc ON ctc.ticket_id = ct.id
+                JOIN called_categories cc ON cc.id = ctc.category_id
+                GROUP BY cc.id, cc.name
+                HAVING completed_tickets > 0
+                ORDER BY avg_completion_hours ASC
+            `);
+
+            return result.map(item => ({
+                category: item.category_name,
+                categoryId: item.category_id,
+                totalTickets: item.total_tickets,
+                completedTickets: item.completed_tickets,
+                avgCompletionHours: Math.round((item.avg_completion_hours || 0) * 100) / 100,
+                avgCompletionDays: Math.round((item.avg_completion_days || 0) * 100) / 100,
+                completionRate: item.total_tickets > 0 ? Math.round((item.completed_tickets / item.total_tickets) * 100) : 0
+            }));
+        } catch (error) {
+            console.error('Erro ao calcular tempo médio por categoria:', error);
+            throw error;
+        }
+    },
+    getProjectsAnalysisByYear: async function(year = 2024){
+        try {
+            const result = await executeQuery(`
+                SELECT 
+                    MONTH(ct.created_at) as month,
+                    CASE MONTH(ct.created_at)
+                        WHEN 1 THEN 'Janeiro'
+                        WHEN 2 THEN 'Fevereiro'
+                        WHEN 3 THEN 'Marco'
+                        WHEN 4 THEN 'Abril'
+                        WHEN 5 THEN 'Maio'
+                        WHEN 6 THEN 'Junho'
+                        WHEN 7 THEN 'Julho'
+                        WHEN 8 THEN 'Agosto'
+                        WHEN 9 THEN 'Setembro'
+                        WHEN 10 THEN 'Outubro'
+                        WHEN 11 THEN 'Novembro'
+                        WHEN 12 THEN 'Dezembro'
+                    END as month_name,
+                    cc.name as category_name,
+                    COUNT(ct.id) as total_tickets
+                FROM called_tickets ct
+                LEFT JOIN called_ticket_categories ctc ON ctc.ticket_id = ct.id
+                LEFT JOIN called_categories cc ON cc.id = ctc.category_id
+                WHERE YEAR(ct.created_at) = ?
+                GROUP BY MONTH(ct.created_at), cc.name
+                ORDER BY month ASC, total_tickets DESC
+            `, [year]);
+
+            // Organizar dados por mês e categoria
+            const monthlyData = {};
+            const categories = new Set();
+            
+            result.forEach(item => {
+                const month = item.month;
+                const category = item.category_name || 'Sem Categoria';
+                
+                categories.add(category);
+                
+                if (!monthlyData[month]) {
+                    monthlyData[month] = {
+                        month: month,
+                        monthName: item.month_name,
+                        totalTickets: 0,
+                        categories: {}
+                    };
+                }
+                
+                monthlyData[month].totalTickets += parseInt(item.total_tickets);
+                monthlyData[month].categories[category] = parseInt(item.total_tickets);
+            });
+
+            return {
+                monthlyData: Object.values(monthlyData),
+                categories: Array.from(categories).sort(),
+                year: year
+            };
+        } catch (error) {
+            console.error('Erro ao buscar dados de análise de projetos:', error);
+            throw error;
+        }
+    },
+    getCompletionTimeTargetByCategory: async function(year = 2024){
+        try {
+            // Calcular o tempo médio real por mês no ano selecionado (geral, não por categoria)
+            const actualResult = await executeQuery(`
+                SELECT 
+                    MONTH(ct.finished_at) as month,
+                    CASE MONTH(ct.finished_at)
+                        WHEN 1 THEN 'Janeiro'
+                        WHEN 2 THEN 'Fevereiro'
+                        WHEN 3 THEN 'Marco'
+                        WHEN 4 THEN 'Abril'
+                        WHEN 5 THEN 'Maio'
+                        WHEN 6 THEN 'Junho'
+                        WHEN 7 THEN 'Julho'
+                        WHEN 8 THEN 'Agosto'
+                        WHEN 9 THEN 'Setembro'
+                        WHEN 10 THEN 'Outubro'
+                        WHEN 11 THEN 'Novembro'
+                        WHEN 12 THEN 'Dezembro'
+                    END as month_name,
+                    AVG(CASE 
+                        WHEN ct.start_forecast IS NOT NULL AND ct.end_forecast IS NOT NULL THEN
+                            TIMESTAMPDIFF(HOUR, ct.start_forecast, ct.end_forecast)
+                        WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 0.167 -- 10 minutos em horas
+                        ELSE NULL 
+                    END) as actual_hours,
+                    COUNT(ct.id) as completed_tickets
+                FROM called_tickets ct
+                WHERE YEAR(ct.finished_at) = ? 
+                AND ct.status = 'completed-tasks-draggable'
+                AND ct.finished_at IS NOT NULL
+                GROUP BY MONTH(ct.finished_at)
+                HAVING completed_tickets > 0
+                ORDER BY month ASC
+            `, [year]);
+
+            // Calcular dados detalhados por categoria para o tooltip
+            const categoryDetailsResult = await executeQuery(`
+                SELECT 
+                    MONTH(ct.finished_at) as month,
+                    COALESCE(cc.name, 'Sem Categoria') as category_name,
+                    AVG(CASE 
+                        WHEN ct.start_forecast IS NOT NULL AND ct.end_forecast IS NOT NULL THEN
+                            TIMESTAMPDIFF(HOUR, ct.start_forecast, ct.end_forecast)
+                        WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 0.167 -- 10 minutos em horas
+                        ELSE NULL 
+                    END) as category_hours,
+                    COUNT(ct.id) as category_tickets
+                FROM called_tickets ct
+                LEFT JOIN called_ticket_categories ctc ON ctc.ticket_id = ct.id
+                LEFT JOIN called_categories cc ON cc.id = ctc.category_id
+                WHERE YEAR(ct.finished_at) = ? 
+                AND ct.status = 'completed-tasks-draggable'
+                AND ct.finished_at IS NOT NULL
+                AND cc.name IS NOT NULL
+                AND cc.name != ''
+                GROUP BY MONTH(ct.finished_at), cc.name
+                HAVING category_tickets > 0
+                ORDER BY month ASC, category_tickets DESC
+            `, [year]);
+
+            // Calcular meta adaptativa para cada mês (média histórica + fator de crescimento)
+            const monthlyTargets = [];
+            for (let month = 1; month <= 12; month++) {
+                if (actualResult.some(item => item.month === month)) {
+                    // 1. Calcular média histórica dos meses anteriores
+                    const avgResult = await executeQuery(`
+                        SELECT 
+                            AVG(CASE 
+                                WHEN ct.start_forecast IS NOT NULL AND ct.end_forecast IS NOT NULL THEN
+                                    TIMESTAMPDIFF(HOUR, ct.start_forecast, ct.end_forecast)
+                                WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 0.167 -- 10 minutos em horas
+                                ELSE NULL 
+                            END) as avg_hours,
+                            COUNT(ct.id) as total_tickets
+                        FROM called_tickets ct
+                        WHERE ct.status = 'completed-tasks-draggable'
+                        AND ct.finished_at IS NOT NULL
+                        AND YEAR(ct.finished_at) = ?
+                        AND MONTH(ct.finished_at) < ?
+                    `, [year, month]);
+                    
+                    const avgHours = parseFloat(avgResult[0]?.avg_hours || 0);
+                    const totalTickets = parseInt(avgResult[0]?.total_tickets || 0);
+                    
+                    // 2. Calcular crescimento de volume (do início do ano até o mês anterior)
+                    let growthFactor = 0;
+                    let currentMonthTickets = 0;
+                    let avgTicketsPerMonth = 0;
+                    
+                    if (totalTickets > 0 && month > 1) {
+                        // Buscar tickets do mês atual para comparação
+                        const growthResult = await executeQuery(`
+                            SELECT 
+                                COUNT(ct.id) as current_month_tickets
+                            FROM called_tickets ct
+                            WHERE ct.status = 'completed-tasks-draggable'
+                            AND ct.finished_at IS NOT NULL
+                            AND YEAR(ct.finished_at) = ?
+                            AND MONTH(ct.finished_at) = ?
+                        `, [year, month]);
+                        
+                        currentMonthTickets = parseInt(growthResult[0]?.current_month_tickets || 0);
+                        
+                        if (currentMonthTickets > 0) {
+                            // Calcular média de tickets por mês do início do ano até o mês anterior
+                            avgTicketsPerMonth = totalTickets / (month - 1);
+                            
+                            // Calcular fator de crescimento (limitado a 50% para evitar metas irrealistas)
+                            const growthPercent = (currentMonthTickets - avgTicketsPerMonth) / avgTicketsPerMonth;
+                            growthFactor = Math.min(Math.max(growthPercent * 0.3, -0.2), 0.5); // Limita entre -20% e +50%
+                        }
+                    }
+                    
+                    // 3. Calcular meta adaptativa
+                    const adaptiveTarget = avgHours * (1 + growthFactor);
+                    
+                    monthlyTargets.push({
+                        month: month,
+                        targetHours: adaptiveTarget,
+                        avgHours: avgHours,
+                        growthFactor: growthFactor,
+                        totalTickets: totalTickets,
+                        currentMonthTickets: currentMonthTickets,
+                        avgTicketsPerMonth: avgTicketsPerMonth
+                    });
+                }
+            }
+
+            // Calcular meta adaptativa por categoria (média histórica + fator de crescimento)
+            const categoryTargets = {};
+            const uniqueCategories = [...new Set(categoryDetailsResult.map(item => item.category_name))];
+            
+            for (const category of uniqueCategories) {
+                // Para cada categoria, calcular a meta adaptativa baseada nos meses anteriores do ano atual
+                const categoryAvgResult = await executeQuery(`
+                    SELECT 
+                        AVG(CASE 
+                            WHEN ct.start_forecast IS NOT NULL AND ct.end_forecast IS NOT NULL THEN
+                                TIMESTAMPDIFF(HOUR, ct.start_forecast, ct.end_forecast)
+                            WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 0.167 -- 10 minutos em horas
+                            ELSE NULL 
+                        END) as category_avg_hours,
+                        COUNT(ct.id) as category_total_tickets
+                    FROM called_tickets ct
+                    LEFT JOIN called_ticket_categories ctc ON ctc.ticket_id = ct.id
+                    LEFT JOIN called_categories cc ON cc.id = ctc.category_id
+                    WHERE ct.status = 'completed-tasks-draggable'
+                    AND ct.finished_at IS NOT NULL
+                    AND cc.name = ?
+                    AND YEAR(ct.finished_at) = ?
+                    AND MONTH(ct.finished_at) < (
+                        SELECT MAX(MONTH(finished_at)) 
+                        FROM called_tickets 
+                        WHERE YEAR(finished_at) = ? 
+                        AND status = 'completed-tasks-draggable'
+                    )
+                `, [category, year, year]);
+                
+                const categoryAvgHours = parseFloat(categoryAvgResult[0]?.category_avg_hours || 0);
+                const categoryTotalTickets = parseInt(categoryAvgResult[0]?.category_total_tickets || 0);
+                
+                // Calcular fator de crescimento para a categoria (simplificado - usa fator geral)
+                let categoryGrowthFactor = 0;
+                if (categoryTotalTickets > 0) {
+                    // Usar o fator de crescimento médio dos meses com dados
+                    const monthsWithData = monthlyTargets.filter(mt => mt.growthFactor !== 0);
+                    if (monthsWithData.length > 0) {
+                        categoryGrowthFactor = monthsWithData.reduce((sum, mt) => sum + mt.growthFactor, 0) / monthsWithData.length;
+                    }
+                }
+                
+                // Calcular meta adaptativa por categoria
+                const categoryAdaptiveTarget = categoryAvgHours * (1 + categoryGrowthFactor);
+                
+                categoryTargets[category] = categoryAdaptiveTarget;
+            }
+
+            // Organizar dados gerais por mês com metas específicas por mês
+            const monthlyData = [];
+            actualResult.forEach(item => {
+                const monthTarget = monthlyTargets.find(mt => mt.month === item.month);
+                const targetHours = monthTarget ? monthTarget.targetHours : 0;
+                
+                monthlyData.push({
+                    month: item.month,
+                    monthName: item.month_name,
+                    actualHours: parseFloat(item.actual_hours),
+                    targetHours: targetHours,
+                    completedTickets: parseInt(item.completed_tickets),
+                    growthFactor: monthTarget ? monthTarget.growthFactor : 0,
+                    totalTickets: monthTarget ? monthTarget.totalTickets : 0,
+                    currentMonthTickets: monthTarget ? monthTarget.currentMonthTickets : 0,
+                    avgTicketsPerMonth: monthTarget ? monthTarget.avgTicketsPerMonth : 0,
+                    categories: {}
+                });
+            });
+            
+            // Adicionar detalhes por categoria
+            for (const item of categoryDetailsResult) {
+                const monthData = monthlyData.find(m => m.month === item.month);
+                                    if (monthData) {
+                        const categoryName = item.category_name && item.category_name.trim() !== '' ? item.category_name : 'Sem Categoria';
+                    const categoryTarget = categoryTargets[categoryName] || monthData.targetHours;
+                    
+                    // Calcular fator de crescimento para a categoria específica
+                    let categoryGrowthFactor = 0;
+                    let categoryAvgHours = 0;
+                    
+                    if (categoryTargets[categoryName]) {
+                        // Buscar dados históricos da categoria para calcular média e crescimento
+                        const categoryHistoryResult = await executeQuery(`
+                            SELECT 
+                                AVG(CASE 
+                                    WHEN ct.start_forecast IS NOT NULL AND ct.end_forecast IS NOT NULL THEN
+                                        TIMESTAMPDIFF(HOUR, ct.start_forecast, ct.end_forecast)
+                                    WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 0.167
+                                    ELSE NULL 
+                                END) as category_avg_hours,
+                                COUNT(ct.id) as category_total_tickets
+                            FROM called_tickets ct
+                            LEFT JOIN called_ticket_categories ctc ON ctc.ticket_id = ct.id
+                            LEFT JOIN called_categories cc ON cc.id = ctc.category_id
+                            WHERE ct.status = 'completed-tasks-draggable'
+                            AND ct.finished_at IS NOT NULL
+                            AND cc.name = ?
+                            AND YEAR(ct.finished_at) = ?
+                            AND MONTH(ct.finished_at) < ?
+                        `, [categoryName, year, item.month]);
+                        
+                        categoryAvgHours = parseFloat(categoryHistoryResult[0]?.category_avg_hours || 0);
+                        const categoryTotalTickets = parseInt(categoryHistoryResult[0]?.category_total_tickets || 0);
+                        
+                        if (categoryTotalTickets > 0 && categoryAvgHours > 0) {
+                            // Calcular fator de crescimento da categoria
+                            const avgTicketsPerMonth = categoryTotalTickets / (item.month - 1);
+                            const currentMonthTickets = parseInt(item.category_tickets);
+                            
+                            if (avgTicketsPerMonth > 0) {
+                                const growthPercent = (currentMonthTickets - avgTicketsPerMonth) / avgTicketsPerMonth;
+                                categoryGrowthFactor = Math.min(Math.max(growthPercent * 0.3, -0.2), 0.5);
+                            }
+                        }
+                    }
+                    
+                    monthData.categories[categoryName] = {
+                        hours: parseFloat(item.category_hours),
+                        tickets: parseInt(item.category_tickets),
+                        targetHours: categoryTarget,
+                        avgHours: categoryAvgHours,
+                        growthFactor: categoryGrowthFactor
+                    };
+                }
+            }
+
+            return {
+                monthlyData: monthlyData,
+                targetHours: 0, // Não mais usado, cada mês tem sua própria meta
+                categoryTargets: categoryTargets,
+                year: year
+            };
+        } catch (error) {
+            console.error('Erro ao buscar dados de meta vs realizado:', error);
+            throw error;
+        }
+    },
+    getAvailableYears: async function(){
+        try {
+            const result = await executeQuery(`
+                SELECT DISTINCT YEAR(ct.finished_at) as year
+                FROM called_tickets ct
+                WHERE ct.status = 'completed-tasks-draggable'
+                AND ct.finished_at IS NOT NULL
+                ORDER BY year DESC
+            `);
+            
+            return result.map(item => item.year);
+        } catch (error) {
+            console.error('Erro ao buscar anos disponíveis:', error);
+            throw error;
+        }
+    },
+    getCompletionTimeByMonthAndCategory: async function(year = 2024){
+        try {
+            const result = await executeQuery(`
+                SELECT 
+                    MONTH(ct.finished_at) as month,
+                    CASE MONTH(ct.finished_at)
+                        WHEN 1 THEN 'Janeiro'
+                        WHEN 2 THEN 'Fevereiro'
+                        WHEN 3 THEN 'Março'
+                        WHEN 4 THEN 'Abril'
+                        WHEN 5 THEN 'Maio'
+                        WHEN 6 THEN 'Junho'
+                        WHEN 7 THEN 'Julho'
+                        WHEN 8 THEN 'Agosto'
+                        WHEN 9 THEN 'Setembro'
+                        WHEN 10 THEN 'Outubro'
+                        WHEN 11 THEN 'Novembro'
+                        WHEN 12 THEN 'Dezembro'
+                    END as month_name,
+                    cc.name as category_name,
+                    cc.id as category_id,
+                    COUNT(ct.id) as completed_tickets,
+                    AVG(CASE 
+                        WHEN ct.start_forecast IS NOT NULL AND ct.end_forecast IS NOT NULL THEN
+                            TIMESTAMPDIFF(HOUR, ct.start_forecast, ct.end_forecast)
+                        WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 0.167 -- 10 minutos em horas
+                        ELSE NULL 
+                    END) as avg_completion_hours
+                FROM called_tickets ct
+                JOIN called_ticket_categories ctc ON ctc.ticket_id = ct.id
+                JOIN called_categories cc ON cc.id = ctc.category_id
+                WHERE ct.status = 'completed-tasks-draggable'
+                AND YEAR(ct.finished_at) = ?
+                AND ct.finished_at IS NOT NULL
+                GROUP BY MONTH(ct.finished_at), cc.id, cc.name
+                HAVING completed_tickets > 0
+                ORDER BY month ASC, avg_completion_hours ASC
+            `, [year]);
+
+            // Organizar dados por mês e categoria
+            const monthlyData = {};
+            const categories = new Set();
+            
+            result.forEach(item => {
+                const month = item.month;
+                const category = item.category_name;
+                
+                categories.add(category);
+                
+                if (!monthlyData[month]) {
+                    monthlyData[month] = {
+                        month: month,
+                        monthName: item.month_name,
+                        categories: {}
+                    };
+                }
+                
+                monthlyData[month].categories[category] = {
+                    completedTickets: item.completed_tickets,
+                    avgCompletionHours: Math.round((item.avg_completion_hours || 0) * 100) / 100
+                };
+            });
+
+            return {
+                monthlyData: Object.values(monthlyData),
+                categories: Array.from(categories).sort(),
+                year: year
+            };
+        } catch (error) {
+            console.error('Erro ao buscar dados de tempo por mês e categoria:', error);
+            throw error;
+        }
+    },
+    exportCompletionTimeChartData: async function(year = 2024){
+        try {
+            const result = await executeQuery(`
+                SELECT 
+                    ct.id,
+                    ct.title,
+                    cc.name as category_name,
+                    ct.start_forecast,
+                    ct.end_forecast,
+                    ct.created_at,
+                    ct.finished_at,
+                    MONTH(ct.finished_at) as month,
+                    CASE MONTH(ct.finished_at)
+                        WHEN 1 THEN 'Janeiro'
+                        WHEN 2 THEN 'Fevereiro'
+                        WHEN 3 THEN 'Março'
+                        WHEN 4 THEN 'Abril'
+                        WHEN 5 THEN 'Maio'
+                        WHEN 6 THEN 'Junho'
+                        WHEN 7 THEN 'Julho'
+                        WHEN 8 THEN 'Agosto'
+                        WHEN 9 THEN 'Setembro'
+                        WHEN 10 THEN 'Outubro'
+                        WHEN 11 THEN 'Novembro'
+                        WHEN 12 THEN 'Dezembro'
+                    END as month_name,
+                    CASE 
+                        WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 'Sem Previsão'
+                        ELSE 'Com Previsão'
+                    END as has_forecast,
+                    CASE 
+                        WHEN ct.start_forecast IS NOT NULL AND ct.end_forecast IS NOT NULL THEN
+                            TIMESTAMPDIFF(HOUR, ct.start_forecast, ct.end_forecast)
+                        WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 0.167 -- 10 minutos em horas
+                        ELSE NULL 
+                    END as completion_hours,
+                    CASE 
+                        WHEN ct.start_forecast IS NOT NULL AND ct.end_forecast IS NOT NULL THEN
+                            TIMESTAMPDIFF(DAY, ct.start_forecast, ct.end_forecast)
+                        WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 0.007 -- 10 minutos em dias
+                        ELSE NULL 
+                    END as completion_days
+                FROM called_tickets ct
+                JOIN called_ticket_categories ctc ON ctc.ticket_id = ct.id
+                JOIN called_categories cc ON cc.id = ctc.category_id
+                WHERE ct.status = 'completed-tasks-draggable'
+                AND YEAR(ct.finished_at) = ?
+                AND ct.finished_at IS NOT NULL
+                ORDER BY ct.finished_at ASC, cc.name ASC
+            `, [year]);
+
+            return result.map(item => ({
+                id: item.id,
+                title: item.title,
+                category: item.category_name,
+                month: item.month,
+                monthName: item.month_name,
+                startForecast: item.start_forecast,
+                endForecast: item.end_forecast,
+                createdAt: item.created_at,
+                finishedAt: item.finished_at,
+                hasForecast: item.has_forecast,
+                completionHours: Math.round((item.completion_hours || 0) * 100) / 100,
+                completionDays: Math.round((item.completion_days || 0) * 100) / 100
+            }));
+        } catch (error) {
+            console.error('Erro ao exportar dados do gráfico:', error);
+            throw error;
+        }
+    },
+    exportAverageCompletionTimeDetails: async function(){
+        try {
+            const result = await executeQuery(`
+                SELECT 
+                    ct.id,
+                    ct.title,
+                    cc.name as category_name,
+                    ct.start_forecast,
+                    ct.end_forecast,
+                    ct.created_at,
+                    ct.finished_at,
+                    CASE 
+                        WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 'Sem Previsão'
+                        ELSE 'Com Previsão'
+                    END as has_forecast,
+                    CASE 
+                        WHEN ct.start_forecast IS NOT NULL AND ct.end_forecast IS NOT NULL THEN
+                            TIMESTAMPDIFF(HOUR, ct.start_forecast, ct.end_forecast)
+                        WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 0.167 -- 10 minutos em horas
+                        ELSE NULL 
+                    END as completion_hours,
+                    CASE 
+                        WHEN ct.start_forecast IS NOT NULL AND ct.end_forecast IS NOT NULL THEN
+                            TIMESTAMPDIFF(DAY, ct.start_forecast, ct.end_forecast)
+                        WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 0.007 -- 10 minutos em dias
+                        ELSE NULL 
+                    END as completion_days
+                FROM called_tickets ct
+                JOIN called_ticket_categories ctc ON ctc.ticket_id = ct.id
+                JOIN called_categories cc ON cc.id = ctc.category_id
+                WHERE ct.status = 'completed-tasks-draggable'
+                ORDER BY ct.id ASC
+            `);
+
+            return result.map(item => ({
+                id: item.id,
+                title: item.title,
+                category: item.category_name,
+                startForecast: item.start_forecast,
+                endForecast: item.end_forecast,
+                createdAt: item.created_at,
+                finishedAt: item.finished_at,
+                hasForecast: item.has_forecast,
+                completionHours: Math.round((item.completion_hours || 0) * 100) / 100,
+                completionDays: Math.round((item.completion_days || 0) * 100) / 100
+            }));
+        } catch (error) {
+            console.error('Erro ao exportar detalhes de tempo médio:', error);
+            throw error;
+        }
+    },
+    getOnTimeCompletionRate: async function(year = new Date().getFullYear(), month = new Date().getMonth() + 1) {
+        try {
+            // Buscar chamados concluídos no mês especificado
+            const result = await executeQuery(`
+                SELECT 
+                    ct.id,
+                    ct.title,
+                    ct.start_forecast,
+                    ct.end_forecast,
+                    ct.finished_at,
+                    cc.name as category_name,
+                    CASE 
+                        WHEN ct.start_forecast IS NOT NULL AND ct.end_forecast IS NOT NULL THEN
+                            TIMESTAMPDIFF(HOUR, ct.start_forecast, ct.end_forecast)
+                        WHEN ct.start_forecast IS NULL OR ct.end_forecast IS NULL THEN 0.167
+                        ELSE NULL 
+                    END as forecast_hours,
+                    CASE 
+                        WHEN ct.start_forecast IS NOT NULL AND ct.end_forecast IS NOT NULL AND ct.finished_at IS NOT NULL THEN
+                            TIMESTAMPDIFF(HOUR, ct.start_forecast, ct.finished_at)
+                        ELSE NULL 
+                    END as actual_hours
+                FROM called_tickets ct
+                LEFT JOIN called_ticket_categories ctc ON ctc.ticket_id = ct.id
+                LEFT JOIN called_categories cc ON cc.id = ctc.category_id
+                WHERE ct.status = 'completed-tasks-draggable'
+                AND ct.finished_at IS NOT NULL
+                AND YEAR(ct.finished_at) = ?
+                AND MONTH(ct.finished_at) = ?
+                AND cc.name IS NOT NULL
+                AND cc.name != ''
+            `, [year, month]);
+
+            // Calcular estatísticas gerais
+            let totalTickets = result.length;
+            let onTimeTickets = 0;
+            let categoryStats = {};
+
+            result.forEach(ticket => {
+                const categoryName = ticket.category_name || 'Sem Categoria';
+                const forecastHours = parseFloat(ticket.forecast_hours || 0);
+                const actualHours = parseFloat(ticket.actual_hours || 0);
+
+                // Inicializar estatísticas da categoria se não existir
+                if (!categoryStats[categoryName]) {
+                    categoryStats[categoryName] = {
+                        total: 0,
+                        onTime: 0,
+                        percentage: 0
+                    };
+                }
+
+                categoryStats[categoryName].total++;
+
+                // Verificar se está dentro do prazo (tempo real <= tempo previsto)
+                if (actualHours <= forecastHours) {
+                    onTimeTickets++;
+                    categoryStats[categoryName].onTime++;
+                }
+            });
+
+            // Calcular porcentagens
+            const overallPercentage = totalTickets > 0 ? (onTimeTickets / totalTickets) * 100 : 0;
+
+            // Calcular porcentagens por categoria
+            Object.keys(categoryStats).forEach(category => {
+                const stats = categoryStats[category];
+                stats.percentage = stats.total > 0 ? (stats.onTime / stats.total) * 100 : 0;
+            });
+
+            // Ordenar categorias por porcentagem (maior primeiro)
+            const sortedCategories = Object.entries(categoryStats)
+                .sort(([,a], [,b]) => b.percentage - a.percentage)
+                .map(([name, stats]) => ({
+                    category: name,
+                    total: stats.total,
+                    onTime: stats.onTime,
+                    percentage: Math.round(stats.percentage * 100) / 100
+                }));
+
+            return {
+                year: year,
+                month: month,
+                monthName: new Date(year, month - 1).toLocaleDateString('pt-BR', { month: 'long' }),
+                totalTickets: totalTickets,
+                onTimeTickets: onTimeTickets,
+                overallPercentage: Math.round(overallPercentage * 100) / 100,
+                categories: sortedCategories,
+                details: await Promise.all(result.map(async ticket => {
+                    // Buscar colaboradores atribuídos ao ticket
+                    const assignedResult = await executeQuery(`
+                        SELECT 
+                            collab.name, 
+                            collab.family_name,
+                            collab.id_headcargo
+                        FROM called_assigned_relations car
+                        JOIN collaborators collab ON collab.id = car.collaborator_id 
+                        WHERE car.ticket_id = ?
+                    `, [ticket.id]);
+                    
+                    const assignedCollaborators = assignedResult.map(collab => ({
+                        name: `${collab.name} ${collab.family_name}`,
+                        idHeadcargo: collab.id_headcargo
+                    }));
+                    
+                    return {
+                        id: ticket.id,
+                        title: ticket.title,
+                        category: ticket.category_name || 'Sem Categoria',
+                        startForecast: ticket.start_forecast,
+                        endForecast: ticket.end_forecast,
+                        finishedAt: ticket.finished_at,
+                        forecastHours: parseFloat(ticket.forecast_hours || 0),
+                        actualHours: parseFloat(ticket.actual_hours || 0),
+                        isOnTime: parseFloat(ticket.actual_hours || 0) <= parseFloat(ticket.forecast_hours || 0),
+                        assignedCollaborators: assignedCollaborators
+                    };
+                }))
+            };
+        } catch (error) {
+            console.error('Erro ao calcular taxa de conclusão no prazo:', error);
+            throw error;
+        }
+    },
     exportTicketsToExcel: async function(filePath){
         const statusMapping = {
             'new-tasks-draggable': 'Novos',

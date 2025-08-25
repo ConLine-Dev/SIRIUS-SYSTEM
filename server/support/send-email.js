@@ -27,7 +27,7 @@ async function sendEmail(recipient, subject, htmlContent) {
     });
 
     const mailOptions = {
-        from: `Sirius OS <sirius@conline-news.com>`,
+        from: `Sirius System <sirius@conline-news.com>`,
         to: recipient,  // Aqui vão todos os e-mails do array
         // to: `petryck.leite@conlinebr.com.br`,
         subject: subject,

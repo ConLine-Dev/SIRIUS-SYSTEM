@@ -9,6 +9,7 @@ const Users = {
                         collab.id AS 'collab_id',
                         usr.id AS 'userID',
                         collab.name AS 'username',
+                        collab.job_position AS 'jobPosition',
                         collab.id_headcargo AS 'id_headcargo',
                         collab.image AS 'image',
                         collab.family_name AS 'familyName'

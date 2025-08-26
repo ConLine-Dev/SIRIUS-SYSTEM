@@ -330,6 +330,66 @@ const pricingAnalytics = {
 
         return result;
     },
+    getProcessesByAgent: async function (data) {
+
+        let countryFilter = '';
+        let yearFilter = `AND DATEPART(YEAR, lhs.Data_Abertura_Processo) > 2022`
+
+        if (data.idCountry) {
+            countryFilter = `AND pss.IdPais = ${data.idCountry}`;
+        }
+        if (data.year) {
+            yearFilter = `AND DATEPART(YEAR, lhs.Data_Abertura_Processo) = ${data.year}`
+        }
+        if (data.month) {
+            monthFilter = `AND DATEPART(MONTH, lhs.Data_Abertura_Processo) = ${data.month}`
+        }
+
+        let result = await executeQuerySQL(`
+            WITH RankedAgents AS (
+                SELECT
+                    pss.Nome AS Agente,
+                    SUM(lmh.Total_TEUS) AS Total_TEUS
+                FROM mov_Logistica_House lhs
+                LEFT OUTER JOIN mov_Logistica_Master lms
+                    ON lms.IdLogistica_Master = lhs.IdLogistica_Master
+                LEFT OUTER JOIN cad_Pessoa pss
+                    ON pss.IdPessoa = lms.IdAgente_Origem
+                LEFT OUTER JOIN mov_Logistica_Maritima_House lmh
+                    ON lmh.IdLogistica_House = lhs.IdLogistica_House
+                WHERE
+                    lhs.Situacao_Agenciamento != 7
+                    ${yearFilter}
+                    ${monthFilter}
+                    ${countryFilter}
+                    AND lhs.Tipo_Carga = 3
+                    AND lms.Tipo_Operacao = 2
+                    AND lhs.Numero_Processo NOT LIKE '%DEMU%'
+                    AND lhs.Numero_Processo NOT LIKE '%test%'
+                    AND lms.Data_Embarque IS NOT NULL
+                GROUP BY pss.Nome, pss.IdPais
+            ),
+            Top5 AS (
+                SELECT *,
+                    ROW_NUMBER() OVER (ORDER BY Total_TEUS DESC) AS Rank
+                FROM RankedAgents
+            )
+            SELECT
+                CASE
+                    WHEN Rank <= 100 THEN Agente
+                    ELSE 'OUTROS'
+                END AS Agente,
+                SUM(Total_TEUS) AS Total_TEUS
+            FROM Top5
+            GROUP BY
+                CASE
+                    WHEN Rank <= 100 THEN Agente
+                    ELSE 'OUTROS'
+                END
+            ORDER BY Total_TEUS DESC;`);
+
+        return result;
+    },
 
 };
 

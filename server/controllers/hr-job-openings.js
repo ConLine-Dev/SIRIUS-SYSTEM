@@ -1035,7 +1035,8 @@ exports.getApplicationById = async (req, res) => {
   try {
     const { applicationId } = req.params;
     const apps = await executeQuery(`
-      SELECT a.id, a.job_id, a.applicant_id, a.status_id, a.cover_letter, a.interview_date, a.offer_date, a.applied_at,
+      SELECT a.id, a.job_id, a.applicant_id, a.status_id, a.cover_letter, 
+             a.interview_date, a.offer_date, a.applied_at,
              ap.name, ap.email, ap.phone, ap.linkedin_url
       FROM hr_job_applications a
       JOIN hr_applicants ap ON ap.id = a.applicant_id
@@ -1045,6 +1046,25 @@ exports.getApplicationById = async (req, res) => {
     if(!apps || apps.length === 0) return res.status(404).json({ message: 'Inscrição não encontrada.'});
     
     const app = apps[0];
+    
+    // CORREÇÃO: Ajustar datas para horário local brasileiro antes de enviar
+    if (app.interview_date) {
+      // Se a data vem como objeto Date em UTC, converter para string local
+      const interviewDate = new Date(app.interview_date);
+      // Subtrair 3 horas para compensar o UTC
+      const localDate = new Date(interviewDate.getTime() - (3 * 60 * 60 * 1000));
+      app.interview_date = localDate.toISOString().slice(0, 19).replace('T', ' ');
+      console.log(`Interview date adjusted: ${app.interview_date}`);
+    }
+    
+    if (app.offer_date) {
+      // Se a data vem como objeto Date em UTC, converter para string local
+      const offerDate = new Date(app.offer_date);
+      // Subtrair 3 horas para compensar o UTC
+      const localDate = new Date(offerDate.getTime() - (3 * 60 * 60 * 1000));
+      app.offer_date = localDate.toISOString().slice(0, 19).replace('T', ' ');
+      console.log(`Offer date adjusted: ${app.offer_date}`);
+    }
 
     // Buscar anexos do candidato
     const attachments = await executeQuery(`

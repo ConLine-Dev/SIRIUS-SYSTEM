@@ -445,6 +445,86 @@
     }
   }
 
+  // Função para formatar data para datetime-local input (YYYY-MM-DDTHH:MM)
+  function formatDateForInput(dateValue) {
+    if (!dateValue || dateValue === 'null' || dateValue === 'undefined' || dateValue === null) {
+      return '';
+    }
+    
+    try {
+      console.log('Formatando data para input:', dateValue, 'Tipo:', typeof dateValue);
+      
+      // Se é uma string no formato MySQL (YYYY-MM-DD HH:MM:SS), converter diretamente
+      if (typeof dateValue === 'string') {
+        // Verificar se já está no formato correto para datetime-local
+        if (dateValue.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/)) {
+          console.log('Data já no formato correto:', dateValue);
+          return dateValue;
+        }
+        
+        // Se está no formato MySQL (YYYY-MM-DD HH:MM:SS), converter
+        if (dateValue.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
+          const formatted = dateValue.substring(0, 16).replace(' ', 'T');
+          console.log('Data MySQL formatada:', formatted);
+          return formatted;
+        }
+        
+        // Se está no formato MySQL sem segundos (YYYY-MM-DD HH:MM)
+        if (dateValue.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/)) {
+          const formatted = dateValue.replace(' ', 'T');
+          console.log('Data MySQL (sem segundos) formatada:', formatted);
+          return formatted;
+        }
+        
+        // Se é uma data ISO UTC (2025-08-26T16:15:00.000Z), ajustar para horário local
+        if (dateValue.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/)) {
+          console.log('Data ISO UTC detectada, ajustando para horário local brasileiro');
+          const utcDate = new Date(dateValue);
+          // Subtrair 3 horas para converter UTC para horário brasileiro
+          const localDate = new Date(utcDate.getTime() - (3 * 60 * 60 * 1000));
+          
+          const year = localDate.getUTCFullYear();
+          const month = String(localDate.getUTCMonth() + 1).padStart(2, '0');
+          const day = String(localDate.getUTCDate()).padStart(2, '0');
+          const hours = String(localDate.getUTCHours()).padStart(2, '0');
+          const minutes = String(localDate.getUTCMinutes()).padStart(2, '0');
+          
+          const formatted = `${year}-${month}-${day}T${hours}:${minutes}`;
+          console.log('Data UTC convertida para local:', formatted);
+          return formatted;
+        }
+        
+        // Se é uma data ISO completa sem Z
+        if (dateValue.includes('T')) {
+          const formatted = dateValue.substring(0, 16);
+          console.log('Data ISO cortada:', formatted);
+          return formatted;
+        }
+      }
+      
+      // Se chegou até aqui, tentar parsear como Date
+      console.log('Tentando parsear como Date...');
+      const date = new Date(dateValue);
+      if (!isNaN(date.getTime())) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        
+        const formatted = `${year}-${month}-${day}T${hours}:${minutes}`;
+        console.log('Data parseada e formatada:', formatted);
+        return formatted;
+      }
+      
+      console.warn('Não foi possível formatar a data:', dateValue);
+      return '';
+    } catch (error) {
+      console.error('Erro ao formatar data para input:', error, 'Data recebida:', dateValue);
+      return '';
+    }
+  }
+
   function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -799,6 +879,8 @@
   }
 
   function updateCandidateData(app) {
+    console.log('Atualizando dados do candidato:', app);
+    
     // Atualizar apenas os campos de dados, sem re-renderizar o FilePond
     document.getElementById('f_name').value = app.name || '';
     document.getElementById('f_email').value = app.email || '';
@@ -806,21 +888,23 @@
     document.getElementById('f_linkedin').value = app.linkedin_url || '';
     document.getElementById('f_cover').value = (app.cover_letter || '').replace(/</g,'&lt;');
 
-    // Preencher campos de data
+    // Preencher campos de data usando a nova função de formatação
     const interviewDateInput = document.getElementById('f_interview_date');
     const offerDateInput = document.getElementById('f_offer_date');
     
-    if (app.interview_date) {
-      interviewDateInput.value = app.interview_date.replace(' ', 'T');
-    } else {
-      interviewDateInput.value = '';
-    }
+    console.log('Datas recebidas:', {
+      interview_date: app.interview_date,
+      offer_date: app.offer_date
+    });
     
-    if (app.offer_date) {
-      offerDateInput.value = app.offer_date.replace(' ', 'T');
-    } else {
-      offerDateInput.value = '';
-    }
+    // Usar a nova função de formatação
+    interviewDateInput.value = formatDateForInput(app.interview_date);
+    offerDateInput.value = formatDateForInput(app.offer_date);
+    
+    console.log('Datas formatadas:', {
+      interview_formatted: interviewDateInput.value,
+      offer_formatted: offerDateInput.value
+    });
     
     // Habilitar/desabilitar campos conforme status
     updateDateFieldsStatus(app.status_id);
@@ -917,21 +1001,23 @@
       </div>
     `;
 
-    // Preencher campos de data
+    // Preencher campos de data usando a nova função de formatação
     const interviewDateInput = document.getElementById('f_interview_date');
     const offerDateInput = document.getElementById('f_offer_date');
     
-    if (app.interview_date) {
-      interviewDateInput.value = app.interview_date.replace(' ', 'T');
-    } else {
-      interviewDateInput.value = '';
-    }
+    console.log('renderCandidate - Datas recebidas:', {
+      interview_date: app.interview_date,
+      offer_date: app.offer_date
+    });
     
-    if (app.offer_date) {
-      offerDateInput.value = app.offer_date.replace(' ', 'T');
-    } else {
-      offerDateInput.value = '';
-    }
+    // Usar a nova função de formatação
+    interviewDateInput.value = formatDateForInput(app.interview_date);
+    offerDateInput.value = formatDateForInput(app.offer_date);
+    
+    console.log('renderCandidate - Datas formatadas:', {
+      interview_formatted: interviewDateInput.value,
+      offer_formatted: offerDateInput.value
+    });
     
     // Habilitar/desabilitar campos conforme status
     updateDateFieldsStatus(app.status_id);

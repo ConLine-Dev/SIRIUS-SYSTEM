@@ -515,6 +515,163 @@ const hrCandidateTemplates = {
         }
     },
 
+    // Email de notificação para RH quando candidato se inscreve
+    newApplicationNotification: {
+        generate: async function(applicationData) {
+            const { 
+                candidate_name, 
+                candidate_email, 
+                candidate_phone,
+                job_title, 
+                department_name, 
+                application_date, 
+                application_id,
+                source,
+                cover_letter,
+                linkedin_url,
+                portfolio_url,
+                resume_url
+            } = applicationData;
+            
+            return `
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Nova Candidatura Recebida - ${job_title}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                    .header { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; text-align: center; }
+                    .content { background: #ffffff; padding: 30px; border: 1px solid #e9ecef; border-top: none; }
+                    .footer { background: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 10px 10px; border: 1px solid #e9ecef; border-top: none; }
+                    .new-application { background: #d4edda; border: 1px solid #c3e6cb; padding: 20px; border-radius: 8px; margin: 20px 0; }
+                    .candidate-info { background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; }
+                    .job-info { background: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 8px; margin: 20px 0; }
+                    .action-buttons { text-align: center; margin: 30px 0; }
+                    .btn { display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; margin: 10px 5px; }
+                    .btn:hover { background-color: #0056b3; }
+                    .btn-success { background-color: #28a745; }
+                    .btn-success:hover { background-color: #218838; }
+                    .urgent-tag { background: #dc3545; color: white; padding: 5px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; }
+                    .cover-letter { background: #f8f9fa; border: 1px solid #dee2e6; padding: 20px; border-radius: 8px; margin: 20px 0; max-height: 200px; overflow-y: auto; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header">
+                        <h1 style="margin: 0; font-size: 28px;">
+                            🚨 Nova Candidatura Recebida!
+                        </h1>
+                        <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">
+                            Um candidato se inscreveu na vaga ${job_title}
+                        </p>
+                        <div style="margin-top: 15px;">
+                            <span class="urgent-tag">AÇÃO NECESSÁRIA</span>
+                        </div>
+                    </div>
+                    
+                    <div class="content">
+                        <div class="new-application">
+                            <h2 style="margin: 0 0 15px 0; color: #155724;">
+                                ✅ Nova Inscrição Registrada
+                            </h2>
+                            <p style="margin: 0; font-size: 16px; color: #155724;">
+                                <strong>${candidate_name}</strong> se candidatou à vaga de <strong>${job_title}</strong> em ${application_date}.
+                            </p>
+                            <p style="margin: 10px 0 0 0; font-size: 14px; color: #155724;">
+                                <strong>ID da Candidatura:</strong> #${application_id}
+                            </p>
+                        </div>
+                        
+                        <div class="candidate-info">
+                            <h3 style="margin: 0 0 15px 0; color: #1976d2;">
+                                👤 Informações do Candidato
+                            </h3>
+                            <p style="margin: 5px 0; font-size: 16px;">
+                                <strong>Nome:</strong> ${candidate_name}
+                            </p>
+                            <p style="margin: 5px 0; font-size: 16px;">
+                                <strong>Email:</strong> ${candidate_email}
+                            </p>
+                            ${candidate_phone ? `<p style="margin: 5px 0; font-size: 16px;"><strong>Telefone:</strong> ${candidate_phone}</p>` : ''}
+                            ${linkedin_url ? `<p style="margin: 5px 0; font-size: 16px;"><strong>LinkedIn:</strong> <a href="${linkedin_url}" target="_blank">${linkedin_url}</a></p>` : ''}
+                            ${portfolio_url ? `<p style="margin: 5px 0; font-size: 16px;"><strong>Portfólio:</strong> <a href="${portfolio_url}" target="_blank">${portfolio_url}</a></p>` : ''}
+                            ${resume_url ? `<p style="margin: 5px 0; font-size: 16px;"><strong>Currículo:</strong> <a href="${resume_url}" target="_blank">Visualizar Currículo</a></p>` : ''}
+                            <p style="margin: 5px 0; font-size: 16px;">
+                                <strong>Origem:</strong> ${source || 'Site da empresa'}
+                            </p>
+                        </div>
+                        
+                        <div class="job-info">
+                            <h3 style="margin: 0 0 15px 0; color: #856404;">
+                                💼 Informações da Vaga
+                            </h3>
+                            <p style="margin: 5px 0; font-size: 16px;">
+                                <strong>Vaga:</strong> ${job_title}
+                            </p>
+                            <p style="margin: 5px 0; font-size: 16px;">
+                                <strong>Departamento:</strong> ${department_name}
+                            </p>
+                            <p style="margin: 5px 0; font-size: 16px;">
+                                <strong>Data da Candidatura:</strong> ${application_date}
+                            </p>
+                        </div>
+                        
+                        ${cover_letter ? `
+                        <div class="cover-letter">
+                            <h4 style="margin: 0 0 15px 0; color: #495057;">
+                                📝 Carta de Apresentação
+                            </h4>
+                            <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #495057;">
+                                ${cover_letter}
+                            </p>
+                        </div>
+                        ` : ''}
+                        
+                        
+                        <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            <h4 style="margin: 0 0 15px 0; color: #155724;">
+                                📋 Próximos Passos Sugeridos
+                            </h4>
+                            <ol style="margin: 0; padding-left: 20px; color: #155724;">
+                                <li>Analisar o currículo e carta de apresentação</li>
+                                <li>Verificar se o perfil está alinhado com a vaga</li>
+                                <li>Agendar uma entrevista se adequado</li>
+                                <li>Dar feedback para o candidato</li>
+                                <li>Atualizar o status no sistema</li>
+                            </ol>
+                        </div>
+                        
+                        <div style="background: #f8f9fa; border: 1px solid #dee2e6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                            <h4 style="margin: 0 0 10px 0; color: #495057;">
+                                ⏰ Lembre-se
+                            </h4>
+                            <p style="margin: 0; color: #495057; font-size: 14px;">
+                                • Responder ao candidato em até 5 dias úteis<br>
+                                • Manter o processo seletivo organizado<br>
+                                • Registrar todas as ações no sistema<br>
+                                • Tratar todos os candidatos com respeito e profissionalismo
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="footer">
+                        <p style="margin: 0; color: #6c757d; font-size: 14px;">
+                            Esta notificação foi gerada automaticamente pelo sistema Sirius System
+                        </p>
+                        <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 12px;">
+                            Nova candidatura registrada em ${application_date}
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+            `;
+        }
+    },
+
     // Email de rejeição para candidatos
     rejectionNotification: {
         generate: async function(rejectionData) {

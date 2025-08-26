@@ -974,14 +974,21 @@ exports.createApplicantAndApplication = async (req, res) => {
         WHERE j.id = ?
       `, [job_id]);
 
-      // Preparar dados para o email de confirmação
+      // Preparar dados para os emails
       const emailData = {
         candidate_name: name,
         candidate_email: email,
+        candidate_phone: phone,
         job_title: jobInfo[0]?.title || 'Vaga',
         department_name: jobInfo[0]?.department_name || 'Departamento',
         application_date: new Date().toLocaleDateString('pt-BR'),
-        application_id: applicationId
+        application_id: applicationId,
+        job_id: job_id,
+        source: source,
+        cover_letter: cover_letter,
+        linkedin_url: linkedin_url,
+        portfolio_url: portfolio_url,
+        resume_url: resume_url
       };
 
       // Enviar email de confirmação para o candidato (assíncrono)
@@ -989,6 +996,14 @@ exports.createApplicantAndApplication = async (req, res) => {
         await exports.sendCandidateApplicationConfirmation(emailData);
       } catch (emailError) {
         console.error('❌ Erro ao enviar email de confirmação:', emailError);
+        // Não falhar a operação se o email falhar
+      }
+
+      // Enviar notificação para o RH (assíncrono)
+      try {
+        await exports.sendNewApplicationNotificationToHR(emailData);
+      } catch (emailError) {
+        console.error('❌ Erro ao enviar notificação para RH:', emailError);
         // Não falhar a operação se o email falhar
       }
 
@@ -1935,14 +1950,21 @@ exports.publicApply = async (req, res) => {
         }
       }
       
-      // Preparar dados para o email de confirmação
+      // Preparar dados para os emails
       const emailData = {
         candidate_name: name,
         candidate_email: email,
+        candidate_phone: phone,
         job_title: jobTitle,
         department_name: jobRows[0]?.department_name || 'Departamento',
         application_date: new Date().toLocaleDateString('pt-BR'),
-        application_id: applicationId
+        application_id: applicationId,
+        job_id: jobId,
+        source: 'Site da empresa',
+        cover_letter: cover_letter,
+        linkedin_url: linkedin_url,
+        portfolio_url: null,
+        resume_url: req.file ? `/storageService/hr-job-openings/${req.file.filename}` : null
       };
 
       // Enviar email de confirmação para o candidato (assíncrono)
@@ -1950,6 +1972,14 @@ exports.publicApply = async (req, res) => {
         await exports.sendCandidateApplicationConfirmation(emailData);
       } catch (emailError) {
         console.error('❌ Erro ao enviar email de confirmação:', emailError);
+        // Não falhar a operação se o email falhar
+      }
+
+      // Enviar notificação para o RH (assíncrono)
+      try {
+        await exports.sendNewApplicationNotificationToHR(emailData);
+      } catch (emailError) {
+        console.error('❌ Erro ao enviar notificação para RH:', emailError);
         // Não falhar a operação se o email falhar
       }
 
@@ -3615,7 +3645,7 @@ exports.sendCandidateApplicationConfirmation = async (applicationData) => {
     const htmlContent = await hrCandidateTemplates.applicationConfirmation.generate(applicationData);
     
     // Assunto do email
-    const subject = `[Sirius System] ✅ Candidatura Confirmada - ${applicationData.job_title}`;
+    const subject = `[CONLINE] ✅ Candidatura Confirmada - ${applicationData.job_title}`;
     
     // Enviar email para o candidato
     const result = await sendEmail(applicationData.candidate_email, subject, htmlContent);
@@ -3630,6 +3660,70 @@ exports.sendCandidateApplicationConfirmation = async (applicationData) => {
   } catch (error) {
     console.error('❌ Erro ao enviar email de confirmação para candidato:', error);
     throw error;
+  }
+};
+
+// Função para enviar notificação ao RH sobre nova candidatura
+exports.sendNewApplicationNotificationToHR = async (applicationData) => {
+  try {
+    const { sendEmail } = require('../support/send-email');
+    const { hrCandidateTemplates } = require('../support/hr-candidate-templates');
+    const { getRecipientEmails, getSubjectPrefix } = require('../config/interview-email-config');
+    
+    // Buscar emails do RH configurados
+    const hrEmails = await getRecipientEmails();
+    const subjectPrefix = await getSubjectPrefix();
+    
+    if (!hrEmails || hrEmails.length === 0) {
+      console.warn('⚠️ Nenhum email do RH configurado para notificações');
+      return { success: false, error: 'Nenhum email do RH configurado' };
+    }
+    
+    // Gerar HTML do email
+    const htmlContent = await hrCandidateTemplates.newApplicationNotification.generate(applicationData);
+    
+    // Assunto do email
+    const subject = `${subjectPrefix} 🚨 Nova Candidatura - ${applicationData.candidate_name} para ${applicationData.job_title}`;
+    
+    const results = [];
+    
+    // Enviar para todos os emails do RH
+    for (const hrEmail of hrEmails) {
+      try {
+        const result = await sendEmail(hrEmail, subject, htmlContent);
+        results.push({ email: hrEmail, success: result.success, error: result.error });
+        
+        if (result.success) {
+          console.log(`✅ Notificação de nova candidatura enviada para RH: ${hrEmail}`);
+        } else {
+          console.error(`❌ Erro ao enviar notificação para RH ${hrEmail}:`, result.error);
+        }
+      } catch (emailError) {
+        console.error(`❌ Erro ao enviar para ${hrEmail}:`, emailError);
+        results.push({ email: hrEmail, success: false, error: emailError.message });
+      }
+    }
+    
+    // Verificar se pelo menos um email foi enviado com sucesso
+    const successCount = results.filter(r => r.success).length;
+    const totalCount = results.length;
+    
+    console.log(`📊 Notificação de candidatura - Enviados: ${successCount}/${totalCount} emails`);
+    console.log(`   - Candidato: ${applicationData.candidate_name}`);
+    console.log(`   - Vaga: ${applicationData.job_title}`);
+    console.log(`   - Application ID: ${applicationData.application_id}`);
+    
+    return {
+      success: successCount > 0,
+      results,
+      successCount,
+      totalCount,
+      message: `${successCount}/${totalCount} notificações enviadas com sucesso`
+    };
+    
+  } catch (error) {
+    console.error('❌ Erro ao enviar notificação de nova candidatura ao RH:', error);
+    return { success: false, error: error.message };
   }
 };
 

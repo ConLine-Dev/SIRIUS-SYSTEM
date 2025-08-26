@@ -811,6 +811,19 @@ exports.getApplicationsBoard = async (req, res) => {
       `, applicantIds);
     }
 
+    // Buscar informações sobre emails de rejeição enviados
+    let rejectionEmails = [];
+    if (applicantIds.length > 0) {
+      rejectionEmails = await executeQuery(`
+        SELECT applicant_id, sent_at, email_type
+        FROM hr_rejection_emails 
+        WHERE applicant_id IN (${applicantIds.map(() => '?').join(',')})
+        AND job_posting_id = ?
+        AND email_type = 'rejection'
+        ORDER BY sent_at DESC
+      `, [...applicantIds, jobId]);
+    }
+
     // Agrupar anexos por candidato e atualizar URLs
     const attachmentsByApplicant = {};
     attachments.forEach(att => {
@@ -824,9 +837,21 @@ exports.getApplicationsBoard = async (req, res) => {
       });
     });
 
-    // Adicionar anexos às aplicações
+    // Agrupar emails de rejeição por candidato
+    const rejectionEmailsByApplicant = {};
+    rejectionEmails.forEach(email => {
+      if (!rejectionEmailsByApplicant[email.applicant_id]) {
+        rejectionEmailsByApplicant[email.applicant_id] = [];
+      }
+      rejectionEmailsByApplicant[email.applicant_id].push(email);
+    });
+
+    // Adicionar anexos e informações de rejeição às aplicações
     applications.forEach(app => {
       app.attachments = attachmentsByApplicant[app.applicant_id] || [];
+      app.rejection_emails = rejectionEmailsByApplicant[app.applicant_id] || [];
+      app.has_rejection_email = rejectionEmailsByApplicant[app.applicant_id]?.length > 0 || false;
+      app.last_rejection_date = rejectionEmailsByApplicant[app.applicant_id]?.[0]?.sent_at || null;
     });
 
     // Organizar por status
@@ -2613,7 +2638,14 @@ exports.uploadAttachment = async (req, res) => {
 // Função para buscar entrevistas do dia e enviar email de alerta
 exports.getTodaysInterviews = async () => {
   try {
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    // Usar horário local para determinar o dia atual
+    const now = new Date();
+    const nowLocal = new Date(now.getTime() - (3 * 60 * 60000)); // Subtrair 3 horas para horário local
+    const today = nowLocal.toISOString().split('T')[0]; // YYYY-MM-DD formato
+    
+    console.log(`📅 Buscando entrevistas do dia:`);
+    console.log(`   - Data local: ${now.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`);
+    console.log(`   - Data formato: ${today}`);
     
     const interviews = await executeQuery(`
       SELECT 
@@ -2637,6 +2669,7 @@ exports.getTodaysInterviews = async () => {
       ORDER BY ja.interview_date ASC
     `, [today]);
 
+    console.log(`📋 Entrevistas encontradas para hoje: ${interviews.length}`);
     return interviews;
   } catch (error) {
     console.error('Erro ao buscar entrevistas do dia:', error);
@@ -2647,56 +2680,29 @@ exports.getTodaysInterviews = async () => {
 // Função para enviar email de alerta diário de entrevistas
 exports.sendInterviewAlertEmail = async () => {
   try {
-    const { sendEmail } = require('../support/send-email');
-    const { hrCandidateTemplates } = require('../support/hr-candidate-templates');
-    const { getAllRecipientEmails, getConfig } = require('../config/interview-email-config');
-    
-    const config = getConfig();
-    const recipientEmails = getAllRecipientEmails();
-    
-    if (recipientEmails.length === 0) {
-      console.log('⚠️ Nenhum email configurado para receber alertas de entrevista');
-      return { success: false, message: 'Nenhum email configurado' };
-    }
+    const InterviewEmailManager = require('../services/interview-email-manager');
+    const emailManager = new InterviewEmailManager();
     
     // Buscar entrevistas do dia
     const todaysInterviews = await exports.getTodaysInterviews();
-    const today = new Date().toLocaleDateString('pt-BR');
     
-    // Gerar HTML do email
-    const htmlContent = await hrCandidateTemplates.interviewAlertEmail.generate(todaysInterviews, today);
+    // Registrar email de alerta diário
+    const emailId = await emailManager.registerDailyAlert(todaysInterviews);
     
-    // Assunto do email
-    const subject = `${config.email.subjectPrefix}📅 Alerta de Entrevistas - ${today}`;
-    
-    // Enviar email para todos os destinatários
-    const results = [];
-    for (const email of recipientEmails) {
-      try {
-        const result = await sendEmail(email, subject, htmlContent);
-        
-        if (result.success) {
-          console.log(`✅ Email de alerta enviado para ${email}: ${todaysInterviews.length} entrevistas`);
-          results.push({ success: true, email });
-        } else {
-          console.error(`❌ Erro ao enviar email de alerta para ${email}:`, result.error);
-          results.push({ success: false, email, error: result.error });
-        }
-      } catch (error) {
-        console.error(`❌ Erro ao processar alerta para ${email}:`, error);
-        results.push({ success: false, email, error: error.message });
-      }
+    if (!emailId) {
+      return { success: true, message: 'Nenhum email registrado (desabilitado ou sem entrevistas)' };
     }
     
-    const successful = results.filter(r => r.success).length;
-    console.log(`📊 Resumo de alertas: ${successful}/${results.length} emails enviados com sucesso`);
-    console.log(`📅 Total de entrevistas hoje: ${todaysInterviews.length}`);
+    // Processar emails pendentes
+    const result = await emailManager.processPendingEmails();
+    
+    console.log(`📊 Alerta diário processado: ${result.processed} emails, ${result.success} sucessos, ${result.failed} falhas`);
     
     return {
-      success: results.some(r => r.success),
-      results: results,
+      success: result.success > 0,
+      results: result,
       total: todaysInterviews.length,
-      successful: successful
+      successful: result.success || 0
     };
   } catch (error) {
     console.error('❌ Erro ao enviar emails de alerta de entrevistas:', error);
@@ -3429,13 +3435,24 @@ exports.getApplicantApplications = async (req, res) => {
   }
 };
 
-// Função para buscar entrevistas próximas (15 min antes)
+// Função para buscar entrevistas próximas (15 min antes) - Incluindo passadas sem email enviado
 exports.getUpcomingInterviews = async () => {
   try {
+    // IMPORTANTE: MySQL está em UTC, JavaScript em UTC-3
+    // Precisamos ajustar para comparação correta
     const now = new Date();
-    const in15Minutes = new Date(now.getTime() + 15 * 60000); // 15 minutos a partir de agora
+    const nowUTC = new Date(now.getTime() + (now.getTimezoneOffset() * 60000)); // Converter para UTC
     
-    // Buscar entrevistas que acontecerão nos próximos 15 minutos (apenas futuras)
+    console.log(`🔍 Buscando entrevistas próximas e passadas sem email:`);
+    console.log(`   - Agora (local): ${now.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`);
+    console.log(`   - Agora (UTC para MySQL): ${nowUTC.toISOString()}`);
+    
+    // Buscar entrevistas que:
+    // 1. Acontecerão nos próximos 15 minutos (futuras)
+    // 2. Já passaram mas não tiveram email enviado (até 24 horas atrás)
+    const in15MinutesUTC = new Date(nowUTC.getTime() + 15 * 60000); // 15 minutos a partir de agora UTC
+    const oneDayAgoUTC = new Date(nowUTC.getTime() - (24 * 60 * 60000)); // 24 horas atrás UTC
+    
     const interviews = await executeQuery(`
       SELECT 
         ja.id as application_id,
@@ -3447,25 +3464,100 @@ exports.getUpcomingInterviews = async () => {
         d.name as department_name,
         DATE_FORMAT(ja.interview_date, '%d/%m/%Y') as interview_date_formatted,
         DATE_FORMAT(ja.interview_date, '%H:%i') as interview_time,
-        TIMESTAMPDIFF(MINUTE, NOW(), ja.interview_date) as minutes_until
+        TIMESTAMPDIFF(MINUTE, NOW(), ja.interview_date) as minutes_until,
+        CASE 
+          WHEN ja.interview_date > NOW() THEN 'future'
+          ELSE 'past'
+        END as interview_status,
+        (
+          SELECT COUNT(*) 
+          FROM hr_interview_email_logs el 
+          WHERE el.application_id = ja.id 
+          AND el.email_type IN ('reminder_15min', 'reminder_past')
+          AND el.status = 'sent'
+          LIMIT 1
+        ) as email_sent
       FROM hr_job_applications ja
       JOIN hr_applicants ap ON ap.id = ja.applicant_id
       JOIN hr_job_postings j ON j.id = ja.job_id
       JOIN hr_departments d ON d.id = j.department_id
       JOIN hr_application_statuses s ON s.id = ja.status_id
-      WHERE ja.interview_date > NOW()
-        AND ja.interview_date <= ?
-        AND s.name LIKE '%entrevista%'
-        AND ja.interview_date IS NOT NULL
+      WHERE (
+        -- Entrevistas futuras (próximas 15 min)
+        (ja.interview_date > NOW() AND ja.interview_date <= ?)
+        OR
+        -- Entrevistas passadas (até 24 horas atrás) que não tiveram email enviado
+        (ja.interview_date <= NOW() AND ja.interview_date >= ?)
+      )
+      AND s.name LIKE '%entrevista%'
+      AND ja.interview_date IS NOT NULL
+      -- Não incluir entrevistas que já tiveram email enviado ou pendente HOJE
+      AND NOT EXISTS (
+        SELECT 1 
+        FROM hr_interview_email_logs el2 
+        WHERE el2.application_id = ja.id 
+        AND DATE(el2.interview_date) = DATE(ja.interview_date)
+        AND el2.email_type IN ('reminder_15min', 'reminder_past')
+        AND (
+          el2.status = 'sent' 
+          OR (el2.status = 'pending' AND el2.created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR))
+        )
+      )
       ORDER BY ja.interview_date ASC
-    `, [in15Minutes]);
+    `, [in15MinutesUTC, oneDayAgoUTC]);
 
-    // Filtrar apenas entrevistas com minutos_until entre 0 e 15
-    const filteredInterviews = interviews.filter(interview => {
-      const minutesUntil = parseInt(interview.minutes_until);
-      return minutesUntil >= 0 && minutesUntil <= 15;
+    console.log(`📋 Entrevistas encontradas no banco (sem email enviado): ${interviews.length}`);
+    
+    // Recalcular minutos corretamente considerando timezone
+    const interviewsWithCorrectTime = interviews.map(interview => {
+      // O MySQL retorna a data em UTC, precisamos ajustar para local
+      const interviewDate = new Date(interview.interview_date);
+      const nowLocal = new Date();
+      
+      // Calcular diferença real em minutos
+      const diffMs = interviewDate.getTime() - nowLocal.getTime();
+      const realMinutesUntil = Math.floor(diffMs / 60000);
+      
+      return {
+        ...interview,
+        minutes_until: realMinutesUntil,
+        minutes_until_sql: interview.minutes_until, // Manter o original para debug
+        interview_status: realMinutesUntil >= 0 ? 'future' : 'past'
+      };
+    });
+    
+    // Filtrar entrevistas baseado no tempo corrigido
+    const filteredInterviews = interviewsWithCorrectTime.filter(interview => {
+      const minutesUntil = interview.minutes_until;
+      const isFuture = interview.interview_status === 'future';
+      const isPast = interview.interview_status === 'past';
+      
+      let shouldInclude = false;
+      let reason = '';
+      
+      // Entrevistas futuras: enviar lembrete 15 minutos antes
+      if (isFuture && minutesUntil >= 0 && minutesUntil <= 15) {
+        shouldInclude = true;
+        reason = `futura em ${minutesUntil} min`;
+      } 
+      // Entrevistas passadas: enviar se passou há menos de 24 horas
+      else if (isPast && minutesUntil < 0 && minutesUntil >= -(24 * 60)) {
+        shouldInclude = true;
+        reason = `passada há ${Math.abs(minutesUntil)} min`;
+      }
+      
+      if (shouldInclude) {
+        console.log(`✅ Entrevista para enviar lembrete: ${interview.candidate_name} - ${interview.interview_time}`);
+        console.log(`   Tempo real: ${reason} (SQL reportava: ${interview.minutes_until_sql} min)`);
+      } else {
+        console.log(`⏭️ Entrevista fora do período: ${interview.candidate_name} - ${interview.interview_time}`);
+        console.log(`   Tempo real: ${minutesUntil} min (SQL reportava: ${interview.minutes_until_sql} min)`);
+      }
+      
+      return shouldInclude;
     });
 
+    console.log(`📧 Total de lembretes a enviar: ${filteredInterviews.length}`);
     return filteredInterviews;
   } catch (error) {
     console.error('Erro ao buscar entrevistas próximas:', error);
@@ -3476,17 +3568,8 @@ exports.getUpcomingInterviews = async () => {
 // Função para enviar email de lembrete 15 min antes da entrevista
 exports.sendInterviewReminderEmail = async () => {
   try {
-    const { sendEmail } = require('../support/send-email');
-    const { hrCandidateTemplates } = require('../support/hr-candidate-templates');
-    const { getAllRecipientEmails, getConfig } = require('../config/interview-email-config');
-    
-    const config = getConfig();
-    const recipientEmails = getAllRecipientEmails();
-    
-    if (recipientEmails.length === 0) {
-      console.log('⚠️ Nenhum email configurado para receber lembretes de entrevista');
-      return { success: false, message: 'Nenhum email configurado' };
-    }
+    const InterviewEmailManager = require('../services/interview-email-manager');
+    const emailManager = new InterviewEmailManager();
     
     // Buscar entrevistas próximas (15 min antes)
     const interviews = await exports.getUpcomingInterviews();
@@ -3498,63 +3581,23 @@ exports.sendInterviewReminderEmail = async () => {
     
     console.log(`⏰ Encontradas ${interviews.length} entrevista(s) próxima(s)`);
     
-    // Enviar email para cada entrevista
-    const results = [];
-    for (const interview of interviews) {
-      try {
-        // Gerar HTML do email
-        const htmlContent = await hrCandidateTemplates.interviewReminderEmail.generate(interview);
-        
-        // Assunto do email
-        const subject = `${config.email.subjectPrefix}⏰ Lembrete: Entrevista em ${interview.minutes_until} min - ${interview.candidate_name}`;
-        
-        // Enviar email para todos os destinatários (RH)
-        for (const email of recipientEmails) {
-          try {
-            const result = await sendEmail(email, subject, htmlContent);
-            
-            if (result.success) {
-              console.log(`✅ Email de lembrete enviado para ${email}: ${interview.candidate_name} (${interview.interview_time})`);
-              results.push({ success: true, email, interview, type: 'rh' });
-            } else {
-              console.error(`❌ Erro ao enviar email de lembrete para ${email}: ${interview.candidate_name}`, result.error);
-              results.push({ success: false, email, error: result.error, interview, type: 'rh' });
-            }
-          } catch (error) {
-            console.error(`❌ Erro ao processar lembrete para ${email}: ${interview.candidate_name}`, error);
-            results.push({ success: false, email, error: error.message, interview, type: 'rh' });
-          }
-        }
-
-        // Enviar email de lembrete para o candidato
-        try {
-          const candidateResult = await exports.sendCandidateInterviewReminder(interview);
-          if (candidateResult.success) {
-            console.log(`✅ Email de lembrete enviado para candidato: ${interview.candidate_name} (${interview.candidate_email})`);
-            results.push({ success: true, email: interview.candidate_email, interview, type: 'candidate' });
-          } else {
-            console.error(`❌ Erro ao enviar email de lembrete para candidato: ${interview.candidate_name}`, candidateResult.error);
-            results.push({ success: false, email: interview.candidate_email, error: candidateResult.error, interview, type: 'candidate' });
-          }
-        } catch (candidateError) {
-          console.error(`❌ Erro ao processar lembrete para candidato: ${interview.candidate_name}`, candidateError);
-          results.push({ success: false, email: interview.candidate_email, error: candidateError.message, interview, type: 'candidate' });
-        }
-      } catch (error) {
-        console.error(`❌ Erro ao processar lembrete para: ${interview.candidate_name}`, error);
-        results.push({ success: false, error: error.message, interview });
-      }
+    // Registrar lembretes
+    const emailIds = await emailManager.registerReminders(interviews);
+    
+    if (emailIds.length === 0) {
+      return { success: true, message: 'Nenhum lembrete registrado (desabilitado ou já enviado)' };
     }
     
-    const successful = results.filter(r => r.success).length;
-    console.log(`📊 Resumo de lembretes: ${successful}/${results.length} emails enviados com sucesso`);
-    console.log(`⏰ Total de entrevistas próximas: ${interviews.length}`);
+    // Processar emails pendentes
+    const result = await emailManager.processPendingEmails();
+    
+    console.log(`📊 Lembretes processados: ${result.processed} emails, ${result.success} sucessos, ${result.failed} falhas`);
     
     return {
-      success: results.some(r => r.success),
-      results: results,
+      success: result.success > 0,
+      results: result,
       total: interviews.length,
-      successful: successful
+      successful: result.success || 0
     };
   } catch (error) {
     console.error('❌ Erro ao enviar emails de lembrete de entrevistas:', error);
@@ -4333,10 +4376,10 @@ exports.sendRejectionEmail = async (req, res) => {
     const { applicantId } = req.params;
     const { job_posting_id, subject, content } = req.body;
     
-    if (!applicantId || !job_posting_id || !subject || !content) {
+    if (!applicantId || !job_posting_id) {
       return res.status(400).json({ 
         success: false, 
-        message: 'Todos os campos são obrigatórios' 
+        message: 'ID do candidato e da vaga são obrigatórios' 
       });
     }
     
@@ -4445,17 +4488,44 @@ async function sendRejectionEmailToCandidate(email, name, jobTitle, subject, con
       company_name: 'Sirius System'
     };
     
-    // Gerar HTML do email usando o template
-    const htmlContent = await hrCandidateTemplates.rejectionNotification.generate(rejectionData);
+    // Sempre processar o conteúdo como texto personalizado
+    let htmlContent = content.replace(/\n/g, '<br>');
+    
+    // Adicionar estrutura HTML básica
+    htmlContent = `
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Atualização sobre sua Candidatura</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+          .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; font-size: 12px; color: #6c757d; text-align: center; }
+        </style>
+      </head>
+      <body>
+        ${htmlContent}
+        <div class="footer">
+          <p>Este email foi enviado pelo sistema Sirius System</p>
+          <p>Para dúvidas, entre em contato: rh@conlinebr.com.br</p>
+        </div>
+      </body>
+      </html>
+    `;
     
     // Usar o assunto personalizado se fornecido, senão usar padrão
-    const emailSubject = subject || `[Sirius System] 📧 Atualização sobre sua Candidatura - ${jobTitle}`;
+    emailSubject = subject || `[Sirius System] 📧 Atualização sobre sua Candidatura - ${jobTitle}`;
+    
+    console.log(`📧 Enviando email de rejeição para: ${name} (${email})`);
+    console.log(`📧 Assunto: ${emailSubject}`);
+    console.log(`📧 Conteúdo: ${content.length} caracteres`);
     
     // Enviar email para o candidato
     const result = await sendEmail(email, emailSubject, htmlContent);
     
     if (result.success) {
-      console.log(`✅ Email de rejeição enviado para candidato: ${name} (${email})`);
+      console.log(`✅ Email de rejeição enviado com sucesso para: ${name} (${email})`);
       return true;
     } else {
       console.error(`❌ Erro ao enviar email de rejeição para: ${name}`, result.error);

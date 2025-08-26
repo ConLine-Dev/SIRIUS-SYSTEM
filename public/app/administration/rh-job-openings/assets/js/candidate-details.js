@@ -1124,7 +1124,7 @@
       const content = document.getElementById('rejectionEmailContent');
       
       // Assunto padrão
-      subject.value = 'Resposta à sua candidatura';
+      subject.value = '[CONLINE]Resposta à sua candidatura';
       
       // Conteúdo padrão personalizado
       const candidateName = candidateData.name || 'Candidato';
@@ -1146,9 +1146,7 @@ Agradecemos novamente seu interesse em nossa empresa.
 
 Atenciosamente,
 Equipe de Recursos Humanos
-Sirius System
-
-Data: ${currentDate}`;
+`;
       
       // Abrir modal
       const modal = new bootstrap.Modal(document.getElementById('rejectionEmailModal'));
@@ -1237,6 +1235,9 @@ Data: ${currentDate}`;
         const modal = bootstrap.Modal.getInstance(document.getElementById('rejectionEmailModal'));
         modal.hide();
         
+        // Resetar modal
+        resetRejectionEmailModal();
+        
         Swal.fire({
           icon: 'success',
           title: 'Email Enviado!',
@@ -1267,16 +1268,20 @@ Data: ${currentDate}`;
       const subject = document.getElementById('rejectionEmailSubject');
       const content = document.getElementById('rejectionEmailContent');
       
-      // Carregar vagas se necessário
-      if (select.options.length <= 1) {
-        await loadAvailableJobs();
-      }
+      // Limpar e configurar o select apenas com a vaga específica
+      select.innerHTML = '';
+      const option = document.createElement('option');
+      option.value = jobPostingId;
+      option.textContent = jobTitle;
+      option.selected = true;
+      select.appendChild(option);
       
-      // Selecionar a vaga específica
-      select.value = jobPostingId;
+      // Desabilitar o select para não permitir mudança
+      select.disabled = true;
       
+     
       // Assunto padrão com nome da vaga
-      subject.value = `Resposta à sua candidatura - ${jobTitle}`;
+      subject.value = `[CONLINE]Resposta à sua candidatura - ${jobTitle}`;
       
       // Conteúdo padrão personalizado
       const candidateName = candidateData.name || 'Candidato';
@@ -1297,10 +1302,7 @@ Continuaremos acompanhando seu desenvolvimento profissional e entraremos em cont
 Agradecemos novamente seu interesse em nossa empresa.
 
 Atenciosamente,
-Equipe de Recursos Humanos
-Sirius System
-
-Data: ${currentDate}`;
+Equipe de Recursos Humanos`;
       
       // Abrir modal
       const modal = new bootstrap.Modal(document.getElementById('rejectionEmailModal'));
@@ -1313,6 +1315,33 @@ Data: ${currentDate}`;
         text: 'Erro ao abrir modal de rejeição'
       });
     }
+  }
+
+  // Função para resetar o modal de email de rejeição
+  function resetRejectionEmailModal() {
+    const select = document.getElementById('rejectionJobSelect');
+    const subject = document.getElementById('rejectionEmailSubject');
+    const content = document.getElementById('rejectionEmailContent');
+    
+    // Reabilitar o select
+    select.disabled = false;
+    
+    
+    // Limpar campos
+    select.innerHTML = '<option value="">Selecione uma vaga...</option>';
+    subject.value = '[CONLINE]Resposta à sua candidatura';
+    content.value = `Prezado(a) candidato(a),
+
+Agradecemos seu interesse em fazer parte da nossa equipe e pelo tempo dedicado ao processo seletivo.
+
+Após uma cuidadosa análise de seu perfil e experiência, informamos que, infelizmente, não poderemos prosseguir com sua candidatura para esta posição.
+
+Gostaríamos de destacar que seu currículo foi muito bem avaliado e será mantido em nosso banco de dados para futuras oportunidades que possam surgir.
+
+Desejamos sucesso em sua carreira profissional.
+
+Atenciosamente,
+Equipe de Recursos Humanos`;
   }
 
   // Event listeners
@@ -1334,6 +1363,14 @@ Data: ${currentDate}`;
         if (e.key === 'Enter') {
           addNewNote();
         }
+      });
+    }
+    
+    // Event listener para resetar modal de rejeição quando fechado
+    const rejectionModal = document.getElementById('rejectionEmailModal');
+    if (rejectionModal) {
+      rejectionModal.addEventListener('hidden.bs.modal', function () {
+        resetRejectionEmailModal();
       });
     }
     

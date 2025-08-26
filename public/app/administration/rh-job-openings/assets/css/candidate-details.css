@@ -99,6 +99,19 @@ html, body {
   border-color: #b6c2e4;
 }
 
+/* Estilos para campo de vaga desabilitado no modal de rejeição */
+#rejectionJobSelect:disabled {
+  background-color: #f8f9fa;
+  border-color: #dee2e6;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+#rejectionJobSelect:disabled + .form-text {
+  color: #6c757d;
+  font-style: italic;
+}
+
 .application-header {
   display: flex;
   justify-content: space-between;

@@ -199,8 +199,8 @@
             </div>
             <div class="col-12">
               <label class="form-label fw-semibold">Conteúdo do Email</label>
-              <textarea id="rejectionEmailContent" class="form-control" rows="8" placeholder="Conteúdo personalizado do email (opcional)"></textarea>
-              <div class="form-text">Deixe em branco para usar o template padrão de rejeição</div>
+              <textarea id="rejectionEmailContent" class="form-control" rows="12" placeholder="Carregando template padrão..."></textarea>
+              <div class="form-text">O template padrão foi carregado automaticamente. Você pode editá-lo conforme necessário.</div>
             </div>
             <div class="col-12">
               <div class="alert alert-warning">
@@ -317,6 +317,13 @@
       if (currentApplicationId) {
         loadApplicationDetails(currentApplicationId);
       }
+    });
+    
+    socket.on('hr:rejection_email_sent', (data) => {
+      console.log('Email de rejeição enviado:', data);
+      showNotification(`Email de rejeição enviado para candidato`, 'warning');
+      // Recarregar board para atualizar o badge de rejeição
+      loadAppsBoardSilent();
     });
     
     socket.on('disconnect', () => {
@@ -684,12 +691,25 @@
     board.forEach(col => {
       const colEl = document.createElement('div');
       colEl.className = 'apps-col';
-      colEl.innerHTML = `<div class=\"col-header d-flex justify-content-between align-items-center\"><span class=\"status-name\">${col.status_name}</span><span class=\"badge bg-secondary\">${(col.applications||[]).length}</span></div><div class=\"dropzone\" data-status-id=\"${col.status_id}\"></div>`;
+      // Contar candidatos rejeitados na coluna
+      const rejectedCount = (col.applications || []).filter(app => app.has_rejection_email).length;
+      const totalCount = (col.applications || []).length;
+      
+      colEl.innerHTML = `
+        <div class=\"col-header d-flex justify-content-between align-items-center\">
+          <span class=\"status-name\">${col.status_name}</span>
+          <div class=\"d-flex gap-1\">
+            ${rejectedCount > 0 ? `<span class=\"badge bg-danger\" title=\"${rejectedCount} candidato(s) rejeitado(s)\">${rejectedCount}</span>` : ''}
+            <span class=\"badge bg-secondary\">${totalCount}</span>
+          </div>
+        </div>
+        <div class=\"dropzone\" data-status-id=\"${col.status_id}\"></div>
+      `;
       const zone = colEl.querySelector('.dropzone');
 
       (col.applications||[]).forEach(app => {
         const card = document.createElement('div');
-        card.className = 'app-card';
+        card.className = `app-card ${app.has_rejection_email ? 'rejected-candidate' : ''}`;
         card.draggable = true;
         card.setAttribute('data-app-id', app.id);
         card.innerHTML = `
@@ -700,6 +720,15 @@
               `<span class=\"badge bg-light text-dark\">${app.attachments.length} anexo${app.attachments.length > 1 ? 's' : ''}</span>` : 
               ''
             }
+            ${app.has_rejection_email ? 
+              `<span class=\"badge bg-danger text-white\" 
+                data-bs-toggle=\"tooltip\" 
+                data-bs-placement=\"top\" 
+                title=\"Email de rejeição enviado em ${new Date(app.last_rejection_date).toLocaleDateString('pt-BR')} às ${new Date(app.last_rejection_date).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}\">
+                <i class=\"ri-mail-close-line me-1\"></i>Rejeitado
+              </span>` : 
+              ''
+            }
           </div>
         `;
         card.addEventListener('dragstart', ev => { ev.dataTransfer.setData('text/plain', JSON.stringify({ appId: app.id })); });
@@ -708,6 +737,12 @@
 
       bindDropZone(zone);
       wrap.appendChild(colEl);
+    });
+    
+    // Inicializar tooltips do Bootstrap
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
     });
   }
 
@@ -741,6 +776,8 @@
       console.error('Erro ao carregar board silenciosamente:', error);
     }
   }
+
+
 
   async function loadApplicationDetails(applicationId) {
     try {
@@ -2142,9 +2179,9 @@
     const content = document.getElementById('rejectionEmailContent');
     
     // Assunto padrão
-    subject.value = `Resposta à sua candidatura - ${currentJobTitle}`;
+    subject.value = `[CONLINE]Resposta à sua candidatura - ${currentJobTitle}`;
     
-    // Conteúdo padrão personalizado
+    // Template padrão sempre carregado
     const candidateName = currentApplication.name || 'Candidato';
     const currentDate = new Date().toLocaleDateString('pt-BR');
     
@@ -2164,9 +2201,10 @@ Agradecemos novamente seu interesse em nossa empresa.
 
 Atenciosamente,
 Equipe de Recursos Humanos
-Sirius System
 
-Data: ${currentDate}`;
+---
+Este email foi enviado automaticamente pelo sistema.
+Para dúvidas, entre em contato: rh@conlinebr.com.br`;
 
     // Abrir modal
     const modal = new bootstrap.Modal(document.getElementById('rejectionEmailModal'));
@@ -2178,25 +2216,51 @@ Data: ${currentDate}`;
     try {
       showButtonLoading(button, 'Enviando...');
 
-      const subject = document.getElementById('rejectionEmailSubject').value;
-      const content = document.getElementById('rejectionEmailContent').value;
+      const subject = document.getElementById('rejectionEmailSubject').value.trim();
+      const content = document.getElementById('rejectionEmailContent').value.trim();
+
+      // Validação básica
+      if (!content.trim()) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Conteúdo obrigatório',
+          text: 'Por favor, preencha o conteúdo do email.'
+        });
+        hideButtonLoading(button);
+        return;
+      }
+
+      console.log('📧 Dados do email de rejeição:', {
+        applicant_id: currentApplication.applicant_id,
+        job_posting_id: currentJobId,
+        subject: subject,
+        content_length: content.length,
+        candidate_name: currentApplication.name
+      });
 
       // Usar o ID da vaga atual
       const jobId = currentJobId;
+
+      const requestBody = {
+        job_posting_id: jobId,
+        subject: subject || null,
+        content: content
+      };
+
+      console.log('📧 Request body:', requestBody);
 
       const response = await fetch(`${apiBase}/applicants/${currentApplication.applicant_id}/rejection-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          job_posting_id: jobId,
-          subject: subject || null,
-          content: content || null
-        })
+        body: JSON.stringify(requestBody)
       });
 
+      console.log('📧 Response status:', response.status);
+      
       const data = await response.json();
+      console.log('📧 Response data:', data);
 
       if (data.success) {
         // Fechar modal

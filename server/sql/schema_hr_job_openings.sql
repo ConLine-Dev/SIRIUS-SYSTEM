@@ -578,4 +578,65 @@ CREATE TABLE IF NOT EXISTS hr_rejection_emails (
     CONSTRAINT fk_hr_rejection_emails_applicant FOREIGN KEY (applicant_id) REFERENCES hr_applicants(id) ON DELETE CASCADE,
     CONSTRAINT fk_hr_rejection_emails_job FOREIGN KEY (job_posting_id) REFERENCES hr_job_postings(id) ON DELETE CASCADE,
     CONSTRAINT fk_hr_rejection_emails_sent_by FOREIGN KEY (sent_by) REFERENCES collaborators(id) ON DELETE SET NULL
-); 
+);
+
+-- Tabela para gerenciar emails automáticos de entrevistas
+DROP TABLE IF EXISTS hr_interview_email_logs;
+CREATE TABLE IF NOT EXISTS hr_interview_email_logs (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    email_type ENUM('daily_alert', 'reminder_15min', 'reminder_past', 'reminder_candidate') NOT NULL,
+    application_id BIGINT NULL,
+    interview_date DATETIME NOT NULL,
+    candidate_email VARCHAR(200) NULL,
+    recipient_emails TEXT NULL COMMENT 'JSON array de emails destinatários',
+    subject VARCHAR(255) NOT NULL,
+    email_content TEXT,
+    status ENUM('pending', 'sent', 'failed', 'skipped') NOT NULL DEFAULT 'pending',
+    sent_at TIMESTAMP NULL,
+    error_message TEXT NULL,
+    retry_count INT NOT NULL DEFAULT 0,
+    max_retries INT NOT NULL DEFAULT 3,
+    next_retry_at TIMESTAMP NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_hr_interview_email_logs_type (email_type),
+    INDEX idx_hr_interview_email_logs_status (status),
+    INDEX idx_hr_interview_email_logs_interview_date (interview_date),
+    INDEX idx_hr_interview_email_logs_application (application_id),
+    INDEX idx_hr_interview_email_logs_pending (status, next_retry_at),
+    INDEX idx_hr_interview_email_logs_created_at (created_at),
+    
+    CONSTRAINT fk_hr_interview_email_logs_application FOREIGN KEY (application_id) REFERENCES hr_job_applications(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabela para configurações de emails automáticos
+DROP TABLE IF EXISTS hr_interview_email_config;
+CREATE TABLE IF NOT EXISTS hr_interview_email_config (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    config_key VARCHAR(100) NOT NULL UNIQUE,
+    config_value TEXT NOT NULL,
+    description VARCHAR(255) NULL,
+    is_active TINYINT(1) NOT NULL DEFAULT 1,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    INDEX idx_hr_interview_email_config_key (config_key),
+    INDEX idx_hr_interview_email_config_active (is_active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Inserir configurações padrão
+INSERT INTO hr_interview_email_config (config_key, config_value, description) VALUES
+('daily_alert_enabled', 'true', 'Habilitar email diário de alerta de entrevistas'),
+('daily_alert_time', '07:00', 'Horário para envio do email diário (HH:MM)'),
+('reminder_15min_enabled', 'true', 'Habilitar lembretes 15 min antes da entrevista'),
+('reminder_15min_interval', '15', 'Intervalo em minutos para lembrete antes da entrevista'),
+('candidate_reminder_enabled', 'true', 'Habilitar lembretes para candidatos'),
+('max_retries', '3', 'Número máximo de tentativas de envio'),
+('retry_interval_minutes', '5', 'Intervalo entre tentativas em minutos'),
+('recipient_emails', '["rh@conlinebr.com.br"]', 'Emails destinatários para alertas (JSON array)'),
+('email_subject_prefix', '[CONLINE]', 'Prefixo para assuntos dos emails')
+ON DUPLICATE KEY UPDATE 
+    config_value = VALUES(config_value),
+    description = VALUES(description),
+    updated_at = CURRENT_TIMESTAMP; 

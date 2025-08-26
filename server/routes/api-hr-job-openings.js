@@ -199,6 +199,70 @@ module.exports = function(io){
     }
   });
 
+  // Endpoints para gerenciar configurações de email
+  router.get('/email-config', async (req, res) => {
+    try {
+      const { getConfig } = require('../config/interview-email-config');
+      const config = await getConfig();
+      res.json({ success: true, config });
+    } catch (error) {
+      console.error('Erro ao buscar configurações de email:', error);
+      res.status(500).json({ success: false, message: 'Erro interno' });
+    }
+  });
+
+  router.put('/email-config', async (req, res) => {
+    try {
+      const { updateConfigValue } = require('../config/interview-email-config');
+      const { key, value, description } = req.body;
+      
+      if (!key || value === undefined) {
+        return res.status(400).json({ success: false, message: 'Chave e valor são obrigatórios' });
+      }
+      
+      const success = await updateConfigValue(key, value, description);
+      
+      if (success) {
+        res.json({ success: true, message: 'Configuração atualizada com sucesso' });
+      } else {
+        res.status(400).json({ success: false, message: 'Erro ao atualizar configuração' });
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar configuração de email:', error);
+      res.status(500).json({ success: false, message: 'Erro interno' });
+    }
+  });
+
+  // Endpoint para processar emails pendentes
+  router.post('/process-pending-emails', async (req, res) => {
+    try {
+      const { InterviewEmailProcessor } = require('../scripts/process-interview-emails');
+      const processor = new InterviewEmailProcessor();
+      
+      const result = await processor.processPendingEmails();
+      
+      res.json({ success: true, result });
+    } catch (error) {
+      console.error('Erro ao processar emails pendentes:', error);
+      res.status(500).json({ success: false, message: 'Erro interno' });
+    }
+  });
+
+  // Endpoint para estatísticas de emails
+  router.get('/email-stats', async (req, res) => {
+    try {
+      const { InterviewEmailProcessor } = require('../scripts/process-interview-emails');
+      const processor = new InterviewEmailProcessor();
+      
+      const stats = await processor.showStats();
+      
+      res.json({ success: true, stats });
+    } catch (error) {
+      console.error('Erro ao buscar estatísticas:', error);
+      res.status(500).json({ success: false, message: 'Erro interno' });
+    }
+  });
+
   // Rotas para testes de email de candidatos
   router.post('/test-candidate-application-confirmation', async (req, res) => {
     try {

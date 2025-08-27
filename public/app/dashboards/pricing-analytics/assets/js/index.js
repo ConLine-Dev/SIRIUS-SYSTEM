@@ -402,7 +402,7 @@ async function createProcessesArray() {
 
   for (let index = 0; index < processesByAgent.length; index++) {
     labels[index] = processesByAgent[index].Agente.slice(0, 30);
-    quantity[index] = processesByAgent[index].Total_TEUS
+    quantity[index] = processesByAgent[index].Quantidade_Processos;
   }
   createAgentProcessesChart(labels, quantity);
 }
@@ -459,7 +459,7 @@ function createAgentProcessesChart(labels, quantity) {
     tooltip: {
       y: {
         formatter: function (val) {
-          return val + " TEUs"
+          return val + " Processos"
         }
       }
     },

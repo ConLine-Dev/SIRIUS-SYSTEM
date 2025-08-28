@@ -88,6 +88,10 @@ async function createTable(getVolumes) {
     for (let index = 0; index < getVolumes.length; index++) {
         const item = getVolumes[index];
 
+        if (!item.Lucro_Abertura) {
+            item.Lucro_Abertura = 0;
+        }
+
         listTable.push({
             client: item.Nome,
             openingProfit: item.Lucro_Abertura.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),

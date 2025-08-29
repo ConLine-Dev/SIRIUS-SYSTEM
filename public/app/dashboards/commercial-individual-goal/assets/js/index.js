@@ -57,6 +57,9 @@ async function createTable(getVolumes) {
         if (!item.Lucro_Abertura) {
             item.Lucro_Abertura = 0;
         }
+        if (!item.Lucro_Estimado) {
+            item.Lucro_Estimado = 0;
+        }
 
         listTable.push({
             client: item.Nome,

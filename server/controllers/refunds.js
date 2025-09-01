@@ -371,6 +371,7 @@ const refunds = {
             ORDER BY create_date DESC`);
 
         for (let index = 0; index < formData.category.length; index++) {
+            formData.value[index] = parseFloat(formData.value[index].replace(",", "."));
             if (formData.subcategory[index] == 5) {
                 formData.value[index] = formData.value[index] * kmValue[0].value;
             }

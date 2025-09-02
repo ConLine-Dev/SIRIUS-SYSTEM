@@ -13,18 +13,32 @@ async function getInfosLogin() {
     return StorageGoogle;
 }
 
-async function printData(sales, month, quarter) {
+async function updateTable() {
+    const monthSelect = document.getElementById("monthSelect");
+    const quarterSelect = document.getElementById("quarterSelect");
+    const operationSelect = document.getElementById("operationSelect");
 
-    const getTEUsAndProfit = await makeRequest(`/api/commercial-individual-goal/getTEUsAndProfit`, 'POST', { sales, month, quarter });
+    const userData = await getInfosLogin();
+    const sales = userData.system_id_headcargo;
+    let month = monthSelect.value;
+    let quarter = quarterSelect.value;
+    let operation = operationSelect.value;
+
+    const getClients = await makeRequest(`/api/commercial-individual-goal/getClients`, 'POST', { sales, month, quarter });
+    document.querySelector('#loader2').classList.remove('d-none')
+    await printData(sales, month, quarter, operation);
+    await createTable(getClients);
+    document.querySelector('#loader2').classList.add('d-none')
+}
+
+async function printData(sales, month, quarter, operation) {
+
+    const getTEUsAndProfit = await makeRequest(`/api/commercial-individual-goal/getTEUsAndProfit`, 'POST', { sales, month, quarter, operation });
 
     let TEUsActual = 0;
     let LCLActual = 0;
     let AirActual = 0;
     let profitActual = 0;
-    if (getTEUsAndProfit[0]) {
-        TEUsActual = getTEUsAndProfit[0].Total_TEUS;
-        profitActual = getTEUsAndProfit[0].Lucro_Estimado;
-    }
 
     for (let index = 0; index < getTEUsAndProfit.length; index++) {
         if (getTEUsAndProfit[index].Tipo_Carga == 'LCL') {
@@ -33,6 +47,10 @@ async function printData(sales, month, quarter) {
         if (getTEUsAndProfit[index].Tipo_Carga == 'Aéreo') {
             AirActual = getTEUsAndProfit[index].Quantidade_Processos;
         }
+        if (getTEUsAndProfit[index].Tipo_Carga == 'FCL') {
+            TEUsActual = getTEUsAndProfit[index].Total_TEUS;
+        }
+        profitActual += getTEUsAndProfit[index].Lucro_Estimado;
     }
 
     const getGoals = await makeRequest(`/api/commercial-individual-goal/getGoals`, 'POST', { sales, month, quarter });
@@ -65,7 +83,8 @@ async function createTable(getVolumes) {
             client: item.Nome,
             openingProfit: item.Lucro_Abertura.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
             estimatedProfit: item.Lucro_Estimado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            teus: item.Total_TEUS
+            teus: item.Total_TEUS,
+            operation: item.Tipo_Carga
         });
     }
 
@@ -84,11 +103,12 @@ async function createTable(getVolumes) {
             { "data": "openingProfit" },
             { "data": "estimatedProfit" },
             { "data": "teus" },
+            { "data": "operation" },
         ],
         "language": {
             url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
         },
-        "order": [[0, 'desc']],
+        "order": [[2, 'desc']],
         "lengthMenu": [[6], [6]],
         "searching": true,
     });
@@ -438,17 +458,6 @@ async function createProfitsChart(profitActual, profitGoal) {
     profitChart.render();
 }
 
-async function newGoal() {
-    const body = {
-        url: `/app/dashboards/commercial-individual-goals-adm/create`,
-        width: 800,
-        height: 300,
-        resizable: false,
-        max: false
-    }
-    window.ipcRenderer.invoke('open-exWindow', body);
-}
-
 window.addEventListener("load", async () => {
 
     const socket = io();
@@ -461,7 +470,7 @@ window.addEventListener("load", async () => {
     const userId = userData.system_id_headcargo;
     const getClients = await makeRequest(`/api/commercial-individual-goal/getClients`, 'POST', { sales: userId, month: null, quarter: null });
     await createTable(getClients);
-    await printData(userId, null, null);
+    await printData(userId, null, null, null);
 
     document.querySelector('#loader2').classList.add('d-none')
 })

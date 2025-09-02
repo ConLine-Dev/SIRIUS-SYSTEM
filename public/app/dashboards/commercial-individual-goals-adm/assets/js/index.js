@@ -50,7 +50,6 @@ async function printData(sales, month, quarter, operation) {
 
     const getTEUsAndProfit = await makeRequest(`/api/commercial-individual-goal/getTEUsAndProfit`, 'POST', { sales, month, quarter, operation });
 
-    console.log(getTEUsAndProfit);
     let TEUsActual = 0;
     let LCLActual = 0;
     let AirActual = 0;

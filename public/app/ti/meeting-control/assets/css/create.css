@@ -116,5 +116,5 @@
 }
 
 body {
-   overflow: hidden !important;
+   overflow: scroll !important;
 }

@@ -38,7 +38,7 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 
     <link href="../../assets/libs/fullCalender/main.min.css" rel="stylesheet">
-    
+
 
     <link rel="stylesheet" href="./assets/css/index.css">
     <link rel="stylesheet" href="./assets/css/create.css">
@@ -46,6 +46,9 @@
 </head>
 
 <body>
+    <div id="loader2">
+        <img src="../../assets/images/media/loader.svg" alt="">
+    </div>
 
     <div class="">
         <div class="row">
@@ -55,48 +58,82 @@
                     <!-- BOTAO SALVAR -->
                     <div class=" justify-content-between headerButtons">
                         <ul class="nav nav-tabs border-0" role="tablist">
-                            <li class="nav-item " role="presentation"> 
+                            <li class="nav-item " role="presentation">
                                 <a class="nav-link label-btn" id="btn-save" onclick="saveEvent()">
                                     <i class="ri-save-3-line label-btn-icon me-2"></i>
                                     Salvar
-                                </a> 
+                                </a>
                             </li>
                         </ul>
                     </div>
-
-                     <!-- CADASTRO NOVA SENHA -->
-                    <!-- <div class="card-header justify-content-between">
-                        <div class="card-title"> Cadastro Nova Senha </div>
-                    </div> -->
-                    
-                    <div class="card-body">
+                    <div class="card-body" style="overflow: scroll">
                         <div class="row">
-                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12"> 
-                                <label for="input-label" class="form-label center-text">Título</label> 
-                                <input type="text" name="title" class="form-control form-input" placeholder="Insira um título"> 
+                            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                                <label for="input-label" class="form-label center-text">Título</label>
+                                <input type="text" name="title" class="form-control form-input"
+                                    placeholder="Insira um título">
                             </div>
                         </div>
                         <br>
-
                         <div class="row">
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                            <div class="col">
                                 <label class="form-label">Responsável</label>
                                 <select class="form-control" name="responsible">
                                     <option value="">Selecione um responsável</option>
                                 </select>
                             </div>
-                            <br>
-                            <br>
-                            <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                            <div class="col">
                                 <label class="form-label">Tipo evento</label>
-                                <select class="form-control" name="event">
-                                    <option value="">Selecione um evento</option>
+                                <select class="form-control" name="event" disabled>
                                 </select>
+                            </div>
+                            <div class="col" id="clientButton" style="margin-top: 27px; margin-right: -530px;">
+                                <button class="bottom-new-ticket btn btn-primary me-2" onclick="addClientList()">
+                                    <i class="ri-add-line me-1 fw-semibold align-middle"></i>
+                                    Trarei clientes para a reunião
+                                </button>
                             </div>
                         </div>
                         <br>
                         <br>
-
+                        <div class="row d-none" id="clientTable">
+                            <div class="row" style="margin-bottom: 20px;">
+                                <div class="col-xl-5 col-lg-5 col-md-5 col-sm-12">
+                                    <label class="form-label">Necessita de água?</label>
+                                    <select class="form-control" id="waterSelect">
+                                        <option value="Não">Não</option>
+                                        <option value="Sim">Sim</option>
+                                    </select>
+                                </div>
+                                <div class="col-xl-5 col-lg-5 col-md-5 col-sm-12">
+                                    <label class="form-label">Necessita de café?</label>
+                                    <select class="form-control" id="coffeeSelect">
+                                        <option value="Não">Não</option>
+                                        <option value="Sim">Sim</option>
+                                    </select>
+                                </div>
+                                <div class="col-2" style="margin-top: 25px;">
+                                    <button class="btn btn-primary" id="save" style="border-radius: 5px; width: 100%"
+                                        onclick="addRow()">Adicionar Linha</button>
+                                </div>
+                            </div>
+                            <table id="minhaTabela" class="table text-nowrap table-bordered w-90">
+                                <thead>
+                                    <tr>
+                                        <th class="col-1">#</th>
+                                        <th class="col-5">Nome completo</th>
+                                        <th class="col-5">CPF</th>
+                                        <th class="col-1"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Linhas adicionadas aparecerão aqui -->
+                                </tbody>
+                            </table>
+                            <label class="form-label" style="margin-top: 30px">É importante que esses dados devem ser preenchidos até 24h antes da visita, para liberação da entrada na portaria.</label>
+                        </div>
+                        <br>
+                        <br>
                         <div class="row">
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                                 <label class="form-label">Departamentos envolvidos</label>
@@ -106,7 +143,6 @@
                             </div>
                         </div>
                         <br>
-
                         <div class="row">
                             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
                                 <label class="form-label">Funcionários envolvidos</label>
@@ -116,12 +152,12 @@
                             </div>
                         </div>
                         <br>
-
                         <div class="row">
-                            <div class="col-12"> 
-                                <label for="input-label" class="form-label center-text">Observações</label> 
-                                <textarea name="observation" class="form-control form-input"cols="30" rows="5" placeholder="Insira uma observação"></textarea>
-                            
+                            <div class="col-12">
+                                <label for="input-label" class="form-label center-text">Observações</label>
+                                <textarea name="observation" class="form-control form-input" cols="30" rows="5"
+                                    placeholder="Insira uma observação"></textarea>
+
                             </div>
                         </div>
                         <br>
@@ -132,8 +168,9 @@
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                                        <input type="text" class="form-control flatpickr-input targetDate " name="timeInit" id="targetDate"
-                                            placeholder="Escolha a data e hora" readonly="readonly">
+                                        <input type="text" class="form-control flatpickr-input targetDate "
+                                            name="timeInit" id="targetDate" placeholder="Escolha a data e hora"
+                                            readonly="readonly">
                                     </div>
                                 </div>
                             </div>
@@ -142,8 +179,9 @@
                                 <div class="form-group">
                                     <div class="input-group">
                                         <div class="input-group-text text-muted"><i class="ri-calendar-line"></i></div>
-                                        <input type="text" class="form-control flatpickr-input targetDate" name="timeEnd"  id="targetDate"
-                                            placeholder="Escolha a data e hora" readonly="readonly">
+                                        <input type="text" class="form-control flatpickr-input targetDate"
+                                            name="timeEnd" id="targetDate" placeholder="Escolha a data e hora"
+                                            readonly="readonly">
                                     </div>
                                 </div>
                             </div>
@@ -158,7 +196,8 @@
     <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
     <div id="responsive-overlay"></div>
     <!-- Scroll To Top -->
-    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"
+        integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
     <!-- Popper JS -->
     <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
     <!-- Bootstrap JS -->
@@ -167,6 +206,7 @@
     <script src="../../assets/js/fetchAPI.js"></script>
     <!-- <script src="../../assets/libs/intro.js/intro.min.js"></script> -->
     <!-- <script src="../../assets/libs/intro.js/intro.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
 
@@ -181,7 +221,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <!-- SweetAlert JS -->
-   <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
+    <script src="../../assets/libs/sweetalert2/sweetalert2.js"></script>
 
     <!-- Flat Picker JS -->
     <script src="../../assets/libs/flatpickr/flatpickr.min.js"></script>

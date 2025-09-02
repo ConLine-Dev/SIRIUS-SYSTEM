@@ -1,6 +1,4 @@
-// Variaveis globais para gerenciamento de selects com o Choices
-// s antes da variavel se refere a select
-let sAllResponsible, sAllDepartments, sAllCategories, sAllResponsibles2;
+let sAllResponsible, sAllDepartments, sAllCategories, sAllResponsibles2, clients = 0;
 
 function getLinkParams() {
     const params = new URLSearchParams(window.location.search);
@@ -59,10 +57,19 @@ async function getAllResponsible(respsArray) {
     sAllResponsibles2.setChoiceByValue(`${collabData[0].collabId}`)
 }
 
+function addClientList() {
+    clients = 1;
+    document.getElementById("clientTable").classList.remove('d-none');
+}
+
 async function getAllCategories() {
     // carrega os usuarios responsaveis
     const categories = await makeRequest(`/api/meeting-control/getAllCategoryCalendar`);
     const categoryId = getLinkParams();
+
+    if (categoryId != 3) {
+        document.getElementById("clientButton").classList.add('d-none')
+    }
 
     // Formate o array para ser usado com o Choices.js (Biblioteca)
     const listaDeOpcoes = categories.map(function (element) {
@@ -116,7 +123,7 @@ async function getAllDepartments() {
     });
 
     const selectElement = document.querySelector('select[name="departments"]');
-    selectElement.addEventListener('change', async function(event) {
+    selectElement.addEventListener('change', async function (event) {
         const selectedValues = Array.from(event.target.selectedOptions).map(option => option.value);
         let deptId = selectedValues;
         await addResponsiblesByDept(deptId);
@@ -124,7 +131,7 @@ async function getAllDepartments() {
 }
 
 async function addResponsiblesByDept(deptId) {
-    const responsibles = await makeRequest(`/api/meeting-control/getCollabsByDept`, 'POST', {deptId});
+    const responsibles = await makeRequest(`/api/meeting-control/getCollabsByDept`, 'POST', { deptId });
     const collabs = responsibles.map(item => item.collaborator_id);
 
     getAllResponsible(collabs);
@@ -150,9 +157,9 @@ async function saveEvent() {
     const timeEnd = document.querySelector('input[name="timeEnd"]').value;
     let validEvent = 1;
 
-    const eventData = { title, responsible, eventCategory, departments, responsibles, description, timeInit, timeEnd }
-    
-    const occupiedCollabs = await makeRequest('/api/meeting-control/getResponsiblesCallendar', 'POST', {responsibles: responsibles, start: timeInit, end: timeEnd});
+    let eventData = { title, responsible, eventCategory, departments, responsibles, description, timeInit, timeEnd }
+
+    const occupiedCollabs = await makeRequest('/api/meeting-control/getResponsiblesCallendar', 'POST', { responsibles: responsibles, start: timeInit, end: timeEnd });
     if (occupiedCollabs.length > 0) {
         validEvent = 0;
         let occupiedName = '';
@@ -172,6 +179,23 @@ async function saveEvent() {
 
     if (eventCategory == 3) {
         let occupiedRoom = await makeRequest(`/api/meeting-control/verifyFreeRoom`, 'POST', { firstDate: timeInit, lastDate: timeEnd });
+
+        if (clients == 1) {
+            let names = document.querySelectorAll('.name')
+            let cpfs = document.querySelectorAll('.cpf')
+            let waterSelect = document.getElementById('waterSelect').value
+            let coffeSelect = document.getElementById('coffeeSelect').value
+            const name = []
+            const cpf = []
+
+            for (let index = 0; index < contador - 1; index++) {
+                name[index] = names[index].value
+                cpf[index] = cpfs[index].value
+            }
+
+            let clientsDetails = { waterSelect, coffeSelect, name, cpf};
+            eventData.clientsDetails = clientsDetails;
+        }
 
         if (occupiedRoom) {
             validEvent = 0;
@@ -207,7 +231,7 @@ async function saveEvent() {
 
     if (validEvent) {
         await makeRequest(`/api/meeting-control/saveEvent`, 'POST', eventData);
-    
+
         window.close();
     }
 }
@@ -218,6 +242,33 @@ function initializeDatePicker() {
         dateFormat: "Y-m-d H:i",
     });
 }
+let contador = 1;
+
+function addRow() {
+
+    const tabela = document.getElementById("minhaTabela").getElementsByTagName("tbody")[0];
+    const novaLinha = tabela.insertRow();
+
+    const celula1 = novaLinha.insertCell(0);
+    const celula2 = novaLinha.insertCell(1);
+    const celula3 = novaLinha.insertCell(2);
+    const celula4 = novaLinha.insertCell(3);
+
+    celula1.textContent = contador;
+    celula2.innerHTML = `<input type="text" class="name form-control me-2 intro-search-user-ticket">`;
+    celula3.innerHTML = `<input type="text" class="cpf form-control me-2 intro-search-user-ticket">`;
+    celula4.innerHTML = `<button class="btn btn-danger btn-sm" onclick="deleteRow(this)">X</button>`;
+
+    $('.cpf').mask('000.000.000-00');
+
+    contador++;
+}
+
+function deleteRow(botao) {
+    const linha = botao.closest("tr"); // pega a linha do botão
+    linha.remove(); // remove a linha
+    contador--;
+}
 
 // ESPERA A PAGINA SER COMPLETAMENTE CARREGADA
 document.addEventListener("DOMContentLoaded", async () => {
@@ -227,8 +278,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     await getAllResponsible([0]);
     await getAllCategories();
 
-
     // carrega os usuarios departamentos
     await getAllDepartments();
 
+    document.querySelector('#loader2').classList.add('d-none');
 })

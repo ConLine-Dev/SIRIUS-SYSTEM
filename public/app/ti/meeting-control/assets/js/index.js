@@ -11,18 +11,37 @@ async function ListCategory(data) {
   for (let i = 0; i < data.length; i++) {
     const item = data[i];
 
-    divMeetingControl += `<div class="row">
-                              <div id="${item.id}" class="col-11 fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event border" style="background-color: ${item.color}; cursor: pointer;" onclick="printEventsList(this.id, 'category')">
+    divMeetingControl += `<div class="row justify-content-around">
+                              <div id="${item.id}" class="col-10 fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event border" style="background-color: #c4c4c417; cursor: pointer;" onclick="printEventsList(this.id, 'category')">
                                   <div class="fc-event-main">${item.name}</div>
                               </div>
-                              <div id="${item.id}" class="col-1 fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event border" style="background-color: ${item.color}; cursor: pointer;" onclick="openRegister(this.id)">
+                              <div id="${item.id}" class="col-1 fc-event fc-h-event fc-daygrid-event fc-daygrid-block-event border" style="background-color: #c4c4c417; cursor: pointer; display:flex; justify-content: center;" onclick="openRegister(this.id)">
                                   <div class="fc-event-main">+</div>
                               </div>
                           </div>`
   }
 
   calendarCategories.innerHTML = divMeetingControl
+}
 
+let menu = 0;
+
+function showMenu() {
+  
+  if (menu == 0) {
+    document.querySelector('#newMenu').classList.remove('d-none');
+    document.querySelector('#calendarMenu').classList.remove('col-xl-12');
+    document.querySelector('#calendarMenu').classList.add('col-xl-10');
+    menu = 1;
+    return;
+  }
+  else if (menu == 1) {
+    document.querySelector('#newMenu').classList.add('d-none');
+    document.querySelector('#calendarMenu').classList.remove('col-xl-10');
+    document.querySelector('#calendarMenu').classList.add('col-xl-12');
+    menu = 0;
+    return;
+  }
 }
 
 async function openRegister(data){
@@ -409,4 +428,5 @@ document.addEventListener('DOMContentLoaded', async function () {
   await ListCategory(categoryCalendar);
   await initializeCalendar();
 
+  document.querySelector('#loader2').classList.add('d-none');
 });

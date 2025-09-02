@@ -25,6 +25,8 @@ const meetingControl = {
             OR cd.department_id = ${loggedInfo.department_ids}
             GROUP BY ce.id, ce.title, cc.color, ce.init_date, ce.end_date;`);
 
+            await this.notificateMessage();
+
         return result;
     },
 
@@ -74,7 +76,7 @@ const meetingControl = {
         
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     },
-    
+
     saveEvent: async function (eventData) {
 
         eventData.timeEnd = await this.subtractByOne(eventData.timeEnd, 'minute');
@@ -363,6 +365,41 @@ const meetingControl = {
                             </tr>`
         }
 
+        let clientsDetails = '';
+        if (eventData.clientsDetails) {
+            let names = eventData.clientsDetails.name;
+            let cpf = eventData.clientsDetails.cpf;
+            let details = '';
+            for (let index = 0; index < names.length; index++) {
+                details += `
+                    <tr>
+                        <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                            <h5 style="margin: 0px; margin-bottom: 10px; font-weight: bold">Convidado ${index+1}:</h5>
+                            <h4 style="margin: 0px; font-weight: bold">${names[index]}</h4>
+                        </td>
+                        <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                            <h5 style="margin: 0px; margin-bottom: 10px; font-weight: bold">Identidade:</h5>
+                            <h4 style="margin: 0px; font-weight: bold">${cpf[index]}</h4>
+                        </td>
+                    </tr>`
+            }
+            clientsDetails = `
+                <p style="color: #333; font-size: 16px; line-height: 1.6;">Para esta reunião teremos convidados de fora:</p>
+                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <tr>
+                    <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                        <h5 style="margin: 0px; margin-bottom: 10px; font-weight: bold">Necessita de água?</h5>
+                        <h4 style="margin: 0px; font-weight: bold">${eventData.clientsDetails.waterSelect}</h4>
+                    </td>
+                    <td style="width: 50%; padding: 10px; border: 1px solid #e0e0e0; background-color: #f5f5f5;">
+                        <h5 style="margin: 0px; margin-bottom: 10px; font-weight: bold">Necessita de café?</h5>
+                        <h4 style="margin: 0px; font-weight: bold">${eventData.clientsDetails.coffeSelect}</h4>
+                    </td>
+                </tr>
+                ${details}
+                </table>`
+        }
+
         let mailBody = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
             <div style="background-color: #F9423A; padding: 20px; text-align: center; color: white;">
@@ -387,6 +424,8 @@ const meetingControl = {
                 </tr>
                 ${departmentsLine}
                 ${responsiblesLine}
+                </table>
+                ${clientsDetails}
                 <p style="color: #333; font-size: 16px; line-height: 1.6;">Atenciosamente, equipe de suporte! 🤗</p>
             </div>
             <div style="background-color: #F9423A; padding: 10px; text-align: center; color: white;">

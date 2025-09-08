@@ -58,6 +58,7 @@ const api_active_clients_marketing = require('./api-active-clients-marketing'); 
 const apiMarketingTickets = require('./api-marketing-tickets');
 const apiAccessRequests = require('./api-access-requests');
 const apiStrategyHub = require('./api-strategy-hub');
+const api_assertivity = require('./api-assertivity');
 
 const apiAppMonitor = require('./apiAppMonitor');
 const apiSystem = require('./api-system');
@@ -291,6 +292,9 @@ const setIO = (io) => {
 
   // Use as rotas do arquivo api-strategy-hub.js
   router.use('/strategy-hub', apiStrategyHub(io));
+
+  // Use as rotas do arquivo api-strategy-hub.js
+  router.use('/assertivity', api_assertivity(io));
 
   // Adicionar rotas do user-tracker - TEMPORARIAMENTE DESATIVADO
   if (USER_TRACKER_ENABLED) {

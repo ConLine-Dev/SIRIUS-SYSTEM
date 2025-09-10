@@ -1,4 +1,4 @@
-let agentsTable, teusChart, processesChart, originQChart, originTChart, agentChart, agentProcessesChart;
+let agentsTable, teusChart, processesChart, originQChart, originTChart, agentChart, agentProcessesChart, loadedTEUSChart;
 
 async function updateTable() {
   const countrySelect = document.getElementById("countrySelect");
@@ -20,17 +20,20 @@ async function createSelects() {
 
   const countrySelect = document.getElementById("countrySelect");
   const countrySelect2 = document.getElementById("countrySelect2");
+  const countrySelect8 = document.getElementById("countrySelect8");
   const countrySelect9 = document.getElementById("countrySelect9");
   const yearSelect = document.getElementById("yearSelect");
   const yearSelect2 = document.getElementById("yearSelect2");
   const yearSelect3 = document.getElementById("yearSelect3");
+  const yearSelect8 = document.getElementById("yearSelect8");
   const yearSelect9 = document.getElementById("yearSelect9");
   const monthSelect2 = document.getElementById("monthSelect2");
   const monthSelect3 = document.getElementById("monthSelect3");
+  const monthSelect8 = document.getElementById("monthSelect8");
   const monthSelect9 = document.getElementById("monthSelect9");
 
-  const getCountries = await makeRequest(`/api/pricing-analytics/getCountries`)
-  const getYears = await makeRequest(`/api/pricing-analytics/getYears`)
+  const getCountries = await makeRequest(`/api/pricing-analytics/getCountries`);
+  const getYears = await makeRequest(`/api/pricing-analytics/getYears`);
 
   for (let index = 0; index < getCountries.length; index++) {
     const element = getCountries[index];
@@ -59,6 +62,13 @@ async function createSelects() {
     let option = document.createElement("option");
     option.value = element.IdPais;
     option.textContent = element.Pais;
+    countrySelect8.appendChild(option);
+  }
+  for (let index = 0; index < getCountries.length; index++) {
+    const element = getCountries[index];
+    let option = document.createElement("option");
+    option.value = element.IdPais;
+    option.textContent = element.Pais;
     countrySelect9.appendChild(option);
   }
   for (let index = 0; index < getYears.length; index++) {
@@ -80,6 +90,13 @@ async function createSelects() {
     let option = document.createElement("option");
     option.value = element;
     option.textContent = element;
+    yearSelect8.appendChild(option);
+  }
+  for (let index = 0; index < getYears.length; index++) {
+    const element = getYears[index].Ano;
+    let option = document.createElement("option");
+    option.value = element;
+    option.textContent = element;
     yearSelect9.appendChild(option);
   }
   for (let index = 0; index < months.length; index++) {
@@ -93,6 +110,12 @@ async function createSelects() {
     option.value = index + 1;
     option.textContent = months[index];
     monthSelect3.appendChild(option);
+  }
+  for (let index = 0; index < months.length; index++) {
+    let option = document.createElement("option");
+    option.value = index + 1;
+    option.textContent = months[index];
+    monthSelect8.appendChild(option);
   }
   for (let index = 0; index < months.length; index++) {
     let option = document.createElement("option");
@@ -407,6 +430,23 @@ async function createProcessesArray() {
   createAgentProcessesChart(labels, quantity);
 }
 
+async function createLoadedArray() {
+  let labels = [];
+  let quantity = [];
+
+  const idCountry = document.getElementById("countrySelect8").value;
+  const year = document.getElementById("yearSelect8").value;
+  const month = document.getElementById("monthSelect8").value;
+
+  const loadedTEUS = await makeRequest(`/api/pricing-analytics/getLoadedTEUS`, 'POST', { idCountry, year, month });
+
+  for (let index = 0; index < loadedTEUS.length; index++) {
+    labels[index] = loadedTEUS[index].Agente.slice(0, 30);
+    quantity[index] = loadedTEUS[index].Quantidade_Processos;
+  }
+  createLoadedTEUSChart(labels, quantity);
+}
+
 function createAgentChart(labels, quantity) {
 
   if (agentChart) {
@@ -475,6 +515,41 @@ function createAgentProcessesChart(labels, quantity) {
 
   agentProcessesChart = new ApexCharts(document.querySelector("#processes-movement"), options);
   agentProcessesChart.render();
+}
+
+function createLoadedTEUSChart(labels, quantity) {
+
+  if (loadedTEUSChart) {
+    loadedTEUSChart.destroy();
+  }
+
+  var options = {
+    series: quantity,
+    chart: {
+      width: 680,
+      type: 'pie',
+    },
+    labels: labels,
+    colors: ["#F9423A", "#D0CFCD", "#781B17", "#AD6663"],
+    tooltip: {
+      y: {
+        formatter: function (val) {
+          return val + " Processos"
+        }
+      }
+    },
+    responsive: [{
+      breakpoint: 480,
+      options: {
+        chart: {
+          width: 200
+        },
+      }
+    }]
+  };
+
+  loadedTEUSChart = new ApexCharts(document.querySelector("#loaded-movement"), options);
+  loadedTEUSChart.render();
 }
 
 document.addEventListener('DOMContentLoaded', async function () {

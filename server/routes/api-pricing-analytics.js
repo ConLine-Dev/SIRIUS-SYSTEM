@@ -90,5 +90,16 @@ module.exports = function (io) {
             }
       });
 
+      router.post('/getLoadedTEUS', async (req, res, next) => {
+
+            try {
+                  const result = await pricingAnalytics.getLoadedTEUS(req.body);
+                  res.status(200).json(result)
+            } catch (error) {
+
+                  res.status(404).json('Erro')
+            }
+      });
+
       return router;
 };

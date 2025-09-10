@@ -1,4 +1,4 @@
-let clientsTable, TEUsChart, LCLChart, AirChart, profitChart;
+let iaCourierChart, iaNormalChart, imLCLChart, imFCLChart;
 const socket = io();
 
 socket.on('att-non-compliance', async (msg) => {
@@ -13,449 +13,349 @@ async function getInfosLogin() {
     return StorageGoogle;
 }
 
-async function updateTable() {
-    const monthSelect = document.getElementById("monthSelect");
-    const quarterSelect = document.getElementById("quarterSelect");
-    const operationSelect = document.getElementById("operationSelect");
+async function printData() {
 
-    const userData = await getInfosLogin();
-    const sales = userData.system_id_headcargo;
-    let month = monthSelect.value;
-    let quarter = quarterSelect.value;
-    let operation = operationSelect.value;
+    const getOffers = await makeRequest(`/api/assertivity/getOffers`);
 
-    const getClients = await makeRequest(`/api/commercial-individual-goal/getClients`, 'POST', { sales, month, quarter });
-    document.querySelector('#loader2').classList.remove('d-none')
-    await printData(sales, month, quarter, operation);
-    await createTable(getClients);
-    document.querySelector('#loader2').classList.add('d-none')
+    let date = new Date();
+    date = date.getMonth();
+
+    let iaCourierTotal = [];
+    let iaCourierApproved = [];
+    let iaNormalTotal = [];
+    let iaNormalApproved = [];
+    let imLCLTotal = [];
+    let imLCLApproved = [];
+    let imFCLTotal = [];
+    let imFCLApproved = [];
+
+    for (let index = 0; index < date + 1; index++) {
+        iaCourierTotal[index] = 0;
+        iaCourierApproved[index] = 0;
+        iaNormalTotal[index] = 0;
+        iaNormalApproved[index] = 0;
+        imLCLTotal[index] = 0;
+        imLCLApproved[index] = 0;
+        imFCLTotal[index] = 0;
+        imFCLApproved[index] = 0;
+
+    }
+
+    for (let index = 0; index < getOffers.length; index++) {
+        if (getOffers[index].Modal == 'IA - Courier') {
+            if (getOffers[index].Situacao == 'Aprovada') {
+                iaCourierApproved[getOffers[index].Mes - 1] = getOffers[index].Total
+            }
+            if (getOffers[index].Situacao == 'Outro') {
+                iaCourierTotal[getOffers[index].Mes - 1] = getOffers[index].Total
+            }
+        }
+        if (getOffers[index].Modal == 'IA - Normal') {
+            if (getOffers[index].Situacao == 'Aprovada') {
+                iaNormalApproved[getOffers[index].Mes - 1] = getOffers[index].Total
+            }
+            if (getOffers[index].Situacao == 'Outro') {
+                iaNormalTotal[getOffers[index].Mes - 1] = getOffers[index].Total
+            }
+        }
+        if (getOffers[index].Modal == 'IM - LCL') {
+            if (getOffers[index].Situacao == 'Aprovada') {
+                imLCLApproved[getOffers[index].Mes - 1] = getOffers[index].Total
+            }
+            if (getOffers[index].Situacao == 'Outro') {
+                imLCLTotal[getOffers[index].Mes - 1] = getOffers[index].Total
+            }
+        }
+        if (getOffers[index].Modal == 'IM - FCL') {
+            if (getOffers[index].Situacao == 'Aprovada') {
+                imFCLApproved[getOffers[index].Mes - 1] = getOffers[index].Total
+            }
+            if (getOffers[index].Situacao == 'Outro') {
+                imFCLTotal[getOffers[index].Mes - 1] = getOffers[index].Total
+            }
+        }
+    }
+
+    createIaCourierChart(iaCourierTotal, iaCourierApproved)
+    createIaNormalChart(iaNormalTotal, iaNormalApproved)
+    createImLCLChart(imLCLTotal, imLCLApproved)
+    createImFCLChart(imFCLTotal, imFCLApproved)
 }
 
-async function printData(sales, month, quarter, operation) {
+async function createIaCourierChart(iaCourierTotal, iaCourierApproved) {
 
-    const getTEUsAndProfit = await makeRequest(`/api/commercial-individual-goal/getTEUsAndProfit`, 'POST', { sales, month, quarter, operation });
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const goal = 30;
 
-    let TEUsActual = 0;
-    let LCLActual = 0;
-    let AirActual = 0;
-    let profitActual = 0;
-
-    for (let index = 0; index < getTEUsAndProfit.length; index++) {
-        if (getTEUsAndProfit[index].Tipo_Carga == 'LCL') {
-            LCLActual = getTEUsAndProfit[index].Quantidade_Processos;
-        }
-        if (getTEUsAndProfit[index].Tipo_Carga == 'Aéreo') {
-            AirActual = getTEUsAndProfit[index].Quantidade_Processos;
-        }
-        if (getTEUsAndProfit[index].Tipo_Carga == 'FCL') {
-            TEUsActual = getTEUsAndProfit[index].Total_TEUS;
-        }
-        profitActual += getTEUsAndProfit[index].Lucro_Estimado;
+    let result = [];
+    for (let index = 0; index < iaCourierTotal.length; index++) {
+        result[index] = ((iaCourierApproved[index] / (iaCourierTotal[index] + iaCourierApproved[index])) * 100).toFixed(2);
     }
 
-    const getGoals = await makeRequest(`/api/commercial-individual-goal/getGoals`, 'POST', { sales, month, quarter });
-    let TEUsGoal = getGoals[0];
-    let profitGoal = getGoals[1];
-    let LCLGoal = getGoals[2];
-    let airGoal = getGoals[3];
+    const seriesData = iaCourierTotal.map((v, i) => {
 
-    await createTEUsChart(TEUsActual, TEUsGoal);
-    await createLCLChart(LCLActual, LCLGoal);
-    await createAirChart(AirActual, airGoal);
-    await createProfitsChart(profitActual, profitGoal);
-}
+        let goalStyle = {
+            name: 'Meta',
+            value: goal,
+            strokeHeight: 2,
+            strokeColor: '#acee50ff'
+        };
 
-async function createTable(getVolumes) {
-
-    const listTable = [];
-
-    for (let index = 0; index < getVolumes.length; index++) {
-        const item = getVolumes[index];
-
-        if (!item.Lucro_Abertura) {
-            item.Lucro_Abertura = 0;
-        }
-        if (!item.Lucro_Estimado) {
-            item.Lucro_Estimado = 0;
+        if (result[i] >= goal) {
+            goalStyle = {
+                ...goalStyle,
+                strokeHeight: 12,
+                strokeWidth: 0,
+                strokeLineCap: 'round'
+            };
         }
 
-        listTable.push({
-            client: item.Nome,
-            openingProfit: item.Lucro_Abertura.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            estimatedProfit: item.Lucro_Estimado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-            teus: item.Total_TEUS,
-            operation: item.Tipo_Carga
-        });
-    }
+        return {
+            x: months[i],
+            y: result[i],
+            goals: [goalStyle]
+        };
+    });
 
-    if ($.fn.DataTable.isDataTable("#clientsTable")) {
-        $('#clientsTable').DataTable().clear().destroy(); // Limpa e destrói a DataTable
-    }
-
-    $('#clientsTable tbody').empty(); // Remove apenas as linhas, mantendo os cabeçalhos
-
-    // Recria a DataTable
-    clientsTable = $('#clientsTable').DataTable({
-        "dom": 'frtip',
-        "data": listTable,
-        "columns": [
-            { "data": "client" },
-            { "data": "openingProfit" },
-            { "data": "estimatedProfit" },
-            { "data": "teus" },
-            { "data": "operation" },
+    var options = {
+        series: [
+            {
+                name: 'Total',
+                data: seriesData
+            }
         ],
-        "language": {
-            url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/pt-BR.json'
+        chart: {
+            height: 350,
+            type: 'bar'
         },
-        "order": [[2, 'desc']],
-        "lengthMenu": [[6], [6]],
-        "searching": true,
+        legend: {
+            show: false,
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function (val) {
+                return val + "%";
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val + "%";
+                }
+            }
+        }
+    };
+
+    iaCourierChart = new ApexCharts(document.querySelector("#iaCourierChart"), options);
+    iaCourierChart.render();
+
+}
+
+async function createIaNormalChart(iaNormalTotal, iaNormalApproved) {
+
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const goal = 30;
+
+    let result = [];
+    for (let index = 0; index < iaNormalTotal.length; index++) {
+        result[index] = ((iaNormalApproved[index] / (iaNormalTotal[index] + iaNormalApproved[index])) * 100).toFixed(2);
+    }
+
+    const seriesData = iaNormalTotal.map((v, i) => {
+
+        let goalStyle = {
+            name: 'Meta',
+            value: goal,
+            strokeHeight: 2,
+            strokeColor: '#acee50ff'
+        };
+
+        if (result[i] >= goal) {
+            goalStyle = {
+                ...goalStyle,
+                strokeHeight: 12,
+                strokeWidth: 0,
+                strokeLineCap: 'round'
+            };
+        }
+
+        return {
+            x: months[i],
+            y: result[i],
+            goals: [goalStyle]
+        };
     });
 
-    $('#searchBox2').off('keyup').on('keyup', function () {
-        clientsTable.search(this.value).draw();
+    var options = {
+        series: [
+            {
+                name: 'Total',
+                data: seriesData
+            }
+        ],
+        chart: {
+            height: 350,
+            type: 'bar'
+        },
+        legend: {
+            show: false,
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function (val) {
+                return val + "%";
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val + "%";
+                }
+            }
+        }
+    };
+
+    iaNormalChart = new ApexCharts(document.querySelector("#iaNormalChart"), options);
+    iaNormalChart.render();
+
+}
+
+async function createImLCLChart(imLCLTotal, imLCLApproved) {
+
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const goal = 30;
+
+    let result = [];
+    for (let index = 0; index < imLCLTotal.length; index++) {
+        result[index] = ((imLCLApproved[index] / (imLCLTotal[index] + imLCLApproved[index])) * 100).toFixed(2);
+    }
+
+    const seriesData = imLCLTotal.map((v, i) => {
+
+        let goalStyle = {
+            name: 'Meta',
+            value: goal,
+            strokeHeight: 2,
+            strokeColor: '#acee50ff'
+        };
+
+        if (result[i] >= goal) {
+            goalStyle = {
+                ...goalStyle,
+                strokeHeight: 12,
+                strokeWidth: 0,
+                strokeLineCap: 'round'
+            };
+        }
+
+        return {
+            x: months[i],
+            y: result[i],
+            goals: [goalStyle]
+        };
     });
-}
-
-async function createTEUsChart(TEUsActual, TEUsGoal) {
-
-    let color = '#0d8ade'
-    let percent = (TEUsActual / TEUsGoal) * 100
-    percent = parseFloat(percent.toFixed(2));
-
-    if (percent >= 100) {
-        color = '#7fcf11'
-    }
-
-    if (TEUsChart) {
-        TEUsChart.destroy();
-    }
 
     var options = {
-        series: [percent],
+        series: [
+            {
+                name: 'Total',
+                data: seriesData
+            }
+        ],
         chart: {
-            type: 'radialBar',
-            offsetY: -20,
-            sparkline: {
-                enabled: true
+            height: 350,
+            type: 'bar'
+        },
+        legend: {
+            show: false,
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function (val) {
+                return val + "%";
             }
         },
         tooltip: {
-            enabled: true,
-            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-                return `
-                <div style="padding: 8px; font-size: 13px;">
-                    <strong>Atual:</strong> ${TEUsActual} TEUs <br>
-                    <strong>Meta:</strong> ${TEUsGoal} TEUs
-                </div>
-            `;
-            }
-        },
-        plotOptions: {
-            radialBar: {
-                startAngle: -90,
-                endAngle: 90,
-                track: {
-                    background: "#e7e7e7",
-                    strokeWidth: '97%',
-                    margin: 5, // margin is in pixels
-                    dropShadow: {
-                        enabled: true,
-                        top: 2,
-                        left: 0,
-                        color: '#444',
-                        opacity: 1,
-                        blur: 2
-                    }
-                },
-                dataLabels: {
-                    name: {
-                        show: false
-                    },
-                    value: {
-                        offsetY: -2,
-                        fontSize: '22px'
-                    }
+            y: {
+                formatter: function (val) {
+                    return val + "%";
                 }
             }
-        },
-        grid: {
-            padding: {
-                top: -10
-            }
-        },
-        fill: {
-            type: 'gradient',
-            gradient: {
-                shade: 'light',
-                shadeIntensity: 0.4,
-                inverseColors: false,
-                opacityFrom: 1,
-                opacityTo: 1,
-                stops: [0, 50, 53, 91]
-            },
-            colors: [`${color}`]
-        },
+        }
     };
 
-    TEUsChart = new ApexCharts(document.querySelector("#TEUsChart"), options);
-    TEUsChart.render();
+    imLCLChart = new ApexCharts(document.querySelector("#imLCLChart"), options);
+    imLCLChart.render();
+
 }
 
-async function createLCLChart(LCLActual, LCLGoal) {
+async function createImFCLChart(imFCLTotal, imFCLApproved) {
 
-    let color = '#0d8ade'
-    let percent = (LCLActual / LCLGoal) * 100
-    percent = parseFloat(percent.toFixed(2));
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const goal = 30;
 
-    if (percent >= 100) {
-        color = '#7fcf11'
+    let result = [];
+    for (let index = 0; index < imFCLTotal.length; index++) {
+        result[index] = ((imFCLApproved[index] / (imFCLTotal[index] + imFCLApproved[index])) * 100).toFixed(2);
     }
 
-    if (LCLChart) {
-        LCLChart.destroy();
-    }
+    const seriesData = imFCLTotal.map((v, i) => {
+
+        let goalStyle = {
+            name: 'Meta',
+            value: goal,
+            strokeHeight: 2,
+            strokeColor: '#acee50ff'
+        };
+
+        if (result[i] >= goal) {
+            goalStyle = {
+                ...goalStyle,
+                strokeHeight: 12,
+                strokeWidth: 0,
+                strokeLineCap: 'round'
+            };
+        }
+
+        return {
+            x: months[i],
+            y: result[i],
+            goals: [goalStyle]
+        };
+    });
 
     var options = {
-        series: [percent],
+        series: [
+            {
+                name: 'Total',
+                data: seriesData
+            }
+        ],
         chart: {
-            type: 'radialBar',
-            offsetY: -20,
-            sparkline: {
-                enabled: true
+            height: 350,
+            type: 'bar'
+        },
+        legend: {
+            show: false,
+        },
+        dataLabels: {
+            enabled: true,
+            formatter: function (val) {
+                return val + "%";
             }
         },
         tooltip: {
-            enabled: true,
-            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-                return `
-                <div style="padding: 8px; font-size: 13px;">
-                    <strong>Atual:</strong> ${LCLActual} processos <br>
-                    <strong>Meta:</strong> ${LCLGoal} processos
-                </div>
-            `;
-            }
-        },
-        plotOptions: {
-            radialBar: {
-                startAngle: -90,
-                endAngle: 90,
-                track: {
-                    background: "#e7e7e7",
-                    strokeWidth: '97%',
-                    margin: 5, // margin is in pixels
-                    dropShadow: {
-                        enabled: true,
-                        top: 2,
-                        left: 0,
-                        color: '#444',
-                        opacity: 1,
-                        blur: 2
-                    }
-                },
-                dataLabels: {
-                    name: {
-                        show: false
-                    },
-                    value: {
-                        offsetY: -2,
-                        fontSize: '22px'
-                    }
+            y: {
+                formatter: function (val) {
+                    return val + "%";
                 }
             }
-        },
-        grid: {
-            padding: {
-                top: -10
-            }
-        },
-        fill: {
-            type: 'gradient',
-            gradient: {
-                shade: 'light',
-                shadeIntensity: 0.4,
-                inverseColors: false,
-                opacityFrom: 1,
-                opacityTo: 1,
-                stops: [0, 50, 53, 91]
-            },
-            colors: [`${color}`]
-        },
+        }
     };
 
-    LCLChart = new ApexCharts(document.querySelector("#LCLChart"), options);
-    LCLChart.render();
-}
+    imFCLChart = new ApexCharts(document.querySelector("#imFCLChart"), options);
+    imFCLChart.render();
 
-async function createAirChart(AirActual, AirGoal) {
-
-    let color = '#0d8ade'
-    let percent = (AirActual / AirGoal) * 100
-    percent = parseFloat(percent.toFixed(2));
-
-    if (percent >= 100) {
-        color = '#7fcf11'
-    }
-
-    if (AirChart) {
-        AirChart.destroy();
-    }
-
-    var options = {
-        series: [percent],
-        chart: {
-            type: 'radialBar',
-            offsetY: -20,
-            sparkline: {
-                enabled: true
-            }
-        },
-        tooltip: {
-            enabled: true,
-            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-                return `
-                <div style="padding: 8px; font-size: 13px;">
-                    <strong>Atual:</strong> ${AirActual} processos <br>
-                    <strong>Meta:</strong> ${AirGoal} processos
-                </div>
-            `;
-            }
-        },
-        plotOptions: {
-            radialBar: {
-                startAngle: -90,
-                endAngle: 90,
-                track: {
-                    background: "#e7e7e7",
-                    strokeWidth: '97%',
-                    margin: 5, // margin is in pixels
-                    dropShadow: {
-                        enabled: true,
-                        top: 2,
-                        left: 0,
-                        color: '#444',
-                        opacity: 1,
-                        blur: 2
-                    }
-                },
-                dataLabels: {
-                    name: {
-                        show: false
-                    },
-                    value: {
-                        offsetY: -2,
-                        fontSize: '22px'
-                    }
-                }
-            }
-        },
-        grid: {
-            padding: {
-                top: -10
-            }
-        },
-        fill: {
-            type: 'gradient',
-            gradient: {
-                shade: 'light',
-                shadeIntensity: 0.4,
-                inverseColors: false,
-                opacityFrom: 1,
-                opacityTo: 1,
-                stops: [0, 50, 53, 91]
-            },
-            colors: [`${color}`]
-        },
-    };
-
-    AirChart = new ApexCharts(document.querySelector("#AirChart"), options);
-    AirChart.render();
-}
-
-async function createProfitsChart(profitActual, profitGoal) {
-
-    let color = '#0d8ade'
-    let percent = (profitActual / profitGoal) * 100
-    percent = parseFloat(percent.toFixed(2));
-
-    if (percent >= 100) {
-        color = '#7fcf11'
-    }
-
-    if (profitChart) {
-        profitChart.destroy();
-    }
-
-    var options = {
-        series: [percent],
-        chart: {
-            type: 'radialBar',
-            offsetY: -20,
-            sparkline: {
-                enabled: true
-            }
-        },
-        tooltip: {
-            enabled: true,
-            custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-                return `
-                <div style="padding: 8px; font-size: 13px;">
-                    <strong>Atual:</strong> R$ ${profitActual.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<br>
-                    <strong>Meta:</strong> R$ ${profitGoal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
-            `;
-            }
-        },
-        plotOptions: {
-            radialBar: {
-                startAngle: -90,
-                endAngle: 90,
-                track: {
-                    background: "#e7e7e7",
-                    strokeWidth: '97%',
-                    margin: 5, // margin is in pixels
-                    dropShadow: {
-                        enabled: true,
-                        top: 2,
-                        left: 0,
-                        color: '#444',
-                        opacity: 1,
-                        blur: 2
-                    }
-                },
-                dataLabels: {
-                    name: {
-                        show: false
-                    },
-                    value: {
-                        offsetY: -2,
-                        fontSize: '22px'
-                    }
-                }
-            }
-        },
-        grid: {
-            padding: {
-                top: -10
-            }
-        },
-        fill: {
-            type: 'gradient',
-            gradient: {
-                shade: 'light',
-                shadeIntensity: 0.4,
-                inverseColors: false,
-                opacityFrom: 1,
-                opacityTo: 1,
-                stops: [0, 50, 53, 91]
-            },
-            colors: [`${color}`]
-        },
-    };
-
-    profitChart = new ApexCharts(document.querySelector("#profitChart"), options);
-    profitChart.render();
 }
 
 window.addEventListener("load", async () => {
@@ -463,14 +363,10 @@ window.addEventListener("load", async () => {
     const socket = io();
 
     socket.on('updateRefunds', (data) => {
-        // createTable()
+
     })
 
-    const userData = await getInfosLogin();
-    const userId = userData.system_id_headcargo;
-    const getClients = await makeRequest(`/api/commercial-individual-goal/getClients`, 'POST', { sales: userId, month: null, quarter: null });
-    await createTable(getClients);
-    await printData(userId, null, null, null);
+    await printData();
 
     document.querySelector('#loader2').classList.add('d-none')
 })

@@ -1,40 +1,40 @@
 <html lang="pt-br" dir="ltr" data-nav-layout="vertical" data-theme-mode="light" data-header-styles="light"
-    data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
+   data-menu-styles="dark" loader="true" data-vertical-style="overlay" style="--primary-rgb: 249, 66, 58;">
 
 <head>
-    <!-- Meta Data -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Cadastro da Pessoa</title>
-    <meta name="Description" content="Controle de chamados & projetos TI">
-    <meta name="Author" content="ConLine">
+   <!-- Meta Data -->
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <title>Cadastro da Pessoa</title>
+   <meta name="Description" content="Controle de chamados & projetos TI">
+   <meta name="Author" content="ConLine">
 
-    <!-- Favicon -->
-    <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
-    <!-- Choices JS -->
-    <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
-    <!-- Main JS -->
-    <script src="../../assets/js/main.js"></script>
-    <!-- Bootstrap Css -->
-    <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Style Css -->
-    <link href="../../assets/css/styles.min.css" rel="stylesheet">
-    <!-- Icons Css -->
-    <link href="../../assets/css/icons.css" rel="stylesheet">
-    <!-- Node Waves Css -->
-    <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
-    <!-- Simplebar Css -->
-    <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
-    <!-- Color Picker Css -->
-    <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
-    <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
-    <!-- Choices Css -->
-    <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
-    <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
+   <!-- Favicon -->
+   <link rel="icon" href="../../assets/images/brand-logos/favicon.ico" type="image/x-icon">
+   <!-- Choices JS -->
+   <script src="../../assets/libs/choices.js/public/assets/scripts/choices.min.js"></script>
+   <!-- Main JS -->
+   <script src="../../assets/js/main.js"></script>
+   <!-- Bootstrap Css -->
+   <link id="style" href="../../assets/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+   <!-- Style Css -->
+   <link href="../../assets/css/styles.min.css" rel="stylesheet">
+   <!-- Icons Css -->
+   <link href="../../assets/css/icons.css" rel="stylesheet">
+   <!-- Node Waves Css -->
+   <link href="../../assets/libs/node-waves/waves.min.css" rel="stylesheet">
+   <!-- Simplebar Css -->
+   <link href="../../assets/libs/simplebar/simplebar.min.css" rel="stylesheet">
+   <!-- Color Picker Css -->
+   <link rel="stylesheet" href="../../assets/libs/flatpickr/flatpickr.min.css">
+   <link rel="stylesheet" href="../../assets/libs/@simonwep/pickr/themes/nano.min.css">
+   <!-- Choices Css -->
+   <link rel="stylesheet" href="../../assets/libs/choices.js/public/assets/styles/choices.min.css">
+   <link rel="stylesheet" href="../../assets/libs/filepond/filepond.min.css">
 
-    <link rel="stylesheet" href="./assets/css/style.css">
-    <meta http-equiv="imagetoolbar" content="no">
+   <link rel="stylesheet" href="./assets/css/style.css">
+   <meta http-equiv="imagetoolbar" content="no">
 </head>
 
 <body>
@@ -53,158 +53,90 @@
                   <div class="card custom-card bodyWindows">
                      <div class=" justify-content-between headerButtons">
                         <ul class="nav nav-tabs border-0" role="tablist">
-                              <li class="nav-item " id="btn-save" role="presentation"> 
-                                 <a class="nav-link label-btn btn" data-bs-toggle="tab" role="tab" aria-selected="false" tabindex="-1">
-                                    <i class="ri-save-3-line label-btn-icon me-2"></i>
-                                    Salvar
-                                 </a> 
-                              </li>
+                           <li class="nav-item " id="btn-save" role="presentation">
+                              <a class="nav-link label-btn btn" data-bs-toggle="tab" role="tab" aria-selected="false"
+                                 tabindex="-1" onclick="savePerson()">
+                                 <i class="ri-save-3-line label-btn-icon me-2"></i>
+                                 Salvar
+                              </a>
+                           </li>
                         </ul>
                      </div>
-
                      <!-- DADOS PESSOAIS -->
                      <div class="card-header justify-content-between">
                         <div class="card-title"> Dados </div>
                         <div style="display: flex; align-items: center;">
-                           <input type="checkbox" id="input-checkbox-international">
-                           <label for="input-checkbox-international" style="margin-left: 10px;">Internacional</label>
                         </div>
                      </div>
-                     
                      <div class="card-body default">
                         <div class="row">
-                              <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
-                                 <label for="typePeople" class="form-label">Tipo Pessoa</label>
-                                 <label for="typePeople" class="form-label mandatory" title="Campo Obrigatório">*</label>
-                                 <br>
-                                 <select class="form-control" id="typePeople" name="typePeople">
-                                    <option value="" style="width: 100% !important;">PF ou PJ</option>
-                                 </select> 
-                              </div>
-                           
-                              <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
-                                 <label for="input-cnpj-cpf" class="form-label">CPF/CNPJ</label> 
-                                 <label for="input-cnpj-cpf" class="form-label mandatory required" id="label-input-cnpj-cpf" title="Campo Obrigatório">*</label>
-                                 <input type="text" class="form-control" id="input-cnpj-cpf" placeholder="CPF/CNPJ" name="input-cnpj-cpf" disabled="true"> 
-                              </div>
-
-                              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
-                                 <label for="input-razao-social" class="form-label">Razão Social</label> 
-                                 <label for="input-razao-social" class="form-label mandatory" title="Campo Obrigatório">*</label>
-                                 <input type="text" class="form-control" id="input-razao-social" placeholder="Razão Social" name="input-razao-social" disabled="true"> 
-                              </div>
-
-                              <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
-                                 <label for="input-fantasia" class="form-label">Nome Fantasia</label> 
-                                 <label for="input-fantasia" class="form-label mandatory" title="Campo Obrigatório">*</label>
-                                 <input type="text" class="form-control" id="input-fantasia" placeholder="Nome Fantasia" name="input-fantasia"> 
-                              </div>
-                        </div>
-                        <br>
-                        <div class="row">
-                           <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12"> 
-                              <label for="selectPeopleCategory" class="form-label">Categoria Pessoa</label> 
-                              <label for="selectPeopleCategory" class="form-label mandatory" title="Campo Obrigatório">*</label>
+                           <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
+                              <label for="typePeople" class="form-label">Tipo Pessoa</label>
+                              <label for="typePeople" class="form-label mandatory" title="Campo Obrigatório">*</label>
                               <br>
-                              <select class="form-control" id="selectPeopleCategory" multiple name="selectPeopleCategory">
-                                 <option value="" style="width: 100% !important;">Selecione a Categoria</option>
-                              </select> 
+                              <select class="form-control" id="typePeople" name="typePeople">
+                                 <option value="0">Pessoa Juridica</option>
+                                 <option value="1">Pessoa Fisica</option>
+                                 <option value="2">Pessoa Internacional</option>
+                              </select>
+                           </div>
+                           <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6">
+                              <label for="input-cnpj-cpf" class="form-label">CPF/CNPJ</label>
+                              <label for="input-cnpj-cpf" class="form-label mandatory required"
+                                 id="label-input-cnpj-cpf" title="Campo Obrigatório">*</label>
+                              <input type="text" class="form-control" id="cpfCnpj" placeholder="CPF/CNPJ"
+                                 name="input-cnpj-cpf">
                            </div>
                         </div>
                         <br>
                         <div class="row">
-                           <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
-                              <label for="input-inscricao-estadual" class="form-label">Inscrição Estadual</label> 
-                              <input type="number" class="form-control" id="input-inscricao-estadual" placeholder="Inscrição Estadual" name="input-inscricao-estadual"> 
+                           <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                              <label for="input-razao-social" class="form-label">Razão Social</label>
+                              <label for="input-razao-social" class="form-label mandatory"
+                                 title="Campo Obrigatório">*</label>
+                              <input type="text" class="form-control" id="realName" placeholder="Razão Social"
+                                 name="input-razao-social">
                            </div>
-                           <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
-                              <label for="selectPeopleStatus" class="form-label">Status da Pessoa</label> 
-                              <br>
-                              <select class="form-control" id="selectPeopleStatus" name="selectPeopleStatus">
-                                 <option value="" style="width: 100% !important;">Selecione o Status</option>
-                              </select> 
-                           </div>
-                           <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
-                              <label for="selectCommercial" class="form-label">Comercial Responsável</label> 
-                              <br>
-                              <select class="form-control" id="selectCommercial" name="selectCollaboratorResponsable">
-                                 <option value="" style="width: 100% !important;">Selecione o Comercial</option>
-                              </select> 
-                           </div>
-                           <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
-                              <label for="selectCollaboratorResponsable" class="form-label">Funcionário Responsável</label> 
-                              <br>
-                              <select class="form-control" id="selectCollaboratorResponsable" name="selectCollaboratorResponsable">
-                                 <option value="" style="width: 100% !important;">Selecione o Responsável</option>
-                              </select> 
+                        </div>
+                        <br>
+                        <div class="row">
+                           <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12">
+                              <label for="input-fantasia" class="form-label">Nome Fantasia</label>
+                              <label for="input-fantasia" class="form-label mandatory"
+                                 title="Campo Obrigatório">*</label>
+                              <input type="text" class="form-control" id="fantasyName" placeholder="Nome Fantasia"
+                                 name="input-fantasia">
                            </div>
                         </div>
                      </div>
-
-                     <!-- ENDEREÇO -->
+                     <!-- CONTATOS -->
                      <div class="card-header justify-content-between">
-                        <div class="card-title"> Endereço </div>
-                     </div>
-                     
-                     <div class="card-body default">
-                        <div class="row">
-                           <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12"> 
-                              <label for="input-cep" class="form-label">CEP</label> 
-                              <label for="input-fantasia" class="form-label mandatory required" id="label-input-cep" title="Campo Obrigatório">*</label>
-                              <br>
-                              <input type="text" class="form-control" id="input-cep" placeholder="Digite o CEP" name="input-cep"> 
-                           </div>
-                           <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
-                              <label for="input-street" class="form-label">Logradouro</label> 
-                              <br>
-                              <input type="text" class="form-control" id="input-street" placeholder="Digite a rua" name="input-street"> 
-                           </div>
-                           <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
-                              <label for="input-complement" class="form-label">Complemento</label> 
-                              <br>
-                              <input type="text" class="form-control" id="input-complement" placeholder="Digite o Complemento" name="input-complement"> 
-                           </div>
-                           <div class="col-xl-3 col-lg-3 col-md-3 col-sm-12"> 
-                              <label for="input-neighborhood" class="form-label">Bairro</label> 
-                              <br>
-                              <input type="text" class="form-control" id="input-neighborhood" placeholder="Digite o Bairro" name="input-neighborhood"> 
-                           </div>
-                        </div>
-                        <br>
-                        <div class="row">
-                           <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
-                              <label for="selectCity" class="form-label">Cidade</label> 
-                              <label for="selectCity" class="form-label mandatory" title="Campo Obrigatório">*</label>
-                              <br>
-                              <select class="form-control" id="selectCity" name="selectCity">
-                                 <option value="" style="width: 100% !important;">Selecione uma Cidade</option>
-                              </select> 
-                           </div>
-                           <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
-                              <label for="selectState" class="form-label">Estado</label> 
-                              <label for="selectCity" class="form-label mandatory required" title="Campo Obrigatório">*</label>
-                              <br>
-                              <select class="form-control" id="selectState" name="selectState">
-                                 <option value="" style="width: 100% !important;">Selecione um Estado</option>
-                              </select> 
-                           </div>
-                           <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12"> 
-                              <label for="selectCountry" class="form-label">País</label> 
-                              <label for="selectCountry" class="form-label mandatory" title="Campo Obrigatório">*</label>
-                              <br>
-                              <select class="form-control" id="selectCountry" name="selectCountry">
-                                 <option value="" style="width: 100% !important;">Selecione um País</option>
-                              </select> 
-                           </div>
+                        <!-- <div class="card-title"> Adicionar contatos </div> -->
+                        <div style="margin-top: 25px;">
+                           <button class="btn btn-primary" id="save" style="border-radius: 5px; width: 100%"
+                              onclick="addRow()">Adicionar Contato</button>
                         </div>
                      </div>
-
+                     <table id="minhaTabela" class="table text-nowrap table-bordered w-90">
+                        <thead>
+                           <tr>
+                              <th style="width: 2%;">#</th>
+                              <th>Nome completo</th>
+                              <th>CPF</th>
+                              <th>E-mail</th>
+                              <th style="width: 3%;"></th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <!-- Linhas adicionadas aparecerão aqui -->
+                        </tbody>
+                     </table>
                   </div>
                </div>
             </div>
          </div>
       </div>
-  </div>
+   </div>
 
    <!-- Scroll To Top -->
    <div class="scrollToTop"><span class="arrow"><i class="ri-arrow-up-s-fill fs-20"></i></span></div>
@@ -212,6 +144,7 @@
 
    <!-- Jquery -->
    <script src="../../assets/libs/jQuery/jquery-3.6.1.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
    <!-- Popper JS -->
    <script src="../../assets/libs/@popperjs/core/umd/popper.min.js"></script>
    <!-- Bootstrap JS -->

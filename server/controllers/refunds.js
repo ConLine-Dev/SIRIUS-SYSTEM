@@ -35,7 +35,7 @@ const refunds = {
                 END AS status,
                 rt.create_date AS createDate,
                 GROUP_CONCAT(DISTINCT CONCAT(cl.name, ' ', cl.family_name) SEPARATOR ', ') AS collaborator_name,
-                ROUND(SUM(rf.value), 2) AS total_value
+                COALESCE(ROUND(SUM(rf.value), 2), 0) AS total_value
             FROM refunds_title rt
             LEFT JOIN refunds rf ON rt.id = rf.title_id
             LEFT JOIN collaborators cl ON cl.id = rf.collaborator_id
@@ -58,7 +58,7 @@ const refunds = {
                 END AS status,
                 rt.create_date AS createDate,
                 GROUP_CONCAT(DISTINCT CONCAT(cl.name, ' ', cl.family_name) SEPARATOR ', ') AS collaborator_name,
-                ROUND(SUM(rf.value), 2) AS total_value
+                 COALESCE(ROUND(SUM(rf.value), 2), 0) AS total_value
             FROM refunds_title rt
             LEFT JOIN refunds rf ON rt.id = rf.title_id
             LEFT JOIN collaborators cl ON cl.id = rf.collaborator_id

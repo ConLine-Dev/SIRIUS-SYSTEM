@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await renderGradeAverage()
     document.querySelector('#loader2').classList.add('d-none')
 
-  
+
 
 })
 
@@ -21,8 +21,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function getInfosLogin() {
     const StorageGoogleData = localStorage.getItem('StorageGoogle');
     const StorageGoogle = JSON.parse(StorageGoogleData);
-    return StorageGoogle;   
-    
+    return StorageGoogle;
+
 }
 
 
@@ -37,10 +37,10 @@ async function openPassword(id) {
         alwaysOnTop: true
     }
     window.ipcRenderer.invoke('open-exWindow', body);
- };
+};
 
 
- async function ListAllAnswers() {
+async function ListAllAnswers() {
     // Criar a nova tabela com os dados da API
     table['table-answers'] = $('#table-answers').DataTable({
         dom: 'frtip',
@@ -62,7 +62,7 @@ async function openPassword(id) {
                         <div class="d-flex align-items-center">
                             <div class="me-2">
                                 <span class="avatar avatar-md p-1 bg-light avatar-rounded">
-                                    <img src="${row.IdVendedor != 62195 && row.IdVendedor != null ? 'https://cdn.conlinebr.com.br/colaboradores/'+row.IdVendedor : '../../assets/images/brand-logos/mycon.svg'}" alt="">
+                                    <img src="${row.IdVendedor != 62195 && row.IdVendedor != null ? 'https://cdn.conlinebr.com.br/colaboradores/' + row.IdVendedor : '../../assets/images/brand-logos/mycon.svg'}" alt="">
                                 </span>
                             </div>
                             <div>
@@ -117,8 +117,17 @@ async function openPassword(id) {
                 data: 'date',
                 render: function (data, type, row) {
                     const date = new Date(data);
-                    const formattedDate = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                    return formattedDate;
+
+                    if (type === 'display') {
+                        return date.toLocaleDateString('pt-BR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                        });
+                    }
+
+                    // Para sort e filter, retorna o valor numérico (timestamp)
+                    return date.getTime();
                 }
             }
         ],
@@ -130,7 +139,7 @@ async function openPassword(id) {
             sSearch: '',
             url: '../../assets/libs/datatables/pt-br.json'
         }
-        
+
     });
 
     // Adicionar evento de pesquisa ao campo de input
@@ -145,24 +154,24 @@ async function openPassword(id) {
         introMain()
     });
 
-    
+
     // Evento de clique para copiar o link
     document.addEventListener('click', function (e) {
         if (e.target.closest('.feedback-limit')) {
             const text = e.target.closest('.feedback-limit').getAttribute('data-text');
             if (text) {
                 // Copiar o link para a área de transferência
-            //    alert(text)
-               Swal.fire(
-                text,
+                //    alert(text)
+                Swal.fire(
+                    text,
                 )
             }
         }
     });
 }
 
-async function renderGradeAverage(){
-    const {npsResult, clientesAtivos} = await makeRequest(`/api/nps/dashboard`);
+async function renderGradeAverage() {
+    const { npsResult, clientesAtivos } = await makeRequest(`/api/nps/dashboard`);
     const resultNotes = await calculateAverages(npsResult)
 
     document.querySelector('.noteComercial').textContent = resultNotes.comercial
@@ -170,10 +179,10 @@ async function renderGradeAverage(){
     document.querySelector('.noteOperational').textContent = resultNotes.operacional
     document.querySelector('.noteGeral').textContent = resultNotes.geralMedia
 
- }
+}
 
 
- async function countDistinctClientsByIdEmpresa(npsResult) {
+async function countDistinctClientsByIdEmpresa(npsResult) {
     // Usa um Set para armazenar IDs de empresas únicos
     const uniqueIdEmpresas = new Set();
 
@@ -185,9 +194,9 @@ async function renderGradeAverage(){
 
     // O tamanho do Set representa o número de empresas distintas
     return uniqueIdEmpresas.size;
- }
+}
 
- async function calculateAverages(npsResult) {
+async function calculateAverages(npsResult) {
     // Variáveis para somar as notas de cada categoria
     let totalP1 = 0, totalP2 = 0, totalP3 = 0, totalSatisfaction = 0;
     const totalRespostas = npsResult.length;
@@ -203,7 +212,7 @@ async function renderGradeAverage(){
     const p1Media = totalP1 / totalRespostas;
     const p2Media = totalP2 / totalRespostas;
     const p3Media = totalP3 / totalRespostas;
-    const geralMedia = (p1Media+p2Media+p3Media) / 3;
+    const geralMedia = (p1Media + p2Media + p3Media) / 3;
 
     // Retorna as médias
     return {
@@ -212,7 +221,7 @@ async function renderGradeAverage(){
         financeiro: p3Media.toFixed(2),
         geralMedia: geralMedia.toFixed(2)
     };
- }
+}
 
 
 /**
@@ -251,11 +260,9 @@ function createToast(title, text) {
     const bsToast = new bootstrap.Toast(toast); // Inicializa o toast com o Bootstrap
     bsToast.show(); // Exibe o toast
 
-    toast.addEventListener('hidden.bs.toast', function() {
+    toast.addEventListener('hidden.bs.toast', function () {
         toastContainer.removeChild(toast); // Remove o toast do DOM quando ele for ocultado
     });
 
-   
+
 }
-
-

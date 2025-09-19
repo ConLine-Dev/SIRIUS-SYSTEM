@@ -10,6 +10,7 @@ async function savePerson() {
    let realName = document.getElementById('realName').value;
    let fantasyName = document.getElementById('fantasyName').value;
    let cpfCnpj = document.getElementById('cpfCnpj').value;
+   cpfCnpj = formatCpfCnpj(cpfCnpj);
    let userData = await getInfosLogin()
    let userId = userData.system_collaborator_id;
 
@@ -22,13 +23,17 @@ async function savePerson() {
 
    for (let index = 0; index < contador - 1; index++) {
       name[index] = names[index].value
-      cpf[index] = cpfs[index].value
+      cpf[index] = formatCpfCnpj(cpfs[index].value);
       email[index] = emails[index].value
    }
 
    let details = { type, realName, fantasyName, cpfCnpj, userId, name, cpf, email };
 
    let save = await makeRequest(`/api/people/insertPeople`, 'POST', details);
+}
+
+function formatCpfCnpj(cpfCnpj) {
+   return cpfCnpj.replace(/\D/g, "");
 }
 
 function applyMask(tipo) {

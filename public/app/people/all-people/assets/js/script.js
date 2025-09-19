@@ -63,8 +63,8 @@ async function createTable() {
                 const id = $(this).attr('occurrence-id');
                 if (id) {
                     const body = {
-                        url: `/app/financial/refunds-adm/details?id=${id}`,
-                        width: 800,
+                        url: `/app/people/get-people?id=${id}`,
+                        width: 1200,
                         height: 475,
                         resizable: true,
                         max: false
@@ -85,34 +85,6 @@ async function openRegister() {
         max: false
     }
     window.ipcRenderer.invoke('open-exWindow', body);
-}
-
-async function dblClickOnOccurrence(tableId) {
-    const rowTableOccurence = document.querySelectorAll(`${tableId} tbody tr`);
-
-    for (let index = 0; index < rowTableOccurence.length; index++) {
-        const element = rowTableOccurence[index];
-
-        // Define a função de callback do evento
-        const handleDoubleClick = async function (e) {
-            e.preventDefault();
-            const id = this.getAttribute('occurrence-id');
-            const body = {
-                url: `/app/financial/refunds-adm/details?id=${id}`,
-                width: 800,
-                height: 475,
-                resizable: true,
-                max: false
-            }
-
-            window.ipcRenderer.invoke('open-exWindow', body);
-        };
-
-        // Remove event listener se já existir
-        element.removeEventListener('dblclick', handleDoubleClick);
-        // Adiciona event listener
-        element.addEventListener('dblclick', handleDoubleClick);
-    }
 }
 
 window.addEventListener("load", async () => {
